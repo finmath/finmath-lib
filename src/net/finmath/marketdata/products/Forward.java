@@ -1,0 +1,65 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
+ * Created on 26.12.2012
+ */
+package net.finmath.marketdata.products;
+
+import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+
+/**
+ * Implements the valuation of a forward using curves (discount curve, forward curve).
+ * The forward value is simply the product of a discount factor and a forward.
+ * This is similar to a FRA (a forward rate), except that there is no scaling with a period length.
+ * 
+ * The class can be used to define equity forwards. Here the discount curve can be interpreted
+ * as a repo curve.
+ * 
+ * @author Christian Fries
+ */
+public class Forward implements AnalyticProductInterface {
+
+	private double						maturity;
+	private double						paymentOffset;
+	private String						forwardCurveName;
+	private double						spread;
+	private String						discountCurveName;
+
+	/**
+	 * Creates a forward. The forward has a unit notional of 1.
+	 * 
+	 * @param maturity Maturity, i.e., fixing on the forward curve.
+	 * @param paymentOffset Payment offset, i.e. payment is maturity + paymentOffset.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix payment.
+	 * @param spread Additional fixed payment (if any).
+	 * @param discountCurveName Name of the discount curve for the forward.
+	 */
+    public Forward(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
+	    super();
+		this.maturity = maturity;
+		this.paymentOffset = paymentOffset;
+	    this.forwardCurveName = forwardCurveName;
+	    this.spread = spread;
+	    this.discountCurveName = discountCurveName;
+    }
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(net.finmath.marketdata.model.AnalyticModel)
+	 */
+	@Override
+	public double getValue(AnalyticModelInterface model) {	
+		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
+		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
+		
+    	double forward	= spread;
+    	if(forwardCurve != null) {
+    		forward		+= forwardCurve.getForward(model, maturity);
+		}
+
+    	double discountFactor	= discountCurve.getDiscountFactor(model, maturity+paymentOffset);
+
+		return forward * discountFactor;		
+	}
+}

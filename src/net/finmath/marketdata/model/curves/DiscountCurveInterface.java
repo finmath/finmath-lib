@@ -1,0 +1,36 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
+ * Created on 30.11.2012
+ */
+package net.finmath.marketdata.model.curves;
+
+import net.finmath.marketdata.model.AnalyticModelInterface;
+
+/**
+ * The interface which is implemented by discount curves. A discount curve is a funding T -> df(T) where df(T)
+ * represents the present value of a cashflow or 1 in time T, with respect to a specific currency unit and collateralization.
+ * 
+ * @author Christian Fries
+ */
+public interface DiscountCurveInterface extends CurveInterface {
+
+	/**
+	 * Returns the discount factor for the corresponding maturity. This getter is not optimized for performance.
+	 * 
+	 * @param maturity The maturity for which the discount factor is requested.
+	 * @return The discount factor (i.e., price of the zero coupon bond with given maturity and notional 1.
+	 */
+	public abstract double getDiscountFactor(double maturity);
+
+	/**
+	 * Returns the discount factor for the corresponding maturity. This getter is not optimized for performance.
+	 * 
+	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
+	 * @param maturity The maturity for which the discount factor is requested.
+	 * 
+	 * @return The discount factor (i.e., price of the zero coupon bond with given maturity and notional 1.
+	 */
+	public abstract double getDiscountFactor(AnalyticModelInterface model, double maturity);
+
+}
