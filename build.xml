@@ -13,8 +13,14 @@
 
 <!-- compile -->
 <target name="compile" depends="init">
-	<javac srcdir="${srcDir}" includes="net/finmath/**/**/*.java" 
+	<javac srcdir="${srcDir}"
+		includes="net/finmath/**/**/*.java"
         destdir="${classDir}" includeantruntime="false">
+		<classpath>
+		    <fileset dir="lib">
+		      <include name="**/*.jar" />
+		    </fileset>
+		</classpath>
 	</javac>
 </target>
 
