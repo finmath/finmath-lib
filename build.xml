@@ -28,8 +28,7 @@
 <target name="jar" depends="compile">
         <jar jarfile="${jar}"
                 basedir="${classDir}"
-                includes="net/finmath/**"
-        		manifest="./MANIFEST.MF">
+                includes="net/finmath/**">
           <fileset dir="${srcDir}">
             <include name="com/mycompany/resources/*.properties"/>
           </fileset>
