@@ -26,13 +26,13 @@
 
 <!-- create .jar -->
 <target name="jar" depends="compile">
-        <jar jarfile="${jar}"
-                basedir="${classDir}"
-                includes="net/finmath/**">
-          <fileset dir="${srcDir}">
-            <include name="com/mycompany/resources/*.properties"/>
-          </fileset>
-        </jar>
+    <jar jarfile="${jar}"
+        basedir="${classDir}"
+        includes="net/finmath/**">
+		<fileset dir="${srcDir}">
+        	<include name="com/mycompany/resources/*.properties"/>
+		</fileset>
+    </jar>
 </target>
 
 <!-- removes all that has been built -->
