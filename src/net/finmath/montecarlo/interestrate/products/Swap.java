@@ -12,7 +12,7 @@ import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Implements the pricing of a swap under a AbstractLIBORMarketModel
+ * Implements the valuation of a swap under a LIBORModelMonteCarloSimulationInterface
  * 
  * @author Christian Fries
  * @version 1.2
@@ -23,6 +23,8 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	private double[] swaprates;		// Vector of strikes
 	
 	/**
+	 * Create a swap.
+	 * 
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)

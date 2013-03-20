@@ -1,4 +1,6 @@
 /*
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
  * Created on 11.03.2006
  */
 package net.finmath.montecarlo.interestrate.products;
@@ -13,25 +15,27 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Implements the pricing of a cancelable swap under a <code>LIBORModelMonteCarloSimulationInterface</code>
+ * Implements the valuation of a cancelable swap under a <code>LIBORModelMonteCarloSimulationInterface</code>
  * 
  * @author Christian Fries
- * @version 1.1
+ * @version 1.2
  * @date 06.12.2009
  */
 public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 
-	boolean[]	isPeriodStartDateExerciseDate;	// Exercise date
-	double[]	fixingDates;                  	// Vector of fixing dates (must be sorted)
-	double[]	periodLengths;					// Vector of period length;
-	double[]	paymentDates;	                // Vector of payment dates (same length as fixing dates)
-	double[]	periodNotionals;				// Vector of notionals for each period
-	double[]	swaprates;	                 	// Vector of strikes
+	private boolean[]	isPeriodStartDateExerciseDate;	// Exercise date
+	private double[]	fixingDates;                  	// Vector of fixing dates (must be sorted)
+	private double[]	periodLengths;					// Vector of period length;
+	private double[]	paymentDates;	                // Vector of payment dates (same length as fixing dates)
+	private double[]	periodNotionals;				// Vector of notionals for each period
+	private double[]	swaprates;	                 	// Vector of strikes
 
 	/**
 	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
 	 * @param fixingDates Vector of fixing dates
+	 * @param periodLength Period lengths (must have same length as fixing dates)
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param periodNotionals Period notionals (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public BermudanSwaption(boolean[] isPeriodStartDateExerciseDate, double[] fixingDates, double[] periodLength, double[] paymentDates, double[] periodNotionals, double[] swaprates) {

@@ -1,4 +1,6 @@
 /*
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
  * Created on 09.02.2004
  */
 package net.finmath.montecarlo.interestrate.products;

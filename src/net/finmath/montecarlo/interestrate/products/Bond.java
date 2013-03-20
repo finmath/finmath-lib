@@ -12,13 +12,13 @@ import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements the pricing of a Bond.
+ * This class implements the valuation of a zero coupon bond.
  * 
  * @author Christian Fries
  * @version 1.1
  */
-public class Bond extends AbstractLIBORMonteCarloProduct {	
-	double maturity;
+public class Bond extends AbstractLIBORMonteCarloProduct {
+	private double maturity;
 
     /**
 	 * @param maturity The maturity given as double.
