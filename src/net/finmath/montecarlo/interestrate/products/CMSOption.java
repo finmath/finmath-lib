@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements the pricing of an option on a CMS rate under a AbstractLIBORMarketModel
+ * Implements the valuation of an option on a CMS rate.
  * 
  * @author Christian Fries
  * @version 1.1
@@ -31,9 +31,13 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	private double		strike;			// Vector of strikes
 	
 	/**
-	 * @param fixingDates Vector of fixing dates
+	 * Create the option on a CMS rate.
+	 * 
+	 * @param exerciseDate The exercise date of the option.
+	 * @param fixingDates Vector of fixing dates.
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
-	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @param periodLengths Vector of period length (must have same length as fixing dates)
+	 * @param strike Strike swap rate.
 	 */
 	public CMSOption(
 			double		exerciseDate,
@@ -122,8 +126,8 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
      * This method returns the value of the product using a Black-Scholes model for the swap rate with the Hunt-Kennedy convexity adjustment.
      * The model is determined by a discount factor curve and a swap rate volatility.
      * 
-     * @param discountCurve
-     * @param swaprateVolatility
+     * @param forwardCurve The forward curve from which the swap rate is calculated. The discount curve, associated with this forward curve is used for disocunting this option.
+     * @param swaprateVolatility The volatility of the log-swaprate.
      * @return Value of this product
      */
     public double getValue(ForwardCurveInterface forwardCurve, double swaprateVolatility) {

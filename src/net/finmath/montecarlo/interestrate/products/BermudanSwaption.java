@@ -109,9 +109,11 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 	}
 
 	/**
-     * @param fixingDateIndex
-     * @param model
-     * @return
+	 * Return the conditional expectation estimator suitable for this product.
+	 * 
+     * @param fixingDateIndex The time index corresponding to the fixing date
+     * @param model The model
+     * @return The conditional expectation estimator suitable for this product
 	 * @throws CalculationException 
      */
     private MonteCarloConditionalExpectation getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
@@ -122,9 +124,11 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
     }
 
 	/**
-	 * @param fixingDate
-	 * @param model
-	 * @return
+	 * Return the basis functions for the regression suitable for this product.
+	 * 
+     * @param fixingDateIndex The time index corresponding to the fixing date
+     * @param model The model
+	 * @return The basis functions for the regression suitable for this product.
 	 * @throws CalculationException 
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {

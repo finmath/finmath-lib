@@ -45,11 +45,16 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
     	return this.getValue(evaluationTime, monteCarloSimulationInterface.getCloneWithModifiedData(dataModified));
     }
     
-	/**
-     * @param evaluationTime
-     * @param model
-     * @return
-	 * @throws CalculationException 
+    /**
+     * This method returns the valuation of the product within the specified model, evaluated at a given evalutationTime.
+     * The valuation is returned in terms of a map. The map may contain additional information.
+     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+     * Cashflows prior evaluationTime are not considered.
+     * 
+     * @param evaluationTime The time on which this products value should be observed.
+     * @param model The model used to price the product.
+     * @return The random variable representing the value of the product discounted to evaluation time
+     * @throws CalculationException 
      */
     public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 	    // TODO Auto-generated method stub
