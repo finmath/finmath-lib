@@ -12,6 +12,7 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -83,7 +84,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 			// Apply discounting and Monte-Carlo probabilities
 			RandomVariableInterface	numeraire               = model.getNumeraire(paymentDate);
 			RandomVariableInterface	monteCarloProbabilities = model.getMonteCarloWeights(paymentDate);
-			payoff.div(numeraire);//.mult(monteCarloProbabilities);
+			payoff.div(numeraire).mult(monteCarloProbabilities);
 			
 //			model.discount(paymentDate, values);
 			valuesUnderlying.add(payoff);
@@ -105,7 +106,12 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 
 //		model.discount(evaluationTime, values);
 
-		return values;
+        // Note that values is a relative price - no numeraire division is required
+        ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
+        ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+        values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+
+        return values;
 	}
 
 	/**
@@ -141,19 +147,6 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		basisFunctions.add(basisFunction);
 
 		// LIBORs
-/*
- 		for(int basisFunctionIndex=0; basisFunctionIndex<fixingDates.length-fixingDateIndex; basisFunctionIndex++) {
-			double periodStart  = fixingDates[fixingDateIndex+basisFunctionIndex];
-			double periodEnd    = paymentDates[fixingDateIndex+basisFunctionIndex];
-
-			RandomVariableInterface rate = model.getLIBOR(fixingDate, periodStart, periodEnd);
-			double periodLength = periodEnd-periodStart;
-
-			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			basisFunction = basisFunction.getMutableCopy().discount(rate, periodLength);
-			basisFunctions.add(basisFunction);
-		}
-*/
 		RandomVariableInterface rate = model.getLIBOR(fixingDate, fixingDates[0], paymentDates[paymentDates.length-1]);
 		double periodLength = paymentDates[paymentDates.length-1]-fixingDates[0];
 		basisFunction = basisFunctions.get(0).getMutableCopy().discount(rate, periodLength);
