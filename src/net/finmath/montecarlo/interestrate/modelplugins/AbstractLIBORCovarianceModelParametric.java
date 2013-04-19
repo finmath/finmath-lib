@@ -40,7 +40,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
     	double[] initialParameters = this.getParameter();
 
-    	// @TODO: These constants should become parameters
+    	// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
 		final int numberOfPaths	= 5000;
 		final int seed			= 31415;
 		final int maxIterations	= 1000;
@@ -53,7 +53,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			maxIterations,
 			numberOfThreads)
     	{
-    		
 			// Calculate model values for given parameters
 			@Override
             public void setValues(double[] parameters, double[] values) throws SolverException {
@@ -62,12 +61,10 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				calibrationCovarianceModel.setParameter(parameters);
 
 		        LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
-		        
 
 				BrownianMotion brownianMotion = new BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-				process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
 

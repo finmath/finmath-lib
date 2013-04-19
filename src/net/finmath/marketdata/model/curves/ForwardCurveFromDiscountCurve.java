@@ -23,8 +23,6 @@ public class ForwardCurveFromDiscountCurve extends AbstractCurve implements Seri
 	private String						discountCurveName;
     private double						paymentOffset;
 
-    private DiscountCurveInterface		discountCurve;
-
     /**
      * Create a forward curve using a given discount curve.
      * The forward with fixing in t is calculated as ( df(t)/df(t+d)-1 ) / p

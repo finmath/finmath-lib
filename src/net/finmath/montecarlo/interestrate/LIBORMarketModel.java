@@ -24,8 +24,12 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements a basic libor market model with some drift approximation methods.
- * The model uses an <code>AbstractLIBORCovarianceModel</code>, which has the ability to calibrate to swaptions.
+ * Implements a basic LIBOR market model with some drift approximation methods.
+ * 
+ * The class implements different measure(drift) / numeraire pairs (terminal and spot).
+ * 
+ * The model uses an <code>AbstractLIBORCovarianceModel</code> as a covariance model, which has the ability to calibrate to swaptions.
+ * 
  * @see AbstractLIBORCovarianceModel
  * 
  * @author Christian Fries
@@ -218,16 +222,31 @@ public class LIBORMarketModel extends AbstractModel {
 		return initialValueRandomVariable;
 	}
 
+	/**
+	 * Return the complete vector of the drift for the time index timeIndex, given that current state is realizationAtTimeIndex.
+	 * Note: The random variable returned is a defensive copy and may be modified.
+	 * The drift will be zero for rates being already fixed.
+	 * 
+	 * @see LIBORMarketModel#getNumeraire(int) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
+	 * 
+	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
+	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
+	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariable[]</code>
+	 * @throws CalculationException 
+	 */
     public RandomVariableInterface[] getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor) {
 		double	time				= getTime(timeIndex);
 		int		firstLiborIndex		= this.getLiborPeriodIndex(time)+1;
 		if(firstLiborIndex<0) firstLiborIndex = -firstLiborIndex-1 + 1;
 
+		// Allocate drift vector and initialize to zero (will be used to sum up drift components)
     	RandomVariableInterface[]	drift = new RandomVariableInterface[getNumberOfComponents()];
     	RandomVariableInterface[][]	covarianceFactorSums	= new RandomVariableInterface[getNumberOfComponents()][getNumberOfFactors()];
     	for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
     		drift[componentIndex] = new RandomVariable(0.0, 0.0);
     	}
+    	
+    	// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
     	for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
 			double						periodLength		= liborPeriodDiscretization.getTimeStep(componentIndex);
     		ImmutableRandomVariableInterface libor = realizationAtTimeIndex[componentIndex];
@@ -241,6 +260,7 @@ public class LIBORMarketModel extends AbstractModel {
     				covarianceFactorSums[componentIndex][factorIndex].add(covarianceFactorSums[componentIndex-1][factorIndex]);
         	}
         }
+    	// Above is the drift for the spot measure: a simple conversion makes it the drift of the terminal measure.
 		if(measure == Measure.TERMINAL) {
 	        for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
 	       		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
@@ -253,8 +273,9 @@ public class LIBORMarketModel extends AbstractModel {
         		drift[componentIndex].addProduct(covarianceFactorSums[componentIndex][factorIndex], getFactorLoading(timeIndex, factorIndex, componentIndex));
         	}
         }
-         for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
-    		// Drift adjustment for log-coordinate
+
+		// Drift adjustment for log-coordinate in each component
+		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
     		RandomVariableInterface		variance		= covarianceModel.getCovariance(timeIndex, componentIndex, componentIndex);
     		drift[componentIndex].addProduct(variance, -0.5);
         }

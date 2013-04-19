@@ -17,7 +17,7 @@ import cern.colt.matrix.impl.DenseDoubleMatrix2D;
  */
 public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
 	
-	private double		numberOfFactors;
+	private int			numberOfFactors;
 	private double		a;
 	private boolean		isCalibrateable;
 	
@@ -34,6 +34,21 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		this.isCalibrateable	= isCalibrateable;
 
 		initialize(numberOfFactors, a);
+	}
+
+	@Override
+	public void setParameter(double[] parameter) {
+		if(!isCalibrateable) return;
+
+		a = parameter[0];
+
+		initialize(numberOfFactors, a);
+	}
+
+	@Override
+	public Object clone() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	public LIBORCorrelationModelExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a) {
@@ -59,10 +74,6 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		return factorMatrix.columns();
 	}
 
-	public void setParameters(int numberOfFactors, double a) {
-		initialize(numberOfFactors, a);
-	}
-
 	private void initialize(int numberOfFactors, double a) {
 		/*
 		 * Create instantaneous correlation matrix
@@ -86,19 +97,12 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 
 	@Override
 	public double[] getParameter() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		if(!isCalibrateable) return null;
 
-	@Override
-	public void setParameter(double[] parameter) {
-		// TODO Auto-generated method stub
-		
-	}
+		double[] parameter = new double[1];
 
-	@Override
-	public Object clone() {
-		// TODO Auto-generated method stub
-		return null;
+		parameter[0] = a;
+
+		return parameter;
 	}
 }
