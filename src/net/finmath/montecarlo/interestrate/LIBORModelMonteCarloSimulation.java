@@ -250,7 +250,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	/**
 	 * @return the model
 	 */
-	public AbstractModelInterface getModel() {
+	public LIBORMarketModelInterface getModel() {
 		return model;
 	}
 

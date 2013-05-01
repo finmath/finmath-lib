@@ -99,7 +99,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	/**
 	 * @return The underlying model
 	 */
-	public abstract AbstractModelInterface getModel();
+	public abstract LIBORMarketModelInterface getModel();
 
 	/**
 	 * @return The implementation of the process

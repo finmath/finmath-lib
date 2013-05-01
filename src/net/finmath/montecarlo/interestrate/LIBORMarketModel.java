@@ -35,7 +35,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class LIBORMarketModel extends AbstractModel {
+public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelInterface {
 
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR };
 	public enum Measure				{ SPOT, TERMINAL };
@@ -326,6 +326,10 @@ public class LIBORMarketModel extends AbstractModel {
 		return driftApproximationMethod;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLIBOR(int, int)
+	 */
+	@Override
 	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException
 	{
 		// This method is just a psynonym - call getProcessValue of super class
@@ -341,31 +345,36 @@ public class LIBORMarketModel extends AbstractModel {
 	}
 
 
-	/**
-	 * @return The number of LIBORs in the LIBOR discretization
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getNumberOfLibors()
 	 */
+	@Override
 	public int getNumberOfLibors()
 	{
 		// This is just a synonym to number of components
 		return liborPeriodDiscretization.getNumberOfTimeSteps();
 	}
 
-	/**
-	 * @return The index corresponding to a given time (interpretation is start of period)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriod(int)
 	 */
+	@Override
 	public double getLiborPeriod(int timeIndex) {
 		return liborPeriodDiscretization.getTime(timeIndex);
 	}
 
-	/**
-	 * Same as java.util.Arrays.binarySearch(liborPeriodDiscretization,time). Will return a negative value if the time is not found, but then -index-1 corresponds to the index of the smallest time greater than the given one.
-	 * 
-	 * @return The index corresponding to a given time (interpretation is start of period)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriodIndex(double)
 	 */
+	@Override
 	public int getLiborPeriodIndex(double time) {
 		return liborPeriodDiscretization.getTimeIndex(time);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriodDiscretization()
+	 */
+	@Override
 	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
@@ -566,11 +575,10 @@ public class LIBORMarketModel extends AbstractModel {
 		this.measure = measure;
 	}
 	
-	/**
-	 * Return the initial forward rate curve.
-	 * 
-	 * @return the forward rate curve
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getForwardRateCurve()
 	 */
+	@Override
 	public ForwardCurveInterface getForwardRateCurve() {
 		return forwardRateCurve;
 	}
@@ -584,11 +592,10 @@ public class LIBORMarketModel extends AbstractModel {
 		return swaptionMarketData;
 	}
 
-	/**
-	 * Return the covariance model.
-	 * 
-	 * @return The covariance model.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getCovarianceModel()
 	 */
+	@Override
 	public AbstractLIBORCovarianceModel getCovarianceModel() {
 		return covarianceModel;
 	}
