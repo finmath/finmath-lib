@@ -9,6 +9,10 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
+import net.finmath.montecarlo.interestrate.simple.AbstractLIBORMarketModel;
+import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.montecarlo.process.AbstractProcess;
+import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -97,12 +101,12 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	/**
 	 * @return The underlying model
 	 */
-	public abstract Object getModel();
+	public abstract AbstractModelInterface getModel();
 
 	/**
 	 * @return The implementation of the process
 	 */
-	public abstract Object getProcess();
+	public abstract AbstractProcessInterface getProcess();
 	
 	public abstract Object getCloneWithModifiedSeed(int seed);
 }
