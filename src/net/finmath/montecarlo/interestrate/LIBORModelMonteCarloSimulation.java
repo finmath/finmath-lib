@@ -11,6 +11,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
+import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -249,7 +250,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	/**
 	 * @return the model
 	 */
-	public LIBORMarketModel getModel() {
+	public AbstractModelInterface getModel() {
 		return model;
 	}
 
