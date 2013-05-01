@@ -24,10 +24,10 @@ public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloP
 		// TODO Auto-generated constructor stub
 	}
 
-    public abstract RandomVariableInterface getValues(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException;
+    public abstract RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException;
 
     public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
     	// This product requires an AssetModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
-    	return getValues(evaluationTime, (AssetModelMonteCarloSimulationInterface)model);
+    	return getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface)model);
     }
 }

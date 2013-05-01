@@ -43,7 +43,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
      * @throws CalculationException 
      */
     @Override
-    public RandomVariableInterface getValues(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+    public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
 		// Get underlying and numeraire
 		RandomVariableInterface underlyingAtMaturity	= model.getAssetValue(maturity,0);
 		

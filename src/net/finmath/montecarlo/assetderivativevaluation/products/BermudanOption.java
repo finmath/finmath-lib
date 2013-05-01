@@ -94,7 +94,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
      * 
      */
     @Override
-    public RandomVariableInterface getValues(final double evaluationTime, final AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+    public RandomVariableInterface getValue(final double evaluationTime, final AssetModelMonteCarloSimulationInterface model) throws CalculationException {
     	if(this.exerciseMethod == ExerciseMethod.UPPER_BOUND_METHOD) {
     		// Find optimal lambda
     		GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);

@@ -48,7 +48,7 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 	}
 
 	@Override
-	public RandomVariableInterface getValues(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
 		
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
