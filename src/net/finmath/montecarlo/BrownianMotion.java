@@ -94,11 +94,11 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		}   
 
 		/*
-		 * Generate normal distribued independent increments.
+		 * Generate normal distributed independent increments.
 		 * 
 		 * The inner loop goes over time and factors.
 		 * MersenneTwister is known to generate "independent" increments in 623 dimensions.
-		 * Since we want to generate indepentent streams (paths), the loop over path is the outer loop.
+		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
 		 */
 		for(int path=0; path<numberOfPaths; path++) {
 			for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
