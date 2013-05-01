@@ -77,6 +77,6 @@ public interface AbstractProcessInterface {
 	 * 
 	 * @return Clone of the process
 	 */
-	public abstract AbstractProcessInterface clone();
+	public abstract Object clone();
 
 }
