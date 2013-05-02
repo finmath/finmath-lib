@@ -39,13 +39,13 @@ public interface RandomVariableInterface extends ImmutableRandomVariableInterfac
 	public RandomVariableInterface sub(double value);
 
 	/**
-	 * Applies x -> x / value to this random variable.
+	 * Applies x -> x * value to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface mult(double value);
 
 	/**
-	 * Applies x -> x * value to this random variable.
+	 * Applies x -> x / value to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface div(double value);
