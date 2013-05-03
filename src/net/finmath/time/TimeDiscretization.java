@@ -12,13 +12,13 @@ import java.util.Iterator;
 /**
  * This class represents a set of discrete points in time.
  * It handles the mapping from time indices to time points and back.
- * It uses a time tick size ("quantum") of 1 day (that is 1.0 / (365.0 * 24.0)):
+ * It uses a time tick size ("quantum") of 1 hour (that is 1.0 / (365.0 * 24.0)):
  * Times are rounded to the nearest multiple of 1.0 / (365.0 * 24.0).
  * 
  * The class is immutable.
  * 
  * @author Christian Fries
- * @version 1.4
+ * @version 1.5
  */
 public class TimeDiscretization implements Serializable, TimeDiscretizationInterface {
 
@@ -97,6 +97,22 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     }
 
     /* (non-Javadoc)
+	 * @see net.finmath.time.TimeDiscretizationInterface#getNumberOfTimes()
+	 */
+    @Override
+    public int getNumberOfTimes() {
+        return timeDiscretization.length;
+    }
+
+    /* (non-Javadoc)
+	 * @see net.finmath.time.TimeDiscretizationInterface#getNumberOfTimeSteps()
+	 */
+    @Override
+    public int getNumberOfTimeSteps() {
+        return timeDiscretization.length-1;
+    }
+    
+    /* (non-Javadoc)
 	 * @see net.finmath.time.TimeDiscretizationInterface#getTime(int)
 	 */
     @Override
@@ -131,10 +147,6 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
         return index;
     }
 
-    private double roundToTimeTickSize(double time) {
-    	return Math.rint(time/timeTickSize)*timeTickSize;
-	}
-
 	/* (non-Javadoc)
 	 * @see net.finmath.time.TimeDiscretizationInterface#getTimeIndexNearestGreaterOrEqual(double)
 	 */
@@ -145,22 +157,6 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
         return index;
     }
 
-    /* (non-Javadoc)
-	 * @see net.finmath.time.TimeDiscretizationInterface#getNumberOfTimes()
-	 */
-    @Override
-    public int getNumberOfTimes() {
-        return timeDiscretization.length;
-    }
-
-    /* (non-Javadoc)
-	 * @see net.finmath.time.TimeDiscretizationInterface#getNumberOfTimeSteps()
-	 */
-    @Override
-    public int getNumberOfTimeSteps() {
-        return timeDiscretization.length-1;
-    }
-    
     /* (non-Javadoc)
 	 * @see net.finmath.time.TimeDiscretizationInterface#getAsDoubleArray()
 	 */
@@ -187,4 +183,8 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     public Iterator<Double> iterator() {
     	return this.getAsArrayList().iterator();
     }
+
+    private double roundToTimeTickSize(double time) {
+    	return Math.rint(time/timeTickSize)*timeTickSize;
+	}
 }

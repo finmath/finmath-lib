@@ -1,7 +1,7 @@
 /*
- * Created on 23.11.2012
- *
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
+ * Created on 23.11.2012
  */
 package net.finmath.time;
 
@@ -11,6 +11,16 @@ import java.util.ArrayList;
  * @author Christian Fries
  */
 public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> {
+
+	/**
+	 * @return Returns the number of time discretization points.
+	 */
+	public abstract int getNumberOfTimes();
+
+	/**
+	 * @return Returns the number of time steps (= number of discretization points-1).
+	 */
+	public abstract int getNumberOfTimeSteps();
 
 	/**
 	 * Returns the time for the given time index.
@@ -56,16 +66,6 @@ public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> 
 	 * @return Returns a time index
 	 */
 	public abstract int getTimeIndexNearestGreaterOrEqual(double time);
-
-	/**
-	 * @return Returns the number of time discretization points.
-	 */
-	public abstract int getNumberOfTimes();
-
-	/**
-	 * @return Returns the number of time steps (= number of discretization points-1).
-	 */
-	public abstract int getNumberOfTimeSteps();
 
 	/**
 	 * Return a clone of this time discretization as <code>double[]</code>.
