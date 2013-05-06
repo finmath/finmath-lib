@@ -227,4 +227,12 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		return new MonteCarloBlackScholesModel(initialValue, riskFreeRate, volatility, process);
 	}
 
+    /**
+     * @return The number of paths.
+     * @see net.finmath.montecarlo.process.AbstractProcess#getNumberOfPaths()
+     */
+	@Override
+    public int getNumberOfPaths() {
+        return getProcess().getNumberOfPaths();
+    }
 }

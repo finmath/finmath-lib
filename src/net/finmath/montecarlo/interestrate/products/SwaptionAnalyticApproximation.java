@@ -61,6 +61,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
      * Calculates the approximated integrated instantaneous variance of the swap rate,
      * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
      * 
+     * @param evaluationTime Time at which the product is evaluated.
      * @param model A model implementing the LIBORModelMonteCarloSimulationInterface
      * @return Depending on the value of value unit, the method returns either
      * the approximated integrated instantaneous variance of the swap rate (ValueUnit.INTEGRATEDVARIANCE)
@@ -82,20 +83,18 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         double[]    swapAnnuities          = logSwaprateDerivative[1];
         double[]    swapCovarianceWeights  = logSwaprateDerivative[2];
 
-//        double[][][]	integratedLIBORCovariance = SwaptionAnalyticApproximation.getIntegratedLIBORCovariance(model);
-        double[][][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance();
+        // Get the integrated libor covariance from the model
+        double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
 
-        // Caclculate integrated model covariance
+        // Calculate integrated swap rate covariance
         double integratedSwapRateVariance = 0.0;
-
         for(int componentIndex1 = swapStartIndex; componentIndex1 < swapEndIndex; componentIndex1++) {
             // Sum the libor cross terms (use symmetry)
             for(int componentIndex2 = componentIndex1+1; componentIndex2 < swapEndIndex; componentIndex2++) {
-                integratedSwapRateVariance += 2.0 * swapCovarianceWeights[componentIndex1-swapStartIndex] * swapCovarianceWeights[componentIndex2-swapStartIndex] * integratedLIBORCovariance[componentIndex1][componentIndex2][optionMaturityIndex];
+                integratedSwapRateVariance += 2.0 * swapCovarianceWeights[componentIndex1-swapStartIndex] * swapCovarianceWeights[componentIndex2-swapStartIndex] * integratedLIBORCovariance[componentIndex1][componentIndex2];
             }
-
             // Add diagonal term (libor variance term)
-            integratedSwapRateVariance += swapCovarianceWeights[componentIndex1-swapStartIndex] * swapCovarianceWeights[componentIndex1-swapStartIndex] * integratedLIBORCovariance[componentIndex1][componentIndex1][optionMaturityIndex];
+            integratedSwapRateVariance += swapCovarianceWeights[componentIndex1-swapStartIndex] * swapCovarianceWeights[componentIndex1-swapStartIndex] * integratedLIBORCovariance[componentIndex1][componentIndex1];
         }
 
         // Return integratedSwapRateVariance if requested

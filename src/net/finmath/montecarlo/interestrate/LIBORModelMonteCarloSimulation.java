@@ -28,6 +28,12 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 	private LIBORMarketModel model;
 
+	/**
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel and an AbstractProcess.
+	 * 
+	 * @param model The LIBORMarketModel.
+	 * @param process The process.
+	 */
 	public LIBORModelMonteCarloSimulation(LIBORMarketModel model, AbstractProcess process) {
 		super();
 		this.model		= model;
@@ -36,93 +42,71 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		process.setModel(model);
 	}
 
-	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
-		return model.getProcess().getProcessValue(timeIndex, componentIndex);
-	}
-
-	/**
-	 * @param timeIndex
-	 * @return
-	 * @throws CalculationException 
-	 * @see net.finmath.montecarlo.process.AbstractLogNormalProcess#getMonteCarloWeights(int)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getMonteCarloWeights(int)
 	 */
 	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 
-	/**
-	 * @param time
-	 * @return
-	 * @throws CalculationException 
-	 * @see net.finmath.montecarlo.process.AbstractLogNormalProcess#getMonteCarloWeights(int)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getMonteCarloWeights(double)
 	 */
 	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(getTimeIndex(time));
 	}
 	
-	/**
-	 * @return
-	 * @see net.finmath.montecarlo.process.AbstractLogNormalProcess#getNumberOfFactors()
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getNumberOfFactors()
 	 */
 	public int getNumberOfFactors() {
 		return model.getProcess().getNumberOfFactors();
 	}
 
-	/**
-	 * @return
-	 * @see net.finmath.montecarlo.process.AbstractLogNormalProcess#getNumberOfPaths()
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfPaths()
 	 */
 	public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
 	}
 
-	/**
-	 * @param timeIndex
-	 * @return
-	 * @see net.finmath.montecarlo.process.AbstractLogNormalProcess#getTime(int)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTime(int)
 	 */
 	public double getTime(int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
-	/**
-	 * @return
-	 * @see net.finmath.montecarlo.process.AbstractLogNormalProcess#getTimeDiscretization()
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeDiscretization()
 	 */
 	public TimeDiscretizationInterface getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 
-	/**
-	 * @param time
-	 * @return
-	 * @see net.finmath.montecarlo.process.AbstractLogNormalProcess#getTimeIndex(double)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeIndex(double)
 	 */
 	public int getTimeIndex(double time) {
 		return model.getProcess().getTimeIndex(time);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getBrownianMotion()
+	 */
 	public BrownianMotionInterface getBrownianMotion() {
 		return model.getProcess().getBrownianMotion();
 	}
 
-	/**
-	 * @param timeIndex
-	 * @param liborIndex
-	 * @return
-	 * @throws CalculationException 
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getLIBOR(int, int)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBOR(int, int)
 	 */
 	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return model.getLIBOR(timeIndex, liborIndex);
 	}
 
-	/**
-     * This method returns the vector of LIBORs at a certain time index.
-     * 
-     * @param timeIndex Time index at which the process should be observed
-     * @return The process realizations
-	 * @throws CalculationException 
+    /* (non-Javadoc)
+     * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBORs(int)
      */
     public RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException
     {
@@ -132,12 +116,8 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
     	return randomVariableVector;
     }
 
-	/**
-	 * @param time          Simulation time
-	 * @param periodStart   Start time of period
-	 * @param periodEnd     End time of period
-	 * @return              The LIBOR rate as seen on simulation time for the specified period
-	 * @throws CalculationException 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBOR(double, double, double)
 	 */
 	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
 	{
@@ -177,84 +157,64 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return new RandomVariable(time,libor);
 	}
 
-	/**
-	 * @param timeIndex
-	 * @return
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getLiborPeriod(int)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLiborPeriod(int)
 	 */
 	public double getLiborPeriod(int timeIndex) {
 		return model.getLiborPeriod(timeIndex);
 	}
 
-	/**
-	 * @return
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getLiborPeriodDiscretization()
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLiborPeriodDiscretization()
 	 */
 	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
 		return model.getLiborPeriodDiscretization();
 	}
 
-	/**
-	 * @param time
-	 * @return
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getLiborPeriodIndex(double)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLiborPeriodIndex(double)
 	 */
 	public int getLiborPeriodIndex(double time) {
 		return model.getLiborPeriodIndex(time);
 	}
 
-	/**
-	 * @return
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getNumberOfComponents()
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfComponents()
 	 */
 	public int getNumberOfComponents() {
 		return model.getNumberOfComponents();
 	}
 
-	/**
-	 * @return
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getNumberOfLibors()
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getNumberOfLibors()
 	 */
 	public int getNumberOfLibors() {
 		return model.getNumberOfLibors();
 	}
 
-	/**
-	 * @param time
-	 * @return
-	 * @throws CalculationException 
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getNumeraire(double)
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getNumeraire(double)
 	 */
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
-	/**
-	 * @param timeIndex
-	 * @return
-	 * @throws CalculationException 
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getNumeraire(int)
-	 */
-	public RandomVariableInterface getNumeraire(int timeIndex) throws CalculationException {
-		return model.getNumeraire(timeIndex);
-	}
-
-	/**
-	 * @return the covarianceModel
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCovarianceModel()
 	 */
 	public AbstractLIBORCovarianceModel getCovarianceModel() {
 		return model.getCovarianceModel();
 	}
 
-	/**
-	 * @return the model
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getModel()
 	 */
 	public LIBORMarketModelInterface getModel() {
 		return model;
 	}
 
-	/**
-	 * @return the process
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getProcess()
 	 */
 	public AbstractProcessInterface getProcess() {
 		return model.getProcess();
@@ -268,7 +228,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return new LIBORModelMonteCarloSimulation(model, process);
 	}
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
      */
     public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {

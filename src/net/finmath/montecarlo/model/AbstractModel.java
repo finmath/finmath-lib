@@ -77,14 +77,6 @@ public abstract class AbstractModel implements AbstractModelInterface {
     }
 
     /**
-     * @return The number of paths.
-     * @see net.finmath.montecarlo.process.AbstractProcess#getNumberOfPaths()
-     */
-    public int getNumberOfPaths() {
-        return process.getNumberOfPaths();
-    }
-
-    /**
      * @param timeIndex The time index of evaluation time (using this models time discretization)
      * @param componentIndex The component of the process vector
      * @return Process realization as a random variable 
