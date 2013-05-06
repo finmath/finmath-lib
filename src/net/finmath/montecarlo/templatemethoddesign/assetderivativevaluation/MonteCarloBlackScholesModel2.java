@@ -1,7 +1,7 @@
 /*
  * Created on 20.01.2004
  */
-package net.finmath.montecarlo.templatemethoddesign.stockOptionPricing;
+package net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation;
 
 import java.util.Map;
 
