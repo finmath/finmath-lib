@@ -5,6 +5,7 @@
  */
 
 package net.finmath.functions;
+
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
@@ -79,6 +80,14 @@ public class LinearAlgebra {
 	}
 
 
+	/**
+	 * Returns the matrix of the n Eigenvectors corresponding to the first n largest Eigenvalues of a correlation matrix.
+	 * These eigenvectors can also be interpreted as "principal components" (i.e., the method implements the PCA).
+	 * 
+	 * @param correlationMatrix The given correlation matrix.
+	 * @param numberOfFactors The requested number of factors (eigenvectors).
+	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
+	 */
 	private static DoubleMatrix2D getFactorMatrix(DoubleMatrix2D correlationMatrix, int numberOfFactors) {
 		/*
 		 * Factor reduction
@@ -114,6 +123,13 @@ public class LinearAlgebra {
 		return factorMatrix;
 	}
 
+	/**
+	 * Returns a correlation matrix which has rank &lt; n and for which the first n factors agree with the factors of correlationMatrix.
+	 * 
+	 * @param correlationMatrix The given correlation matrix.
+	 * @param numberOfFactors The requested number of factors (Eigenvectors).
+	 * @return Factor reduced correlation matrix.
+	 */
 	public static DoubleMatrix2D factorReduction(DoubleMatrix2D correlationMatrix, int numberOfFactors) {
 
 		// Extract factors corresponding to the largest eigenvalues
