@@ -7,8 +7,6 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.time.TimeDiscretizationInterface;
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 
 /**
@@ -22,8 +20,8 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	private boolean		isCalibrateable;
 	
 
-	private DoubleMatrix2D	correlationMatrix;
-	private DoubleMatrix2D	factorMatrix;
+	private double[][]	correlationMatrix;
+	private double[][]	factorMatrix;
 	
 	
 	public LIBORCorrelationModelExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a, boolean isCalibrateable) {
@@ -63,26 +61,28 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 
 	@Override
     public double	getFactorLoading(int timeIndex, int factor, int component) {
-		return factorMatrix.get(component, factor);
+		return factorMatrix[component][factor];
 	}
+
 	@Override
     public double	getCorrelation(int timeIndex, int component1, int component2) {
-		return correlationMatrix.get(component1, component2);
+		return correlationMatrix[component1][component2];
 	}
+
 	@Override
     public int		getNumberOfFactors() {
-		return factorMatrix.columns();
+		return factorMatrix[0].length;
 	}
 
 	private void initialize(int numberOfFactors, double a) {
 		/*
 		 * Create instantaneous correlation matrix
 		 */
-		correlationMatrix = new DenseDoubleMatrix2D(liborPeriodDiscretization.getNumberOfTimeSteps(), liborPeriodDiscretization.getNumberOfTimeSteps());		
-		for(int row=0; row<correlationMatrix.rows(); row++) {
-			for(int col=0; col<correlationMatrix.columns(); col++) {
+		correlationMatrix = new double[liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		for(int row=0; row<correlationMatrix.length; row++) {
+			for(int col=0; col<correlationMatrix[row].length; col++) {
 				// Exponentially decreasing instantaneous correlation
-				correlationMatrix.set(row, col, Math.exp(-a * Math.abs(liborPeriodDiscretization.getTime(row)-liborPeriodDiscretization.getTime(col))));
+				correlationMatrix[row][col] = Math.exp(-a * Math.abs(liborPeriodDiscretization.getTime(row)-liborPeriodDiscretization.getTime(col)));
 			}
 		}
 
@@ -91,8 +91,17 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		 */
         factorMatrix = LinearAlgebra.factorReduction(correlationMatrix, numberOfFactors);
 
-        cern.colt.matrix.linalg.Algebra linAlg = new cern.colt.matrix.linalg.Algebra();
-        correlationMatrix = linAlg.mult(factorMatrix, linAlg.transpose(factorMatrix));
+        for(int component1=0; component1<factorMatrix.length; component1++) {
+            for(int component2=0; component2<component1; component2++) {
+            	double correlation = 0.0;
+            	for(int factor=0; factor<factorMatrix[component1].length; factor++) {
+            		correlation += factorMatrix[component1][factor] * factorMatrix[component2][factor];
+            	}
+            	correlationMatrix[component1][component2] = correlation;
+            	correlationMatrix[component2][component1] = correlation;
+            }
+        	correlationMatrix[component1][component1] = 1.0;
+        }
 	}
 
 	@Override
