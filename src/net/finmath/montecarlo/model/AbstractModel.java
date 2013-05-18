@@ -68,9 +68,8 @@ public abstract class AbstractModel implements AbstractModelInterface {
     	return process;
     }
 
-	/**
-     * @return The number of factors.
-     * @see net.finmath.montecarlo.process.AbstractProcess#getNumberOfFactors()
+    /* (non-Javadoc)
+     * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumberOfFactors()
      */
     public int getNumberOfFactors() {
         return process.getNumberOfFactors();

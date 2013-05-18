@@ -1,10 +1,11 @@
 /*
- * Created on 28.03.2008
- *
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
+ * Created on 28.03.2008
  */
 package net.finmath.montecarlo.model;
 
+import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -23,6 +24,8 @@ public interface AbstractModelInterface {
 	public abstract TimeDiscretizationInterface getTimeDiscretization();
 	
     /**
+     * Returns the number of components
+     * 
      * @return The number of components
      */
     public abstract int getNumberOfComponents();
@@ -35,6 +38,16 @@ public interface AbstractModelInterface {
      * @return The initial value of the state variable of the process.
      */
     public abstract ImmutableRandomVariableInterface[] getInitialState();
+
+	/**
+	 * Return the numeraire at a given time index.
+	 * Note: The random variable returned is a defensive copy and may be modified.
+	 * 
+	 * @param timeIndex Time index <i>i</i> for which the numeraire should be returned <i>N(t<sub>i</sub>)</i>.
+	 * @return The numeraire at the specified time as <code>RandomVariable</code>
+	 * @throws CalculationException 
+	 */
+    public abstract RandomVariableInterface getNumeraire(double time) throws CalculationException;
 
     /**
      * @param timeIndex The time index (related to the model times discretization).
@@ -53,6 +66,13 @@ public interface AbstractModelInterface {
      */
     public abstract RandomVariableInterface getDrift(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
     
+    /**
+     * Returns the number of factors
+     * 
+     * @return The number of factors
+     */
+    public abstract int getNumberOfFactors();
+
     /**
      * This method has to be implemented to return the factor loadings, i.e.
      * the coeffient lamba(i,j) such that <br>
