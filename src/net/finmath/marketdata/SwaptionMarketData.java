@@ -1,3 +1,8 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
 package net.finmath.marketdata;
 
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
@@ -7,10 +12,13 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 public class SwaptionMarketData implements AbstractSwaptionMarketData {
 
+	// @TODO: Curve data currently not used.
 	private ForwardCurveInterface			forwardCurve;
 	private DiscountCurveInterface			discountCurve;
+
 	private TimeDiscretizationInterface		optionMaturities;
 	private TimeDiscretizationInterface		tenor;
+
 	private double							swapPeriodLength;
 	private double[][]						impliedVolatilities;
 
@@ -24,18 +32,20 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionMarketData(ForwardCurveInterface forwardCurve, double[] optionMatruities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] optionMatruities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
+		this.discountCurve = discountCurve;
 		this.optionMaturities = new TimeDiscretization(optionMatruities);
 		this.tenor = new TimeDiscretization(tenor);
 		this.swapPeriodLength = swapPeriodLength;
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionMarketData(ForwardCurveInterface forwardCurve, TimeDiscretizationInterface optionMatruities, TimeDiscretizationInterface tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, TimeDiscretizationInterface optionMatruities, TimeDiscretizationInterface tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
+		this.discountCurve = discountCurve;
 		this.optionMaturities = optionMatruities;
 		this.tenor = tenor;
 		this.swapPeriodLength = swapPeriodLength;
@@ -66,6 +76,9 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.AbstractSwaptionMarketData#getVolatility(double, double, double, double)
+	 */
 	public double getVolatility(double optionMatruity, double tenorLength, double periodLength, double strike) {
 		int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
 		int indexTenorIndex = tenor.getTimeIndex(tenorLength);
