@@ -88,7 +88,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 
     /**
      * @param timeIndex The time index of evaluation time (using this models time discretization)
-     * @return A random variable reresenting the Monte-Carlo probabilities.
+     * @return A random variable representing the Monte-Carlo probabilities.
      * @throws CalculationException 
      * @see net.finmath.montecarlo.process.AbstractProcess#getMonteCarloWeights(int)
      */
