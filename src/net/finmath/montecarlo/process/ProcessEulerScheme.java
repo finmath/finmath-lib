@@ -111,7 +111,14 @@ public class ProcessEulerScheme extends AbstractProcess {
 			discreteProcess[0][componentIndex] = applyStateSpaceTransform(currentState[componentIndex].getMutableCopy());
 		}
 
-		int numberOfThreads = 2*Math.min(Math.max(Runtime.getRuntime().availableProcessors(),1),numberOfComponents);
+		/*
+		 * Evolve the process using an Euler scheme.
+		 * The evolution is performed multi-threadded.
+		 * Each component vector runs in its own thread.
+		 */
+
+		// We do not allocate more threads the twice the number of processors.
+		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1),numberOfComponents);
 		executor = Executors.newFixedThreadPool(numberOfThreads);
 
 		// Evolve process
