@@ -24,7 +24,15 @@ public abstract class AbstractMonteCarloProduct {
 
 	/**
      * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+     * 
+     * For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+     *
+     * More generally: The value random variable is a random variable <i>V<sup>*(t)</sup></i> such that
+     * the time-<i>t</i> conditional expectation of <i>V<sup>*(t)</sup></i> is equal
+     * to the value of the financial product in time <i>t</i>.
+     * 
+     * An example for <i>V<sup>*(t)</sup></i> is the sum of <i>t</i>-discounted payoffs.
+     * 
      * Cashflows prior evaluationTime are not considered.
      * 
      * @param evaluationTime The time on which this products value should be observed.
@@ -43,7 +51,7 @@ public abstract class AbstractMonteCarloProduct {
      */
     public double getValue(MonteCarloSimulationInterface model) throws CalculationException {
 
-    	Map<String, Object> value = getValues(0.0, model);
+    	Map<String, Object> value = getValues(model);
         
         return ((Double)value.get("value")).doubleValue();
     }
@@ -51,14 +59,13 @@ public abstract class AbstractMonteCarloProduct {
     /**
      * This method returns the value of the product under the specified model and other information in a key-value map. 
      * 
-     * @param evaluationTime The time on which this products value should be observed.
      * @param model A model used to evaluate the product.
      * @return The values of the product.
      * @throws CalculationException 
      */
-    public Map<String, Object> getValues(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException
+    public Map<String, Object> getValues(MonteCarloSimulationInterface model) throws CalculationException
     {
-    	RandomVariableInterface values = getValue(evaluationTime, model);
+    	RandomVariableInterface values = getValue(0.0, model);
     	
     	if(values == null) return null;
 
@@ -88,6 +95,6 @@ public abstract class AbstractMonteCarloProduct {
 	{
 		MonteCarloSimulationInterface modelModified = (MonteCarloSimulationInterface)model.getCloneWithModifiedData(dataModified);
 
-		return getValues(0.0, modelModified);
+		return getValues(modelModified);
 	}
 }
