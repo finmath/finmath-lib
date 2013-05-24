@@ -155,7 +155,10 @@ public class ProcessEulerScheme extends AbstractProcess {
 						if(driftOfComponent != null) increment.addProduct(driftOfComponent, deltaT);
 
 						// Add increment to state and applyStateSpaceTransform
-						return applyStateSpaceTransform(currentState[componentIndex].getMutableCopy().add(increment));
+						currentState[componentIndex].add(increment);
+						
+						// Transform the state space to the value space and return it.
+						return applyStateSpaceTransform(currentState[componentIndex].getMutableCopy());
 					}
 				};
 
