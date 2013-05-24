@@ -65,15 +65,20 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		ImmutableRandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
 		ImmutableRandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 	
+		/*
+		 * Calculate the payoff, which is
+		 *   max(L-K,0) * periodLength         for caplet or
+		 *   min(L-K,0) * periodLength         for floorlet.
+		 */
 		RandomVariableInterface values = libor;		
 		if(!isFloorlet)	values.sub(strike).floor(0.0).mult(periodLength);
 		else			values.sub(strike).cap(0.0).mult(-1.0 * periodLength);
 
 		values.div(numeraire).mult(monteCarloProbabilities);
 
-		ImmutableRandomVariableInterface	numeraireAtZero						= model.getNumeraire(evaluationTime);		
-		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero		= model.getMonteCarloWeights(evaluationTime);		
-		values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		ImmutableRandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);		
+		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);		
+		values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);
 
 		return values;
 	}

@@ -9,10 +9,18 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 public interface LIBORMarketModelInterface extends AbstractModelInterface {
 
-	public abstract RandomVariableInterface getLIBOR(int timeIndex,
-			int liborIndex) throws CalculationException;
+	public abstract RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
 	/**
+	 * The tenor time discretization of the forward rate curve.
+	 * 
+	 * @return The tenor time discretization of the forward rate curve.
+	 */
+	public abstract TimeDiscretizationInterface getLiborPeriodDiscretization();
+
+	/**
+	 * Get the number of LIBORs in the LIBOR discretization.
+	 *  
 	 * @return The number of LIBORs in the LIBOR discretization
 	 */
 	public abstract int getNumberOfLibors();
@@ -28,8 +36,6 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
 	 * @return The index corresponding to a given time (interpretation is start of period)
 	 */
 	public abstract int getLiborPeriodIndex(double time);
-
-	public abstract TimeDiscretizationInterface getLiborPeriodDiscretization();
 
 	/**
 	 * Return the initial forward rate curve.

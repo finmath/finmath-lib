@@ -5,7 +5,6 @@
  */
 package net.finmath.montecarlo.process;
 
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -105,17 +104,16 @@ public class ProcessEulerScheme extends AbstractProcess {
 		discreteProcessWeights[0] = new RandomVariable(getTime(0), 1.0 / numberOfPaths);
 
 		// Set initial value
-		ImmutableRandomVariableInterface[] initialValue = getInitialValue();
+		ImmutableRandomVariableInterface[] initialState = getInitialState();
 		final RandomVariableInterface[] currentState = new RandomVariableInterface[numberOfComponents];
 		for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
-			currentState[componentIndex] = initialValue[componentIndex].getMutableCopy();
-			//			discreteProcess[0][componentIndex] = (currentState[componentIndex].getMutableCopy());
+			currentState[componentIndex] = initialState[componentIndex].getMutableCopy();
 			discreteProcess[0][componentIndex] = applyStateSpaceTransform(currentState[componentIndex].getMutableCopy());
 		}
 
 		int numberOfThreads = 2*Math.min(Math.max(Runtime.getRuntime().availableProcessors(),1),numberOfComponents);
 		executor = Executors.newFixedThreadPool(numberOfThreads);
-		
+
 		// Evolve process
 		for (int timeIndex2 = 1; timeIndex2 < getTimeDiscretization().getNumberOfTimeSteps()+1; timeIndex2++) {
 			final int timeIndex = timeIndex2;
@@ -126,7 +124,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			final ImmutableRandomVariableInterface[] drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 
 			// Calculate new realization
-			Vector<Future<ImmutableRandomVariableInterface>> incrementFutures = new Vector<Future<ImmutableRandomVariableInterface>>(numberOfComponents);
+			Vector<Future<ImmutableRandomVariableInterface>> discreteProcessAtCurrentTimeIndex = new Vector<Future<ImmutableRandomVariableInterface>>(numberOfComponents);
 			for (int componentIndex2 = 0; componentIndex2 < numberOfComponents; componentIndex2++) {
 				final int componentIndex = componentIndex2;
 
@@ -153,20 +151,31 @@ public class ProcessEulerScheme extends AbstractProcess {
 							diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
 						}
 
-						RandomVariableInterface previouseRealization = currentState[componentIndex];
-
 						RandomVariableInterface increment = diffusionOfComponent;
 						if(driftOfComponent != null) increment.addProduct(driftOfComponent, deltaT);
 
-						// Store components
-						return previouseRealization.add(increment);
-						}
+						// Add increment to state and applyStateSpaceTransform
+						return applyStateSpaceTransform(currentState[componentIndex].getMutableCopy().add(increment));
+					}
 				};
-				Future<ImmutableRandomVariableInterface> valueFuture = executor.submit(worker);
-				incrementFutures.add(componentIndex, valueFuture);
+
+				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
+				discreteProcessAtCurrentTimeIndex.add(componentIndex, executor.submit(worker));
 			}
 
-			discreteProcess[timeIndex] = getProcessFromStateSpace(incrementFutures);
+			// Copy results to discreteProcess[timeIndex]
+			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
+				try {
+					discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndex.get(componentIndex).get();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			//			discreteProcess[timeIndex] = getProcessFromStateSpace(incrementFutures);
 
 			if (scheme == Scheme.PREDICTOR_CORRECTOR) {
 				// Apply corrector step to realizations at next time step
@@ -187,7 +196,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 					newRealization.add(driftAdjustment);
 
 				} // End for(componentIndex)
-//				discreteProcess[timeIndex] = getProcessFromStateSpace(currentState);
+				//				discreteProcess[timeIndex] = getProcessFromStateSpace(currentState);
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
 
 
@@ -195,47 +204,10 @@ public class ProcessEulerScheme extends AbstractProcess {
 			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex - 1];
 		} // End for(timeIndex)
 
-		// Transform new realization
-		for (int timeIndex = 0; timeIndex < getTimeDiscretization().getNumberOfTimeSteps()+1; timeIndex++) {
-			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
-				//				discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform((RandomVariableInterface) discreteProcess[timeIndex][componentIndex]);
-			}
-		}
 		executor.shutdown();
 	}
 
-    private RandomVariableInterface[] getProcessFromStateSpace(final Vector<Future<ImmutableRandomVariableInterface>> statesRandomVariable) {
-    	RandomVariableInterface[] valuesRandomVariable = new RandomVariableInterface[statesRandomVariable.size()];
 
-		// Transform new realization
-    	Vector<Callable<RandomVariableInterface>> calculations = new Vector<Callable<RandomVariableInterface>>(statesRandomVariable.size());
-		for (int componentIndex = 0; componentIndex < statesRandomVariable.size(); componentIndex++) {
-			final int componentIndexInThread = componentIndex;
-			Callable<RandomVariableInterface> callable = new Callable<RandomVariableInterface>() {
-				public RandomVariableInterface call() throws InterruptedException, ExecutionException {
-					return applyStateSpaceTransform(statesRandomVariable.get(componentIndexInThread).get().getMutableCopy());
-				}
-			};
-			calculations.add(componentIndex, callable);
-		}
-
-		try {
-			List<Future<RandomVariableInterface>> valuesRandomVariableFutures = executor.invokeAll(calculations);
-			for (int componentIndex = 0; componentIndex < statesRandomVariable.size(); componentIndex++) {
-				valuesRandomVariable[componentIndex]  = valuesRandomVariableFutures.get(componentIndex).get();
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return valuesRandomVariable;
-    	
-    }
-	
 	/**
 	 * Reset all precalculated values
 	 */

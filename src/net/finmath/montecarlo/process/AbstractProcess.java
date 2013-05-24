@@ -15,14 +15,15 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class is an abstract base class to implement a multi-dimensional multi-factor Ito process.
- * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
+ * The dimension is called <code>numberOfComponents</code> here.
+ * The default for <code>numberOfFactors</code> is 1.
  * 
- * Manages the time discretization and delegation to model.
+ * This base class manages the time discretization and delegation to the model.
  * 
  * @author Christian Fries
- * @version 1.4
+ * @version 1.5
  */
-public abstract class AbstractProcess implements AbstractProcessInterface {
+public abstract class AbstractProcess implements AbstractProcessInterface, Cloneable {
 
     private AbstractModelInterface			model;
     private TimeDiscretizationInterface		timeDiscretization;
@@ -37,33 +38,6 @@ public abstract class AbstractProcess implements AbstractProcessInterface {
 
 	public abstract Object getCloneWithModifiedSeed(int seed);	
 
-	/**
-     * This method returns the realization of the process at a certain time index.
-     * 
-     * @param timeIndex Time index at which the process should be observed
-     * @param componentIndex Component of the process vector
-     * @return A vector of process realizations (on path)
-	 * @throws CalculationException 
-     */
-    abstract public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) throws CalculationException;
-
-    /**
-     * This method returns the Monte-Carlo weights associated with the process at a certain time index.
-     * 
-     * @param timeIndex Time index at which the process should be observed.
-     * @throws CalculationException 
-     */
-    abstract public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.process.AbstractProcessInterface#getBrownianMotion()
-	 */
-	abstract public BrownianMotionInterface getBrownianMotion();
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
-	public abstract AbstractProcessInterface clone();	
 
 	
     /*
@@ -80,7 +54,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface {
         return model.getNumberOfComponents();
     }
 	
-    public ImmutableRandomVariableInterface[]	getInitialValue() {
+    public ImmutableRandomVariableInterface[]	getInitialState() {
         return model.getInitialState();
     };
 
@@ -99,16 +73,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface {
 		return randomVariable;
     }    
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.AbstractProcessInterface#getNumberOfPaths()
-     */
-	abstract public int getNumberOfPaths();
 
-	/* (non-Javadoc)
-     * @see net.finmath.montecarlo.AbstractProcessInterface#getNumberOfFactors()
-     */
-	abstract public int getNumberOfFactors();
-	
 	/*
 	 * Time discretization management
 	 */
@@ -133,5 +98,10 @@ public abstract class AbstractProcess implements AbstractProcessInterface {
 	public int getTimeIndex(double time) {
 		return timeDiscretization.getTimeIndex(time);
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	public abstract Object clone();
 
 }
