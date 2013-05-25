@@ -34,13 +34,16 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	private BrownianMotionInterface brownianMotion;
 
-	private ImmutableRandomVariableInterface[][]	discreteProcess = null;
-	private ImmutableRandomVariableInterface[]		discreteProcessWeights;
-
 	private Scheme		scheme = Scheme.EULER;
 
 	// Uses locally for multi-threadded calculation.
 	private ExecutorService executor;
+
+	/*
+	 * The storage of the simulated stochastic process.
+	 */
+	private transient ImmutableRandomVariableInterface[][]	discreteProcess = null;
+	private transient ImmutableRandomVariableInterface[]	discreteProcessWeights;
 
 	/**
 	 * @param brownianMotion The Brownian driver of the process
