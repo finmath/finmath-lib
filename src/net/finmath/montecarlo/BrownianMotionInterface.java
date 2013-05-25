@@ -19,7 +19,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * dimension. 
  * 
  * @author Christian Fries
- * @version 1.0
+ * @version 1.1
  */
 public interface BrownianMotionInterface {
 
@@ -46,5 +46,15 @@ public interface BrownianMotionInterface {
 	 */
 	public abstract int getNumberOfPaths();
 	
-	public abstract Object getCloneWithModifiedSeed(int seed);
+	/**
+	 * Return a new object implementing BrownianMotionInterface
+	 * having the same specifications as this object but a different seed.
+	 * 
+	 * This method is useful if you like to make Monte-Carlo samplings by changing
+	 * the seed.
+	 * 
+	 * @param seed New value for the seed.
+	 * @return New object implementing BrownianMotionInterface.
+	 */
+	public abstract BrownianMotionInterface getCloneWithModifiedSeed(int seed);
 }
