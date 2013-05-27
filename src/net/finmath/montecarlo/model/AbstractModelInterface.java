@@ -31,6 +31,15 @@ public interface AbstractModelInterface {
     public abstract int getNumberOfComponents();
 
     /**
+     * Applied the state space transfrom <i>f<sub>i</sub></i> to the given state random variable
+     * such that <i>Y<sub>i</sub> &rarr; f<sub>i</sub>(Y<sub>i</sub>) =: X<sub>i</sub></i>.
+     * 
+     * @param componentIndex The component index <i>i</i>.
+     * @param randomVariableInterface The state random variable <i>Y<sub>i</sub></i>.
+     */
+    public void applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface);
+
+    /**
      * Returns the initial value of the state variable of the process, not to be
      * confused with the initial value of the model (which is the state space transform
      * applied to this state value.
@@ -83,9 +92,8 @@ public interface AbstractModelInterface {
      * @param timeIndex The time index (related to the model times discretization).
      * @param factorIndex The index of the driving factor.
      * @param componentIndex The index of the driven component.
+     * @param realizationAtTimeIndex The realization of S at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
      * @return The factor loading for given factor and component.
      */
-    public abstract RandomVariableInterface getFactorLoading(int timeIndex, int factorIndex, int componentIndex);
-    
-    public void applyStateSpaceTransform(RandomVariableInterface randomVariable);
+    public abstract RandomVariableInterface getFactorLoading(int timeIndex, int factorIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
 }

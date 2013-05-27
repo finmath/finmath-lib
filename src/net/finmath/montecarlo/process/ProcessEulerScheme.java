@@ -111,7 +111,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		final RandomVariableInterface[] currentState = new RandomVariableInterface[numberOfComponents];
 		for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 			currentState[componentIndex] = initialState[componentIndex].getMutableCopy();
-			discreteProcess[0][componentIndex] = applyStateSpaceTransform(currentState[componentIndex].getMutableCopy());
+			discreteProcess[0][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
 		}
 
 		/*
@@ -168,7 +168,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 						currentState[componentIndex].add(increment);
 						
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(currentState[componentIndex].getMutableCopy());
+						return applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
 					}
 				};
 

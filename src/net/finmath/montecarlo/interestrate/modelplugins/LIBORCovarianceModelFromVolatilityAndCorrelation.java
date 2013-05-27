@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -25,7 +26,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	}
 
 	@Override
-    public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component) {
+    public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		RandomVariableInterface factorLoading = volatilityModel.getVolatility(timeIndex, component);
 		factorLoading.mult(correlationModel.getFactorLoading(timeIndex, factor, component));
 		
@@ -33,13 +34,13 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	}
 	
 	@Override
-    public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor) {
+    public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		// Note that we assume that the correlation model getFactorLoading gives orthonormal vectors
 		RandomVariableInterface factorLoadingPseudoInverse = (volatilityModel.getVolatility(timeIndex, component).getMutableCopy()).invert();
 		factorLoadingPseudoInverse.mult(correlationModel.getFactorLoading(timeIndex, factor, component));
 
         // @todo numberOfComponents should be stored as a member?!
-        int numberOfComponents = liborPeriodDiscretization.getNumberOfTimeSteps();
+        int numberOfComponents = getLiborPeriodDiscretization().getNumberOfTimeSteps();
         
         double factorWeight = 0.0;
         for(int componentIndex=0; componentIndex<numberOfComponents; componentIndex++) {

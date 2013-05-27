@@ -106,7 +106,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component) {
+	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		return new RandomVariableMutableClone(volatilityOnPaths);
 	}
 

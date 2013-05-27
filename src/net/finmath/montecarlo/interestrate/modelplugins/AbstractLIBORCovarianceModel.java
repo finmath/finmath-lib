@@ -6,23 +6,22 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * A base class for the instantaneous covariance of
+ * an interest rate model.
+ * 
  * @author Christian Fries
- *
  */
 public abstract class AbstractLIBORCovarianceModel {
-    TimeDiscretizationInterface	timeDiscretization;
-    TimeDiscretizationInterface	liborPeriodDiscretization;
-	int				numberOfFactors;
 	
-    // You cannot instanciate the class empty
-    @SuppressWarnings("unused")
-    private AbstractLIBORCovarianceModel() {        
-    }
-    
+    private	TimeDiscretizationInterface		timeDiscretization;
+    private TimeDiscretizationInterface		liborPeriodDiscretization;
+	private	int								numberOfFactors;
+	
 	/**
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
@@ -34,23 +33,45 @@ public abstract class AbstractLIBORCovarianceModel {
 		this.numberOfFactors			= numberOfFactors;
 	}
 
-	public abstract	RandomVariableInterface	getFactorLoading(int timeIndex, int factor, int component);
-	public abstract RandomVariableInterface	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor);
+	/**
+	 * Return the factor loading for a given time index, factor index and component index.
+	 * The factor loading <i>f<sub>i,j</sub></i> is such that the scalar product
+	 * <i>f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i>
+	 * is the instantaneous covariance of the component <i>j</i> and <i>k</i>.
+	 * 
+	 * @param timeIndex The time index at which factor loading is requested.
+	 * @param factor The index of the factor <i>j</i>.
+	 * @param component The index of the component  <i>i</i>.
+	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatitliy/covarinace/correlation models).
+	 * @return The factor loading <i>f<sub>i,j</sub>(t)</i>.
+	 */
+	public abstract	RandomVariableInterface	getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
 
 	/**
-	 * Returns the covariance calculated from factor loadings.
+	 * Returns the pseudo inverse of the factor matrix.
 	 * 
-	 * @param timeIndex
-	 * @param component1
-	 * @param component2
-	 * @return the covariance.
+	 * @param timeIndex The time index at which factor loading inverse is requested.
+	 * @param factor The index of the factor <i>j</i>.
+	 * @param component The index of the component  <i>i</i>.
+	 * @param realizationAtTimeIndex The realization of the stochastic process.
+	 * @return The entry of the pseudo-inverse of the factor loading matrix.
+	 */
+	public abstract RandomVariableInterface	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+
+	/**
+	 * Returns the instantaneous covariance calculated from factor loadings.
+	 * 
+	 * @param timeIndex The time index at which covariance is requested.
+	 * @param component1 Index of component <i>i</i>.
+	 * @param component2  Index of component <i>j</i>.
+	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
 	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2) {
 		RandomVariable covariance = new RandomVariable(0.0, 0.0);
 		
 		for(int factorIndex=0; factorIndex<this.getNumberOfFactors(); factorIndex++) {
-			RandomVariableInterface factorLoadingOfComponent1 = getFactorLoading(timeIndex, factorIndex, component1);
-			RandomVariableInterface factorLoadingOfComponent2 = getFactorLoading(timeIndex, factorIndex, component2);
+			RandomVariableInterface factorLoadingOfComponent1 = getFactorLoading(timeIndex, factorIndex, component1, null);
+			RandomVariableInterface factorLoadingOfComponent2 = getFactorLoading(timeIndex, factorIndex, component2, null);
 
 			covariance.addProduct(factorLoadingOfComponent1,factorLoadingOfComponent2);
 		}
@@ -60,6 +81,8 @@ public abstract class AbstractLIBORCovarianceModel {
 
 
 	/**
+	 * The simulation time discretization associated with this model.
+	 * 
 	 * @return the timeDiscretization
 	 */
 	public TimeDiscretizationInterface getTimeDiscretization() {
@@ -75,7 +98,9 @@ public abstract class AbstractLIBORCovarianceModel {
 	}
 
 	/**
-	 * @return the liborPeriodDiscretization
+	 * The forward rate time discretization associated with this model (defines the components).
+	 * 
+	 * @return the forward rate time discretization associated with this model.
 	 */
 	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;

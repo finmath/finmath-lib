@@ -130,11 +130,12 @@ public abstract class LogNormalProcess {
 	 * Overwrite this method if you would like to implement a multi factor model.
 	 * 
 	 * @param timeIndex
+	 * @param realizationAtTimeIndex TODO
 	 * @param factor
 	 * @param component
 	 * @return factor loading for given factor and component
 	 */
-	abstract public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component);
+	abstract public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
 
 	/**
 	 * This method returns the realization of the process at a certain time index.
@@ -231,7 +232,7 @@ public abstract class LogNormalProcess {
 				
 				// Generate values for diffusionOfComponent and varianceOfComponent 
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					ImmutableRandomVariableInterface factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex);               
+					ImmutableRandomVariableInterface factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);               
 					ImmutableRandomVariableInterface brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);
 
 					varianceOfComponent.addProduct(factorLoading, factorLoading);

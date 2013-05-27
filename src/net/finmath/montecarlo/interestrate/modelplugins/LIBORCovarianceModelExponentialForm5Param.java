@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -46,12 +47,12 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		
 		this.parameter = parameter;
 
-		volatilityModel		= new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(liborPeriodDiscretization, liborPeriodDiscretization, parameter[0], parameter[1], parameter[2], parameter[3]);
-		correlationModel	= new LIBORCorrelationModelExponentialDecay(liborPeriodDiscretization, liborPeriodDiscretization, numberOfFactors, parameter[4], false);
+		volatilityModel		= new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3]);
+		correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4], false);
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component) {
+	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
         RandomVariableInterface volatilityInstanteaneous	= this.volatilityModel.getVolatility(timeIndex, component);
         double factorLoading			= this.correlationModel.getFactorLoading(timeIndex, factor, component);
 
@@ -59,7 +60,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 

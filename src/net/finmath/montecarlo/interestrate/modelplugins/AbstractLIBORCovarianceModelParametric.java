@@ -62,7 +62,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		        LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
 
-				BrownianMotion brownianMotion = new BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+				BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);

@@ -116,12 +116,12 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		return new RandomVariableMutableClone(drift);
 	}
 
-	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component) {
+	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		return new RandomVariableMutableClone(volatilityOnPaths);
 	}
 
 	@Override
-	public void applyStateSpaceTransform(RandomVariableInterface randomVariable) {
+	public void applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
 		randomVariable.exp();
 	}
 
