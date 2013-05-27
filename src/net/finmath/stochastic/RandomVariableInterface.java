@@ -15,123 +15,123 @@ package net.finmath.stochastic;
 public interface RandomVariableInterface extends ImmutableRandomVariableInterface {
 
 	/**
-	 * Applies x -> min(x,cap) to this random variable.
+	 * Applies x &rarr; min(x,cap) to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface cap(double cap);
 
 	/**
-	 * Applies x -> max(x,floor) to this random variable.
+	 * Applies x &rarr; max(x,floor) to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface floor(double floor);
 
 	/**
-	 * Applies x -> x + value to this random variable.
+	 * Applies x &rarr; x + value to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface add(double value);
 
 	/**
-	 * Applies x -> x - value to this random variable.
+	 * Applies x &rarr; x - value to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface sub(double value);
 
 	/**
-	 * Applies x -> x * value to this random variable.
+	 * Applies x &rarr; x * value to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface mult(double value);
 
 	/**
-	 * Applies x -> x / value to this random variable.
+	 * Applies x &rarr; x / value to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface div(double value);
 
 	/**
-	 * Applies x -> pow(x,exponent) to this random variable.
+	 * Applies x &rarr; pow(x,exponent) to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface pow(double exponent);
 
 	/**
-	 * Applies x -> x * x to this random variable.
+	 * Applies x &rarr; x * x to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface squared();
 
 	/**
-	 * Applies x -> sqrt(x) to this random variable.
+	 * Applies x &rarr; sqrt(x) to this random variable.
 	 * @return A self reference.
 	 */
     public RandomVariableInterface sqrt();
 
     /**
-	 * Applies x -> exp(x) to this random variable.
+	 * Applies x &rarr; exp(x) to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface exp();
 
 	/**
-	 * Applies x -> log(x) to this random variable.
+	 * Applies x &rarr; log(x) to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface log();
 
 	/**
-	 * Applies x -> sin(x) to this random variable.
+	 * Applies x &rarr; sin(x) to this random variable.
 	 * @return A self reference.
 	 */
     public RandomVariableInterface sin();
 
 	/**
-	 * Applies x -> cos(x) to this random variable.
+	 * Applies x &rarr; cos(x) to this random variable.
 	 * @return A self reference.
 	 */
     public RandomVariableInterface cos();
 
     /**
-	 * Applies x -> x+randomVariable to this random variable.
+	 * Applies x &rarr; x+randomVariable to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface add(ImmutableRandomVariableInterface randomVariable);
 
 	/**
-	 * Applies x -> x-randomVariable to this random variable.
+	 * Applies x &rarr; x-randomVariable to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface sub(ImmutableRandomVariableInterface randomVariable);
 
 	/**
-	 * Applies x -> x*randomVariable to this random variable.
+	 * Applies x &rarr; x*randomVariable to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface mult(ImmutableRandomVariableInterface randomVariable);
 
 	/**
-	 * Applies x -> x/randomVariable to this random variable.
+	 * Applies x &rarr; x/randomVariable to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface div(ImmutableRandomVariableInterface randomVariable);
 
 	/**
-	 * Applies x -> min(x,cap) to this random variable.
+	 * Applies x &rarr; min(x,cap) to this random variable.
 	 * @param cap The cap
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface cap(ImmutableRandomVariableInterface cap);
 
 	/**
-	 * Applies x -> max(x,floor) to this random variable.
+	 * Applies x &rarr; max(x,floor) to this random variable.
 	 * @param floor The floor
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface floor(ImmutableRandomVariableInterface floor);
 
 	/**
-	 * Applies x -> x * (1.0 + rate * periodLength) to this random variable.
+	 * Applies x &rarr; x * (1.0 + rate * periodLength) to this random variable.
 	 * @param rate The accruing rate
 	 * @param periodLength The period length
 	 * @return A self reference.
@@ -139,7 +139,7 @@ public interface RandomVariableInterface extends ImmutableRandomVariableInterfac
 	public RandomVariableInterface accrue(ImmutableRandomVariableInterface rate, double periodLength);
 
 	/**
-	 * Applies x -> x / (1.0 + rate * periodLength) to this random variable.
+	 * Applies x &rarr; x / (1.0 + rate * periodLength) to this random variable.
 	 * @param rate The discounting rate
 	 * @param periodLength The period length
 	 * @return A self reference.
@@ -147,7 +147,7 @@ public interface RandomVariableInterface extends ImmutableRandomVariableInterfac
 	public RandomVariableInterface discount(ImmutableRandomVariableInterface rate, double periodLength);
 
 	/**
-	 * Applies x -> (trigger >= 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
+	 * Applies x &rarr; (trigger >= 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
      * @param trigger The trigger
      * @param valueIfTriggerNonNegative The value used if the trigger is greater or equal 0
      * @param valueIfTriggerNegative The value used if the trigger is less than 0
@@ -156,7 +156,7 @@ public interface RandomVariableInterface extends ImmutableRandomVariableInterfac
     public RandomVariableInterface barrier(ImmutableRandomVariableInterface trigger, ImmutableRandomVariableInterface valueIfTriggerNonNegative, ImmutableRandomVariableInterface valueIfTriggerNegative);
 
     /**
-	 * Applies x -> (trigger >= 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
+	 * Applies x &rarr; (trigger >= 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
      * @param trigger The trigger
      * @param valueIfTriggerNonNegative The value used if the trigger is greater or equal 0
      * @param valueIfTriggerNegative The value used if the trigger is less than 0
@@ -165,31 +165,31 @@ public interface RandomVariableInterface extends ImmutableRandomVariableInterfac
 	public RandomVariableInterface barrier(ImmutableRandomVariableInterface trigger, ImmutableRandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative);
 
 	/**
-	 * Applies x -> 1/x to this random variable. 
+	 * Applies x &rarr; 1/x to this random variable. 
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface invert();
 
 	/**
-	 * Applies x -> Math.abs(x), i.e. x -> |x| to this random variable.
+	 * Applies x &rarr; Math.abs(x), i.e. x &rarr; |x| to this random variable.
 	 * @return A self reference.
 	 */
 	public RandomVariableInterface abs();
 
 	/**
-	 * Applies x -> x + factor1 * factor2
+	 * Applies x &rarr; x + factor1 * factor2
 	 * @return self reference.
 	 */
 	public RandomVariableInterface addProduct(ImmutableRandomVariableInterface factor1, double factor2);
 
 	/**
-	 * Applies x -> x + factor1 * factor2
+	 * Applies x &rarr; x + factor1 * factor2
 	 * @return self reference.
 	 */
 	public RandomVariableInterface addProduct(ImmutableRandomVariableInterface factor1, ImmutableRandomVariableInterface factor2);
 
 	/**
-	 * Applies x -> x + numerator / denominator
+	 * Applies x &rarr; x + numerator / denominator
 	 * 
      * @param numerator The numerator of the ratio to add.
      * @param denominator The denominator of the ratio to add.
@@ -198,7 +198,7 @@ public interface RandomVariableInterface extends ImmutableRandomVariableInterfac
     public RandomVariableInterface addRatio(ImmutableRandomVariableInterface numerator, ImmutableRandomVariableInterface denominator);
 
 	/**
-	 * Applies x -> x - numerator / denominator
+	 * Applies x &rarr; x - numerator / denominator
 	 * 
      * @param numerator The numerator of the ratio to sub.
      * @param denominator The denominator of the ratio to sub.
