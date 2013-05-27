@@ -11,8 +11,22 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * Provides a correlated Brownian motion from given (independent) increments
+ * and a given matrix of factor loadings.
+ * 
+ * The i-th factor of this BrownianMotion is <i>dW<sub>i</sub></i> where
+ * <i>dW<sub>i</sub> = f<sub>i,1</sub> dU<sub>1</sub> + ... + f<sub>i,m</sub> dU<sub>m</sub></i>
+ * for <i>i = 1, ..., n</i>.
+ * 
+ * Here <i>f<sub>i,j</sub></i> are the factor loadings, an <i>n &times; m</i>-matrix.
+ * 
+ * If <i>dU<sub>j</sub></i> are independent, then <i>dW<sub>i</sub> dW<sub>k</sub> = &rho;<sub>i,k</sub> dt</i>
+ * where <i>&rho;<sub>i,k</sub> = f<sub>i</sub> &cdot; f<sub>j</sub></i>.
+ * 
+ * Note: It is possible to create this class with a Brownian motion <i>U</i> which is
+ * already correlated. The factors loadings will be applied accordingly.
+ * 
  * @author Christian Fries
- *
  */
 public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 
@@ -21,7 +35,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 
 	/**
 	 * Create a correlated Brownian motion from given independent increments
-	 * and a given matrix of factorLoadings.
+	 * and a given matrix of factor loadings.
 	 * 
 	 * The i-th factor of this BrownianMotion is <i>dW<sub>i</sub></i> where
 	 * <i>dW<sub>i</sub> = f<sub>i,1</sub> dU<sub>1</sub> + ... + f<sub>i,m</sub> dU<sub>m</sub></i>
@@ -29,11 +43,11 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	 * 
 	 * Here <i>f<sub>i,j</sub></i> are the factor loadings, an <i>n &times; m</i>-matrix.
 	 * 
-	 * If <i>dU<sub>j</sub></i> are independent, the <i>dW<sub>i</sub> dW<sub>k</sub> = &rho;<sub>i,k</sub> dt</i>
+	 * If <i>dU<sub>j</sub></i> are independent, then <i>dW<sub>i</sub> dW<sub>k</sub> = &rho;<sub>i,k</sub> dt</i>
 	 * where <i>&rho;<sub>i,k</sub> = f<sub>i</sub> &cdot; f<sub>j</sub></i>.
 	 * 
-	 * @param uncollelatedFactors The Brownian motion providing the (uncorrelated) factors.
-	 * @param factorLoadings The factor loadings.
+	 * @param uncollelatedFactors The Brownian motion providing the (uncorrelated) factors <i>dU<sub>j</sub></i>.
+	 * @param factorLoadings The factor loadings <i>f<sub>i,j</sub></i>.
 	 */
 	public CorrelatedBrownianMotion(BrownianMotionInterface uncollelatedFactors,
 			double[][] factorLoadings) {

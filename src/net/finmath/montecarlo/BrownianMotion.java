@@ -12,13 +12,23 @@ import net.finmath.time.TimeDiscretizationInterface;
 import cern.jet.random.engine.MersenneTwister64;
 
 /**
- * Implementation of <code>BrownianMotionInterface</code>.
- * See <code>BrownianMotionInterface</code> for further comments. 
+ * Implementation of a time-discrete n-dimensional Brownian motion
+ * <i>W = (W<sub>1</sub>,...,W<sub>n</sub>)</i> where <i>W<sub>i</sub></i> is
+ * a Brownian motion and <i>W<sub>i</sub></i>, <i>W<sub>j</sub></i> are
+ * independent for <i>i</i> not equal <i>j</i>.
+ * 
+ * For a correlated Brownian motion with see
+ * {@see net.finmath.montecarlo.CorrelatedBrownianMotion}.
+ * 
+ * Here the dimension <i>n</i> is called factors since this Brownian motion is used to
+ * generate multi-dimensional multi-factor Ito processes and there one might
+ * use a different number of factors to generate Ito processes of different
+ * dimension. 
  * 
  * The class is immutable and thread safe. It uses lazy initialization.
  * 
  * @author Christian Fries
- * @version 1.5
+ * @version 1.6
  */
 public class BrownianMotion implements BrownianMotionInterface, Serializable {
 
@@ -36,6 +46,8 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	private transient ImmutableRandomVariableInterface[][]	brownianIncrements;	
 
 	/**
+	 * Construct a Brownian motion.
+	 * 
 	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.

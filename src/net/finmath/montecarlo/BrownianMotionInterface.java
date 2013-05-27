@@ -10,16 +10,15 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Interface description of a time-discrete n-dimensional Brownian motion
- * W = (W(1),...,W(n)) where W(i) is a Brownian motion and
- * W(i),W(j) are independent for i not equal j.
+ * <i>W = (W<sub>1</sub>,...,W<sub>n</sub>)</i> where <i>W<sub>i</sub></i> is a Brownian motion.
  * 
- * Here the dimension n is called factors since this Brownian motion is used to
+ * Here the dimension <i>n</i> is called factors since this Brownian motion is used to
  * generate multi-dimensional multi-factor Ito processes and there one might
  * use a different number of factors to generate Ito processes of different
  * dimension. 
  * 
  * @author Christian Fries
- * @version 1.1
+ * @version 1.2
  */
 public interface BrownianMotionInterface {
 
