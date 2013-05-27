@@ -10,6 +10,15 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
+/**
+ * Simple swaption market data class.
+ * The class does currently not provide a surface interpolation
+ * like SABR.
+ * 
+ * This will be added in a future version.
+ * 
+ * @author Christian Fries
+ */
 public class SwaptionMarketData implements AbstractSwaptionMarketData {
 
 	// @TODO: Curve data currently not used.
