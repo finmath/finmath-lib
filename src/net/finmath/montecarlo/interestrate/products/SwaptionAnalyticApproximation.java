@@ -14,7 +14,9 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * This class implements an analytic swaption valuation formula under a LIBOR market model.
+ * This class implements an analytic swaption valuation formula under
+ * a LIBOR market model. The algorithm implemented here is
+ * taken from ISBN 0470047224.
  * 
  * @author Christian Fries
  */
