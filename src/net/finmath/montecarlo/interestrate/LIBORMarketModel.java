@@ -226,7 +226,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				}
 				swapTenorTimes[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
 
-//	            System.out.println("Swaption " + exerciseDate + "/" + numberOfPeriods*swapPeriodLength);
 
 				// Swaptions swap rate
 				TimeDiscretizationInterface swapTenor = new TimeDiscretization(swapTenorTimes);
@@ -238,11 +237,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					swaprates[periodStartIndex] = swaprate;
 				}
 
-				SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+				AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 
 				double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
 				
-				calibrationItems.add(new CalibrationItem(swaptionAnalytic,
+				calibrationItems.add(new CalibrationItem(swaption,
 						impliedVolatility,
 						1.0
 						));
@@ -268,16 +267,17 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	}
 
 	public RandomVariableInterface[] getInitialState() {
-		double[] liborInitialValues = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
+		double[] liborInitialStates = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			liborInitialValues[timeIndex] = forwardRateCurve.getForward(null, liborPeriodDiscretization.getTime(timeIndex));
+			double rate = forwardRateCurve.getForward(null, liborPeriodDiscretization.getTime(timeIndex));
+			liborInitialStates[timeIndex] = Math.log(rate);
 		}
 
-		RandomVariableInterface[] initialValueRandomVariable = new RandomVariableInterface[getNumberOfComponents()];
+		RandomVariableInterface[] initialStateRandomVariable = new RandomVariableInterface[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
-			initialValueRandomVariable[componentIndex] = new RandomVariable(0.0, Math.log(liborInitialValues[componentIndex]));
+			initialStateRandomVariable[componentIndex] = new RandomVariable(0.0, liborInitialStates[componentIndex]);
 		}
-		return initialValueRandomVariable;
+		return initialStateRandomVariable;
 	}
 
 	/**
@@ -308,10 +308,12 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
     	for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
 			double						periodLength		= liborPeriodDiscretization.getTimeStep(componentIndex);
     		ImmutableRandomVariableInterface libor = realizationAtTimeIndex[componentIndex];
-    		RandomVariableInterface oneStepMeasureTransform = libor.getMutableCopy().discount(libor, periodLength).mult(periodLength);
+    		RandomVariableInterface oneStepMeasureTransform = (new RandomVariable(periodLength)).discount(libor, periodLength);
+
+    		oneStepMeasureTransform.mult(libor);
 
     		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-    			RandomVariableInterface		covarianceFactor	= covarianceModel.getFactorLoading(timeIndex, factorIndex, componentIndex, null);
+    			RandomVariableInterface		covarianceFactor	= covarianceModel.getFactorLoading(timeIndex, factorIndex, componentIndex, realizationAtTimeIndex);
     			covarianceFactor.mult(oneStepMeasureTransform);
     			covarianceFactorSums[componentIndex][factorIndex] = covarianceFactor;
     			if(componentIndex > firstLiborIndex)
@@ -328,15 +330,15 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
        		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-        		drift[componentIndex].addProduct(covarianceFactorSums[componentIndex][factorIndex], getFactorLoading(timeIndex, factorIndex, componentIndex, null));
+        		drift[componentIndex].addProduct(covarianceFactorSums[componentIndex][factorIndex], getFactorLoading(timeIndex, factorIndex, componentIndex, realizationAtTimeIndex));
         	}
         }
 
 		// Drift adjustment for log-coordinate in each component
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
-    		RandomVariableInterface		variance		= covarianceModel.getCovariance(timeIndex, componentIndex, componentIndex);
+    		RandomVariableInterface		variance		= covarianceModel.getCovariance(timeIndex, componentIndex, componentIndex, realizationAtTimeIndex);
     		drift[componentIndex].addProduct(variance, -0.5);
-        }
+		}
 
 		return drift;
 	}
@@ -368,7 +370,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	public	RandomVariableInterface	getFactorLoading(int timeIndex, int factor, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex)
 	{
-		return covarianceModel.getFactorLoading(timeIndex, factor, componentIndex, null);
+		return covarianceModel.getFactorLoading(timeIndex, factor, componentIndex, realizationAtTimeIndex);
 	}
 
 	@Override
@@ -463,7 +465,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		// The sum
 		for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
 			double						periodLength	= liborPeriodDiscretization.getTimeStep(liborIndex);
-			RandomVariableInterface		covariance		= covarianceModel.getCovariance(timeIndex, componentIndex, liborIndex);
+			RandomVariableInterface		covariance		= covarianceModel.getCovariance(timeIndex, componentIndex, liborIndex, null);
 			ImmutableRandomVariableInterface		libor			= liborVectorStart[liborIndex];
 			covariance.mult(periodLength).mult(libor).discount(libor, periodLength);
 			drift.add(covariance);
@@ -473,7 +475,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 
 		// Drift adjustment for log-coordinate
-		RandomVariableInterface		variance		= covarianceModel.getCovariance(timeIndex, componentIndex, componentIndex);
+		RandomVariableInterface		variance		= covarianceModel.getCovariance(timeIndex, componentIndex, componentIndex, null);
 		drift.addProduct(variance, -0.5);
 
 		return drift;
@@ -512,7 +514,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
 
 			double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
-			RandomVariableInterface	covariance	= covarianceModel.getCovariance(timeIndex, componentIndex, liborIndex);
+			RandomVariableInterface	covariance	= covarianceModel.getCovariance(timeIndex, componentIndex, liborIndex, null);
 
 			/*
 			 * We calcululate

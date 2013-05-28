@@ -5,9 +5,6 @@
  */
 package net.finmath.montecarlo.process;
 
-import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -44,7 +41,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
      * Delegation to model
      */
 
-    public void setModel(AbstractModel model) {
+    public void setModel(AbstractModelInterface model) {
     	if(this.model != null) throw new RuntimeException("Attemp to reuse process with a different model. This process is already associated with a model.");
 
     	this.model = model;
@@ -62,9 +59,9 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
     	return model.getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
     }
 
-    public ImmutableRandomVariableInterface		getFactorLoading(int timeIndex, int factor, int component) {
+    public ImmutableRandomVariableInterface		getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
         // Delegate to model
-        return model.getFactorLoading(timeIndex, factor, component, null);
+        return model.getFactorLoading(timeIndex, factor, component, realizationAtTimeIndex);
     }
 
     public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface) {

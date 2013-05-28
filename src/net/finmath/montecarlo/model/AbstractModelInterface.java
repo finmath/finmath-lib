@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.model;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -96,4 +97,22 @@ public interface AbstractModelInterface {
      * @return The factor loading for given factor and component.
      */
     public abstract RandomVariableInterface getFactorLoading(int timeIndex, int factorIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+
+    /**
+     * Set the numerical scheme used to generate the stochastic process.
+     * 
+     * The model needs the numerical scheme to calculate, e.g., the numeraire.
+     * 
+     * @param process The process.
+     */
+    public abstract void setProcess(AbstractProcessInterface process);
+
+    /**
+     * Get the numerical scheme used to generate the stochastic process.
+     * 
+     * The model needs the numerical scheme to calculate, e.g., the numeraire.
+     * 
+     * @return the process
+     */
+    public abstract AbstractProcessInterface getProcess();
 }

@@ -53,7 +53,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param timeIndex The time index at which factor loading inverse is requested.
 	 * @param factor The index of the factor <i>j</i>.
 	 * @param component The index of the component  <i>i</i>.
-	 * @param realizationAtTimeIndex The realization of the stochastic process.
+	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatitliy/covarinace/correlation models).
 	 * @return The entry of the pseudo-inverse of the factor loading matrix.
 	 */
 	public abstract RandomVariableInterface	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
@@ -64,14 +64,15 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param timeIndex The time index at which covariance is requested.
 	 * @param component1 Index of component <i>i</i>.
 	 * @param component2  Index of component <i>j</i>.
+	 * @param realizationAtTimeIndex The realization of the stochastic process.
 	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
-	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2) {
+	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		RandomVariable covariance = new RandomVariable(0.0, 0.0);
 		
 		for(int factorIndex=0; factorIndex<this.getNumberOfFactors(); factorIndex++) {
-			RandomVariableInterface factorLoadingOfComponent1 = getFactorLoading(timeIndex, factorIndex, component1, null);
-			RandomVariableInterface factorLoadingOfComponent2 = getFactorLoading(timeIndex, factorIndex, component2, null);
+			RandomVariableInterface factorLoadingOfComponent1 = getFactorLoading(timeIndex, factorIndex, component1, realizationAtTimeIndex);
+			RandomVariableInterface factorLoadingOfComponent2 = getFactorLoading(timeIndex, factorIndex, component2, realizationAtTimeIndex);
 
 			covariance.addProduct(factorLoadingOfComponent1,factorLoadingOfComponent2);
 		}

@@ -141,7 +141,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 				Callable<ImmutableRandomVariableInterface> worker = new  Callable<ImmutableRandomVariableInterface>() {
 					public ImmutableRandomVariableInterface call() throws SolverException {
 						ImmutableRandomVariableInterface	driftOfComponent	= drift[componentIndex];
-						ImmutableRandomVariableInterface[]	factorLoadings		= getFactorLoadings(timeIndex - 1, componentIndex);
+						ImmutableRandomVariableInterface[]	factorLoadings		= getFactorLoadings(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
 						if (driftOfComponent == null && factorLoadings == null) {
@@ -168,7 +168,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 						currentState[componentIndex].add(increment);
 						
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
+						return currentState[componentIndex];
 					}
 				};
 
@@ -176,10 +176,10 @@ public class ProcessEulerScheme extends AbstractProcess {
 				discreteProcessAtCurrentTimeIndex.add(componentIndex, executor.submit(worker));
 			}
 
-			// Copy results to discreteProcess[timeIndex]
+			// Transform state to value and copy results to discreteProcess[timeIndex]
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
-					discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndex.get(componentIndex).get();
+					discreteProcess[timeIndex][componentIndex] = this.applyStateSpaceTransform(componentIndex, discreteProcessAtCurrentTimeIndex.get(componentIndex).get().getMutableCopy());
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -188,7 +188,6 @@ public class ProcessEulerScheme extends AbstractProcess {
 					e.printStackTrace();
 				}
 			}
-			//			discreteProcess[timeIndex] = getProcessFromStateSpace(incrementFutures);
 
 			if (scheme == Scheme.PREDICTOR_CORRECTOR) {
 				// Apply corrector step to realizations at next time step
@@ -206,12 +205,15 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 					// newRealization[pathIndex] = newRealization[pathIndex] * Math.exp(0.5 * (driftWithPredictorOnPath - driftWithoutPredictorOnPath) * deltaT);
 					RandomVariableInterface driftAdjustment = driftWithPredictorOfComponent.getMutableCopy().sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
-					newRealization.add(driftAdjustment);
+					currentState[componentIndex].add(driftAdjustment);
 
 				} // End for(componentIndex)
-				//				discreteProcess[timeIndex] = getProcessFromStateSpace(currentState);
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
 
+			// Transform state to value and copy results to discreteProcess[timeIndex]
+			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
+				discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
+			}
 
 			// Set Monte-Carlo weights
 			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex - 1];
@@ -292,13 +294,13 @@ public class ProcessEulerScheme extends AbstractProcess {
 		this.reset();
 	}
 
-	private ImmutableRandomVariableInterface[] getFactorLoadings(int timeIndex, int componentIndex) {
+	private ImmutableRandomVariableInterface[] getFactorLoadings(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		int numberOfFactors = getNumberOfFactors();
 		ImmutableRandomVariableInterface[] factorLoadings = new ImmutableRandomVariableInterface[numberOfFactors];
 
 		boolean hasFactorLoadings = false;
 		for (int factorIndex = 0; factorIndex < numberOfFactors; factorIndex++) {
-			factorLoadings[factorIndex] = this.getFactorLoading(timeIndex, factorIndex, componentIndex);
+			factorLoadings[factorIndex] = this.getFactorLoading(timeIndex, factorIndex, componentIndex, realizationAtTimeIndex);
 			if(factorLoadings[factorIndex] != null) hasFactorLoadings = true;
 		}
 

@@ -26,7 +26,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimulationInterface {
 
-	private LIBORMarketModel model;
+	private LIBORMarketModelInterface model;
 
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel and an AbstractProcess.
@@ -34,7 +34,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	 * @param model The LIBORMarketModel.
 	 * @param process The process.
 	 */
-	public LIBORModelMonteCarloSimulation(LIBORMarketModel model, AbstractProcess process) {
+	public LIBORModelMonteCarloSimulation(LIBORMarketModelInterface model, AbstractProcess process) {
 		super();
 		this.model		= model;
 		
@@ -232,7 +232,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
      * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
      */
     public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-    	LIBORMarketModel modelClone = model.getCloneWithModifiedData(dataModified);
+    	LIBORMarketModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
     	return new LIBORModelMonteCarloSimulation(modelClone, (AbstractProcess) getProcess().clone());
     }
 }

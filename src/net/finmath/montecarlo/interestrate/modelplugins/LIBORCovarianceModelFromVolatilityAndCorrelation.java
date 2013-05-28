@@ -57,7 +57,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
      * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel#getCovariance(int, int, int)
      */
     @Override
-    public RandomVariable getCovariance(int timeIndex, int component1, int component2) {
+    public RandomVariable getCovariance(int timeIndex, int component1, int component2, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
         RandomVariable covariance = new RandomVariable(0.0, correlationModel.getCorrelation(timeIndex, component1, component2));
         covariance.mult(volatilityModel.getVolatility(timeIndex, component1));
         covariance.mult(volatilityModel.getVolatility(timeIndex, component2));

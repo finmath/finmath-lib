@@ -28,8 +28,8 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 			TimeDiscretizationInterface	liborPeriodDiscretization,
 			double[][]	volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
+
 		this.volatility = volatility;
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)

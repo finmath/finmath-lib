@@ -55,14 +55,14 @@ public abstract class AbstractModel implements AbstractModelInterface {
      */
 
     /* (non-Javadoc)
-     * @see net.finmath.montecarlo.AbstractModel#setProcess(net.finmath.montecarlo.AbstractProcess)
+     * @see net.finmath.montecarlo.model.AbstractModelInterface#setProcess(net.finmath.montecarlo.process.AbstractProcessInterface)
      */
     public void setProcess(AbstractProcessInterface process) {
         this.process = process;
     }
 
-    /**
-     * @return the process
+    /* (non-Javadoc)
+     * @see net.finmath.montecarlo.model.AbstractModelInterface#getProcess()
      */
     public AbstractProcessInterface getProcess() {
     	return process;

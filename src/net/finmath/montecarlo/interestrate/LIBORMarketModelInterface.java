@@ -1,5 +1,7 @@
 package net.finmath.montecarlo.interestrate;
 
+import java.util.Map;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
@@ -51,4 +53,20 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
 	 */
 	public abstract AbstractLIBORCovarianceModel getCovarianceModel();
 
+	/**
+	 * Create a new object implementing LIBORMarketModelInterface, using the new covariance model.
+	 * 
+	 * @param calibrationCovarianceModel
+	 * @return A new object implementing LIBORMarketModelInterface, using the new covariance model.
+	 */
+	public abstract LIBORMarketModelInterface getCloneWithModifiedCovarianceModel(AbstractLIBORCovarianceModel calibrationCovarianceModel);
+
+    /**
+	 * Create a new object implementing LIBORMarketModelInterface, using the new data.
+	 * 
+     * @param dataModified A map with values to be used in constuctions (keys are identical to parameter names of the constructors).
+	 * @return A new object implementing LIBORMarketModelInterface, using the new data.
+     * @throws CalculationException
+     */
+    public abstract LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;	
 }
