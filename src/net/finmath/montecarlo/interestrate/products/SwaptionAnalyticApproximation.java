@@ -6,10 +6,11 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
+import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -49,14 +50,14 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
      */
     public SwaptionAnalyticApproximation(double swaprate, double[] swapTenor, ValueUnit valueUnit) {
         super();
-        this.swaprate = swaprate;
-        this.swapTenor = swapTenor;
-        this.valueUnit = valueUnit;
+        this.swaprate	= swaprate;
+        this.swapTenor	= swapTenor;
+        this.valueUnit	= valueUnit;
     }
 
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
-    	return getValues(evaluationTime, (LIBORMarketModel)model.getModel());
+    	return getValues(evaluationTime, (LIBORMarketModelInterface)model.getModel());
     }
     
     /**
@@ -70,7 +71,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
      * or the value using the Black formula (ValueUnit.VALUE).
      * @TODO make initial values an arg and use evaluation time.
      */
-    public RandomVariableInterface getValues(double evaluationTime, LIBORMarketModel model) {
+    public RandomVariableInterface getValues(double evaluationTime, LIBORMarketModelInterface model) {
     	if(evaluationTime > 0) throw new RuntimeException("Forward start evaluation currently not supported.");
 
         double swapStart    = swapTenor[0];
@@ -78,9 +79,9 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         
         int swapStartIndex  = model.getLiborPeriodIndex(swapStart);
         int swapEndIndex    = model.getLiborPeriodIndex(swapEnd);
-        int optionMaturityIndex = model.getTimeIndex(swapStart)-1;
+        int optionMaturityIndex = model.getCovarianceModel().getTimeDiscretization().getTimeIndex(swapStart)-1;
         
-        double[][]  logSwaprateDerivative  = getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getInitialValue(), swapTenor);
+        double[][]  logSwaprateDerivative  = getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor);
         double[]    discountFactors        = logSwaprateDerivative[0];
         double[]    swapAnnuities          = logSwaprateDerivative[1];
         double[]    swapCovarianceWeights  = logSwaprateDerivative[2];
@@ -117,7 +118,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         return new RandomVariable(evaluationTime, valueSwaption);
     }
     
-    static public double[][] getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, ImmutableRandomVariableInterface[] immutableRandomVariableInterfaces, double[] swapTenor) {
+    static public double[][] getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
         double swapStart    = swapTenor[0];
         double swapEnd      = swapTenor[swapTenor.length-1];
         
@@ -130,14 +131,14 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 
         discountFactors[0] = 1.0;
         for(int liborPeriodIndex = 0; liborPeriodIndex < swapStartIndex; liborPeriodIndex++) {
-            double libor = immutableRandomVariableInterfaces[liborPeriodIndex].get(0);
+            double libor = forwardCurveInterface.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
             double liborPeriodLength = liborPeriodDiscretization.getTimeStep(liborPeriodIndex);
             discountFactors[0] /= (1 + libor * liborPeriodLength);
         }
 
         // Calculate discount factors for swap period ends (used for swap annuity)
         for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex < swapEndIndex; liborPeriodIndex++) {
-            double libor = immutableRandomVariableInterfaces[liborPeriodIndex].get(0);
+            double libor = forwardCurveInterface.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
             double liborPeriodLength = liborPeriodDiscretization.getTimeStep(liborPeriodIndex);
 
             forwardRates[liborPeriodIndex-swapStartIndex]       = libor;
