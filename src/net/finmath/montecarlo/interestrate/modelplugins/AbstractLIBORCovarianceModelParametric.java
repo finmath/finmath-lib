@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -16,12 +19,22 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * Base class for parametric covariance models.
+ * Parametric models feature a parameter vector which can be inspected
+ * and modified for calibration purposes.
+ * 
+ * The parameter vector may have zero length, which indicated that the model
+ * is not calibrateable.
+ * 
  * @author Christian Fries
- *
  */
 public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel {
 
+	private static Logger logger = Logger.getLogger("net.finmath");
+
 	/**
+	 * Constructor consuming time discretizations, which are handled by the super class.
+	 * 
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfPaths The number of paths (used only in a stochastic volatility model).
@@ -30,11 +43,25 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 	}
 
+    /**
+     * Get the parameters of determining this parametric
+     * covariance model. The parameters are usually free parameters
+     * which may be used in calibration.
+     * 
+     * @return Parameter vector.
+     */
     public abstract double[]	getParameter();
+    
     public abstract void		setParameter(double[] parameter);
-       
 
     public abstract Object clone();
+    
+    public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.clone();
+		calibrationCovarianceModel.setParameter(parameters);
+		
+		return calibrationCovarianceModel;
+    }
     
     public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
 
@@ -57,10 +84,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			@Override
             public void setValues(double[] parameters, double[] values) throws SolverException {
 		        
-		    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.clone();
-				calibrationCovarianceModel.setParameter(parameters);
+		    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
 
-		        LIBORMarketModelInterface model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
+		    	LIBORMarketModelInterface model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
 
 				BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
@@ -87,16 +113,21 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		catch(SolverException e) {
 			throw new CalculationException(e);
 		}
-		
-    	final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)this.clone();
-		calibrationCovarianceModel.setParameter(optimizer.getBestFitParameters());
+
+		// Get covariance model corresponding to the best parameter set.
+		double[] bestParameters = optimizer.getBestFitParameters();
+    	final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)this.getCloneWithModifiedParameters(bestParameters);
 		
 		// Diagnostic output
-		double[] bestParameters = optimizer.getBestFitParameters();
-		System.out.println("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-		for(int i=0; i<bestParameters.length; i++) {
-			System.out.println("\tparameter["+i+"]: " + bestParameters[i]);
-		}
+    	if (logger.isLoggable(Level.FINE)) {
+    		logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+
+    		String logString = "Best parameters:";
+    		for(int i=0; i<bestParameters.length; i++) {
+    			logString += "\tparameter["+i+"]: " + bestParameters[i];
+    		}
+    		logger.fine(logString);
+    	}
 
         return calibrationCovarianceModel;    	
     }

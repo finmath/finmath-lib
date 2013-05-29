@@ -21,7 +21,7 @@ public abstract class AbstractLIBORCovarianceModel {
     private	TimeDiscretizationInterface		timeDiscretization;
     private TimeDiscretizationInterface		liborPeriodDiscretization;
 	private	int								numberOfFactors;
-	
+
 	/**
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
