@@ -47,15 +47,39 @@ public class SwapAnnuity implements AnalyticProductInterface {
 		return getSwapAnnuity(tenor, discountCurve, model);
 	}
 
+	/**
+	 * Function to calculate an (idealized) swap annuity for a given tenor and discount curve.
+	 * 
+	 * @param tenor The tenor discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param discountCurve The discount curve.
+	 * @return The swap annuity.
+	 */
 	static public double getSwapAnnuity(TimeDiscretizationInterface tenor, DiscountCurveInterface discountCurve) {
     	return getSwapAnnuity(tenor, discountCurve, null);
 	}
 
+	/**
+	 * Function to calculate an (idealized) single curve swap annuity for a given tenor and forward curve.
+	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
+	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
+	 * 
+	 * @param tenor The tenor discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param forwardCurve The forward curve.
+	 * @return The swap annuity.
+	 */
 	static public double getSwapAnnuity(TimeDiscretizationInterface tenor, ForwardCurveInterface forwardCurve) {
 		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
     	return getSwapAnnuity(tenor, discountCurve, new AnalyticModel( new CurveInterface[] {forwardCurve, discountCurve} ));
 	}
 
+	/**
+	 * Function to calculate an (idealized) swap annuity for a given tenor and discount curve.
+	 * 
+	 * @param tenor The tenor discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param discountCurve The discount curve.
+	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.
+	 * @return The swap annuity.
+	 */
 	static public double getSwapAnnuity(TimeDiscretizationInterface tenor, DiscountCurveInterface discountCurve, AnalyticModelInterface model) {
     	double value = 0.0;
 		for(int periodIndex=0; periodIndex<tenor.getNumberOfTimeSteps(); periodIndex++) {
