@@ -8,10 +8,12 @@ package net.finmath.montecarlo;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * The interface implemented by a simulation of an SDE. Provides the dimension of the SDE and the the time discretization of the
+ * The interface implemented by a simulation of an SDE.
+ * Provides the dimension of the SDE and the the time discretization of the
  * simulation.
  * 
  * @author Christian Fries
@@ -45,6 +47,23 @@ public interface MonteCarloSimulationInterface {
 	 */
 	public int getTimeIndex(double time);
 
+	/**
+	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
+	 * 
+	 * @param timeIndex Time index at which the process should be observed
+	 * @return A vector of positive weights which sums up to one
+	 * @throws CalculationException 
+	 */
+	public abstract RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
+
+	/**
+	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
+	 * 
+	 * @param time Time at which the process should be observed
+	 * @return A vector of positive weights which sums up to one
+	 * @throws CalculationException 
+	 */
+	public abstract RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
 
 	/**
 	 * Create a clone of this simulation modifying some of its properties (if any).

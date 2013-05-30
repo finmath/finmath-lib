@@ -53,7 +53,7 @@ public interface AbstractModelInterface {
 	 * Return the numeraire at a given time index.
 	 * Note: The random variable returned is a defensive copy and may be modified.
 	 * 
-	 * @param timeIndex Time index <i>i</i> for which the numeraire should be returned <i>N(t<sub>i</sub>)</i>.
+	 * @param time The time <i>t</i> for which the numeraire <i>N(t)</i> should be returned.
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
 	 * @throws CalculationException 
 	 */

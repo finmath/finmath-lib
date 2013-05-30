@@ -95,24 +95,6 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @throws CalculationException 
 	 */
 	public abstract RandomVariableInterface getNumeraire(double time) throws CalculationException;
-
-	/**
-	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
-	 * 
-	 * @param timeIndex Time index at which the process should be observed
-	 * @return A vector of positive weights which sums up to one
-	 * @throws CalculationException 
-	 */
-	public abstract RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
-
-	/**
-	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
-	 * 
-	 * @param time Time at which the process should be observed
-	 * @return A vector of positive weights which sums up to one
-	 * @throws CalculationException 
-	 */
-	public abstract RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
 	
 	/**
 	 * Return the Brownian motion used to simulate the curve.

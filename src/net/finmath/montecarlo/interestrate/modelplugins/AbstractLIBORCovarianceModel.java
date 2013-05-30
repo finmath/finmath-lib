@@ -23,8 +23,11 @@ public abstract class AbstractLIBORCovarianceModel {
 	private	int								numberOfFactors;
 
 	/**
+	 * Constructor consuming time discretizations, which are handled by the super class.
+	 * 
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
+	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
 	 */
 	public AbstractLIBORCovarianceModel(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
 		super();

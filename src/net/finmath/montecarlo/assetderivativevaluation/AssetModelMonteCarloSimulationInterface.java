@@ -44,9 +44,6 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 */
 	public RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
 
-	public RandomVariableInterface		getMonteCarloWeights(int timeIndex) throws CalculationException;
-	public RandomVariableInterface		getMonteCarloWeights(double time) throws CalculationException;
-
 	public RandomVariableInterface		getNumeraire(int timeIndex);
 	public RandomVariableInterface		getNumeraire(double time);
 	
