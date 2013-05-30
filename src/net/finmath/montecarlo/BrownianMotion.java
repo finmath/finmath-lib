@@ -18,7 +18,7 @@ import cern.jet.random.engine.MersenneTwister64;
  * independent for <i>i</i> not equal <i>j</i>.
  * 
  * For a correlated Brownian motion with see
- * {@see net.finmath.montecarlo.CorrelatedBrownianMotion}.
+ * {@link net.finmath.montecarlo.CorrelatedBrownianMotion}.
  * 
  * Here the dimension <i>n</i> is called factors since this Brownian motion is used to
  * generate multi-dimensional multi-factor Ito processes and there one might
