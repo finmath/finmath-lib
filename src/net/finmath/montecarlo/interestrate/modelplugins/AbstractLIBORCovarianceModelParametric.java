@@ -71,8 +71,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final int numberOfPaths	= 5000;
 		final int seed			= 31415;
 		final int maxIterations	= 1000;
-		final int numberOfThreads = 10;
 
+		// We do not allocate more threads the twice the number of processors.
+		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1), calibrationProducts.length);
 		
     	LevenbergMarquardt optimizer = new net.finmath.optimizer.LevenbergMarquardt(
 			initialParameters,
