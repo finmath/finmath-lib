@@ -191,10 +191,11 @@ public abstract class LevenbergMarquardt {
 	}
 
 	/**
-	 * Set the (initial) parameter step for the solver.
+	 * Set the parameter step for the solver.
+	 * The parameter step is used to evaluate the derivatives via
+	 * finite differences, if analytic derivatives are not provided.
 	 * 
-	 * @param parameterSteps
-	 *            The parameter step.
+	 * @param parameterSteps The parameter step.
 	 */
 	public void setParameterSteps(double[] parameterSteps) {
 		this.parameterSteps = parameterSteps;
@@ -232,11 +233,29 @@ public abstract class LevenbergMarquardt {
 		this.weights = weights;
 	}
 
+
+	/**
+	 * Set the error tolerance. The solver considers the solution "found"
+	 * if the error is not improving by this given error tolerance.
+	 * 
+	 * @param errorTolerance The error tolerance.
+	 */
+	public void setErrorTolerance(double errorTolerance) {
+		this.errorTolerance = errorTolerance;
+	}
+
+	/**
+	 * Get the best fit parameter vector.
+	 * 
+	 * @return The best fit parameter.
+	 */
 	public double[] getBestFitParameters() {
 		return parameterCurrent;
 	}
 
 	/**
+	 * Get the number of iterations.
+	 * 
 	 * @return The number of iterations required
 	 */
 	public int getIterations() {
@@ -247,10 +266,8 @@ public abstract class LevenbergMarquardt {
 	 * The objective function. Override this method to implement your custom
 	 * function.
 	 * 
-	 * @param parameters
-	 *            Input value. The parameter vector.
-	 * @param values
-	 *            Output value. The vector of values f(i,parameters), i=1,...,n
+	 * @param parameters Input value. The parameter vector.
+	 * @param values Output value. The vector of values f(i,parameters), i=1,...,n
 	 * @throws CalculationException
 	 */
 	public abstract void setValues(double[] parameters, double[] values) throws SolverException;
@@ -269,15 +286,24 @@ public abstract class LevenbergMarquardt {
 
     	Vector<Future<double[]>> valueFutures = new Vector<Future<double[]>>(parameterCurrent.length);
 		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
-			final double[] parametersNew = parameters.clone();
-			final double[] derivative = derivatives[parameterIndex];
+			final double[] parametersNew	= parameters.clone();
+			final double[] derivative		= derivatives[parameterIndex];
 
 			final int workerParameterIndex = parameterIndex;
 			Callable<double[]> worker = new  Callable<double[]>() {
 				public double[] call() throws SolverException {
 					double parameterFiniteDifference;
-					if(parameterSteps != null)	parameterFiniteDifference = parameterSteps[workerParameterIndex];
-					else						parameterFiniteDifference = (parametersNew[workerParameterIndex] + 1) * 1E-8;
+					if(parameterSteps != null) {
+						parameterFiniteDifference = parameterSteps[workerParameterIndex];
+					}
+					else {
+						/*
+						 * Try to adaptively set a parameter shift. Note that in some
+						 * applications it may be important to set parameterSteps.
+						 * appropriately.
+						 */
+						parameterFiniteDifference = (Math.abs(parametersNew[workerParameterIndex]) + 1) * 1E-8;
+					}
 		
 					// Shift parameter value
 					parametersNew[workerParameterIndex] += parameterFiniteDifference;
@@ -388,7 +414,8 @@ public abstract class LevenbergMarquardt {
 				break;
 
 			// Log iteration
-			if (logger.isLoggable(Level.FINE)) {
+//			if (logger.isLoggable(Level.FINE))
+			{
 				String logString = "Iteration: " + iteration + "\tLambda="
 						+ lambda + "\tError Current:" + errorCurrent
 						+ "\tError Change:" + errorChange + "\t";
@@ -396,6 +423,7 @@ public abstract class LevenbergMarquardt {
 					logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
 				}
 				logger.fine(logString);
+				System.out.println(logString);
 			}
 		}
 
