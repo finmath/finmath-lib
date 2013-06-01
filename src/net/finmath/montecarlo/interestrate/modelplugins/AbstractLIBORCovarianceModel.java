@@ -37,18 +37,17 @@ public abstract class AbstractLIBORCovarianceModel {
 	}
 
 	/**
-	 * Return the factor loading for a given time index, factor index and component index.
-	 * The factor loading <i>f<sub>i,j</sub></i> is such that the scalar product
-	 * <i>f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i>
+	 * Return the factor loading for a given time index and component index.
+	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
+	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
 	 * is the instantaneous covariance of the component <i>j</i> and <i>k</i>.
 	 * 
 	 * @param timeIndex The time index at which factor loading is requested.
-	 * @param factor The index of the factor <i>j</i>.
 	 * @param component The index of the component  <i>i</i>.
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatitliy/covarinace/correlation models).
-	 * @return The factor loading <i>f<sub>i,j</sub>(t)</i>.
+	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
-	public abstract	RandomVariableInterface	getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+	public abstract	RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
 
 	/**
 	 * Returns the pseudo inverse of the factor matrix.
@@ -73,11 +72,10 @@ public abstract class AbstractLIBORCovarianceModel {
 	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		RandomVariable covariance = new RandomVariable(0.0, 0.0);
 		
+		RandomVariableInterface[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
+		RandomVariableInterface[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
 		for(int factorIndex=0; factorIndex<this.getNumberOfFactors(); factorIndex++) {
-			RandomVariableInterface factorLoadingOfComponent1 = getFactorLoading(timeIndex, factorIndex, component1, realizationAtTimeIndex);
-			RandomVariableInterface factorLoadingOfComponent2 = getFactorLoading(timeIndex, factorIndex, component2, realizationAtTimeIndex);
-
-			covariance.addProduct(factorLoadingOfComponent1,factorLoadingOfComponent2);
+			covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);
 		}
 
 		return covariance;

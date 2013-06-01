@@ -85,18 +85,18 @@ public interface AbstractModelInterface {
 
     /**
      * This method has to be implemented to return the factor loadings, i.e.
-     * the coeffient lamba(i,j) such that <br>
-     * dS(j) = (...) dt + S(j) * (lambda(1,j) dW(1) + ... + lambda(m,j) dW(m)) <br>
+     * the coeffient vector <br>
+     * <i>lamba(j) =  (lambda(1,j), ..., lambda(m,j))</i> such that <br>
+     * <i>dS(j) = (...) dt + S(j) * (lambda(1,j) dW(1) + ... + lambda(m,j) dW(m))</i> <br>
      * in an m-factor model. Here j denotes index of the component of the resulting
      * log-normal process and i denotes the index of the factor.
      * 
      * @param timeIndex The time index (related to the model times discretization).
-     * @param factorIndex The index of the driving factor.
      * @param componentIndex The index of the driven component.
      * @param realizationAtTimeIndex The realization of S at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
      * @return The factor loading for given factor and component.
      */
-    public abstract RandomVariableInterface getFactorLoading(int timeIndex, int factorIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+    public abstract RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
 
     /**
      * Set the numerical scheme used to generate the stochastic process.

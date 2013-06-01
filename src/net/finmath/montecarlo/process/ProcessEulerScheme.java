@@ -141,7 +141,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 				Callable<ImmutableRandomVariableInterface> worker = new  Callable<ImmutableRandomVariableInterface>() {
 					public ImmutableRandomVariableInterface call() throws SolverException {
 						ImmutableRandomVariableInterface	driftOfComponent	= drift[componentIndex];
-						ImmutableRandomVariableInterface[]	factorLoadings		= getFactorLoadings(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
+						ImmutableRandomVariableInterface[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
 						if (driftOfComponent == null && factorLoadings == null) {
@@ -149,15 +149,15 @@ public class ProcessEulerScheme extends AbstractProcess {
 						}
 
 						// Temp storage for variance and diffusion
-						RandomVariable varianceOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
+//						RandomVariable varianceOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
 						RandomVariable diffusionOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
 
 						// Generate values for diffusionOfComponent and varianceOfComponent 
 						for (int factor = 0; factor < numberOfFactors; factor++) {
-							ImmutableRandomVariableInterface factorLoading = factorLoadings[factor];
-							ImmutableRandomVariableInterface brownianIncrement = brownianMotion.getBrownianIncrement(timeIndex - 1, factor);
+							ImmutableRandomVariableInterface factorLoading		= factorLoadings[factor];
+							ImmutableRandomVariableInterface brownianIncrement	= brownianMotion.getBrownianIncrement(timeIndex - 1, factor);
 
-							varianceOfComponent.addProduct(factorLoading, factorLoading);
+//							varianceOfComponent.addProduct(factorLoading, factorLoading);
 							diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
 						}
 
@@ -292,20 +292,6 @@ public class ProcessEulerScheme extends AbstractProcess {
 		this.scheme = scheme;
 		// Force recalculation of the process
 		this.reset();
-	}
-
-	private ImmutableRandomVariableInterface[] getFactorLoadings(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
-		int numberOfFactors = getNumberOfFactors();
-		ImmutableRandomVariableInterface[] factorLoadings = new ImmutableRandomVariableInterface[numberOfFactors];
-
-		boolean hasFactorLoadings = false;
-		for (int factorIndex = 0; factorIndex < numberOfFactors; factorIndex++) {
-			factorLoadings[factorIndex] = this.getFactorLoading(timeIndex, factorIndex, componentIndex, realizationAtTimeIndex);
-			if(factorLoadings[factorIndex] != null) hasFactorLoadings = true;
-		}
-
-		if(hasFactorLoadings)	return factorLoadings;
-		else					return null;
 	}
 
 	@Override
