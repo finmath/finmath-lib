@@ -414,7 +414,7 @@ public abstract class LevenbergMarquardt {
 				break;
 
 			// Log iteration
-//			if (logger.isLoggable(Level.FINE))
+			if (logger.isLoggable(Level.FINE))
 			{
 				String logString = "Iteration: " + iteration + "\tLambda="
 						+ lambda + "\tError Current:" + errorCurrent
@@ -423,7 +423,6 @@ public abstract class LevenbergMarquardt {
 					logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
 				}
 				logger.fine(logString);
-				System.out.println(logString);
 			}
 		}
 
