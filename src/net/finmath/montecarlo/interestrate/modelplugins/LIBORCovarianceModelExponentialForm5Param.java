@@ -52,11 +52,15 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
-        RandomVariableInterface volatilityInstanteaneous	= this.volatilityModel.getVolatility(timeIndex, component);
-        double factorLoading			= this.correlationModel.getFactorLoading(timeIndex, factor, component);
-
-        return volatilityInstanteaneous.mult(factorLoading);
+    public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
+		RandomVariableInterface factorLoading[] = new RandomVariableInterface[correlationModel.getNumberOfFactors()];
+		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
+			RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, component);
+			factorLoading[factorIndex] = volatility;
+			factorLoading[factorIndex].mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
+		}
+		
+		return factorLoading;
 	}
 
 	@Override

@@ -59,20 +59,16 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
         double[]  swapCovarianceWeights1  = SwaptionAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor1)[2];
         double[]  swapCovarianceWeights2  = SwaptionAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor2)[2];
 
-        // Caclculate integrated model covariance
+        // Get the integrated libor covariance from the model
+        double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
+
+        // Calculate integrated swap rate covariance
         double integratedSwapRateCovariance = 0.0;
 
         for(int componentIndex1 = swapStartIndex1; componentIndex1 < swapEndIndex1; componentIndex1++) {
             // Sum the libor cross terms (use symmetry)
             for(int componentIndex2 = swapStartIndex2; componentIndex2 < swapEndIndex2; componentIndex2++) {
-                double integratedLIBORCovariance = 0.0;
-                for(int timeIndex = 0; timeIndex < optionMaturityIndex; timeIndex++) {
-                    double dt = model.getTime(timeIndex+1) - model.getTime(timeIndex);
-                    for(int factorIndex = 0; factorIndex < model.getNumberOfFactors(); factorIndex++) {
-                        integratedLIBORCovariance += model.getCovarianceModel().getFactorLoading(timeIndex, factorIndex, componentIndex1, null).get(0) * model.getCovarianceModel().getFactorLoading(timeIndex, factorIndex, componentIndex2, null).get(0) * dt;
-                    }
-                }
-                integratedSwapRateCovariance += swapCovarianceWeights1[componentIndex1-swapStartIndex1] * swapCovarianceWeights2[componentIndex2-swapStartIndex2] * integratedLIBORCovariance;
+                integratedSwapRateCovariance += swapCovarianceWeights1[componentIndex1-swapStartIndex1] * swapCovarianceWeights2[componentIndex2-swapStartIndex2] * integratedLIBORCovariance[componentIndex1][componentIndex2];
             }
         }
 
