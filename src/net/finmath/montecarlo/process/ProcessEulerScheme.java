@@ -131,25 +131,27 @@ public class ProcessEulerScheme extends AbstractProcess {
 			final double deltaT = getTime(timeIndex) - getTime(timeIndex - 1);
 
 			// Fetch drift vector
-			final ImmutableRandomVariableInterface[] drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
+			ImmutableRandomVariableInterface[] drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 
 			// Calculate new realization
 			Vector<Future<ImmutableRandomVariableInterface>> discreteProcessAtCurrentTimeIndex = new Vector<Future<ImmutableRandomVariableInterface>>(numberOfComponents);
+			discreteProcessAtCurrentTimeIndex.setSize(numberOfComponents);
 			for (int componentIndex2 = 0; componentIndex2 < numberOfComponents; componentIndex2++) {
 				final int componentIndex = componentIndex2;
 
+				final ImmutableRandomVariableInterface	driftOfComponent	= drift[componentIndex];
+
+				// Check if the component process has stopped to evolve
+				if (driftOfComponent == null) continue;
+
 				Callable<ImmutableRandomVariableInterface> worker = new  Callable<ImmutableRandomVariableInterface>() {
 					public ImmutableRandomVariableInterface call() throws SolverException {
-						ImmutableRandomVariableInterface	driftOfComponent	= drift[componentIndex];
 						ImmutableRandomVariableInterface[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
-						if (driftOfComponent == null && factorLoadings == null) {
-							return currentState[componentIndex];
-						}
+						if (factorLoadings == null) return null;
 
 						// Temp storage for variance and diffusion
-//						RandomVariable varianceOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
 						RandomVariable diffusionOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
 
 						// Generate values for diffusionOfComponent and varianceOfComponent 
@@ -157,7 +159,6 @@ public class ProcessEulerScheme extends AbstractProcess {
 							ImmutableRandomVariableInterface factorLoading		= factorLoadings[factor];
 							ImmutableRandomVariableInterface brownianIncrement	= brownianMotion.getBrownianIncrement(timeIndex - 1, factor);
 
-//							varianceOfComponent.addProduct(factorLoading, factorLoading);
 							diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
 						}
 
@@ -168,18 +169,21 @@ public class ProcessEulerScheme extends AbstractProcess {
 						currentState[componentIndex].add(increment);
 						
 						// Transform the state space to the value space and return it.
-						return currentState[componentIndex];
+						return applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
 					}
 				};
 
+				
 				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
-				discreteProcessAtCurrentTimeIndex.add(componentIndex, executor.submit(worker));
+				discreteProcessAtCurrentTimeIndex.set(componentIndex, executor.submit(worker));
 			}
 
-			// Transform state to value and copy results to discreteProcess[timeIndex]
+			// Fetch results and move to discreteProcess[timeIndex]
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
-					discreteProcess[timeIndex][componentIndex] = this.applyStateSpaceTransform(componentIndex, discreteProcessAtCurrentTimeIndex.get(componentIndex).get().getMutableCopy());
+					Future<ImmutableRandomVariableInterface> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
+					if(discreteProcessAtCurrentTimeIndexAndComponent != null)	discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get();
+					else														discreteProcess[timeIndex][componentIndex] = null;
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -207,13 +211,10 @@ public class ProcessEulerScheme extends AbstractProcess {
 					RandomVariableInterface driftAdjustment = driftWithPredictorOfComponent.getMutableCopy().sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
 					currentState[componentIndex].add(driftAdjustment);
 
+					// Reapply state space transform
+					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
-
-			// Transform state to value and copy results to discreteProcess[timeIndex]
-			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
-				discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
-			}
 
 			// Set Monte-Carlo weights
 			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex - 1];
