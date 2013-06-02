@@ -313,7 +313,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		// Allocate drift vector and initialize to zero (will be used to sum up drift components)
     	RandomVariableInterface[]	drift = new RandomVariableInterface[getNumberOfComponents()];
     	RandomVariableInterface[][]	covarianceFactorSums	= new RandomVariableInterface[getNumberOfComponents()][getNumberOfFactors()];
-    	for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
+    	for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
     		drift[componentIndex] = new RandomVariable(0.0, 0.0);
     	}
     	
@@ -349,7 +349,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
         }
 
 		// Drift adjustment for log-coordinate in each component
-		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
+		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
     		RandomVariableInterface		variance		= covarianceModel.getCovariance(timeIndex, componentIndex, componentIndex, realizationAtTimeIndex);
     		drift[componentIndex].addProduct(variance, -0.5);
 		}
