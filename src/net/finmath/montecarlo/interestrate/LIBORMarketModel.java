@@ -129,7 +129,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			AbstractLIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
 	) throws CalculationException {
-			this(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, getCalibrationData(liborPeriodDiscretization, forwardRateCurve, swaptionMarketData));
+			this(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, getCalibrationItems(liborPeriodDiscretization, forwardRateCurve, swaptionMarketData));
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			AbstractLIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
 	) throws CalculationException {
-			this(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, getCalibrationData(liborPeriodDiscretization, forwardRateCurve, swaptionMarketData));
+			this(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, getCalibrationItems(liborPeriodDiscretization, forwardRateCurve, swaptionMarketData));
 	}
 
 
@@ -200,7 +200,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights);
 	}
 
-	private static CalibrationItem[] getCalibrationData(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
+	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
 		TimeDiscretizationInterface	optionMaturities		= swaptionMarketData.getOptionMaturities();
 		TimeDiscretizationInterface	tenor					= swaptionMarketData.getTenor();
 		double						swapPeriodLength		= swaptionMarketData.getSwapPeriodLength();
