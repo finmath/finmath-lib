@@ -85,19 +85,23 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 			ImmutableRandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
 			ImmutableRandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 
-			// Calculates payout
+			// Calculate payout
 			RandomVariableInterface payoff = libor.getMutableCopy().sub(strike).mult(periodLength);
 			RandomVariableInterface indicator = (new RandomVariable(1.0)).barrier(payoff, (new RandomVariable(1.0)), (new RandomVariable(0.0)));
 			indicator.barrier(numberOfExcercises, indicator, 0.0);
 			
 			payoff.div(numeraire).mult(monteCarloProbabilities);
+
+			// Accumulate numeraire relative values
 			values.addProduct(indicator, payoff);
+
+			// Update exercise counter
 			numberOfExcercises.sub(indicator);
 		}
 
-		ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		ImmutableRandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
+		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
+		values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 				
 		return values;	
 	}
