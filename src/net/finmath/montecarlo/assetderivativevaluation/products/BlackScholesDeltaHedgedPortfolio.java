@@ -1,6 +1,6 @@
 /*
- * (c) Copyright Christian P. Fries, http://www.christian-fries.de.
- * Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ *
  * Created on 27.04.2012
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
