@@ -53,11 +53,6 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	public abstract int getLiborPeriodIndex(double time);
 
 	/**
-	 * @return the covarianceModel
-	 */
-	public abstract AbstractLIBORCovarianceModel getCovarianceModel();
-
-	/**
 	 * Return the forward rate for a given simulation time index and a given forward rate index.
 	 * 
 	 * @param timeIndex Simulation time index.
@@ -115,6 +110,11 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 */
 	public abstract AbstractProcessInterface getProcess();
 	
+	/**
+	 * @return the covarianceModel
+	 */
+	public abstract AbstractLIBORCovarianceModel getCovarianceModel();
+
 	/**
 	 * Return a clone of this model with a modified Brownian motion using a different seed.
 	 * 
