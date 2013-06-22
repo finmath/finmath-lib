@@ -16,8 +16,8 @@ package net.finmath.rootfinder;
 public class RiddersMethod implements RootFinder {
 	
 	// We store the left and right end point of the intervall
-	private double[] points = new double[3]; // left, middle, right
-	private double[] values = new double[3]; // left, middle, right
+	private final double[] points = new double[3]; // left, middle, right
+	private final double[] values = new double[3]; // left, middle, right
 	
 	/*
 	 * State of solver 
@@ -37,7 +37,7 @@ public class RiddersMethod implements RootFinder {
 		while(search.getAccuracy() > 1E-13 && !search.isDone()) {
 			double x = search.getNextPoint();
 			
-			double y = (x - 0.656);
+			double y = x - 0.656;
 			
 			search.setValue(y);
 			System.out.println(search.getAccuracy());
@@ -64,21 +64,24 @@ public class RiddersMethod implements RootFinder {
 	/**
 	 * @return Best point optained so far
 	 */
-	public double getBestPoint() {
+	@Override
+    public double getBestPoint() {
 		return bestPoint;
 	}
 	
 	/**
 	 * @return Next point for which a value should be set using <code>setValue</code>.
 	 */
-	public double getNextPoint() {
+	@Override
+    public double getNextPoint() {
 		return nextPoint;
 	}
 	
 	/**
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint</code> call.
 	 */
-	public void setValue(double value) {
+	@Override
+    public void setValue(double value) {
 		switch(solverState)
 		{
 		case 0:
@@ -109,7 +112,7 @@ public class RiddersMethod implements RootFinder {
 			if (s == 0.0) isDone = true;
 
 			// Calculate next point to propose
-			nextPoint = points[1]+(points[1]-points[0])*((values[0] >= values[2] ? 1.0 : -1.0)*values[1]/s); // Updating formula.
+			nextPoint = points[1]+(points[1]-points[0])* (values[0] >= values[2] ? 1.0 : -1.0) *values[1]/s; // Updating formula.
 			solverState++;
 			break;
 		case 3:
@@ -170,26 +173,29 @@ public class RiddersMethod implements RootFinder {
 	/**
 	 * @return Returns the numberOfIterations.
 	 */
-	public int getNumberOfIterations() {
+	@Override
+    public int getNumberOfIterations() {
 		return numberOfIterations;
 	}
 
 	/**
 	 * @return Returns the accuracy.
 	 */
-	public double getAccuracy() {
+	@Override
+    public double getAccuracy() {
 		return accuracy;
 	}
 
 	/**
 	 * @return Returns the isDone.
 	 */
-	public boolean isDone() {
+	@Override
+    public boolean isDone() {
 		return isDone;
 	}
 	
 	private static final double sign(double a, double b) 
 	{
-		return (b>= 0.0) ? ((a>=0) ? a : -a) : ((a>0) ? -a : a);
+		return b>= 0.0 ? a>=0 ? a : -a : a>0 ? -a : a;
 	}
 }

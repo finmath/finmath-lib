@@ -27,23 +27,23 @@ public interface BrownianMotionInterface {
 	 * @param factor The index of the factor (independent scalar Brownian increment)
 	 * @return The factor (component) of the Brownian increments (a random variable)
 	 */
-	public abstract ImmutableRandomVariableInterface getBrownianIncrement(int timeIndex, int factor);
+	ImmutableRandomVariableInterface getBrownianIncrement(int timeIndex, int factor);
 
 
 	/**
 	 * @return The time discretization used for this set of time-discrete Brownian increments.
 	 */
-	public abstract TimeDiscretizationInterface getTimeDiscretization();
+    TimeDiscretizationInterface getTimeDiscretization();
 
 	/**
 	 * @return The number of factors.
 	 */
-	public abstract int getNumberOfFactors();
+    int getNumberOfFactors();
 
 	/**
 	 * @return The number of paths.
 	 */
-	public abstract int getNumberOfPaths();
+    int getNumberOfPaths();
 	
 	/**
 	 * Return a new object implementing BrownianMotionInterface
@@ -55,5 +55,5 @@ public interface BrownianMotionInterface {
 	 * @param seed New value for the seed.
 	 * @return New object implementing BrownianMotionInterface.
 	 */
-	public abstract BrownianMotionInterface getCloneWithModifiedSeed(int seed);
+    BrownianMotionInterface getCloneWithModifiedSeed(int seed);
 }

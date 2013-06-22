@@ -20,8 +20,8 @@ public class ForwardCurveFromDiscountCurve extends AbstractCurve implements Seri
 
     private static final long serialVersionUID = -4126228588123963885L;
 
-	private String						discountCurveName;
-    private double						paymentOffset;
+	private final String						discountCurveName;
+    private final double						paymentOffset;
 
     /**
      * Create a forward curve using a given discount curve.

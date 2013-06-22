@@ -21,11 +21,11 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  */
 public class Forward implements AnalyticProductInterface {
 
-	private double						maturity;
-	private double						paymentOffset;
-	private String						forwardCurveName;
-	private double						spread;
-	private String						discountCurveName;
+	private final double						maturity;
+	private final double						paymentOffset;
+	private final String						forwardCurveName;
+	private final double						spread;
+	private final String						discountCurveName;
 
 	/**
 	 * Creates a forward. The forward has a unit notional of 1.

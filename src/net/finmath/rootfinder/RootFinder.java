@@ -19,32 +19,32 @@ public interface RootFinder {
 	 * @return Next point for which a value should be set
 	 * using <code>setValue</code>.
 	 */
-	public double getNextPoint();
+    double getNextPoint();
 	
 	/**
 	 * @param value Value corresponding to point returned
 	 * by previous <code>getNextPoint</code> call.
 	 */
-	public void setValue(double value);		
+    void setValue(double value);
 	
 	/**
 	 * @return Returns the numberOfIterations.
 	 */
-	public int getNumberOfIterations();
+    int getNumberOfIterations();
 	
 	/**
 	 * @return Best point obtained so far
 	 */
-	public double getBestPoint();
+    double getBestPoint();
 
 	/**
 	 * @return Returns the accuracy.
 	 */
-	public double getAccuracy();
+    double getAccuracy();
 	
 	/**
 	 * @return Returns true if further improvement is not possible.
 	 */
-	public boolean isDone();
+    boolean isDone();
 
 }

@@ -23,9 +23,9 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * 	<li>cubic spline of the input points</li>
  *  <li>etc.</li>
  * </ul>
- * For the interpolation methods provided see {@link InterpolationMethod}.
- * For the extrapolation methods provided see {@link ExtrapolationMethod}.
- * For the possible interpolation entities see {@link InterpolationEntity}.
+ * For the interpolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.InterpolationMethod}.
+ * For the extrapolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod}.
+ * For the possible interpolation entities see {@link net.finmath.marketdata.model.curves.Curve.InterpolationEntity}.
  * 
  * @author Christian Fries
  */
@@ -80,14 +80,16 @@ public class Curve extends AbstractCurve implements Serializable {
 	        this.value = value;
         }
 
-		public int compareTo(Point point) {
+		@Override
+        public int compareTo(Point point) {
 			if(this.time < point.time) return -1;
 			if(this.time > point.time) return +1;
 
 			return 0;
 		}
 		
-		public Object clone() {
+		@Override
+        public Object clone() {
 			return new Point(time,value);
 		}
 	}
@@ -121,7 +123,8 @@ public class Curve extends AbstractCurve implements Serializable {
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
-	public double getValue(double time)
+	@Override
+    public double getValue(double time)
 	{
 		return getValue(null, time);
 	}
@@ -209,9 +212,9 @@ public class Curve extends AbstractCurve implements Serializable {
 
 	public String toString() {
 		String objectAsString = super.toString() + "\n";
-    	for(int i=0; i<points.size(); i++) {
-    		objectAsString = objectAsString + (points.get(i).time) + "\t" + valueFromInterpolationEntity(points.get(i).value) + "\n";
-    	}
+        for (Point point : points) {
+            objectAsString = objectAsString + point.time + "\t" + valueFromInterpolationEntity(point.value) + "\n";
+        }
 		return objectAsString;
 	}
 	

@@ -17,7 +17,7 @@ package net.finmath.rootfinder;
 public class SecantMethod extends NewtonsMethod implements RootFinder {
 
 	// We need a second guess for the initial secant
-	private double secondGuess;
+	private final double secondGuess;
 
 	// State of the solver
 	private double currentPoint;	// Actually the same as NewtonsMethod.nextPoint
@@ -47,7 +47,8 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
      *      The value corresponding to the point returned
      *      by previous <code>getNextPoint</code> call.
 	 */
-	public void setValue(double value) {
+	@Override
+    public void setValue(double value) {
 		// Calculate approximation for derivative
 		double derivative;
 		if (getNumberOfIterations() == 0) {
@@ -65,8 +66,7 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 
 		super.setValueAndDerivative(value, derivative);
 
-		return;
-	}
+    }
 
 	/**
 	 * @param value
@@ -84,6 +84,5 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 
 		super.setValueAndDerivative(value, derivative);
 
-		return;
-	}
+    }
 }

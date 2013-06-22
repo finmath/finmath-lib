@@ -11,6 +11,15 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * A covariance model build from a volatility model implementing
+ * <code>LIBORVolatilityModel</code> and a correlation model
+ * implementing <code>LIBORCorrelationModel</code>.
+ * 
+ * The model parameters are given by the concatenation of the
+ * parameters of the <code>LIBORVolatilityModel</code> and
+ * the parameters of the <code>LIBORCorrelationModel</code>,
+ * in this ordering
+ * 
  * @author Christian Fries
  */
 public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLIBORCovarianceModelParametric {

@@ -25,7 +25,7 @@ import org.apache.commons.math3.util.FastMath;
  * @author Christian Fries
  * @version 1.8
  */
-public class RandomVariable implements ImmutableRandomVariableInterface, RandomVariableInterface {
+public class RandomVariable implements RandomVariableInterface, ImmutableRandomVariableInterface {
 
 	private double      time;	                // Time (filtration)
 
@@ -37,7 +37,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 
 	/**
 	 * Create a non stochastic random variable, i.e. a constant.
-	 * 
+	 *
 	 * @param value the value, a constant.
 	 */
 	public RandomVariable(double value) {
@@ -46,7 +46,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 
 	/**
 	 * Create a non stochastic random variable, i.e. a constant.
-	 * 
+	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param value the value, a constant.
 	 */
@@ -59,7 +59,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 
 	/**
 	 * Create a non stochastic random variable, i.e. a constant.
-	 * 
+	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param value the value, a constant.
 	 */
@@ -70,10 +70,10 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		java.util.Arrays.fill(this.realizations, value);
 		this.valueIfNonStochastic = Double.NaN;
 	}
-	
+
 	/**
 	 * Create a stochastic random variable.
-	 * 
+	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
 	 */
@@ -95,11 +95,11 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.montecarlo.RandomVariable)
 	 */
+	@Override
 	public boolean equals(ImmutableRandomVariableInterface randomVariable) {
 		if(this.time != randomVariable.getFiltrationTime()) return false;
 		if(this.isDeterministic() && randomVariable.isDeterministic()) {
-			if(this.valueIfNonStochastic == randomVariable.get(0)) return true;
-			else return false;
+			return this.valueIfNonStochastic == randomVariable.get(0);
 		}
 
 		if(this.isDeterministic() != randomVariable.isDeterministic()) return false;
@@ -112,6 +112,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
 	 */
+	@Override
 	public double getFiltrationTime() {
 		return time;
 	}
@@ -119,6 +120,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
 	 */
+	@Override
 	public double get(int pathOrState) {
 		if(isDeterministic())   return valueIfNonStochastic;
 		else               		return realizations[pathOrState];
@@ -131,10 +133,11 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		if(isDeterministic())   valueIfNonStochastic		= value;
 		else               		realizations[pathOrState]	= value;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#size()
 	 */
+	@Override
 	public int size() {
 		if(isDeterministic())    return 1;
 		else                     return realizations.length;
@@ -154,6 +157,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getMax()
 	 */
+	@Override
 	public double getMax() {
 		if(isDeterministic()) return valueIfNonStochastic;
 		double max = Double.MIN_VALUE;
@@ -189,29 +193,31 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getAverage(net.finmath.stochastic.ImmutableRandomVariableInterface)
 	 */
+	@Override
 	public double getAverage(ImmutableRandomVariableInterface probabilities) {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
 
 		double average = 0.0;
 		for(int i=0; i<realizations.length; i++) average += realizations[i] * probabilities.get(i);
-		return average;        
+		return average;
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getVariance()
 	 */
+	@Override
 	public double getVariance() {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
 		double sum			= 0.0;
 		double sumOfSquared = 0.0;
-		for(int i=0; i<realizations.length; i++) {
-			sum				+= realizations[i];
-			sumOfSquared	+= realizations[i] * realizations[i];
+		for(double realization : realizations) {
+			sum				+= realization;
+			sumOfSquared	+= realization * realization;
 		}
-		return (sumOfSquared/realizations.length) - (sum/realizations.length)*(sum/realizations.length);
+		return sumOfSquared/realizations.length - sum/realizations.length * sum/realizations.length;
 	}
 
 	/* (non-Javadoc)
@@ -224,8 +230,8 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		double mean			= 0.0;
 		double secondMoment = 0.0;
 		for(int i=0; i<realizations.length; i++) {
-			mean			+= realizations[i] * probabilities.get(i);;
-			secondMoment	+= realizations[i] * realizations[i] * probabilities.get(i);;
+			mean			+= realizations[i] * probabilities.get(i);
+			secondMoment	+= realizations[i] * realizations[i] * probabilities.get(i);
 		}
 		return secondMoment - mean*mean;
 	}
@@ -240,10 +246,11 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 
 		return Math.sqrt(getVariance());
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getStandardDeviation(net.finmath.stochastic.ImmutableRandomVariableInterface)
 	 */
+	@Override
 	public double getStandardDeviation(ImmutableRandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
@@ -254,6 +261,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getStandardError()
 	 */
+	@Override
 	public double getStandardError() {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
@@ -264,6 +272,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getStandardError(net.finmath.stochastic.ImmutableRandomVariableInterface)
 	 */
+	@Override
 	public double getStandardError(ImmutableRandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
@@ -274,6 +283,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getQuantile()
 	 */
+	@Override
 	public double getQuantile(double quantile) {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
@@ -285,20 +295,21 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 
 		return realizationsSorted[indexOfQuantileValue];
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getQuantile(net.finmath.stochastic.ImmutableRandomVariableInterface)
 	 */
 	public double getQuantile(double quantile, ImmutableRandomVariableInterface probabilities) {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
-	
+
 		throw new RuntimeException("Method not implemented.");
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getConditionalVaR()
 	 */
+	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
@@ -314,65 +325,66 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		for (int i=indexOfQuantileValueStart; i<=indexOfQuantileValueEnd;i++) {
 			quantileExpectation += realizationsSorted[i];
 		}
-		quantileExpectation /= (indexOfQuantileValueEnd-indexOfQuantileValueStart+1);
-		
+		quantileExpectation /= indexOfQuantileValueEnd-indexOfQuantileValueStart+1;
+
 		return quantileExpectation;
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getHistogram()
 	 */
-    public double[] getHistogram(double[] intervalPoints)
-    {
-    	double[] histogramValues = new double[intervalPoints.length+1];
+	 @Override
+	public double[] getHistogram(double[] intervalPoints)
+	{
+		double[] histogramValues = new double[intervalPoints.length+1];
 
-    	if(isDeterministic()) {
-        	/*
-        	 * If the random variable is deterministic we will return an array
-        	 * consisting of 0's and one and only one 1.
-        	 */
-    		java.util.Arrays.fill(histogramValues, 0.0);
-    		for (int intervalIndex=0; intervalIndex<intervalPoints.length; intervalIndex++)
-    		{
-    			if(valueIfNonStochastic > intervalPoints[intervalIndex]) {
-    				histogramValues[intervalIndex] = 1.0;
-    	    		break;
-    			}
-    		}
+		if(isDeterministic()) {
+			/*
+			 * If the random variable is deterministic we will return an array
+			 * consisting of 0's and one and only one 1.
+			 */
+			java.util.Arrays.fill(histogramValues, 0.0);
+			for (int intervalIndex=0; intervalIndex<intervalPoints.length; intervalIndex++)
+			{
+				if(valueIfNonStochastic > intervalPoints[intervalIndex]) {
+					histogramValues[intervalIndex] = 1.0;
+					break;
+				}
+			}
 			histogramValues[intervalPoints.length] = 1.0;
-    	}
-    	else {
-        	/*
-        	 * If the random variable is deterministic we will return an array
-        	 * representing a density, where the sum of the entries is one.
-        	 * There is one exception:
-        	 * If the size of the random variable is 0, all entries will be zero.
-        	 */
-    		double[] realizationsSorted = realizations.clone();
-    		java.util.Arrays.sort(realizationsSorted);
+		}
+		else {
+			/*
+			 * If the random variable is deterministic we will return an array
+			 * representing a density, where the sum of the entries is one.
+			 * There is one exception:
+			 * If the size of the random variable is 0, all entries will be zero.
+			 */
+			double[] realizationsSorted = realizations.clone();
+			java.util.Arrays.sort(realizationsSorted);
 
-    		int sampleIndex=0;
-    		for (int intervalIndex=0; intervalIndex<intervalPoints.length; intervalIndex++)
-    		{
-    			int sampleCount = 0;
-    			while (sampleIndex < realizationsSorted.length && 
-    					realizationsSorted[sampleIndex] <= intervalPoints[intervalIndex])
-    			{
-    				sampleIndex++;
-    				sampleCount++;
-    			}
-    			histogramValues[intervalIndex] = sampleCount;
-    		}
-    		histogramValues[intervalPoints.length] = realizationsSorted.length-sampleIndex;
+			int sampleIndex=0;
+			for (int intervalIndex=0; intervalIndex<intervalPoints.length; intervalIndex++)
+			{
+				int sampleCount = 0;
+				while (sampleIndex < realizationsSorted.length &&
+						realizationsSorted[sampleIndex] <= intervalPoints[intervalIndex])
+				{
+					sampleIndex++;
+					sampleCount++;
+				}
+				histogramValues[intervalIndex] = sampleCount;
+			}
+			histogramValues[intervalPoints.length] = realizationsSorted.length-sampleIndex;
 
-    		// Normalize histogramValues
-    		if(realizationsSorted.length > 0) {
-        		for(int i=0; i<histogramValues.length; i++) histogramValues[i] /= realizationsSorted.length;
-    		}
-    	}
+			// Normalize histogramValues
+			if(realizationsSorted.length > 0) {
+				for(int i=0; i<histogramValues.length; i++) histogramValues[i] /= realizationsSorted.length;
+			}
+		}
 
 		return histogramValues;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getHistogram(int,double)
@@ -383,7 +395,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		double[] anchorPoints	= new double[numberOfPoints+1];
 		double center	= getAverage();
 		double radius	= standardDeviations * getStandardDeviation();
-		double stepSize	= ((double)(numberOfPoints-1) / 2.0);
+		double stepSize	= (double) (numberOfPoints-1) / 2.0;
 		for(int i=0; i<numberOfPoints;i++) {
 			double alpha = (-(double)(numberOfPoints-1) / 2.0 + (double)i) / stepSize;
 			intervalPoints[i]	= center + alpha * radius;
@@ -397,10 +409,11 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 
 		return result;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#isDeterministic()
 	 */
+	@Override
 	public boolean isDeterministic() {
 		return realizations == null;
 	}
@@ -417,6 +430,9 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		return;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getRealizations()
+	 */
 	public double[] getRealizations() {
 		if(isDeterministic()) {
 			double[] result = new double[1];
@@ -431,12 +447,12 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/**
 	 * Returns the realizations as double array. If the random variable is deterministic, then it is expanded
 	 * to the given number of paths.
-	 * 
-	 * @param numberOfPaths
+	 *
+	 * @param numberOfPaths Number of paths.
 	 * @return The realization as double array.
 	 */
 	public double[] getRealizations(int numberOfPaths) {
-		
+
 		if(!isDeterministic() && realizations.length != numberOfPaths) throw new RuntimeException("Inconsistent number of paths.");
 		this.expand(numberOfPaths);
 
@@ -446,7 +462,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#setRealisations(double[])
 	 */
-	public void setRealisations(double[] realisations) {
+	private void setRealisations(double[] realisations) {
 		this.realizations = realisations;
 	}
 
@@ -523,13 +539,13 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
-     */
-    public RandomVariableInterface sqrt() {
+	 * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
+	 */
+	public RandomVariableInterface sqrt() {
 		if(isDeterministic())							valueIfNonStochastic	= FastMath.sqrt(valueIfNonStochastic);
 		else for(int i=0; i<realizations.length; i++)	realizations[i]			= FastMath.sqrt(realizations[i]);
 		return this;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#exp()
@@ -552,22 +568,22 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#sin()
-     */
-    public RandomVariableInterface sin() {
+	 * @see net.finmath.stochastic.RandomVariableInterface#sin()
+	 */
+	public RandomVariableInterface sin() {
 		if(isDeterministic())                        	valueIfNonStochastic    = Math.sin(valueIfNonStochastic);
 		else for(int i=0; i<realizations.length; i++)   realizations[i]         = Math.sin(realizations[i]);
 		return this;
-    }
+	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#cos()
-     */
-    public RandomVariableInterface cos() {
+	 * @see net.finmath.stochastic.RandomVariableInterface#cos()
+	 */
+	public RandomVariableInterface cos() {
 		if(isDeterministic())                        	valueIfNonStochastic    = Math.cos(valueIfNonStochastic);
 		else for(int i=0; i<realizations.length; i++)   realizations[i]         = Math.cos(realizations[i]);
 		return this;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.ImmutableRandomVariableInterface)
@@ -578,7 +594,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			if(isDeterministic()) this.expand(randomVariable.size());
 			for(int i=0; i<realizations.length; i++)					realizations[i]			+= randomVariable.get(i);
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -597,7 +613,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, randomVariable.getFiltrationTime());
-		
+
 		return this;
 	}
 
@@ -626,7 +642,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			if(isDeterministic()) this.expand(randomVariable.size());
 			for(int i=0; i<realizations.length; i++)										realizations[i]			/= randomVariable.get(i);
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -642,7 +658,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			if(isDeterministic()) this.expand(cap.size());
 			for(int i=0; i<realizations.length; i++)			realizations[i]		= FastMath.min(realizations[i],cap.get(i));
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, cap.getFiltrationTime());
 
@@ -658,7 +674,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			if(isDeterministic()) this.expand(floor.size());
 			for(int i=0; i<realizations.length; i++)			realizations[i]			= FastMath.max(realizations[i],floor.get(i));
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, floor.getFiltrationTime());
 
@@ -674,11 +690,11 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			if(isDeterministic()) this.expand(rate.size());
 			for(int i=0; i<realizations.length; i++)		realizations[i]			*= 1.0 + rate.get(i) * periodLength;
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, rate.getFiltrationTime());
 
-	return this;
+		return this;
 	}
 
 	/* (non-Javadoc)
@@ -690,7 +706,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			if(isDeterministic()) this.expand(rate.size());
 			for(int i=0; i<realizations.length; i++)		realizations[i]			/= 1.0 + rate.get(i) * periodLength;
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, rate.getFiltrationTime());
 
@@ -709,7 +725,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			}
 			for(int i=0; i<realizations.length; i++)			realizations[i]			= trigger.get(i) >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i);
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, trigger.getFiltrationTime());
 		time = Math.max(time, valueIfTriggerNonNegative.getFiltrationTime());
@@ -750,7 +766,7 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 			if(isDeterministic()) this.expand(factor1.size());
 			for(int i=0; i<realizations.length; i++)			realizations[i]			+= factor1.get(i) * factor2;
 		}
-		
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		time = Math.max(time, factor1.getFiltrationTime());
 
@@ -775,9 +791,9 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
-     */
-    public RandomVariableInterface addRatio(ImmutableRandomVariableInterface numerator, ImmutableRandomVariableInterface denominator) {
+	 * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 */
+	public RandomVariableInterface addRatio(ImmutableRandomVariableInterface numerator, ImmutableRandomVariableInterface denominator) {
 		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic())	valueIfNonStochastic	+= numerator.get(0) / denominator.get(0);
 		else {
 			if(isDeterministic()) this.expand(Math.max(numerator.size(), denominator.size()));
@@ -789,12 +805,12 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		time = Math.max(time, denominator.getFiltrationTime());
 
 		return this;
-    }
+	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
-     */
-    public RandomVariableInterface subRatio(ImmutableRandomVariableInterface numerator, ImmutableRandomVariableInterface denominator) {
+	 * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 */
+	public RandomVariableInterface subRatio(ImmutableRandomVariableInterface numerator, ImmutableRandomVariableInterface denominator) {
 		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic())	valueIfNonStochastic	-= numerator.get(0) / denominator.get(0);
 		else {
 			if(isDeterministic()) this.expand(Math.max(numerator.size(), denominator.size()));
@@ -806,5 +822,5 @@ public class RandomVariable implements ImmutableRandomVariableInterface, RandomV
 		time = Math.max(time, denominator.getFiltrationTime());
 
 		return this;
-    }
+	}
 }

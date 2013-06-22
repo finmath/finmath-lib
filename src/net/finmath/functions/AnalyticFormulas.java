@@ -44,7 +44,7 @@ public class AnalyticFormulas {
 			double optionStrike,
 			double payoffUnit)
 	{
-		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		if((optionStrike <= 0.0) || (optionMaturity <= 0.0))
 		{	
 			return Math.max(forward - optionStrike,0) * payoffUnit;
 		}
@@ -292,8 +292,8 @@ public class AnalyticFormulas {
 	{
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
 		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
-		final int		maxIterations	= 500;
-		final double	maxAccuracy		= 1E-15;
+		int		maxIterations	= 500;
+		double	maxAccuracy		= 1E-15;
 		
 		if(optionStrike <= 0.0)
 		{	
@@ -321,7 +321,7 @@ public class AnalyticFormulas {
 				double dPlus                = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 				double dMinus               = dPlus - volatility * Math.sqrt(optionMaturity);				
 				double valueAnalytic		= (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;
-				double derivativeAnalytic	= forward * Math.sqrt(optionMaturity) * Math.exp(-0.5*dPlus*dPlus) / (Math.sqrt(2.0*Math.PI)) * payoffUnit;
+				double derivativeAnalytic	= forward * Math.sqrt(optionMaturity) * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0*Math.PI) * payoffUnit;
 
 				double error = valueAnalytic - optionValue;
 
@@ -515,18 +515,18 @@ public class AnalyticFormulas {
     		price += redemption;
     	}
 
-    	Calendar paymentDate = java.util.Calendar.getInstance();
+    	Calendar paymentDate = Calendar.getInstance();
     	paymentDate.setTime(maturityDate);
     	while(paymentDate.after(settlementDate)) {
     		price += coupon;
     		
     		// Disocunt back
-    		price = price / (1.0 + yield / frequency);
-    		paymentDate.add(java.util.Calendar.MONTH, -12/frequency);
+            price /= 1.0 + yield / frequency;
+    		paymentDate.add(Calendar.MONTH, -12/frequency);
     	}
 
     	Calendar periodEndDate = (Calendar)paymentDate.clone();
-    	periodEndDate.add(java.util.Calendar.MONTH, +12/frequency);
+    	periodEndDate.add(Calendar.MONTH, +12/frequency);
 
     	// Accrue running period    	
     	double accrualPeriod = (paymentDate.getTimeInMillis() - settlementDate.getTime()) / (periodEndDate.getTimeInMillis() - paymentDate.getTimeInMillis());

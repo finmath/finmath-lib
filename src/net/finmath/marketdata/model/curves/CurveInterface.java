@@ -20,7 +20,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * 
 	 * @return The name of this curve
 	 */
-	public abstract String getName();
+    String getName();
 
 	/**
 	 * Returns the value for the time using the interpolation method associated with this curve.
@@ -28,7 +28,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * @param time Time for which the value should be returned.
 	 * @return The value at the give time.
 	 */
-	public abstract double getValue(double time);
+    double getValue(double time);
 
 	/**
 	 * Returns the value for the time using the interpolation method associated with this curve
@@ -41,7 +41,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * 
 	 * @return The value at the give time.
 	 */
-	public abstract double getValue(AnalyticModelInterface model, double time);
+    double getValue(AnalyticModelInterface model, double time);
 
-	public abstract CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
+	CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
 }

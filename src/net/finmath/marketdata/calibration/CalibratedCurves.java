@@ -131,7 +131,7 @@ public class CalibratedCurves {
 	 * from a vector of calibration products.
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws SolverException
+	 * @throws net.finmath.optimizer.SolverException
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs) throws SolverException {
 		model	= new AnalyticModel();
@@ -158,7 +158,7 @@ public class CalibratedCurves {
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
-	 * @throws SolverException
+	 * @throws net.finmath.optimizer.SolverException
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException {
 		model	= calibrationModel;
@@ -273,7 +273,7 @@ public class CalibratedCurves {
 	 * @return The discount factor curve associated with the given name.
 	 */
     private DiscountCurveInterface createDiscountCurve(String discountCurveName) {
-		DiscountCurveInterface discountCurve	=	(DiscountCurveInterface)model.getDiscountCurve(discountCurveName);
+		DiscountCurveInterface discountCurve	= model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
 			model.setCurve(discountCurve);
@@ -289,7 +289,7 @@ public class CalibratedCurves {
 	 */
     private String createForwardCurve(double[] swapTenorDefinition, String forwardCurveName) {
 
-    	if(forwardCurveName == null || forwardCurveName.length() == 0) return null;
+    	if(forwardCurveName == null || forwardCurveName.isEmpty()) return null;
 
 		double periodLength	= swapTenorDefinition[2];
 		

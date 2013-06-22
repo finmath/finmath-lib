@@ -15,7 +15,6 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.functions.LinearAlgebra;
 
 /**
@@ -99,8 +98,8 @@ public abstract class LevenbergMarquardt {
 	private double[] valueCurrent = null;
 	private double[][] derivativeCurrent = null;
 
-	private double errorCurrent = Double.POSITIVE_INFINITY;;
-	private double errorChange = Double.POSITIVE_INFINITY;;
+	private double errorCurrent = Double.POSITIVE_INFINITY;
+    private double errorChange = Double.POSITIVE_INFINITY;
 
 	private boolean isParameterCurrentDerivativeValid = false;
 
@@ -111,7 +110,7 @@ public abstract class LevenbergMarquardt {
 	private int				numberOfThreads	= 1;
 	private ExecutorService executor		= null;
 
-	private Logger logger = Logger.getLogger("net.finmath");
+	private final Logger logger = Logger.getLogger("net.finmath");
 
 	// A simple test
 	public static void main(String[] args) throws SolverException {
@@ -268,7 +267,7 @@ public abstract class LevenbergMarquardt {
 	 * 
 	 * @param parameters Input value. The parameter vector.
 	 * @param values Output value. The vector of values f(i,parameters), i=1,...,n
-	 * @throws CalculationException
+	 * @throws net.finmath.exception.CalculationException
 	 */
 	public abstract void setValues(double[] parameters, double[] values) throws SolverException;
 
@@ -278,7 +277,7 @@ public abstract class LevenbergMarquardt {
 	 * 
 	 * @param parameters Input value. The parameter vector.
 	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
-	 * @throws CalculationException
+	 * @throws net.finmath.exception.CalculationException
 	 */
 	public void setDerivatives(double[] parameters, double[][] derivatives) throws SolverException {
 		// Calculate new derivatives. Note that this method is called only with
@@ -353,7 +352,7 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Runs the optimization.
 	 * 
-	 * @throws CalculationException
+	 * @throws net.finmath.exception.CalculationException
 	 */
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
@@ -391,9 +390,9 @@ public abstract class LevenbergMarquardt {
 				errorChange = errorCurrent - errorTest;
 
 				// Accept point
-				parameterCurrent = (parameterTest.clone());
-				valueCurrent = (valueTest.clone());
-				errorCurrent = errorTest;
+				parameterCurrent	= parameterTest.clone();
+				valueCurrent		= valueTest.clone();
+				errorCurrent		= errorTest;
 
 				// Derivative has to be recalculated
 				isParameterCurrentDerivativeValid = false;
@@ -447,7 +446,7 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Calculate a new parameter guess.
 	 * 
-	 * @throws CalculationException
+	 * @throws net.finmath.exception.CalculationException
 	 */
 	private void updateParameterTest() throws SolverException {
 		if (!isParameterCurrentDerivativeValid) {
@@ -473,7 +472,7 @@ public abstract class LevenbergMarquardt {
 						if (alphaElement == 0.0)
 							alphaElement = 1.0;
 						else
-							alphaElement *= (1 + lambda);
+							alphaElement *= 1 + lambda;
 					}
 
 					hessianMatrix[i][j] = alphaElement;

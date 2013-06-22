@@ -70,7 +70,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     	// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
 		final int numberOfPaths	= 5000;
 		final int seed			= 31415;
-		final int maxIterations	= 500;
+		final int maxIterations	= 400;
 
 		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 

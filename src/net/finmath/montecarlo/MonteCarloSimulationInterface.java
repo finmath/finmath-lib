@@ -23,54 +23,54 @@ public interface MonteCarloSimulationInterface {
 	/**
 	 * @return Returns the numberOfPaths.
 	 */
-	public int getNumberOfComponents();
+    int getNumberOfComponents();
 
 	/**
 	 * @return Returns the numberOfPaths.
 	 */
-	public int getNumberOfPaths();
+    int getNumberOfPaths();
 
 	/**
 	 * @return Returns the timeDiscretization.
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization();
+    TimeDiscretizationInterface getTimeDiscretization();
 
 	/**
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
-	public double getTime(int timeIndex);
+    double getTime(int timeIndex);
 
 	/**
 	 * @param time
 	 * @return Returns the time index for a given time
 	 */
-	public int getTimeIndex(double time);
+    int getTimeIndex(double time);
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
 	 * 
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public abstract RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
+    RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
 	 * 
 	 * @param time Time at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public abstract RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
+    RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
 
 	/**
 	 * Create a clone of this simulation modifying some of its properties (if any).
 	 * 
 	 * @param dataModified The data which should be changed in the new model
 	 * @return Returns a clone of this model, with some data modified (then it is no longer a clone :-)
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public MonteCarloSimulationInterface getCloneWithModifiedData(Map<String,Object> dataModified) throws CalculationException;
+    MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

@@ -31,18 +31,18 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	}
 
 	// Properties of the European option we wish to replicate
-	private double maturity;
-	private double strike;
+	private final double maturity;
+	private final double strike;
 	
 	// Model assumptions for the hedge
-	private double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
-	private double volatility;
+	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final double volatility;
 	
 	// Properties for the hedge option if we do a gamma hedge
-	private	double hedgeOptionMaturity;
-	private	double hedgeOptionStrike;
+	private final double hedgeOptionMaturity;
+	private final double hedgeOptionStrike;
 	
-	private HedgeStrategy hedgeStrategy;
+	private final HedgeStrategy hedgeStrategy;
 	
 	/**
 	 * Construction of a delta hedge portfolio assuming a Black-Scholes model.

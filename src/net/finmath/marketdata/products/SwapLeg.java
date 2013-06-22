@@ -20,10 +20,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class SwapLeg implements AnalyticProductInterface {
 
-	private TimeDiscretizationInterface	tenorLeg;
-	private String						forwardCurveName;
-	private double						spread;
-	private String						discountCurveName;
+	private final TimeDiscretizationInterface	tenorLeg;
+	private final String						forwardCurveName;
+	private final double						spread;
+	private final String						discountCurveName;
 	private boolean						isNotionalExchanged = true;
 
 	/**

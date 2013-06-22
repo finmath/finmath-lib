@@ -5,11 +5,11 @@
  */
 package net.finmath.marketdata.calibration;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
@@ -31,11 +31,11 @@ import net.finmath.optimizer.SolverException;
  */
 public class Solver {
 
-	private AnalyticModelInterface				model;
-	private Vector<AnalyticProductInterface>	calibrationProducts;
+	private final AnalyticModelInterface				model;
+	private final List<AnalyticProductInterface> calibrationProducts;
 
 	private int iterations		= 0;
-	private int maxIterations	= 10000;
+	private final int maxIterations	= 10000;
 
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
@@ -56,10 +56,10 @@ public class Solver {
      * holds.
      * 
      * @return A reference to a calibrated clone of the given model.
-     * @throws SolverException
+     * @throws net.finmath.optimizer.SolverException
      */
     public AnalyticModelInterface getCalibratedModel(Set<CurveInterface> curvesToCalibrates) throws SolverException {
-		final ParameterAggregation<CurveInterface> parameterAggregate = new ParameterAggregation<CurveInterface>(curvesToCalibrates);
+		final ParameterAggregation<CurveInterface> parameterAggregate = new ParameterAggregation<>(curvesToCalibrates);
 
 		// Set solver parameters
 		double[] initialParameters	= parameterAggregate.getParameter();
@@ -74,7 +74,8 @@ public class Solver {
 				maxIterations,
 				maxThreads)
 		{	
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			@Override
+            public void setValues(double[] parameters, double[] values) throws SolverException {
 				try {
 					Map<CurveInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(parameters);
 					AnalyticModelInterface modelClone = model.getCloneForParameter(curvesParameterPairs);
@@ -94,7 +95,7 @@ public class Solver {
 		try {
 			double[] bestParameters = optimizer.getBestFitParameters();
 			Map<CurveInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);
-			calibratedModel = (AnalyticModel)model.getCloneForParameter(curvesParameterPairs);
+			calibratedModel = model.getCloneForParameter(curvesParameterPairs);
 		} catch (CloneNotSupportedException e) {
 			throw new SolverException(e);
 		}

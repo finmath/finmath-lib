@@ -333,6 +333,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
     				covarianceFactorSums[componentIndex][factorIndex].add(covarianceFactorSums[componentIndex-1][factorIndex]);
         	}
         }
+
     	// Above is the drift for the spot measure: a simple conversion makes it the drift of the terminal measure.
 		if(measure == Measure.TERMINAL) {
 	        for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
@@ -388,8 +389,8 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	}
 
 	@Override
-	public void applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
-		randomVariable.exp();
+	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable.exp();
 	}
 
 	

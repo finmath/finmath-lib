@@ -23,8 +23,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class Swap implements AnalyticProductInterface {
 
-	private SwapLeg legReceiver;
-	private SwapLeg legPayer;
+	private final SwapLeg legReceiver;
+	private final SwapLeg legPayer;
 	
 	/**
 	 * Creates a swap. The swap has a unit notional of 1.

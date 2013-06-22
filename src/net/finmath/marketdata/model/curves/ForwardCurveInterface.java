@@ -21,7 +21,7 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 * 
 	 * @return The forward.
 	 */
-	public abstract double getForward(AnalyticModelInterface model, double fixingTime);
+    double getForward(AnalyticModelInterface model, double fixingTime);
 
 	/**
 	 * Returns the name of the discount curve associated with this forward curve.
@@ -35,5 +35,5 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 * 
 	 * @return The payment offset associated with this forward curve.
 	 */
-	public double getPaymentOffset();
+    double getPaymentOffset();
 }

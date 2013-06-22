@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class ParameterAggregation<E extends ParameterObjectInterface> implements ParameterObjectInterface {
 
-	private Set<ParameterObjectInterface> parameters;
+	private final Set<ParameterObjectInterface> parameters;
 	
 	/**
 	 * Create a collection of parametrized objects.

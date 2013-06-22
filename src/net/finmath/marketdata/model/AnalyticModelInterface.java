@@ -16,13 +16,13 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  */
 public interface AnalyticModelInterface {
 
-	public abstract CurveInterface getCurve(String name);
+	CurveInterface getCurve(String name);
 
-	public abstract void setCurve(CurveInterface curve);
+	void setCurve(CurveInterface curve);
 
-	public abstract DiscountCurveInterface getDiscountCurve(String discountCurveName);
+	DiscountCurveInterface getDiscountCurve(String discountCurveName);
 
-	public abstract ForwardCurveInterface getForwardCurve(String forwardCurveName);
+	ForwardCurveInterface getForwardCurve(String forwardCurveName);
 
-	public abstract AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curvesParameterPairs) throws CloneNotSupportedException;
+	AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curvesParameterPairs) throws CloneNotSupportedException;
 }

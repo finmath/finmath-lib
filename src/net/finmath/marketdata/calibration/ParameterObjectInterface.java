@@ -20,13 +20,13 @@ public interface ParameterObjectInterface {
 	 * 
 	 * @return The parameter.
 	 */
-	public double[] getParameter();
+    double[] getParameter();
 
 	/**
 	 * Set the current parameter and change the state of the objects.
 	 * 
 	 * @param parameter The parameter associated with the new state of the objects.
 	 */
-	public void setParameter(double[] parameter);
+    void setParameter(double[] parameter);
 	
 }

@@ -35,23 +35,23 @@ public class RationalFunctionInterpolation {
 	public enum InterpolationMethod {
 		LINEAR,
 		CUBIC_SPLINE
-	};
+	}
 
-	public enum ExtrapolationMethod {
+    public enum ExtrapolationMethod {
 		CONSTANT,
 		LINEAR
-	};
-	
-	// The curve to interpolate
-	private double[]	points;
-	private double[]	values;
+	}
+
+    // The curve to interpolate
+	private final double[]	points;
+	private final double[]	values;
 	
 	private InterpolationMethod	interpolationMethod = InterpolationMethod.LINEAR;
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.CONSTANT;
 	
 	private class RationalFunction {
-		public double[] coefficientsNumerator;
-		public double[] coefficientsDenominator;
+		public final double[] coefficientsNumerator;
+		public final double[] coefficientsDenominator;
 
 		/**
          * @param coefficientsNumerator
@@ -151,15 +151,15 @@ public class RationalFunctionInterpolation {
 		return numerator / denominator;
 	}
 	
-	private double getRationalFunctionValue(double[] polynomialCoefficients, double x)
+	private static double getRationalFunctionValue(double[] polynomialCoefficients, double x)
 	{
 		double value	= 0.0;
 		double powerOfX	= 1.0;
-		
-		for(int coefficientIndex = 0; coefficientIndex<polynomialCoefficients.length; coefficientIndex++) {
-			value		+= polynomialCoefficients[coefficientIndex] * powerOfX;
-			powerOfX	*= x;
-		}
+
+        for (double polynomialCoefficient : polynomialCoefficients) {
+            value += polynomialCoefficient * powerOfX;
+            powerOfX *= x;
+        }
 		
 		return value;
 	}
@@ -260,7 +260,7 @@ public class RationalFunctionInterpolation {
 		/**
 		 * Example. Shows how to use this class.
 		 */
-		final int samplePoints = 200;
+		int samplePoints = 200;
 		
 		double[] givenPoints		= { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
 		double[] givenValues		= { 5.0, 6.0, 4.0, 7.0, 5.0, 6.0 };
