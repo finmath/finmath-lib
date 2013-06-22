@@ -16,7 +16,6 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <i>X = f(Y)</i> and <br>
  * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
  * 
- * getInitialState
  * <ul>
  * <li>The value of <i>Y(0)</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getInitialState}.
  * <li>The value of &mu; is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getDrift}.
@@ -99,15 +98,15 @@ public interface AbstractModelInterface {
 
     /**
      * This method has to be implemented to return the factor loadings, i.e.
-     * the coeffient vector <br>
-     * <i>lamba(j) =  (lambda(1,j), ..., lambda(m,j))</i> such that <br>
-     * <i>dS(j) = (...) dt + S(j) * (lambda(1,j) dW(1) + ... + lambda(m,j) dW(m))</i> <br>
-     * in an m-factor model. Here j denotes index of the component of the resulting
-     * log-normal process and i denotes the index of the factor.
+     * the coefficient vector <br>
+     * <i>&lamba;(j) =  (&lambda;(1,j), ..., &lambda;(m,j))</i> such that <i>X = f(Y)</i> and <br>
+     * <i>dY(j) = (...) dt + &lambda;(1,j) dW(1) + ... + &lambda;(m,j dW(m))</i> <br>
+     * in an m-factor model. Here <i>j</i> denotes index of the component of the resulting
+     * log-normal process and <i>i</i> denotes the index of the factor.
      * 
      * @param timeIndex The time index (related to the model times discretization).
      * @param componentIndex The index of the driven component.
-     * @param realizationAtTimeIndex The realization of S at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
+     * @param realizationAtTimeIndex The realization of X at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
      * @return The factor loading for given factor and component.
      */
     RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);

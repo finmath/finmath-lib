@@ -66,8 +66,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 
     public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface) {
         // Delegate to model
-        model.applyStateSpaceTransform(componentIndex, randomVariableInterface);
-		return randomVariableInterface;
+        return model.applyStateSpaceTransform(componentIndex, randomVariableInterface);
     }    
 
 
@@ -78,27 +77,31 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	/* (non-Javadoc)
      * @see net.finmath.montecarlo.AbstractProcessInterface#getTimeDiscretization()
      */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	@Override
+    public TimeDiscretizationInterface getTimeDiscretization() {
 		return timeDiscretization;
 	}
 		
 	/* (non-Javadoc)
      * @see net.finmath.montecarlo.AbstractProcessInterface#getTime(int)
      */
-	public double getTime(int timeIndex) {
+	@Override
+    public double getTime(int timeIndex) {
 		return timeDiscretization.getTime(timeIndex);
 	}
 
 	/* (non-Javadoc)
      * @see net.finmath.montecarlo.AbstractProcessInterface#getTimeIndex(double)
      */
-	public int getTimeIndex(double time) {
+	@Override
+    public int getTimeIndex(double time) {
 		return timeDiscretization.getTimeIndex(time);
 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
 	 */
-	public abstract Object clone();
+	@Override
+    public abstract Object clone();
 
 }

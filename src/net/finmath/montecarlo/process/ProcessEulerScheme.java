@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.stochastic.RandomVariableMutableClone;
 
 /**
- * This class is an abstract base class to implement a multi-dimensional multi-factor log-normal Ito process.
+ * This class is an abstract base class to implement a multi-dimensional multi-factor Ito process.
  * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
  * 
  * @author Christian Fries

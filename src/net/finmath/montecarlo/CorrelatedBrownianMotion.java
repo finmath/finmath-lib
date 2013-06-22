@@ -65,7 +65,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 		for(int factorIndex=0; factorIndex<factorLoadings[factor].length; factorIndex++) {
 			if(factorLoadings[factor][factorIndex] != 0) {
 				ImmutableRandomVariableInterface independentFactor = uncollelatedFactors.getBrownianIncrement(timeIndex, factorIndex);
-				brownianIncrement.addProduct(independentFactor, factorLoadings[factor][factorIndex]);
+				brownianIncrement = brownianIncrement.addProduct(independentFactor, factorLoadings[factor][factorIndex]);
 			}
 		}
 		return brownianIncrement;

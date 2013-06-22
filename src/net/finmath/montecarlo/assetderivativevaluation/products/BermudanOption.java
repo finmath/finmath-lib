@@ -13,7 +13,6 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.stochastic.RandomVariableMutableClone;
 
 /**
  * This class implements the valuation of a Bermudan option paying
@@ -194,7 +193,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
     	// Create basis functions - here: 1, S, S^2, S^3, S^4
     	basisFunctions = new RandomVariableInterface[orderOfRegressionPolynomial+1];
     	basisFunctions[0] = new RandomVariable(0.0, underlying.size(), 1.0);	// Random variable = 1
-    	basisFunctions[1] = new RandomVariableMutableClone(underlying);			// Random variable = S
+    	basisFunctions[1] = underlying.getMutableCopy();			// Random variable = S
     	for(int powerOfRegressionMonomial=2; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
     		basisFunctions[powerOfRegressionMonomial] = underlying.getMutableCopy().pow(powerOfRegressionMonomial);
         }
