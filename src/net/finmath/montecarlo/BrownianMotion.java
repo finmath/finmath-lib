@@ -75,6 +75,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getBrownianIncrement(int, int)
 	 */
+	@Override
 	public ImmutableRandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {

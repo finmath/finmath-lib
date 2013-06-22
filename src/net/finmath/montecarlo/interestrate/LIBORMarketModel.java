@@ -383,6 +383,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}		
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getFactorLoading(int, int, net.finmath.stochastic.ImmutableRandomVariableInterface[])
+	 */
+	@Override
 	public	RandomVariableInterface[]	getFactorLoading(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex)
 	{
 		return covarianceModel.getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);

@@ -133,7 +133,8 @@ public class Curve extends AbstractCurve implements Serializable {
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
-	public double getValue(AnalyticModelInterface model, double time)
+	@Override
+    public double getValue(AnalyticModelInterface model, double time)
 	{
 		return valueFromInterpolationEntity(getInterpolationEntityValue(time));
 	}

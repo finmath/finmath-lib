@@ -175,7 +175,7 @@ public class CalibratedCurves {
 	 * from a vector of calibration products.
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws SolverException
+	 * @throws net.finmath.optimizer.SolverException
 	 */
 	public CalibratedCurves(Collection<CalibrationSpec> calibrationSpecs) throws SolverException {
 		model	= new AnalyticModel();
