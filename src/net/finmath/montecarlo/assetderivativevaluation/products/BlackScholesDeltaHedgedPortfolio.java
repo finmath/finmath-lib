@@ -11,7 +11,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -24,12 +23,12 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloProduct {
 
 	// Properties of the European option we wish to replicate
-	private double maturity;
-	private double strike;
+	private final double maturity;
+	private final double strike;
 	
 	// Model assumptions for the hedge
-	private double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
-	private double volatility;
+	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final double volatility;
 	
 	/**
 	 * Construction of a delta hedge portfolio assuming a Black-Scholes model.
@@ -65,8 +64,8 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 		/*
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		ImmutableRandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
-	    ImmutableRandomVariableInterface numeraireToday  = model.getNumeraire(0.0);
+		RandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
+	    RandomVariableInterface numeraireToday  = model.getNumeraire(0.0);
 		double initialValueAsset		= underlyingToday.get(0);
 		double initialValueNumeraire	= numeraireToday.get(0);
 
@@ -82,8 +81,8 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 		
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			// Get value of underlying and numeraire assets			
-			ImmutableRandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
-		    ImmutableRandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
+			RandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
+		    RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
 			for(int path=0; path<model.getNumberOfPaths(); path++)
 			{
@@ -124,8 +123,8 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 		double[] portfolioValue				= new double[numberOfPath];
 
 		// Get value of underlying and numeraire assets			
-		ImmutableRandomVariableInterface underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
-		ImmutableRandomVariableInterface numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
+		RandomVariableInterface underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
+		RandomVariableInterface numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 		for(int path=0; path<underlyingAtEvaluationTime.size(); path++)
 		{
 			double underlyingValue = underlyingAtEvaluationTime.get(path);

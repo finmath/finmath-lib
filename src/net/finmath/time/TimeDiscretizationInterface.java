@@ -10,17 +10,17 @@ import java.util.ArrayList;
 /**
  * @author Christian Fries
  */
-public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> {
+public interface TimeDiscretizationInterface extends Iterable<Double> {
 
 	/**
 	 * @return Returns the number of time discretization points.
 	 */
-	public abstract int getNumberOfTimes();
+    int getNumberOfTimes();
 
 	/**
 	 * @return Returns the number of time steps (= number of discretization points-1).
 	 */
-	public abstract int getNumberOfTimeSteps();
+    int getNumberOfTimeSteps();
 
 	/**
 	 * Returns the time for the given time index.
@@ -28,7 +28,7 @@ public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> 
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
-	public abstract double getTime(int timeIndex);
+    double getTime(int timeIndex);
 
 	/**
 	 * Returns the time step from the given time index to the next one.
@@ -36,7 +36,7 @@ public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> 
 	 * @param timeIndex Time index
 	 * @return Returns the time step
 	 */
-	public abstract double getTimeStep(int timeIndex);
+    double getTimeStep(int timeIndex);
 
 	/**
 	 * Returns the time index for the given time. If the given time is not in the time discretization
@@ -45,7 +45,7 @@ public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> 
 	 * @param time The time.
 	 * @return Returns the time index for a given time.
 	 */
-	public abstract int getTimeIndex(double time);
+    int getTimeIndex(double time);
 
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
@@ -55,7 +55,7 @@ public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> 
 	 * @param time Given time.
 	 * @return Returns a time index
 	 */
-	public abstract int getTimeIndexNearestLessOrEqual(double time);
+    int getTimeIndexNearestLessOrEqual(double time);
 
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
@@ -65,13 +65,13 @@ public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> 
 	 * @param time Given time.
 	 * @return Returns a time index
 	 */
-	public abstract int getTimeIndexNearestGreaterOrEqual(double time);
+    int getTimeIndexNearestGreaterOrEqual(double time);
 
 	/**
 	 * Return a clone of this time discretization as <code>double[]</code>.
 	 * @return The time discretization as <code>double[]</code>
 	 */
-	public abstract double[] getAsDoubleArray();
+    double[] getAsDoubleArray();
 
 	/**
 	 * Return a clone of this time discretization as <code>ArrayList<Double></code>.
@@ -79,6 +79,6 @@ public interface TimeDiscretizationInterface extends java.lang.Iterable<Double> 
 	 * 
 	 * @return The time discretization as <code>ArrayList<Double></code>
 	 */
-	public abstract ArrayList<Double> getAsArrayList();
+    ArrayList<Double> getAsArrayList();
 
 }

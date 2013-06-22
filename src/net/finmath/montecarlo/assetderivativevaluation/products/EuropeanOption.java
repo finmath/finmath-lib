@@ -7,7 +7,6 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -18,8 +17,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 
-	private double maturity;
-	private double strike;
+	private final double maturity;
+	private final double strike;
 	
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -40,7 +39,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
@@ -55,12 +54,12 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		// Discounting...
 		RandomVariableInterface numeraireAtMaturity		= model.getNumeraire(maturity);
 		RandomVariableInterface monteCarloWeights		= model.getMonteCarloWeights(maturity);
-		values.div(numeraireAtMaturity).mult(monteCarloWeights);
+        values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-        ImmutableRandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-        ImmutableRandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
-        values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
+        RandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+        RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+        values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
         return values;
 	}

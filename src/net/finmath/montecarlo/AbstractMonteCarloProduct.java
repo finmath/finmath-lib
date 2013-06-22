@@ -38,7 +38,7 @@ public abstract class AbstractMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     public abstract RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException;
 
@@ -47,13 +47,13 @@ public abstract class AbstractMonteCarloProduct {
      * 
      * @param model A model used to evaluate the product.
      * @return The value of the product.
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     public double getValue(MonteCarloSimulationInterface model) throws CalculationException {
 
     	Map<String, Object> value = getValues(model);
         
-        return ((Double)value.get("value")).doubleValue();
+        return (Double) value.get("value");
     }
     
     /**
@@ -61,7 +61,7 @@ public abstract class AbstractMonteCarloProduct {
      * 
      * @param model A model used to evaluate the product.
      * @return The values of the product.
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     public Map<String, Object> getValues(MonteCarloSimulationInterface model) throws CalculationException
     {
@@ -73,7 +73,7 @@ public abstract class AbstractMonteCarloProduct {
         double value = values.getAverage();
         double error = values.getStandardError();
 
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
         results.put("value", value);
         results.put("error", error);
 
@@ -89,11 +89,11 @@ public abstract class AbstractMonteCarloProduct {
 	 * @param dataModified The new market data object to use (could be of different types)
 	 * 
      * @return The values of the product.
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
      */
 	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationInterface model, Map<String,Object> dataModified) throws CalculationException
 	{
-		MonteCarloSimulationInterface modelModified = (MonteCarloSimulationInterface)model.getCloneWithModifiedData(dataModified);
+		MonteCarloSimulationInterface modelModified = model.getCloneWithModifiedData(dataModified);
 
 		return getValues(modelModified);
 	}

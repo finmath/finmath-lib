@@ -7,9 +7,11 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * This class is an abstract base class to implement a model provided to an AbstractProcess
+ * This class is an abstract base class to implement a model provided to an AbstractProcess.
  * 
- * Manages the delegation to AbstractProcessInterface
+ * Manages the delegation to AbstractProcessInterface.
+ * 
+ * For details see {@link net.finmath.montecarlo.model.AbstractModelInterface}.
  * 
  * @author Christian Fries
  * @version 1.3
@@ -35,12 +37,10 @@ public abstract class AbstractModel implements AbstractModelInterface {
     	return value;
     }
 
-    /**
-     * @param timeIndex The time index (related to the model times discretization).
-     * @param realizationAtTimeIndex The given realization at timeIndex
-     * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null if no predictor is available.
-     * @return The (average) drift from timeIndex to timeIndex+1
+    /* (non-Javadoc)
+     * @see net.finmath.montecarlo.model.AbstractModelInterface#getDrift(int, net.finmath.stochastic.RandomVariableInterface[], net.finmath.stochastic.RandomVariableInterface[])
      */
+    @Override
     public RandomVariableInterface[] getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor) {
 
     	RandomVariableInterface[] drift = new RandomVariableInterface[getNumberOfComponents()];

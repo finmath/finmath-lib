@@ -24,8 +24,8 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	private static final long serialVersionUID = 6880668325019167781L;
 
-	private double[]    timeDiscretization;
-    private double		timeTickSize = 1.0 / (365.0 * 24.0);
+	private final double[]    timeDiscretization;
+    private final double		timeTickSize = 1.0 / (365.0 * 24.0);
 
 	public enum ShortPeriodLocation {
 		SHORT_PERIOD_AT_START,
@@ -163,7 +163,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     @Override
     public double[] getAsDoubleArray() {
     	// Note: This is a deep copy
-    	return (double[])timeDiscretization.clone();
+    	return timeDiscretization.clone();
     }
 
     /* (non-Javadoc)
@@ -171,8 +171,8 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	 */
 	@Override
     public ArrayList<Double> getAsArrayList() {
-	    ArrayList<Double>	times = new ArrayList<Double>(timeDiscretization.length);
-	    for(int i=0; i<timeDiscretization.length; i++) times.add(timeDiscretization[i]);
+	    ArrayList<Double>	times = new ArrayList<>(timeDiscretization.length);
+        for (double aTimeDiscretization : timeDiscretization) times.add(aTimeDiscretization);
 		return times;
 	}
 

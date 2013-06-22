@@ -25,7 +25,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  */
 public class AnalyticModel implements AnalyticModelInterface {
 
-	private Map<String, CurveInterface> curvesMap = new HashMap<String, CurveInterface>();
+	private final Map<String, CurveInterface> curvesMap = new HashMap<>();
 
 	/**
 	 * Create an empty analytic model.
@@ -39,7 +39,7 @@ public class AnalyticModel implements AnalyticModelInterface {
 	 * @param curves The vector of curves.
 	 */
 	public AnalyticModel(CurveInterface[] curves) {
-		for(int i=0; i<curves.length; i++) curvesMap.put(curves[i].getName(), curves[i]);
+        for (CurveInterface curve : curves) curvesMap.put(curve.getName(), curve);
 	}
 	
 	/**
@@ -60,7 +60,8 @@ public class AnalyticModel implements AnalyticModelInterface {
 		return curvesMap.get(name);
 	}
 
-	public void setCurve(CurveInterface curve)
+	@Override
+    public void setCurve(CurveInterface curve)
 	{
 		curvesMap.put(curve.getName(), curve);
 	}
@@ -100,7 +101,8 @@ public class AnalyticModel implements AnalyticModelInterface {
 		return forwardCurve;
 	}
 
-	public AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curveParameterPairs) throws CloneNotSupportedException {
+	@Override
+    public AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
 		AnalyticModel modelClone = new AnalyticModel();

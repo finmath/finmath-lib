@@ -67,7 +67,8 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		this.brownianIncrements	= null; 	// Lazy initialization
 	}
 
-	public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
+	@Override
+    public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
 		return new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed);
 	}
 
@@ -137,21 +138,24 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getTimeDiscretization()
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	@Override
+    public TimeDiscretizationInterface getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfFactors()
 	 */
-	public int getNumberOfFactors() {
+	@Override
+    public int getNumberOfFactors() {
 		return numberOfFactors;
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfPaths()
 	 */
-	public int getNumberOfPaths() {
+	@Override
+    public int getNumberOfPaths() {
 		return numberOfPaths;
 	}
 

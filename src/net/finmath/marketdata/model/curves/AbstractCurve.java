@@ -14,7 +14,7 @@ package net.finmath.marketdata.model.curves;
  */
 public abstract class AbstractCurve implements CurveInterface {
 
-	private		String					name;
+	private final String					name;
 
 	public AbstractCurve(String name) {
 		super();
@@ -24,14 +24,16 @@ public abstract class AbstractCurve implements CurveInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getName()
 	 */
-	public String getName() {
+	@Override
+    public String getName() {
 		return name;
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
-	public double getValue(double time) {
+	@Override
+    public double getValue(double time) {
 		return getValue(null, time);
 	}
 

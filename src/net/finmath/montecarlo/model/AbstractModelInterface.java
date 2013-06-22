@@ -12,6 +12,20 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * The interface for a model of a stochastic process <i>X</i> where
+ * <i>X = f(Y)</i> and <br>
+ * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
+ * 
+ * getInitialState
+ * <ul>
+ * <li>The value of <i>Y(0)</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getInitialState}.
+ * <li>The value of &mu; is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getDrift}.
+ * <li>The value &lambda;<sub>j</sub> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getFactorLoading}.
+ * <li>The function <i>f</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#applyStateSpaceTransform}.
+ * </ul>
+ * Here, &mu; and &lambda;<sub>j</sub> may depend on <i>X</i>, which allows to implement stochastic drifts (like in a LIBOR market model)
+ * of local volatility models.
+ * 
  * @author Christian Fries
  */
 public interface AbstractModelInterface {
@@ -22,23 +36,23 @@ public interface AbstractModelInterface {
 	 * 
 	 * @return The time discretization
 	 */
-	public abstract TimeDiscretizationInterface getTimeDiscretization();
+    TimeDiscretizationInterface getTimeDiscretization();
 	
     /**
      * Returns the number of components
      * 
      * @return The number of components
      */
-    public abstract int getNumberOfComponents();
+    int getNumberOfComponents();
 
     /**
-     * Applied the state space transfrom <i>f<sub>i</sub></i> to the given state random variable
+     * Applied the state space transform <i>f<sub>i</sub></i> to the given state random variable
      * such that <i>Y<sub>i</sub> &rarr; f<sub>i</sub>(Y<sub>i</sub>) =: X<sub>i</sub></i>.
      * 
      * @param componentIndex The component index <i>i</i>.
      * @param randomVariableInterface The state random variable <i>Y<sub>i</sub></i>.
      */
-    public void applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface);
+    RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface);
 
     /**
      * Returns the initial value of the state variable of the process, not to be
@@ -47,7 +61,7 @@ public interface AbstractModelInterface {
      * 
      * @return The initial value of the state variable of the process.
      */
-    public abstract ImmutableRandomVariableInterface[] getInitialState();
+    ImmutableRandomVariableInterface[] getInitialState();
 
 	/**
 	 * Return the numeraire at a given time index.
@@ -55,9 +69,9 @@ public interface AbstractModelInterface {
 	 * 
 	 * @param time The time <i>t</i> for which the numeraire <i>N(t)</i> should be returned.
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-    public abstract RandomVariableInterface getNumeraire(double time) throws CalculationException;
+    RandomVariableInterface getNumeraire(double time) throws CalculationException;
 
     /**
      * @param timeIndex The time index (related to the model times discretization).
@@ -65,7 +79,7 @@ public interface AbstractModelInterface {
      * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
      * @return The (average) drift from timeIndex to timeIndex+1
      */
-    public abstract RandomVariableInterface[] getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
+    RandomVariableInterface[] getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
 
     /**
      * @param timeIndex The time index (related to the model times discretization).
@@ -74,14 +88,14 @@ public interface AbstractModelInterface {
      * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
      * @return The (average) drift from timeIndex to timeIndex+1
      */
-    public abstract RandomVariableInterface getDrift(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
+    RandomVariableInterface getDrift(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
     
     /**
      * Returns the number of factors
      * 
      * @return The number of factors
      */
-    public abstract int getNumberOfFactors();
+    int getNumberOfFactors();
 
     /**
      * This method has to be implemented to return the factor loadings, i.e.
@@ -96,7 +110,7 @@ public interface AbstractModelInterface {
      * @param realizationAtTimeIndex The realization of S at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
      * @return The factor loading for given factor and component.
      */
-    public abstract RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+    RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
 
     /**
      * Set the numerical scheme used to generate the stochastic process.
@@ -105,7 +119,7 @@ public interface AbstractModelInterface {
      * 
      * @param process The process.
      */
-    public abstract void setProcess(AbstractProcessInterface process);
+    void setProcess(AbstractProcessInterface process);
 
     /**
      * Get the numerical scheme used to generate the stochastic process.
@@ -114,5 +128,6 @@ public interface AbstractModelInterface {
      * 
      * @return the process
      */
-    public abstract AbstractProcessInterface getProcess();
+    AbstractProcessInterface getProcess();
+
 }

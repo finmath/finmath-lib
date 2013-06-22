@@ -31,12 +31,12 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		UPPER_BOUND_METHOD
 	}
 	
-    private double[]	exerciseDates;
-    private double[]	notionals;
-    private double[]	strikes;
+    private final double[]	exerciseDates;
+    private final double[]	notionals;
+    private final double[]	strikes;
     
-    private int			orderOfRegressionPolynomial		= 4;
-    private boolean		intrinsicValueAsBasisFunction	= true;
+    private final int			orderOfRegressionPolynomial		= 4;
+    private final boolean		intrinsicValueAsBasisFunction	= true;
     
     private ExerciseMethod exerciseMethod = ExerciseMethod.UPPER_BOUND_METHOD;
     
@@ -90,11 +90,11 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time.
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      * 
      */
     @Override
-    public RandomVariableInterface getValue(final double evaluationTime, final AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+    public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
     	if(this.exerciseMethod == ExerciseMethod.UPPER_BOUND_METHOD) {
     		// Find optimal lambda
     		GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);
@@ -129,16 +129,16 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
             double strike       = strikes[exerciseDateIndex];
             
             // Get some model values upon exercise date
-            ImmutableRandomVariableInterface underlyingAtExercise	= model.getAssetValue(exerciseDate,0);
-            ImmutableRandomVariableInterface numeraireAtPayment		= model.getNumeraire(exerciseDate);
-            ImmutableRandomVariableInterface monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
+            RandomVariableInterface underlyingAtExercise	= model.getAssetValue(exerciseDate,0);
+            RandomVariableInterface numeraireAtPayment		= model.getNumeraire(exerciseDate);
+            RandomVariableInterface monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
 
             // Value received if exercised at current time
             RandomVariableInterface valueOfPaymentsIfExercised = underlyingAtExercise.getMutableCopy().sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 
             // Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
             MonteCarloConditionalExpectation condExpEstimator;
-            if(intrinsicValueAsBasisFunction)	condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise.getMutableCopy().sub(strike).floor(0.0)));
+            if(intrinsicValueAsBasisFunction)	condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0)));
             else								condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
 
             RandomVariableInterface underlying	= null;
@@ -155,7 +155,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
             	break;
             case UPPER_BOUND_METHOD:
             	RandomVariableInterface martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));
-            	martingale.sub(martingale.getAverage()).mult(lambda);
+                martingale = martingale.sub(martingale.getAverage()).mult(lambda);
 
                 underlying	= valueOfPaymentsIfExercised.getMutableCopy().sub(martingale);
                 if(exerciseDateIndex==exerciseDates.length-1) value.sub(martingale);
@@ -164,8 +164,8 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
             }
 
             // If trigger is positive keep value, otherwise take underlying
-            value.barrier(trigger, value, underlying);
-            exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
+            value = value.barrier(trigger, value, underlying);
+            exerciseTime = exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
         }
 
         // Uncomment the following if you like to check exercise probabilities
@@ -180,9 +180,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
         */
         
         // Note that values is a relative price - no numeraire division is required
-        ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-        ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-        value.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+        RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
+        RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+        value = value.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
         
         return value;
     }

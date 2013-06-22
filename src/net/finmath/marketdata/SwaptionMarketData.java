@@ -22,19 +22,20 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class SwaptionMarketData implements AbstractSwaptionMarketData {
 
 	// @TODO: Curve data currently not used.
-	private ForwardCurveInterface			forwardCurve;
-	private DiscountCurveInterface			discountCurve;
+	private final ForwardCurveInterface				forwardCurve;
+	private final DiscountCurveInterface			discountCurve;
 
-	private TimeDiscretizationInterface		optionMaturities;
-	private TimeDiscretizationInterface		tenor;
+	private final TimeDiscretizationInterface		optionMaturities;
+	private final TimeDiscretizationInterface		tenor;
 
-	private double							swapPeriodLength;
-	private double[][]						impliedVolatilities;
+	private final double							swapPeriodLength;
+	private final double[][]						impliedVolatilities;
 
 
 	public SwaptionMarketData(double[] optionMatruities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = null;		// Implied vol only.
+		this.discountCurve = null;		// Implied vol only.
 		this.optionMaturities = new TimeDiscretization(optionMatruities);
 		this.tenor = new TimeDiscretization(tenor);
 		this.swapPeriodLength = swapPeriodLength;
@@ -61,19 +62,23 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public TimeDiscretizationInterface getOptionMaturities() {
+	@Override
+    public TimeDiscretizationInterface getOptionMaturities() {
 		return optionMaturities;
 	}
 
-	public TimeDiscretizationInterface getTenor() {
+	@Override
+    public TimeDiscretizationInterface getTenor() {
 		return tenor;
 	}
 	
-	public double getSwapPeriodLength() {
+	@Override
+    public double getSwapPeriodLength() {
 		return swapPeriodLength;
 	}
 	
-	public double getValue(double optionMatruity, double tenorLength, double periodLength, double strike) {
+	@Override
+    public double getValue(double optionMatruity, double tenorLength, double periodLength, double strike) {
 		throw new RuntimeException("Method not implemented.");
 	}
 
@@ -88,7 +93,8 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.AbstractSwaptionMarketData#getVolatility(double, double, double, double)
 	 */
-	public double getVolatility(double optionMatruity, double tenorLength, double periodLength, double strike) {
+	@Override
+    public double getVolatility(double optionMatruity, double tenorLength, double periodLength, double strike) {
 		int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
 		int indexTenorIndex = tenor.getTimeIndex(tenorLength);
 		if(indexOptionMaturity < 0 || indexTenorIndex < 0) throw new IllegalArgumentException();

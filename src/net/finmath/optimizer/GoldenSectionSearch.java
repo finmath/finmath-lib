@@ -18,11 +18,11 @@ package net.finmath.optimizer;
 public class GoldenSectionSearch {
 	
 	// This is the golden section ration
-	static double goldenSectionRatio = (3.0 - Math.sqrt(5.0)) / 2.0;
+	static final double goldenSectionRatio = (3.0 - Math.sqrt(5.0)) / 2.0;
 	
 	// We store the left and right end point of the interval and a middle point (placed at golden section ratio) together with their values
-	private double[] points = new double[3]; // left, middle, right
-	private double[] values = new double[3]; // left, middle, right
+	private final double[] points = new double[3]; // left, middle, right
+	private final double[] values = new double[3]; // left, middle, right
 	
 	/*
 	 * State of solver 
@@ -185,8 +185,7 @@ public class GoldenSectionSearch {
 		
 		numberOfIterations++;			
 		expectingValue = false;
-		return;
-	}
+    }
 	
 	public void optimize() {
     	while(!isDone()) {
@@ -204,7 +203,7 @@ public class GoldenSectionSearch {
 	/**
 	 * @return Returns the golden section of an interval.
 	 */
-	double getGoldenSection(double left, double right) {
+    static double getGoldenSection(double left, double right) {
 		return goldenSectionRatio * left + (1.0 - goldenSectionRatio) * right;
 	}
 

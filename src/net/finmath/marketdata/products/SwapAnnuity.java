@@ -22,8 +22,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class SwapAnnuity implements AnalyticProductInterface {
 
-	private TimeDiscretizationInterface	tenor;
-	private String discountCurveName;
+	private final TimeDiscretizationInterface	tenor;
+	private final String discountCurveName;
 
 	/**
 	 * Creates a swap annuity for a given tenor and discount curve.

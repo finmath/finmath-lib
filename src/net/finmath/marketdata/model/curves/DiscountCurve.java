@@ -11,9 +11,9 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * A container for discount factors. The discount curve is based on the {@link Curve} class.
+ * A container for discount factors. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
  * It thus features all interpolation and extrapolation methods and interpolation entities
- * as {@link Curve}.
+ * as {@link net.finmath.marketdata.model.curves.Curve}.
  * In addition the discount curve has the property that getValue(0) = 1
  * and getValue(x) = 0 for all x < 0.
  * 
@@ -26,8 +26,8 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
     private double[] parameter;
     
     private DiscountCurve(String name) {
-    	super(name, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.LINEAR, Curve.InterpolationEntity.LOG_OF_VALUE);
-    };
+    	super(name, InterpolationMethod.LINEAR, ExtrapolationMethod.LINEAR, InterpolationEntity.LOG_OF_VALUE);
+    }
 
     public static DiscountCurve createDiscountCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors) {
 		DiscountCurve discountFactors = new DiscountCurve(name);

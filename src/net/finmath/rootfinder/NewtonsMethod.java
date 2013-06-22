@@ -33,14 +33,16 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 	/**
 	 * @return Returns the best point optained so far
 	 */
-	public double getBestPoint() {
+	@Override
+    public double getBestPoint() {
 		return bestPoint;
 	}
 	
 	/**
 	 * @return Next point for which a value should be set using <code>setValue</code>.
 	 */
-	public double getNextPoint() {
+	@Override
+    public double getNextPoint() {
 		return nextPoint;
 	}
 	
@@ -52,7 +54,8 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 	 *     The derivative corresponding to the point returned by previous
 	 *     <code>getNextPoint</code> call.
 	 */
-	public void setValueAndDerivative(double value, double derivative) {
+	@Override
+    public void setValueAndDerivative(double value, double derivative) {
 
 		if(Math.abs(value) < accuracy)
 		{
@@ -61,30 +64,32 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 		}
 
 		// Calculate next point
-		nextPoint = nextPoint - value/derivative;
+        nextPoint -= value / derivative;
 
 		numberOfIterations++;
-		return;
-	}
+    }
 	
 	/**
 	 * @return Returns the number of iterations.
 	 */
-	public int getNumberOfIterations() {
+	@Override
+    public int getNumberOfIterations() {
 		return numberOfIterations;
 	}
 
 	/**
 	 * @return Returns the accuracy.
 	 */
-	public double getAccuracy() {
+	@Override
+    public double getAccuracy() {
 		return accuracy;
 	}
 
 	/**
 	 * @return Returns true if the solver is done (accuracy achieved or unable to improve)
 	 */
-	public boolean isDone() {
+	@Override
+    public boolean isDone() {
 		return isDone;
 	}
 }

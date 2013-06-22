@@ -17,8 +17,8 @@ package net.finmath.rootfinder;
 public class BisectionSearch implements RootFinder {
 
 	// We store the left and right end point of the interval
-	private double[] points = new double[2]; // left, right
-	private double[] values = new double[2]; // left, right
+	private final double[] points = new double[2]; // left, right
+	private final double[] values = new double[2]; // left, right
 	
 	/*
 	 * State of solver 
@@ -46,7 +46,8 @@ public class BisectionSearch implements RootFinder {
 	/**
 	 * @return Best point optained so far
 	 */
-	public double getBestPoint() {
+	@Override
+    public double getBestPoint() {
 		// Lazy: we always return the middle point as best point
 		return (points[1] + points[0]) / 2.0;
 	}
@@ -54,14 +55,16 @@ public class BisectionSearch implements RootFinder {
 	/**
 	 * @return Next point for which a value should be set using <code>setValue</code>.
 	 */
-	public double getNextPoint() {
+	@Override
+    public double getNextPoint() {
 		return nextPoint;
 	}
 	
 	/**
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint</code> call.
 	 */
-	public void setValue(double value) {
+	@Override
+    public void setValue(double value) {
 		if (numberOfIterations < 2) {
 			/**
 			 * Initially fill values
@@ -106,28 +109,30 @@ public class BisectionSearch implements RootFinder {
 			accuracy = points[1]-points[0];			
 		}
 		
-		numberOfIterations++;			
-		return;
-	}
+		numberOfIterations++;
+    }
 	
 	/**
 	 * @return Returns the numberOfIterations.
 	 */
-	public int getNumberOfIterations() {
+	@Override
+    public int getNumberOfIterations() {
 		return numberOfIterations;
 	}
 
 	/**
 	 * @return Returns the accuracy.
 	 */
-	public double getAccuracy() {
+	@Override
+    public double getAccuracy() {
 		return accuracy;
 	}
 
 	/**
 	 * @return Returns the isDone.
 	 */
-	public boolean isDone() {
+	@Override
+    public boolean isDone() {
 		return isDone;
 	}
 }

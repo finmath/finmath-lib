@@ -22,5 +22,5 @@ public interface AnalyticProductInterface {
 	 * @param model The model under which the product is valued.
 	 * @return The value of the product using the given model.
 	 */
-	public abstract double getValue(AnalyticModelInterface model);
+    double getValue(AnalyticModelInterface model);
 }

@@ -15,9 +15,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public interface AbstractSwaptionMarketData {
 
-	public TimeDiscretizationInterface	getOptionMaturities();
-	public TimeDiscretizationInterface	getTenor();
-	public double						getSwapPeriodLength();
+	TimeDiscretizationInterface	getOptionMaturities();
+	TimeDiscretizationInterface	getTenor();
+	double						getSwapPeriodLength();
 
 	/**
 	 * Returns the option price of a swaption for a given option maturity and tenor length.
@@ -27,7 +27,7 @@ public interface AbstractSwaptionMarketData {
 	 * @param strike The strike (swap) rate.
 	 * @return The option price.
 	 */
-	public double getValue(double optionMaturity, double tenorLength, double periodLength, double strike);
+    double getValue(double optionMaturity, double tenorLength, double periodLength, double strike);
 
 	/**
 	 * Returns the option implied volatility of a swaption for a given option maturity and tenor length.
@@ -38,5 +38,5 @@ public interface AbstractSwaptionMarketData {
 	 * @param strike The strike (swap) rate.
 	 * @return The implied volatility.
 	 */
-	public double getVolatility(double optionMaturity, double tenorLength, double periodLength, double strike);
+    double getVolatility(double optionMaturity, double tenorLength, double periodLength, double strike);
 }

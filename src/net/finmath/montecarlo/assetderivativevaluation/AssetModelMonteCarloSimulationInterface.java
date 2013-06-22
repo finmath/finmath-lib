@@ -22,7 +22,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * 
 	 * @return The number of asset price processes
 	 */
-	public int					getNumberOfAssets();
+    int					getNumberOfAssets();
 
 	/**
 	 * Returns the random variable representing the asset's value at a given time for a given asset.
@@ -30,9 +30,9 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param timeIndex		Index of simulation time
 	 * @param assetIndex	Index of the asset (0 for a single asset model)
 	 * @return				The asset process as seen on simulation time
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public RandomVariableInterface		getAssetValue(int timeIndex, int assetIndex) throws CalculationException;
+    RandomVariableInterface		getAssetValue(int timeIndex, int assetIndex) throws CalculationException;
 
 	/**
 	 * Returns the random variable representing the asset's value at a given time for a given asset.
@@ -40,14 +40,14 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param time			Simulation time
 	 * @param assetIndex	Index of the asset (0 for a single asset model)
 	 * @return				The asset process as seen on simulation time
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
+    RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
 
-	public RandomVariableInterface		getNumeraire(int timeIndex);
-	public RandomVariableInterface		getNumeraire(double time);
+	RandomVariableInterface		getNumeraire(int timeIndex);
+	RandomVariableInterface		getNumeraire(double time);
 	
-	public RandomVariableInterface		getRandomVariableForConstant(double value);
+	RandomVariableInterface		getRandomVariableForConstant(double value);
 
 	/**
 	 * Create a clone of the object implementing <code>AssetModelMonteCarloSimulationInterface</code>
@@ -56,5 +56,5 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param seed
 	 * @return Returns a clone of this model except for a modified Monte-Carlo seed.
 	 */
-    public Object getCloneWithModifiedSeed(int seed);
+    Object getCloneWithModifiedSeed(int seed);
 }

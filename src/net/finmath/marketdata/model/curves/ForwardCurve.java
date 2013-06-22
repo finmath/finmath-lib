@@ -10,9 +10,9 @@ import java.io.Serializable;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
- * A container for a forward (rate) curve. The forward curve is based on the {@link Curve} class.
+ * A container for a forward (rate) curve. The forward curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
  * It thus features all interpolation and extrapolation methods and interpolation entities
- * as {@link Curve}.
+ * as {@link net.finmath.marketdata.model.curves.Curve}.
  * 
  * @author Christian Fries
  */
@@ -26,8 +26,8 @@ public class ForwardCurve extends Curve implements Serializable, ForwardCurveInt
 	}
 
 	private InterpolationEntityForward	interpolationEntityForward = InterpolationEntityForward.FORWARD;
-	private String						discountCurveName;
-    private double						paymentOffset;
+	private final String						discountCurveName;
+    private final double						paymentOffset;
 
     /**
      * Generate a forward curve using a given discount curve and payment offset. The forward F(t) of an index is such that
@@ -40,7 +40,7 @@ public class ForwardCurve extends Curve implements Serializable, ForwardCurveInt
      * @param paymentOffset Time between fixing and payment.
      */
     public ForwardCurve(String name, String discountCurveName, double paymentOffset) {
-    	super(name, Curve.InterpolationMethod.CUBIC_SPLINE, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE);
+    	super(name, InterpolationMethod.CUBIC_SPLINE, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
 	    this.interpolationEntityForward	= InterpolationEntityForward.FORWARD;
 	    this.discountCurveName			= discountCurveName;
 	    this.paymentOffset				= paymentOffset;
@@ -58,7 +58,7 @@ public class ForwardCurve extends Curve implements Serializable, ForwardCurveInt
      * @param paymentOffset Time between fixing and payment.
      */
     public ForwardCurve(String name, InterpolationEntityForward interpolationEntityForward, String discountCurveName, double paymentOffset) {
-    	super(name, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE);
+    	super(name, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
 	    this.interpolationEntityForward	= interpolationEntityForward;
 	    this.discountCurveName			= discountCurveName;
 	    this.paymentOffset				= paymentOffset;
@@ -111,7 +111,8 @@ public class ForwardCurve extends Curve implements Serializable, ForwardCurveInt
 	 * 
 	 * @return The forward
 	 */
-	public double getForward(AnalyticModelInterface model, double fixingTime)
+	@Override
+    public double getForward(AnalyticModelInterface model, double fixingTime)
 	{
 		double interpolationEntityForwardValue = this.getValue(model, fixingTime);
 		switch(interpolationEntityForward) {
