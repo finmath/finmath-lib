@@ -25,7 +25,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  */
 public class AnalyticModel implements AnalyticModelInterface {
 
-	private final Map<String, CurveInterface> curvesMap = new HashMap<>();
+	private final Map<String, CurveInterface> curvesMap = new HashMap<String, CurveInterface>();
 
 	/**
 	 * Create an empty analytic model.

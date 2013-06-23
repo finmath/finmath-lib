@@ -171,7 +171,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	 */
 	@Override
     public ArrayList<Double> getAsArrayList() {
-	    ArrayList<Double>	times = new ArrayList<>(timeDiscretization.length);
+	    ArrayList<Double>	times = new ArrayList<Double>(timeDiscretization.length);
         for (double aTimeDiscretization : timeDiscretization) times.add(aTimeDiscretization);
 		return times;
 	}

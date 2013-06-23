@@ -37,11 +37,11 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	 */
 	private static final long serialVersionUID = -5430067621669213475L;
 
-	private TimeDiscretizationInterface						timeDiscretization;
+	private final TimeDiscretizationInterface						timeDiscretization;
 
-	private int			numberOfFactors;
-	private int			numberOfPaths;
-	private int			seed;
+	private final int			numberOfFactors;
+	private final int			numberOfPaths;
+	private final int			seed;
 
 	private transient ImmutableRandomVariableInterface[][]	brownianIncrements;	
 

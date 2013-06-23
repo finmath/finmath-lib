@@ -124,11 +124,11 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		int periodStartIndex    = getLiborPeriodIndex(periodStart);
 		int periodEndIndex      = getLiborPeriodIndex(periodEnd);
 
-		if(periodStartIndex < 0 || periodEndIndex < 0) throw new CalculationException("LIBOR requested outside discretization points. Interpolation not supported yet.");
+		if(periodStartIndex < 0 || periodEndIndex < 0) throw new CalculationException("LIBOR requested outside libor discretization points. Interpolation not supported yet.");
 
 		int timeIndex           = getTimeIndex(time);
 
-		if(timeIndex < 0) throw new CalculationException("LIBOR requested at time outside discretization points. Interpolation not supported yet.");
+		if(timeIndex < 0) throw new CalculationException("LIBOR requested at time outside simulation discretization points. Interpolation not supported yet.");
 		
 		// If this is a model primitive then return it
 		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);

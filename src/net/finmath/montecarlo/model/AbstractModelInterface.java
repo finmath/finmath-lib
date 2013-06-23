@@ -54,11 +54,11 @@ public interface AbstractModelInterface {
     RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface);
 
     /**
-     * Returns the initial value of the state variable of the process, not to be
-     * confused with the initial value of the model (which is the state space transform
+     * Returns the initial value of the state variable of the process <i>Y</i>, not to be
+     * confused with the initial value of the model <i>X</i> (which is the state space transform
      * applied to this state value.
      * 
-     * @return The initial value of the state variable of the process.
+     * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
      */
     ImmutableRandomVariableInterface[] getInitialState();
 
@@ -73,6 +73,13 @@ public interface AbstractModelInterface {
     RandomVariableInterface getNumeraire(double time) throws CalculationException;
 
     /**
+     * This method has to be implemented to return the drift, i.e.
+     * the coefficient vector <br>
+     * <i>&mu; =  (&mu;<sub>1</sub>, ..., &mu;<sub>n</sub>)</i> such that <i>X = f(Y)</i> and <br>
+     * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
+     * in an <i>m</i>-factor model. Here <i>j</i> denotes index of the component of the resulting
+     * process.
+     * 
      * @param timeIndex The time index (related to the model times discretization).
      * @param realizationAtTimeIndex The given realization at timeIndex
      * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
@@ -81,6 +88,8 @@ public interface AbstractModelInterface {
     RandomVariableInterface[] getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
 
     /**
+     * This method has to be implemented to return the drift coefficient <i>&mu;<sub>j</sub></i>.
+     * 
      * @param timeIndex The time index (related to the model times discretization).
      * @param componentIndex The index of the component.
      * @param realizationAtTimeIndex The given realization at timeIndex.
@@ -90,22 +99,22 @@ public interface AbstractModelInterface {
     RandomVariableInterface getDrift(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
     
     /**
-     * Returns the number of factors
+     * Returns the number of factors <i>m</i>, i.e., the number of independent Brownian drivers.
      * 
-     * @return The number of factors
+     * @return The number of factors.
      */
     int getNumberOfFactors();
 
     /**
      * This method has to be implemented to return the factor loadings, i.e.
      * the coefficient vector <br>
-     * <i>&lamba;(j) =  (&lambda;(1,j), ..., &lambda;(m,j))</i> such that <i>X = f(Y)</i> and <br>
-     * <i>dY(j) = (...) dt + &lambda;(1,j) dW(1) + ... + &lambda;(m,j dW(m))</i> <br>
-     * in an m-factor model. Here <i>j</i> denotes index of the component of the resulting
-     * log-normal process and <i>i</i> denotes the index of the factor.
+     * <i>&lamba;<sub>j</sub> =  (&lambda;<sub>1,j</sub>, ..., &lambda;<sub>m,j</sub>)</i> such that <i>X = f(Y)</i> and <br>
+     * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
+     * in an <i>m</i>-factor model. Here <i>j</i> denotes index of the component of the resulting
+     * process.
      * 
      * @param timeIndex The time index (related to the model times discretization).
-     * @param componentIndex The index of the driven component.
+     * @param componentIndex The index <i>j</> of the driven component.
      * @param realizationAtTimeIndex The realization of X at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
      * @return The factor loading for given factor and component.
      */

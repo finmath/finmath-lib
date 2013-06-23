@@ -73,7 +73,7 @@ public abstract class AbstractMonteCarloProduct {
         double value = values.getAverage();
         double error = values.getStandardError();
 
-        Map<String, Object> results = new HashMap<>();
+        Map<String, Object> results = new HashMap<String, Object>();
         results.put("value", value);
         results.put("error", error);
 

@@ -59,7 +59,7 @@ public class Solver {
      * @throws net.finmath.optimizer.SolverException
      */
     public AnalyticModelInterface getCalibratedModel(Set<CurveInterface> curvesToCalibrates) throws SolverException {
-		final ParameterAggregation<CurveInterface> parameterAggregate = new ParameterAggregation<>(curvesToCalibrates);
+		final ParameterAggregation<CurveInterface> parameterAggregate = new ParameterAggregation<CurveInterface>(curvesToCalibrates);
 
 		// Set solver parameters
 		double[] initialParameters	= parameterAggregate.getParameter();
