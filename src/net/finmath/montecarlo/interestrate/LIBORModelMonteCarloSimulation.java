@@ -26,7 +26,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimulationInterface {
 
-	private LIBORMarketModelInterface model;
+	private final LIBORMarketModelInterface model;
 
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel and an AbstractProcess.
@@ -45,69 +45,79 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getMonteCarloWeights(int)
 	 */
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+	@Override
+    public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getMonteCarloWeights(double)
 	 */
-	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
+	@Override
+    public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(getTimeIndex(time));
 	}
 	
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getNumberOfFactors()
 	 */
-	public int getNumberOfFactors() {
+	@Override
+    public int getNumberOfFactors() {
 		return model.getProcess().getNumberOfFactors();
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfPaths()
 	 */
-	public int getNumberOfPaths() {
+	@Override
+    public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTime(int)
 	 */
-	public double getTime(int timeIndex) {
+	@Override
+    public double getTime(int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeDiscretization()
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	@Override
+    public TimeDiscretizationInterface getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeIndex(double)
 	 */
-	public int getTimeIndex(double time) {
+	@Override
+    public int getTimeIndex(double time) {
 		return model.getProcess().getTimeIndex(time);
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getBrownianMotion()
 	 */
-	public BrownianMotionInterface getBrownianMotion() {
+	@Override
+    public BrownianMotionInterface getBrownianMotion() {
 		return model.getProcess().getBrownianMotion();
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBOR(int, int)
 	 */
-	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
+	@Override
+    public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return model.getLIBOR(timeIndex, liborIndex);
 	}
 
     /* (non-Javadoc)
      * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBORs(int)
      */
+    @Override
     public RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException
     {
     	RandomVariableInterface[] randomVariableVector = new RandomVariableInterface[getNumberOfComponents()];
@@ -119,7 +129,8 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBOR(double, double, double)
 	 */
-	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	@Override
+    public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
 	{
 		int periodStartIndex    = getLiborPeriodIndex(periodStart);
 		int periodEndIndex      = getLiborPeriodIndex(periodEnd);
@@ -160,7 +171,8 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLiborPeriod(int)
 	 */
-	public double getLiborPeriod(int timeIndex) {
+	@Override
+    public double getLiborPeriod(int timeIndex) {
 		return model.getLiborPeriod(timeIndex);
 	}
 

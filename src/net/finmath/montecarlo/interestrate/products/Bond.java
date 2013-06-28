@@ -36,7 +36,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
@@ -47,12 +47,12 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 
         // Calculate numeraire relative value
         RandomVariableInterface values = new RandomVariable(maturity, 1.0);
-        values.div(numeraire).mult(monteCarloProbabilities);
+        values = values.div(numeraire).mult(monteCarloProbabilities);
         
         // Convert back to values
         ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
         ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-        values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+        values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		// Return values
 		return values;	

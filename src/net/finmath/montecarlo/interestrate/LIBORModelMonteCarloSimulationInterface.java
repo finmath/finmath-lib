@@ -25,23 +25,23 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	/**
 	 * @return Returns the numberOfFactors.
 	 */
-	public abstract int getNumberOfFactors();
+    int getNumberOfFactors();
 
 	/**
 	 * Returns the libor period discretization as time discretization representing start and end dates of periods.
 	 * @return Returns the libor period discretization
 	 */
-	public abstract TimeDiscretizationInterface getLiborPeriodDiscretization();
+    TimeDiscretizationInterface getLiborPeriodDiscretization();
 
 	/**
 	 * @return The number of LIBORs in the LIBOR discretization
 	 */
-	public abstract int getNumberOfLibors();
+    int getNumberOfLibors();
 
 	/**
 	 * @return The index corresponding to a given time (interpretation is start of period)
 	 */
-	public abstract double getLiborPeriod(int timeIndex);
+    double getLiborPeriod(int timeIndex);
 
 	/**
 	 * Same as java.util.Arrays.binarySearch(liborPeriodDiscretization,time).
@@ -50,7 +50,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param time The tenor time (fixing of the forward rate) for which the index is requested.
 	 * @return The index corresponding to a given time (interpretation is start of period)
 	 */
-	public abstract int getLiborPeriodIndex(double time);
+    int getLiborPeriodIndex(double time);
 
 	/**
 	 * Return the forward rate for a given simulation time index and a given forward rate index.
@@ -58,9 +58,9 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param timeIndex Simulation time index.
 	 * @param liborIndex Tenor time index (index corresponding to the fixing of the forward rate).
 	 * @return The forward rate as a random variable.
-	 * @throws CalculationException
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public abstract RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
+    RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
 	/**
 	 * Return the forward rate for a given simulation time and a given period start and period end.
@@ -69,51 +69,51 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param periodStart   Start time of period
 	 * @param periodEnd     End time of period
 	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public abstract RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
+    RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
 
 	/**
 	 * Return the forward rate curve for a given simulation time index.
 	 * 
 	 * @param timeIndex Simulation time index.
 	 * @return The forward rate curve for a given simulation time index.
-	 * @throws CalculationException
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public abstract RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException;
+    RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException;
 
 	/**
 	 * Return the numeraire at a given time.
 	 * 
 	 * @param time Time at which the process should be observed
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
 	 */
-	public abstract RandomVariableInterface getNumeraire(double time) throws CalculationException;
+    RandomVariableInterface getNumeraire(double time) throws CalculationException;
 	
 	/**
 	 * Return the Brownian motion used to simulate the curve.
 	 * 
 	 * @return The Brownian motion used to simulate the curve.
 	 */
-	public abstract BrownianMotionInterface getBrownianMotion();
+    BrownianMotionInterface getBrownianMotion();
 
 	/**
 	 * Return the underlying model.
 	 * 
 	 * @return The underlying model
 	 */
-	public abstract LIBORMarketModelInterface getModel();
+    LIBORMarketModelInterface getModel();
 
 	/**
 	 * @return The implementation of the process
 	 */
-	public abstract AbstractProcessInterface getProcess();
+    AbstractProcessInterface getProcess();
 	
 	/**
 	 * @return the covarianceModel
 	 */
-	public abstract AbstractLIBORCovarianceModel getCovarianceModel();
+    AbstractLIBORCovarianceModel getCovarianceModel();
 
 	/**
 	 * Return a clone of this model with a modified Brownian motion using a different seed.
@@ -122,5 +122,6 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @return Clone of this object, but having a different seed.
 	 * @deprecated
 	 */
-	public abstract Object getCloneWithModifiedSeed(int seed);
+	@Deprecated
+    Object getCloneWithModifiedSeed(int seed);
 }

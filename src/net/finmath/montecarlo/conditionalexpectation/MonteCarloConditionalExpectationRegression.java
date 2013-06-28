@@ -8,6 +8,7 @@ package net.finmath.montecarlo.conditionalexpectation;
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.ImmutableRandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A service that allows to estimate conditional expectation via regression.
@@ -55,15 +56,15 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
     /* (non-Javadoc)
      * @see net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation#getConditionalExpectation(net.finmath.stochastic.ImmutableRandomVariableInterface)
      */
-    public RandomVariable getConditionalExpectation(ImmutableRandomVariableInterface randomVariable) {
+    public RandomVariableInterface getConditionalExpectation(ImmutableRandomVariableInterface randomVariable) {
     	double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
     	// Calculate estimate
         ImmutableRandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
 
-        RandomVariable conditionalExpectation = new RandomVariable(0.0);
+        RandomVariableInterface conditionalExpectation = new RandomVariable(0.0);
         for(int i=0; i<basisFunctions.length; i++) {
-        	conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
+            conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
         }
 
         return conditionalExpectation;
@@ -105,12 +106,12 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
         
         ImmutableRandomVariableInterface[] nonZerobasisFunctions = new ImmutableRandomVariableInterface[numberOfNonZeroBasisFunctions];
 
-    	int indexOfNonZeroBasisFunctions = 0;    	
-    	for(int indexBasisFunction = 0; indexBasisFunction<basisFunctions.length; indexBasisFunction++) {
-        	if(basisFunctions[indexBasisFunction] != null) {
-        		nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunctions[indexBasisFunction];
-        		indexOfNonZeroBasisFunctions++;
-        	}
+    	int indexOfNonZeroBasisFunctions = 0;
+        for (ImmutableRandomVariableInterface basisFunction : basisFunctions) {
+            if (basisFunction != null) {
+                nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
+                indexOfNonZeroBasisFunctions++;
+            }
         }
 
         return nonZerobasisFunctions;

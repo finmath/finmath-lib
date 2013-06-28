@@ -59,7 +59,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 			RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, component);
 			factorLoading[factorIndex] = volatility;
-			factorLoading[factorIndex].mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
+			factorLoading[factorIndex] = factorLoading[factorIndex].mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
 		
 		return factorLoading;

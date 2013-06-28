@@ -24,8 +24,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @version 1.1
  */
 public class CMSOption extends AbstractLIBORMonteCarloProduct {
-	private double		exerciseDate;	// Exercise date
-	private double[]	fixingDates;    // Vector of fixing dates (must be sorted)
+	private final double		exerciseDate;	// Exercise date
+	private final double[]	fixingDates;    // Vector of fixing dates (must be sorted)
 	private double[]	paymentDates;	// Vector of payment dates (same length as fixing dates)
 	private double[]	periodLengths;	// Vector of payment dates (same length as fixing dates)
 	private double		strike;			// Vector of strikes
@@ -84,18 +84,18 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 
             // Add payment received at end of period
 			RandomVariableInterface payoff = new RandomVariable(paymentDate, 1.0 * periodLength);
-			valueFixLeg.add(payoff);
+			valueFixLeg = valueFixLeg.add(payoff);
 
 			// Discount back to beginning of period
-			valueFloatLeg.discount(libor, periodLength);
-			valueFixLeg.discount(libor, periodLength);
+			valueFloatLeg = valueFloatLeg.discount(libor, periodLength);
+			valueFixLeg = valueFixLeg.discount(libor, periodLength);
 		}
-		valueFloatLeg.add(1.0);
+		valueFloatLeg = valueFloatLeg.add(1.0);
         
 		RandomVariableInterface parSwapRate = valueFloatLeg.div(valueFixLeg);
         
         RandomVariableInterface payoffUnit	= new RandomVariable(paymentDates[0], periodLengths[0]);
-        payoffUnit.discount(model.getLIBOR(exerciseDate, fixingDates[0], paymentDates[0]),paymentDates[0]-fixingDates[0]);
+        payoffUnit = payoffUnit.discount(model.getLIBOR(exerciseDate, fixingDates[0], paymentDates[0]),paymentDates[0]-fixingDates[0]);
         
         RandomVariableInterface value = parSwapRate.sub(strike).floor(0.0).mult(payoffUnit);
         
@@ -105,7 +105,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 			double periodLength	= fixingDates[0] - exerciseDate;
 
 			// Discount back to beginning of period
-			value.discount(libor, periodLength);
+			value = value.discount(libor, periodLength);
 		}
 		
 		/*
@@ -113,11 +113,11 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		 */
 		ImmutableRandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
 		ImmutableRandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
-		value.div(numeraire).mult(monteCarloProbabilities);
+		value = value.div(numeraire).mult(monteCarloProbabilities);
 
 		ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
 		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		value.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		value = value.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return value;	
 	}
@@ -132,7 +132,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
      */
     public double getValue(ForwardCurveInterface forwardCurve, double swaprateVolatility) {
     	double[] swapTenor = new double[fixingDates.length+1];
-    	for(int periodIndex = 0; periodIndex<fixingDates.length; periodIndex++) swapTenor[periodIndex] = fixingDates[periodIndex];
+        System.arraycopy(fixingDates, 0, swapTenor, 0, fixingDates.length);
     	swapTenor[swapTenor.length-1] = paymentDates[paymentDates.length-1];
 
     	TimeDiscretizationInterface fixTenor	= new TimeDiscretization(swapTenor);

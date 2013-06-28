@@ -15,9 +15,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
 	
-	private int			numberOfFactors;
+	private final int			numberOfFactors;
 	private double		a;
-	private boolean		isCalibrateable;
+	private final boolean		isCalibrateable;
 	
 
 	private double[][]	correlationMatrix;

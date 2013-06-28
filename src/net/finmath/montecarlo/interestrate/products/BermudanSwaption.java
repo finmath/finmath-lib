@@ -24,12 +24,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 
-	private boolean[]	isPeriodStartDateExerciseDate;	// Exercise date
-	private double[]	fixingDates;                  	// Vector of fixing dates (must be sorted)
-	private double[]	periodLengths;					// Vector of period length;
-	private double[]	paymentDates;	                // Vector of payment dates (same length as fixing dates)
-	private double[]	periodNotionals;				// Vector of notionals for each period
-	private double[]	swaprates;	                 	// Vector of strikes
+	private final boolean[]	isPeriodStartDateExerciseDate;	// Exercise date
+	private final double[]	fixingDates;                  	// Vector of fixing dates (must be sorted)
+	private final double[]	periodLengths;					// Vector of period length;
+	private final double[]	paymentDates;	                // Vector of payment dates (same length as fixing dates)
+	private final double[]	periodNotionals;				// Vector of notionals for each period
+	private final double[]	swaprates;	                 	// Vector of strikes
 
 	/**
 	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
@@ -57,7 +57,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
@@ -84,10 +84,10 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 			// Apply discounting and Monte-Carlo probabilities
 			RandomVariableInterface	numeraire               = model.getNumeraire(paymentDate);
 			RandomVariableInterface	monteCarloProbabilities = model.getMonteCarloWeights(paymentDate);
-			payoff.div(numeraire).mult(monteCarloProbabilities);
+            payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 			
 //			model.discount(paymentDate, values);
-			valuesUnderlying.add(payoff);
+            valuesUnderlying = valuesUnderlying.add(payoff);
 
 			if(isPeriodStartDateExerciseDate[period]) {
 				RandomVariableInterface triggerValuesDiscounted = values.getMutableCopy().sub(valuesUnderlying);
@@ -100,7 +100,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
-				values.barrier(triggerValues, values, valuesUnderlying);
+                values = values.barrier(triggerValues, values, valuesUnderlying);
 			}
 		}
 
@@ -109,7 +109,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
         // Note that values is a relative price - no numeraire division is required
         ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
         ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-        values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+        values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
         return values;
 	}
@@ -120,7 +120,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
      * @param fixingDateIndex The time index corresponding to the fixing date
      * @param model The model
      * @return The conditional expectation estimator suitable for this product
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException
      */
     private MonteCarloConditionalExpectation getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
     	MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(
@@ -154,6 +154,6 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		basisFunction = basisFunctions.get(1).getMutableCopy().discount(rate, periodLength);
 		basisFunctions.add(basisFunction);
 
-		return basisFunctions.toArray(new RandomVariableInterface[0]);
+		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
 }

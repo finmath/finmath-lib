@@ -70,12 +70,12 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
 	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariable covariance = new RandomVariable(0.0, 0.0);
+		RandomVariableInterface covariance = new RandomVariable(0.0, 0.0);
 		
 		RandomVariableInterface[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
 		RandomVariableInterface[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
 		for(int factorIndex=0; factorIndex<this.getNumberOfFactors(); factorIndex++) {
-			covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);
+            covariance = covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);
 		}
 
 		return covariance;
@@ -95,7 +95,8 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param timeDiscretization the timeDiscretization to set
 	 * @deprecated Will be an immutable object soon.
 	 */
-	public void setTimeDiscretization(TimeDiscretizationInterface timeDiscretization) {
+	@Deprecated
+    public void setTimeDiscretization(TimeDiscretizationInterface timeDiscretization) {
 		this.timeDiscretization = timeDiscretization;
 	}
 
@@ -112,7 +113,8 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @deprecated Will be an immutable object soon.
 	 * @param liborPeriodDiscretization the liborPeriodDiscretization to set
 	 */
-	public void setLiborPeriodDiscretization(TimeDiscretizationInterface liborPeriodDiscretization) {
+	@Deprecated
+    public void setLiborPeriodDiscretization(TimeDiscretizationInterface liborPeriodDiscretization) {
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
 	}
 
@@ -127,7 +129,8 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param numberOfFactors the numberOfFactors to set
 	 * @deprecated Will be an immutable object soon.
 	 */
-	public void setNumberOfFactors(int numberOfFactors) {
+	@Deprecated
+    public void setNumberOfFactors(int numberOfFactors) {
 		this.numberOfFactors = numberOfFactors;
 	}
 }
