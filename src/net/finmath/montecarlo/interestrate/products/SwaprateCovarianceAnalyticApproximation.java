@@ -21,8 +21,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloProduct {
 
-    double[]    swapTenor1;       // Vector of swap tenor (period start and end dates).
-    double[]    swapTenor2;       // Vector of swap tenor (period start and end dates).
+    final double[]    swapTenor1;       // Vector of swap tenor (period start and end dates).
+    final double[]    swapTenor2;       // Vector of swap tenor (period start and end dates).
     
     /**
      * @param swapTenor1 The swap tenor of the first rate in doubles.

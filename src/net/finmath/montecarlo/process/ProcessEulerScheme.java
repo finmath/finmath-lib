@@ -59,7 +59,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of process realizations (on path)
 	 */
-	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) {
+	@Override
+    public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcess == null || discreteProcess.length == 0) {
@@ -77,7 +78,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights
 	 */
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) {
+	@Override
+    public RandomVariableInterface getMonteCarloWeights(int timeIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcessWeights == null || discreteProcessWeights.length == 0) {
@@ -152,21 +154,21 @@ public class ProcessEulerScheme extends AbstractProcess {
 						if (factorLoadings == null) return null;
 
 						// Temp storage for variance and diffusion
-						RandomVariable diffusionOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
+						RandomVariableInterface diffusionOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
 
 						// Generate values for diffusionOfComponent and varianceOfComponent 
 						for (int factor = 0; factor < numberOfFactors; factor++) {
 							ImmutableRandomVariableInterface factorLoading		= factorLoadings[factor];
 							ImmutableRandomVariableInterface brownianIncrement	= brownianMotion.getBrownianIncrement(timeIndex - 1, factor);
 
-							diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
+							diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
 						}
 
 						RandomVariableInterface increment = diffusionOfComponent;
-						if(driftOfComponent != null) increment.addProduct(driftOfComponent, deltaT);
+						if(driftOfComponent != null) increment = increment.addProduct(driftOfComponent, deltaT);
 
 						// Add increment to state and applyStateSpaceTransform
-						currentState[componentIndex].add(increment);
+						currentState[componentIndex] = currentState[componentIndex].add(increment);
 						
 						// Transform the state space to the value space and return it.
 						return applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
@@ -209,7 +211,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 					// newRealization[pathIndex] = newRealization[pathIndex] * Math.exp(0.5 * (driftWithPredictorOnPath - driftWithoutPredictorOnPath) * deltaT);
 					RandomVariableInterface driftAdjustment = driftWithPredictorOfComponent.getMutableCopy().sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
-					currentState[componentIndex].add(driftAdjustment);
+					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
 
 					// Reapply state space transform
 					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
@@ -235,14 +237,16 @@ public class ProcessEulerScheme extends AbstractProcess {
 	/**
 	 * @return Returns the numberOfPaths.
 	 */
-	public int getNumberOfPaths() {
+	@Override
+    public int getNumberOfPaths() {
 		return this.brownianMotion.getNumberOfPaths();
 	}
 
 	/**
 	 * @return Returns the numberOfFactors.
 	 */
-	public int getNumberOfFactors() {
+	@Override
+    public int getNumberOfFactors() {
 		return this.brownianMotion.getNumberOfFactors();
 	}
 
@@ -250,7 +254,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param seed The seed to set.
 	 * @deprecated The class will soon be changed to be immutable
 	 */
-	public void setSeed(int seed) {
+	@Deprecated
+    public void setSeed(int seed) {
 		// Create a new Brownian motion
 		this.setBrownianMotion(new net.finmath.montecarlo.BrownianMotion(
 				brownianMotion.getTimeDiscretization(), brownianMotion
@@ -263,7 +268,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	/**
 	 * @return Returns the Brownian motion used in the generation of the process
 	 */
-	public BrownianMotionInterface getBrownianMotion() {
+	@Override
+    public BrownianMotionInterface getBrownianMotion() {
 		return brownianMotion;
 	}
 
@@ -271,7 +277,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param brownianMotion The brownianMotion to set.
 	 * @deprecated Do not use anymore. Processes should be immutable.
 	 */
-	public void setBrownianMotion(
+	@Deprecated
+    public void setBrownianMotion(
 			net.finmath.montecarlo.BrownianMotion brownianMotion) {
 		this.brownianMotion = brownianMotion;
 		// Force recalculation of the process
@@ -289,7 +296,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param scheme The scheme to set.
 	 * @deprecated Do not use anymore. Processes should be immutable.
 	 */
-	public void setScheme(Scheme scheme) {
+	@Deprecated
+    public void setScheme(Scheme scheme) {
 		this.scheme = scheme;
 		// Force recalculation of the process
 		this.reset();

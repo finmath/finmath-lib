@@ -19,8 +19,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public abstract class LIBORCorrelationModel {
-    TimeDiscretizationInterface	timeDiscretization;
-    TimeDiscretizationInterface	liborPeriodDiscretization;
+    final TimeDiscretizationInterface	timeDiscretization;
+    final TimeDiscretizationInterface	liborPeriodDiscretization;
 	
 	public LIBORCorrelationModel(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization) {
 		super();
@@ -49,5 +49,6 @@ public abstract class LIBORCorrelationModel {
 		return timeDiscretization;
 	}
 
-	public abstract Object clone();
+	@Override
+    public abstract Object clone();
 }

@@ -68,14 +68,14 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 
 			ImmutableRandomVariableInterface numeraire					= model.getNumeraire(paymentDate);
 			ImmutableRandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
-			payoff.div(numeraire).mult(monteCarloProbabilities);
+			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
-			values.add(payoff);
+			values = values.add(payoff);
 		}
 
 		ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
 		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
         return values;
 	}

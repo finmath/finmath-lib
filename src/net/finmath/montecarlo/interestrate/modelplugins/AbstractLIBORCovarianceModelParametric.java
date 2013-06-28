@@ -30,7 +30,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel {
 
-	private static Logger logger = Logger.getLogger("net.finmath");
+	private static final Logger logger = Logger.getLogger("net.finmath");
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
@@ -54,6 +54,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     
     public abstract void		setParameter(double[] parameter);
 
+    @Override
     public abstract Object clone();
     
     public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
@@ -68,8 +69,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     	double[] initialParameters = this.getParameter();
 
     	// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
-		final int numberOfPaths	= 5000;
-		final int seed			= 31415;
+		int numberOfPaths	= 5000;
+		int seed			= 31415;
 		final int maxIterations	= 400;
 
 		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
@@ -77,7 +78,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		// We do not allocate more threads the twice the number of processors.
 		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1), calibrationProducts.length);
 		
-    	LevenbergMarquardt optimizer = new net.finmath.optimizer.LevenbergMarquardt(
+    	LevenbergMarquardt optimizer = new LevenbergMarquardt(
 			initialParameters,
 			calibrationTargetValues,
 			maxIterations,
@@ -87,12 +88,12 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			@Override
             public void setValues(double[] parameters, double[] values) throws SolverException {
 		        
-		    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
+		    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
 
 		    	// Create a LIBOR market model with the new covariance structure.
 		    	LIBORMarketModelInterface model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
+		        LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
 		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 		        	try {

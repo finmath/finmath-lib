@@ -24,10 +24,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.1
  */
 public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
-	private double	optionMaturity;
-	private double	periodStart;
-	private double	periodEnd;
-	private double	strike;
+	private final double	optionMaturity;
+	private final double	periodStart;
+	private final double	periodEnd;
+	private final double	strike;
 		
 	/**
 	 * Create a digital caplet with given maturity and strike.
@@ -54,7 +54,7 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
@@ -73,13 +73,13 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 		ImmutableRandomVariableInterface	numeraire					= model.getNumeraire(paymentDate);
 		ImmutableRandomVariableInterface	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
 
-		values.div(numeraire).mult(monteCarloProbabilities);
+		values = values.div(numeraire).mult(monteCarloProbabilities);
 		
         // Get numeraire and probabilities for evaluation time
 		ImmutableRandomVariableInterface	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
 		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
 
-		values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);		
+		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);		
 		
 		// Return values
 		return values;

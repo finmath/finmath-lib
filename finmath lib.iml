@@ -7,6 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="math" level="project" />
+    <orderEntry type="library" name="junit-4.10" level="project" />
   </component>
 </module>
 

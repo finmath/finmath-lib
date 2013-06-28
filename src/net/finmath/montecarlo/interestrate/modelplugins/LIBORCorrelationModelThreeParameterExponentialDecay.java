@@ -19,7 +19,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	private double	a;
 	private double	b;
 	private double	c;
-	private boolean isCalibrateable;
+	private final boolean isCalibrateable;
 
 	private double[][]	correlationMatrix;
 	private double[][]	factorMatrix;

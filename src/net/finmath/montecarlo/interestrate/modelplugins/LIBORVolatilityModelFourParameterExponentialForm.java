@@ -24,7 +24,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
     private boolean isCalibrateable = false;
 
     /**
-     * Creates the volatility model sigma_{i}(t_{j}} = ( a + b * (T_{j}-t_{i}) ) * exp(-c (T_{j}-t_{i})) + d
+     * Creates the volatility model &sigma;_{i}(t_{j}} = ( a + b * (T_{j}-t_{i}) ) * exp(-c (T_{j}-t_{i})) + d
      * 
      * @param timeDiscretization The simulation time discretization t<sub>i</sub>.
      * @param liborPeriodDiscretization The period time discretization T<sub>j</sub>.

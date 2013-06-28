@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
-	private double[][]		volatility;
+	private final double[][]		volatility;
 	
 	/**
 	 * @param timeDiscretization Discretization of simulation time.

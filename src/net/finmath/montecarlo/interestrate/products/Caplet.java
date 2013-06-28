@@ -17,9 +17,9 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.0
  */
 public class Caplet extends AbstractLIBORMonteCarloProduct {
-	private double	maturity;
-	private double	periodLength;
-	private double	strike;
+	private final double	maturity;
+	private final double	periodLength;
+	private final double	strike;
 	private boolean	isFloorlet = false;
 
 	/**
@@ -53,7 +53,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
@@ -71,14 +71,14 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		 *   min(L-K,0) * periodLength         for floorlet.
 		 */
 		RandomVariableInterface values = libor;		
-		if(!isFloorlet)	values.sub(strike).floor(0.0).mult(periodLength);
-		else			values.sub(strike).cap(0.0).mult(-1.0 * periodLength);
+		if(!isFloorlet)	values = values.sub(strike).floor(0.0).mult(periodLength);
+		else			values = values.sub(strike).cap(0.0).mult(-1.0 * periodLength);
 
-		values.div(numeraire).mult(monteCarloProbabilities);
+        values = values.div(numeraire).mult(monteCarloProbabilities);
 
 		ImmutableRandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);		
 		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);		
-		values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);
+		values = values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);
 
 		return values;
 	}

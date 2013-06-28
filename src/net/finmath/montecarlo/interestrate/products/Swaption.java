@@ -99,7 +99,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
@@ -122,10 +122,10 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			
             // Add payment received at end of period
 			RandomVariableInterface payoff = libor.getMutableCopy().sub(swaprate).mult(periodLength);
-			valueOfSwapAtExerciseDate.add(payoff);
+			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.add(payoff);
 
 			// Discount back to beginning of period
-			valueOfSwapAtExerciseDate.discount(libor, paymentDate - fixingDate);
+			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.discount(libor, paymentDate - fixingDate);
 		}
         
         // If the exercise date is not the first periods start date, then discount back to the exercise date (calculate the forward starting swap)
@@ -134,7 +134,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			double periodLength	= fixingDates[0] - exerciseDate;
 
 			// Discount back to beginning of period
-			valueOfSwapAtExerciseDate.discount(libor, periodLength);
+			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.discount(libor, periodLength);
 		}
 		
 		/*
@@ -144,11 +144,11 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
         
 		ImmutableRandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
 		ImmutableRandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
-		values.div(numeraire).mult(monteCarloProbabilities);
+		values = values.div(numeraire).mult(monteCarloProbabilities);
 
 		ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
 		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return values;
 	}
@@ -163,10 +163,12 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
      */
     public double getValue(ForwardCurveInterface forwardCurve, double swaprateVolatility) {
     	double swaprate = swaprates[0];
-    	for(int periodIndex = 0; periodIndex<swaprates.length; periodIndex++) if(swaprates[periodIndex] != swaprate) throw new RuntimeException("Uneven swaprates not allows for analytical pricing.");
+        for (double swaprate1 : swaprates)
+            if (swaprate1 != swaprate)
+                throw new RuntimeException("Uneven swaprates not allows for analytical pricing.");
     	
     	double[] swapTenor = new double[fixingDates.length+1];
-    	for(int periodIndex = 0; periodIndex<fixingDates.length; periodIndex++) swapTenor[periodIndex] = fixingDates[periodIndex];
+        System.arraycopy(fixingDates, 0, swapTenor, 0, fixingDates.length);
     	swapTenor[swapTenor.length-1] = paymentDates[paymentDates.length-1];
 
     	double forwardSwapRate = Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve);

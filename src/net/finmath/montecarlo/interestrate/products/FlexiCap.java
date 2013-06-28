@@ -8,7 +8,6 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -24,10 +23,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 	
-	private double[]	fixingDates;					// Vector of fixing dates (must be sorted)
-	private double[]	paymentDates;					// Vector of payment dates (same length as fixing dates)
-	private double[]	strikes;						// Vector of strikes
-	private int			maximumNumberOfExercises;		// The maximum number of exercises
+	private final double[]	fixingDates;					// Vector of fixing dates (must be sorted)
+	private final double[]	paymentDates;					// Vector of payment dates (same length as fixing dates)
+	private final double[]	strikes;						// Vector of strikes
+	private final int			maximumNumberOfExercises;		// The maximum number of exercises
 	
 	/**
 	 * Create a Flexi Cap (aka Auto Cap).
@@ -56,7 +55,7 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
@@ -81,27 +80,27 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 			double periodLength	= paymentDate - fixingDate;
 			
 			// Get random variables
-			ImmutableRandomVariableInterface	libor					= model.getLIBOR(fixingDate, fixingDate, paymentDate);
-			ImmutableRandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-			ImmutableRandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
+			RandomVariableInterface	libor					= model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
+			RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 
 			// Calculate payout
-			RandomVariableInterface payoff = libor.getMutableCopy().sub(strike).mult(periodLength);
-			RandomVariableInterface indicator = (new RandomVariable(1.0)).barrier(payoff, (new RandomVariable(1.0)), (new RandomVariable(0.0)));
-			indicator.barrier(numberOfExcercises, indicator, 0.0);
+			RandomVariableInterface payoff = libor.sub(strike).mult(periodLength);
+			RandomVariableInterface indicator = new RandomVariable(1.0).barrier(payoff, new RandomVariable(1.0), new RandomVariable(0.0));
+			indicator = indicator.barrier(numberOfExcercises, indicator, 0.0);
 			
-			payoff.div(numeraire).mult(monteCarloProbabilities);
+			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			// Accumulate numeraire relative values
-			values.addProduct(indicator, payoff);
+			values = values.addProduct(indicator, payoff);
 
 			// Update exercise counter
-			numberOfExcercises.sub(indicator);
+            numberOfExcercises = numberOfExcercises.sub(indicator);
 		}
 
-		ImmutableRandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
-		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
-		values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
+		RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 				
 		return values;	
 	}

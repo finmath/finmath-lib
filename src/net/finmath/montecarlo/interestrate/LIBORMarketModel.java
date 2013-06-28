@@ -241,7 +241,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					swaprates[periodStartIndex] = swaprate;
 				}
 
-				boolean isUseAnalyticApproximation = true;
+				boolean isUseAnalyticApproximation = false;
 				if(isUseAnalyticApproximation) {
 					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 					double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
@@ -249,7 +249,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					calibrationItems.add(new CalibrationItem(swaption, impliedVolatility, 1.0));
 				}
 				else {
-					AbstractLIBORMonteCarloProduct swaption = new SwaptionSimple(swaprate, swapTenorTimes, SwaptionSimple.ValueUnit.VALUE);
+					AbstractLIBORMonteCarloProduct swaption = new SwaptionSimple(swaprate, swapTenorTimes, SwaptionSimple.ValueUnit.VOLATILITY);
 
 			    	double forwardSwaprate		= Swap.getForwardSwapRate(swapTenor, swapTenor, forwardCurve);
 			    	double swapAnnuity 			= SwapAnnuity.getSwapAnnuity(swapTenor, forwardCurve);
@@ -257,7 +257,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 					double targetValue = AnalyticFormulas.blackModelSwaptionValue(forwardSwaprate, impliedVolatility, exerciseDate, swaprate, swapAnnuity);
 				
-					calibrationItems.add(new CalibrationItem(swaption, targetValue, 1.0));
+					calibrationItems.add(new CalibrationItem(swaption, impliedVolatility, 1.0));
 				}
 			}
 		}
@@ -325,32 +325,29 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
     	for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
 			double						periodLength		= liborPeriodDiscretization.getTimeStep(componentIndex);
     		ImmutableRandomVariableInterface libor = realizationAtTimeIndex[componentIndex];
-    		RandomVariableInterface oneStepMeasureTransform = new RandomVariable(periodLength).discount(libor, periodLength);
+    		RandomVariableInterface oneStepMeasureTransform = libor.getMutableCopy().discount(libor, periodLength).mult(periodLength);
 
-            oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+            //oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 
-			RandomVariableInterface[]	covarianceFactors	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+            RandomVariableInterface[]   covarianceFactors   = new RandomVariableInterface[getNumberOfFactors()];
     		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-                covarianceFactors[factorIndex] = covarianceFactors[factorIndex].mult(oneStepMeasureTransform);
+                covarianceFactors[factorIndex] = factorLoading[factorIndex].getMutableCopy().mult(oneStepMeasureTransform);
     			covarianceFactorSums[componentIndex][factorIndex] = covarianceFactors[factorIndex];
     			if(componentIndex > firstLiborIndex)
                     covarianceFactorSums[componentIndex][factorIndex] = covarianceFactorSums[componentIndex][factorIndex].add(covarianceFactorSums[componentIndex-1][factorIndex]);
         	}
+            for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
+                drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[componentIndex][factorIndex], factorLoading[factorIndex]);
+            }
         }
+
     	// Above is the drift for the spot measure: a simple conversion makes it the drift of the terminal measure.
 		if(measure == Measure.TERMINAL) {
 	        for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-	       		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-                    covarianceFactorSums[componentIndex][factorIndex] = covarianceFactorSums[componentIndex][factorIndex].sub(covarianceFactorSums[getNumberOfComponents()-1][factorIndex]);
-	        	}
+                drift[componentIndex] = drift[componentIndex].sub(drift[getNumberOfComponents()-1]);
 	        }
 		}
-		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-			RandomVariableInterface[] factorLoading = getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
-       		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-                drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[componentIndex][factorIndex], factorLoading[factorIndex]);
-        	}
-        }
 
 		// Drift adjustment for log-coordinate in each component
 		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {

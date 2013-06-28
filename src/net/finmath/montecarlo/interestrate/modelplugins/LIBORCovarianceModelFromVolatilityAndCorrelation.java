@@ -24,8 +24,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLIBORCovarianceModelParametric {
 
-	public LIBORVolatilityModel volatilityModel;
-	public LIBORCorrelationModel correlationModel;
+	public final LIBORVolatilityModel	volatilityModel;
+	public final LIBORCorrelationModel	correlationModel;
 	
 	public LIBORCovarianceModelFromVolatilityAndCorrelation(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, LIBORVolatilityModel volatilityModel, LIBORCorrelationModel correlationModel) {
 		super(timeDiscretization, liborPeriodDiscretization, correlationModel.getNumberOfFactors());
@@ -36,11 +36,11 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 
 	@Override
     public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface factorLoading[] = new RandomVariableInterface[correlationModel.getNumberOfFactors()];
+		RandomVariableInterface[] factorLoading = new RandomVariableInterface[correlationModel.getNumberOfFactors()];
+
+		RandomVariableInterface volatility	= volatilityModel.getVolatility(timeIndex, component);
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
-			RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, component);
-			factorLoading[factorIndex] = volatility;
-			factorLoading[factorIndex].mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
+			factorLoading[factorIndex] = volatility.mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
 		
 		return factorLoading;
@@ -49,8 +49,8 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	@Override
     public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
 		// Note that we assume that the correlation model getFactorLoading gives orthonormal vectors
-		RandomVariableInterface factorLoadingPseudoInverse = (volatilityModel.getVolatility(timeIndex, component).getMutableCopy()).invert();
-		factorLoadingPseudoInverse.mult(correlationModel.getFactorLoading(timeIndex, factor, component));
+		RandomVariableInterface factorLoadingPseudoInverse = volatilityModel.getVolatility(timeIndex, component).invert()
+                .mult(correlationModel.getFactorLoading(timeIndex, factor, component));
 
         // @todo numberOfComponents should be stored as a member?!
         int numberOfComponents = getLiborPeriodDiscretization().getNumberOfTimeSteps();
@@ -61,7 +61,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
             factorWeight +=  factorElement*factorElement;                                                                                                                 
         }
 
-        factorLoadingPseudoInverse.mult(1/factorWeight);
+        factorLoadingPseudoInverse = factorLoadingPseudoInverse.mult(1/factorWeight);
 
         return factorLoadingPseudoInverse;		
 	}
@@ -70,10 +70,10 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
      * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel#getCovariance(int, int, int)
      */
     @Override
-    public RandomVariable getCovariance(int timeIndex, int component1, int component2, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
-        RandomVariable covariance = new RandomVariable(0.0, correlationModel.getCorrelation(timeIndex, component1, component2));
-        covariance.mult(volatilityModel.getVolatility(timeIndex, component1));
-        covariance.mult(volatilityModel.getVolatility(timeIndex, component2));
+    public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
+        RandomVariableInterface covariance = new RandomVariable(0.0, correlationModel.getCorrelation(timeIndex, component1, component2));
+        covariance = covariance.mult(volatilityModel.getVolatility(timeIndex, component1))
+                .mult(volatilityModel.getVolatility(timeIndex, component2));
 
         return covariance;
     }

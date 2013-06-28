@@ -27,11 +27,11 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         VALUE,
         INTEGRATEDVARIANCE,
         VOLATILITY
-    };
+    }
 
-    private double      swaprate;
-    private double[]    swapTenor;       // Vector of swap tenor (period start and end dates). Start of first period is the option maturity.
-    private ValueUnit   valueUnit;
+    private final double      swaprate;
+    private final double[]    swapTenor;       // Vector of swap tenor (period start and end dates). Start of first period is the option maturity.
+    private final ValueUnit   valueUnit;
 
     /**
      * Note: It is implicitly assumed that swapTenor[0] is the exercise date (no forward starting).
@@ -39,7 +39,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
      * @param swapTenor The swap tenor in doubles.
      */
     public SwaptionAnalyticApproximation(double swaprate, TimeDiscretizationInterface swapTenor) {
-        this(swaprate, swapTenor.getAsDoubleArray(), SwaptionAnalyticApproximation.ValueUnit.VALUE);
+        this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE);
     }
 
     /**
@@ -57,7 +57,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
-    	return getValues(evaluationTime, (LIBORMarketModelInterface)model.getModel());
+    	return getValues(evaluationTime, model.getModel());
     }
     
     /**
@@ -101,12 +101,12 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         }
 
         // Return integratedSwapRateVariance if requested
-        if(valueUnit == SwaptionAnalyticApproximation.ValueUnit.INTEGRATEDVARIANCE) return new RandomVariable(evaluationTime, integratedSwapRateVariance);
+        if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) return new RandomVariable(evaluationTime, integratedSwapRateVariance);
 
         double volatility		= Math.sqrt(integratedSwapRateVariance / swapStart);
 
         // Return integratedSwapRateVariance if requested
-        if(valueUnit == SwaptionAnalyticApproximation.ValueUnit.VOLATILITY) return new RandomVariable(evaluationTime, volatility);
+        if(valueUnit == ValueUnit.VOLATILITY) return new RandomVariable(evaluationTime, volatility);
 
         // Use black formula for swaption to calculate the price
         double swapAnnuity      =   swapAnnuities[0];
@@ -133,7 +133,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         for(int liborPeriodIndex = 0; liborPeriodIndex < swapStartIndex; liborPeriodIndex++) {
             double libor = forwardCurveInterface.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
             double liborPeriodLength = liborPeriodDiscretization.getTimeStep(liborPeriodIndex);
-            discountFactors[0] /= (1 + libor * liborPeriodLength);
+            discountFactors[0] /= 1 + libor * liborPeriodLength;
         }
 
         // Calculate discount factors for swap period ends (used for swap annuity)

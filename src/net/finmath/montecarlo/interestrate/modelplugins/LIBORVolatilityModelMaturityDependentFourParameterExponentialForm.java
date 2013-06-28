@@ -16,10 +16,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm extends LIBORVolatilityModel {
 
-    double a[];
-    double b[];
-    double c[];
-    double d[];
+    double[] a;
+    double[] b;
+    double[] c;
+    double[] d;
 
     /**
      * @param timeDiscretization

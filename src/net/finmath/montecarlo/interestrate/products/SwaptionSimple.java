@@ -29,12 +29,12 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
         VALUE,
         INTEGRATEDVARIANCE,
         VOLATILITY
-    };
+    }
 
-    private TimeDiscretizationInterface	tenor;
-    private double						swaprate;
-    private Swaption					swaption;
-    private ValueUnit					valueUnit;
+    private final TimeDiscretizationInterface	tenor;
+    private final double						swaprate;
+    private final Swaption					swaption;
+    private final ValueUnit					valueUnit;
 
     /**
      * Note: It is implicitly assumed that swapTenor[0] is the exercise date (no forward starting).
@@ -42,7 +42,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
      * @param swapTenor The swap tenor in doubles.
      */
     public SwaptionSimple(double swaprate, TimeDiscretizationInterface swapTenor) {
-        this(swaprate, swapTenor.getAsDoubleArray(), SwaptionSimple.ValueUnit.VALUE);
+        this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE);
     }
 
     /**
@@ -67,7 +67,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
