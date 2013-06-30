@@ -7,7 +7,7 @@ package net.finmath.montecarlo;
 
 import java.io.Serializable;
 
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 import cern.jet.random.engine.MersenneTwister64;
 
@@ -43,7 +43,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private transient ImmutableRandomVariableInterface[][]	brownianIncrements;	
+	private transient RandomVariableInterface[][]	brownianIncrements;	
 
 	/**
 	 * Construct a Brownian motion.
@@ -76,7 +76,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getBrownianIncrement(int, int)
 	 */
 	@Override
-	public ImmutableRandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
+	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if(brownianIncrements == null) doGenerateBrownianMotion();

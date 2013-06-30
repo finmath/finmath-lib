@@ -6,7 +6,6 @@
 package net.finmath.montecarlo.process;
 
 import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -51,22 +50,22 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
         return model.getNumberOfComponents();
     }
 	
-    public ImmutableRandomVariableInterface[]	getInitialState() {
+    public RandomVariableInterface[]	getInitialState() {
         return model.getInitialState();
     };
 
-    public ImmutableRandomVariableInterface[]	getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor) {
+    public RandomVariableInterface[]	getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
     	return model.getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
     }
 
-    public ImmutableRandomVariableInterface[]	getFactorLoading(int timeIndex, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
+    public RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
         // Delegate to model
         return model.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
     }
 
-    public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface) {
+    public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface ImmutableRandomVariableInterface) {
         // Delegate to model
-        return model.applyStateSpaceTransform(componentIndex, randomVariableInterface);
+        return model.applyStateSpaceTransform(componentIndex, ImmutableRandomVariableInterface);
     }    
 
 

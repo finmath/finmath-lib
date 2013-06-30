@@ -8,7 +8,6 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -39,19 +38,19 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
      * @throws net.finmath.exception.CalculationException
      */
     @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		
 		// Get random variables
-        ImmutableRandomVariableInterface	numeraire				= model.getNumeraire(maturity);
-        ImmutableRandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
+        RandomVariableInterface	numeraire				= model.getNumeraire(maturity);
+        RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
 
         // Calculate numeraire relative value
         RandomVariableInterface values = new RandomVariable(maturity, 1.0);
         values = values.div(numeraire).mult(monteCarloProbabilities);
         
         // Convert back to values
-        ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-        ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+        RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
+        RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
         values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		// Return values

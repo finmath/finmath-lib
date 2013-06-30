@@ -11,7 +11,6 @@ import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimul
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.optimizer.GoldenSectionSearch;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -187,7 +186,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
     }
 
 
-    private RandomVariableInterface[] getRegressionBasisFunctions(ImmutableRandomVariableInterface underlying) {
+    private RandomVariableInterface[] getRegressionBasisFunctions(RandomVariableInterface underlying) {
     	RandomVariableInterface[] basisFunctions;
 
     	// Create basis functions - here: 1, S, S^2, S^3, S^4

@@ -7,7 +7,6 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -62,8 +61,8 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 				
 		// Get random variables
 		RandomVariableInterface				libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
-		ImmutableRandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-		ImmutableRandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
+		RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
+		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 	
 		/*
 		 * Calculate the payoff, which is
@@ -76,8 +75,8 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
         values = values.div(numeraire).mult(monteCarloProbabilities);
 
-		ImmutableRandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);		
-		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);		
+		RandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);		
+		RandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);		
 		values = values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);
 
 		return values;

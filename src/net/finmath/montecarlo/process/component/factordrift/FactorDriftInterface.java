@@ -1,7 +1,7 @@
 package net.finmath.montecarlo.process.component.factordrift;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 public interface FactorDriftInterface {
 
@@ -13,7 +13,7 @@ public interface FactorDriftInterface {
 	 * @param realizationPredictor
 	 * @return
 	 */
-	ImmutableRandomVariableInterface[]	getFactorScaling(int timeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
+	RandomVariableInterface[]	getFactorScaling(int timeIndex, RandomVariableInterface[] realizationPredictor);
 
 	/**
 	 * The interface describes how an additional factor drift may be specified for the generation of a process (see e.g. LogNormalProcess).
@@ -24,7 +24,7 @@ public interface FactorDriftInterface {
 	 * @return A vector of random variables given the factor drift for each factor. If the size is less then the number of factors, then higher order factors have no drift.
 	 * @throws CalculationException 
 	 */
-	ImmutableRandomVariableInterface[]	getFactorDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationPredictor) throws CalculationException;
+	RandomVariableInterface[]	getFactorDrift(int timeIndex, RandomVariableInterface[] realizationPredictor) throws CalculationException;
 
     /**
      * The interface describes how an additional factor drift may be specified for the generation of a process (see e.g. LogNormalProcess).
@@ -34,5 +34,5 @@ public interface FactorDriftInterface {
      * @param realizationPredictor
      * @return
      */
-	ImmutableRandomVariableInterface    getFactorDriftDeterminant(int timeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
+	RandomVariableInterface    getFactorDriftDeterminant(int timeIndex, RandomVariableInterface[] realizationPredictor);
 }

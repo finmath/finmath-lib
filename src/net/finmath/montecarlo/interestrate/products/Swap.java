@@ -8,7 +8,6 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -50,7 +49,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
      * @throws CalculationException 
      */
     @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
         RandomVariableInterface values						= new RandomVariable(0.0,0.0);
 
 		for(int period=0; period<fixingDates.length; period++)
@@ -66,15 +65,15 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 			RandomVariableInterface libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariableInterface payoff	= libor.sub(swaprate).mult(periodLength);
 
-			ImmutableRandomVariableInterface numeraire					= model.getNumeraire(paymentDate);
-			ImmutableRandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
+			RandomVariableInterface numeraire					= model.getNumeraire(paymentDate);
+			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			values = values.add(payoff);
 		}
 
-		ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
         return values;

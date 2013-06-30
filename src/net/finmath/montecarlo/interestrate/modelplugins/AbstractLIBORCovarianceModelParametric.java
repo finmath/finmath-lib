@@ -117,7 +117,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		// Get covariance model corresponding to the best parameter set.
 		double[] bestParameters = optimizer.getBestFitParameters();
-    	final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)this.getCloneWithModifiedParameters(bestParameters);
+    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
 		
 		// Diagnostic output
     	if (logger.isLoggable(Level.FINE)) {

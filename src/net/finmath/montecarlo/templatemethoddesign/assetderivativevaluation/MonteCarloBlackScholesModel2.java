@@ -9,7 +9,6 @@ import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.stochastic.RandomVariableMutableClone;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -26,9 +25,9 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	private double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private double volatility;
 
-	private ImmutableRandomVariableInterface[]	initialValueVector	= new ImmutableRandomVariableInterface[1];
-	private ImmutableRandomVariableInterface	drift;;
-	private ImmutableRandomVariableInterface	volatilityOnPaths;
+	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[1];
+	private RandomVariableInterface	drift;;
+	private RandomVariableInterface	volatilityOnPaths;
 
 	/**
 	 * @param timeDiscretization
@@ -96,17 +95,17 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	 * @return Returns the initialValue.
 	 */
 	@Override
-	public ImmutableRandomVariableInterface[] getInitialValue() {
+	public RandomVariableInterface[] getInitialValue() {
 		return initialValueVector;
 	}
 
 	@Override
-	public RandomVariableInterface getDrift(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor) {
+	public RandomVariableInterface getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
 		return new RandomVariableMutableClone(drift);
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, RandomVariableInterface[] realizationAtTimeIndex) {
 		return new RandomVariableMutableClone(volatilityOnPaths);
 	}
 
