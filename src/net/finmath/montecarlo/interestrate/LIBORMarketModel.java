@@ -240,7 +240,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					swaprates[periodStartIndex] = swaprate;
 				}
 
-				boolean isUseAnalyticApproximation = false;
+				boolean isUseAnalyticApproximation = true;
 				if(isUseAnalyticApproximation) {
 					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 					double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
@@ -248,7 +248,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					calibrationItems.add(new CalibrationItem(swaption, impliedVolatility, 1.0));
 				}
 				else {
-					AbstractLIBORMonteCarloProduct swaption = new SwaptionSimple(swaprate, swapTenorTimes, SwaptionSimple.ValueUnit.VOLATILITY);
+					AbstractLIBORMonteCarloProduct swaption = new SwaptionSimple(swaprate, swapTenorTimes, SwaptionSimple.ValueUnit.VALUE);
 
 			    	double forwardSwaprate		= Swap.getForwardSwapRate(swapTenor, swapTenor, forwardCurve);
 			    	double swapAnnuity 			= SwapAnnuity.getSwapAnnuity(swapTenor, forwardCurve);
@@ -256,7 +256,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 					double targetValue = AnalyticFormulas.blackModelSwaptionValue(forwardSwaprate, impliedVolatility, exerciseDate, swaprate, swapAnnuity);
 				
-					calibrationItems.add(new CalibrationItem(swaption, impliedVolatility, 1.0));
+					calibrationItems.add(new CalibrationItem(swaption, targetValue, 1.0));
 				}
 			}
 		}
