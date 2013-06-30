@@ -16,7 +16,6 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.stochastic.RandomVariableMutableClone;
 
 /**
  * This class is an abstract base class to implement a multi-dimensional multi-factor Ito process.
