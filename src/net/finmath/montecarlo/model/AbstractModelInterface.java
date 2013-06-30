@@ -48,9 +48,9 @@ public interface AbstractModelInterface {
      * such that <i>Y<sub>i</sub> &rarr; f<sub>i</sub>(Y<sub>i</sub>) =: X<sub>i</sub></i>.
      * 
      * @param componentIndex The component index <i>i</i>.
-     * @param RandomVariableInterface The state random variable <i>Y<sub>i</sub></i>.
+     * @param randomVariable The state random variable <i>Y<sub>i</sub></i>.
      */
-    RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface ImmutableRandomVariableInterface);
+    RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable);
 
     /**
      * Returns the initial value of the state variable of the process <i>Y</i>, not to be

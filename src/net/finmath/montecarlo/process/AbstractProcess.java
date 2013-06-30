@@ -63,9 +63,9 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
         return model.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
     }
 
-    public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface ImmutableRandomVariableInterface) {
+    public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
         // Delegate to model
-        return model.applyStateSpaceTransform(componentIndex, ImmutableRandomVariableInterface);
+        return model.applyStateSpaceTransform(componentIndex, randomVariable);
     }    
 
 
