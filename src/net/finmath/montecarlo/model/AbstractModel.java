@@ -29,8 +29,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
     	
     	RandomVariableInterface[] value = new RandomVariableInterface[initialState.length];
     	for(int i= 0; i<value.length; i++) {
-    		value[i] = initialState[i].getMutableCopy();
-    		this.applyStateSpaceTransform(i,value[i]);
+    		value[i] = applyStateSpaceTransform(i,initialState[i]);
     	}
     	
     	return value;
