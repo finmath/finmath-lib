@@ -7,7 +7,7 @@ package net.finmath.stochastic;
 
 
 /**
- * IMPORTANT: As of version 1.3 / revision 486 this design of RandomVariable, RandomVariableInterface has changed:
+ * IMPORTANT: As of version 1.3 / revision 487 the design of RandomVariable, RandomVariableInterface has changed:
  * All method of RandomVariable are now immutable and the interface ImmutableRandomVariableInterface has been renamed
  * to RandomVariableInterface. Your code remains compatible if you perform the following changes:
  * <ul>
