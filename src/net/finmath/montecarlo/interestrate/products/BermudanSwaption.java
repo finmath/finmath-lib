@@ -12,7 +12,6 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -60,7 +59,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
      * @throws net.finmath.exception.CalculationException
      */
     @Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
 		RandomVariableInterface values				= new RandomVariable(fixingDates[fixingDates.length-1], 0.0);
@@ -107,8 +106,8 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 //		model.discount(evaluationTime, values);
 
         // Note that values is a relative price - no numeraire division is required
-        ImmutableRandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-        ImmutableRandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+        RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
+        RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
         values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
         return values;

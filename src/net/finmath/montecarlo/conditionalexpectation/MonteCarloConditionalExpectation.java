@@ -5,7 +5,6 @@
  */
 package net.finmath.montecarlo.conditionalexpectation;
 
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -23,5 +22,5 @@ public interface MonteCarloConditionalExpectation {
      * @param randomVariable Given random variable.
      * @return The conditional expectation of <code>randomVariable</code>.
      */
-    RandomVariableInterface getConditionalExpectation(ImmutableRandomVariableInterface randomVariable);
+    RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable);
 }

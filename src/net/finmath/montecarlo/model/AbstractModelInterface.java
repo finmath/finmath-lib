@@ -7,7 +7,6 @@ package net.finmath.montecarlo.model;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -49,9 +48,9 @@ public interface AbstractModelInterface {
      * such that <i>Y<sub>i</sub> &rarr; f<sub>i</sub>(Y<sub>i</sub>) =: X<sub>i</sub></i>.
      * 
      * @param componentIndex The component index <i>i</i>.
-     * @param randomVariableInterface The state random variable <i>Y<sub>i</sub></i>.
+     * @param RandomVariableInterface The state random variable <i>Y<sub>i</sub></i>.
      */
-    RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariableInterface);
+    RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface ImmutableRandomVariableInterface);
 
     /**
      * Returns the initial value of the state variable of the process <i>Y</i>, not to be
@@ -60,7 +59,7 @@ public interface AbstractModelInterface {
      * 
      * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
      */
-    ImmutableRandomVariableInterface[] getInitialState();
+    RandomVariableInterface[] getInitialState();
 
 	/**
 	 * Return the numeraire at a given time index.
@@ -85,7 +84,7 @@ public interface AbstractModelInterface {
      * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
      * @return The (average) drift from timeIndex to timeIndex+1
      */
-    RandomVariableInterface[] getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
+    RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
 
     /**
      * This method has to be implemented to return the drift coefficient <i>&mu;<sub>j</sub></i>.
@@ -96,7 +95,7 @@ public interface AbstractModelInterface {
      * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
      * @return The (average) drift from timeIndex to timeIndex+1
      */
-    RandomVariableInterface getDrift(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor);
+    RandomVariableInterface getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
     
     /**
      * Returns the number of factors <i>m</i>, i.e., the number of independent Brownian drivers.
@@ -118,7 +117,7 @@ public interface AbstractModelInterface {
      * @param realizationAtTimeIndex The realization of X at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
      * @return The factor loading for given factor and component.
      */
-    RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+    RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex);
 
     /**
      * Set the numerical scheme used to generate the stochastic process.

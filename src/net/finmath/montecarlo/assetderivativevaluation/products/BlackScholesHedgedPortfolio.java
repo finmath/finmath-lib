@@ -12,7 +12,6 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -112,7 +111,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		/*
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		ImmutableRandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
+		RandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
 		double initialValue = underlyingToday.get(0);
 
 		double valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesOptionValue(
@@ -128,8 +127,8 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			// Get value of underlying and numeraire assets			
-			ImmutableRandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
-		    ImmutableRandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
+			RandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
+		    RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
 			for(int path=0; path<model.getNumberOfPaths(); path++)
 			{
@@ -243,8 +242,8 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		double[] portfolioValue				= new double[numberOfPath];
 
 		// Get value of underlying and numeraire assets			
-		ImmutableRandomVariableInterface underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
-		ImmutableRandomVariableInterface numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
+		RandomVariableInterface underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
+		RandomVariableInterface numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
 		for(int path=0; path<underlyingAtEvaluationTime.size(); path++)
 		{
 			double underlyingValue = underlyingAtEvaluationTime.get(path);

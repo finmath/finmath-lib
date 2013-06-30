@@ -8,7 +8,6 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -57,27 +56,27 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
      * @throws net.finmath.exception.CalculationException
      */
     @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Set payment date and period length
 		double	paymentDate		= periodEnd;
 		double	periodLength	= periodEnd - periodStart;
 
         // Get random variables
-		ImmutableRandomVariableInterface	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
+		RandomVariableInterface	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
 
 		RandomVariableInterface 			trigger		= libor.getMutableCopy().sub(strike).mult(periodLength);
 		RandomVariableInterface				values		= (new RandomVariable(1.0)).barrier(trigger, (new RandomVariable(periodLength)), (new RandomVariable(0.0)));
 
         // Get numeraire and probabilities for payment time
-		ImmutableRandomVariableInterface	numeraire					= model.getNumeraire(paymentDate);
-		ImmutableRandomVariableInterface	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
+		RandomVariableInterface	numeraire					= model.getNumeraire(paymentDate);
+		RandomVariableInterface	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
 
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 		
         // Get numeraire and probabilities for evaluation time
-		ImmutableRandomVariableInterface	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
-		ImmutableRandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
+		RandomVariableInterface	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
 
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);		
 		

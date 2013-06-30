@@ -7,7 +7,6 @@ package net.finmath.montecarlo.conditionalexpectation;
 
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -27,15 +26,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class MonteCarloConditionalExpectationRegression implements MonteCarloConditionalExpectation {
 
-	private ImmutableRandomVariableInterface[]    basisFunctionsEstimator		= null;
-	private ImmutableRandomVariableInterface[]    basisFunctionsPredictor		= null;
+	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
+	private RandomVariableInterface[]    basisFunctionsPredictor		= null;
     
     /**
      * Creates a class for conditional expectation estimation.
      * 
      * @param basisFunctions A vector of random variables to be used as basis functions.
      */
-    public MonteCarloConditionalExpectationRegression(ImmutableRandomVariableInterface[] basisFunctions) {
+    public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctions) {
         super();
         this.basisFunctionsEstimator = basisFunctions;
         this.basisFunctionsPredictor = basisFunctions;
@@ -47,20 +46,20 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
      * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
      * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
      */
-    public MonteCarloConditionalExpectationRegression(ImmutableRandomVariableInterface[] basisFunctionsEstimator, ImmutableRandomVariableInterface[] basisFunctionsPredictor) {
+    public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctionsEstimator, RandomVariableInterface[] basisFunctionsPredictor) {
         super();
         this.basisFunctionsEstimator = basisFunctionsEstimator;
         this.basisFunctionsPredictor = basisFunctionsPredictor;
     }
 
     /* (non-Javadoc)
-     * @see net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation#getConditionalExpectation(net.finmath.stochastic.ImmutableRandomVariableInterface)
+     * @see net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation#getConditionalExpectation(net.finmath.stochastic.RandomVariableInterface)
      */
-    public RandomVariableInterface getConditionalExpectation(ImmutableRandomVariableInterface randomVariable) {
+    public RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable) {
     	double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
     	// Calculate estimate
-        ImmutableRandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
+        RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
 
         RandomVariableInterface conditionalExpectation = new RandomVariable(0.0);
         for(int i=0; i<basisFunctions.length; i++) {
@@ -71,10 +70,10 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
     }
     
     
-	public double[] getLinearRegressionParameters(ImmutableRandomVariableInterface dependents) {        
+	public double[] getLinearRegressionParameters(RandomVariableInterface dependents) {
 
         // Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
-        ImmutableRandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsEstimator);
+        RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsEstimator);
         double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
         for(int i=0; i<basisFunctions.length; i++) {
             for(int j=i; j<basisFunctions.length; j++) {
@@ -96,7 +95,7 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
     }
 
 	
-    private ImmutableRandomVariableInterface[] getNonZeroBasisFunctions(ImmutableRandomVariableInterface[] basisFunctions) {
+    private RandomVariableInterface[] getNonZeroBasisFunctions(RandomVariableInterface[] basisFunctions) {
     	int numberOfNonZeroBasisFunctions = 0;
         for(int indexBasisFunction = 0; indexBasisFunction<basisFunctions.length; indexBasisFunction++) {
         	if(basisFunctions[indexBasisFunction] != null) {
@@ -104,10 +103,10 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
         	}
         }
         
-        ImmutableRandomVariableInterface[] nonZerobasisFunctions = new ImmutableRandomVariableInterface[numberOfNonZeroBasisFunctions];
+        RandomVariableInterface[] nonZerobasisFunctions = new RandomVariableInterface[numberOfNonZeroBasisFunctions];
 
     	int indexOfNonZeroBasisFunctions = 0;
-        for (ImmutableRandomVariableInterface basisFunction : basisFunctions) {
+        for (RandomVariableInterface basisFunction : basisFunctions) {
             if (basisFunction != null) {
                 nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
                 indexOfNonZeroBasisFunctions++;

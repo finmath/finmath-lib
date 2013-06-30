@@ -58,7 +58,7 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
      * @throws net.finmath.exception.CalculationException
      */
     @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
     	// Allocate accumulator for values
         RandomVariableInterface values = new RandomVariable(0.0);

@@ -2,7 +2,6 @@ package net.finmath.montecarlo.model;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -25,8 +24,8 @@ public abstract class AbstractModel implements AbstractModelInterface {
      * 
      * @return The initial value of the model.
      */
-    public ImmutableRandomVariableInterface[] getInitialValue() {
-    	ImmutableRandomVariableInterface[] initialState = getInitialState();
+    public RandomVariableInterface[] getInitialValue() {
+    	RandomVariableInterface[] initialState = getInitialState();
     	
     	RandomVariableInterface[] value = new RandomVariableInterface[initialState.length];
     	for(int i= 0; i<value.length; i++) {
@@ -41,7 +40,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
      * @see net.finmath.montecarlo.model.AbstractModelInterface#getDrift(int, net.finmath.stochastic.RandomVariableInterface[], net.finmath.stochastic.RandomVariableInterface[])
      */
     @Override
-    public RandomVariableInterface[] getDrift(int timeIndex, ImmutableRandomVariableInterface[] realizationAtTimeIndex, ImmutableRandomVariableInterface[] realizationPredictor) {
+    public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
 
     	RandomVariableInterface[] drift = new RandomVariableInterface[getNumberOfComponents()];
         for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {

@@ -31,7 +31,8 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	private double accrualPeriod	= -1.0;		// Accrual period, if this period is &lt; 0, then the finest model libor period discretization is used
 
 	/**
-	 * Create a default money market account.
+	 * Create a default money market account. The money market account will use the
+	 * models tenor discretization as the accrual period and its inception time is 0.
 	 */
 	public MoneyMarketAccount() {
 	}
@@ -66,7 +67,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
 			
 			// Accrue the value using the current forward rate
-			value.accrue(forwardRate, currentAccrualPeriod);
+			value = value.accrue(forwardRate, currentAccrualPeriod);
 		}
 		
 		return value;

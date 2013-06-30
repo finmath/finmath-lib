@@ -6,7 +6,6 @@
 
 package net.finmath.montecarlo;
 
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -60,11 +59,11 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getBrownianIncrement(int, int)
 	 */
 	@Override
-	public ImmutableRandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
+	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
 		RandomVariableInterface brownianIncrement = new RandomVariable(0.0);
 		for(int factorIndex=0; factorIndex<factorLoadings[factor].length; factorIndex++) {
 			if(factorLoadings[factor][factorIndex] != 0) {
-				ImmutableRandomVariableInterface independentFactor = uncollelatedFactors.getBrownianIncrement(timeIndex, factorIndex);
+				RandomVariableInterface independentFactor = uncollelatedFactors.getBrownianIncrement(timeIndex, factorIndex);
 				brownianIncrement = brownianIncrement.addProduct(independentFactor, factorLoadings[factor][factorIndex]);
 			}
 		}

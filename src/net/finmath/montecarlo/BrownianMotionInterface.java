@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo;
 
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -27,7 +27,7 @@ public interface BrownianMotionInterface {
 	 * @param factor The index of the factor (independent scalar Brownian increment)
 	 * @return The factor (component) of the Brownian increments (a random variable)
 	 */
-	ImmutableRandomVariableInterface getBrownianIncrement(int timeIndex, int factor);
+	RandomVariableInterface getBrownianIncrement(int timeIndex, int factor);
 
 
 	/**

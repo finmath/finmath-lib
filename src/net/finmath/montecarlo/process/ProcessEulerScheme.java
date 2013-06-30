@@ -15,7 +15,6 @@ import java.util.concurrent.Future;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.optimizer.SolverException;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.stochastic.RandomVariableMutableClone;
 
@@ -42,8 +41,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	/*
 	 * The storage of the simulated stochastic process.
 	 */
-	private transient ImmutableRandomVariableInterface[][]	discreteProcess = null;
-	private transient ImmutableRandomVariableInterface[]	discreteProcessWeights;
+	private transient RandomVariableInterface[][]	discreteProcess = null;
+	private transient RandomVariableInterface[]	discreteProcessWeights;
 
 	/**
 	 * @param brownianMotion The Brownian driver of the process
@@ -69,7 +68,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		}
 
 		// Return value of process
-		return new RandomVariableMutableClone(discreteProcess[timeIndex][componentIndex]);
+		return discreteProcess[timeIndex][componentIndex];
 	}
 
 	/**
@@ -88,7 +87,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		}
 
 		// Return value of process
-		return new RandomVariableMutableClone(discreteProcessWeights[timeIndex]);
+		return discreteProcessWeights[timeIndex];
 	}
 
 	/**
@@ -102,14 +101,14 @@ public class ProcessEulerScheme extends AbstractProcess {
 		final int numberOfComponents	= this.getNumberOfComponents();
 
 		// Allocate Memory
-		discreteProcess			= new ImmutableRandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1][getNumberOfComponents()];
-		discreteProcessWeights	= new ImmutableRandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1];
+		discreteProcess			= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1][getNumberOfComponents()];
+		discreteProcessWeights	= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1];
 
 		// Set initial Monte-Carlo weights
 		discreteProcessWeights[0] = new RandomVariable(getTime(0), 1.0 / numberOfPaths);
 
 		// Set initial value
-		ImmutableRandomVariableInterface[] initialState = getInitialState();
+		RandomVariableInterface[] initialState = getInitialState();
 		final RandomVariableInterface[] currentState = new RandomVariableInterface[numberOfComponents];
 		for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 			currentState[componentIndex] = initialState[componentIndex].getMutableCopy();
@@ -133,22 +132,22 @@ public class ProcessEulerScheme extends AbstractProcess {
 			final double deltaT = getTime(timeIndex) - getTime(timeIndex - 1);
 
 			// Fetch drift vector
-			ImmutableRandomVariableInterface[] drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
+			RandomVariableInterface[] drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 
 			// Calculate new realization
-			Vector<Future<ImmutableRandomVariableInterface>> discreteProcessAtCurrentTimeIndex = new Vector<Future<ImmutableRandomVariableInterface>>(numberOfComponents);
+			Vector<Future<RandomVariableInterface>> discreteProcessAtCurrentTimeIndex = new Vector<Future<RandomVariableInterface>>(numberOfComponents);
 			discreteProcessAtCurrentTimeIndex.setSize(numberOfComponents);
 			for (int componentIndex2 = 0; componentIndex2 < numberOfComponents; componentIndex2++) {
 				final int componentIndex = componentIndex2;
 
-				final ImmutableRandomVariableInterface	driftOfComponent	= drift[componentIndex];
+				final RandomVariableInterface	driftOfComponent	= drift[componentIndex];
 
 				// Check if the component process has stopped to evolve
 				if (driftOfComponent == null) continue;
 
-				Callable<ImmutableRandomVariableInterface> worker = new  Callable<ImmutableRandomVariableInterface>() {
-					public ImmutableRandomVariableInterface call() throws SolverException {
-						ImmutableRandomVariableInterface[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
+				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
+					public RandomVariableInterface call() throws SolverException {
+						RandomVariableInterface[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
 						if (factorLoadings == null) return null;
@@ -158,8 +157,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 						// Generate values for diffusionOfComponent and varianceOfComponent 
 						for (int factor = 0; factor < numberOfFactors; factor++) {
-							ImmutableRandomVariableInterface factorLoading		= factorLoadings[factor];
-							ImmutableRandomVariableInterface brownianIncrement	= brownianMotion.getBrownianIncrement(timeIndex - 1, factor);
+							RandomVariableInterface factorLoading		= factorLoadings[factor];
+							RandomVariableInterface brownianIncrement	= brownianMotion.getBrownianIncrement(timeIndex - 1, factor);
 
 							diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
 						}
@@ -183,7 +182,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			// Fetch results and move to discreteProcess[timeIndex]
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
-					Future<ImmutableRandomVariableInterface> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
+					Future<RandomVariableInterface> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
 					if(discreteProcessAtCurrentTimeIndexAndComponent != null)	discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get();
 					else														discreteProcess[timeIndex][componentIndex] = null;
 				} catch (InterruptedException e) {
@@ -198,11 +197,11 @@ public class ProcessEulerScheme extends AbstractProcess {
 			if (scheme == Scheme.PREDICTOR_CORRECTOR) {
 				// Apply corrector step to realizations at next time step
 
-				ImmutableRandomVariableInterface[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);
+				RandomVariableInterface[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);
 
 				for (int componentIndex = 0; componentIndex < getNumberOfComponents(); componentIndex++) {
-					ImmutableRandomVariableInterface driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];
-					ImmutableRandomVariableInterface driftWithoutPredictorOfComponent	= drift[componentIndex];
+					RandomVariableInterface driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];
+					RandomVariableInterface driftWithoutPredictorOfComponent	= drift[componentIndex];
 
 					if (driftWithPredictorOfComponent == null || driftWithoutPredictorOfComponent == null) continue;
 

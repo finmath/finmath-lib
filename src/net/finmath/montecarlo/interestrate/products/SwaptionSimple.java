@@ -70,7 +70,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
      * @throws net.finmath.exception.CalculationException
      */
     @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
     	RandomVariableInterface value = swaption.getValue(evaluationTime, model);
 
     	if(valueUnit == ValueUnit.VALUE) return value;

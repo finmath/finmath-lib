@@ -6,7 +6,6 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.ImmutableRandomVariableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -47,7 +46,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatitliy/covarinace/correlation models).
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
-	public abstract	RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+	public abstract	RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex);
 
 	/**
 	 * Returns the pseudo inverse of the factor matrix.
@@ -58,7 +57,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatitliy/covarinace/correlation models).
 	 * @return The entry of the pseudo-inverse of the factor loading matrix.
 	 */
-	public abstract RandomVariableInterface	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, ImmutableRandomVariableInterface[] realizationAtTimeIndex);
+	public abstract RandomVariableInterface	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex);
 
 	/**
 	 * Returns the instantaneous covariance calculated from factor loadings.
@@ -69,7 +68,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param realizationAtTimeIndex The realization of the stochastic process.
 	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
-	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, ImmutableRandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
 		RandomVariableInterface covariance = new RandomVariable(0.0, 0.0);
 		
 		RandomVariableInterface[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);

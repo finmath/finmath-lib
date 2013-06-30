@@ -5,26 +5,28 @@
  */
 package net.finmath.stochastic;
 
+
 /**
- * This class wraps an immutable class (here <code>ImmutableRandomVariableInterface</code>)
+ * This class wraps an immutable class (here <code>RandomVariableInterface</code>)
  * and implements the interface of an mutable class (here <code>RandomVariableInterface</code>).
  * If a method is called which mutates the object (a mutator), a defensive copy is performed once.
  * The reference to the immutable class is then replaced by the reference to the defensive copy.
  * By returning an <code>RandomVariableMutableClone</code> of an
- * <code>ImmutableRandomVariableInterface</code> defensive copies are made only when necessary.
+ * <code>RandomVariableInterface</code> defensive copies are made only when necessary.
  * 
  * This class is not thread safe (classes implementing <code>RandomVariableInterface</code>
  * are not expected to be thread safe).
  * 
  * @author Christian Fries
  * @version 1.1
+ * @deprecated
  */
 public class RandomVariableMutableClone implements RandomVariableInterface {
 	
 	private boolean isRandomVariableMutable = false;
-	private ImmutableRandomVariableInterface randomVariable;
+	private RandomVariableInterface randomVariable;
 
-	public RandomVariableMutableClone(ImmutableRandomVariableInterface randomVariable) {
+	public RandomVariableMutableClone(RandomVariableInterface randomVariable) {
 		super();
 		this.randomVariable = randomVariable;
 	}
@@ -39,7 +41,7 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 			isRandomVariableMutable = true;
 		}
 
-		return (RandomVariableInterface)randomVariable;
+		return randomVariable;
 	}
 
 	/* (non-Javadoc)
@@ -57,44 +59,44 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface add(ImmutableRandomVariableInterface randomVariable) {
+	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 		return ensureMutable().add(randomVariable);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.ImmutableRandomVariableInterface, double)
+	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, double)
 	 */
-	public RandomVariableInterface addProduct(ImmutableRandomVariableInterface factor1, double factor2) {		
+	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {		
 		return ensureMutable().addProduct(factor1, factor2);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface addProduct(ImmutableRandomVariableInterface factor1, ImmutableRandomVariableInterface factor2) {
+	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
 		return ensureMutable().addProduct(factor1, factor2);
 	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#accrue(net.finmath.stochastic.ImmutableRandomVariableInterface, double)
+     * @see net.finmath.stochastic.RandomVariableInterface#accrue(net.finmath.stochastic.RandomVariableInterface, double)
      */
-    public RandomVariableInterface accrue(ImmutableRandomVariableInterface rate, double periodLength) {
+    public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
 		return ensureMutable().accrue(rate, periodLength);
     }
 
     /* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface barrier(ImmutableRandomVariableInterface trigger, ImmutableRandomVariableInterface valueIfTriggerNonNegative, ImmutableRandomVariableInterface valueIfTriggerNegative) {
+	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		return ensureMutable().barrier(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface barrier(ImmutableRandomVariableInterface trigger, ImmutableRandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
+	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
 		return ensureMutable().barrier(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative);
 	}
 
@@ -106,16 +108,16 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#floor(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface cap(ImmutableRandomVariableInterface cap) {
+	public RandomVariableInterface cap(RandomVariableInterface cap) {
 		return ensureMutable().cap(cap);
 	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#discount(net.finmath.stochastic.ImmutableRandomVariableInterface, double)
+     * @see net.finmath.stochastic.RandomVariableInterface#discount(net.finmath.stochastic.RandomVariableInterface, double)
      */
-    public RandomVariableInterface discount(ImmutableRandomVariableInterface rate, double periodLength) {
+    public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
 		return ensureMutable().discount(rate, periodLength);
     }
 
@@ -127,16 +129,16 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#div(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface div(ImmutableRandomVariableInterface randomVariable) {
+	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
 		return ensureMutable().div(randomVariable);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#equals(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public boolean equals(ImmutableRandomVariableInterface randomVariable) {
+	public boolean equals(RandomVariableInterface randomVariable) {
 		return randomVariable.equals(randomVariable);
 	}
 
@@ -155,14 +157,14 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#floor(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface floor(ImmutableRandomVariableInterface floor) {
+	public RandomVariableInterface floor(RandomVariableInterface floor) {
 		return ensureMutable().floor(floor);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#get(int)
+	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
 	 */
 	public double get(int pathOrState) {
 		return randomVariable.get(pathOrState);
@@ -178,13 +180,13 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage(net.finmath.montecarlo.RandomVariable)
 	 */
-	public double getAverage(ImmutableRandomVariableInterface probabilities) {
+	public double getAverage(RandomVariableInterface probabilities) {
 		return randomVariable.getAverage(probabilities);
 	}
 
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getQuantile(double)
+     * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(double)
      */
     @Override
     public double getQuantile(double quantile) {
@@ -192,15 +194,15 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
     }
     
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getQuantile(double, net.finmath.stochastic.ImmutableRandomVariableInterface)
+     * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(double, net.finmath.stochastic.RandomVariableInterface)
      */
     @Override
-    public double getQuantile(double quantile, ImmutableRandomVariableInterface probabilities) {
+    public double getQuantile(double quantile, RandomVariableInterface probabilities) {
 		return randomVariable.getQuantile(quantile, probabilities);
     }
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getQuantileExpectation(double)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantileExpectation(double)
 	 */
     @Override
     public double getQuantileExpectation(double quantileStart, double quantileEnd) {
@@ -208,7 +210,7 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
     }
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getHistogram(double[])
+	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(double[])
 	 */
     @Override
     public double[] getHistogram(double[] intervalPoints) {
@@ -216,7 +218,7 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
     }
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getHistogram(int,double)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(int,double)
 	 */
     @Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
@@ -224,7 +226,7 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
     /* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getFiltrationTime()
+	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
 	 */
 	public double getFiltrationTime() {
 		return randomVariable.getFiltrationTime();
@@ -245,21 +247,21 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getMutableCopy()
+	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
 	 */
 	public RandomVariableInterface getMutableCopy() {
 		return randomVariable.getMutableCopy();
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getRealizations()
+	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations()
 	 */
 	public double[] getRealizations() {
 		return randomVariable.getRealizations();
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getRealizations(int)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations(int)
 	 */
 	@Override
 	public double[] getRealizations(int numberOfPaths) {
@@ -267,7 +269,7 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getStandardDeviation()
+	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
 	 */
 	@Override
 	public double getStandardDeviation() {
@@ -275,38 +277,38 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getStandardDeviation(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
 	 */
 	@Override
-	public double getStandardDeviation(ImmutableRandomVariableInterface probabilities) {
+	public double getStandardDeviation(RandomVariableInterface probabilities) {
 		return randomVariable.getStandardDeviation(probabilities);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getStandardError()
+	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
 	 */
 	public double getStandardError() {
 		return randomVariable.getStandardError();
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getStandardError(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public double getStandardError(ImmutableRandomVariableInterface probabilities) {
+	public double getStandardError(RandomVariableInterface probabilities) {
 		return randomVariable.getStandardError(probabilities);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getVariance()
+	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance()
 	 */
 	public double getVariance() {
 		return randomVariable.getVariance();
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#getVariance(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public double getVariance(ImmutableRandomVariableInterface probabilities) {
+	public double getVariance(RandomVariableInterface probabilities) {
 		return randomVariable.getVariance(probabilities);
 	}
 
@@ -318,7 +320,7 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#isDeterministic()
+	 * @see net.finmath.stochastic.RandomVariableInterface#isDeterministic()
 	 */
 	public boolean isDeterministic() {
 		return randomVariable.isDeterministic();
@@ -353,9 +355,9 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface mult(ImmutableRandomVariableInterface randomVariable) {
+	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
 		return ensureMutable().mult(randomVariable);
 	}
 
@@ -367,7 +369,7 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.ImmutableRandomVariableInterface#size()
+	 * @see net.finmath.stochastic.RandomVariableInterface#size()
 	 */
 	public int size() {
 		return randomVariable.size();
@@ -395,23 +397,23 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(net.finmath.stochastic.ImmutableRandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariableInterface#sub(net.finmath.stochastic.RandomVariableInterface)
 	 */
-	public RandomVariableInterface sub(ImmutableRandomVariableInterface randomVariable) {
+	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
 		return ensureMutable().sub(randomVariable);
 	}
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
+     * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
      */
-    public RandomVariableInterface addRatio(ImmutableRandomVariableInterface numerator, ImmutableRandomVariableInterface denominator) {
+    public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
 		return ensureMutable().addRatio(numerator, denominator);
     }
 
 	/* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.ImmutableRandomVariableInterface, net.finmath.stochastic.ImmutableRandomVariableInterface)
+     * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
      */
-    public RandomVariableInterface subRatio(ImmutableRandomVariableInterface numerator, ImmutableRandomVariableInterface denominator) {
+    public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
 		return ensureMutable().subRatio(numerator, denominator);
     }
 }
