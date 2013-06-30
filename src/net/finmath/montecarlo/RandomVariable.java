@@ -18,7 +18,7 @@ import org.apache.commons.math3.util.FastMath;
  * (e.g. volatility). If only non-stochastic random variables are involved in an operation the class uses
  * optimized code.
  *
- * The class is mutable and it is not thread safe, accesses performed exclusively through the interface
+ * Accesses performed exclusively through the interface
  * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
  *
  * @author Christian Fries
