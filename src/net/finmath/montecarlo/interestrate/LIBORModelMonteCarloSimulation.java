@@ -135,6 +135,28 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		int periodStartIndex    = getLiborPeriodIndex(periodStart);
 		int periodEndIndex      = getLiborPeriodIndex(periodEnd);
 
+		// Interpolation on tenor, consistent with interpolation on numeraire: interpolate end date
+		if(periodEndIndex < 0) {
+			int		previousEndIndex	= -periodEndIndex-1;
+			double	previousEndTime		= getLiborPeriod(previousEndIndex);
+			double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
+			RandomVariableInterface libor				= getLIBOR(time, periodStart, previousEndTime);
+			RandomVariableInterface	liborShortPeriod	= getLIBOR(time, previousEndTime, nextEndTime);
+			libor = libor.mult(previousEndTime-periodStart).add(1.0).accrue(liborShortPeriod, periodEnd-previousEndTime).sub(1.0).div(periodEnd-periodStart);
+			return libor;
+		}
+		
+		// Interpolation on tenor, consistent with interpolation on numeraire: interpolate start date
+		if(periodStartIndex < 0) {
+			int		previousStartIndex	= -periodStartIndex-1;
+			double	previousStartTime	= getLiborPeriod(previousStartIndex);
+			double	nextStartTime		= getLiborPeriod(previousStartIndex+1);
+			RandomVariableInterface libor				= getLIBOR(time, nextStartTime, periodEnd);
+			RandomVariableInterface	liborShortPeriod	= getLIBOR(time, previousStartTime, nextStartTime);
+			libor = libor.mult(periodEnd-previousStartTime).add(1.0).discount(liborShortPeriod, periodStart-previousStartTime).sub(1.0).div(periodEnd-periodStart);
+			return libor;
+		}
+		
 		if(periodStartIndex < 0 || periodEndIndex < 0) throw new CalculationException("LIBOR requested outside libor discretization points. Interpolation not supported yet.");
 
 		int timeIndex           = getTimeIndex(time);
@@ -145,27 +167,20 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		double[] libor = new double[getNumberOfPaths()];
-		java.util.Arrays.fill(libor,1.0);
+		RandomVariableInterface accrualAccount = new RandomVariable(1.0);
 
 		// Calculate the value of the forward bond
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)
 		{
 			double subPeriodLength = getLiborPeriod(periodIndex+1) - getLiborPeriod(periodIndex);
 			RandomVariableInterface liborOverSubPeriod = getLIBOR(timeIndex, periodIndex);
-
-			for(int path = 0; path<getNumberOfPaths(); path++) {
-				libor[path] *= (1 + liborOverSubPeriod.get(path) * subPeriodLength);
-			}
+			
+			accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
 		}
 
-		// Calculate the forward rate
-		for(int path = 0; path<getNumberOfPaths(); path++) {
-			libor[path] -= 1;
-			libor[path] /= (periodEnd - periodStart);
-		}
+		RandomVariableInterface libor = accrualAccount.sub(1.0).div(periodEnd - periodStart);
 
-		return new RandomVariable(time,libor);
+		return libor;
 	}
 
 	/* (non-Javadoc)
