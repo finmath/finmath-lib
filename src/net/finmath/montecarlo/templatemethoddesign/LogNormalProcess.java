@@ -234,8 +234,8 @@ public abstract class LogNormalProcess {
 					RandomVariableInterface factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);               
 					RandomVariableInterface brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);
 
-					varianceOfComponent.addProduct(factorLoading, factorLoading);
-					diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
+					varianceOfComponent = varianceOfComponent.addProduct(factorLoading, factorLoading);
+					diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
 				}
 
 				variance[componentIndex] = varianceOfComponent;
