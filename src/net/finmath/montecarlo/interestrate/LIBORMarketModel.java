@@ -267,6 +267,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Return the numeraire at a given time.
+	 * The numeraire is provided for interpolated points. If requested on points which are not
+	 * part of the tenor discretization, the numeraire uses a linear interpolation of the reciprocal
+	 * value. See ISBN 0470047224 for details.
 	 * 
 	 * @param time Time time <i>t</i> for which the numeraire should be returned <i>N(t)</i>.
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
@@ -277,7 +280,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		int timeIndex = getLiborPeriodIndex(time);
 		
 		if(timeIndex < 0) {
-			// Interpolation of Numeraire: linear interpolation of the reciprocal
+			// Interpolation of Numeraire: linear interpolation of the reciprocal.
 			int lowerIndex = -timeIndex -1;
 			int upperIndex = -timeIndex;
 			double alpha = (time-getLiborPeriod(lowerIndex)) / (getLiborPeriod(upperIndex) - getLiborPeriod(lowerIndex));
