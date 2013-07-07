@@ -175,7 +175,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 			double subPeriodLength = getLiborPeriod(periodIndex+1) - getLiborPeriod(periodIndex);
 			RandomVariableInterface liborOverSubPeriod = getLIBOR(timeIndex, periodIndex);
 			
-			accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
+			accrualAccount = accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
 		}
 
 		RandomVariableInterface libor = accrualAccount.sub(1.0).div(periodEnd - periodStart);
