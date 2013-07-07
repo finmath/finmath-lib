@@ -70,4 +70,11 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	public void setMaturity(double maturity) {
 		this.maturity = maturity;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString() + "\n" + "maturity: " + maturity;
+	}
 }

@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
+import java.util.Arrays;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
@@ -120,7 +122,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
 			
             // Add payment received at end of period
-			RandomVariableInterface payoff = libor.getMutableCopy().sub(swaprate).mult(periodLength);
+			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength);
 			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.add(payoff);
 
 			// Discount back to beginning of period
@@ -175,4 +177,16 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
     	
     	return AnalyticFormulas.blackModelSwaptionValue(forwardSwapRate, swaprateVolatility, exerciseDate, swaprate, swapAnnuity);
     }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString()
+				+ "\n" + "exerciseDate: " + exerciseDate
+				+ "\n" + "fixingDates: " + Arrays.toString(fixingDates)
+				+ "\n" + "paymentDates: " + Arrays.toString(paymentDates)
+				+ "\n" + "periodLengths: " + Arrays.toString(periodLengths)
+				+ "\n" + "swaprates: " + Arrays.toString(swaprates);
+	}
 }

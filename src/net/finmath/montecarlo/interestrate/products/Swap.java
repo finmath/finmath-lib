@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
+import java.util.Arrays;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -77,5 +79,15 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
         return values;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString()
+				+ "\n" + "fixingDates: " + Arrays.toString(fixingDates)
+				+ "\n" + "paymentDates: " + Arrays.toString(paymentDates)
+				+ "\n" + "swaprates: " + Arrays.toString(swaprates);
 	}
 }

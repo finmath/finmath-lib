@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -57,8 +58,11 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
      * @throws net.finmath.exception.CalculationException
      */
     public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-	    // TODO Auto-generated method stub
-	    return null;
+    	RandomVariableInterface value = getValue(evaluationTime, model);
+    	Map<String, Object> result = new HashMap<String, Object>();
+    	result.put("value", value.getAverage());
+    	result.put("error", value.getStandardError());
+	    return result;
     }
     
     @Override
