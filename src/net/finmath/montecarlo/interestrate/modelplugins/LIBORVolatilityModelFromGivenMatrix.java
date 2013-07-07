@@ -10,7 +10,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements a simple volatility model using given piceweise constant values on
+ * Implements a simple volatility model using given piece-wise constant values on
  * a given discretization grid.
  * 
  * @author Christian Fries
@@ -19,9 +19,12 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	private final double[][]		volatility;
 	
 	/**
+	 * Creates a simple volatility model using given piece-wise constant values on
+ 	 * a given discretization grid.
+ 	 * 
 	 * @param timeDiscretization Discretization of simulation time.
-	 * @param liborPeriodDiscretization Discretizaiton of LIBOR times.
-	 * @param volatility Volatility matrix olatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
+	 * @param liborPeriodDiscretization Discretization of tenor times.
+	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
 			TimeDiscretizationInterface	timeDiscretization,
@@ -42,16 +45,33 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
 	@Override
 	public double[] getParameter() {
-		throw new UnsupportedOperationException();
+		int rows = volatility.length;
+		int cols = volatility[0].length;
+		int size = cols * rows;
+
+		double[] parameter = new double[size];
+		for(int row=0; row<volatility.length; row++)
+			System.arraycopy(volatility[row], 0, parameter, row*cols, cols);
+
+		return parameter;
 	}
 
 	@Override
 	public void setParameter(double[] parameter) {
-		throw new UnsupportedOperationException();
+		int cols = volatility[0].length;
+
+		for(int row=0; row<volatility.length; row++)
+			System.arraycopy(parameter, row*cols, volatility[row], 0, cols);
+
+		return;
 	}
 
 	@Override
 	public Object clone() {
-		throw new UnsupportedOperationException();
+		return new LIBORVolatilityModelFromGivenMatrix(
+				getTimeDiscretization(),
+				getLiborPeriodDiscretization(),
+				volatility
+				);
 	}
 }
