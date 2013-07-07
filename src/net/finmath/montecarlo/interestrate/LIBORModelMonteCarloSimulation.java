@@ -135,6 +135,8 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		int periodStartIndex    = getLiborPeriodIndex(periodStart);
 		int periodEndIndex      = getLiborPeriodIndex(periodEnd);
 
+		// The forward rates are provided on fractional tenor discretization points using linear interpolation. See ISBN 0470047224.
+		
 		// Interpolation on tenor, consistent with interpolation on numeraire: interpolate end date
 		if(periodEndIndex < 0) {
 			int		previousEndIndex	= -periodEndIndex-1;
