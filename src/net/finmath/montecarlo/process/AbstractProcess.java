@@ -86,6 +86,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
      */
 	@Override
     public double getTime(int timeIndex) {
+		if(timeIndex >= timeDiscretization.getNumberOfTimes()) throw new ArrayIndexOutOfBoundsException("Index for process time discretization out of bounds.");
 		return timeDiscretization.getTime(timeIndex);
 	}
 

@@ -220,7 +220,12 @@ public class ProcessEulerScheme extends AbstractProcess {
 			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex - 1];
 		} // End for(timeIndex)
 
-		executor.shutdown();
+		try {
+			executor.shutdown();
+		}
+		catch(SecurityException e) {
+			//
+		}
 	}
 
 
