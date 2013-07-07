@@ -64,15 +64,15 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
     /**
 	 * Create a new object implementing LIBORMarketModelInterface, using the new data.
 	 * 
-     * @param dataModified A map with values to be used in constuctions (keys are identical to parameter names of the constructors).
+     * @param dataModified A map with values to be used in constructions (keys are identical to parameter names of the constructors).
 	 * @return A new object implementing LIBORMarketModelInterface, using the new data.
      * @throws net.finmath.exception.CalculationException
      */
     LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 
 	/**
-	 * Returns the integrated instantaneous log-LIBOR covariance, i.e.,
-	 * <i> \int_0^t_i d log(L_j) d log(L_k) dt</i>.
+	 * Returns the integrated instantaneous log-forward rate covariance, i.e.,
+	 * <i>\int_0^t_i d log(L_j) d log(L_k) dt</i>.
 	 * 
 	 * The array returned has the parametrization [i][j][k], i.e.,
 	 * <code>integratedLIBORCovariance[timeIndex][componentIndex1][componentIndex2]</code>.
