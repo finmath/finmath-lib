@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo;
 
+import java.util.Arrays;
+
 import net.finmath.stochastic.RandomVariableInterface;
 
 import org.apache.commons.math3.util.FastMath;
@@ -990,4 +992,13 @@ public class RandomVariable implements RandomVariableInterface {
             return new RandomVariable(newTime, newRealizations);
         }
     }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString()
+				+ "\n" + "time: " + time
+				+ "\n" + "realizations: " + Arrays.toString(realizations);
+	}
 }
