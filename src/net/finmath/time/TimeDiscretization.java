@@ -7,6 +7,7 @@ package net.finmath.time;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -24,8 +25,8 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	private static final long serialVersionUID = 6880668325019167781L;
 
-	private final double[]    timeDiscretization;
-    private final double		timeTickSize = 1.0 / (365.0 * 24.0);
+	private final double[]	timeDiscretization;
+    private final double	timeTickSize = 1.0 / (365.0 * 24.0);
 
 	public enum ShortPeriodLocation {
 		SHORT_PERIOD_AT_START,
@@ -183,6 +184,16 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     public Iterator<Double> iterator() {
     	return this.getAsArrayList().iterator();
     }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+    @Override
+	public String toString() {
+		return super.toString()
+				+ "\n" + "timeDiscretization: " + Arrays.toString(timeDiscretization)
+				+ "\n" + "timeTickSize: " + timeTickSize;
+	}
 
     private double roundToTimeTickSize(double time) {
     	return Math.rint(time/timeTickSize)*timeTickSize;
