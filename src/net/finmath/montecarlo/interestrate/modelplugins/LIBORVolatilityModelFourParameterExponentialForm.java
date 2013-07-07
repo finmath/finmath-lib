@@ -10,7 +10,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements the volatility model sigma_{i}(t_{j}} = ( a + b * (T_{j}-t_{i}) ) * exp(-c (T_{j}-t_{i})) + d
+ * Implements the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
  * 
  * @author Christian Fries
  */
@@ -24,10 +24,10 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
     private boolean isCalibrateable = false;
 
     /**
-     * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>j</sub>-t<sub>i</sub>) ) * exp(-c (T<sub>j</sub>-t<sub>i</sub>)) + d
+     * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
      * 
-     * @param timeDiscretization The simulation time discretization t<sub>i</sub>.
-     * @param liborPeriodDiscretization The period time discretization T<sub>j</sub>.
+     * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+     * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
      * @param a The parameter a: an initial volatility level.
      * @param b The parameter b.
      * @param c The parameter c: exponential decay of the volatility.
