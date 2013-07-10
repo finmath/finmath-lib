@@ -6,6 +6,7 @@
 package net.finmath.montecarlo;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -165,5 +166,16 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	 */
 	public int getSeed() {
 		return seed;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString()
+				+ "\n" + "timeDiscretization: " + timeDiscretization.toString()
+				+ "\n" + "numberOfPaths: " + numberOfPaths
+				+ "\n" + "numberOfFactors: " + numberOfFactors
+				+ "\n" + "seed: " + seed;
 	}
 }
