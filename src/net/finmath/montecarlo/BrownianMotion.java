@@ -6,7 +6,6 @@
 package net.finmath.montecarlo;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
