@@ -35,19 +35,6 @@ public abstract class AbstractModel implements AbstractModelInterface {
     	return value;
     }
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.model.AbstractModelInterface#getDrift(int, net.finmath.stochastic.RandomVariableInterface[], net.finmath.stochastic.RandomVariableInterface[])
-     */
-    @Override
-    public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-
-    	RandomVariableInterface[] drift = new RandomVariableInterface[getNumberOfComponents()];
-        for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
-        	drift[componentIndex] = getDrift(timeIndex, componentIndex, realizationAtTimeIndex, realizationPredictor);
-		}
-		return drift;
-	}
-
     /*
      * Delegation to process (numerical scheme)
      */

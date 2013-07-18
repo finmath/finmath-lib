@@ -112,11 +112,11 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getDrift(int, int, net.finmath.stochastic.RandomVariableInterface[], net.finmath.stochastic.RandomVariableInterface[])
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getDrift(int, net.finmath.stochastic.RandomVariableInterface[], net.finmath.stochastic.RandomVariableInterface[])
 	 */
 	@Override
-    public RandomVariableInterface getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-		return drift;
+    public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+		return new RandomVariableInterface[] { drift };
 	}
 
 	@Override
