@@ -87,17 +87,6 @@ public interface AbstractModelInterface {
     RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
 
     /**
-     * This method has to be implemented to return the drift coefficient <i>&mu;<sub>j</sub></i>.
-     * 
-     * @param timeIndex The time index (related to the model times discretization).
-     * @param componentIndex The index of the component.
-     * @param realizationAtTimeIndex The given realization at timeIndex.
-     * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
-     * @return The (average) drift from timeIndex to timeIndex+1
-     */
-    RandomVariableInterface getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
-    
-    /**
      * Returns the number of factors <i>m</i>, i.e., the number of independent Brownian drivers.
      * 
      * @return The number of factors.
