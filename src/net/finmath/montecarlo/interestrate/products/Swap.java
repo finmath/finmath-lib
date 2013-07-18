@@ -74,9 +74,9 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 			values = values.add(payoff);
 		}
 
-		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		RandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
         return values;
 	}
