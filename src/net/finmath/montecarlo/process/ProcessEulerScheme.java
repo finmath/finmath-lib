@@ -117,7 +117,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		/*
 		 * Evolve the process using an Euler scheme.
 		 * The evolution is performed multi-threadded.
-		 * Each component vector runs in its own thread.
+		 * Each component of the vector runs in its own thread.
 		 */
 
 		// We do not allocate more threads the twice the number of processors.
@@ -215,7 +215,6 @@ public class ProcessEulerScheme extends AbstractProcess {
 					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
-
 			// Set Monte-Carlo weights
 			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex - 1];
 		} // End for(timeIndex)
