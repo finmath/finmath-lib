@@ -10,11 +10,18 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Displaced diffusion model build on top of a standard covariance model.
- * The model constructed is <i>(a + (1-a)L) F</i> where <i>a</i> is
- * the displacement and <i>L</i> is
- * the component of the stochastic process and <i>F</i> is the factor loading
- * loading from the given covariance model.
+ * Blended model (or displaced diffusion model) build on top of a standard covariance model.
+ * 
+ * The model constructed for the <i>i</i>-th factor loading is
+ * <center>
+ * <i>(a L<sub>i,0</sub> + (1-a)L<sub>i</sub>(t)) F<sub>i</sub>(t)</i>
+ * </center>
+ * where <i>a</i> is the displacement and <i>L<sub>i</sub></i> is
+ * the realization of the <i>i</i>-th component of the stochastic process and
+ * <i>F<sub>i</sub></i> is the factor loading loading from the given covariance model.
+ * 
+ * If a forward curve is provided, the deterministic value L<sub>i,0</sub> is
+ * calculated form this curve (using fixing in <i>T<sub>i</sub></i>.
  * 
  * The parameter of this model is a joint parameter vector, consisting
  * of the parameter vector of the given base covariance model and
@@ -26,7 +33,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  */
-public class DisplacedDiffusionModel extends AbstractLIBORCovarianceModelParametric {
+public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private double displacement;
@@ -54,7 +61,7 @@ public class DisplacedDiffusionModel extends AbstractLIBORCovarianceModelParamet
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public DisplacedDiffusionModel(AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurveInterface forwardCurve, double displacement, boolean isCalibrateable) {
+	public BlendedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurveInterface forwardCurve, double displacement, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 		this.covarianceModel	= covarianceModel;
 		this.forwardCurve		= forwardCurve;
@@ -80,17 +87,32 @@ public class DisplacedDiffusionModel extends AbstractLIBORCovarianceModelParamet
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public DisplacedDiffusionModel(AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
+	public BlendedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
 		this(covarianceModel, null, displacement, isCalibrateable);
 	}
 
 	@Override
 	public Object clone() {
-		DisplacedDiffusionModel model = new DisplacedDiffusionModel((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement, isCalibrateable);
-
-		return model;
+		return new BlendedLocalVolatilityModel((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement, isCalibrateable);
 	}
 	
+	
+	/**
+	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>
+	 * such that this model's <i>i</i>-th factor loading is
+	 * <center>
+	 * <i>(a L<sub>i,0</sub> + (1-a)L<sub>i</sub>(t)) F<sub>i</sub>(t)</i>
+	 * </center>
+	 * where <i>a</i> is the displacement and <i>L<sub>i</sub></i> is
+	 * the realization of the <i>i</i>-th component of the stochastic process and
+	 * <i>F<sub>i</sub></i> is the factor loading loading from the given covariance model.
+	 * 
+	 * @return The base covariance model.
+	 */
+	public AbstractLIBORCovarianceModelParametric getBaseCovarianceModel() {
+		return covarianceModel;
+	}
+
 	@Override
 	public double[] getParameter() {
 		if(!isCalibrateable) return covarianceModel.getParameter();
