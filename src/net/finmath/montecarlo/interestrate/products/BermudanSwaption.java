@@ -89,7 +89,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
             valuesUnderlying = valuesUnderlying.add(payoff);
 
 			if(isPeriodStartDateExerciseDate[period]) {
-				RandomVariableInterface triggerValuesDiscounted = values.getMutableCopy().sub(valuesUnderlying);
+				RandomVariableInterface triggerValuesDiscounted = values.sub(valuesUnderlying);
 
 				// Remove foresight through condition expectation
 		    	MonteCarloConditionalExpectation condExpEstimator = getConditionalExpectationEstimator(period, model);
@@ -148,9 +148,9 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		// LIBORs
 		RandomVariableInterface rate = model.getLIBOR(fixingDate, fixingDates[0], paymentDates[paymentDates.length-1]);
 		double periodLength = paymentDates[paymentDates.length-1]-fixingDates[0];
-		basisFunction = basisFunctions.get(0).getMutableCopy().discount(rate, periodLength);
+		basisFunction = basisFunctions.get(0).discount(rate, periodLength);
 		basisFunctions.add(basisFunction);
-		basisFunction = basisFunctions.get(1).getMutableCopy().discount(rate, periodLength);
+		basisFunction = basisFunctions.get(1).discount(rate, periodLength);
 		basisFunctions.add(basisFunction);
 
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
