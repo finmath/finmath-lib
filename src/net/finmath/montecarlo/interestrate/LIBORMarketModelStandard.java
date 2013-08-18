@@ -210,6 +210,8 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
+		if(swaptionMarketData == null) return null;
+		
 		TimeDiscretizationInterface	optionMaturities		= swaptionMarketData.getOptionMaturities();
 		TimeDiscretizationInterface	tenor					= swaptionMarketData.getTenor();
 		double						swapPeriodLength		= swaptionMarketData.getSwapPeriodLength();
@@ -732,14 +734,13 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 			forwardRateCurve = (ForwardCurveInterface)dataModified.get("forwardRateCurve");
 		}
 		if(dataModified.containsKey("forwardRateShift")) {
-			forwardRateCurve = (ForwardCurveInterface)dataModified.get("forwardRateCurve");
-			//    		throw new RuntimeException("Forward rate shift clone currently disabled.");
+			throw new RuntimeException("Forward rate shift clone currently disabled.");
 		}
 		if(dataModified.containsKey("covarianceModel")) {
 			covarianceModel = (AbstractLIBORCovarianceModel)dataModified.get("covarianceModel");
 		}
 		if(dataModified.containsKey("swaptionMarketData")) {
-			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("covarianceModel");
+			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
 		}
 
 		if(swaptionMarketData == null) {
