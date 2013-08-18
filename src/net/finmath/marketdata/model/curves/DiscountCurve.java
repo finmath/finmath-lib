@@ -142,4 +142,15 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
     	super.setParameter(parameterOfCurve);
     }
 
+    public DiscountCurveInterface getCloneForModifiedData(double time, double newValue) {
+    	int timeIndex = this.getTimeIndex(time);
+
+    	double[] parameterOfCurve = getParameter();
+    	parameterOfCurve[timeIndex] = newValue;
+
+    	DiscountCurve newDiscountCurve = (DiscountCurve)getCloneForParameter(parameterOfCurve);
+    	
+    	return newDiscountCurve;
+    	
+    }
 }
