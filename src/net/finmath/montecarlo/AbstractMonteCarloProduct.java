@@ -97,4 +97,23 @@ public abstract class AbstractMonteCarloProduct {
 
 		return getValues(modelModified);
 	}
+
+	/**
+	 * This method returns the value under shifted market data (or model parameters).
+	 * In its default implementation it does bump (creating a new model) and revalue.
+	 * Override the way the new model is created, to implemented improved techniques (proxy scheme, re-calibration).
+	 * 
+     * @param model The model used to price the product, except for the market data to modify
+     * @param entityKey The entity to change, it depends on the model if the model reacts to this key.
+	 * @param dataModified The new market data object to use (could be of different types)
+	 * 
+     * @return The values of the product.
+	 * @throws net.finmath.exception.CalculationException
+     */
+	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationInterface model, String entityKey, Object dataModified) throws CalculationException
+	{
+    	Map<String, Object> dataModifiedMap = new HashMap<String, Object>();
+    	dataModifiedMap.put(entityKey, dataModified);
+    	return getValuesForModifiedData(model, dataModifiedMap);
+	}
 }
