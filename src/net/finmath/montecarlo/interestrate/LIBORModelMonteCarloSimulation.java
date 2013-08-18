@@ -5,10 +5,12 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.process.AbstractProcess;
@@ -249,7 +251,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return model.getProcess();
 	}
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
 	 */
 	public Object getCloneWithModifiedSeed(int seed) {
@@ -263,5 +265,20 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
     public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
     	LIBORMarketModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
     	return new LIBORModelMonteCarloSimulation(modelClone, (AbstractProcess) getProcess().clone());
+    }
+
+	/**
+	 * Create a clone of this simulation modifying one of its properties (if any).
+	 * 
+     * @param entityKey The entity to modify.
+	 * @param dataModified The data which should be changed in the new model
+	 * @return Returns a clone of this model, where the specified part of the data is modified data (then it is no longer a clone :-)
+	 * @throws net.finmath.exception.CalculationException
+	 */
+    public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(String entityKey, Object dataModified) throws CalculationException
+	{
+    	Map<String, Object> dataModifiedMap = new HashMap<String, Object>();
+    	dataModifiedMap.put(entityKey, dataModified);
+    	return getCloneWithModifiedData(dataModifiedMap);
     }
 }
