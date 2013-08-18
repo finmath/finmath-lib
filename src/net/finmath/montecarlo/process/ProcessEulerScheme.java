@@ -110,8 +110,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 		RandomVariableInterface[] initialState = getInitialState();
 		final RandomVariableInterface[] currentState = new RandomVariableInterface[numberOfComponents];
 		for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
-			currentState[componentIndex] = initialState[componentIndex].getMutableCopy();
-			discreteProcess[0][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
+			currentState[componentIndex] = initialState[componentIndex];
+			discreteProcess[0][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
 		}
 
 		/*
@@ -169,7 +169,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 						currentState[componentIndex] = currentState[componentIndex].add(increment);
 						
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
+						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
 					}
 				};
 
@@ -204,15 +204,14 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 					if (driftWithPredictorOfComponent == null || driftWithoutPredictorOfComponent == null) continue;
 
-					// Get reference to newRealization
-					RandomVariableInterface newRealization = (RandomVariableInterface)currentState[componentIndex];
+					// Calculated the predictor corrector drift adjustment
+					RandomVariableInterface driftAdjustment = driftWithPredictorOfComponent.sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
 
-					// newRealization[pathIndex] = newRealization[pathIndex] * Math.exp(0.5 * (driftWithPredictorOnPath - driftWithoutPredictorOnPath) * deltaT);
-					RandomVariableInterface driftAdjustment = driftWithPredictorOfComponent.getMutableCopy().sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
+					// Add drift adjustment
 					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
 
 					// Reapply state space transform
-					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex].getMutableCopy());
+					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
 			// Set Monte-Carlo weights
@@ -305,13 +304,19 @@ public class ProcessEulerScheme extends AbstractProcess {
 		this.reset();
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.process.AbstractProcess#clone()
+	 */
 	@Override
 	public ProcessEulerScheme clone() {
 		return new ProcessEulerScheme(getBrownianMotion());
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.process.AbstractProcess#getCloneWithModifiedSeed(int)
+	 */
 	@Override
 	public Object getCloneWithModifiedSeed(int seed) {
-		return new ProcessEulerScheme((BrownianMotionInterface)this.getBrownianMotion().getCloneWithModifiedSeed(seed));
+		return new ProcessEulerScheme((BrownianMotionInterface)getBrownianMotion().getCloneWithModifiedSeed(seed));
 	}
 }
