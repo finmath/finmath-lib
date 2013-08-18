@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A portfolio of products, each product being of AbstractMonteCarloProduct type.
- * The valuation is performed multi-threadded over the portfolio of products.
+ * The valuation is performed multi-threaded over the portfolio of products.
  * 
  * @author Christian Fries
  */
