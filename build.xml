@@ -5,7 +5,7 @@
 <!-- edit the following lines to your needs            -->
 <target name="init">
     <property name="project_name"   value="finmath-lib"/>
-    <property name="srcDir"         value="./src"/>
+    <property name="srcDir"         value="./src/main/java"/>
     <property name="classDir"       value="./classes"/>
     <property name="jar"            value="${project_name}.jar"/>
     <mkdir dir="${classDir}" />
