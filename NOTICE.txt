@@ -2,7 +2,7 @@
 NOTICE for finmath lib
 ---------------------------
 
-Copyright (c) 2008-2012 Christian Fries, http://www.christianfries.com/finmath
+Copyright (c) 2008-2013 Christian Fries, http://www.christianfries.com/finmath
 For updates on finmath lib see http://www.finmath.net
 Permission to use and/or redistribute this work is granted under the terms of the Apache License Version 2.0, with the exception that any usage related to military applications is expressly forbidden. The software and documentation made available under the terms of this license are provided with no warranty.
 
