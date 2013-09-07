@@ -15,6 +15,8 @@ import java.util.GregorianCalendar;
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0))
  * </code>
  * 
+ * The method correponds to the implementation of the "European method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,TRUE).
+ * 
  * @author Christian Fries
  */
 public class DayCountConvention_30E_360 implements DayCountConventionInterface {
@@ -48,11 +50,6 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	 */
 	@Override
 	public double getDaycountFraction(GregorianCalendar startDate, GregorianCalendar endDate) {
-		if(startDate.after(endDate)) return -getDaycount(endDate,startDate);
-
-		double startDateYear 	= startDate.get(Calendar.YEAR);
-		double endDateYear 		= endDate.get(Calendar.YEAR);
-		
-		return getDaycount(startDate, endDate) / ((endDateYear - startDateYear + 1) * 360.0);
+		return getDaycount(startDate, endDate) / 360.0;
 	}
 }
