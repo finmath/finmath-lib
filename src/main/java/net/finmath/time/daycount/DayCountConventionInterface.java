@@ -4,7 +4,7 @@
  * Created on 07.09.2013
  */
 
-package net.finmath.time.dayount;
+package net.finmath.time.daycount;
 
 import java.util.GregorianCalendar;
 

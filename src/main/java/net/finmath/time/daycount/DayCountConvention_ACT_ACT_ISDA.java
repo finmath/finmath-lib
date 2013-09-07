@@ -4,7 +4,7 @@
  * Created on 07.09.2013
  */
 
-package net.finmath.time.dayount;
+package net.finmath.time.daycount;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -30,7 +30,7 @@ public class DayCountConvention_ACT_ACT_ISDA implements DayCountConventionInterf
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.dayount.DayCountConventionInterface#getDaycount(java.util.Calendar, java.util.Calendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.util.Calendar, java.util.Calendar)
 	 */
 	@Override
 	public double getDaycount(GregorianCalendar startDate, GregorianCalendar endDate) {
@@ -42,7 +42,7 @@ public class DayCountConvention_ACT_ACT_ISDA implements DayCountConventionInterf
 
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.dayount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
 	 */
 	@Override
 	public double getDaycountFraction(GregorianCalendar startDate, GregorianCalendar endDate) {
