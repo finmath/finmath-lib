@@ -5,6 +5,7 @@
  */
 package net.finmath.marketdata.calibration;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -118,6 +119,23 @@ public class CalibratedCurves {
 	        this.calibrationCurveName = calibrationCurveName;
 	        this.calibrationTime = calibrationTime;
         }
+        
+        @Override
+		public String toString() {
+			return "CalibrationSpec [type=" + type
+					+ ", swapTenorDefinitionReceiver="
+					+ Arrays.toString(swapTenorDefinitionReceiver)
+					+ ", forwardCurveReceiverName=" + forwardCurveReceiverName
+					+ ", spreadReceiver=" + spreadReceiver
+					+ ", discountCurveReceiverName="
+					+ discountCurveReceiverName + ", swapTenorDefinitionPayer="
+					+ Arrays.toString(swapTenorDefinitionPayer)
+					+ ", forwardCurvePayerName=" + forwardCurvePayerName
+					+ ", spreadPayer=" + spreadPayer
+					+ ", discountCurvePayerName=" + discountCurvePayerName
+					+ ", calibrationCurveName=" + calibrationCurveName
+					+ ", calibrationTime=" + calibrationTime + "]";
+		}
     }
 
 	private AnalyticModelInterface				model				= new AnalyticModel();
