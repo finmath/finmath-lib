@@ -10,12 +10,19 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- * Calculated the day count as
+ * Calculates the day count as
  * <code>
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0))
  * </code>
  * 
- * The method correponds to the implementation of the "European method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,TRUE).
+ * <ul>
+ * 	<li>
+ * 		The method {@link #getDaycount(java.util.GregorianCalendar, java.util.GregorianCalendar) getDaycount} corresponds to the implementation of the "European method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,TRUE).
+ * 	</li>
+ * 	<li>
+ * 		The method {@link #getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar) getDaycountFraction} corresponds to the implementation of the "30E/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,4).
+ * 	</li>
+ * </ul>
  * 
  * @author Christian Fries
  */
