@@ -17,12 +17,12 @@ import java.util.GregorianCalendar;
  * 
  * @author Christian Fries
  */
-public class DayCountConvention_30_360_ISDA implements DayCountConventionInterface {
+public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterface {
 
 	/**
 	 * Create a 30/360 ISDA daycount convention.
 	 */
-	public DayCountConvention_30_360_ISDA() {
+	public DayCountConvention_30E_360_ISDA() {
 	}
 	
 	/* (non-Javadoc)
@@ -48,11 +48,6 @@ public class DayCountConvention_30_360_ISDA implements DayCountConventionInterfa
 	 */
 	@Override
 	public double getDaycountFraction(GregorianCalendar startDate, GregorianCalendar endDate) {
-		if(startDate.after(endDate)) return -getDaycount(endDate,startDate);
-
-		double startDateYear 	= startDate.get(Calendar.YEAR);
-		double endDateYear 		= endDate.get(Calendar.YEAR);
-		
-		return getDaycount(startDate, endDate) / ((endDateYear - startDateYear + 1) * 360.0);
+		return getDaycount(startDate, endDate) / 360.0;
 	}
 }
