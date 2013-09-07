@@ -21,7 +21,7 @@ import java.util.GregorianCalendar;
  */
 public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 
-	private boolean isEndOfMonth =  false;
+	private boolean isEndOfMonth =  true;
 	
 	/**
 	 * Create a 30U/360 daycount convention.

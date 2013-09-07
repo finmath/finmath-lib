@@ -47,18 +47,15 @@ public class DayCountConvention_ACT_ACT_ISDA implements DayCountConventionInterf
 		double daycountFraction = endDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
 
 		GregorianCalendar startDateNextYear = (GregorianCalendar)startDate.clone();
-		startDateNextYear.set(Calendar.DAY_OF_YEAR, 31);
-		startDateNextYear.set(Calendar.MONTH, 12);
-		startDateNextYear.add(Calendar.DAY_OF_YEAR, 1);
-		daycountFraction += daysBetween(startDate, startDateNextYear) / (startDate.isLeapYear(startDate.get(Calendar.YEAR)) ? 366.0 : 365.0);
+		startDateNextYear.set(Calendar.DAY_OF_YEAR, 1);
+		startDateNextYear.add(Calendar.YEAR, 1);
+		daycountFraction += daysBetween(startDate, startDateNextYear) / startDate.getActualMaximum(Calendar.DAY_OF_YEAR);
 
-		GregorianCalendar endDateNextYear = (GregorianCalendar)endDate.clone();
-		endDateNextYear.set(Calendar.DAY_OF_YEAR, 31);
-		endDateNextYear.set(Calendar.MONTH, 12);
-		endDateNextYear.add(Calendar.DAY_OF_YEAR, 1);
-		daycountFraction += daysBetween(endDateNextYear, endDate) / (endDate.isLeapYear(endDate.get(Calendar.YEAR)) ? 366.0 : 365.0);
+		GregorianCalendar endDateStartYear = (GregorianCalendar)endDate.clone();
+		endDateStartYear.set(Calendar.DAY_OF_YEAR, 1);
+		daycountFraction += daysBetween(endDateStartYear, endDate) / endDate.getActualMaximum(Calendar.DAY_OF_YEAR);
 		
-		return daycountFraction;
+		return daycountFraction-1.0;
 	}
 
 	/**
