@@ -6,12 +6,11 @@
 
 package net.finmath.time;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_30_360_ISDA;
+import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
 
 /**
  * Implements a time discretization bases on dates using a reference
@@ -23,7 +22,7 @@ import net.finmath.time.daycount.DayCountConvention_30_360_ISDA;
  */
 public class Tenor extends TimeDiscretization {
 
-	private static final DayCountConventionInterface internalDayCounting = new DayCountConvention_30_360_ISDA();
+	private static final DayCountConventionInterface internalDayCounting = new DayCountConvention_30E_360_ISDA();
 
 	private	Date		referenceDate;
 
