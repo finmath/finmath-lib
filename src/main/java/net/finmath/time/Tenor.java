@@ -10,8 +10,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import net.finmath.time.dayount.DayCountConventionInterface;
-import net.finmath.time.dayount.DayCountConvention_30_360_ISDA;
+import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention_30_360_ISDA;
 
 /**
  * Implements a time discretization bases on dates using a reference
