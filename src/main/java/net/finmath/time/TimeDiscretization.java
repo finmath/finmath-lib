@@ -185,14 +185,11 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     	return this.getAsArrayList().iterator();
     }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-    @Override
+	@Override
 	public String toString() {
-		return super.toString()
-				+ "\n" + "timeDiscretization: " + Arrays.toString(timeDiscretization)
-				+ "\n" + "timeTickSize: " + timeTickSize;
+		return "TimeDiscretization [timeDiscretization="
+				+ Arrays.toString(timeDiscretization) + ", timeTickSize="
+				+ timeTickSize + "]";
 	}
 
     private double roundToTimeTickSize(double time) {
