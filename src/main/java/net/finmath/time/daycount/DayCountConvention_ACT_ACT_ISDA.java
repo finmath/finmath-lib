@@ -10,10 +10,18 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- * Calculated the day count as by calculating the actual number of days between startDate and endDate.
+ * Calculated the day count by calculating the actual number of days between startDate and endDate.
  * 
  * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
  * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
+ * 
+ * The daycount fraction is calculated using ACT_ACT_ISDA convention, that is, the
+ * daycount fraction is <i>n<sub>1</sub>/365</i> + <i>n<sub>2</sub>/366/<i>, where
+ * <ul>
+ * 	<li>	<i>n<sub>1</sub></i> is the number of days falling into a non-leap year,</li>
+ * 	<li>	<i>n<sub>2</sub></i> is the number of days falling into a leap year,</li>
+ * </ul>
+ * where the start date is included in the counting and the end date is excluded in the counting.
  * 
  * @author Christian Fries
  */
