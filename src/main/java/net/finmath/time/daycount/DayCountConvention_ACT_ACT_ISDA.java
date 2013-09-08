@@ -28,7 +28,7 @@ import java.util.GregorianCalendar;
 public class DayCountConvention_ACT_ACT_ISDA implements DayCountConventionInterface {
 
 	/**
-	 * Create a 30/360 ISDA daycount convention.
+	 * Create an ACT/ACT ISDA daycount convention.
 	 */
 	public DayCountConvention_ACT_ACT_ISDA() {
 	}
