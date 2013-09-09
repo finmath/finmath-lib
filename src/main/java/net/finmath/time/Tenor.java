@@ -6,7 +6,6 @@
 
 package net.finmath.time;
 
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
@@ -24,15 +23,17 @@ public class Tenor extends TimeDiscretization {
 
 	private static final DayCountConventionInterface internalDayCounting = new DayCountConvention_30E_360_ISDA();
 
-	private	Date		referenceDate;
+	private GregorianCalendar[]		dates;
+	private	GregorianCalendar		referenceDate;
 
 	/**
 	 * @param dates
 	 * @param referenceDate
 	 * @param daycountFractions
 	 */
-	public Tenor(Date[] dates, Date referenceDate, double[] daycountFractions) {
-		super(createTimeDiscretizationFromDates(dates, referenceDate));
+	public Tenor(GregorianCalendar[] dates, GregorianCalendar referenceDate, DayCountConventionInterface daycountConvention) {
+		super(createTimeDiscretizationFromDates(dates, referenceDate, daycountConvention));
+		this.dates				= dates;
 		this.referenceDate		= referenceDate;
 		
 	}
@@ -42,20 +43,15 @@ public class Tenor extends TimeDiscretization {
 	 * @param referenceDate
 	 * @return
 	 */
-	private static double[] createTimeDiscretizationFromDates(Date[] dates, Date referenceDate) {
-		GregorianCalendar calendarStart = (GregorianCalendar) GregorianCalendar.getInstance();
-		calendarStart.setTime(referenceDate);
-		calendarStart.getTimeInMillis();
-		
+	private static double[] createTimeDiscretizationFromDates(GregorianCalendar[] dates, GregorianCalendar referenceDate, DayCountConventionInterface daycountConvention) {
+
 		double[] timeDiscretization = new double[dates.length];
 
-		GregorianCalendar calendarDate = (GregorianCalendar) GregorianCalendar.getInstance();
 		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
-			calendarDate.setTime(dates[timeIndex]);
-
 			timeDiscretization[timeIndex] =
-					internalDayCounting.getDaycount(calendarStart, calendarDate);
+					internalDayCounting.getDaycount(referenceDate, dates[timeIndex]);
 		}
+
 		return timeDiscretization;
 	}
 
@@ -100,7 +96,17 @@ public class Tenor extends TimeDiscretization {
 	/**
 	 * @return The reference date of this tenor, i.e., the date mapped to 0.0
 	 */
-	public Date getReferenceDate() {
+	public GregorianCalendar getReferenceDate() {
 		return referenceDate;
+	}
+
+	/**
+	 * Returns the date for the given time index.
+	 * 
+	 * @param timeIndex Time index
+	 * @return Returns the date for a given time index.
+	 */
+	public GregorianCalendar getDate(int timeIndex) {
+		return timeIndex == 0 ? referenceDate : dates[timeIndex-1];
 	}
 }
