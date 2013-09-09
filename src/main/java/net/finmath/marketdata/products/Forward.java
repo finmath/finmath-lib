@@ -53,9 +53,23 @@ public class Forward implements AnalyticProductInterface {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 		
-    	double forward	= spread;
-    	if(forwardCurve != null) {
-    		forward		+= forwardCurve.getForward(model, maturity);
+		DiscountCurveInterface	discountCurveForForward = null;
+		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
+			// User might like to get forward from discount curve.
+			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
+			
+			if(discountCurveForForward == null) {
+				// User specified a name for the forward curve, but no curve was found.
+				throw new IllegalArgumentException("No curve of the name " + forwardCurveName + " was found in the model.");
+			}
+		}
+		
+		double forward		= spread;
+		if(forwardCurve != null) {
+			forward			+= forwardCurve.getForward(model, maturity);
+		}
+		else if(discountCurveForForward != null) {
+			forward			+= (discountCurveForForward.getDiscountFactor(maturity) / discountCurveForForward.getDiscountFactor(maturity+paymentOffset) - 1.0) / paymentOffset;
 		}
 
     	double discountFactor	= discountCurve.getDiscountFactor(model, maturity+paymentOffset);
