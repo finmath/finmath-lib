@@ -90,4 +90,10 @@ public class SwapAnnuity implements AnalyticProductInterface {
 		}
 		return value;
 	}
+	
+	@Override
+	public String toString() {
+		return "SwapAnnuity [tenor=" + tenor + ", discountCurveName="
+				+ discountCurveName + "]";
+	}
 }

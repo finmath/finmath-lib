@@ -24,7 +24,7 @@ public class SwapLeg implements AnalyticProductInterface {
 	private final String						forwardCurveName;
 	private final double						spread;
 	private final String						discountCurveName;
-	private boolean						isNotionalExchanged = true;
+	private boolean								isNotionalExchanged = false;
 
 	/**
 	 * Creates a swap leg. The swap leg has a unit notional of 1.
@@ -69,7 +69,18 @@ public class SwapLeg implements AnalyticProductInterface {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 		
-    	double value = 0.0;
+		DiscountCurveInterface	discountCurveForForward = null;
+		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
+			// User might like to get forward from discount curve.
+			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
+			
+			if(discountCurveForForward == null) {
+				// User specified a name for the forward curve, but no curve was found.
+				throw new IllegalArgumentException("No curve of the name " + forwardCurveName + " was found in the model.");
+			}
+		}
+
+		double value = 0.0;
 		for(int periodIndex=0; periodIndex<tenorLeg.getNumberOfTimeSteps(); periodIndex++) {
 			double periodStart	= tenorLeg.getTime(periodIndex);
 			double periodEnd	= tenorLeg.getTime(periodIndex+1);
@@ -77,10 +88,21 @@ public class SwapLeg implements AnalyticProductInterface {
 			if(forwardCurve != null) {
 				forward			+= forwardCurve.getForward(model, periodStart);
 			}
+			else if(discountCurveForForward != null) {
+				forward			+= (discountCurveForForward.getDiscountFactor(periodStart) / discountCurveForForward.getDiscountFactor(periodEnd) - 1.0) / (periodEnd - periodStart);
+			}
 			double discountFactor	= discountCurve.getDiscountFactor(model, periodEnd);
 			value += forward * (periodEnd-periodStart) * discountFactor;
 			if(isNotionalExchanged) value += discountCurve.getDiscountFactor(model, periodEnd) - discountCurve.getDiscountFactor(model, periodStart);
 		}
 		return value;		
+	}
+
+	@Override
+	public String toString() {
+		return "SwapLeg [tenorLeg=" + tenorLeg + ", forwardCurveName="
+				+ forwardCurveName + ", spread=" + spread
+				+ ", discountCurveName=" + discountCurveName
+				+ ", isNotionalExchanged=" + isNotionalExchanged + "]";
 	}
 }
