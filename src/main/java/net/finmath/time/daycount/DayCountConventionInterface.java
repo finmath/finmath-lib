@@ -9,8 +9,8 @@ package net.finmath.time.daycount;
 import java.util.GregorianCalendar;
 
 /**
- * Interface implemented by various daycount conventions.
- * Classes implementing this interface provide daycounting and daycount fractions for
+ * Interface implemented by various day count conventions.
+ * Classes implementing this interface provide day counting and day count fractions for
  * a given interval on a {@link java.util.GregorianCalendar}.
  * 
  * @author Christian Fries
