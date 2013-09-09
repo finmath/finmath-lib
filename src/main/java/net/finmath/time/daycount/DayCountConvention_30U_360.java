@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- * Calculated the day count using the US 30/360 adjusted method. The daycount is calculated via
+ * Calculates the day count using the US 30/360 adjusted method. The daycount is calculated via
  * <code>
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (endDateDay - startDateDay)
  * </code>

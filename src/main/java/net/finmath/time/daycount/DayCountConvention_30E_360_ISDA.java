@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- * Calculated the day count as
+ * Calculates the day count as
  * <code>
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, startDateDay > 29 ? 30.0 : 31.0) - Math.min(startDateDay, 30.0))
  * </code>
