@@ -5,7 +5,6 @@
  */
 package net.finmath.marketdata.calibration;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +23,8 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapLeg;
 import net.finmath.optimizer.SolverException;
+import net.finmath.time.RegularSchedule;
+import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -41,17 +42,59 @@ public class CalibratedCurves {
      */
     public static class CalibrationSpec {
 
-    	private String		type;
-		private double[]	swapTenorDefinitionReceiver;
-		private String		forwardCurveReceiverName;
-		private double		spreadReceiver;
-		private String		discountCurveReceiverName;
-		private double[]	swapTenorDefinitionPayer;
-		private String		forwardCurvePayerName;
-		private double		spreadPayer;
-		private String		discountCurvePayerName;
-		private String		calibrationCurveName;
-		private double		calibrationTime;
+    	private String				type;
+    	
+    	private	ScheduleInterface	swapTenorDefinitionReceiver;
+		private String				forwardCurveReceiverName;
+		private double				spreadReceiver;
+		private String				discountCurveReceiverName;
+
+		private ScheduleInterface	swapTenorDefinitionPayer;
+		private String				forwardCurvePayerName;
+		private double				spreadPayer;
+		private String				discountCurvePayerName;
+		
+		private String				calibrationCurveName;
+		private double				calibrationTime;
+
+	       /**
+         * Calibration specification.
+         * 
+         * @param type
+         * @param swapTenorDefinitionReceiver
+         * @param forwardCurveReceiverName
+         * @param spreadReceiver
+         * @param discountCurveReceiverName
+         * @param swapTenorDefinitionPayer
+         * @param forwardCurvePayerName
+         * @param spreadPayer
+         * @param discountCurvePayerName
+         * @param calibrationCurveName
+         * @param calibrationTime
+         */
+        public CalibrationSpec(
+        		String type,
+        		ScheduleInterface swapTenorDefinitionReceiver,
+                String forwardCurveReceiverName, double spreadReceiver,
+                String discountCurveReceiverName,
+                ScheduleInterface swapTenorDefinitionPayer,
+                String forwardCurvePayerName, double spreadPayer,
+                String discountCurvePayerName,
+                String calibrationCurveName,
+                double calibrationTime) {
+	        super();
+	        this.type = type;
+	        this.swapTenorDefinitionReceiver = swapTenorDefinitionReceiver;
+	        this.forwardCurveReceiverName = forwardCurveReceiverName;
+	        this.spreadReceiver = spreadReceiver;
+	        this.discountCurveReceiverName = discountCurveReceiverName;
+	        this.swapTenorDefinitionPayer = swapTenorDefinitionPayer;
+	        this.forwardCurvePayerName = forwardCurvePayerName;
+	        this.spreadPayer = spreadPayer;
+	        this.discountCurvePayerName = discountCurvePayerName;
+	        this.calibrationCurveName = calibrationCurveName;
+	        this.calibrationTime = calibrationTime;
+        }
 
         /**
          * Calibration specification.
@@ -80,11 +123,11 @@ public class CalibratedCurves {
                 double calibrationTime) {
 	        super();
 	        this.type = type;
-	        this.swapTenorDefinitionReceiver = swapTenorDefinitionReceiver;
+	        this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretization(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START));
 	        this.forwardCurveReceiverName = forwardCurveReceiverName;
 	        this.spreadReceiver = spreadReceiver;
 	        this.discountCurveReceiverName = discountCurveReceiverName;
-	        this.swapTenorDefinitionPayer = swapTenorDefinitionPayer;
+	        this.swapTenorDefinitionPayer = new RegularSchedule(new TimeDiscretization(swapTenorDefinitionPayer[0] /* initial */, swapTenorDefinitionPayer[1] /* numberOfTimeSteps */, swapTenorDefinitionPayer[2] /* deltaT */, TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START));
 	        this.forwardCurvePayerName = forwardCurvePayerName;
 	        this.spreadPayer = spreadPayer;
 	        this.discountCurvePayerName = discountCurvePayerName;
@@ -112,31 +155,30 @@ public class CalibratedCurves {
                 double calibrationTime) {
 	        super();
 	        this.type = type;
-	        this.swapTenorDefinitionReceiver = swapTenorDefinitionReceiver;
+	        this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretization(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START));
 	        this.forwardCurveReceiverName = forwardCurveReceiverName;
 	        this.spreadReceiver = spreadReceiver;
 	        this.discountCurveReceiverName = discountCurveReceiverName;
 	        this.calibrationCurveName = calibrationCurveName;
 	        this.calibrationTime = calibrationTime;
         }
-        
-        @Override
+
+		@Override
 		public String toString() {
 			return "CalibrationSpec [type=" + type
 					+ ", swapTenorDefinitionReceiver="
-					+ Arrays.toString(swapTenorDefinitionReceiver)
+					+ swapTenorDefinitionReceiver
 					+ ", forwardCurveReceiverName=" + forwardCurveReceiverName
 					+ ", spreadReceiver=" + spreadReceiver
 					+ ", discountCurveReceiverName="
 					+ discountCurveReceiverName + ", swapTenorDefinitionPayer="
-					+ Arrays.toString(swapTenorDefinitionPayer)
-					+ ", forwardCurvePayerName=" + forwardCurvePayerName
-					+ ", spreadPayer=" + spreadPayer
+					+ swapTenorDefinitionPayer + ", forwardCurvePayerName="
+					+ forwardCurvePayerName + ", spreadPayer=" + spreadPayer
 					+ ", discountCurvePayerName=" + discountCurvePayerName
 					+ ", calibrationCurveName=" + calibrationCurveName
 					+ ", calibrationTime=" + calibrationTime + "]";
 		}
-    }
+      }
 
 	private AnalyticModelInterface				model				= new AnalyticModel();
     private Set<CurveInterface>					curvesToCalibrate	= new HashSet<CurveInterface>();
@@ -212,15 +254,15 @@ public class CalibratedCurves {
 		String forwardCurveReceiverName = createForwardCurve(calibrationSpec.swapTenorDefinitionReceiver, calibrationSpec.forwardCurveReceiverName);
 		String forwardCurvePayerName	= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
 		
-		TimeDiscretization tenorReceiver = new TimeDiscretization(calibrationSpec.swapTenorDefinitionReceiver[0], calibrationSpec.swapTenorDefinitionReceiver[1], calibrationSpec.swapTenorDefinitionReceiver[2], TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START);
-		TimeDiscretization tenorPayer	= new TimeDiscretization(calibrationSpec.swapTenorDefinitionPayer[0], calibrationSpec.swapTenorDefinitionPayer[1], calibrationSpec.swapTenorDefinitionPayer[2], TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START);
+		ScheduleInterface tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
+		ScheduleInterface tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
 
 		AnalyticProductInterface product = null;
 		if(calibrationSpec.type.toLowerCase().equals("swap")) {
 			product = new Swap(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swapleg")) {
-			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName);
+			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
 		}
 		else {
 			throw new RuntimeException("Product of type " + calibrationSpec.type + " unknown.");
@@ -305,18 +347,17 @@ public class CalibratedCurves {
 	 * @param forwardCurveName
 	 * @return The forward curve associated with the given name.
 	 */
-    private String createForwardCurve(double[] swapTenorDefinition, String forwardCurveName) {
+    private String createForwardCurve(ScheduleInterface swapTenorDefinition, String forwardCurveName) {
 
     	if(forwardCurveName == null || forwardCurveName.isEmpty()) return null;
 
-		double periodLength	= swapTenorDefinition[2];
-		
 		// Check if the curves exists, if not create it
 		CurveInterface	curve = model.getCurve(forwardCurveName);
 
 		ForwardCurveInterface	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
+			double periodLength	= swapTenorDefinition.getPeriodLength(0);		// @TODO It is unclear which periodLength to use for the forward curve, this is just an approximation
 			forwardCurve = new ForwardCurve(forwardCurveName, null, periodLength);
 		} else if(DiscountCurveInterface.class.isInstance(curve)) {
 			/*
@@ -324,6 +365,7 @@ public class CalibratedCurves {
 			 *  in the sense that we generate a forward curve wrapping the discount curve and calculating
 			 *  forward from discount factors using the formula (df(T)/df(T+Delta T) - 1) / Delta T).
 			 */
+			double periodLength	= swapTenorDefinition.getPeriodLength(0);		// @TODO It is unclear which periodLength to use for the forward curve, this is just an approximation
 			forwardCurve = new ForwardCurveFromDiscountCurve(curve.getName(), periodLength);
 		} else {
 			// Use a given forward curve

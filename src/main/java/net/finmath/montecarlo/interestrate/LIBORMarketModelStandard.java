@@ -25,6 +25,8 @@ import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximatio
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.RegularSchedule;
+import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -242,7 +244,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 
 				// Swaptions swap rate
-				TimeDiscretizationInterface swapTenor = new TimeDiscretization(swapTenorTimes);
+				ScheduleInterface swapTenor = new RegularSchedule(new TimeDiscretization(swapTenorTimes));
 				double swaprate = Swap.getForwardSwapRate(swapTenor, swapTenor, forwardCurve, null);
 
 				// Set swap rates for each period
