@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import java.util.GregorianCalendar;
+import java.util.Calendar;
 
 /**
  * Interface implemented by various day count conventions.
@@ -21,19 +21,19 @@ public interface DayCountConventionInterface {
 	 * Return the number of days between startDate and endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.util.GregorianCalendar}.
-	 * @param endDate The end date given as a {@link java.util.GregorianCalendar}.
+	 * @param startDate The start date given as a {@link java.util.Calendar}.
+	 * @param endDate The end date given as a {@link java.util.Calendar}.
 	 * @return The number of days within the given period.
 	 */
-	public abstract double getDaycount(GregorianCalendar startDate, GregorianCalendar endDate);
+	public abstract double getDaycount(Calendar startDate, Calendar endDate);
 
 	/**
 	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.util.GregorianCalendar}.
-	 * @param endDate The end date given as a {@link java.util.GregorianCalendar}.
+	 * @param startDate The start date given as a {@link java.util.Calendar}.
+	 * @param endDate The end date given as a {@link java.util.Calendar}.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
-	public abstract double getDaycountFraction(GregorianCalendar startDate, GregorianCalendar endDate);
+	public abstract double getDaycountFraction(Calendar startDate, Calendar endDate);
 }

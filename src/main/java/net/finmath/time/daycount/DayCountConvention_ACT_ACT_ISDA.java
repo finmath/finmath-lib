@@ -31,35 +31,62 @@ import java.util.GregorianCalendar;
  */
 public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT implements DayCountConventionInterface {
 
+	private boolean isCountLastDayNotFirst = false;
+	
 	/**
 	 * Create an ACT/ACT ISDA daycount convention.
 	 */
 	public DayCountConvention_ACT_ACT_ISDA() {
 	}
 
+	/**
+	 * Create an ACT/ACT ISDA daycount convention.
+	 * 
+	 * @param isCountLastDayNotFirst If this value is false (default), the days are counted including the first day and excluding the last day. If this field is true, the days are counted excluding the first day and including the last day.
+	 */
+	public DayCountConvention_ACT_ACT_ISDA(boolean isCountFirstDayNotLast) {
+		super();
+		this.isCountLastDayNotFirst = isCountFirstDayNotLast;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
 	 */
 	@Override
-	public double getDaycountFraction(GregorianCalendar startDate, GregorianCalendar endDate) {
+	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
 		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);
 
-		double daycountFraction = endDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
+		/*
+		 * Number of whole years between start and end. If start and end fall in the same year, this is -1 (there will be a double counting of 1 year below if start < end).
+		 */
+		double daycountFraction = endDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR) - 1.0;
 
+		/*
+		 * Fraction from start to the end of start's year
+		 */
 		GregorianCalendar startDateNextYear = (GregorianCalendar)startDate.clone();
 		startDateNextYear.set(Calendar.DAY_OF_YEAR, 1);
 		startDateNextYear.add(Calendar.YEAR, 1);
+		if(isCountLastDayNotFirst) startDateNextYear.add(Calendar.DAY_OF_YEAR, -1);
+
 		daycountFraction += getDaycount(startDate, startDateNextYear) / startDate.getActualMaximum(Calendar.DAY_OF_YEAR);
 
+		/*
+		 * Fraction from beginning of end's year to end
+		 */
 		GregorianCalendar endDateStartYear = (GregorianCalendar)endDate.clone();
 		endDateStartYear.set(Calendar.DAY_OF_YEAR, 1);
+		if(isCountLastDayNotFirst) endDateStartYear.add(Calendar.DAY_OF_YEAR, -1);
+
 		daycountFraction += getDaycount(endDateStartYear, endDate) / endDate.getActualMaximum(Calendar.DAY_OF_YEAR);
 		
-		return daycountFraction-1.0;
+		return daycountFraction;
 	}
 
 	@Override
 	public String toString() {
-		return "DayCountConvention_ACT_ACT_ISDA []";
+		return "DayCountConvention_ACT_ACT_ISDA [isCountLastDayNotFirst="
+				+ isCountLastDayNotFirst + "]";
 	}
+
 }

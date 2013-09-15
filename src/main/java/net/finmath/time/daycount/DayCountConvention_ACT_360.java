@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import java.util.GregorianCalendar;
+import java.util.Calendar;
 
 /**
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
@@ -16,6 +16,12 @@ import java.util.GregorianCalendar;
  * 
  * The day count fraction is calculated using ACT/360 convention, that is, the
  * day count divided by 360.
+ * 
+ * <ul>
+ * 	<li>
+ * 		The method {@link #getDaycountFraction(Calendar, Calendar) getDaycountFraction} corresponds to the implementation of the "ACT/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,2).
+ * 	</li>
+ * </ul>
  * 
  * @author Christian Fries
  */
@@ -32,7 +38,7 @@ public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implement
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
 	 */
 	@Override
-	public double getDaycountFraction(GregorianCalendar startDate, GregorianCalendar endDate) {
+	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
 		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);
 
 		double daycountFraction = getDaycount(startDate, endDate) / 360.0;
