@@ -26,12 +26,25 @@ public class Schedule implements ScheduleInterface {
 	private ArrayList<Period>			periods;
 	private DayCountConventionInterface	daycountconvention;
 	
-
+	private double[] fixingTimes;
+	private double[] paymentTimes;
+	private double[] periodLength;
+	
 	public Schedule(Calendar referenceDate, ArrayList<Period> periods, DayCountConventionInterface daycountconvention) {
 		super();
 		this.referenceDate = referenceDate;
 		this.periods = periods;
 		this.daycountconvention = daycountconvention;
+
+		// Precalculate dates to yearfrac doubles
+		fixingTimes = new double[periods.size()];
+		paymentTimes = new double[periods.size()];
+		periodLength = new double[periods.size()];
+		for(int periodIndex=0; periodIndex < periods.size(); periodIndex++) {
+			fixingTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getFixing());
+			paymentTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPayment());
+			periodLength[periodIndex] = daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
+		}
 	}
 
 
@@ -48,7 +61,7 @@ public class Schedule implements ScheduleInterface {
 	 */
 	@Override
 	public double getFixing(int periodIndex) {
-		return internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getFixing());
+		return fixingTimes[periodIndex];
 	}
 
 	/* (non-Javadoc)
@@ -56,7 +69,7 @@ public class Schedule implements ScheduleInterface {
 	 */
 	@Override
 	public double getPayment(int periodIndex) {
-		return internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPayment());
+		return paymentTimes[periodIndex];
 	}
 	
 	/* (non-Javadoc)
@@ -64,7 +77,7 @@ public class Schedule implements ScheduleInterface {
 	 */
 	@Override
 	public double getPeriodLength(int periodIndex) {
-		return daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
+		return periodLength[periodIndex];
 	}
 
 
