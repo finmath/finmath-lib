@@ -57,4 +57,15 @@ public class DayCountConventionTest {
 		daycountFraction = daycountConvention.getDaycountFraction(new GregorianCalendar(1999,Calendar.NOVEMBER,30), new GregorianCalendar(2000,Calendar.APRIL,30));
 		assertTrue(Math.abs(daycountFraction - 0.41554008533572875) < 1.0E-8);
 	}
+
+	@Test
+	public void testDayCountConventions() {
+		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_ACT_ISDA();
+
+		// Test additivity of day count fraction
+		double daycountFractionTotal = daycountConvention.getDaycountFraction(new GregorianCalendar(2012,Calendar.MARCH,19), new GregorianCalendar(2013,Calendar.AUGUST,4));
+		double daycountFractionPart1 = daycountConvention.getDaycountFraction(new GregorianCalendar(2012,Calendar.MARCH,19), new GregorianCalendar(2013,Calendar.JANUARY,1));
+		double daycountFractionPart2 = daycountConvention.getDaycountFraction(new GregorianCalendar(2013,Calendar.JANUARY,1), new GregorianCalendar(2013,Calendar.AUGUST,4));
+		assertTrue(Math.abs(daycountFractionTotal - (daycountFractionPart1 + daycountFractionPart2)) < 1.0E-8);
+	}
 }

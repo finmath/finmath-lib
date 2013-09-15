@@ -8,6 +8,7 @@ package net.finmath.marketdata.products;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -20,7 +21,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class SwapLeg implements AnalyticProductInterface {
 
-	private final TimeDiscretizationInterface	tenorLeg;
+	private final ScheduleInterface				legSchedule;
 	private final String						forwardCurveName;
 	private final double						spread;
 	private final String						discountCurveName;
@@ -29,15 +30,15 @@ public class SwapLeg implements AnalyticProductInterface {
 	/**
 	 * Creates a swap leg. The swap leg has a unit notional of 1.
 	 * 
-	 * @param tenorLeg Tenor of the leg.
+	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-    public SwapLeg(TimeDiscretizationInterface tenorLeg, String forwardCurveName, double spread, String discountCurveName, boolean isNotionalExchanged) {
+    public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName, boolean isNotionalExchanged) {
 	    super();
-	    this.tenorLeg = tenorLeg;
+	    this.legSchedule = legSchedule;
 	    this.forwardCurveName = forwardCurveName;
 	    this.spread = spread;
 	    this.discountCurveName = discountCurveName;
@@ -47,14 +48,14 @@ public class SwapLeg implements AnalyticProductInterface {
     /**
 	 * Creates a swap leg (without notional exchange). The swap leg has a unit notional of 1.
 	 * 
-	 * @param tenorLeg Tenor of the leg.
+	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 */
-    public SwapLeg(TimeDiscretizationInterface tenorLeg, String forwardCurveName, double spread, String discountCurveName) {
+    private SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName) {
 	    super();
-	    this.tenorLeg = tenorLeg;
+	    this.legSchedule = legSchedule;
 	    this.forwardCurveName = forwardCurveName;
 	    this.spread = spread;
 	    this.discountCurveName = discountCurveName;
@@ -81,26 +82,27 @@ public class SwapLeg implements AnalyticProductInterface {
 		}
 
 		double value = 0.0;
-		for(int periodIndex=0; periodIndex<tenorLeg.getNumberOfTimeSteps(); periodIndex++) {
-			double periodStart	= tenorLeg.getTime(periodIndex);
-			double periodEnd	= tenorLeg.getTime(periodIndex+1);
+		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
+			double fixingDate	= legSchedule.getFixing(periodIndex);
+			double paymentDate	= legSchedule.getPayment(periodIndex);
+			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 			double forward		= spread;
 			if(forwardCurve != null) {
-				forward			+= forwardCurve.getForward(model, periodStart);
+				forward			+= forwardCurve.getForward(model, fixingDate);
 			}
 			else if(discountCurveForForward != null) {
-				forward			+= (discountCurveForForward.getDiscountFactor(periodStart) / discountCurveForForward.getDiscountFactor(periodEnd) - 1.0) / (periodEnd - periodStart);
+				forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate - fixingDate);
 			}
-			double discountFactor	= discountCurve.getDiscountFactor(model, periodEnd);
-			value += forward * (periodEnd-periodStart) * discountFactor;
-			if(isNotionalExchanged) value += discountCurve.getDiscountFactor(model, periodEnd) - discountCurve.getDiscountFactor(model, periodStart);
+			double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
+			value += forward * periodLength * discountFactor;
+			if(isNotionalExchanged) value += discountCurve.getDiscountFactor(model, paymentDate) - discountCurve.getDiscountFactor(model, fixingDate);
 		}
-		return value;		
+		return value;
 	}
 
 	@Override
 	public String toString() {
-		return "SwapLeg [tenorLeg=" + tenorLeg + ", forwardCurveName="
+		return "SwapLeg [legSchedule=" + legSchedule + ", forwardCurveName="
 				+ forwardCurveName + ", spread=" + spread
 				+ ", discountCurveName=" + discountCurveName
 				+ ", isNotionalExchanged=" + isNotionalExchanged + "]";
