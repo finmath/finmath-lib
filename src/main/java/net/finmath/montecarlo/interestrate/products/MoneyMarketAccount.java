@@ -32,13 +32,6 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	private double accrualPeriod	= -1.0;		// Accrual period, if this period is &lt; 0, then the finest model LIBOR period discretization is used
 
 	/**
-	 * Create a default money market account. The money market account will use the
-	 * models tenor discretization as the accrual period and its inception time is 0.
-	 */
-	public MoneyMarketAccount() {
-	}
-
-	/**
 	 * Create a money market account.
 	 * 
 	 * @param inceptionTime The inception time. The value of the account at inception is 1.0. The value of the account prior to inception is zero.
@@ -50,6 +43,24 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 		this.inceptionTime	= inceptionTime;
 		this.initialValue	= initialValue;
 		this.accrualPeriod	= accrualPeriod;
+	}
+
+	/**
+	 * Create a money market account.
+	 * 
+	 * @param inceptionTime The inception time. The value of the account at inception is 1.0. The value of the account prior to inception is zero.
+	 * @param accrualPeriod The accrual period. If this period is &lt; 0, then the finest model LIBOR period discretization is used
+	 */
+	public MoneyMarketAccount(double inceptionTime, double accrualPeriod) {
+		this(inceptionTime, 1.0, accrualPeriod);
+	}
+	
+	/**
+	 * Create a default money market account. The money market account will use the
+	 * models tenor discretization as the accrual period and its inception time is 0.
+	 */
+	public MoneyMarketAccount() {
+		this(0.0, 1.0, -1.0);
 	}
 
 	/* (non-Javadoc)
