@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import java.util.GregorianCalendar;
+import java.util.Calendar;
 
 /**
  * Base class which calculates the day count by calculating the actual number of days between startDate and endDate.
@@ -28,7 +28,7 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.util.Calendar, java.util.Calendar)
 	 */
 	@Override
-	public double getDaycount(GregorianCalendar startDate, GregorianCalendar endDate) {
+	public double getDaycount(Calendar startDate, Calendar endDate) {
 		if(startDate.after(endDate)) return -getDaycount(endDate,startDate);
 
 		return daysBetween(startDate, endDate);
@@ -47,7 +47,7 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	 * @param endDate
 	 * @return
 	 */
-	private static double daysBetween(GregorianCalendar startDate, GregorianCalendar endDate) {
+	private static double daysBetween(Calendar startDate, Calendar endDate) {
 		return Math.round( ((double)(endDate.getTimeInMillis()-startDate.getTimeInMillis())) / 1000.0 / 60.0 / 60.0 / 24);
 	}
 }

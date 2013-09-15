@@ -7,7 +7,6 @@
 package net.finmath.time.daycount;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 /**
  * Calculates the day count as
@@ -29,7 +28,7 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.util.Calendar, java.util.Calendar)
 	 */
 	@Override
-	public double getDaycount(GregorianCalendar startDate, GregorianCalendar endDate) {
+	public double getDaycount(Calendar startDate, Calendar endDate) {
 		if(startDate.after(endDate)) return -getDaycount(endDate,startDate);
 
 		double startDateDay 	= startDate.get(Calendar.DAY_OF_MONTH);
@@ -47,7 +46,7 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
 	 */
 	@Override
-	public double getDaycountFraction(GregorianCalendar startDate, GregorianCalendar endDate) {
+	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }
