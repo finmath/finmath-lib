@@ -19,12 +19,12 @@ import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
  * 
  * @author Christian Fries
  */
-public class Tenor extends TimeDiscretization {
+public class Tenor extends TimeDiscretization implements TenorInterface {
 
 	private static final DayCountConventionInterface internalDayCounting = new DayCountConvention_30E_360_ISDA();
 
-	private GregorianCalendar[]		dates;
 	private	GregorianCalendar		referenceDate;
+	private GregorianCalendar[]		dates;
 
 	/**
 	 * @param dates
@@ -93,20 +93,27 @@ public class Tenor extends TimeDiscretization {
 		// TODO Auto-generated constructor stub
 	}
 
-	/**
-	 * @return The reference date of this tenor, i.e., the date mapped to 0.0
+	/* (non-Javadoc)
+	 * @see net.finmath.time.TenorInterface#getReferenceDate()
 	 */
+	@Override
 	public GregorianCalendar getReferenceDate() {
 		return referenceDate;
 	}
 
-	/**
-	 * Returns the date for the given time index.
-	 * 
-	 * @param timeIndex Time index
-	 * @return Returns the date for a given time index.
+	/* (non-Javadoc)
+	 * @see net.finmath.time.TenorInterface#getDate(int)
 	 */
+	@Override
 	public GregorianCalendar getDate(int timeIndex) {
-		return timeIndex == 0 ? referenceDate : dates[timeIndex-1];
+		return dates[timeIndex];
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.TenorInterface#getDaycountFraction(int)
+	 */
+	@Override
+	public double getDaycountFraction(int timeIndex) {
+		return this.getTimeStep(timeIndex);
 	}
 }

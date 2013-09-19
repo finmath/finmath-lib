@@ -12,12 +12,14 @@ package net.finmath.time;
  */
 public interface ScheduleInterface {
 
-	public abstract int getNumberOfPeriods();
+	int getNumberOfPeriods();
+	
+	Period getPeriod(int periodIndex);
 
-	public abstract double getFixing(int periodIndex);
+	double getFixing(int periodIndex);
 
-	public abstract double getPayment(int periodIndex);
+	double getPayment(int periodIndex);
 
-	public abstract double getPeriodLength(int periodIndex);
+	double getPeriodLength(int periodIndex);
 
 }

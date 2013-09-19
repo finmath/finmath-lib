@@ -11,6 +11,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
@@ -19,8 +22,17 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
+ * Simple schedule generation.
+ * 
+ * Generates a schedule based on some meta data. A schedule is just a collection of
+ * {@link net.finmath.time.Period}s.
+ * 
+ * <ul>
+ * 	<li>The schedule generation considers short periods.</li>
+ * 	<li>The schedule may use an externally provided business day adjustment via an object implementing {@link net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface}</li>
+ * </ul>
+ * 
  * @author Christian Fries
- *
  */
 public class ScheduleGenerator {
 
@@ -45,6 +57,222 @@ public class ScheduleGenerator {
 	}
 
 	private ScheduleGenerator() {
+	}
+
+	/**
+	 * Simple schedule generation.
+	 * 
+	 * Generates a schedule based on some meta data. The schedule generation
+	 * considers short periods.
+	 * 
+	 * @param spotDate The start date of the first period.
+	 * @param frequency The frequency.
+	 * @param maturity The end date of the first period.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @return The corresponding schedule
+	 */
+	public static ScheduleInterface createScheduleFromConventions(
+			Calendar spotDate,
+			Frequency frequency,
+			Calendar maturity,
+			DaycountConvention daycountConvention,
+			ShortPeriodConvention shortPeriodConvention,
+			DateRollConvention dateRollConvention,
+			BusinessdayCalendarInterface businessdayCalendar,
+			int	fixingOffsetDays,
+			int	paymentOffsetDays
+			)
+	{
+		/*
+		 * Generate periods - note: we do not use any date roll convention
+		 */
+		ArrayList<Period> periods = new ArrayList<Period>();
+	
+		DayCountConventionInterface daycountConventionObject = null;
+		switch (daycountConvention) {
+		case E30_360_ISDA:
+			daycountConventionObject = new DayCountConvention_30E_360_ISDA();
+			break;
+		case E30_360:
+			daycountConventionObject = new DayCountConvention_30E_360();
+			break;
+		case ACT_360:
+			daycountConventionObject = new DayCountConvention_ACT_360();
+			break;
+		case ACT_365:
+			daycountConventionObject = new DayCountConvention_ACT_365();
+			break;
+		case ACT_ACT_ISDA:
+		case ACT_ACT:
+		default:
+			daycountConventionObject = new DayCountConvention_ACT_ACT_ISDA();
+			break;
+		}
+	
+		int periodLengthInMonth = 12;
+		switch(frequency) {
+		case QUATERLY:
+			periodLengthInMonth = 3;
+			break;
+		case SEMIANNUAL:
+			periodLengthInMonth = 6;
+			break;
+		case ANNUAL:
+		default:
+			periodLengthInMonth = 12;
+			break;
+		}
+		
+		if(shortPeriodConvention == ShortPeriodConvention.LAST) {
+			/*
+			 * Going forward on periodStartDate, starting with spotDate as periodStartDate
+			 */
+			Calendar periodStartDateUnadjusted	= (Calendar)spotDate.clone();
+			Calendar periodStartDate			= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
+			while(periodStartDateUnadjusted.before(maturity)) {
+				// Determine period end
+				Calendar periodEndDateUnadjusted		= (Calendar)periodStartDateUnadjusted.clone();		
+				periodEndDateUnadjusted.add(Calendar.MONTH, periodLengthInMonth);
+				if(periodEndDateUnadjusted.after(maturity)) periodEndDateUnadjusted = maturity;
+
+				// Adjust period
+				Calendar periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
+	
+				// Adjust fixing date
+				Calendar fixingDate = (Calendar)periodStartDate.clone();
+				fixingDate.add(Calendar.DAY_OF_YEAR, fixingOffsetDays);
+				fixingDate = businessdayCalendar.getAdjustedDate(fixingDate, dateRollConvention);
+
+				// Adjust payment date
+				Calendar paymentDate = (Calendar)periodEndDate.clone();
+				paymentDate.add(Calendar.DAY_OF_YEAR, paymentOffsetDays);
+				paymentDate = businessdayCalendar.getAdjustedDate(paymentDate, dateRollConvention);
+	
+				// Create period
+				periods.add(new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
+	
+				periodStartDate				= (Calendar)periodEndDate.clone();
+				periodStartDateUnadjusted	= (Calendar)periodEndDateUnadjusted.clone();
+			}
+		} else {
+			/*
+			 * Going backward on periodEndDate, starting with maturity as periodEndDate
+			 */
+			Calendar periodEndDateUnadjusted	= (Calendar)maturity.clone();
+			Calendar periodEndDate				= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
+			while(periodEndDateUnadjusted.after(spotDate)) {
+				// Determine period start
+				Calendar periodStartDateUnadjusted		= (Calendar)periodEndDateUnadjusted.clone();
+				periodStartDateUnadjusted.add(Calendar.MONTH, -periodLengthInMonth);
+				if(periodStartDateUnadjusted.before(spotDate)) periodStartDateUnadjusted = spotDate;
+
+				// Adjust period
+				Calendar periodStartDate	= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
+	
+				// Adjust fixing date
+				Calendar fixingDate = (Calendar)periodStartDate.clone();
+				fixingDate.add(Calendar.DAY_OF_YEAR, fixingOffsetDays);
+				fixingDate = businessdayCalendar.getAdjustedDate(fixingDate, dateRollConvention);
+	
+				// Adjust payment date
+				Calendar paymentDate = (Calendar)periodEndDate.clone();
+				paymentDate.add(Calendar.DAY_OF_YEAR, paymentOffsetDays);
+				paymentDate = businessdayCalendar.getAdjustedDate(paymentDate, dateRollConvention);
+	
+				// Create period
+				periods.add(0, new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
+				
+				periodEndDate			= (Calendar)periodStartDate.clone();
+				periodEndDateUnadjusted	= (Calendar)periodStartDateUnadjusted.clone();
+			}
+		}
+		
+		return new Schedule(spotDate, periods, daycountConventionObject);
+	}
+
+	/**
+	 * Simple schedule generation.
+	 * 
+	 * Generates a schedule based on some meta data. The schedule generation
+	 * considers short periods.
+	 * 
+	 * @param spotDate The start date of the first period.
+	 * @param frequency The frequency.
+	 * @param maturity The end date of the first period.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @return
+	 */
+	public static ScheduleInterface createScheduleFromConventions(
+			Date spotDate,
+			String frequency,
+			double maturity,
+			String daycountConvention,
+			String shortPeriodConvention,
+			String dateRollConvention,
+			BusinessdayCalendarInterface businessdayCalendar,
+			int	fixingOffsetDays,
+			int	paymentOffsetDays
+			)
+	{
+		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
+		spotDateAsCalendar.setTime(spotDate);
+	
+		Calendar maturityAsCalendar = createMaturityFromDouble(spotDateAsCalendar, maturity);
+	
+		return createScheduleFromConventions(
+				spotDateAsCalendar,
+				Frequency.valueOf(frequency.toUpperCase()),
+				maturityAsCalendar, 
+				DaycountConvention.valueOf(daycountConvention.replace("/", "_").toUpperCase()),
+				ShortPeriodConvention.valueOf(shortPeriodConvention.toUpperCase()),
+				DateRollConvention.valueOf(dateRollConvention.toUpperCase()),
+				businessdayCalendar,
+				fixingOffsetDays,
+				paymentOffsetDays
+				);
+		
+	}
+
+	/**
+	 * Simple schedule generation.
+	 * 
+	 * Generates a schedule based on some meta data. The schedule generation
+	 * considers short periods. Date rolling is ignored.
+	 * 
+	 * @param spotDate The start date of the first period.
+	 * @param frequency The frequency.
+	 * @param maturity The end date of the first period.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @return
+	 */
+	public static ScheduleInterface createScheduleFromConventions(
+			Date spotDate,
+			String frequency,
+			double maturity,
+			String daycountConvention,
+			String shortPeriodConvention
+			)
+	{
+		return createScheduleFromConventions(
+				spotDate,
+				frequency,
+				maturity,
+				daycountConvention,
+				shortPeriodConvention,
+				"ACTUAL",
+				new BusinessdayCalendarAny(),
+				0, 0);
 	}
 
 	/**
@@ -78,149 +306,13 @@ public class ScheduleGenerator {
 				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()),
 				maturityAsCalendar, 
 				DaycountConvention.valueOf(daycountConvention.replace("/", "_").toUpperCase()),
-				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase())
-				);
+				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
+				DateRollConvention.ACTUAL,
+				new BusinessdayCalendarAny(),
+				0, 0);
 		
 	}
 
-	/**
-	 * Simple schedule generation.
-	 * 
-	 * Generates a schedule based on some meta data. The schedule generation
-	 * considers short periods. Date rolling is ignored.
-	 * 
-	 * @param spotDate The start date of the first period.
-	 * @param frequency The frequency.
-	 * @param maturity The end date of the first period.
-	 * @param daycountConvention The daycount convention.
-	 * @param shortPeriodConvention If short period exists, have it first or last.
-	 * @return
-	 */
-	public static ScheduleInterface createScheduleFromConventions(
-			Date spotDate,
-			String frequency,
-			double maturity,
-			String daycountConvention,
-			String shortPeriodConvention
-			)
-	{
-		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
-		spotDateAsCalendar.setTime(spotDate);
-
-		Calendar maturityAsCalendar = createMaturityFromDouble(spotDateAsCalendar, maturity);
-
-		return createScheduleFromConventions(
-				spotDateAsCalendar,
-				Frequency.valueOf(frequency.toUpperCase()),
-				maturityAsCalendar, 
-				DaycountConvention.valueOf(daycountConvention.replace("/", "_").toUpperCase()),
-				ShortPeriodConvention.valueOf(shortPeriodConvention.toUpperCase())
-				);
-		
-	}
-	
-
-	/**
-	 * Simple schedule generation.
-	 * 
-	 * Generates a schedule based on some meta data. The schedule generation
-	 * considers short periods. Date rolling is ignored.
-	 * 
-	 * @param spotDate The start date of the first period.
-	 * @param frequency The frequency.
-	 * @param maturity The end date of the first period.
-	 * @param daycountConvention The daycount convention.
-	 * @param shortPeriodConvention If short period exists, have it first or last.
-	 * @return
-	 */
-	public static ScheduleInterface createScheduleFromConventions(
-			Calendar spotDate,
-			Frequency frequency,
-			Calendar maturity,
-			DaycountConvention daycountConvention,
-			ShortPeriodConvention shortPeriodConvention
-			)
-	{
-		/*
-		 * Generate periods - note: we do not use any date roll convention
-		 */
-		ArrayList<Period> periods = new ArrayList<Period>();
-
-		DayCountConventionInterface daycountConventionObject = null;
-		switch (daycountConvention) {
-		case E30_360_ISDA:
-			daycountConventionObject = new DayCountConvention_30E_360_ISDA();
-			break;
-		case E30_360:
-			daycountConventionObject = new DayCountConvention_30E_360();
-			break;
-		case ACT_360:
-			daycountConventionObject = new DayCountConvention_ACT_360();
-			break;
-		case ACT_365:
-			daycountConventionObject = new DayCountConvention_ACT_365();
-			break;
-		case ACT_ACT_ISDA:
-		case ACT_ACT:
-		default:
-			daycountConventionObject = new DayCountConvention_ACT_ACT_ISDA();
-			break;
-		}
-
-		int periodLengthInMonth = 12;
-		switch(frequency) {
-		case QUATERLY:
-			periodLengthInMonth = 3;
-			break;
-		case SEMIANNUAL:
-			periodLengthInMonth = 6;
-			break;
-		case ANNUAL:
-		default:
-			periodLengthInMonth = 12;
-			break;
-		}
-		
-		if(shortPeriodConvention == ShortPeriodConvention.LAST) {
-			Calendar periodStartDate	= (Calendar)spotDate.clone();
-			while(periodStartDate.before(maturity)) {
-				Calendar periodEndDate		= (Calendar)periodStartDate.clone();		
-				periodEndDate.add(Calendar.MONTH, periodLengthInMonth);
-
-				if(periodEndDate.after(maturity)) {
-					// Add last period, then terminate
-					periods.add(new Period(periodStartDate, maturity, periodStartDate, maturity));
-					break;
-				}
-				else {
-					periods.add(new Period(periodStartDate, periodEndDate, periodStartDate, periodEndDate));
-				}
-				
-				periodStartDate = (GregorianCalendar) periodEndDate.clone();
-			}
-		} else {
-			Calendar periodEndDate	= (Calendar)maturity.clone();
-			while(spotDate.before(periodEndDate)) {
-				GregorianCalendar periodStartDate		= (GregorianCalendar)periodEndDate.clone();		
-				periodStartDate.add(Calendar.MONTH, -periodLengthInMonth);
-
-				if(periodEndDate.before(spotDate)) {
-					// Add first period, then terminate
-					periods.add(new Period(spotDate, periodEndDate, spotDate, periodEndDate));
-					break;
-				}
-				else {
-					periods.add(new Period(periodStartDate, periodEndDate, periodStartDate, periodEndDate));
-				}
-				
-				periodEndDate = (Calendar) periodStartDate.clone();
-			}
-		}
-		
-		return new Schedule(spotDate, periods, daycountConventionObject);
-	}
-	
-	
 	/**
 	 * Create a new date by "adding" a year fraction to the spot date.
 	 * The year fraction may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
@@ -286,7 +378,7 @@ public class ScheduleGenerator {
 		
 		// Days
 		maturityDouble = (maturityDouble - (int)maturityDouble) * 30;
-		maturity.add(Calendar.DAY_OF_YEAR, (int)maturityDouble);
+		maturity.add(Calendar.DAY_OF_YEAR, (int)Math.round(maturityDouble));
 		
 		return maturity;
 	}

@@ -8,11 +8,9 @@ package net.finmath.time;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_30E_360;
-import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;;
+import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
  * @author Christian Fries
@@ -55,7 +53,15 @@ public class Schedule implements ScheduleInterface {
 	public int getNumberOfPeriods() {
 		return periods.size();
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see net.finmath.time.ScheduleInterface#getPeriod(int)
+	 */
+	@Override
+	public Period getPeriod(int periodIndex) {
+		return periods.get(periodIndex);
+	}
+	
 	/* (non-Javadoc)
 	 * @see net.finmath.time.ScheduleInterface#getFixing(int)
 	 */
@@ -86,5 +92,7 @@ public class Schedule implements ScheduleInterface {
 		return "Schedule [referenceDate=" + referenceDate.getTime() + ", periods="
 				+ periods + ", daycountconvention=" + daycountconvention + "]";
 	}
-	
+
+
+
 }

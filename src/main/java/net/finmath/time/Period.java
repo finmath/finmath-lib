@@ -7,9 +7,6 @@
 package net.finmath.time;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
-
-import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * @author Christian Fries
