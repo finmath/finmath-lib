@@ -9,6 +9,8 @@ package net.finmath.time.daycount;
 import java.util.Calendar;
 
 /**
+ * Implementation of ACT/360.
+ * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
  * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
@@ -16,6 +18,8 @@ import java.util.Calendar;
  * 
  * The day count fraction is calculated using ACT/360 convention, that is, the
  * day count divided by 360.
+ * 
+ * This day count convention is sometime called <i>Money Market basis</i>.
  * 
  * <ul>
  * 	<li>
