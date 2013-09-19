@@ -28,6 +28,14 @@ public class RegularSchedule implements ScheduleInterface {
 	public int getNumberOfPeriods() {
 		return timeDiscretization.getNumberOfTimeSteps();
 	}
+	
+	/* (non-Javadoc)
+	 * @see net.finmath.time.ScheduleInterface#getPeriod(int)
+	 */
+	@Override
+	public Period getPeriod(int periodIndex) {
+		return null;
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.time.ScheduleInterface#getFixing(int)
