@@ -9,6 +9,8 @@ package net.finmath.time.daycount;
 import java.util.Calendar;
 
 /**
+ * Implementation of 30E/360.
+ * 
  * Calculates the day count as
  * <code>
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0))
