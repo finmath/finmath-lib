@@ -11,13 +11,15 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 import org.junit.Test;
 
 /**
- * @author Christian Fries
+ * Unit test for day count convention implementations.
  * 
+ * @author Christian Fries
  */
 public class DayCountConventionTest {
 
@@ -28,7 +30,7 @@ public class DayCountConventionTest {
 		double daycountFraction;
 
 		/*
-		 * 
+		 * Standard benchmarks taken from the ISDA documentations.
 		 */
 		daycountFraction = daycountConvention.getDaycountFraction(new GregorianCalendar(2003,Calendar.NOVEMBER,1), new GregorianCalendar(2004,Calendar.MAY,1));
 		assertTrue(Math.abs(daycountFraction - 0.49772438056740776) < 1.0E-8);
@@ -59,7 +61,7 @@ public class DayCountConventionTest {
 	}
 
 	@Test
-	public void testDayCountConventions() {
+	public void testDayCountConventionAdditivity_ACT_ACT_ISDA() {
 		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_ACT_ISDA();
 
 		// Test additivity of day count fraction
@@ -67,5 +69,22 @@ public class DayCountConventionTest {
 		double daycountFractionPart1 = daycountConvention.getDaycountFraction(new GregorianCalendar(2012,Calendar.MARCH,19), new GregorianCalendar(2013,Calendar.JANUARY,1));
 		double daycountFractionPart2 = daycountConvention.getDaycountFraction(new GregorianCalendar(2013,Calendar.JANUARY,1), new GregorianCalendar(2013,Calendar.AUGUST,4));
 		assertTrue(Math.abs(daycountFractionTotal - (daycountFractionPart1 + daycountFractionPart2)) < 1.0E-8);
+	}
+	
+	@Test
+	public void testDayCountConvention_30E_360() {
+		DayCountConventionInterface daycountConvention = new DayCountConvention_30E_360();
+		
+		double daycountFraction;
+
+		/*
+		 * 
+		 */
+		daycountFraction = daycountConvention.getDaycountFraction(new GregorianCalendar(2003,Calendar.NOVEMBER,1), new GregorianCalendar(2004,Calendar.MAY,1));
+		assertTrue(Math.abs(daycountFraction - 0.5) < 1.0E-8);
+
+		//
+		daycountFraction = daycountConvention.getDaycountFraction(new GregorianCalendar(1999,Calendar.FEBRUARY,1), new GregorianCalendar(1999,Calendar.JULY,1));
+		assertTrue(Math.abs(daycountFraction - 150.0/360.0) < 1.0E-8);
 	}
 }
