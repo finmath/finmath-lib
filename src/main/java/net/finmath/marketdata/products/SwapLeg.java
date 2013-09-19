@@ -9,7 +9,6 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the valuation of a swap leg using curves (discount curve, forward curve).
