@@ -16,6 +16,17 @@ import java.util.Calendar;
  * where startDateDay and endDateDay are adjusted towards 30, when being larger than 30 or if isEndOfMonth, also if
  * they fall on the last day of February. See 30/360 US definition for details.
  * 
+ * This daycount convention is sometime called <i>Bond basis</i>.
+ * 
+ * <ul>
+ * 	<li>
+ * 		The method {@link #getDaycount(Calendar, Calendar) getDaycount} corresponds to the implementation of the "US method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,FALSE).
+ * 	</li>
+ * 	<li>
+ * 		The method {@link #getDaycountFraction(Calendar, Calendar) getDaycountFraction} corresponds to the implementation of the "30U/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,0).
+ * 	</li>
+ * </ul>
+ * 
  * @author Christian Fries
  */
 public class DayCountConvention_30U_360 implements DayCountConventionInterface {

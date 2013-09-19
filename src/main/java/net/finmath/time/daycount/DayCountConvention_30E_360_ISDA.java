@@ -9,6 +9,8 @@ package net.finmath.time.daycount;
 import java.util.Calendar;
 
 /**
+ * Implementation of 30/360 ISDA.
+ * 
  * Calculates the day count as
  * <code>
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, startDateDay > 29 ? 30.0 : 31.0) - Math.min(startDateDay, 30.0))

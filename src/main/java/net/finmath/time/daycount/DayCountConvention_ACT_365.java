@@ -9,6 +9,8 @@ package net.finmath.time.daycount;
 import java.util.Calendar;
 
 /**
+ * Implementation of ACT/365.
+ * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
  * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
