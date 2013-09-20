@@ -20,6 +20,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * <ul>
  * 	<li>linear interpolation of the input points</li>
  *  <li>linear interpolation of the log of the input points</li>
+ *  <li>linear interpolation of the log of the input points divided by their respective time</li>
  * 	<li>cubic spline of the input points</li>
  *  <li>etc.</li>
  * </ul>
@@ -58,10 +59,12 @@ public class Curve extends AbstractCurve implements Serializable {
 	 * @author Christian Fries
 	 */
 	public enum InterpolationEntity {
-		/** Interpolation is performed on the native point values **/
+		/** Interpolation is performed on the native point values, i.e. value(t) **/
 		VALUE,
-		/** Interpolation is performed on the log of the point values **/
-		LOG_OF_VALUE
+		/** Interpolation is performed on the log of the point values, i.e. log(value(t)) **/
+		LOG_OF_VALUE,
+		/** Interpolation is performed on the log of the point values divided by their respective time, i.e. log(value(t))/t **/
+		LOG_OF_VALUE_PER_TIME
 	}
 
 	private static class Point implements Comparable<Point>, Serializable {
@@ -136,7 +139,7 @@ public class Curve extends AbstractCurve implements Serializable {
 	@Override
     public double getValue(AnalyticModelInterface model, double time)
 	{
-		return valueFromInterpolationEntity(getInterpolationEntityValue(time));
+		return valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
 	}
 	
 	private double getInterpolationEntityValue(double time)
@@ -169,7 +172,7 @@ public class Curve extends AbstractCurve implements Serializable {
 	 * @param value The y<sub>i</sub> in <<sub>i</sub> = f(x<sub>i</sub>).
 	 */
 	public void addPoint(double time, double value) {
-		double interpolationEntityValue = interpolationEntityFromValue(value);
+		double interpolationEntityValue = interpolationEntityFromValue(value, time);
 
 		int index = getTimeIndex(time);
 		if(index >= 0) {
@@ -195,7 +198,7 @@ public class Curve extends AbstractCurve implements Serializable {
     public double[] getParameter() {
     	double[] parameters = new double[points.size()];
     	for(int i=0; i<points.size(); i++) {
-    		parameters[i] = valueFromInterpolationEntity(points.get(i).value);
+    		parameters[i] = valueFromInterpolationEntity(points.get(i).value, points.get(i).time);
     	}
     	return parameters;
     }
@@ -206,7 +209,7 @@ public class Curve extends AbstractCurve implements Serializable {
     @Override
     public void setParameter(double[] parameter) {
     	for(int i=0; i<points.size(); i++) {
-    		points.get(i).value = interpolationEntityFromValue(parameter[i]);
+    		points.get(i).value = interpolationEntityFromValue(parameter[i], points.get(i).time);
     	}
     	this.rationalFunctionInterpolation = null;
     }
@@ -214,28 +217,32 @@ public class Curve extends AbstractCurve implements Serializable {
 	public String toString() {
 		String objectAsString = super.toString() + "\n";
         for (Point point : points) {
-            objectAsString = objectAsString + point.time + "\t" + valueFromInterpolationEntity(point.value) + "\n";
+            objectAsString = objectAsString + point.time + "\t" + valueFromInterpolationEntity(point.value, point.time) + "\n";
         }
 		return objectAsString;
 	}
 	
-	private double interpolationEntityFromValue(double value) {
+	private double interpolationEntityFromValue(double value, double time) {
 		switch(interpolationEntity) {
 		case VALUE:
 		default:
 			return value;
 		case LOG_OF_VALUE:
 			return Math.log(value);
+		case LOG_OF_VALUE_PER_TIME:
+			return Math.log(value) / time;
 		}
 	}
 
-	private double valueFromInterpolationEntity(double interpolationEntityValue) {
+	private double valueFromInterpolationEntity(double interpolationEntityValue, double time) {
 		switch(interpolationEntity) {
 		case VALUE:
 		default:
 			return interpolationEntityValue;
 		case LOG_OF_VALUE:
 			return Math.exp(interpolationEntityValue);
+		case LOG_OF_VALUE_PER_TIME:
+			return Math.exp(interpolationEntityValue * time);
 		}
 	}
 
