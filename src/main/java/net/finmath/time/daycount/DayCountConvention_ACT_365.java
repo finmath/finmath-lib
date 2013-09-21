@@ -27,7 +27,7 @@ import java.util.Calendar;
  * 
  * @author Christian Fries
  */
-public class DayCountConvention_ACT_365 extends DayCountConvention_ACT implements DayCountConventionInterface {
+public class DayCountConvention_ACT_365 extends DayCountConvention_ACT {
 
 	/**
 	 * Create an ACT/365 day count convention.
