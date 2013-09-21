@@ -51,7 +51,21 @@ public class ScheduleGenerator {
 		ACT_360,
 		ACT_365,
 		ACT_ACT_ISDA,
-		ACT_ACT
+		ACT_ACT;
+
+		public static DaycountConvention getEnum(String string) {
+	        if(string == null) throw new IllegalArgumentException();
+	        if(string.equalsIgnoreCase("30e/360 isda"))	return E30_360_ISDA;
+	        if(string.equalsIgnoreCase("e30/360 isda"))	return E30_360_ISDA;
+	        if(string.equalsIgnoreCase("30e/360"))		return E30_360;
+	        if(string.equalsIgnoreCase("e30/360"))		return E30_360;
+	        if(string.equalsIgnoreCase("act/360"))		return ACT_360;
+	        if(string.equalsIgnoreCase("act/365"))		return ACT_365;
+	        if(string.equalsIgnoreCase("act/act isda"))	return ACT_ACT_ISDA;
+	        if(string.equalsIgnoreCase("act/act"))		return ACT_ACT;
+
+	        return DaycountConvention.valueOf(string.toUpperCase());
+	    }
 	}
 	
 	public enum ShortPeriodConvention {
@@ -259,9 +273,9 @@ public class ScheduleGenerator {
 				spotDateAsCalendar,
 				Frequency.valueOf(frequency.toUpperCase()),
 				maturityAsCalendar, 
-				DaycountConvention.valueOf(daycountConvention.replace("/", "_").toUpperCase()),
+				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.toUpperCase()),
-				DateRollConvention.valueOf(dateRollConvention.toUpperCase()),
+				DateRollConvention.getEnum(dateRollConvention),
 				businessdayCalendar,
 				fixingOffsetDays,
 				paymentOffsetDays
@@ -299,7 +313,7 @@ public class ScheduleGenerator {
 				maturity,
 				daycountConvention,
 				shortPeriodConvention,
-				"ACTUAL",
+				"UNADJUSTED",
 				new BusinessdayCalendarAny(),
 				0, 0);
 	}
@@ -340,9 +354,9 @@ public class ScheduleGenerator {
 				spotDateAsCalendar,
 				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()),
 				maturityAsCalendar, 
-				DaycountConvention.valueOf(daycountConvention.replace("/", "_").toUpperCase()),
+				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
-				DateRollConvention.ACTUAL,
+				DateRollConvention.UNADJUSTED,
 				new BusinessdayCalendarAny(),
 				0, 0);
 		

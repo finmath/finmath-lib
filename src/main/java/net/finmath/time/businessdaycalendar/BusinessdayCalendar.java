@@ -21,24 +21,24 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 	 */
 	@Override
 	public Calendar getAdjustedDate(Calendar date, DateRollConvention dateRollConvention) {
-		if(dateRollConvention == DateRollConvention.ACTUAL) {
+		if(dateRollConvention == DateRollConvention.UNADJUSTED) {
 			return date;
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_FOLLOWING) {
 			Calendar adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			if(adjustedDate.get(Calendar.MONTH) != date.get(Calendar.MONTH)) {
-				return getAdjustedDate(date, DateRollConvention.PREVIOUS);
+				return getAdjustedDate(date, DateRollConvention.PRECEDING);
 			}
 			else return adjustedDate;
 		}
-		else if(dateRollConvention == DateRollConvention.MODIFIED_PREVIOUS) {
-			Calendar adjustedDate = getAdjustedDate(date, DateRollConvention.PREVIOUS);
+		else if(dateRollConvention == DateRollConvention.MODIFIED_PRECEDING) {
+			Calendar adjustedDate = getAdjustedDate(date, DateRollConvention.PRECEDING);
 			if(adjustedDate.get(Calendar.MONTH) != date.get(Calendar.MONTH)) {
 				return getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			}
 			else return adjustedDate;
 		}
-		else if(dateRollConvention == DateRollConvention.FOLLOWING || dateRollConvention == DateRollConvention.PREVIOUS) {
+		else if(dateRollConvention == DateRollConvention.FOLLOWING || dateRollConvention == DateRollConvention.PRECEDING) {
 			int adjustment = dateRollConvention == DateRollConvention.FOLLOWING ? 1 : -1;
 			Calendar adjustedDate = (Calendar)date.clone();
 			while(!isBusinessday(adjustedDate)) {

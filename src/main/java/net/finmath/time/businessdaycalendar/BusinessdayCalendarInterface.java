@@ -14,11 +14,22 @@ import java.util.Calendar;
 public interface BusinessdayCalendarInterface {
 	
 	public enum DateRollConvention {
-		ACTUAL,
+		UNADJUSTED,
 		FOLLOWING,
-		PREVIOUS,
+		PRECEDING,
 		MODIFIED_FOLLOWING,
-		MODIFIED_PREVIOUS
+		MODIFIED_PRECEDING;
+
+		public static DateRollConvention getEnum(String string) {
+	        if(string == null) throw new IllegalArgumentException();
+	        if(string.equalsIgnoreCase("actual"))		return UNADJUSTED;
+	        if(string.equalsIgnoreCase("modfollow"))	return MODIFIED_FOLLOWING;
+	        if(string.equalsIgnoreCase("modpreced"))	return MODIFIED_PRECEDING;
+	        if(string.equalsIgnoreCase("follow"))		return 	FOLLOWING;
+	        if(string.equalsIgnoreCase("preced"))		return 	PRECEDING;
+
+	        return DateRollConvention.valueOf(string.toUpperCase());
+	    }
 	}
 
 	boolean isBusinessday(Calendar date);
