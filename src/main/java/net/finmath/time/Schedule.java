@@ -13,14 +13,22 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
+ * A schedule of interest rate periods with
+ * a fixing and payment.
+ * 
+ * The periods have two representations: one a {@link net.finmath.time.Period}
+ * which contains {@link java.util.Calendar} dates and
+ * an alternative representation using doubles.
+ * 
+ * Within a schedule, the mapping from doubles to dates is one to one.
+ * 
  * @author Christian Fries
  */
 public class Schedule implements ScheduleInterface {
 
-	private static final DayCountConventionInterface internalDayCounting = new DayCountConvention_ACT_ACT_ISDA();
-
-	private	Calendar					referenceDate;
-
+	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_ACT_ISDA();
+	private			Calendar					referenceDate;
+	
 	private ArrayList<Period>			periods;
 	private DayCountConventionInterface	daycountconvention;
 	
