@@ -6,6 +6,7 @@
 
 package net.finmath.time;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
@@ -17,7 +18,7 @@ public interface TenorInterface {
 	/**
 	 * @return The reference date of this tenor, i.e., the date mapped to 0.0
 	 */
-	public abstract GregorianCalendar getReferenceDate();
+	public abstract Calendar getReferenceDate();
 
 	/**
 	 * Returns the date for the given time index.

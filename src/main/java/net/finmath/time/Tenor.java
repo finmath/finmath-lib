@@ -6,10 +6,12 @@
 
 package net.finmath.time;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
+import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
  * Implements a time discretization bases on dates using a reference
@@ -21,9 +23,9 @@ import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
  */
 public class Tenor extends TimeDiscretization implements TenorInterface {
 
-	private static final DayCountConventionInterface internalDayCounting = new DayCountConvention_30E_360_ISDA();
+	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_ACT_ISDA();
+	private			Calendar					referenceDate;
 
-	private	GregorianCalendar		referenceDate;
 	private GregorianCalendar[]		dates;
 
 	/**
@@ -35,7 +37,6 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 		super(createTimeDiscretizationFromDates(dates, referenceDate, daycountConvention));
 		this.dates				= dates;
 		this.referenceDate		= referenceDate;
-		
 	}
 
 	/**
@@ -97,7 +98,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	 * @see net.finmath.time.TenorInterface#getReferenceDate()
 	 */
 	@Override
-	public GregorianCalendar getReferenceDate() {
+	public Calendar getReferenceDate() {
 		return referenceDate;
 	}
 
