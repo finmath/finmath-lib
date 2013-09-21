@@ -7,8 +7,6 @@
 package net.finmath.time.daycount;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 /**
  * Interface for various day count conventions.

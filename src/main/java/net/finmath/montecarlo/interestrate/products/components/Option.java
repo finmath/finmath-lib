@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationLongstaffSchwartzFull;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -78,10 +78,8 @@ public class Option extends AbstractProductComponent {
 
     	RandomVariableInterface valueIfExcercised = null;
     	if(values.getFiltrationTime() > exerciseDate) {
-	        MonteCarloConditionalExpectationLongstaffSchwartzFull condExpEstimator = new MonteCarloConditionalExpectationLongstaffSchwartzFull();
-	
 	        // Remove foresight through conditional expectation
-	        condExpEstimator.setBasisFunctions(getRegressionBasisFunctions(exerciseDate, model));
+	        MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
 	        
 	        // Calculate cond. expectation. Note that no discounting (numeraire division) is required!
 	        valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);
