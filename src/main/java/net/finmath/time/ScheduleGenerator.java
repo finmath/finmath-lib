@@ -37,9 +37,12 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 public class ScheduleGenerator {
 
 	public enum Frequency {
+		DAILY,
+		WEEKLY,
 		QUATERLY,
 		SEMIANNUAL,
-		ANNUAL
+		ANNUAL,
+		TENOR
 	}
 	
 	public enum DaycountConvention {
@@ -65,6 +68,7 @@ public class ScheduleGenerator {
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods.
 	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotDate The start date of the first period.
 	 * @param frequency The frequency.
 	 * @param maturity The end date of the first period.
@@ -77,6 +81,7 @@ public class ScheduleGenerator {
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
+			Calendar referenceDate,
 			Calendar spotDate,
 			Frequency frequency,
 			Calendar maturity,
@@ -114,17 +119,28 @@ public class ScheduleGenerator {
 			break;
 		}
 	
-		int periodLengthInMonth = 12;
+		int periodLengthDays	= 0;
+		int periodLengthWeeks	= 0;
+		int periodLengthMonth	= 0;
 		switch(frequency) {
+		case DAILY:
+			periodLengthDays	= 1;
+			break;
+		case WEEKLY:
+			periodLengthDays	= 1;
+			break;
 		case QUATERLY:
-			periodLengthInMonth = 3;
+			periodLengthMonth	= 3;
 			break;
 		case SEMIANNUAL:
-			periodLengthInMonth = 6;
+			periodLengthMonth	= 6;
 			break;
 		case ANNUAL:
 		default:
-			periodLengthInMonth = 12;
+			periodLengthMonth	= 12;
+			break;
+		case TENOR:
+			periodLengthMonth	= 100000;
 			break;
 		}
 		
@@ -137,7 +153,9 @@ public class ScheduleGenerator {
 			while(periodStartDateUnadjusted.before(maturity)) {
 				// Determine period end
 				Calendar periodEndDateUnadjusted		= (Calendar)periodStartDateUnadjusted.clone();		
-				periodEndDateUnadjusted.add(Calendar.MONTH, periodLengthInMonth);
+				periodEndDateUnadjusted.add(Calendar.DAY_OF_YEAR, periodLengthDays);
+				periodEndDateUnadjusted.add(Calendar.WEEK_OF_YEAR, periodLengthWeeks);
+				periodEndDateUnadjusted.add(Calendar.MONTH, periodLengthMonth);
 				if(periodEndDateUnadjusted.after(maturity)) periodEndDateUnadjusted = maturity;
 
 				// Adjust period
@@ -168,7 +186,9 @@ public class ScheduleGenerator {
 			while(periodEndDateUnadjusted.after(spotDate)) {
 				// Determine period start
 				Calendar periodStartDateUnadjusted		= (Calendar)periodEndDateUnadjusted.clone();
-				periodStartDateUnadjusted.add(Calendar.MONTH, -periodLengthInMonth);
+				periodStartDateUnadjusted.add(Calendar.DAY_OF_YEAR, -periodLengthDays);
+				periodStartDateUnadjusted.add(Calendar.WEEK_OF_YEAR, -periodLengthWeeks);
+				periodStartDateUnadjusted.add(Calendar.MONTH, -periodLengthMonth);
 				if(periodStartDateUnadjusted.before(spotDate)) periodStartDateUnadjusted = spotDate;
 
 				// Adjust period
@@ -192,7 +212,7 @@ public class ScheduleGenerator {
 			}
 		}
 		
-		return new Schedule(spotDate, periods, daycountConventionObject);
+		return new Schedule(referenceDate, periods, daycountConventionObject);
 	}
 
 	/**
@@ -201,6 +221,7 @@ public class ScheduleGenerator {
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods.
 	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotDate The start date of the first period.
 	 * @param frequency The frequency.
 	 * @param maturity The end date of the first period.
@@ -213,6 +234,7 @@ public class ScheduleGenerator {
 	 * @return
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
+			Date referenceDate,
 			Date spotDate,
 			String frequency,
 			double maturity,
@@ -226,10 +248,14 @@ public class ScheduleGenerator {
 	{
 		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
 		spotDateAsCalendar.setTime(spotDate);
-	
+
+		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
+		referenceDateAsCalendar.setTime(referenceDate);
+
 		Calendar maturityAsCalendar = createMaturityFromDouble(spotDateAsCalendar, maturity);
 	
 		return createScheduleFromConventions(
+				referenceDateAsCalendar,
 				spotDateAsCalendar,
 				Frequency.valueOf(frequency.toUpperCase()),
 				maturityAsCalendar, 
@@ -249,6 +275,7 @@ public class ScheduleGenerator {
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods. Date rolling is ignored.
 	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotDate The start date of the first period.
 	 * @param frequency The frequency.
 	 * @param maturity The end date of the first period.
@@ -257,6 +284,7 @@ public class ScheduleGenerator {
 	 * @return
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
+			Date referenceDate,
 			Date spotDate,
 			String frequency,
 			double maturity,
@@ -265,6 +293,7 @@ public class ScheduleGenerator {
 			)
 	{
 		return createScheduleFromConventions(
+				referenceDate,
 				spotDate,
 				frequency,
 				maturity,
@@ -281,6 +310,7 @@ public class ScheduleGenerator {
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods. Date rolling is ignored.
 	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotDate The start date of the first period.
 	 * @param frequency The frequency.
 	 * @param maturity The end date of the first period.
@@ -289,6 +319,7 @@ public class ScheduleGenerator {
 	 * @return
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
+			Date referenceDate,
 			Date spotDate,
 			String frequency,
 			String maturity,
@@ -299,9 +330,13 @@ public class ScheduleGenerator {
 		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
 		spotDateAsCalendar.setTime(spotDate);
 
+		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
+		referenceDateAsCalendar.setTime(referenceDate);
+
 		Calendar maturityAsCalendar = createMaturityFromCode(spotDateAsCalendar, maturity);
 
 		return createScheduleFromConventions(
+				referenceDateAsCalendar,
 				spotDateAsCalendar,
 				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()),
 				maturityAsCalendar, 
