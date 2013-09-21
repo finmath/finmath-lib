@@ -28,12 +28,14 @@ import java.util.GregorianCalendar;
  * </ul>
  * 
  * <p>
- * This method is not identical to ACT_ACT_ISDA. For ACT_ACT_ISDA use {@link net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA}.
+ * 	<strong>
+ * 		This method is not identical to ACT/ACT ISDA. For ACT/ACT ISDA use {@link net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA}.
+ * 	</strong>
  * </p>
  * 
  * <p>
- * In addition the method has the defect, that it is not additive (if you consider small intervals). For example
- * YEARFRAC(30.12.2011, 04.01.2012, 1) is not equal to YEARFRAC(30.12.2011, 01.01.2012, 1) + YEARFRAC(01.01.2012, 04.01.2012, 1).
+ * 		In addition the method has the defect, that it is not additive (if you consider small intervals). For example
+ *		YEARFRAC(30.12.2011, 04.01.2012, 1) is not equal to YEARFRAC(30.12.2011, 01.01.2012, 1) + YEARFRAC(01.01.2012, 04.01.2012, 1).
  * </p>
  * 
  * @author Christian Fries
