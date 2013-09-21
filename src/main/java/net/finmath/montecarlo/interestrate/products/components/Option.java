@@ -34,8 +34,8 @@ public class Option extends AbstractProductComponent {
 	/**
 	 * Creates the function underlying(exerciseDate) >= 0 ? underlying : 0
 	 * 
-     * @param exerciseDate
-     * @param underlying
+     * @param exerciseDate The exercise date of the option (given as a double).
+     * @param underlying The underlying.
      */
     public Option(double exerciseDate, AbstractLIBORMonteCarloProduct underlying) {
 	    super();
@@ -47,9 +47,9 @@ public class Option extends AbstractProductComponent {
 	/**
 	 * Creates the function underlying(exerciseDate) >= strikePrice ? underlying : strikePrice
 	 * 
-     * @param exerciseDate
-     * @param strikePrice
-     * @param underlying
+     * @param exerciseDate The exercise date of the option (given as a double).
+     * @param strikePrice The strike price.
+     * @param underlying The underlying.
      */
     public Option(double exerciseDate, double strikePrice, AbstractLIBORMonteCarloProduct underlying) {
 	    super();
