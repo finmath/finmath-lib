@@ -33,14 +33,14 @@ import java.util.GregorianCalendar;
  * </p>
  *
  * <p>
- * The class can be constructed using isCountLastDayNotFirst = true, where the above behavior is changed
+ * The class can be constructed using isCountLastDayNotFirst = true, which will change its behavior compared to above.
  * In this case the start date is excluded in the counting and the end date is included in the counting.
  * This means that from 31.12.2014 to 01.01.2015 the day count fraction is 1/365 since 2015 is not a leap year.
  * </p>
  * 
  * @author Christian Fries
  */
-public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT implements DayCountConventionInterface {
+public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 
 	private boolean isCountLastDayNotFirst = false;
 	

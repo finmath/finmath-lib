@@ -7,10 +7,16 @@
 package net.finmath.time.daycount;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
- * Interface implemented by various day count conventions.
- * Classes implementing this interface provide day counting and day count fractions for
+ * Interface for various day count conventions.
+ * 
+ * Classes implementing this interface have to implement the methods
+ * {@link #getDaycount(Calendar, Calendar)} and {@link #getDaycountFraction(Calendar, Calendar)}.
+ * 
+ * Classes implementing these methods then provide day counting and day count fractions for
  * a given interval on a {@link java.util.GregorianCalendar}.
  * 
  * @author Christian Fries
@@ -36,4 +42,5 @@ public interface DayCountConventionInterface {
 	 * @return The daycount fraction corresponding to the given period.
 	 */
 	public abstract double getDaycountFraction(Calendar startDate, Calendar endDate);
+	
 }

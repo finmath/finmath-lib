@@ -38,7 +38,7 @@ import java.util.GregorianCalendar;
  * 
  * @author Christian Fries
  */
-public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT implements DayCountConventionInterface {
+public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT {
 
 	/**
 	 * Create an ACT/ACT YEARFRAC daycount convention.
