@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
