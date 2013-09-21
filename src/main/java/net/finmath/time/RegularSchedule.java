@@ -7,8 +7,9 @@
 package net.finmath.time;
 
 /**
+ * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
+ * 
  * @author Christian Fries
- *
  */
 public class RegularSchedule implements ScheduleInterface {
 
