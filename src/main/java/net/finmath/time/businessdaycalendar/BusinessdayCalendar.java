@@ -29,22 +29,24 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 			if(adjustedDate.get(Calendar.MONTH) != date.get(Calendar.MONTH)) {
 				return getAdjustedDate(date, DateRollConvention.PREVIOUS);
 			}
+			else return adjustedDate;
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_PREVIOUS) {
 			Calendar adjustedDate = getAdjustedDate(date, DateRollConvention.PREVIOUS);
 			if(adjustedDate.get(Calendar.MONTH) != date.get(Calendar.MONTH)) {
 				return getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			}
+			else return adjustedDate;
 		}
-		else if(dateRollConvention != DateRollConvention.FOLLOWING && dateRollConvention != DateRollConvention.PREVIOUS) {
-			throw new IllegalArgumentException("Unknown date roll convention.");
+		else if(dateRollConvention == DateRollConvention.FOLLOWING || dateRollConvention == DateRollConvention.PREVIOUS) {
+			int adjustment = dateRollConvention == DateRollConvention.FOLLOWING ? 1 : -1;
+			Calendar adjustedDate = (Calendar)date.clone();
+			while(!isBusinessday(adjustedDate)) {
+				adjustedDate.add(Calendar.DAY_OF_YEAR, adjustment);
+			}
+			return adjustedDate;
 		}
 
-		int adjustment = dateRollConvention == DateRollConvention.FOLLOWING ? 1 : -1;
-		Calendar adjustedDate = (Calendar)date.clone();
-		while(!isBusinessday(adjustedDate)) {
-			adjustedDate.add(Calendar.DAY_OF_YEAR, adjustment);
-		}
-		return adjustedDate;
+		throw new IllegalArgumentException("Unknown date roll convention.");
 	}
 }
