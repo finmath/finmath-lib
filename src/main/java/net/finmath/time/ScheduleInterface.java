@@ -7,8 +7,16 @@
 package net.finmath.time;
 
 /**
+ * Interface of a schedule of interest rate periods with
+ * a fixing and payment.
+ * 
+ * The periods have two representations: one a {@link net.finmath.time.Period}
+ * which contains {@link java.util.Calendar} dates and
+ * an alternative representation using doubles.
+ * 
+ * Within a schedule, the mapping from doubles to dates is one to one.
+ * 
  * @author Christian Fries
- *
  */
 public interface ScheduleInterface {
 
@@ -21,5 +29,4 @@ public interface ScheduleInterface {
 	double getPayment(int periodIndex);
 
 	double getPeriodLength(int periodIndex);
-
 }
