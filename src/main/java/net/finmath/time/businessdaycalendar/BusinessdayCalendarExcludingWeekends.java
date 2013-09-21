@@ -16,17 +16,22 @@ import java.util.Calendar;
 public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 
 	private BusinessdayCalendarInterface baseCalendar;
-	
+
 	/**
-	 * 
+	 * Create business day calendar.
 	 */
 	public BusinessdayCalendarExcludingWeekends() {
 	}
 
+	/**
+	 * Create business day calendar using a given business day calendar as basis.
+	 * 
+	 * @param baseCalendar Calendar of business days.
+	 */
 	public BusinessdayCalendarExcludingWeekends(BusinessdayCalendarInterface baseCalendar) {
 		this.baseCalendar = baseCalendar;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.util.Calendar)
 	 */
@@ -36,5 +41,4 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 			&&	date.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY
 			&&	date.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY;
 	}
-
 }
