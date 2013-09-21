@@ -230,7 +230,8 @@ public class Curve extends AbstractCurve implements Serializable {
 		case LOG_OF_VALUE:
 			return Math.log(value);
 		case LOG_OF_VALUE_PER_TIME:
-			return Math.log(value) / time;
+			if(time == 0)	return 1;
+			else			return Math.log(value) / time;
 		}
 	}
 
