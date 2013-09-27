@@ -7,7 +7,6 @@
 package net.finmath.time;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
@@ -22,18 +21,19 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
  */
 public class Tenor extends TimeDiscretization implements TenorInterface {
 
+	private static final long serialVersionUID = 4027884423439197483L;
+
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_ACT_ISDA();
 	private			Calendar					referenceDate;
 
-	private GregorianCalendar[]		dates;
+	private Calendar[]		dates;
 
 	/**
-	 * @param dates
-	 * @param referenceDate
-	 * @param daycountFractions
+	 * @param dates A set of dates.
+	 * @param referenceDate The reference date, which defines t=0 with respect to the internal double representation.
 	 */
-	public Tenor(GregorianCalendar[] dates, GregorianCalendar referenceDate, DayCountConventionInterface daycountConvention) {
-		super(createTimeDiscretizationFromDates(dates, referenceDate, daycountConvention));
+	public Tenor(Calendar[] dates, Calendar referenceDate) {
+		super(createTimeDiscretizationFromDates(dates, referenceDate));
 		this.dates				= dates;
 		this.referenceDate		= referenceDate;
 	}
@@ -43,7 +43,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	 * @param referenceDate
 	 * @return
 	 */
-	private static double[] createTimeDiscretizationFromDates(GregorianCalendar[] dates, GregorianCalendar referenceDate, DayCountConventionInterface daycountConvention) {
+	private static double[] createTimeDiscretizationFromDates(Calendar[] dates, Calendar referenceDate) {
 
 		double[] timeDiscretization = new double[dates.length];
 
@@ -105,7 +105,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	 * @see net.finmath.time.TenorInterface#getDate(int)
 	 */
 	@Override
-	public GregorianCalendar getDate(int timeIndex) {
+	public Calendar getDate(int timeIndex) {
 		return dates[timeIndex];
 	}
 

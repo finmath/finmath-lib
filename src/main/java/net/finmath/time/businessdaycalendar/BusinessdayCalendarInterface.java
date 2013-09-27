@@ -20,6 +20,12 @@ public interface BusinessdayCalendarInterface {
 		MODIFIED_FOLLOWING,
 		MODIFIED_PRECEDING;
 
+		/**
+		 * Get the date roll convention enum for a string (using common synonyms like "modfollow".
+		 * 
+		 * @param string The date roll convention name.
+		 * @return The date roll convention enum.
+		 */
 		public static DateRollConvention getEnum(String string) {
 	        if(string == null) throw new IllegalArgumentException();
 	        if(string.equalsIgnoreCase("actual"))		return UNADJUSTED;
@@ -32,12 +38,21 @@ public interface BusinessdayCalendarInterface {
 	    }
 	}
 
+	
+	/**
+	 * Test if a given date is a businessday.
+	 * 
+	 * @param date The given date.
+	 * @return True, if the given date is a businessday, otherwise false.
+	 */
 	boolean isBusinessday(Calendar date);
 	
 	/**
-	 * @param date
-	 * @param dateRollConvention
-	 * @return
+	 * Get an adjusted date for a given date.
+	 * 
+	 * @param date Given date to be adjusted.
+	 * @param dateRollConvention The date roll convention to be used for the adjustment.
+	 * @return The adjusted date applying dateRollConvention to the given date.
 	 */
 	Calendar getAdjustedDate(Calendar date, DateRollConvention dateRollConvention);
 }

@@ -6,6 +6,7 @@
 package net.finmath.marketdata.products;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.time.ScheduleInterface;
@@ -87,10 +88,10 @@ public class SwapLeg implements AnalyticProductInterface {
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 			double forward		= spread;
 			if(forwardCurve != null) {
-				forward			+= forwardCurve.getForward(model, fixingDate);
+				forward			+= forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
 			else if(discountCurveForForward != null) {
-				forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate - fixingDate);
+				forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate-fixingDate);
 			}
 			double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
 			value += forward * periodLength * discountFactor;

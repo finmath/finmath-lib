@@ -8,8 +8,10 @@ package net.finmath.time;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention_ACT_365;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
@@ -26,7 +28,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
  */
 public class Schedule implements ScheduleInterface {
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_ACT_ISDA();
+	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();//ACT_ISDA();
 	private			Calendar					referenceDate;
 	
 	private ArrayList<Period>			periods;
@@ -99,6 +101,15 @@ public class Schedule implements ScheduleInterface {
 	public String toString() {
 		return "Schedule [referenceDate=" + referenceDate.getTime() + ", periods="
 				+ periods + ", daycountconvention=" + daycountconvention + "]";
+	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<Period> iterator() {
+		return periods.iterator();
 	}
 
 

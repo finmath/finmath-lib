@@ -322,8 +322,22 @@ public class CalibratedCurves {
 		// Create parameter to calibrate
 
 		Curve calibrationCurve = (Curve) model.getCurve(calibrationSpec.calibrationCurveName);
-		calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.5);
-		curvesToCalibrate.add(calibrationCurve);
+		if(DiscountCurveInterface.class.isInstance(calibrationCurve)) {
+			double paymentTime	= calibrationSpec.swapTenorDefinitionPayer.getPayment(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
+			calibrationCurve.addPoint(paymentTime, 0.5);
+			curvesToCalibrate.add(calibrationCurve);
+		}
+		else if(ForwardCurveInterface.class.isInstance(calibrationCurve)) {
+			double fixingTime	= calibrationSpec.swapTenorDefinitionPayer.getFixing(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
+			double paymentTime	= calibrationSpec.swapTenorDefinitionPayer.getPayment(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
+			((Curve)((ForwardCurve)calibrationCurve).getPaymentOffsets()).addPoint(fixingTime, paymentTime);
+			calibrationCurve.addPoint(fixingTime, 0.5);
+			curvesToCalibrate.add(calibrationCurve);
+		}
+		else {
+			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.5);
+			curvesToCalibrate.add(calibrationCurve);
+		}
 	
 		return calibrationSpec.type;
 	}
@@ -335,7 +349,7 @@ public class CalibratedCurves {
     private DiscountCurveInterface createDiscountCurve(String discountCurveName) {
 		DiscountCurveInterface discountCurve	= model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
-			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
+			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { }, new double[] { });
 			model.setCurve(discountCurve);
 	}
 
@@ -357,8 +371,7 @@ public class CalibratedCurves {
 		ForwardCurveInterface	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
-			double periodLength	= swapTenorDefinition.getPeriodLength(0);		// @TODO It is unclear which periodLength to use for the forward curve, this is just an approximation
-			forwardCurve = new ForwardCurve(forwardCurveName, null, periodLength);
+			forwardCurve = new ForwardCurve(forwardCurveName, null);
 		} else if(DiscountCurveInterface.class.isInstance(curve)) {
 			/*
 			 *  If the specified forward curve exits as a discount curve, we interpret this as "single-curve"

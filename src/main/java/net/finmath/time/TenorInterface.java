@@ -7,7 +7,6 @@
 package net.finmath.time;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 /**
  * @author Christian Fries
@@ -26,7 +25,7 @@ public interface TenorInterface {
 	 * @param timeIndex Time index
 	 * @return Returns the date for a given time index.
 	 */
-	public abstract GregorianCalendar getDate(int timeIndex);
+	public abstract Calendar getDate(int timeIndex);
 
 	/**
 	 * Returns the day count fraction for the period form timeIndex to to timeIndex+1.

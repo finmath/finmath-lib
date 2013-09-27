@@ -17,39 +17,63 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
+import net.finmath.time.daycount.DayCountConvention_30U_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
- * Simple schedule generation.
- * 
- * Generates a schedule based on some meta data. A schedule is just a collection of
- * {@link net.finmath.time.Period}s.
+ * Generates a schedule based on some meta data (frequency, maturity, date roll convention, etc.).
+ * A schedule is just a collection of {@link net.finmath.time.Period}s.
  * 
  * <ul>
- * 	<li>The schedule generation considers short periods.</li>
+ * 	<li>The period length is specified via {@link net.finmath.time.ScheduleGenerator.Frequency}.
+ * 	<li>The schedule generation considers short periods via the specification of {@link net.finmath.time.ScheduleGenerator.DaycountConvention}.</li>
  * 	<li>The schedule may use an externally provided business day adjustment via an object implementing {@link net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface}</li>
+ * 	<li>You may specify fixing and payment adjustments.
  * </ul>
  * 
  * @author Christian Fries
  */
 public class ScheduleGenerator {
 
+	/**
+	 * Possible frequencies supported by {@link ScheduleGenerator}.
+	 * 
+	 * @author Christian Fries
+	 */
 	public enum Frequency {
+		/** Daily periods. **/
 		DAILY,
+		/** Weekly periods. **/
 		WEEKLY,
+		/** Three months periods. **/
 		QUATERLY,
+		/** Six months periods. **/
 		SEMIANNUAL,
+		/** Twelve months periods. **/
 		ANNUAL,
+		/** A single period, i.e., the period is as long as from spot to maturity. **/
 		TENOR
 	}
 	
+	/**
+	 * Possible day count conventions supported by {@link DaycountConvention}.
+	 * 
+	 * @author Christian Fries
+	 */
 	public enum DaycountConvention {
+		/** See {@link net.finmath.time.daycount.DayCountConvention_30E_360_ISDA }. **/
 		E30_360_ISDA,
+		/** See {@link net.finmath.time.daycount.DayCountConvention_30E_360 }. **/
 		E30_360,
+		/** See {@link net.finmath.time.daycount.DayCountConvention_30U_360 }. **/
+		U30_360,
+		/** See {@link net.finmath.time.daycount.DayCountConvention_ACT_360 }. **/
 		ACT_360,
+		/** See {@link net.finmath.time.daycount.DayCountConvention_ACT_365 }. **/
 		ACT_365,
+		/** See {@link net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA }. **/
 		ACT_ACT_ISDA,
 		ACT_ACT;
 
@@ -59,6 +83,8 @@ public class ScheduleGenerator {
 	        if(string.equalsIgnoreCase("e30/360 isda"))	return E30_360_ISDA;
 	        if(string.equalsIgnoreCase("30e/360"))		return E30_360;
 	        if(string.equalsIgnoreCase("e30/360"))		return E30_360;
+	        if(string.equalsIgnoreCase("30u/360"))		return U30_360;
+	        if(string.equalsIgnoreCase("u30/360"))		return U30_360;
 	        if(string.equalsIgnoreCase("act/360"))		return ACT_360;
 	        if(string.equalsIgnoreCase("act/365"))		return ACT_365;
 	        if(string.equalsIgnoreCase("act/act isda"))	return ACT_ACT_ISDA;
@@ -68,8 +94,15 @@ public class ScheduleGenerator {
 	    }
 	}
 	
+	/**
+	 * Possible stub period conventions supported by {@link DaycountConvention}.
+	 * 
+	 * @author Christian Fries
+	 */
 	public enum ShortPeriodConvention {
+		/** The first period will be shorter, if a regular period does not fit. **/
 		FIRST,
+		/** The last period will be shorter, if a regular period does not fit. **/
 		LAST
 	}
 
@@ -119,6 +152,9 @@ public class ScheduleGenerator {
 			break;
 		case E30_360:
 			daycountConventionObject = new DayCountConvention_30E_360();
+			break;
+		case U30_360:
+			daycountConventionObject = new DayCountConvention_30U_360();
 			break;
 		case ACT_360:
 			daycountConventionObject = new DayCountConvention_ACT_360();
@@ -230,8 +266,6 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Simple schedule generation.
-	 * 
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods.
 	 * 
@@ -245,7 +279,7 @@ public class ScheduleGenerator {
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
 	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
 	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
-	 * @return
+	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Date referenceDate,
@@ -284,8 +318,6 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Simple schedule generation.
-	 * 
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods. Date rolling is ignored.
 	 * 
@@ -295,7 +327,7 @@ public class ScheduleGenerator {
 	 * @param maturity The end date of the first period.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
-	 * @return
+	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Date referenceDate,
@@ -327,10 +359,14 @@ public class ScheduleGenerator {
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotDate The start date of the first period.
 	 * @param frequency The frequency.
-	 * @param maturity The end date of the first period.
+	 * @param maturity The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
-	 * @return
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Date referenceDate,
@@ -338,7 +374,11 @@ public class ScheduleGenerator {
 			String frequency,
 			String maturity,
 			String daycountConvention,
-			String shortPeriodConvention
+			String shortPeriodConvention,
+			String dateRollConvention,
+			BusinessdayCalendarInterface businessdayCalendar,
+			int	fixingOffsetDays,
+			int	paymentOffsetDays
 			)
 	{
 		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
@@ -356,10 +396,11 @@ public class ScheduleGenerator {
 				maturityAsCalendar, 
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
-				DateRollConvention.UNADJUSTED,
-				new BusinessdayCalendarAny(),
-				0, 0);
-		
+				DateRollConvention.getEnum(dateRollConvention),
+				businessdayCalendar,
+				fixingOffsetDays,
+				paymentOffsetDays
+				);
 	}
 
 	/**
