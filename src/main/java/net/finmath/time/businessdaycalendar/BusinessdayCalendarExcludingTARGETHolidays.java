@@ -46,13 +46,12 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 		datePlus2.add(Calendar.DAY_OF_YEAR, 2);
 		
 		Calendar dateBefore = (Calendar)date.clone();
-		datePlus2.add(Calendar.DAY_OF_YEAR, -1);
+		dateBefore.add(Calendar.DAY_OF_YEAR, -1);
 
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
-				&&	!(day ==  1 && month ==  1)
-				&&	!(day ==  1 && month ==  5)
-				&&	!(day == 25 && month == 12)
-				&&	!(day == 26 && month == 12)
+				&&	!(day ==  1 && month ==  1)		// date is New Year
+				&&	!(day == 25 && month == 12)		// date is Christmas
+				&&	!(day == 26 && month == 12)		// date is Boxing Day
 				&&	!(day == 31 && month == 12)
 				&&	!isEasterSunday(datePlus2)		// date is Good Friday
 				&&	!isEasterSunday(dateBefore)		// date is Easter Monday
