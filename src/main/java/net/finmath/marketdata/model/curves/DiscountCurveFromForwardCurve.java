@@ -80,16 +80,17 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		if(this.forwardCurve != null)	forwardCurve = this.forwardCurve;
 		else							forwardCurve = model.getForwardCurve(forwardCurveName);
 
-		double					paymentOffset	= forwardCurve.getPaymentOffset();
-	    if(paymentOffset <= 0) throw new RuntimeException("Payment offset non-positive.");
+		double	time			= 0;
+		double	discountFactor	= 1.0;
 
-		double time				= 0;
-		double discountFactor	= 1.0;
-		
-		while(time+paymentOffset < maturity) {
+		// TODO: Change do-while to while
+		do {
+			double	paymentOffset	= forwardCurve.getPaymentOffset(time);
+			if(paymentOffset <= 0) throw new RuntimeException("Payment offset non-positive.");
 			discountFactor /= 1.0 + forwardCurve.getForward(model, time) * paymentOffset;
 			time += paymentOffset;
-		}
+		} while(time < maturity);
+
 		discountFactor /= 1.0 + forwardCurve.getForward(model, time) * (maturity-time);
 		
 		return discountFactor;

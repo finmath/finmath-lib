@@ -42,7 +42,7 @@ public class BlackScholesMonteCarloValuationTest {
 	private final double	volatility     = 0.30;
 
 	// Process discretization properties
-	private final int		numberOfPaths		= 10000;
+	private final int		numberOfPaths		= 100000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 
@@ -187,7 +187,7 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatValue.format(valueAnalytic) +
 					"\t" + numberFormatDeviation.format(valueMonteCarlo-valueAnalytic));
 			
-			if(numberOfPaths > numberOfPaths) assertTrue(Math.abs(valueMonteCarlo-valueAnalytic) < 1E-03);
+			assertTrue(Math.abs(valueMonteCarlo-valueAnalytic) < 1E-03);
 		}
 	}
 
@@ -253,9 +253,9 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("Value of European Option is \t"	+ valueOfEuropeanOption);
 		System.out.println("Value of Bermudan Option is \t"	+ "(" + valueOfBermudanOptionLowerBound + "," + valueOfBermudanOptionUpperBound + ")");
 
-		if(numberOfPaths > numberOfPaths) assertTrue(valueOfAsianOption < valueOfEuropeanOption);
-		if(numberOfPaths > numberOfPaths) assertTrue(valueOfBermudanOptionLowerBound < valueOfEuropeanOption);
-		if(numberOfPaths > numberOfPaths) assertTrue(valueOfBermudanOptionUpperBound < valueOfEuropeanOption);
+		assertTrue(valueOfAsianOption < valueOfEuropeanOption);
+		assertTrue(valueOfBermudanOptionLowerBound < valueOfEuropeanOption);
+		assertTrue(valueOfBermudanOptionUpperBound < valueOfEuropeanOption);
 	}
 	
 	/**
@@ -359,7 +359,7 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatValue.format(deltaAnalytic) +
 					"\t" + numberFormatDeviation.format(delta-deltaAnalytic));
 
-			if(numberOfPaths > numberOfPaths) assertTrue(Math.abs(delta-deltaAnalytic) < 1E-02);
+			assertTrue(Math.abs(delta-deltaAnalytic) < 1E-02);
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}
@@ -419,7 +419,7 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatValue.format(vegaAnalytic) +
 					"\t" + numberFormatDeviation.format(vega-vegaAnalytic));
 
-			if(numberOfPaths > numberOfPaths) assertTrue(Math.abs(vega-vegaAnalytic) < 1E-02);
+			assertTrue(Math.abs(vega-vegaAnalytic) < 1E-02);
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}

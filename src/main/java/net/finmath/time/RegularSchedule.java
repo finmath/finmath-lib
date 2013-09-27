@@ -6,6 +6,8 @@
 
 package net.finmath.time;
 
+import java.util.Iterator;
+
 /**
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
  * 
@@ -60,5 +62,14 @@ public class RegularSchedule implements ScheduleInterface {
 	@Override
 	public double getPeriodLength(int periodIndex) {
 		return timeDiscretization.getTimeStep(periodIndex);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<Period> iterator() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -26,7 +26,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
     private double[] parameter;
     
     private DiscountCurve(String name) {
-    	super(name, InterpolationMethod.LINEAR, ExtrapolationMethod.LINEAR, InterpolationEntity.LOG_OF_VALUE);
+    	super(name, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);
     }
 
     public static DiscountCurve createDiscountCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors) {
@@ -41,7 +41,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretizationInterface tenor, double[] forwardRates) {
 		DiscountCurve discountFactors = new DiscountCurve(name);
-		discountFactors.addDiscountFactor(0.0, 1.0);
+//		discountFactors.addDiscountFactor(0.0, 1.0);
 
 		double df = 1.0;
 		for(int timeIndex=0; timeIndex<tenor.getNumberOfTimeSteps();timeIndex++) {
@@ -120,10 +120,10 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
     	double[] parameterOfCurve = super.getParameter();
   
     	// Allocate local parameter storage
-    	if(parameter == null || parameter.length != parameterOfCurve.length-1) parameter = new double[parameterOfCurve.length-1];
+    	if(parameter == null || parameter.length != parameterOfCurve.length-1) parameter = new double[parameterOfCurve.length-0*1];
 
     	// Special parameter transformation for discount factors. Discount factors are constrained to be in (0,1).
-    	for(int i=0;i < parameter.length; i++) parameter[i] = -Math.log(-Math.log(parameterOfCurve[i+1]));
+    	for(int i=0;i < parameter.length; i++) parameter[i] = -Math.log(-Math.log(parameterOfCurve[i+0*1]));
 
     	return parameter;
     }
@@ -137,7 +137,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
     	// Special parameter transformation for discount factors. Discount factors are contrained to be in (0,1).
     	parameterOfCurve[0] = 1.0;
-    	for(int i=0;i < parameter.length; i++) parameterOfCurve[i+1] = Math.exp(-Math.exp(-parameter[i]));
+    	for(int i=0;i < parameter.length; i++) parameterOfCurve[i+0*1] = Math.exp(-Math.exp(-parameter[i]));
     	
     	super.setParameter(parameterOfCurve);
     }

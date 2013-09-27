@@ -18,7 +18,7 @@ package net.finmath.time;
  * 
  * @author Christian Fries
  */
-public interface ScheduleInterface {
+public interface ScheduleInterface extends Iterable<Period> {
 
 	int getNumberOfPeriods();
 	

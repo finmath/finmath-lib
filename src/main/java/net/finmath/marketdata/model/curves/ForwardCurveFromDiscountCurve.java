@@ -44,6 +44,15 @@ public class ForwardCurveFromDiscountCurve extends AbstractCurve implements Seri
 	@Override
     public double getForward(AnalyticModelInterface model, double fixingTime)
 	{
+		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffset) - 1.0) / paymentOffset;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.ForwardCurveInterface#getForward(double)
+	 */
+	@Override
+    public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
+	{
 		
 		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffset) - 1.0) / paymentOffset;
 	}
@@ -57,10 +66,18 @@ public class ForwardCurveFromDiscountCurve extends AbstractCurve implements Seri
 	}
 
 	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffsets()
+	 */
+	@Override
+	public CurveInterface getPaymentOffsets() {
+		return null;
+	}
+
+	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffset()
 	 */
 	@Override
-	public double getPaymentOffset() {
+	public double getPaymentOffset(double fixingTime) {
 		return paymentOffset;
 	}
 
