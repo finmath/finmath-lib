@@ -45,15 +45,15 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 	private boolean isCountLastDayNotFirst = false;
 	
 	/**
-	 * Create an ACT/ACT ISDA daycount convention.
+	 * Create an ACT/ACT ISDA day count convention.
 	 */
 	public DayCountConvention_ACT_ACT_ISDA() {
 	}
 
 	/**
-	 * Create an ACT/ACT ISDA daycount convention.
+	 * Create an ACT/ACT ISDA day count convention.
 	 * 
-	 * @param isCountLastDayNotFirst If this value is false (default), the days are counted including the first day and excluding the last day. If this field is true, the days are counted excluding the first day and including the last day.
+	 * @param isCountFirstDayNotLast If this value is false (default), the days are counted including the first day and excluding the last day. If this field is true, the days are counted excluding the first day and including the last day.
 	 */
 	public DayCountConvention_ACT_ACT_ISDA(boolean isCountFirstDayNotLast) {
 		super();
