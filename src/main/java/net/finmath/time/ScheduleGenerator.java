@@ -370,7 +370,7 @@ public class ScheduleGenerator {
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Date referenceDate,
-			Date spotDate,
+			String spotOffset,
 			String frequency,
 			String maturity,
 			String daycountConvention,
@@ -381,11 +381,10 @@ public class ScheduleGenerator {
 			int	paymentOffsetDays
 			)
 	{
-		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
-		spotDateAsCalendar.setTime(spotDate);
-
 		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
 		referenceDateAsCalendar.setTime(referenceDate);
+
+		Calendar spotDateAsCalendar = createMaturityFromCode(referenceDateAsCalendar, spotOffset);
 
 		Calendar maturityAsCalendar = createMaturityFromCode(spotDateAsCalendar, maturity);
 

@@ -12,7 +12,6 @@ import java.util.Iterator;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
  * A schedule of interest rate periods with
