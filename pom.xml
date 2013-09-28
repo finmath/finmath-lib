@@ -3,7 +3,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
+	<version>1.0.7</version>
 	<packaging>jar</packaging>
 
 	<name>finmath-lib</name>
@@ -48,8 +48,8 @@
  -->
 
 	<scm>
-		<url>scm:svn:http://svn.finmath.net/finmath lib/trunk</url>
-		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
+		<url>scm:svn:http://svn.finmath.net/finmath lib/tags/finmath-lib-1.0.7</url>
+		<connection>scm:svn:http://svn.finmath.net/finmath lib/tags/finmath-lib-1.0.7</connection>
 	</scm>
 </project>
 
