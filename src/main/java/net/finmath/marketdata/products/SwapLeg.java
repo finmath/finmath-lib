@@ -6,7 +6,6 @@
 package net.finmath.marketdata.products;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.time.ScheduleInterface;
