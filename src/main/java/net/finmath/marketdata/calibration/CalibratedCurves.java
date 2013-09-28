@@ -330,7 +330,7 @@ public class CalibratedCurves {
 		else if(ForwardCurveInterface.class.isInstance(calibrationCurve)) {
 			double fixingTime	= calibrationSpec.swapTenorDefinitionPayer.getFixing(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
 			double paymentTime	= calibrationSpec.swapTenorDefinitionPayer.getPayment(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
-			((Curve)((ForwardCurve)calibrationCurve).getPaymentOffsets()).addPoint(fixingTime, paymentTime);
+			((Curve)((ForwardCurve)calibrationCurve).getPaymentOffsets()).addPoint(fixingTime, paymentTime-fixingTime);
 			calibrationCurve.addPoint(fixingTime, 0.5);
 			curvesToCalibrate.add(calibrationCurve);
 		}
@@ -371,7 +371,7 @@ public class CalibratedCurves {
 		ForwardCurveInterface	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
-			forwardCurve = new ForwardCurve(forwardCurveName, null);
+			forwardCurve = new ForwardCurve(forwardCurveName, ForwardCurve.InterpolationEntityForward.FORWARD, null);
 		} else if(DiscountCurveInterface.class.isInstance(curve)) {
 			/*
 			 *  If the specified forward curve exits as a discount curve, we interpret this as "single-curve"

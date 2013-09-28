@@ -23,8 +23,6 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
     private static final long serialVersionUID = -4126228588123963885L;
 
-    private double[] parameter;
-    
     private DiscountCurve(String name) {
     	super(name, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);
     }
@@ -111,36 +109,6 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	public String toString() {
 		return super.toString();
 	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.UnconstrainedParameterVectorInterface#getParameter()
-	 */
-    @Override
-    public double[] getParameter() {
-    	double[] parameterOfCurve = super.getParameter();
-  
-    	// Allocate local parameter storage
-    	if(parameter == null || parameter.length != parameterOfCurve.length-1) parameter = new double[parameterOfCurve.length-0*1];
-
-    	// Special parameter transformation for discount factors. Discount factors are constrained to be in (0,1).
-    	for(int i=0;i < parameter.length; i++) parameter[i] = -Math.log(-Math.log(parameterOfCurve[i+0*1]));
-
-    	return parameter;
-    }
-
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.UnconstrainedParameterVectorInterface#setParameter(double[])
-	 */
-    @Override
-    public void setParameter(double[] parameter) {
-    	double[] parameterOfCurve = super.getParameter();
-
-    	// Special parameter transformation for discount factors. Discount factors are contrained to be in (0,1).
-    	parameterOfCurve[0] = 1.0;
-    	for(int i=0;i < parameter.length; i++) parameterOfCurve[i+0*1] = Math.exp(-Math.exp(-parameter[i]));
-    	
-    	super.setParameter(parameterOfCurve);
-    }
 
     public DiscountCurveInterface getCloneForModifiedData(double time, double newValue) {
     	int timeIndex = this.getTimeIndex(time);
