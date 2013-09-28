@@ -301,7 +301,7 @@ public class ScheduleGenerator {
 		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
 		spotDateAsCalendar.setTime(spotDate);
 
-		Calendar maturityAsCalendar = createMaturityFromDouble(spotDateAsCalendar, maturity);
+		Calendar maturityAsCalendar = createDateFromDateAndOffset(spotDateAsCalendar, maturity);
 	
 		return createScheduleFromConventions(
 				referenceDateAsCalendar,
@@ -385,10 +385,10 @@ public class ScheduleGenerator {
 		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
 		referenceDateAsCalendar.setTime(referenceDate);
 
-		Calendar spotDateAsCalendar = createMaturityFromCode(referenceDateAsCalendar, spotOffset);
+		Calendar spotDateAsCalendar = createDateFromDateAndOffsetCode(referenceDateAsCalendar, spotOffset);
 		spotDateAsCalendar = businessdayCalendar.getAdjustedDate(spotDateAsCalendar, DateRollConvention.getEnum(dateRollConvention));
 
-		Calendar maturityAsCalendar = createMaturityFromCode(spotDateAsCalendar, maturity);
+		Calendar maturityAsCalendar = createDateFromDateAndOffsetCode(spotDateAsCalendar, maturity);
 
 		return createScheduleFromConventions(
 				referenceDateAsCalendar,
@@ -412,21 +412,21 @@ public class ScheduleGenerator {
 	 * 
 	 * The function may be used to ease the creation of maturities in spreadsheets.
 	 * 
-	 * @param spotDate The start date.
-	 * @param maturityCode The year fraction to be used for adding to the start date.
-	 * @return A date corresponding the maturity.
+	 * @param baseDate The start date.
+	 * @param dateOffsetCode String containing date offset codes (like 2D, 1W, 3M, etc.) or combination of them separated by spaces.
+	 * @return A date corresponding the date adding the offset to the start date.
 	 */
-	public static Calendar createMaturityFromCode(Calendar spotDate, String maturityCode) {
-		maturityCode = maturityCode.trim();
-		if(maturityCode.length() < 2) return null;
+	public static Calendar createDateFromDateAndOffsetCode(Calendar baseDate, String dateOffsetCode) {
+		dateOffsetCode = dateOffsetCode.trim();
+		if(dateOffsetCode.length() < 2) return null;
 
-		StringTokenizer tokenizer = new StringTokenizer(maturityCode);
+		StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
 		
-		Calendar maturity = (Calendar)spotDate.clone();
+		Calendar maturity = (Calendar)baseDate.clone();
 		while(tokenizer.hasMoreTokens()) {
 			String maturityCodeSingle = tokenizer.nextToken();
 
-			char unitChar		= maturityCode.toLowerCase().charAt(maturityCodeSingle.length()-1);
+			char unitChar		= dateOffsetCode.toLowerCase().charAt(maturityCodeSingle.length()-1);
 			int maturityValue	= Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
 			
 			int unit = 0;
@@ -460,23 +460,23 @@ public class ScheduleGenerator {
 	 * 
 	 * The function may be used to ease the creation of maturities in spreadsheets.
 	 * 
-	 * @param spotDateAsCalendar The start date.
-	 * @param maturityDouble The year fraction to be used for adding to the start date.
+	 * @param baseDate The start date.
+	 * @param offsetYearFrac The year fraction in 30/360 to be used for adding to the start date.
 	 * @return A date corresponding the maturity.
 	 */
-	private static Calendar createMaturityFromDouble(Calendar spotDateAsCalendar, double maturityDouble) {
+	private static Calendar createDateFromDateAndOffset(Calendar baseDate, double offsetYearFrac) {
 
 		// Years
-		Calendar maturity = (Calendar)spotDateAsCalendar.clone();
-		maturity.add(Calendar.YEAR, (int)maturityDouble);
+		Calendar maturity = (Calendar)baseDate.clone();
+		maturity.add(Calendar.YEAR, (int)offsetYearFrac);
 		
 		// Months
-		maturityDouble = (maturityDouble - (int)maturityDouble) * 12;
-		maturity.add(Calendar.MONTH, (int)maturityDouble);
+		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 12;
+		maturity.add(Calendar.MONTH, (int)offsetYearFrac);
 		
 		// Days
-		maturityDouble = (maturityDouble - (int)maturityDouble) * 30;
-		maturity.add(Calendar.DAY_OF_YEAR, (int)Math.round(maturityDouble));
+		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 30;
+		maturity.add(Calendar.DAY_OF_YEAR, (int)Math.round(offsetYearFrac));
 		
 		return maturity;
 	}
