@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.StringTokenizer;
 
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -294,11 +295,11 @@ public class ScheduleGenerator {
 			int	paymentOffsetDays
 			)
 	{
-		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
-		spotDateAsCalendar.setTime(spotDate);
-
 		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
 		referenceDateAsCalendar.setTime(referenceDate);
+
+		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
+		spotDateAsCalendar.setTime(spotDate);
 
 		Calendar maturityAsCalendar = createMaturityFromDouble(spotDateAsCalendar, maturity);
 	
@@ -385,6 +386,7 @@ public class ScheduleGenerator {
 		referenceDateAsCalendar.setTime(referenceDate);
 
 		Calendar spotDateAsCalendar = createMaturityFromCode(referenceDateAsCalendar, spotOffset);
+		spotDateAsCalendar = businessdayCalendar.getAdjustedDate(spotDateAsCalendar, DateRollConvention.getEnum(dateRollConvention));
 
 		Calendar maturityAsCalendar = createMaturityFromCode(spotDateAsCalendar, maturity);
 
@@ -418,28 +420,35 @@ public class ScheduleGenerator {
 		maturityCode = maturityCode.trim();
 		if(maturityCode.length() < 2) return null;
 
-		char unitChar		= maturityCode.toLowerCase().charAt(maturityCode.length()-1);
-		int maturityValue	= Integer.valueOf(maturityCode.substring(0, maturityCode.length()-1));
+		StringTokenizer tokenizer = new StringTokenizer(maturityCode);
 		
-		int unit = 0;
-		switch(unitChar) {
-		case 'd':
-			unit = Calendar.DAY_OF_YEAR;
-			break;
-		case 'w':
-			unit = Calendar.WEEK_OF_YEAR;
-			break;
-		case 'm':
-			unit = Calendar.MONTH;
-			break;
-		case 'y':
-		default:
-			unit = Calendar.YEAR;
-			break;
+		Calendar maturity = (Calendar)spotDate.clone();
+		while(tokenizer.hasMoreTokens()) {
+			String maturityCodeSingle = tokenizer.nextToken();
+
+			char unitChar		= maturityCode.toLowerCase().charAt(maturityCodeSingle.length()-1);
+			int maturityValue	= Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
+			
+			int unit = 0;
+			switch(unitChar) {
+			case 'd':
+				unit = Calendar.DAY_OF_YEAR;
+				break;
+			case 'w':
+				unit = Calendar.WEEK_OF_YEAR;
+				break;
+			case 'm':
+				unit = Calendar.MONTH;
+				break;
+			case 'y':
+			default:
+				unit = Calendar.YEAR;
+				break;
+			}
+	
+			maturity.add(unit, maturityValue);
 		}
 
-		Calendar maturity = (Calendar)spotDate.clone();
-		maturity.add(unit, maturityValue);
 		return maturity;
 	}
 
