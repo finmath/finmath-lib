@@ -426,7 +426,7 @@ public class ScheduleGenerator {
 		while(tokenizer.hasMoreTokens()) {
 			String maturityCodeSingle = tokenizer.nextToken();
 
-			char unitChar		= dateOffsetCode.toLowerCase().charAt(maturityCodeSingle.length()-1);
+			char unitChar		= maturityCodeSingle.toLowerCase().charAt(maturityCodeSingle.length()-1);
 			int maturityValue	= Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
 			
 			int unit = 0;
