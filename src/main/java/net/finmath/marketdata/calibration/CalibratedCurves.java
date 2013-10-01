@@ -368,10 +368,11 @@ public class CalibratedCurves {
 		// Check if the curves exists, if not create it
 		CurveInterface	curve = model.getCurve(forwardCurveName);
 
-		ForwardCurveInterface	forwardCurve = null;
+		CurveInterface	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
 			forwardCurve = new ForwardCurve(forwardCurveName, ForwardCurve.InterpolationEntityForward.FORWARD, null);
+		//	forwardCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { }, new double[] { });
 		} else if(DiscountCurveInterface.class.isInstance(curve)) {
 			/*
 			 *  If the specified forward curve exits as a discount curve, we interpret this as "single-curve"
