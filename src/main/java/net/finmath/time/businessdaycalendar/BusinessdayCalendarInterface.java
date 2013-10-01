@@ -55,4 +55,21 @@ public interface BusinessdayCalendarInterface {
 	 * @return The adjusted date applying dateRollConvention to the given date.
 	 */
 	Calendar getAdjustedDate(Calendar date, DateRollConvention dateRollConvention);
+
+	/**
+	 * Get an adjusted date for a given date and offset code.
+	 * 
+	 * First we create a new date by "adding" an offset to the base date.
+	 * The offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
+	 * 1Y, 2Y, etc., where the letters denote the units as follows: D denotes days, W denotes weeks, M denotes month
+	 * Y denotes years.
+	 * 
+	 * Next the result is adjusted according to the given dateRollConvention.
+	 * 
+	 * @param baseDate The start date.
+	 * @param dateOffsetCode String containing date offset codes (like 2D, 1W, 3M, etc.) or combination of them separated by spaces.
+	 * @param dateRollConvention The date roll convention to be used for the adjustment.
+	 * @return The adjusted date applying dateRollConvention to the given date.
+	 */
+	Calendar getAdjustedDate(Calendar baseDate, String offsetCode, DateRollConvention dateRollConvention);
 }

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.StringTokenizer;
 
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -54,7 +53,7 @@ public class ScheduleGenerator {
 		SEMIANNUAL,
 		/** Twelve months periods. **/
 		ANNUAL,
-		/** A single period, i.e., the period is as long as from spot to maturity. **/
+		/** A single period, i.e., the period is as long as from start to maturity. **/
 		TENOR
 	}
 	
@@ -117,9 +116,9 @@ public class ScheduleGenerator {
 	 * considers short periods.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param spotDate The start date of the first period.
-	 * @param frequency The frequency.
+	 * @param startDate The start date of the first period.
 	 * @param maturity The end date of the first period.
+	 * @param frequency The frequency.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
@@ -130,9 +129,9 @@ public class ScheduleGenerator {
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Calendar referenceDate,
-			Calendar spotDate,
-			Frequency frequency,
+			Calendar startDate,
 			Calendar maturity,
+			Frequency frequency,
 			DaycountConvention daycountConvention,
 			ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention,
@@ -197,9 +196,9 @@ public class ScheduleGenerator {
 		
 		if(shortPeriodConvention == ShortPeriodConvention.LAST) {
 			/*
-			 * Going forward on periodStartDate, starting with spotDate as periodStartDate
+			 * Going forward on periodStartDate, starting with startDate as periodStartDate
 			 */
-			Calendar periodStartDateUnadjusted	= (Calendar)spotDate.clone();
+			Calendar periodStartDateUnadjusted	= (Calendar)startDate.clone();
 			Calendar periodStartDate			= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
 			while(periodStartDateUnadjusted.before(maturity)) {
 				// Determine period end
@@ -234,13 +233,13 @@ public class ScheduleGenerator {
 			 */
 			Calendar periodEndDateUnadjusted	= (Calendar)maturity.clone();
 			Calendar periodEndDate				= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
-			while(periodEndDateUnadjusted.after(spotDate)) {
+			while(periodEndDateUnadjusted.after(startDate)) {
 				// Determine period start
 				Calendar periodStartDateUnadjusted		= (Calendar)periodEndDateUnadjusted.clone();
 				periodStartDateUnadjusted.add(Calendar.DAY_OF_YEAR, -periodLengthDays);
 				periodStartDateUnadjusted.add(Calendar.WEEK_OF_YEAR, -periodLengthWeeks);
 				periodStartDateUnadjusted.add(Calendar.MONTH, -periodLengthMonth);
-				if(periodStartDateUnadjusted.before(spotDate)) periodStartDateUnadjusted = spotDate;
+				if(periodStartDateUnadjusted.before(startDate)) periodStartDateUnadjusted = startDate;
 
 				// Adjust period
 				Calendar periodStartDate	= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
@@ -267,11 +266,65 @@ public class ScheduleGenerator {
 	}
 
 	/**
+	 * Simple schedule generation.
+	 * 
+	 * Generates a schedule based on some meta data. The schedule generation
+	 * considers short periods. Date rolling is ignored.
+	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
+	 * @param startDate The start date of the first period.
+	 * @param maturityDate The end date of the last period.
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @return The corresponding schedule
+	 */
+	public static ScheduleInterface createScheduleFromConventions(
+			Date referenceDate,
+			Date startDate,
+			Date maturityDate,
+			String frequency,
+			String daycountConvention,
+			String shortPeriodConvention,
+			String dateRollConvention,
+			BusinessdayCalendarInterface businessdayCalendar,
+			int	fixingOffsetDays,
+			int	paymentOffsetDays
+			)
+	{
+		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
+		referenceDateAsCalendar.setTime(referenceDate);
+
+		Calendar startDateAsCalendar = GregorianCalendar.getInstance();
+		startDateAsCalendar.setTime(startDate);
+
+		Calendar maturityDateAsCalendar = GregorianCalendar.getInstance();
+		maturityDateAsCalendar.setTime(maturityDate);
+
+		return createScheduleFromConventions(
+				referenceDateAsCalendar,
+				startDateAsCalendar,
+				maturityDateAsCalendar,
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
+				DaycountConvention.getEnum(daycountConvention),
+				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
+				DateRollConvention.getEnum(dateRollConvention),
+				businessdayCalendar,
+				fixingOffsetDays,
+				paymentOffsetDays
+				);
+	}
+
+	/**
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param spotDate The start date of the first period.
+	 * @param startDate The start date of the first period.
 	 * @param frequency The frequency.
 	 * @param maturity The end date of the first period.
 	 * @param daycountConvention The daycount convention.
@@ -284,7 +337,7 @@ public class ScheduleGenerator {
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Date referenceDate,
-			Date spotDate,
+			Date startDate,
 			String frequency,
 			double maturity,
 			String daycountConvention,
@@ -298,16 +351,16 @@ public class ScheduleGenerator {
 		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
 		referenceDateAsCalendar.setTime(referenceDate);
 
-		Calendar spotDateAsCalendar = GregorianCalendar.getInstance();
-		spotDateAsCalendar.setTime(spotDate);
+		Calendar startDateAsCalendar = GregorianCalendar.getInstance();
+		startDateAsCalendar.setTime(startDate);
 
-		Calendar maturityAsCalendar = createDateFromDateAndOffset(spotDateAsCalendar, maturity);
+		Calendar maturityAsCalendar = createDateFromDateAndOffset(startDateAsCalendar, maturity);
 	
 		return createScheduleFromConventions(
 				referenceDateAsCalendar,
-				spotDateAsCalendar,
-				Frequency.valueOf(frequency.toUpperCase()),
-				maturityAsCalendar, 
+				startDateAsCalendar,
+				maturityAsCalendar,
+				Frequency.valueOf(frequency.toUpperCase()), 
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.toUpperCase()),
 				DateRollConvention.getEnum(dateRollConvention),
@@ -323,7 +376,7 @@ public class ScheduleGenerator {
 	 * considers short periods. Date rolling is ignored.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param spotDate The start date of the first period.
+	 * @param startDate The start date of the first period.
 	 * @param frequency The frequency.
 	 * @param maturity The end date of the first period.
 	 * @param daycountConvention The daycount convention.
@@ -332,7 +385,7 @@ public class ScheduleGenerator {
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Date referenceDate,
-			Date spotDate,
+			Date startDate,
 			String frequency,
 			double maturity,
 			String daycountConvention,
@@ -341,7 +394,7 @@ public class ScheduleGenerator {
 	{
 		return createScheduleFromConventions(
 				referenceDate,
-				spotDate,
+				startDate,
 				frequency,
 				maturity,
 				daycountConvention,
@@ -358,7 +411,7 @@ public class ScheduleGenerator {
 	 * considers short periods. Date rolling is ignored.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param spotDate The start date of the first period.
+	 * @param startDate The start date of the first period.
 	 * @param frequency The frequency.
 	 * @param maturity The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param daycountConvention The daycount convention.
@@ -371,7 +424,7 @@ public class ScheduleGenerator {
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			Date referenceDate,
-			String spotOffset,
+			String startOffset,
 			String frequency,
 			String maturity,
 			String daycountConvention,
@@ -385,16 +438,15 @@ public class ScheduleGenerator {
 		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
 		referenceDateAsCalendar.setTime(referenceDate);
 
-		Calendar spotDateAsCalendar = createDateFromDateAndOffsetCode(referenceDateAsCalendar, spotOffset);
-		spotDateAsCalendar = businessdayCalendar.getAdjustedDate(spotDateAsCalendar, DateRollConvention.getEnum(dateRollConvention));
+		Calendar startDateAsCalendar = businessdayCalendar.getAdjustedDate(referenceDateAsCalendar, startOffset, DateRollConvention.getEnum(dateRollConvention));
 
-		Calendar maturityAsCalendar = createDateFromDateAndOffsetCode(spotDateAsCalendar, maturity);
+		Calendar maturityAsCalendar = businessdayCalendar.getAdjustedDate(startDateAsCalendar, maturity, DateRollConvention.getEnum(dateRollConvention));
 
 		return createScheduleFromConventions(
 				referenceDateAsCalendar,
-				spotDateAsCalendar,
-				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()),
-				maturityAsCalendar, 
+				startDateAsCalendar,
+				maturityAsCalendar,
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
 				DateRollConvention.getEnum(dateRollConvention),
@@ -405,55 +457,7 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Create a new date by "adding" a year fraction to the spot date.
-	 * The year fraction may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
-	 * 1Y, 2Y, etc., where the letters denote the units as follows: D denotes days, W denotes weeks, M denotes month
-	 * Y denotes years.
-	 * 
-	 * The function may be used to ease the creation of maturities in spreadsheets.
-	 * 
-	 * @param baseDate The start date.
-	 * @param dateOffsetCode String containing date offset codes (like 2D, 1W, 3M, etc.) or combination of them separated by spaces.
-	 * @return A date corresponding the date adding the offset to the start date.
-	 */
-	public static Calendar createDateFromDateAndOffsetCode(Calendar baseDate, String dateOffsetCode) {
-		dateOffsetCode = dateOffsetCode.trim();
-		if(dateOffsetCode.length() < 2) return null;
-
-		StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
-		
-		Calendar maturity = (Calendar)baseDate.clone();
-		while(tokenizer.hasMoreTokens()) {
-			String maturityCodeSingle = tokenizer.nextToken();
-
-			char unitChar		= maturityCodeSingle.toLowerCase().charAt(maturityCodeSingle.length()-1);
-			int maturityValue	= Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
-			
-			int unit = 0;
-			switch(unitChar) {
-			case 'd':
-				unit = Calendar.DAY_OF_YEAR;
-				break;
-			case 'w':
-				unit = Calendar.WEEK_OF_YEAR;
-				break;
-			case 'm':
-				unit = Calendar.MONTH;
-				break;
-			case 'y':
-			default:
-				unit = Calendar.YEAR;
-				break;
-			}
-	
-			maturity.add(unit, maturityValue);
-		}
-
-		return maturity;
-	}
-
-	/**
-	 * Create a new date by "adding" a year fraction to the spot date.
+	 * Create a new date by "adding" a year fraction to the start date.
 	 * The year fraction is interpreted in a 30/360 way. More specifically,
 	 * every integer unit advances by a year, each remaining fraction of 12
 	 * advances by a month and each remaining fraction of 30 advances a day.
