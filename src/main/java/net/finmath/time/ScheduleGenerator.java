@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
@@ -95,7 +96,7 @@ public class ScheduleGenerator {
 	}
 	
 	/**
-	 * Possible stub period conventions supported by {@link DaycountConvention}.
+	 * Possible stub period conventions supported.
 	 * 
 	 * @author Christian Fries
 	 */
@@ -110,10 +111,15 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Simple schedule generation.
+	 * Schedule generation from meta data.
 	 * 
-	 * Generates a schedule based on some meta data. The schedule generation
-	 * considers short periods.
+	 * Generates a schedule based on some meta data.
+	 * <ul>
+	 * 	<li>The schedule generation considers short stub periods at beginning or at the end.</li>
+	 * 	<li>Date rolling is performed using the provided businessdayCalendar.</li>
+	 * </ul>
+	 * 
+	 * The reference date is used internally to represent all dates as doubles.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period.
@@ -266,14 +272,19 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Simple schedule generation.
+	 * Schedule generation from meta data.
 	 * 
-	 * Generates a schedule based on some meta data. The schedule generation
-	 * considers short periods. Date rolling is ignored.
+	 * Generates a schedule based on some meta data.
+	 * <ul>
+	 * 	<li>The schedule generation considers short stub periods at beginning or at the end.</li>
+	 * 	<li>Date rolling is performed using the provided businessdayCalendar.</li>
+	 * </ul>
+	 * 
+	 * The reference date is used internally to represent all dates as doubles.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startDate The start date of the first period.
-	 * @param maturityDate The end date of the last period.
+	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
+	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
 	 * @param frequency The frequency.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
@@ -353,9 +364,9 @@ public class ScheduleGenerator {
 		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
 		referenceDateAsCalendar.setTime(referenceDate);
 	
-		Calendar startDateAsCalendar = businessdayCalendar.getAdjustedDate(referenceDateAsCalendar, startOffset, DateRollConvention.getEnum(dateRollConvention));
+		Calendar startDateAsCalendar = BusinessdayCalendar.createDateFromDateAndOffsetCode(referenceDateAsCalendar, startOffset);
 	
-		Calendar maturityAsCalendar = businessdayCalendar.getAdjustedDate(startDateAsCalendar, maturity, DateRollConvention.getEnum(dateRollConvention));
+		Calendar maturityAsCalendar = BusinessdayCalendar.createDateFromDateAndOffsetCode(startDateAsCalendar, maturity);
 	
 		return createScheduleFromConventions(
 				referenceDateAsCalendar,
