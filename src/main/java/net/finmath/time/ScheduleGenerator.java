@@ -320,6 +320,58 @@ public class ScheduleGenerator {
 	}
 
 	/**
+	 * Simple schedule generation.
+	 * 
+	 * Generates a schedule based on some meta data. The schedule generation
+	 * considers short periods. Date rolling is ignored.
+	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
+	 * @param maturity The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @param startDate The start date of the first period.
+	 * @return The corresponding schedule
+	 */
+	public static ScheduleInterface createScheduleFromConventions(
+			Date referenceDate,
+			String startOffset,
+			String maturity,
+			String frequency,
+			String daycountConvention,
+			String shortPeriodConvention,
+			String dateRollConvention,
+			BusinessdayCalendarInterface businessdayCalendar,
+			int	fixingOffsetDays,
+			int	paymentOffsetDays
+			)
+	{
+		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
+		referenceDateAsCalendar.setTime(referenceDate);
+	
+		Calendar startDateAsCalendar = businessdayCalendar.getAdjustedDate(referenceDateAsCalendar, startOffset, DateRollConvention.getEnum(dateRollConvention));
+	
+		Calendar maturityAsCalendar = businessdayCalendar.getAdjustedDate(startDateAsCalendar, maturity, DateRollConvention.getEnum(dateRollConvention));
+	
+		return createScheduleFromConventions(
+				referenceDateAsCalendar,
+				startDateAsCalendar,
+				maturityAsCalendar,
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
+				DaycountConvention.getEnum(daycountConvention),
+				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
+				DateRollConvention.getEnum(dateRollConvention),
+				businessdayCalendar,
+				fixingOffsetDays,
+				paymentOffsetDays
+				);
+	}
+
+	/**
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods.
 	 * 
@@ -402,58 +454,6 @@ public class ScheduleGenerator {
 				"UNADJUSTED",
 				new BusinessdayCalendarAny(),
 				0, 0);
-	}
-
-	/**
-	 * Simple schedule generation.
-	 * 
-	 * Generates a schedule based on some meta data. The schedule generation
-	 * considers short periods. Date rolling is ignored.
-	 * 
-	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startDate The start date of the first period.
-	 * @param frequency The frequency.
-	 * @param maturity The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
-	 * @param daycountConvention The daycount convention.
-	 * @param shortPeriodConvention If short period exists, have it first or last.
-	 * @param dateRollConvention Adjustment to be applied to the all dates.
-	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
-	 * @return The corresponding schedule
-	 */
-	public static ScheduleInterface createScheduleFromConventions(
-			Date referenceDate,
-			String startOffset,
-			String frequency,
-			String maturity,
-			String daycountConvention,
-			String shortPeriodConvention,
-			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
-			int	fixingOffsetDays,
-			int	paymentOffsetDays
-			)
-	{
-		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
-		referenceDateAsCalendar.setTime(referenceDate);
-
-		Calendar startDateAsCalendar = businessdayCalendar.getAdjustedDate(referenceDateAsCalendar, startOffset, DateRollConvention.getEnum(dateRollConvention));
-
-		Calendar maturityAsCalendar = businessdayCalendar.getAdjustedDate(startDateAsCalendar, maturity, DateRollConvention.getEnum(dateRollConvention));
-
-		return createScheduleFromConventions(
-				referenceDateAsCalendar,
-				startDateAsCalendar,
-				maturityAsCalendar,
-				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
-				DaycountConvention.getEnum(daycountConvention),
-				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
-				DateRollConvention.getEnum(dateRollConvention),
-				businessdayCalendar,
-				fixingOffsetDays,
-				paymentOffsetDays
-				);
 	}
 
 	/**
