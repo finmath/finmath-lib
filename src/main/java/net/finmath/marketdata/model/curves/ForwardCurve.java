@@ -180,6 +180,22 @@ public class ForwardCurve extends Curve implements Serializable, ForwardCurveInt
 		}
 	}
 
+	/**
+	 * Returns the forwards for a given vector fixing times.
+	 * 
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTimes The given fixing times.
+	 * @return The forward rates.
+	 */
+	public double[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
+	{
+		double[] values = new double[fixingTimes.length];
+
+		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
+		
+		return values;
+	}
+	
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getDiscountCurve()
 	 */
