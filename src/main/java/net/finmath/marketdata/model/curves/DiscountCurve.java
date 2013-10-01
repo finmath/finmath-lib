@@ -23,10 +23,23 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
     private static final long serialVersionUID = -4126228588123963885L;
 
+    /**
+     * Create an empty discount curve using default interpolation and extrapolation methods.
+     * 
+     * @param name The name of this discount curve.
+     */
     private DiscountCurve(String name) {
     	super(name, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);
     }
 
+    /**
+     * Create a discount curve from given times and given discount factors using default interpolation and extrapolation methods.
+     * 
+     * @param name The name of this discount curve.
+     * @param times Array of times as doubles.
+     * @param givenDiscountFactors Array of corresponding discount factors.
+     * @return A new discount factor object.
+     */
     public static DiscountCurve createDiscountCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors) {
 		DiscountCurve discountFactors = new DiscountCurve(name);
 
