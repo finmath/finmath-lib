@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * It thus features all interpolation and extrapolation methods and interpolation entities
  * as {@link net.finmath.marketdata.model.curves.Curve}.
  * In addition the discount curve has the property that getValue(0) = 1
- * and getValue(x) = 0 for all x < 0.
+ * and getValue(x) = 0 for all x &lt; 0.
  * 
  * @author Christian Fries
  */

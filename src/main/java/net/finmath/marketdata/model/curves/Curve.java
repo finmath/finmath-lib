@@ -112,11 +112,11 @@ public class Curve extends AbstractCurve implements Serializable {
 	/**
 	 * Create a curve with a given name, reference date and an interpolation method.
 	 * 
-	 * @param name
-	 * @param referenceDate
-	 * @param interpolationMethod
-	 * @param extrapolationMethod
-	 * @param interpolationEntity
+     * @param name The name of this curve.
+     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
 	public Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		super(name, referenceDate);

@@ -13,7 +13,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 /**
- * A container for a forward (rate) curve. The forward curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
+ * A container for a forward (rate) curve.
+ * The forward curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
  * It thus features all interpolation and extrapolation methods and interpolation entities
  * as {@link net.finmath.marketdata.model.curves.Curve}.
  * 
