@@ -56,6 +56,15 @@ public class Schedule implements ScheduleInterface {
 
 
 	/* (non-Javadoc)
+	 * @see net.finmath.time.ScheduleInterface#getReferenceDate()
+	 */
+	@Override
+	public Calendar getReferenceDate() {
+		return referenceDate;
+	}
+
+
+	/* (non-Javadoc)
 	 * @see net.finmath.time.ScheduleInterface#getNumberOfPeriods()
 	 */
 	@Override

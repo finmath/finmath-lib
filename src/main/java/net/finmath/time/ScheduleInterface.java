@@ -6,6 +6,8 @@
 
 package net.finmath.time;
 
+import java.util.Calendar;
+
 /**
  * Interface of a schedule of interest rate periods with
  * a fixing and payment.
@@ -19,7 +21,9 @@ package net.finmath.time;
  * @author Christian Fries
  */
 public interface ScheduleInterface extends Iterable<Period> {
-
+	
+	Calendar getReferenceDate();
+	
 	int getNumberOfPeriods();
 	
 	Period getPeriod(int periodIndex);

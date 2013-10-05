@@ -6,6 +6,7 @@
 
 package net.finmath.time;
 
+import java.util.Calendar;
 import java.util.Iterator;
 
 /**
@@ -22,6 +23,14 @@ public class RegularSchedule implements ScheduleInterface {
 	 */
 	public RegularSchedule(TimeDiscretizationInterface timeDiscretization) {
 		this.timeDiscretization = timeDiscretization;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.ScheduleInterface#getReferenceDate()
+	 */
+	@Override
+	public Calendar getReferenceDate() {
+		return null;
 	}
 
 	/* (non-Javadoc)
