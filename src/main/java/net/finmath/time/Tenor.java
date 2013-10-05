@@ -9,7 +9,7 @@ package net.finmath.time;
 import java.util.Calendar;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
+import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * Implements a time discretization bases on dates using a reference
@@ -23,7 +23,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 	private static final long serialVersionUID = 4027884423439197483L;
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_ACT_ISDA();
+	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 	private			Calendar					referenceDate;
 
 	private Calendar[]		dates;
@@ -41,7 +41,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	/**
 	 * @param dates
 	 * @param referenceDate
-	 * @return
+	 * @return A time discretization corresponding to the given dates, relative to the reference date, using the internal day count fraction.
 	 */
 	private static double[] createTimeDiscretizationFromDates(Calendar[] dates, Calendar referenceDate) {
 

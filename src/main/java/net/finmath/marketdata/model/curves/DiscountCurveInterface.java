@@ -8,8 +8,8 @@ package net.finmath.marketdata.model.curves;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
- * The interface which is implemented by discount curves. A discount curve is a funding T -> df(T) where df(T)
- * represents the present value of a cashflow or 1 in time T, with respect to a specific currency unit and collateralization.
+ * The interface which is implemented by discount curves. A discount curve is a mapping of T to df(T) where df(T)
+ * represents the present value of a cash flow or 1 in time T, with respect to a specific currency unit and collateralization.
  * 
  * @author Christian Fries
  */

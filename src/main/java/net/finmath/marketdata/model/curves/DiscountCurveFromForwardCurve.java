@@ -13,14 +13,16 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * A discount curve derived from a given forward curve.
  * The discount factors df(t) are defined at t = k * d for integers k
  * via df(t+d) = df(t) / (1 + f(t) * d) and
- * for t = k * d and 0 < r < d
+ * for t = k * d and 0 &lt; r &lt; d
  * via df(t+r) = df(t) / (1 + f(t) * r)
  * where d is a given the payment offset and f(t) is the forward curve.
  * 
+ * <p>
  * <i>Note that a special interpolation is performed for in-between points.
  * Hence, creating a {@link ForwardCurveFromDiscountCurve} and from it
  * a DiscountCurveFromForwardCurve will not recover the original curve
- * since interpolation points may be lost.
+ * since interpolation points may be lost.</i>
+ * </p>
  * 
  * @author Christian Fries
  */

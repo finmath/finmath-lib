@@ -102,7 +102,7 @@ public interface AbstractModelInterface {
      * process.
      * 
      * @param timeIndex The time index (related to the model times discretization).
-     * @param componentIndex The index <i>j</> of the driven component.
+     * @param componentIndex The index <i>j</i> of the driven component.
      * @param realizationAtTimeIndex The realization of X at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
      * @return The factor loading for given factor and component.
      */

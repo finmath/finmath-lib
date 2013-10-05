@@ -34,7 +34,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * Construct a base forward curve with a reference date and a payment offset.
 	 * 
      * @param name The name of this curve.
-     * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
      * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
