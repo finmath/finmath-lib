@@ -17,6 +17,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve.InterpolationEntityForward;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
@@ -330,8 +331,12 @@ public class CalibratedCurves {
 		else if(ForwardCurveInterface.class.isInstance(calibrationCurve)) {
 			double fixingTime	= calibrationSpec.swapTenorDefinitionPayer.getFixing(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
 			double paymentTime	= calibrationSpec.swapTenorDefinitionPayer.getPayment(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
-			((Curve)((ForwardCurve)calibrationCurve).getPaymentOffsets()).addPoint(fixingTime, paymentTime-fixingTime);
-			calibrationCurve.addPoint(fixingTime, 0.5);
+			if(ForwardCurve.class.isInstance(calibrationCurve) && ((ForwardCurve)calibrationCurve).getInterpolationEntityForward() == InterpolationEntityForward.ZERO) {
+				calibrationCurve.addPoint(paymentTime, 0.5);
+			}
+			else {
+				calibrationCurve.addPoint(fixingTime, 0.5);
+			}
 			curvesToCalibrate.add(calibrationCurve);
 		}
 		else {
@@ -363,7 +368,16 @@ public class CalibratedCurves {
 	 */
     private String createForwardCurve(ScheduleInterface swapTenorDefinition, String forwardCurveName) {
 
-    	if(forwardCurveName == null || forwardCurveName.isEmpty()) return null;
+		/*
+		 * Temporary "hack" - we try to infer index maturity codes from curve name.
+		 */
+		String indexMaturityCode = null;
+		if(forwardCurveName.contains("_12M") || forwardCurveName.contains("-12M") || forwardCurveName.contains(" 12M"))	indexMaturityCode = "12M";
+		if(forwardCurveName.contains("_1M")	|| forwardCurveName.contains("-1M")	|| forwardCurveName.contains(" 1M"))	indexMaturityCode = "1M";
+		if(forwardCurveName.contains("_6M")	|| forwardCurveName.contains("-6M")	|| forwardCurveName.contains(" 6M"))	indexMaturityCode = "6M";
+		if(forwardCurveName.contains("_3M") || forwardCurveName.contains("-3M") || forwardCurveName.contains(" 3M"))	indexMaturityCode = "3M";
+
+		if(forwardCurveName == null || forwardCurveName.isEmpty()) return null;
 
 		// Check if the curves exists, if not create it
 		CurveInterface	curve = model.getCurve(forwardCurveName);
@@ -371,19 +385,32 @@ public class CalibratedCurves {
 		CurveInterface	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
-			forwardCurve = new ForwardCurve(forwardCurveName, ForwardCurve.InterpolationEntityForward.FORWARD, null);
-		//	forwardCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { }, new double[] { });
-		} else if(DiscountCurveInterface.class.isInstance(curve)) {
+			boolean isUseForwardCurve = true;
+			if(isUseForwardCurve) {
+				curve = new ForwardCurve(forwardCurveName, swapTenorDefinition.getReferenceDate(), indexMaturityCode, ForwardCurve.InterpolationEntityForward.FORWARD, null);
+			}
+			else {
+				// Alternative: Model the forward curve through an underlying discount curve.
+				curve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { }, new double[] { });
+				model.setCurve(curve);
+			}
+		}
+		
+		// Check if the curve is a discount curve, if yes - create a forward curve wrapper.
+		if(DiscountCurveInterface.class.isInstance(curve)) {
 			/*
-			 *  If the specified forward curve exits as a discount curve, we interpret this as "single-curve"
-			 *  in the sense that we generate a forward curve wrapping the discount curve and calculating
+			 *  If the specified forward curve exits as a discount curve, we generate a forward curve
+			 *  by wrapping the discount curve and calculating the
 			 *  forward from discount factors using the formula (df(T)/df(T+Delta T) - 1) / Delta T).
+			 *  
+			 *  If no index maturity is used, the forward curve is interpreted "single curve", i.e.
+			 *  T+Delta T is always the payment.
 			 */
-			double periodLength	= swapTenorDefinition.getPeriodLength(0);		// @TODO It is unclear which periodLength to use for the forward curve, this is just an approximation
-			forwardCurve = new ForwardCurveFromDiscountCurve(curve.getName(), periodLength);
-		} else {
+			forwardCurve = new ForwardCurveFromDiscountCurve(curve.getName(), swapTenorDefinition.getReferenceDate(), indexMaturityCode);
+		}
+		else {
 			// Use a given forward curve
-			forwardCurve = (ForwardCurveInterface)curve;
+			forwardCurve = curve;
 		}
 
 		model.setCurve(forwardCurve);

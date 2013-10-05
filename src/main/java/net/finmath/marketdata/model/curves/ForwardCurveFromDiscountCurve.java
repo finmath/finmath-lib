@@ -6,36 +6,38 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 /**
  * A forward curve derived from a given discount curve.
+ * 
  * The forward with fixing in t is calculated as ( d(t)/df(t+d)-1 ) / d
- * where d is a given the payment Offset.
+ * where d is a given the payment offset.
  * 
  * @author Christian Fries
  */
-public class ForwardCurveFromDiscountCurve extends AbstractCurve implements Serializable, ForwardCurveInterface {
+public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implements Serializable {
 
     private static final long serialVersionUID = -4126228588123963885L;
 
-	private final String						discountCurveName;
-    private final double						paymentOffset;
-
-    /**
+	/**
      * Create a forward curve using a given discount curve.
-     * The forward with fixing in t is calculated as ( df(t)/df(t+d)-1 ) / p
+     * The forward with fixing in t is calculated as ( df(t)/df(t+p)-1 ) / p
      * where df denotes the discount factor as a function of maturity and
      * p is a given the payment offset.
      * 
      * @param discountCurveName The discount curve used for calculation of the forward.
-     * @param paymentOffset The payment offset.
+     * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+     * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
      */
-    public ForwardCurveFromDiscountCurve(String discountCurveName, double paymentOffset) {
-    	super("ForwardCurveFromDiscountCurve(" +  discountCurveName + "," + paymentOffset + ")");
-	    this.discountCurveName			= discountCurveName;
-	    this.paymentOffset				= paymentOffset;
+    public ForwardCurveFromDiscountCurve(String discountCurveName, Calendar referenceDate, String paymentOffsetCode) {
+    	super("ForwardCurveFromDiscountCurve(" +  discountCurveName + "," + paymentOffsetCode + ")", referenceDate,
+    			paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName
+    			);
     }
 
 	/* (non-Javadoc)
@@ -44,6 +46,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractCurve implements Seri
 	@Override
     public double getForward(AnalyticModelInterface model, double fixingTime)
 	{
+		double paymentOffset = getPaymentOffset(fixingTime);
 		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffset) - 1.0) / paymentOffset;
 	}
 
@@ -53,32 +56,10 @@ public class ForwardCurveFromDiscountCurve extends AbstractCurve implements Seri
 	@Override
     public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
-		
-		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffset) - 1.0) / paymentOffset;
-	}
+		double paymentOffsetOfCurve = getPaymentOffset(fixingTime);
+		if(Double.isNaN(paymentOffsetOfCurve)) paymentOffsetOfCurve = paymentOffset;
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getDiscountCurve()
-	 */
-	@Override
-	public String getDiscountCurveName() {
-		return discountCurveName;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffsets()
-	 */
-	@Override
-	public CurveInterface getPaymentOffsets() {
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffset()
-	 */
-	@Override
-	public double getPaymentOffset(double fixingTime) {
-		return paymentOffset;
+		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffsetOfCurve) - 1.0) / paymentOffsetOfCurve;
 	}
 
 	/* (non-Javadoc)

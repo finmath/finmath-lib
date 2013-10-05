@@ -29,7 +29,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
      * @param name The name of this discount curve.
      */
     private DiscountCurve(String name) {
-    	super(name, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);
+    	super(name, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);
     }
 
     /**

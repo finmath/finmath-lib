@@ -42,7 +42,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
      * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
      */
     public DiscountCurveFromForwardCurve(String forwardCurveName) {
-		super("DiscountCurveFromForwardCurve" + forwardCurveName + ")");
+		super("DiscountCurveFromForwardCurve" + forwardCurveName + ")", null);
 
 		this.forwardCurveName	= forwardCurveName;
     }
@@ -58,7 +58,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
      * @param forwardCurve The forward curve used for calculation of the discount factors.
      */
     public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {
-		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")");
+		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
 
 		this.forwardCurve	= forwardCurve;
     }
