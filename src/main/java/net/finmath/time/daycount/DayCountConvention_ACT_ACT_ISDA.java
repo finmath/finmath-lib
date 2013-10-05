@@ -19,7 +19,7 @@ import java.util.GregorianCalendar;
  * 
  * <p>
  * The day count fraction is calculated using ACT_ACT_ISDA convention, that is, the
- * day count fraction is <i>n<sub>1</sub>/365</i> + <i>n<sub>2</sub>/366<i>, where
+ * day count fraction is <i>n<sub>1</sub>/365</i> + <i>n<sub>2</sub>/366</i>, where
  * <ul>
  * 	<li>	<i>n<sub>1</sub></i> is the number of days falling into a non-leap year,</li>
  * 	<li>	<i>n<sub>2</sub></i> is the number of days falling into a leap year,</li>

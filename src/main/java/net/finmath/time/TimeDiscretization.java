@@ -59,7 +59,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
     /**
      * Constructs an equi-distant time discretization with points timeDiscretization[i] being
-     * <code>for(i=0; i<=timeSteps; i++) timeDiscretization[i] = initial + i * deltaT;<code/>
+     * <code>for(i=0; i &le; timeSteps; i++) timeDiscretization[i] = initial + i * deltaT;</code>
      * 
      * @param initial First discretization point.
      * @param numberOfTimeSteps Number of time steps.
@@ -72,12 +72,12 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     }
 
     /**
-     * Constructs an equidistant time discretization with points timeDiscretization[i] being
-     * <code>for(i=0; i<=timeSteps; i++) timeDiscretization[i] = initial + i * deltaT;<code/>
+     * Constructs an equi-distant time discretization with stub periods at start or end.
      * 
      * @param initial First discretization point.
      * @param last Last time steps.
      * @param deltaT Time step size.
+     * @param shortPeriodLocation Placement of the stub period.
      */
     public TimeDiscretization(double initial, double last, double deltaT, ShortPeriodLocation shortPeriodLocation) {
         super();
