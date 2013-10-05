@@ -71,5 +71,5 @@ public interface BusinessdayCalendarInterface {
 	 * @param dateRollConvention The date roll convention to be used for the adjustment.
 	 * @return The adjusted date applying dateRollConvention to the given date.
 	 */
-	Calendar getAdjustedDate(Calendar baseDate, String offsetCode, DateRollConvention dateRollConvention);
+	Calendar getAdjustedDate(Calendar baseDate, String dateOffsetCode, DateRollConvention dateRollConvention);
 }

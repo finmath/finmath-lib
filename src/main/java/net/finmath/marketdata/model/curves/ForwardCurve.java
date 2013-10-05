@@ -43,10 +43,11 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * of the index and t+p is the payment time of the index. F(t) is the corresponding forward and D is the associated discount
 	 * curve.
 	 * 
-	 * @param name The name of this curve.
-	 * @param interpolationEntityForward The interpolation entity used to interpolate this forward curve
-	 * @param discountCurveName Name of the discount curve associated with this index (associated with it's funding or collateralization).
-	 * @param paymentOffsets Time between fixing and payment.
+     * @param name The name of this curve.
+     * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+     * @param paymentOffsetCode The maturity of the index modeled by this curve.
+     * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+     * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public ForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
 		super(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName);
@@ -60,8 +61,9 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
      * curve.
      * 
      * @param name The name of this curve.
+     * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+     * @param paymentOffsetCode The maturity of the index modeled by this curve.
      * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
-     * @param paymentOffsets Time between fixing and payment.
      */
     public ForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, String discountCurveName) {
     	this(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.FORWARD, discountCurveName);
@@ -74,8 +76,9 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
      * curve.
      * 
      * @param name The name of this curve.
+     * @param paymentOffset Time between fixing and payment.
+     * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
      * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
-     * @param paymentOffsets Time between fixing and payment.
      */
     public ForwardCurve(String name, double paymentOffset, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
 		super(name, null, paymentOffset, discountCurveName);
@@ -142,7 +145,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
 	 * @param discountCurveName Name of the discount curve associated with this index (associated with it's funding or collateralization).
-     * @param paymentOffsets Time between fixing and payment.
+     * @param paymentOffset Time between fixing and payment.
 	 * @return A new ForwardCurve object.
 	 */
 	public static ForwardCurve createForwardCurveFromForwards(String name, double[] times, double[] givenForwards, AnalyticModelInterface model, String discountCurveName, double paymentOffset) {
