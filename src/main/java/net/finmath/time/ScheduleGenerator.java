@@ -48,6 +48,8 @@ public class ScheduleGenerator {
 		DAILY,
 		/** Weekly periods. **/
 		WEEKLY,
+		/** One months periods. **/
+		MONTHLY,
 		/** Three months periods. **/
 		QUATERLY,
 		/** Six months periods. **/
@@ -184,6 +186,9 @@ public class ScheduleGenerator {
 			break;
 		case WEEKLY:
 			periodLengthDays	= 1;
+			break;
+		case MONTHLY:
+			periodLengthMonth	= 1;
 			break;
 		case QUATERLY:
 			periodLengthMonth	= 3;
