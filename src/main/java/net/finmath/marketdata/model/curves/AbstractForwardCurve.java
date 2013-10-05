@@ -31,9 +31,14 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	private final double paymentOffset;
 
 	/**
-	 * @param name
-	 * @param referenceDate
-	 * @param paymentOffset
+	 * Construct a base forward curve with a reference date and a payment offset.
+	 * 
+     * @param name The name of this curve.
+     * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+     * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+     * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public AbstractForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, String discountCurveName) {
 		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
@@ -47,9 +52,13 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	}
 
 	/**
-	 * @param name
-	 * @param referenceDate
-	 * @param paymentOffset
+	/**
+	 * Construct a base forward curve with a reference date and a payment offset.
+	 * 
+     * @param name The name of this curve.
+     * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+     * @param paymentOffset The maturity of the index modeled by this curve.
+     * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public AbstractForwardCurve(String name, Calendar referenceDate, double paymentOffset, String discountCurveName) {
 		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
@@ -61,16 +70,17 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 		this.paymentDateRollConvention = null;
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getDiscountCurveName()
+	 */
 	@Override
 	public String getDiscountCurveName() {
 		return discountCurveName;
 	}
 
-	@Override
-	public CurveInterface getPaymentOffsets() {
-		return null;
-	}
-
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffset(double)
+	 */
 	@Override
 	public double getPaymentOffset(double fixingTime) {
 		if(paymentOffsetCode == null) return paymentOffset;
@@ -87,5 +97,4 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 			return paymentTime-fixingTime;
 		}
 	}
-
 }

@@ -40,13 +40,6 @@ public interface ForwardCurveInterface extends CurveInterface {
 	String getDiscountCurveName();
 	
 	/**
-	 * Returns the function mapping a fixing to its payment offset, associated with this curve.
-	 * 
-	 * @return The function mapping a fixing to its payment offset, associated with this curve.
-	 */
-	CurveInterface getPaymentOffsets();
-	
-	/**
 	 * Returns the payment offset associated with this forward curve and a corresponding fixingTime.
 	 * 
 	 * @param fixingTime The fixing time of the index associated with this forward curve.
