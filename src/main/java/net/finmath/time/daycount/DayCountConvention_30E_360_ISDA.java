@@ -13,7 +13,7 @@ import java.util.Calendar;
  * 
  * Calculates the day count as
  * <code>
- *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, startDateDay > 29 ? 30.0 : 31.0) - Math.min(startDateDay, 30.0))
+ *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, startDateDay &gt; 29 ? 30.0 : 31.0) - Math.min(startDateDay, 30.0))
  * </code>
  * 
  * @author Christian Fries

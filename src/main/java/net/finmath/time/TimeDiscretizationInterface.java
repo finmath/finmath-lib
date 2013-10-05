@@ -74,7 +74,7 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
     double[] getAsDoubleArray();
 
 	/**
-	 * Return a clone of this time discretization as <code>ArrayList<Double></code>.
+	 * Return a clone of this time discretization as <code>ArrayList&lt;Double&gt;</code>.
 	 * Note that this method is costly in terms of performance.
 	 * 
 	 * @return The time discretization as <code>ArrayList&lt;Double&gt;</code>
