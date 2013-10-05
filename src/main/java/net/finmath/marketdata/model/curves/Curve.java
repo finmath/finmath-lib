@@ -7,6 +7,7 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -109,14 +110,16 @@ public class Curve extends AbstractCurve implements Serializable {
 	
 
 	/**
-	 * Create a curve using
+	 * Create a curve with a given name, reference date and an interpolation method.
+	 * 
 	 * @param name
+	 * @param referenceDate
 	 * @param interpolationMethod
 	 * @param extrapolationMethod
 	 * @param interpolationEntity
 	 */
-	public Curve(String name, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		super(name);
+	public Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
 		this.interpolationEntity	= interpolationEntity;
