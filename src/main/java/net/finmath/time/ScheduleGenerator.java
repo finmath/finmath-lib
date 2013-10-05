@@ -210,10 +210,10 @@ public class ScheduleGenerator {
 			 * Going forward on periodStartDate, starting with startDate as periodStartDate
 			 */
 			Calendar periodStartDateUnadjusted	= (Calendar)startDate.clone();
+			Calendar periodEndDateUnadjusted	= (Calendar)startDate.clone();		
 			Calendar periodStartDate			= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
 			while(periodStartDateUnadjusted.before(maturity)) {
 				// Determine period end
-				Calendar periodEndDateUnadjusted		= (Calendar)periodStartDateUnadjusted.clone();		
 				periodEndDateUnadjusted.add(Calendar.DAY_OF_YEAR, periodLengthDays);
 				periodEndDateUnadjusted.add(Calendar.WEEK_OF_YEAR, periodLengthWeeks);
 				periodEndDateUnadjusted.add(Calendar.MONTH, periodLengthMonth);
@@ -222,6 +222,9 @@ public class ScheduleGenerator {
 				// Adjust period
 				Calendar periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
 	
+				// Skip empty periods
+				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
+
 				// Adjust fixing date
 				Calendar fixingDate = (Calendar)periodStartDate.clone();
 				fixingDate.add(Calendar.DAY_OF_YEAR, fixingOffsetDays);
@@ -242,11 +245,11 @@ public class ScheduleGenerator {
 			/*
 			 * Going backward on periodEndDate, starting with maturity as periodEndDate
 			 */
+			Calendar periodStartDateUnadjusted	= (Calendar)maturity.clone();
 			Calendar periodEndDateUnadjusted	= (Calendar)maturity.clone();
 			Calendar periodEndDate				= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
 			while(periodEndDateUnadjusted.after(startDate)) {
 				// Determine period start
-				Calendar periodStartDateUnadjusted		= (Calendar)periodEndDateUnadjusted.clone();
 				periodStartDateUnadjusted.add(Calendar.DAY_OF_YEAR, -periodLengthDays);
 				periodStartDateUnadjusted.add(Calendar.WEEK_OF_YEAR, -periodLengthWeeks);
 				periodStartDateUnadjusted.add(Calendar.MONTH, -periodLengthMonth);
@@ -254,7 +257,10 @@ public class ScheduleGenerator {
 
 				// Adjust period
 				Calendar periodStartDate	= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
-	
+
+				// Skip empty periods
+				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
+				
 				// Adjust fixing date
 				Calendar fixingDate = (Calendar)periodStartDate.clone();
 				fixingDate.add(Calendar.DAY_OF_YEAR, fixingOffsetDays);
@@ -342,6 +348,7 @@ public class ScheduleGenerator {
 	 * considers short periods. Date rolling is ignored.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
+	 * @param startOffset The start date as an offset from the referenceDate.
 	 * @param maturity The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param frequency The frequency.
 	 * @param daycountConvention The daycount convention.
@@ -350,7 +357,6 @@ public class ScheduleGenerator {
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
 	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
 	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
-	 * @param startDate The start date of the first period.
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
