@@ -21,7 +21,7 @@ public class RegularSchedule implements ScheduleInterface {
 	/**
 	 * Create a schedule from a time discretization.
 	 * 
-	 * @param timeDiscretization
+	 * @param timeDiscretization The time discretization.
 	 */
 	public RegularSchedule(TimeDiscretizationInterface timeDiscretization) {
 		this.timeDiscretization = timeDiscretization;
