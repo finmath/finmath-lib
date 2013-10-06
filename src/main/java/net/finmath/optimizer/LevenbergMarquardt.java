@@ -31,7 +31,7 @@ import net.finmath.functions.LinearAlgebra;
  * additionally overriding the function {@code setDerivatives(double[] parameters, double[][] derivatives)},
  * otherwise the solver will calculate the derivative via finite differences.
  * 
- * The following simple example finds a solution for the equation <br></br>
+ * The following simple example finds a solution for the equation <br>
  * <center>
  * <table>
  * <caption>Sample linear system of equations.</caption>

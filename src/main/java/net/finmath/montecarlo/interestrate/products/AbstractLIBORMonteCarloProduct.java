@@ -37,7 +37,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
     public abstract RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
@@ -55,7 +55,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
     public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
     	RandomVariableInterface value = getValue(evaluationTime, model);

@@ -66,7 +66,7 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
 	 * 
      * @param dataModified A map with values to be used in constructions (keys are identical to parameter names of the constructors).
 	 * @return A new object implementing LIBORMarketModelInterface, using the new data.
-     * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
     LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 
