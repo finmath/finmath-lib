@@ -33,7 +33,7 @@ public class AnalyticFormulas {
 	 * @param forward The forward of the underlying.
 	 * @param volatility The Black-Scholes volatility.
 	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike. If the option strike is <= 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
 	 * @return Returns the value of a European call option under the Black-Scholes model.
 	 */
@@ -67,7 +67,7 @@ public class AnalyticFormulas {
 	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
 	 * @param volatility The Black-Scholes volatility.
 	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike. If the option strike is <= 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
 	 * @return Returns the value of a European call option under the Black-Scholes model.
 	 */
 	public static double blackScholesOptionValue(
@@ -283,7 +283,7 @@ public class AnalyticFormulas {
      *
 	 * @param forward The forward of the underlying.
 	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike. If the option strike is <= 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
      * @param optionValue The option value.
      * @return Returns the implied volatility of a European call option under the Black-Scholes model.

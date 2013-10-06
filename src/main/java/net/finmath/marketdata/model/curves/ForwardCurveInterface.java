@@ -27,6 +27,7 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 * Returns the forward for the corresponding fixing time.
 	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
 	 * @param fixingTime The fixing time of the index associated with this forward curve.
+     * @param paymentOffset The payment offset (as internal day count fraction) specifying the payment of this index. Used only as a fallback and/or consistency check.
 	 * 
 	 * @return The forward.
 	 */
