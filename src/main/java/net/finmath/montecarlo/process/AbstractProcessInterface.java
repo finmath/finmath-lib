@@ -55,13 +55,14 @@ public interface AbstractProcessInterface {
     TimeDiscretizationInterface getTimeDiscretization();
 
     /**
-     * @param timeIndex Time index
+     * @param timeIndex Time index.
      * @return Returns the time for a given time index.
      */
     double getTime(int timeIndex);
 
     /**
-     * @param time
+     * Returns the time index for a given simulation time.
+     * @param time The given simulation time.
      * @return Returns the time index for a given time
      */
     int getTimeIndex(double time);

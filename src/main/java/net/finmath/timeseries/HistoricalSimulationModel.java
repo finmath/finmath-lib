@@ -19,7 +19,7 @@ public interface HistoricalSimulationModel {
 	 * 
 	 * @param windowIndexStart Index of the first element to be part of the new time series.
 	 * @param windowIndexEnd Index of the last element to be part of the new time series.
-	 * @return
+	 * @return A new historical simulation using a different data window.
 	 */
 	HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd);
 

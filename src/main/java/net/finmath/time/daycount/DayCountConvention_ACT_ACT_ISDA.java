@@ -27,7 +27,7 @@ import java.util.GregorianCalendar;
  * This means that from 31.12.2014 to 01.01.2015 the day count fraction is 1/366 since 2014 is a leap year.
  * 
  * <p>
- * The class passed that standard benchmark test in the IDSA document, see {@link net.finmath.tests.time.daycount.DayCountConventionTest}.
+ * The class passed that standard benchmark test in the IDSA document see net.finmath.tests.time.daycount.DayCountConventionTest
  * </p>
  *
  * <p>

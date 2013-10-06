@@ -51,9 +51,11 @@ public abstract class LogNormalProcess {
 	}
 
 	/**
-	 * @param timeDiscretization
-	 * @param numberOfComponents
-	 * @param numberOfPaths
+	 * Create a simulation of log normal process.
+	 * 
+	 * @param timeDiscretization The time discretization of the process.
+	 * @param numberOfComponents The number of components (the dimension of the process).
+	 * @param numberOfPaths The number of path of the simulation.
 	 */
 	public LogNormalProcess(
 			TimeDiscretizationInterface timeDiscretization,
@@ -80,6 +82,7 @@ public abstract class LogNormalProcess {
 	 * @param numberOfComponents The number of components (the dimension of the process).
 	 * @param numberOfFactors The number of factors of the process.
 	 * @param numberOfPaths The number of path of the simulation.
+	 * @param seed The seed of the underlying random number generator.
 	 */
 	public LogNormalProcess(
 			TimeDiscretizationInterface timeDiscretization,
