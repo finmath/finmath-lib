@@ -39,11 +39,11 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 * 
-	 * @param timeDiscretization The time discretization
-	 * @param numberOfPaths The number of Monte-Carlo path to be used
-	 * @param initialValue Spot value
-	 * @param riskFreeRate The risk free rate
-	 * @param volatility The log volatility
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
 	 */
 	public MonteCarloBlackScholesModel(
 			TimeDiscretizationInterface timeDiscretization,

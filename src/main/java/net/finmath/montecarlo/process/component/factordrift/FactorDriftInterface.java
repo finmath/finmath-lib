@@ -11,7 +11,7 @@ public interface FactorDriftInterface {
 	 * 
 	 * @param timeIndex The time index (associated with the process time discretization).
 	 * @param realizationPredictor The realization predictor (in case we use a predictor corrector scheme).
-	 * @return
+	 * @return The vector of factor scalings.
 	 */
 	RandomVariableInterface[]	getFactorScaling(int timeIndex, RandomVariableInterface[] realizationPredictor);
 

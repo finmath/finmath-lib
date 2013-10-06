@@ -30,11 +30,13 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	private RandomVariableInterface	volatilityOnPaths;
 
 	/**
-	 * @param timeDiscretization
-	 * @param numberOfPaths
-	 * @param initialValue
-	 * @param riskFreeRate
-	 * @param volatility
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 * 
+	 * @param timeDiscretization The time discretization
+	 * @param numberOfPaths The number of Monte-Carlo path to be used
+	 * @param initialValue Spot value
+	 * @param riskFreeRate The risk free rate
+	 * @param volatility The log volatility
 	 */
 	public MonteCarloBlackScholesModel2(
 			TimeDiscretizationInterface timeDiscretization,
@@ -58,12 +60,14 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	}
 
 	/**
-	 * @param timeDiscretization
-	 * @param numberOfPaths
-	 * @param initialValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param seed
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 * 
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param seed The seed for the random number generator.
 	 */
 	public MonteCarloBlackScholesModel2(
 			TimeDiscretizationInterface timeDiscretization,
