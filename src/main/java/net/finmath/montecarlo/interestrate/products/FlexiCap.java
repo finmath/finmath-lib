@@ -26,14 +26,16 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 	private final double[]	fixingDates;					// Vector of fixing dates (must be sorted)
 	private final double[]	paymentDates;					// Vector of payment dates (same length as fixing dates)
 	private final double[]	strikes;						// Vector of strikes
-	private final int			maximumNumberOfExercises;		// The maximum number of exercises
+	private final int		maximumNumberOfExercises;		// The maximum number of exercises
 	
 	/**
 	 * Create a Flexi Cap (aka Auto Cap).
 	 * If <code>maximumNumberOfExercises = fixingDates.length</code> then this is a Cap.
+	 * 
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param strikes Vector of strikes (must have same length as fixing dates)
+	 * @param maximumNumberOfExercises Maximum number of exercises.
 	 */
 	public FlexiCap(
 			double[]	fixingDates,

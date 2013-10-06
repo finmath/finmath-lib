@@ -22,8 +22,10 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	private boolean	isFloorlet = false;
 
 	/**
+	 * Create a caplet.
+	 * 
 	 * @param maturity The fixing date given as double. The payment is at the period end.
-     * @param periodLength The length of the libor period.
+     * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
 	 */
 	public Caplet(double maturity, double periodLength, double strike) {
@@ -36,7 +38,8 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Makes the caplet a floorlet.
 	 * 
-	 * @param isFloorlet
+	 * @param isFloorlet Set this to true, if the product is a floorlet.
+	 * @return Self reference.
 	 */
 	public Caplet setFloorlet(boolean isFloorlet) {
 		this.isFloorlet = isFloorlet;

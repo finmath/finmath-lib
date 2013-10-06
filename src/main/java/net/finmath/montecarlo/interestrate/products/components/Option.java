@@ -32,7 +32,7 @@ public class Option extends AbstractProductComponent {
 	private AbstractLIBORMonteCarloProduct	underlying;
 
 	/**
-	 * Creates the function underlying(exerciseDate) >= 0 ? underlying : 0
+	 * Creates the function underlying(exerciseDate) &ge; 0 ? underlying : 0
 	 * 
      * @param exerciseDate The exercise date of the option (given as a double).
      * @param underlying The underlying.
@@ -45,7 +45,7 @@ public class Option extends AbstractProductComponent {
     }
 
 	/**
-	 * Creates the function underlying(exerciseDate) >= strikePrice ? underlying : strikePrice
+	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
 	 * 
      * @param exerciseDate The exercise date of the option (given as a double).
      * @param strikePrice The strike price.
@@ -71,7 +71,7 @@ public class Option extends AbstractProductComponent {
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 		
-    	// >=?
+    	// >=? -
     	if(evaluationTime > exerciseDate) return new RandomVariable(0.0);
 
     	RandomVariableInterface values = underlying.getValue(exerciseDate, model);
