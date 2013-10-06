@@ -47,7 +47,7 @@ public abstract class AbstractMonteCarloProduct {
      * 
      * @param model A model used to evaluate the product.
      * @return The value of the product.
-     * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
     public double getValue(MonteCarloSimulationInterface model) throws CalculationException {
 
