@@ -28,13 +28,17 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
     int getNumberOfLibors();
 
 	/**
-	 * @return The index corresponding to a given time (interpretation is start of period)
-	 */
+	 * The period start corresponding to a given forward rate discretization index.
+	 * 
+     * @param timeIndex The index corresponding to a given time (interpretation is start of period)
+     * @return The period start corresponding to a given forward rate discretization index.
+     */
     double getLiborPeriod(int timeIndex);
 
 	/**
 	 * Same as java.util.Arrays.binarySearch(liborPeriodDiscretization,time). Will return a negative value if the time is not found, but then -index-1 corresponds to the index of the smallest time greater than the given one.
 	 * 
+     * @param time The period start.
 	 * @return The index corresponding to a given time (interpretation is start of period)
 	 */
     int getLiborPeriodIndex(double time);

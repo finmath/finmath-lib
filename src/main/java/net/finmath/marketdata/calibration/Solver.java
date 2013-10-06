@@ -57,7 +57,7 @@ public class Solver {
      * 
      * @param curvesToCalibrates The set of curve to calibrate.
      * @return A reference to a calibrated clone of the given model.
-     * @throws net.finmath.optimizer.SolverException
+     * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
      */
     public AnalyticModelInterface getCalibratedModel(Set<CurveInterface> curvesToCalibrates) throws SolverException {
 		final ParameterAggregation<CurveInterface> parameterAggregate = new ParameterAggregation<CurveInterface>(curvesToCalibrates);

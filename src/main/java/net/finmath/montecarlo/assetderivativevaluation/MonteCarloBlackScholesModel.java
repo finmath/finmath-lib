@@ -74,10 +74,12 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	}
 
 	/**
-	 * @param initialValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param process
+	 * Create a Monte-Carlo simulation using given process discretization scheme.
+	 * 
+	 * @param initialValue Spot value
+	 * @param riskFreeRate The risk free rate
+	 * @param volatility The log volatility
+	 * @param process The process discretization scheme which should be used for the simulation.
 	 */
 	public MonteCarloBlackScholesModel(
 			double initialValue,

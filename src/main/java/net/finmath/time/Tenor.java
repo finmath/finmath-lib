@@ -56,7 +56,9 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	}
 
 	/**
-	 * @param timeDiscretization
+	 * Construct a tenor from a time discretization.
+	 * 
+	 * @param timeDiscretization A time discretization.
 	 */
 	public Tenor(double[] timeDiscretization) {
 		super(timeDiscretization);
@@ -64,7 +66,9 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	}
 
 	/**
-	 * @param timeDiscretization
+	 * Construct a tenor from a time discretization.
+	 * 
+	 * @param timeDiscretization A time discretization.
 	 */
 	public Tenor(Double[] timeDiscretization) {
 		super(timeDiscretization);
@@ -72,9 +76,11 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	}
 
 	/**
-	 * @param initial
-	 * @param numberOfTimeSteps
-	 * @param deltaT
+	 * Construct a tenor from meta data.
+	 * 
+     * @param initial First discretization point.
+     * @param numberOfTimeSteps Number of time steps.
+     * @param deltaT Time step size.
 	 */
 	public Tenor(double initial, int numberOfTimeSteps, double deltaT) {
 		super(initial, numberOfTimeSteps, deltaT);
@@ -82,13 +88,14 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	}
 
 	/**
-	 * @param initial
-	 * @param last
-	 * @param deltaT
-	 * @param shortPeriodLocation
+	 * Construct a tenor from meta data.
+	 * 
+     * @param initial First discretization point.
+     * @param last Last time steps.
+     * @param deltaT Time step size.
+     * @param shortPeriodLocation Placement of the stub period.
 	 */
-	public Tenor(double initial, double last, double deltaT,
-			ShortPeriodLocation shortPeriodLocation) {
+	public Tenor(double initial, double last, double deltaT, ShortPeriodLocation shortPeriodLocation) {
 		super(initial, last, deltaT, shortPeriodLocation);
 		// TODO Auto-generated constructor stub
 	}

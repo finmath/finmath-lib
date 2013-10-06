@@ -67,6 +67,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
      * @param exerciseDates The exercise dates (T(i)), given as doubles.
      * @param notionals The notionals (N(i)) for each exercise date.
      * @param strikes The strikes (K(i)) for each exercise date.
+     * @param exerciseMethod The exercise method to be used for the estimation of the exercise boundary.
      */
     public BermudanOption(
             double[] exerciseDates,

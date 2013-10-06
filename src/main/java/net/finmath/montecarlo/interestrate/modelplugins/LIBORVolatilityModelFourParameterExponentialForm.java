@@ -31,7 +31,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
      * @param a The parameter a: an initial volatility level.
      * @param b The parameter b.
      * @param c The parameter c: exponential decay of the volatility.
-     * @param d The parameter d: if c > 0 this is the very long term volatlity level.
+     * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
      * @param isCalibrateable Set this to true, if the parameters are available for calibration.
      */
     public LIBORVolatilityModelFourParameterExponentialForm(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
