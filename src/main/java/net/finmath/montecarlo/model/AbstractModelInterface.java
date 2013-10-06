@@ -49,6 +49,7 @@ public interface AbstractModelInterface {
      * 
      * @param componentIndex The component index <i>i</i>.
      * @param randomVariable The state random variable <i>Y<sub>i</sub></i>.
+     * @return New random variable holding the result of the state space transformation.
      */
     RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable);
 
@@ -96,7 +97,7 @@ public interface AbstractModelInterface {
     /**
      * This method has to be implemented to return the factor loadings, i.e.
      * the coefficient vector <br>
-     * <i>&lamba;<sub>j</sub> =  (&lambda;<sub>1,j</sub>, ..., &lambda;<sub>m,j</sub>)</i> such that <i>X = f(Y)</i> and <br>
+     * <i>&lambda;<sub>j</sub> =  (&lambda;<sub>1,j</sub>, ..., &lambda;<sub>m,j</sub>)</i> such that <i>X = f(Y)</i> and <br>
      * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
      * in an <i>m</i>-factor model. Here <i>j</i> denotes index of the component of the resulting
      * process.
