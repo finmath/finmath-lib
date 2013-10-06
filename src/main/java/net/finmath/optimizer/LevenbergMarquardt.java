@@ -268,7 +268,7 @@ public abstract class LevenbergMarquardt {
 	 * 
 	 * @param parameters Input value. The parameter vector.
 	 * @param values Output value. The vector of values f(i,parameters), i=1,...,n
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public abstract void setValues(double[] parameters, double[] values) throws SolverException;
 
@@ -278,7 +278,7 @@ public abstract class LevenbergMarquardt {
 	 * 
 	 * @param parameters Input value. The parameter vector.
 	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public void setDerivatives(double[] parameters, double[][] derivatives) throws SolverException {
 		// Calculate new derivatives. Note that this method is called only with
@@ -353,7 +353,7 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Runs the optimization.
 	 * 
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
@@ -447,7 +447,7 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Calculate a new parameter guess.
 	 * 
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	private void updateParameterTest() throws SolverException {
 		if (!isParameterCurrentDerivativeValid) {
