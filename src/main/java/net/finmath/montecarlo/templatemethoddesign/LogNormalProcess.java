@@ -128,16 +128,16 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * This method should be overwritten and return the factor loading, i.e.
-	 * the coeffient lamba(i,j) such that <br>
-	 * dS(j) = (...) dt + S(j) * (lambda(1,j) dW(1) + ... + lambda(m,j) dW(m)) <br>
+	 * the coeffient &lambda;(i,j) such that <br>
+	 * dS(j) = (...) dt + S(j) * (&lambda;(1,j) dW(1) + ... + &lambda;(m,j) dW(m)) <br>
 	 * in an m-factor model. Here j denotes index of the component of the resulting
 	 * log-normal process and i denotes the index of the factor.<p>
 	 * Overwrite this method if you would like to implement a multi factor model.
 	 * 
-	 * @param timeIndex
-	 * @param realizationAtTimeIndex TODO
-	 * @param factor
-	 * @param component
+	 * @param timeIndex The time index of the simulation time discretization.
+	 * @param factor The factor index.
+	 * @param component The component index.
+	 * @param realizationAtTimeIndex The realization at the current time index.
 	 * @return factor loading for given factor and component
 	 */
 	abstract public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, RandomVariableInterface[] realizationAtTimeIndex);
