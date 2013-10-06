@@ -60,7 +60,7 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
 	/**
 	 * Create a new object implementing LIBORMarketModelInterface, using the new covariance model.
 	 * 
-	 * @param calibrationCovarianceModel
+	 * @param calibrationCovarianceModel The new covariance model.
 	 * @return A new object implementing LIBORMarketModelInterface, using the new covariance model.
 	 */
     LIBORMarketModelInterface getCloneWithModifiedCovarianceModel(AbstractLIBORCovarianceModel calibrationCovarianceModel);

@@ -360,6 +360,8 @@ public abstract class LogNormalProcess {
 	}
 
 	/**
+	 * Returns the time for a given simulation time index.
+	 * 
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
@@ -368,8 +370,10 @@ public abstract class LogNormalProcess {
 	}
 
 	/**
-	 * @param time
-	 * @return Returns the time index for a given time
+	 * Returns the time index for a given simulation time.
+	 * 
+	 * @param time A simulation time
+	 * @return Returns the time index for a given time.
 	 */
 	public int getTimeIndex(double time) {
 		return timeDiscretization.getTimeIndex(time);
