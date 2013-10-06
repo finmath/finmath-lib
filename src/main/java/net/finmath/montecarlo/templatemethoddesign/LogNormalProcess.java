@@ -34,6 +34,8 @@ public abstract class LogNormalProcess {
 	private Scheme		scheme = Scheme.EULER;
 
 	/**
+	 * Create a log normal process.
+	 * 
 	 * @param numberOfComponents The number of components (scalar processes).
 	 * @param brownianMotion A Brownian motion
 	 */
@@ -72,10 +74,12 @@ public abstract class LogNormalProcess {
 	}
 
 	/**
-	 * @param timeDiscretization
-	 * @param numberOfComponents
-	 * @param numberOfFactors
-	 * @param numberOfPaths
+	 * Create a simulation of log normal process.
+	 * 
+	 * @param timeDiscretization The time discretization of the process.
+	 * @param numberOfComponents The number of components (the dimension of the process).
+	 * @param numberOfFactors The number of factors of the process.
+	 * @param numberOfPaths The number of path of the simulation.
 	 */
 	public LogNormalProcess(
 			TimeDiscretizationInterface timeDiscretization,
@@ -102,6 +106,8 @@ public abstract class LogNormalProcess {
 	abstract public RandomVariableInterface	getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
 
 	/**
+	 * Get the the drift.
+	 * 
      * @param timeIndex The time index (related to the model times discretization).
      * @param realizationAtTimeIndex The given realization at timeIndex
      * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
