@@ -38,7 +38,7 @@ public abstract class AbstractMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
     public abstract RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException;
 
@@ -61,7 +61,7 @@ public abstract class AbstractMonteCarloProduct {
      * 
      * @param model A model used to evaluate the product.
      * @return The values of the product.
-     * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
     public Map<String, Object> getValues(MonteCarloSimulationInterface model) throws CalculationException
     {
@@ -89,7 +89,7 @@ public abstract class AbstractMonteCarloProduct {
 	 * @param dataModified The new market data object to use (could be of different types)
 	 * 
      * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
 	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationInterface model, Map<String,Object> dataModified) throws CalculationException
 	{
@@ -108,7 +108,7 @@ public abstract class AbstractMonteCarloProduct {
 	 * @param dataModified The new market data object to use (could be of different types)
 	 * 
      * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
 	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationInterface model, String entityKey, Object dataModified) throws CalculationException
 	{

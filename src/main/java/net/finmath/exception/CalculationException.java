@@ -16,14 +16,16 @@ public class CalculationException extends Exception {
     private static final long serialVersionUID = 6848163003188948320L;
 
 	/**
-	 * 
+	 * A wrapper for exceptions associated with numerical algorithm of finmath lib
 	 */
 	public CalculationException() {
 		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param message
+	 * Create an exception with error message.
+	 * 
+	 * @param message The error message.
 	 */
 	public CalculationException(String message) {
 		super(message);
@@ -31,7 +33,9 @@ public class CalculationException extends Exception {
 	}
 
 	/**
-	 * @param cause
+	 * Create an exception from another exception.
+	 * 
+	 * @param cause The cause.
 	 */
 	public CalculationException(Throwable cause) {
 		super(cause);
@@ -39,12 +43,13 @@ public class CalculationException extends Exception {
 	}
 
 	/**
-	 * @param message
-	 * @param cause
+	 * Create an exception from another exception with error message.
+	 * 
+	 * @param cause The cause.
+	 * @param cause The cause.
 	 */
 	public CalculationException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}
-
 }
