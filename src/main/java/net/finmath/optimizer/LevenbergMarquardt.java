@@ -31,9 +31,10 @@ import net.finmath.functions.LinearAlgebra;
  * additionally overriding the function {@code setDerivatives(double[] parameters, double[][] derivatives)},
  * otherwise the solver will calculate the derivative via finite differences.
  * 
- * The following simple example finds a solution for the equation <br/>
+ * The following simple example finds a solution for the equation <br></br>
  * <center>
  * <table>
+ * <caption>Sample linear system of equations.</caption>
  * <tr><td>
  * 0.0 * x<sub>1</sub> + 1.0 * x<sub>2</sub> = 5.0
  * </td></tr>
@@ -43,8 +44,8 @@ import net.finmath.functions.LinearAlgebra;
  * </table>
  * </center>
  * 
- * <code>
  * <pre>
+ * {@code
  * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
  * 		// Override your objective function here
  * 		public void setValues(double[] parameters, double[] values) {
@@ -62,8 +63,8 @@ import net.finmath.functions.LinearAlgebra;
  * 	optimizer.run();
  * 
  * 	double[] bestParameters = optimizer.getBestFitParameters();
+ * }
  * </pre>
- * </code>
  * 
  * See the example in the main method below.
  * 

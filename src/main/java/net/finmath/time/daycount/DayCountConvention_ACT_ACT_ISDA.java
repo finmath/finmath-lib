@@ -17,7 +17,6 @@ import java.util.GregorianCalendar;
  * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
  * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
  * 
- * <p>
  * The day count fraction is calculated using ACT_ACT_ISDA convention, that is, the
  * day count fraction is <i>n<sub>1</sub>/365</i> + <i>n<sub>2</sub>/366</i>, where
  * <ul>
@@ -26,7 +25,6 @@ import java.util.GregorianCalendar;
  * </ul>
  * where the start date is included in the counting and the end date is excluded in the counting.
  * This means that from 31.12.2014 to 01.01.2015 the day count fraction is 1/366 since 2014 is a leap year.
- * </p>
  * 
  * <p>
  * The class passed that standard benchmark test in the IDSA document, see {@link net.finmath.tests.time.daycount.DayCountConventionTest}.

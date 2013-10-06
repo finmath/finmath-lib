@@ -14,12 +14,12 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * Implements the valuation of a money market account. The money market account
  * is characterized by its inception time <i>t<sub>0</sub></i> and its accrual period
- * <i>&Delta; t</i>. <br/>
+ * <i>&Delta; t</i>. <br></br>
  * 
  * With <i>t<sub>i</sub> := t<sub>0</sub> + i &Delta; t</i>
  * the money market account value <i>N(t<sub>0</sub>) = 1</i> and
  * <i>N(t) = N(t<sub>i</sub>) (1 + L(t<sub>i</sub>,t<sub>i+1</sub>;t<sub>i</sub>) (t - t<sub>i</sub>))</i>.
- * for <i>t<sub>i</sub> &lt; t &lt; t<sub>i+1</sub></i>. <br/>
+ * for <i>t<sub>i</sub> &lt; t &lt; t<sub>i+1</sub></i>. <br></br>
  * 
  * The value of the account at inception is 1.0. The value of the account prior to inception is zero.
  * 
