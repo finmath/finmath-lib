@@ -20,7 +20,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Here <i>f<sub>i,j</sub></i> are the factor loadings, an <i>n &times; m</i>-matrix.
  * 
  * If <i>dU<sub>j</sub></i> are independent, then <i>dW<sub>i</sub> dW<sub>k</sub> = &rho;<sub>i,k</sub> dt</i>
- * where <i>&rho;<sub>i,k</sub> = f<sub>i</sub> &cdot; f<sub>j</sub></i>.
+ * where <i>&rho;<sub>i,k</sub> = f<sub>i</sub> &middot; f<sub>j</sub></i>.
  * 
  * Note: It is possible to create this class with a Brownian motion <i>U</i> which is
  * already correlated. The factors loadings will be applied accordingly.
@@ -43,7 +43,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	 * Here <i>f<sub>i,j</sub></i> are the factor loadings, an <i>n &times; m</i>-matrix.
 	 * 
 	 * If <i>dU<sub>j</sub></i> are independent, then <i>dW<sub>i</sub> dW<sub>k</sub> = &rho;<sub>i,k</sub> dt</i>
-	 * where <i>&rho;<sub>i,k</sub> = f<sub>i</sub> &cdot; f<sub>j</sub></i>.
+	 * where <i>&rho;<sub>i,k</sub> = f<sub>i</sub> &middot; f<sub>j</sub></i>.
 	 * 
 	 * @param uncollelatedFactors The Brownian motion providing the (uncorrelated) factors <i>dU<sub>j</sub></i>.
 	 * @param factorLoadings The factor loadings <i>f<sub>i,j</sub></i>.

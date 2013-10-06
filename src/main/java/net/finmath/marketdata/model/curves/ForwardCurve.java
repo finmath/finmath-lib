@@ -217,6 +217,11 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 
 	
 	/**
+	 * Add a forward to this curve.
+	 * 
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTime The given fixing time.
+	 * @param forward The given forward.
 	 * @deprecated
 	 */
 	public void addForward(AnalyticModelInterface model, double fixingTime, double forward) {
