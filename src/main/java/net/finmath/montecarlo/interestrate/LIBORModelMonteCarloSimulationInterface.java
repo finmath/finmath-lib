@@ -39,8 +39,11 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
     int getNumberOfLibors();
 
 	/**
-	 * @return The index corresponding to a given time (interpretation is start of period)
-	 */
+     * Returns the period start of the specified forward rate period.
+     * 
+     * @param timeIndex The index corresponding to a given time (interpretation is start of period)
+     * @return The period start of the specified forward rate period.
+     */
     double getLiborPeriod(int timeIndex);
 
 	/**

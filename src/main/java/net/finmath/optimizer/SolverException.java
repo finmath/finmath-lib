@@ -6,7 +6,7 @@
 package net.finmath.optimizer;
 
 /**
- * Exception thrown by solvers <code>net.finmath.rootfinder</code> or <code>net.finmath.optimizer</code>.
+ * Exception thrown by solvers {@link net.finmath.rootfinder} or {@link net.finmath.optimizer}.
  *
  * @author Christian Fries
  */
@@ -15,22 +15,28 @@ public class SolverException extends Exception {
     private static final long serialVersionUID = 7123998462171729835L;
 
 	/**
-	 * @param message
+	 * Create an exception with error message.
+	 * 
+	 * @param message The error message.
 	 */
 	public SolverException(String message) {
 		super(message);
 	}
 
 	/**
-	 * @param cause
+	 * Create an exception from another exception.
+	 * 
+	 * @param cause The cause.
 	 */
 	public SolverException(Throwable cause) {
 		super(cause);
 	}
 
 	/**
-	 * @param message
-	 * @param cause
+	 * Create an exception from another exception with error message.
+	 * 
+	 * @param message The error message.
+	 * @param cause The cause.
 	 */
 	public SolverException(String message, Throwable cause) {
 		super(message, cause);
