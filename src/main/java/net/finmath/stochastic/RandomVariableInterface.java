@@ -262,42 +262,49 @@ public interface RandomVariableInterface {
 
     /**
      * Applies x &rarr; min(x,cap) to this random variable.
+     * @param cap The cap.
      * @return New random variable with the result of the function.
      */
     RandomVariableInterface cap(double cap);
 
     /**
      * Applies x &rarr; max(x,floor) to this random variable.
+     * @param floor The floor.
      * @return New random variable with the result of the function.
      */
     RandomVariableInterface floor(double floor);
 
     /**
      * Applies x &rarr; x + value to this random variable.
+     * @param value The value to add.
      * @return New random variable with the result of the function.
      */
     RandomVariableInterface add(double value);
 
     /**
      * Applies x &rarr; x - value to this random variable.
+     * @param value The value to subtract.
      * @return New random variable with the result of the function.
      */
     RandomVariableInterface sub(double value);
 
     /**
      * Applies x &rarr; x * value to this random variable.
+     * @param value The value to multiply.
      * @return New random variable with the result of the function.
      */
     RandomVariableInterface mult(double value);
 
     /**
      * Applies x &rarr; x / value to this random variable.
+     * @param value The value to divide.
      * @return New random variable with the result of the function.
      */
     RandomVariableInterface div(double value);
 
     /**
      * Applies x &rarr; pow(x,exponent) to this random variable.
+     * @param exponent The exponent.
      * @return New random variable with the result of the function.
      */
     RandomVariableInterface pow(double exponent);
