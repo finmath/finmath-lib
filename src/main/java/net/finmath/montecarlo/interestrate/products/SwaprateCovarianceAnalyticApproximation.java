@@ -25,6 +25,8 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
     final double[]    swapTenor2;       // Vector of swap tenor (period start and end dates).
     
     /**
+     * Create the product implementing the analytic approximation of a swap rate covariance in a forward rate model.
+     * 
      * @param swapTenor1 The swap tenor of the first rate in doubles.
      * @param swapTenor2 The swap tenor of the second rate in doubles.
      */
@@ -34,6 +36,9 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
         this.swapTenor2 = swapTenor2;
     }
 
+    /* (non-Javadoc)
+     * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
+     */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
     	return getValue(evaluationTime, (LIBORMarketModel)((LIBORModelMonteCarloSimulationInterface) model).getModel());
@@ -43,8 +48,10 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
      * Calculates the approximated integrated instantaneous covariance of two swap rates,
      * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
      * 
+	 * @param evaluationTime The evaluation time.
      * @param model A model implementing the LIBORMarketModel
      * @return Returns the approximated integrated instantaneous covariance of two swap rates.
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
 	public RandomVariableInterface getValue(double evaluationTime, LIBORMarketModel model) throws CalculationException {
 

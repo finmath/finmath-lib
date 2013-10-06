@@ -142,9 +142,9 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
      * 
      * It also returns some useful other quantities like the corresponding discout factors and swap annuities.
      * 
-     * @param liborPeriodDiscretization
-     * @param forwardCurveInterface
-     * @param swapTenor
+     * @param liborPeriodDiscretization The libor period discretization.
+     * @param forwardCurveInterface The forward curve.
+     * @param swapTenor The swap tenor.
      * @return A map containing the partial derivatives (key "value"), the discount factors (key "disocuntFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
      */
     static public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {

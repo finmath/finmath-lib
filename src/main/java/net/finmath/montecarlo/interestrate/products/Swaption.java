@@ -32,11 +32,13 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	private double[]   swaprates;		// Vector of strikes
 		
     /**
-     * @param exerciseDate
-     * @param fixingDates
-     * @param paymentDates
-     * @param periodLengths
-     * @param swaprates
+     * Create a swaption.
+     * 
+     * @param exerciseDate Vector of exercise dates.
+	 * @param fixingDates Vector of fixing dates.
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates).
+     * @param periodLengths Vector of period lengths.
+	 * @param swaprates Vector of strikes (must have same length as fixing dates).
      */
     public Swaption(double exerciseDate, double[] fixingDates, double[] paymentDates, double[] periodLengths, double[] swaprates) {
         super();
@@ -48,6 +50,8 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
     }
 
 	/**
+     * Create a swaption.
+     * 
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)

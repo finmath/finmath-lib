@@ -16,18 +16,18 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm extends LIBORVolatilityModel {
 
-    double[] a;
-    double[] b;
-    double[] c;
-    double[] d;
+    private double[] a;
+    private double[] b;
+    private double[] c;
+    private double[] d;
 
     /**
-     * @param timeDiscretization
-     * @param liborPeriodDiscretization
-     * @param a
-     * @param b
-     * @param c
-     * @param d
+     * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+     * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
+     * @param a The parameter a: an initial volatility level.
+     * @param b The parameter b: the slope at the short end (shortly before maturity).
+     * @param c The parameter c: exponential decay of the volatility in time-to-maturity.
+     * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
      */
     public LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d) {
         super(timeDiscretization, liborPeriodDiscretization);

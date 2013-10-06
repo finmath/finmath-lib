@@ -29,8 +29,8 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
      * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
      * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
      * @param a The parameter a: an initial volatility level.
-     * @param b The parameter b.
-     * @param c The parameter c: exponential decay of the volatility.
+     * @param b The parameter b: the slope at the short end (shortly before maturity).
+     * @param c The parameter c: exponential decay of the volatility in time-to-maturity.
      * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
      * @param isCalibrateable Set this to true, if the parameters are available for calibration.
      */
