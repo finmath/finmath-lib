@@ -262,117 +262,117 @@ public interface RandomVariableInterface {
 
     /**
      * Applies x &rarr; min(x,cap) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface cap(double cap);
 
     /**
      * Applies x &rarr; max(x,floor) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface floor(double floor);
 
     /**
      * Applies x &rarr; x + value to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface add(double value);
 
     /**
      * Applies x &rarr; x - value to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface sub(double value);
 
     /**
      * Applies x &rarr; x * value to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface mult(double value);
 
     /**
      * Applies x &rarr; x / value to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface div(double value);
 
     /**
      * Applies x &rarr; pow(x,exponent) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface pow(double exponent);
 
     /**
      * Applies x &rarr; x * x to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface squared();
 
     /**
      * Applies x &rarr; sqrt(x) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface sqrt();
 
     /**
      * Applies x &rarr; exp(x) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface exp();
 
     /**
      * Applies x &rarr; log(x) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface log();
 
     /**
      * Applies x &rarr; sin(x) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface sin();
 
     /**
      * Applies x &rarr; cos(x) to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface cos();
 
     /**
      * Applies x &rarr; x+randomVariable to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface add(RandomVariableInterface randomVariable);
 
     /**
      * Applies x &rarr; x-randomVariable to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface sub(RandomVariableInterface randomVariable);
 
     /**
      * Applies x &rarr; x*randomVariable to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface mult(RandomVariableInterface randomVariable);
 
     /**
      * Applies x &rarr; x/randomVariable to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface div(RandomVariableInterface randomVariable);
 
     /**
      * Applies x &rarr; min(x,cap) to this random variable.
      * @param cap The cap
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface cap(RandomVariableInterface cap);
 
     /**
      * Applies x &rarr; max(x,floor) to this random variable.
      * @param floor The floor
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface floor(RandomVariableInterface floor);
 
@@ -380,7 +380,7 @@ public interface RandomVariableInterface {
      * Applies x &rarr; x * (1.0 + rate * periodLength) to this random variable.
      * @param rate The accruing rate
      * @param periodLength The period length
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength);
 
@@ -388,48 +388,52 @@ public interface RandomVariableInterface {
      * Applies x &rarr; x / (1.0 + rate * periodLength) to this random variable.
      * @param rate The discounting rate
      * @param periodLength The period length
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface discount(RandomVariableInterface rate, double periodLength);
 
     /**
-     * Applies x &rarr; (trigger >= 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
+     * Applies x &rarr; (trigger &ge; 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
      * @param trigger The trigger
      * @param valueIfTriggerNonNegative The value used if the trigger is greater or equal 0
      * @param valueIfTriggerNegative The value used if the trigger is less than 0
-     * @return A self reference
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative);
 
     /**
-     * Applies x &rarr; (trigger >= 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
+     * Applies x &rarr; (trigger &ge; 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
      * @param trigger The trigger
      * @param valueIfTriggerNonNegative The value used if the trigger is greater or equal 0
      * @param valueIfTriggerNegative The value used if the trigger is less than 0
-     * @return A self reference
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative);
 
     /**
      * Applies x &rarr; 1/x to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface invert();
 
     /**
      * Applies x &rarr; Math.abs(x), i.e. x &rarr; |x| to this random variable.
-     * @return A self reference.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface abs();
 
     /**
      * Applies x &rarr; x + factor1 * factor2
-     * @return self reference.
+     * @param factor1 The factor 1.
+     * @param factor2 The factor 2.
+     * @return New random variable with the result of the function.
      */
     RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2);
 
     /**
      * Applies x &rarr; x + factor1 * factor2
+     * @param factor1 The factor 1.
+     * @param factor2 The factor 2.
      * @return self reference.
      */
     RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2);
