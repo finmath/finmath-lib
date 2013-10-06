@@ -132,7 +132,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param covarianceModel The covariance model to use.
 	 * @param swaptionMarketData The set of swaption values to calibrate to.
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretizationInterface			liborPeriodDiscretization,
@@ -151,7 +151,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
 	 * @param covarianceModel The covariance model to use.
 	 * @param swaptionMarketData The set of swaption values to calibrate to.
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretizationInterface			liborPeriodDiscretization,
@@ -173,7 +173,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
 	 * @param covarianceModel The covariance model to use.
 	 * @param calibrationItems The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretizationInterface				liborPeriodDiscretization,
@@ -285,7 +285,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * 
 	 * @param time Time time <i>t</i> for which the numeraire should be returned <i>N(t)</i>.
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
@@ -373,7 +373,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
 	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
 	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariable[]</code>
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
 	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {

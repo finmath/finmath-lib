@@ -62,6 +62,7 @@ public class RandomVariable implements RandomVariableInterface {
      * Create a non stochastic random variable, i.e. a constant.
      *
      * @param time the filtration time, set to 0.0 if not used.
+     * @param numberOfPath The number of paths.
      * @param value the value, a constant.
      */
     public RandomVariable(double time, int numberOfPath, double value) {
