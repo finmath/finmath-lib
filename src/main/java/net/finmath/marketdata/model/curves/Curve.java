@@ -171,8 +171,8 @@ public class Curve extends AbstractCurve implements Serializable {
 	 * Add a point to this curve. The method will throw an exception if the point
 	 * is already part of the curve.
 	 * 
-	 * @param time The x<sub>i</sub> in <<sub>i</sub> = f(x<sub>i</sub>).
-	 * @param value The y<sub>i</sub> in <<sub>i</sub> = f(x<sub>i</sub>).
+	 * @param time The x<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
+	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 */
 	public void addPoint(double time, double value) {
 		double interpolationEntityValue = interpolationEntityFromValue(value, time);

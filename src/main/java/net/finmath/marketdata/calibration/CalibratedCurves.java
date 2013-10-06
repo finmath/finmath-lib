@@ -58,20 +58,20 @@ public class CalibratedCurves {
 		private String				calibrationCurveName;
 		private double				calibrationTime;
 
-	       /**
+		/**
          * Calibration specification.
          * 
-         * @param type
-         * @param swapTenorDefinitionReceiver
-         * @param forwardCurveReceiverName
-         * @param spreadReceiver
-         * @param discountCurveReceiverName
-         * @param swapTenorDefinitionPayer
-         * @param forwardCurvePayerName
-         * @param spreadPayer
-         * @param discountCurvePayerName
-         * @param calibrationCurveName
-         * @param calibrationTime
+         * @param type The type of the calibration product.
+         * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+         * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+         * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+         * @param discountCurveReceiverName The discount curve of the receiver leg.
+         * @param swapTenorDefinitionPayer The schedule of periods of the payer leg.
+         * @param forwardCurvePayerName The forward curve of the payer leg (may be null).
+         * @param spreadPayer The spread or fixed coupon of the payer leg.
+         * @param discountCurvePayerName The discount curve of the payer leg.
+         * @param calibrationCurveName The curve to calibrate, by this product.
+         * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
          */
         public CalibrationSpec(
         		String type,
@@ -100,17 +100,17 @@ public class CalibratedCurves {
         /**
          * Calibration specification.
          * 
-         * @param type
-         * @param swapTenorDefinitionReceiver
-         * @param forwardCurveReceiverName
-         * @param spreadReceiver
-         * @param discountCurveReceiverName
-         * @param swapTenorDefinitionPayer
-         * @param forwardCurvePayerName
-         * @param spreadPayer
-         * @param discountCurvePayerName
-         * @param calibrationCurveName
-         * @param calibrationTime
+         * @param type The type of the calibration product.
+         * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+         * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+         * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+         * @param discountCurveReceiverName The discount curve of the receiver leg.
+         * @param swapTenorDefinitionPayer The schedule of periods of the payer leg.
+         * @param forwardCurvePayerName The forward curve of the payer leg (may be null).
+         * @param spreadPayer The spread or fixed coupon of the payer leg.
+         * @param discountCurvePayerName The discount curve of the payer leg.
+         * @param calibrationCurveName The curve to calibrate, by this product.
+         * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
          */
         public CalibrationSpec(
         		String type,
@@ -139,13 +139,13 @@ public class CalibratedCurves {
         /**
          * Calibration specification.
          * 
-         * @param type
-         * @param swapTenorDefinitionReceiver
-         * @param forwardCurveReceiverName
-         * @param spreadReceiver
-         * @param discountCurveReceiverName
-         * @param calibrationCurveName
-         * @param calibrationTime
+         * @param type The type of the calibration product.
+         * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+         * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+         * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+         * @param discountCurveReceiverName The discount curve of the receiver leg.
+         * @param calibrationCurveName The curve to calibrate, by this product.
+         * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
          */
         public CalibrationSpec(
         		String type,
@@ -192,7 +192,7 @@ public class CalibratedCurves {
 	 * from a vector of calibration products.
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws net.finmath.optimizer.SolverException
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs) throws SolverException {
 		model	= new AnalyticModel();
@@ -219,7 +219,7 @@ public class CalibratedCurves {
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
-	 * @throws net.finmath.optimizer.SolverException
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException {
 		model	= calibrationModel;
@@ -236,7 +236,7 @@ public class CalibratedCurves {
 	 * from a vector of calibration products.
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws net.finmath.optimizer.SolverException
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 */
 	public CalibratedCurves(Collection<CalibrationSpec> calibrationSpecs) throws SolverException {
 		model	= new AnalyticModel();
@@ -309,7 +309,9 @@ public class CalibratedCurves {
 	}
 
 	/**
-	 * @param calibrationSpec
+	 * Add a calibration product to the set of calibration instruments.
+	 * 
+	 * @param calibrationSpec The spec of the calibration product.
 	 */
 	private String add(CalibrationSpec calibrationSpec)
 	{
@@ -348,7 +350,9 @@ public class CalibratedCurves {
 	}
 
 	/**
-	 * @param discountCurveName
+	 * Get a discount curve from the model, if not existing create a discount curve.
+	 * 
+	 * @param discountCurveName The name of the disocunt curve to create.
 	 * @return The discount factor curve associated with the given name.
 	 */
     private DiscountCurveInterface createDiscountCurve(String discountCurveName) {
@@ -362,8 +366,10 @@ public class CalibratedCurves {
     }
 
 	/**
-	 * @param swapTenorDefinition
-	 * @param forwardCurveName
+	 * Get a forward curve from the model, if not existing create a forward curve.
+	 * 
+	 * @param swapTenorDefinition The swap tenor associated with the forward curve.
+	 * @param forwardCurveName The name of the forward curve to create.
 	 * @return The forward curve associated with the given name.
 	 */
     private String createForwardCurve(ScheduleInterface swapTenorDefinition, String forwardCurveName) {

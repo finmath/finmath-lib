@@ -52,7 +52,7 @@ public interface MonteCarloSimulationInterface {
 	 * 
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
 
@@ -61,7 +61,7 @@ public interface MonteCarloSimulationInterface {
 	 * 
 	 * @param time Time at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
 
@@ -70,7 +70,7 @@ public interface MonteCarloSimulationInterface {
 	 * 
 	 * @param dataModified The data which should be changed in the new model
 	 * @return Returns a clone of this model, with some data modified (then it is no longer a clone :-)
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

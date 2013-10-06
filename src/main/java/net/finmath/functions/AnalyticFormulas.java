@@ -87,10 +87,12 @@ public class AnalyticFormulas {
 	}
 	
 	/**
-     * Calculates the Black-Scholes option value of an at-the-money call option.
+     * Calculates the Black-Scholes option value of an atm call option.
      * 
      * @param volatility The Black-Scholes volatility.
      * @param optionMaturity The option maturity T.
+	 * @param forward The forward, i.e., the expectation of the index under the measure associated with payoff unit.
+	 * @param payoffUnit The payoff unit, i.e., the discount factor or the anuity associated with the payoff.
 	 * @return Returns the value of a European at-the-money call option under the Black-Scholes model
 	 */
 	public static double blackScholesATMOptionValue(
@@ -109,11 +111,13 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param optionMaturity
-	 * @param optionStrike
+     * Calculates the Black-Scholes option value of a call option.
+     * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
 	 * @return Returns the value of a European call option under the Black-Scholes model
 	 */
 	public static double blackScholesDigitalOptionValue(
@@ -141,14 +145,14 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the delta of a call option under a Black-Scholes model
+	 * Calculates the delta of a digital option under a Black-Scholes model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param optionMaturity
-	 * @param optionStrike
-	 * @return The delta of the option
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the digital option
 	 */
 	public static double blackScholesDigitalOptionDelta(
 			double initialStockValue,
@@ -177,11 +181,11 @@ public class AnalyticFormulas {
 	/**
 	 * Calculates the delta of a call option under a Black-Scholes model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param optionMaturity
-	 * @param optionStrike
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
 	 * @return The delta of the option
 	 */
 	public static double blackScholesOptionDelta(
@@ -210,11 +214,11 @@ public class AnalyticFormulas {
 	/**
 	 * This static method calculated the gamma of a call option under a Black-Scholes model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param optionMaturity
-	 * @param optionStrike
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
 	 * @return The gamma of the option
 	 */
 	public static double blackScholesOptionGamma(
@@ -243,11 +247,11 @@ public class AnalyticFormulas {
 	/**
 	 * This static method calculated the vega of a call option under a Black-Scholes model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param optionMaturity
-	 * @param optionStrike
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
 	 * @return The vega of the option
 	 */
 	public static double blackScholesOptionVega(
@@ -274,7 +278,8 @@ public class AnalyticFormulas {
 	}
 
 	/**
-     * Calculates the Black-Scholes option implied volatility of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
+     * Calculates the Black-Scholes option implied volatility of a call, i.e., the payoff
+     * <p><i>max(S(T)-K,0)</i></p>, where <i>S</i> follows a log-normal process with constant log-volatility.
      *
 	 * @param forward The forward of the underlying.
 	 * @param optionMaturity The option maturity T.

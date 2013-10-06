@@ -46,6 +46,9 @@ public class NormalDistribution {
      * 
      * The hash sums below are the sums of the mantissas of the coefficients.
      * they are included for use in checking transcription.
+     * 
+     * @param p The probablity (quantile).
+     * @return The argument of the cumulative distribution function being assigned to p.
      */
     public static double inverseCumulativeNormalDistribution_Wichura(double p) {
         double zero = 0.e+00, one = 1.e+00, half = 0.5e+00;
