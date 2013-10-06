@@ -77,7 +77,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
      * curve.
      * 
      * @param name The name of this curve.
-     * @param paymentOffset Time between fixing and payment.
+	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
      * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
      * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
      */
@@ -92,6 +92,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
      * @param name The name of this curve.
 	 * @param times A vector of given time points.
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
 	 * @return A new ForwardCurve object.
 	 */
 	public static ForwardCurve createForwardCurveFromForwards(String name, double[] times, double[] givenForwards, double paymentOffset) {
@@ -112,11 +113,12 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * <code>
 	 * 			forward[timeIndex] = (givenDiscountFactors[timeIndex]/givenDiscountFactors[timeIndex+1]-1.0) / (times[timeIndex+1] - times[timeIndex]);
 	 * </code>
-	 * Note: If time[0] > 0, then the discount factor 1.0 will inserted at time 0.0
+	 * Note: If time[0] &gt; 0, then the discount factor 1.0 will inserted at time 0.0
 	 * 
      * @param name The name of this curve.
 	 * @param times A vector of given time points.
 	 * @param givenDiscountFactors A vector of given discount factors (corresponding to the given time points).
+	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
 	 * @return A new ForwardCurve object.
 	 */
 	public static ForwardCurve createForwardCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors, double paymentOffset) {
