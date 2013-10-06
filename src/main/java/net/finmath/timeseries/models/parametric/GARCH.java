@@ -18,10 +18,10 @@ import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.PointValuePair;
 
 /**
- * Lognormal process with GARCH(1,1) volatility.
+ * Lo-gnormal process with GARCH(1,1) volatility.
  * 
  * This class estimates the process
- *   d log(X) = sigma dW
+ *   d log(X) = &sigma; dW
  * 
  * @author Christian Fries
  */
@@ -35,7 +35,7 @@ public class GARCH implements HistoricalSimulationModel {
 	/**
 	 * Create GARCH model estimated form the given time series of values.
 	 * 
-	 * @param values
+	 * @param values Given set of values.
 	 */
 	public GARCH(double[] values) {
 		this.values = values;
@@ -43,6 +43,13 @@ public class GARCH implements HistoricalSimulationModel {
 		this.windowIndexEnd		= values.length-1;
 	}
 
+	/**
+	 * Create GARCH model estimated form the given time series of values.
+	 * 
+	 * @param values Given set of values.
+	 * @param windowIndexStart First index to consider in the given set of values.
+	 * @param windowIndexEnd Last index to consider in the given set of values.
+	 */
 	public GARCH(double[] values, int windowIndexStart, int windowIndexEnd) {
 		this.values = values;
 		this.windowIndexStart	= windowIndexStart;
@@ -56,10 +63,10 @@ public class GARCH implements HistoricalSimulationModel {
 	/**
 	 * Get log likelihood of the sample time series for given model parameters.
 	 * 
-	 * @param omega
-	 * @param alpha
-	 * @param beta
-	 * @return
+	 * @param omega The parameter &omega; of the GARCH model.
+	 * @param alpha The parameter &alpha; of the GARCH model.
+	 * @param beta The parameter &beta; of the GARCH model.
+	 * @return The log likelihood of the times series under the specified GARCH model.
 	 */
 	public double getLogLikelihoodForParameters(double omega, double alpha, double beta)
 	{
@@ -83,10 +90,10 @@ public class GARCH implements HistoricalSimulationModel {
 	/**
 	 * Returns the last estimate of the time series volatility.
 	 * 
-	 * @param omega
-	 * @param alpha
-	 * @param beta
-	 * @return
+	 * @param omega The parameter &omega; of the GARCH model.
+	 * @param alpha The parameter &alpha; of the GARCH model.
+	 * @param beta The parameter &beta; of the GARCH model.
+	 * @return Last residual, i.e., &sigma;
 	 */
 	public double getLastResidualForParameters(double omega, double alpha, double beta) {
 		double volScaling = 1.0;
