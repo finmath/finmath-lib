@@ -37,7 +37,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
      * Create a discount curve using a given forward curve.
      * The discount factors df(t) are defined at t = k * d for integers k
      * via df(t+d) = df(t) / (1 + f(t) * d) and
-     * for t = k * d and 0 < r < d
+     * for t = k * d and 0 &lt; r &lt; d
      * via df(t+r) = df(t) / (1 + f(t) * r)
      * where d is a given the payment offset and f(t) is the forward curve.
      * 
@@ -53,7 +53,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
      * Create a discount curve using a given forward curve.
      * The discount factors df(t) are defined at t = k * d for integers k
      * via df(t+d) = df(t) / (1 + f(t) * d) and
-     * for t = k * d and 0 < r < d
+     * for t = k * d and 0 &lt; r &lt; d
      * via df(t+r) = df(t) / (1 + f(t) * r)
      * where d is a given the payment offset and f(t) is the forward curve.
      * 

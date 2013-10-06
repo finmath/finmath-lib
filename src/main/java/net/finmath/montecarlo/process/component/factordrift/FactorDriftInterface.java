@@ -22,7 +22,7 @@ public interface FactorDriftInterface {
 	 * @param timeIndex
 	 * @param realizationPredictor
 	 * @return A vector of random variables given the factor drift for each factor. If the size is less then the number of factors, then higher order factors have no drift.
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 */
 	RandomVariableInterface[]	getFactorDrift(int timeIndex, RandomVariableInterface[] realizationPredictor) throws CalculationException;
 

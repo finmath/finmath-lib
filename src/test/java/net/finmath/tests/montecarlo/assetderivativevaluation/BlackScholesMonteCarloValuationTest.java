@@ -53,7 +53,7 @@ public class BlackScholesMonteCarloValuationTest {
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
 	 * performed with this model.
 	 * 
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 * @throws InterruptedException 
 	 */
     public static void main(String[] args) throws IOException, CalculationException, InterruptedException

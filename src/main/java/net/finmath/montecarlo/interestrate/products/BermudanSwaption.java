@@ -134,7 +134,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
      * @param fixingDateIndex The time index corresponding to the fixing date
      * @param model The model
 	 * @return The basis functions for the regression suitable for this product.
-	 * @throws CalculationException 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		double fixingDate   = fixingDates[fixingDateIndex];

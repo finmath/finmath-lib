@@ -64,7 +64,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
      * @param timeIndex The time index of evaluation time (using this models time discretization)
      * @param componentIndex The component of the process vector
      * @return Process realization as a random variable 
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
      * @see net.finmath.montecarlo.process.AbstractProcess#getProcessValue(int, int)
      */
     public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
@@ -74,7 +74,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
     /**
      * @param timeIndex The time index of evaluation time (using this models time discretization)
      * @return A random variable representing the Monte-Carlo probabilities.
-     * @throws CalculationException 
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
      * @see net.finmath.montecarlo.process.AbstractProcess#getMonteCarloWeights(int)
      */
     public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
