@@ -72,6 +72,7 @@ public class DayCountConventionFactory {
 	 * 
 	 * @param startDate The start date given as a {@link java.util.Date}.
 	 * @param endDate The end date given as a {@link java.util.Date}.
+	 * @param convention A convention string.
 	 * @return The number of days within the given period.
 	 */
 	public static double getDaycount(Date startDate, Date endDate, String convention) {
@@ -85,6 +86,7 @@ public class DayCountConventionFactory {
 	 * 
 	 * @param startDate The start date given as a {@link java.util.Date}.
 	 * @param endDate The end date given as a {@link java.util.Date}.
+	 * @param convention A convention string.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
 	public static double getDaycountFraction(Date startDate, Date endDate, String convention) {

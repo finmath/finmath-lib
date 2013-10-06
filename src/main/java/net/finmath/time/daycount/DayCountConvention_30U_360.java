@@ -34,15 +34,15 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	private boolean isEndOfMonth =  true;
 	
 	/**
-	 * Create a 30U/360 daycount convention.
+	 * Create a 30U/360 day count convention.
 	 */
 	public DayCountConvention_30U_360() {
 	}
 
 	/**
-	 * Create a 30U/360 daycount convention.
+	 * Create a 30U/360 day count convention.
 	 * 
-	 * @param isEndOfMonth
+	 * @param isEndOfMonth If true, an end-of-month day will always count as "30", even if we are in February.
 	 */
 	public DayCountConvention_30U_360(boolean isEndOfMonth) {
 		this.isEndOfMonth = isEndOfMonth;

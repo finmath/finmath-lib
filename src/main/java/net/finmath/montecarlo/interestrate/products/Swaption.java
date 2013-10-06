@@ -52,9 +52,10 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	/**
      * Create a swaption.
      * 
-	 * @param fixingDates Vector of fixing dates
-	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
-	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+     * @param exerciseDate Vector of exercise dates.
+	 * @param fixingDates Vector of fixing dates.
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates).
+	 * @param swaprates Vector of strikes (must have same length as fixing dates).
 	 */
 	public Swaption(
 			double exerciseDate,
@@ -73,8 +74,8 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * Creates a swaption using a TimeDiscretization
 	 * 
 	 * @param exerciseDate Exercise date.
-	 * @param swapTenor Vector of period start and end dates.
-	 * @param swaprate Strike
+	 * @param swapTenor Object specifying period start and end dates.
+	 * @param swaprate Strike.
 	 */
 	public Swaption(
 			double				exerciseDate,

@@ -25,7 +25,9 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
     private TimeDiscretizationInterface		timeDiscretization;
 
 	/**
-	 * @param timeDiscretization
+	 * Create a discretization scheme / a time discrete process.
+	 * 
+	 * @param timeDiscretization The time discretization used for the discretization scheme.
 	 */
 	public AbstractProcess(TimeDiscretizationInterface timeDiscretization) {
 		super();
@@ -33,7 +35,6 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	}
 
 	public abstract Object getCloneWithModifiedSeed(int seed);	
-
 
 	
     /*
