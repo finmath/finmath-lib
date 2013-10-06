@@ -45,7 +45,7 @@ public class CalculationException extends Exception {
 	/**
 	 * Create an exception from another exception with error message.
 	 * 
-	 * @param cause The cause.
+	 * @param message The error message.
 	 * @param cause The cause.
 	 */
 	public CalculationException(String message, Throwable cause) {

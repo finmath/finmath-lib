@@ -55,6 +55,7 @@ public class Solver {
      * objectiveFunctions.getValue(model) = 0
      * holds.
      * 
+     * @param curvesToCalibrates The set of curve to calibrate.
      * @return A reference to a calibrated clone of the given model.
      * @throws net.finmath.optimizer.SolverException
      */

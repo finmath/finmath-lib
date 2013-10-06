@@ -58,7 +58,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	/**
 	 * Add an object this parameterization.
 	 * 
-	 * @param parameterObject The object to add to tis parametrization
+	 * @param parameterObject The parameter object to add to this parameterization
 	 */
 	public void add(E parameterObject) {
 		parameters.add(parameterObject);
@@ -66,6 +66,8 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 
 	/**
 	 * Remove an object from this parameterization.
+	 * 
+	 * @param parameterObject The parameter object to remove.
 	 */
 	public void remove(E parameterObject) {
 		parameters.remove(parameterObject);

@@ -21,29 +21,39 @@ import net.finmath.time.TimeDiscretizationInterface;
 public interface MonteCarloSimulationInterface {
 	
 	/**
+	 * Returns the numberOfPaths.
+	 * 
 	 * @return Returns the numberOfPaths.
 	 */
     int getNumberOfComponents();
 
 	/**
+	 * Returns the numberOfPaths.
+	 * 
 	 * @return Returns the numberOfPaths.
 	 */
     int getNumberOfPaths();
 
 	/**
+	 * Returns the timeDiscretization.
+	 * 
 	 * @return Returns the timeDiscretization.
 	 */
     TimeDiscretizationInterface getTimeDiscretization();
 
 	/**
+	 * Returns the time for a given time index.
+	 * 
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
     double getTime(int timeIndex);
 
 	/**
-	 * @param time
-	 * @return Returns the time index for a given time
+	 * Returns the time index for a given time.
+	 * 
+	 * @param time The time.
+	 * @return Returns the time index for a given time.
 	 */
     int getTimeIndex(double time);
 
