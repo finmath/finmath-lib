@@ -58,7 +58,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param timeIndex Simulation time index.
 	 * @param liborIndex Tenor time index (index corresponding to the fixing of the forward rate).
 	 * @return The forward rate as a random variable.
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
@@ -69,7 +69,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param periodStart   Start time of period
 	 * @param periodEnd     End time of period
 	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
 
@@ -78,7 +78,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * 
 	 * @param timeIndex Simulation time index.
 	 * @return The forward rate curve for a given simulation time index.
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException;
 
@@ -87,7 +87,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * 
 	 * @param time Time at which the process should be observed
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface getNumeraire(double time) throws CalculationException;
 	

@@ -67,7 +67,7 @@ public interface AbstractModelInterface {
 	 * 
 	 * @param time The time <i>t</i> for which the numeraire <i>N(t)</i> should be returned.
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface getNumeraire(double time) throws CalculationException;
 

@@ -119,7 +119,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
      * @param fixingDateIndex The time index corresponding to the fixing date
      * @param model The model
      * @return The conditional expectation estimator suitable for this product
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
      */
     private MonteCarloConditionalExpectation getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
     	MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(

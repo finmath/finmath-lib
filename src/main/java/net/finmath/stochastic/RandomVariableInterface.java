@@ -199,7 +199,7 @@ public interface RandomVariableInterface {
 	 * <li>b = min(max((n+1) * quantileEnd - 1, 0, 1);</li>
 	 * <li>n = this.size();</li>
 	 * </ul>
-	 * For quantileStart > quantileEnd the method returns getQuantileExpectation(quantileEnd, quantileStart).
+	 * For quantileStart &gt; quantileEnd the method returns getQuantileExpectation(quantileEnd, quantileStart).
 	 * 
 	 * @param quantileStart Lower bound of the integral.
 	 * @param quantileEnd  Upper bound of the integral.

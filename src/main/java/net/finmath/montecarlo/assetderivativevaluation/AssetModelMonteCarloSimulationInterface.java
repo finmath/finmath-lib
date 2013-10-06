@@ -30,7 +30,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param timeIndex		Index of simulation time
 	 * @param assetIndex	Index of the asset (0 for a single asset model)
 	 * @return				The asset process as seen on simulation time
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface		getAssetValue(int timeIndex, int assetIndex) throws CalculationException;
 
@@ -40,7 +40,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param time			Simulation time
 	 * @param assetIndex	Index of the asset (0 for a single asset model)
 	 * @return				The asset process as seen on simulation time
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
 
@@ -53,7 +53,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * Create a clone of the object implementing <code>AssetModelMonteCarloSimulationInterface</code>
 	 * using a different Monte-Carlo seed.
 	 *
-	 * @param seed
+	 * @param seed The seed of the underlying random number generator.
 	 * @return Returns a clone of this model except for a modified Monte-Carlo seed.
 	 */
     Object getCloneWithModifiedSeed(int seed);

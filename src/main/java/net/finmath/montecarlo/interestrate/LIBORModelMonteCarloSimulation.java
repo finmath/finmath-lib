@@ -272,7 +272,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
      * @param entityKey The entity to modify.
 	 * @param dataModified The data which should be changed in the new model
 	 * @return Returns a clone of this model, where the specified part of the data is modified data (then it is no longer a clone :-)
-	 * @throws net.finmath.exception.CalculationException
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
     public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(String entityKey, Object dataModified) throws CalculationException
 	{
