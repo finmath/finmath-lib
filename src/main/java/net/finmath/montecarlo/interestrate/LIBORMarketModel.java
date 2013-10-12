@@ -77,6 +77,32 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Note that &lambda; may still depend on <i>L</i>, hence generating a log-normal dynamic for <i>L</i> even
  * if the stateSpace property has been set to NORMAL.
  * <br>
+ *
+ * The map <code>properties</code> allows to configure the model. The following keys may be used:
+ * <ul>
+ * 		<li>
+ * 			<code>measure</code>: Possible values:
+ * 			<ul>
+ * 				<li>
+ * 					<code>SPOT</code>: Simulate under spot measure.
+ * 				</li>
+ * 				<li>
+ * 					<code>TERMINAL</code>: Simulate under terminal measure.
+ * 				</li>
+ *			</ul>
+ *		</li>
+ * 		<li>
+ * 			<code>stateSpace</code>: Possible values:
+ * 			<ul>
+ * 				<li>
+ * 					<code>LOGNORMAL</code>: Simulate <i>L = exp(Y)</i>.
+ * 				</li>
+ * 				<li>
+ * 					<code>NORMAL</code>: Simulate <i>L = Y</i>.
+ * 				</li>
+ *			</ul>
+ *		</li>
+ * </ul>
  * <br>
  * The main task of this class is to calculate the risk-neutral drift and the
  * corresponding numeraire given the covariance model.
