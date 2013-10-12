@@ -34,6 +34,7 @@ public class Solver {
 	private final AnalyticModelInterface				model;
 	private final List<AnalyticProductInterface> calibrationProducts;
 
+	private double evaluationTime = 0.0;
 	private int iterations		= 0;
 	private final int maxIterations	= 10000;
 
@@ -81,7 +82,7 @@ public class Solver {
 					Map<CurveInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(parameters);
 					AnalyticModelInterface modelClone = model.getCloneForParameter(curvesParameterPairs);
 					for(int i=0; i<calibrationProducts.size(); i++) {
-						values[i] = calibrationProducts.get(i).getValue(modelClone);
+						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);
 					}
 				} catch (CloneNotSupportedException e) {
 					throw new SolverException(e);

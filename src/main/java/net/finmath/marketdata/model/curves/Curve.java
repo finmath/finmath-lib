@@ -7,6 +7,7 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Vector;
@@ -73,15 +74,17 @@ public class Curve extends AbstractCurve implements Serializable {
 
         public double time;
 		public double value;
-		
+		public boolean isParameter;
+
 		/**
          * @param time
          * @param value
          */
-        public Point(double time, double value) {
+        public Point(double time, double value, boolean isParameter) {
 	        super();
 	        this.time = time;
 	        this.value = value;
+	        this.isParameter = isParameter;
         }
 
 		@Override
@@ -94,11 +97,12 @@ public class Curve extends AbstractCurve implements Serializable {
 		
 		@Override
         public Object clone() {
-			return new Point(time,value);
+			return new Point(time,value,isParameter);
 		}
 	}
 
-	private Vector<Point>		points	= new Vector<Point>();
+	private ArrayList<Point>	points					= new ArrayList<Point>();
+	private ArrayList<Point>	pointsBeingParameters	= new ArrayList<Point>();
 	private InterpolationMethod	interpolationMethod	= InterpolationMethod.CUBIC_SPLINE;
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.CONSTANT;
 	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;
@@ -174,7 +178,7 @@ public class Curve extends AbstractCurve implements Serializable {
 	 * @param time The x<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 */
-	public void addPoint(double time, double value) {
+	public void addPoint(double time, double value, boolean isParameter) {
 		double interpolationEntityValue = interpolationEntityFromValue(value, time);
 
 		int index = getTimeIndex(time);
@@ -184,14 +188,27 @@ public class Curve extends AbstractCurve implements Serializable {
 		}
 		else {
 			// Insert the new point, retain ordering.
-			points.add(-index-1, new Point(time, interpolationEntityValue));
+			Point point = new Point(time, interpolationEntityValue, isParameter);
+			points.add(-index-1, point);
+	
+			if(isParameter) {
+				// Add this point also to the list of parameters
+				int parameterIndex = getParameterIndex(time);
+				if(parameterIndex >= 0) new RuntimeException("Curve inconsistent.");
+				pointsBeingParameters.add(-parameterIndex-1, point);
+			}
 		}
     	this.rationalFunctionInterpolation = null;
 	}
 	
 	protected int getTimeIndex(double maturity) {
-		Point df = new Point(maturity, Double.NaN);
+		Point df = new Point(maturity, Double.NaN, false);
 		return java.util.Collections.binarySearch(points, df);
+	}
+
+	protected int getParameterIndex(double maturity) {
+		Point df = new Point(maturity, Double.NaN, false);
+		return java.util.Collections.binarySearch(pointsBeingParameters, df);
 	}
 	
 	/* (non-Javadoc)
@@ -199,9 +216,9 @@ public class Curve extends AbstractCurve implements Serializable {
 	 */
     @Override
     public double[] getParameter() {
-    	double[] parameters = new double[points.size()];
-    	for(int i=0; i<points.size(); i++) {
-    		parameters[i] = valueFromInterpolationEntity(points.get(i).value, points.get(i).time);
+    	double[] parameters = new double[pointsBeingParameters.size()];
+    	for(int i=0; i<pointsBeingParameters.size(); i++) {
+    		parameters[i] = valueFromInterpolationEntity(pointsBeingParameters.get(i).value, pointsBeingParameters.get(i).time);
     	}
     	return parameters;
     }
@@ -211,8 +228,8 @@ public class Curve extends AbstractCurve implements Serializable {
 	 */
     @Override
     public void setParameter(double[] parameter) {
-    	for(int i=0; i<points.size(); i++) {
-    		points.get(i).value = interpolationEntityFromValue(parameter[i], points.get(i).time);
+    	for(int i=0; i<pointsBeingParameters.size(); i++) {
+    		pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
     	}
     	this.rationalFunctionInterpolation = null;
     }
@@ -250,7 +267,6 @@ public class Curve extends AbstractCurve implements Serializable {
 		}
 	}
 
-
 	@Override
 	public CurveInterface getCloneForParameter(double[] parameter) {
 		Curve newCurve = null;
@@ -260,8 +276,13 @@ public class Curve extends AbstractCurve implements Serializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		newCurve.points = new Vector<Point>();
-		for(Point point : points) newCurve.points.add((Point) point.clone());
+		newCurve.points					= new ArrayList<Point>();
+		newCurve.pointsBeingParameters	= new ArrayList<Point>();
+		for(Point point : points) {
+			Point newPoint = (Point) point.clone();
+			newCurve.points.add(newPoint);
+			if(point.isParameter) newCurve.pointsBeingParameters.add(newPoint);
+		}
 
 		newCurve.setParameter(parameter);
 		

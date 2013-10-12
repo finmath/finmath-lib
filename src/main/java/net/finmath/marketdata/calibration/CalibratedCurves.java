@@ -325,24 +325,24 @@ public class CalibratedCurves {
 		// Create parameter to calibrate
 
 		Curve calibrationCurve = (Curve) model.getCurve(calibrationSpec.calibrationCurveName);
-		if(DiscountCurveInterface.class.isInstance(calibrationCurve)) {
-			double paymentTime	= calibrationSpec.swapTenorDefinitionPayer.getPayment(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
-			calibrationCurve.addPoint(paymentTime, 0.5);
+		if(false && DiscountCurveInterface.class.isInstance(calibrationCurve)) {
+			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
+			calibrationCurve.addPoint(paymentTime, 0.5, true);
 			curvesToCalibrate.add(calibrationCurve);
 		}
-		else if(ForwardCurveInterface.class.isInstance(calibrationCurve)) {
-			double fixingTime	= calibrationSpec.swapTenorDefinitionPayer.getFixing(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
-			double paymentTime	= calibrationSpec.swapTenorDefinitionPayer.getPayment(calibrationSpec.swapTenorDefinitionPayer.getNumberOfPeriods()-1);
+		else if(false && ForwardCurveInterface.class.isInstance(calibrationCurve)) {
+			double fixingTime	= calibrationSpec.swapTenorDefinitionReceiver.getFixing(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
+			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
 			if(ForwardCurve.class.isInstance(calibrationCurve) && ((ForwardCurve)calibrationCurve).getInterpolationEntityForward() == InterpolationEntityForward.ZERO) {
-				calibrationCurve.addPoint(paymentTime, 0.5);
+				calibrationCurve.addPoint(paymentTime, 0.5, true);
 			}
 			else {
-				calibrationCurve.addPoint(fixingTime, 0.5);
+				calibrationCurve.addPoint(fixingTime, 0.5, true);
 			}
 			curvesToCalibrate.add(calibrationCurve);
 		}
 		else {
-			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.5);
+			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.5, true);
 			curvesToCalibrate.add(calibrationCurve);
 		}
 	

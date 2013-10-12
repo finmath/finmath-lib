@@ -92,6 +92,8 @@ public class CalibrationTest {
 
 		/*
 		 * CALIBRATING A CURVE - SINGLE CURVE SETUP
+		 * 
+		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
 		
 		System.out.println("Calibrating a discount curve from swaps (single-curve/self-discounting).");
@@ -136,13 +138,14 @@ public class CalibrationTest {
 		 * The model calibratedModel1 now contains a set af calibrated curves.
 		 * The curves are clones. The model model1 still contains the original curve.
 		 */
-		
+
 		// Calibration check
 		System.out.println("Calibration check:");
+		double evaluationTime = 0.0;
 		double error = 0;
 		for(int calibrationProductIndex = 0; calibrationProductIndex < calibrationProducts1.size(); calibrationProductIndex++) {
 			AnalyticProductInterface	calibrationProduct		= calibrationProducts1.get(calibrationProductIndex);
-			double						calibrationProductValue	= calibrationProduct.getValue(calibratedModel1);
+			double						calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel1);
 			System.out.println("Calibration product " + calibrationProductIndex + ":\t" + calibrationProductValue);
 
 			error += calibrationProductValue*calibrationProductValue;
@@ -155,10 +158,12 @@ public class CalibrationTest {
 		
 		/*
 		 * CALIBRATE A FORWARD CURVE, USING THE GIVEN DISCOUNT CURVE (MULTI-CURVE SETUP)
+		 * 
+		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
 		
 		// Create initial guess for the curve
-		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards("forwardCurve", new double[] {0.0, 1.0, 2.0, 3.0, 4.0}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05}, model1, discountCurve.getName(), 0.5);
+		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards("forwardCurve", new double[] {2.0/365.0, 1.0, 2.0, 3.0, 4.0}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05}, model1, discountCurve.getName(), 0.5);
 
 		// Make collection of all curves used in valuation
 		AnalyticModel model2 = new AnalyticModel( new CurveInterface[] { discountCurve, forwardCurve } );
@@ -196,7 +201,7 @@ public class CalibrationTest {
 		double error2 = 0;
 		for(int calibrationProductIndex = 0; calibrationProductIndex < calibrationProducts2.size(); calibrationProductIndex++) {
 			AnalyticProductInterface	calibrationProduct		= calibrationProducts2.get(calibrationProductIndex);
-			double						calibrationProductValue	= calibrationProduct.getValue(calibratedModel2);
+			double						calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel2);
 			System.out.println("Calibration product " + calibrationProductIndex + ":\t" + calibrationProductValue);
 
 			error2 += calibrationProductValue*calibrationProductValue;
