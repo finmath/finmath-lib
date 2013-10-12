@@ -50,7 +50,25 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		return discountFactors;
 	}
 
-	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretizationInterface tenor, double[] forwardRates) {
+    /**
+     * Create a discount curve from given times and given zero rates using default interpolation and extrapolation methods.
+     * 
+     * @param name The name of this discount curve.
+     * @param times Array of times as doubles.
+     * @param givenZeroRates Array of corresponding zero rates.
+     * @return A new discount factor object.
+     */
+    public static DiscountCurve createDiscountCurveFromZeroRates(String name, double[] times, double[] givenZeroRates) {
+    	double[] givenDiscountFactors = new double[givenZeroRates.length];
+
+		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
+			givenDiscountFactors[timeIndex] = Math.exp(givenZeroRates[timeIndex] * times[timeIndex]);
+		}
+		
+		return createDiscountCurveFromDiscountFactors(name, times, givenDiscountFactors);
+	}
+
+    public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretizationInterface tenor, double[] forwardRates) {
 		DiscountCurve discountFactors = new DiscountCurve(name);
 //		discountFactors.addDiscountFactor(0.0, 1.0);
 
@@ -79,7 +97,6 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
     public double getDiscountFactor(AnalyticModelInterface model, double maturity)
 	{
 		// Check conventions
-		if(maturity <  0)	return 0.0;
 		if(maturity == 0)	return 1.0;
 		
 		return getValue(model, maturity);
@@ -116,7 +133,9 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	}
 	
 	protected void addDiscountFactor(double maturity, double discountFactor) {
-		this.addPoint(maturity, discountFactor);
+		boolean isParameter = (maturity > 0);
+
+		this.addPoint(maturity, discountFactor, isParameter);
 	}
 	
 	public String toString() {
