@@ -103,6 +103,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
 	 * 
+     * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.
 	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.

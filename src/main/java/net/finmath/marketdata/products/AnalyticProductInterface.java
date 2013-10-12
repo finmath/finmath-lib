@@ -23,8 +23,9 @@ public interface AnalyticProductInterface extends ProductInterface {
 	 * Return the valuation of the product using the given model.
 	 * The model has to implement the modes of <code>AnalyticModelInterface</code>.
 	 * 
+     * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param model The model under which the product is valued.
 	 * @return The value of the product using the given model.
-	 */
+     */
     double getValue(double evaluationTime, AnalyticModelInterface model);
 }

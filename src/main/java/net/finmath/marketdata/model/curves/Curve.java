@@ -177,6 +177,7 @@ public class Curve extends AbstractCurve implements Serializable {
 	 * 
 	 * @param time The x<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
+	 * @param isParameter If true, then this point is server via {@link getParameter()} and changed via {@link setParameter(double[])} and {@link getCloneForParameters(double[])}, i.e., it can be calibrated.
 	 */
 	public void addPoint(double time, double value, boolean isParameter) {
 		double interpolationEntityValue = interpolationEntityFromValue(value, time);

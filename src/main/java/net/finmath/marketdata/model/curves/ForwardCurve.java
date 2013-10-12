@@ -101,6 +101,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
 	 * @param times A vector of given time points.
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
@@ -124,6 +125,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
 	 * @param times A vector of given time points.
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
@@ -285,6 +287,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
 	 * @param fixingTime The given fixing time.
 	 * @param forward The given forward.
+	 * @param isParameter If true, then this point is server via {@link getParameter()} and changed via {@link setParameter(double[])} and {@link getCloneForParameters(double[])}, i.e., it can be calibrated.
 	 * @deprecated
 	 */
 	public void addForward(AnalyticModelInterface model, double fixingTime, double forward, boolean isParameter) {
