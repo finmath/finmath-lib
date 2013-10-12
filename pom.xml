@@ -6,7 +6,7 @@
 	<version>1.0.15-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>finmath-lib</name>
+	<name>finmath lib</name>
 	<url>http://www.finmath.net</url>
 
 	<properties>
@@ -31,21 +31,6 @@
 			<version>3.2</version>
 		</dependency>
 	</dependencies>
-
-<!-- 
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<configuration>
-					<stylesheetfile>${basedir}/stylesheet.css</stylesheetfile>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
- -->
 
 	<scm>
 		<url>scm:svn:http://svn.finmath.net/finmath lib/trunk</url>
