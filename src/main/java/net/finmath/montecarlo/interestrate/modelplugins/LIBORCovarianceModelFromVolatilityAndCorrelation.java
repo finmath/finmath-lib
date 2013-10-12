@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.util.Arrays;
+
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -14,17 +16,19 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <code>LIBORVolatilityModel</code> and a correlation model
  * implementing <code>LIBORCorrelationModel</code>.
  * 
+ * <p>
  * The model parameters are given by the concatenation of the
  * parameters of the <code>LIBORVolatilityModel</code> and
  * the parameters of the <code>LIBORCorrelationModel</code>,
  * in this ordering
+ * </p>
  * 
  * @author Christian Fries
  */
 public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLIBORCovarianceModelParametric {
 
-	public final LIBORVolatilityModel	volatilityModel;
-	public final LIBORCorrelationModel	correlationModel;
+	private final LIBORVolatilityModel	volatilityModel;
+	private final LIBORCorrelationModel	correlationModel;
 	
 	public LIBORCovarianceModelFromVolatilityAndCorrelation(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, LIBORVolatilityModel volatilityModel, LIBORCorrelationModel correlationModel) {
 		super(timeDiscretization, liborPeriodDiscretization, correlationModel.getNumberOfFactors());
@@ -108,14 +112,18 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 
 		int parameterIndex = 0;
 		if(volatilityParameter != null) {
-			System.arraycopy(parameter, parameterIndex, volatilityParameter, 0, volatilityParameter.length);
-			parameterIndex += volatilityParameter.length;
-			volatilityModel.setParameter(volatilityParameter);
+			double[] newVolatilityParameter = new double[volatilityParameter.length];
+			System.arraycopy(parameter, parameterIndex, newVolatilityParameter, 0, newVolatilityParameter.length);
+			parameterIndex += newVolatilityParameter.length;
+			if(!Arrays.equals(newVolatilityParameter, volatilityModel.getParameter()))
+				volatilityModel.setParameter(newVolatilityParameter);
 		}
 		if(correlationParameter != null) {
-			System.arraycopy(parameter, parameterIndex, correlationParameter, 0, correlationParameter.length);
-			parameterIndex += correlationParameter.length;
-			correlationModel.setParameter(correlationParameter);
+			double[] newCorrelationParameter = new double[correlationParameter.length];
+			System.arraycopy(parameter, parameterIndex, newCorrelationParameter, 0, newCorrelationParameter.length);
+			parameterIndex += newCorrelationParameter.length;
+			if(!Arrays.equals(newCorrelationParameter, correlationModel.getParameter()))
+				correlationModel.setParameter(newCorrelationParameter);
 		}
 	}
 

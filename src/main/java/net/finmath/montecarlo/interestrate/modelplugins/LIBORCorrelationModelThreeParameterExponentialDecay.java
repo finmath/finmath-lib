@@ -21,8 +21,8 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	private double	c;
 	private final boolean isCalibrateable;
 
-	private double[][]	correlationMatrix;
-	private double[][]	factorMatrix;
+	private volatile double[][]	correlationMatrix;
+	private volatile double[][]	factorMatrix;
 	
 	public LIBORCorrelationModelThreeParameterExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a, double b, double c, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
@@ -32,8 +32,6 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		this.b = b;
 		this.c = c;
 		this.isCalibrateable = isCalibrateable;
-
-		initialize(numberOfFactors, a, b, c);
 	}
 
 	@Override
@@ -56,16 +54,21 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		a = parameter[0];
 		b = parameter[1];
 		c = parameter[2];
-
-		initialize(numberOfFactors, a, b, c);
+		
+		factorMatrix = null;
+		correlationMatrix = null;
 	}
 	
 	@Override
     public double	getFactorLoading(int timeIndex, int factor, int component) {
+		if(factorMatrix == null) initialize(numberOfFactors, a, b, c);
+
 		return factorMatrix[component][factor];
 	}
 	@Override
     public double	getCorrelation(int timeIndex, int component1, int component2) {
+		if(correlationMatrix == null) initialize(numberOfFactors, a, b, c);
+
 		return correlationMatrix[component1][component2];
 	}
 
@@ -74,15 +77,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		return numberOfFactors;
 	}
 
-	public void setParameters(int numberOfFactors, double a, double b, double c) {
-		this.numberOfFactors = numberOfFactors;
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		initialize(numberOfFactors, a, b, c);
-	}
-
-	private void initialize(int numberOfFactors, double a, double b, double c) {
+	private synchronized void initialize(int numberOfFactors, double a, double b, double c) {
 		/*
 		 * Create instantaneous correlation matrix
 		 */
@@ -122,10 +117,17 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 
 	@Override
 	public Object clone() {
-		return new LIBORCorrelationModelThreeParameterExponentialDecay(
+		initialize(numberOfFactors, a, b, c);
+
+		LIBORCorrelationModelThreeParameterExponentialDecay newModel = new LIBORCorrelationModelThreeParameterExponentialDecay(
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
 				numberOfFactors,
 				a, b, c, isCalibrateable);
+
+		newModel.correlationMatrix	= this.correlationMatrix;
+		newModel.factorMatrix		= this.factorMatrix;
+		
+		return newModel;
 	}
 }

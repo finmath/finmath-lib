@@ -110,7 +110,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		/*
-		 * Calculate value of the swap at exercise date on each path (beware of perfect forsight - all rates are simulationTime=exerciseDate)
+		 * Calculate value of the swap at exercise date on each path (beware of perfect foresight - all rates are simulationTime=exerciseDate)
 		 */
         RandomVariableInterface valueOfSwapAtExerciseDate	= new RandomVariable(fixingDates[fixingDates.length-1],0.0);
 		
