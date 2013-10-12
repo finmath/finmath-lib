@@ -22,7 +22,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  */
-public class SwapAnnuity implements AnalyticProductInterface {
+public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
 	private final ScheduleInterface	schedule;
 	private final String discountCurveName;
@@ -40,13 +40,13 @@ public class SwapAnnuity implements AnalyticProductInterface {
     }
 
 	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(net.finmath.marketdata.model.AnalyticModel)
+	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public double getValue(AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		DiscountCurveInterface discountCurve = (DiscountCurveInterface) model.getCurve(discountCurveName);
 
-		return getSwapAnnuity(schedule, discountCurve, model);
+		return getSwapAnnuity(evaluationTime, schedule, discountCurve, model);
 	}
 
 	/**
@@ -81,7 +81,8 @@ public class SwapAnnuity implements AnalyticProductInterface {
 	 * @return The swap annuity.
 	 */
 	static public double getSwapAnnuity(ScheduleInterface schedule, DiscountCurveInterface discountCurve) {
-    	return getSwapAnnuity(schedule, discountCurve, null);
+		double evaluationTime = Double.NEGATIVE_INFINITY;	// Consider all values
+    	return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);
 	}
 
 	/**
@@ -95,7 +96,8 @@ public class SwapAnnuity implements AnalyticProductInterface {
 	 */
 	static public double getSwapAnnuity(ScheduleInterface schedule, ForwardCurveInterface forwardCurve) {
 		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
-    	return getSwapAnnuity(schedule, discountCurve, new AnalyticModel( new CurveInterface[] {forwardCurve, discountCurve} ));
+		double evaluationTime = Double.NEGATIVE_INFINITY;	// Consider all values
+    	return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModel( new CurveInterface[] {forwardCurve, discountCurve} ));
 	}
 
 	/**
@@ -106,10 +108,12 @@ public class SwapAnnuity implements AnalyticProductInterface {
 	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.
 	 * @return The swap annuity.
 	 */
-	static public double getSwapAnnuity(ScheduleInterface schedule, DiscountCurveInterface discountCurve, AnalyticModelInterface model) {
+	static public double getSwapAnnuity(double evaluationTime, ScheduleInterface schedule, DiscountCurveInterface discountCurve, AnalyticModelInterface model) {
     	double value = 0.0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
 			double paymentDate		= schedule.getPayment(periodIndex);
+			if(paymentDate <= evaluationTime) continue;
+
 			double periodLength		= schedule.getPeriodLength(periodIndex);
 			double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
 			value += periodLength * discountFactor;

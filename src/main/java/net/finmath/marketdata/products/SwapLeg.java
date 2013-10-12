@@ -18,7 +18,7 @@ import net.finmath.time.ScheduleInterface;
  * 
  * @author Christian Fries
  */
-public class SwapLeg implements AnalyticProductInterface {
+public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
 	private final ScheduleInterface				legSchedule;
 	private final String						forwardCurveName;
@@ -61,11 +61,8 @@ public class SwapLeg implements AnalyticProductInterface {
     }
 
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(net.finmath.marketdata.model.AnalyticModel)
-	 */
 	@Override
-	public double getValue(AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 		
@@ -97,9 +94,12 @@ public class SwapLeg implements AnalyticProductInterface {
 				if(fixingDate != paymentDate)
 					forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate-fixingDate);
 			}
-			double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
+			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += forward * periodLength * discountFactor;
-			if(isNotionalExchanged) value += discountCurve.getDiscountFactor(model, paymentDate) - discountCurve.getDiscountFactor(model, fixingDate);
+			if(isNotionalExchanged) {
+				value += paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
+				value -= fixingDate > evaluationTime ? discountCurve.getDiscountFactor(model, fixingDate) : 0.0;
+			}
 		}
 		return value;
 	}

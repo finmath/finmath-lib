@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  */
-public class Swap implements AnalyticProductInterface {
+public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
 	private final SwapLeg legReceiver;
 	private final SwapLeg legPayer;
@@ -76,13 +76,13 @@ public class Swap implements AnalyticProductInterface {
     }
 
 	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(net.finmath.marketdata.model.AnalyticModel)
+	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public double getValue(AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		
-		double valueReceiverLeg	= legReceiver.getValue(model);
-		double valuePayerLeg	= legPayer.getValue(model);
+		double valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
+		double valuePayerLeg	= legPayer.getValue(evaluationTime, model);
 		
 		return valueReceiverLeg - valuePayerLeg;
 	}
@@ -102,7 +102,8 @@ public class Swap implements AnalyticProductInterface {
 			model			= new AnalyticModel(new CurveInterface[] { forwardCurve });
 		}
 
-		double swapAnnuity	= SwapAnnuity.getSwapAnnuity(fixSchedule, discountCurve, model);
+		double evaluationTime = Double.NEGATIVE_INFINITY;	// Consider all values
+		double swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
 		
 		double floatLeg = 0;
 		for(int periodIndex=0; periodIndex<floatSchedule.getNumberOfPeriods(); periodIndex++) {

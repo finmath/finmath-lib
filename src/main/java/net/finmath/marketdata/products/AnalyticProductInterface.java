@@ -5,7 +5,11 @@
  */
 package net.finmath.marketdata.products;
 
+import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.modelling.ProductInterface;
+import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * The interface which has to be implemented by a product which may
@@ -13,7 +17,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * 
  * @author Christian Fries
  */
-public interface AnalyticProductInterface {
+public interface AnalyticProductInterface extends ProductInterface {
 
 	/**
 	 * Return the valuation of the product using the given model.
@@ -22,5 +26,5 @@ public interface AnalyticProductInterface {
 	 * @param model The model under which the product is valued.
 	 * @return The value of the product using the given model.
 	 */
-    double getValue(AnalyticModelInterface model);
+    double getValue(double evaluationTime, AnalyticModelInterface model);
 }
