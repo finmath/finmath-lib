@@ -19,7 +19,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * 
  * @author Christian Fries
  */
-public class Forward implements AnalyticProductInterface {
+public class Forward extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
 	private final double						maturity;
 	private final double						paymentOffset;
@@ -46,10 +46,10 @@ public class Forward implements AnalyticProductInterface {
     }
 
 	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(net.finmath.marketdata.model.AnalyticModel)
+	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public double getValue(AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 		
@@ -72,7 +72,7 @@ public class Forward implements AnalyticProductInterface {
 			forward			+= (discountCurveForForward.getDiscountFactor(maturity) / discountCurveForForward.getDiscountFactor(maturity+paymentOffset) - 1.0) / paymentOffset;
 		}
 
-    	double discountFactor	= discountCurve.getDiscountFactor(model, maturity+paymentOffset);
+    	double discountFactor	= maturity+paymentOffset > evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : 0.0;
 
 		return forward * discountFactor;		
 	}
