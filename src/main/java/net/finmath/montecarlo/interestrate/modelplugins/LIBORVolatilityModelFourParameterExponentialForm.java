@@ -10,7 +10,16 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
+ * Implements the volatility model
+ * &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
+ * 
+ * The parameters here have some interpretation:
+ * <ul>
+ * <li>The parameter a: an initial volatility level.</li>
+ * <li>The parameter b: the slope at the short end (shortly before maturity).</li>
+ * <li>The parameter c: exponential decay of the volatility in time-to-maturity.</li>
+ * <li>The parameter d: if c &gt; 0 this is the very long term volatility level.</li>
+ * </ul>
  * 
  * @author Christian Fries
  */

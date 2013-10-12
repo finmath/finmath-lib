@@ -18,18 +18,30 @@ import java.util.logging.Logger;
 import net.finmath.functions.LinearAlgebra;
 
 /**
- * This class implements the Levenberg Marquardt non-linear least-squares fit
- * algorithm. The design avoids the need to define the objective function as a
+ * This class implements a parallel Levenberg Marquardt non-linear least-squares fit
+ * algorithm.
+ * <p>
+ * The design avoids the need to define the objective function as a
  * separate class. The objective function is defined by overriding a class
- * method.
+ * method, see the samle code below.
+ * </p>
  * 
+ * <p>
+ * The Levenberg-Marquardt solver is implemented in using multi-threadding.
+ * The calculation of the derivatives (in case a specific implementation of
+ * {@code setDerivatives(double[] parameters, double[][] derivatives)} is not
+ * provided) may be performed in parallel by setting the parameter <code>numberOfThreads</code>.
+ * </p>
+ * 
+ * <p>
  * To use the solver inherit from it and implement the objective function as
  * {@code setValues(double[] parameters, double[] values)} where values has
  * to be set to the value of the objective functions for the given parameters.
- * 
+ * <br>
  * You may also provide an a derivative for your objective function by
  * additionally overriding the function {@code setDerivatives(double[] parameters, double[][] derivatives)},
  * otherwise the solver will calculate the derivative via finite differences.
+ * </p>
  * 
  * The following simple example finds a solution for the equation <br>
  * <center>
@@ -68,15 +80,17 @@ import net.finmath.functions.LinearAlgebra;
  * 
  * See the example in the main method below.
  * 
+ * <p>
  * The class can be initialized to use a multi-threaded valuation. If initialized
  * this way the implementation of <code>setValues</code> must be thread-safe.
  * The solver will evaluate the gradient of the value vector in parallel, i.e.,
  * use as many threads as the number of parameters.
+ * </p>
  * 
  * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
  * 
  * @author Christian Fries
- * @version 1.3
+ * @version 1.4
  */
 public abstract class LevenbergMarquardt {
 
@@ -85,9 +99,12 @@ public abstract class LevenbergMarquardt {
 	private double[] targetValues = null;
 	private double[] weights = null;
 
-	private int maxIteration = 100;
-	private double lambda = 0.001;
-	private double errorTolerance = 1e-130;
+	private int		maxIteration = 100;
+
+	private double	lambda				= 0.001;
+	private double	lambdaMultiplicator	= 2.0;
+
+	private double	errorTolerance = 0.0;	// by default we solve upto machine presicion
 
 	private int iteration = 0;
 
@@ -99,14 +116,14 @@ public abstract class LevenbergMarquardt {
 	private double[] valueCurrent = null;
 	private double[][] derivativeCurrent = null;
 
-	private double errorCurrent = Double.POSITIVE_INFINITY;
-    private double errorChange = Double.POSITIVE_INFINITY;
+	private double errorCurrent	= Double.POSITIVE_INFINITY;
+    private double errorChange	= Double.POSITIVE_INFINITY;
 
 	private boolean isParameterCurrentDerivativeValid = false;
 
 	// These members will be updated in each iteration. These are members to prevent repeated memory allocation.
-	private double[][] hessianMatrix = null;
-	private double[] beta = null;
+	private double[][]	hessianMatrix = null;
+	private double[]	beta = null;
 
 	private int				numberOfThreads	= 1;
 	private ExecutorService executor		= null;
@@ -144,24 +161,6 @@ public abstract class LevenbergMarquardt {
 
 	/**
 	 * Create a Levenberg-Marquardt solver.
-	 */
-	public LevenbergMarquardt() {
-		super();
-	}
-
-	/**
-	 * Create a Levenberg-Marquardt solver.
-	 * 
-	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
-	 */
-	public LevenbergMarquardt(int numberOfThreads) {
-		super();
-		this.numberOfThreads = numberOfThreads;
-	}
-
-
-	/**
-	 * Create a Levenberg-Marquardt solver.
 	 * 
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
@@ -179,6 +178,24 @@ public abstract class LevenbergMarquardt {
 
 		this.numberOfThreads = numberOfThreads;
 	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 */
+	public LevenbergMarquardt() {
+		super();
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 * 
+	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(int numberOfThreads) {
+		super();
+		this.numberOfThreads = numberOfThreads;
+	}
+
 
 	/**
 	 * Set the initial parameters for the solver.
@@ -347,7 +364,7 @@ public abstract class LevenbergMarquardt {
 	 * @return Stop condition.
 	 */
 	boolean done() {
-		return iteration > maxIteration || errorChange <= errorTolerance;
+		return iteration > maxIteration ||  errorChange <= errorTolerance;
 	}
 
 	/**
@@ -377,7 +394,7 @@ public abstract class LevenbergMarquardt {
 
 		iteration = 0;
 
-		while (true) {
+		while(true) {
 			// Count iterations
 			iteration++;
 
@@ -399,12 +416,14 @@ public abstract class LevenbergMarquardt {
 				isParameterCurrentDerivativeValid = false;
 
 				// Decrease lambda (move faster)
-				lambda /= 10.0;
+				lambda				/= 3.0;
+				lambdaMultiplicator	= 2.0;
 			} else {
 				errorChange = errorTest - errorCurrent;
 
 				// Reject point, increase lambda (move slower)
-				lambda *= 10.0;
+				lambda				*= lambdaMultiplicator;
+				lambdaMultiplicator *= 2.0;
 			}
 
 			// Update a new parameter trial, if we are not done
@@ -456,18 +475,15 @@ public abstract class LevenbergMarquardt {
 		}
 
 		boolean hessianInvalid = true;
-		double[][] hessianMatrixInverse = null;
 
 		while (hessianInvalid) {
 			hessianInvalid = false;
 			// Build matrix H (hessian approximation)
 			for (int i = 0; i < parameterCurrent.length; i++) {
-				for (int j = 0; j < parameterCurrent.length; j++) {
+				for (int j = i; j < parameterCurrent.length; j++) {
 					double alphaElement = 0.0;
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
-						alphaElement += weights[valueIndex]
-								* derivativeCurrent[i][valueIndex]
-								* derivativeCurrent[j][valueIndex];
+						alphaElement += weights[valueIndex] * derivativeCurrent[i][valueIndex] * derivativeCurrent[j][valueIndex];
 					}
 					if (i == j) {
 						if (alphaElement == 0.0)
@@ -477,35 +493,26 @@ public abstract class LevenbergMarquardt {
 					}
 
 					hessianMatrix[i][j] = alphaElement;
+					hessianMatrix[j][i] = alphaElement;
 				}
 			}
 
 			// Build beta (Newton step)
 			for (int i = 0; i < parameterCurrent.length; i++) {
 				double betaElement = 0.0;
+				double[] derivativeCurrentSingleParam = derivativeCurrent[i];
 				for (int k = 0; k < valueCurrent.length; k++) {
-					betaElement += weights[k]
-							* (targetValues[k] - valueCurrent[k])
-							* derivativeCurrent[i][k];
+					betaElement += weights[k] * (targetValues[k] - valueCurrent[k]) * derivativeCurrentSingleParam[k];
 				}
 				beta[i] = betaElement;
 			}
 
 			try {
 				// Calculate new increment
-				hessianMatrixInverse = LinearAlgebra.invert(hessianMatrix);
+				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
 			} catch (Exception e) {
-				hessianInvalid = true;
-				lambda *= 10.0;
-			}
-		}
-
-		// Calculate matrix multiplication parameterIncrement =
-		// hessianMatrixInverse * beta
-		for (int i = 0; i < hessianMatrixInverse.length; i++) {
-			parameterIncrement[i] = 0;
-			for (int j = 0; j < hessianMatrixInverse[i].length; j++) {
-				parameterIncrement[i] += hessianMatrixInverse[i][j] * beta[j];
+				hessianInvalid	= true;
+				lambda			*= 16;
 			}
 		}
 

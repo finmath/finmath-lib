@@ -5,6 +5,14 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,14 +83,15 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
-		// We do not allocate more threads the twice the number of processors.
-		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1), calibrationProducts.length);
+		/*
+		 * We allow for 5 simultaneous calibration models.
+		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
+		 * one model with 5 times the number of paths. In the case of an analytic calibration
+		 * memory requirement is not the limiting factor.
+		 */
+		int numberOfThreads = 5;	
 		
-    	LevenbergMarquardt optimizer = new LevenbergMarquardt(
-			initialParameters,
-			calibrationTargetValues,
-			maxIterations,
-			numberOfThreads)
+    	LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
     	{
 			// Calculate model values for given parameters
 			@Override
@@ -93,15 +102,47 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		    	// Create a LIBOR market model with the new covariance structure.
 		    	LIBORMarketModelInterface model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-		        LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
+		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
+				int numberOfThreads = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
+				ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+		        
+		    	ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
 		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
-		        	try {
-		        		values[calibrationProductIndex] = calibrationProducts[calibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
-					} catch (CalculationException e) {
-		    			throw new SolverException(e);
+					final int workerCalibrationProductIndex = calibrationProductIndex;
+					Callable<Double> worker = new  Callable<Double>() {
+						public Double call() throws SolverException {
+				        	try {
+				        		return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
+							} catch (CalculationException e) {
+				    			throw new SolverException(e);
+							}
+						}
+					};
+					if(executor != null) {
+						Future<Double> valueFuture = executor.submit(worker);
+						valueFutures.add(calibrationProductIndex, valueFuture);
+					}
+					else {
+						FutureTask<Double> valueFutureTask = new FutureTask<Double>(worker);
+						valueFutureTask.run();
+						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}
 		        }
+		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
+		        	try {
+		        		values[calibrationProductIndex] = valueFutures.get(calibrationProductIndex).get();
+		        	}
+		    		catch (InterruptedException e) {
+		    			throw new SolverException(e);
+					} catch (ExecutionException e) {
+		    			throw new SolverException(e);
+					}
+				}
+				if(executor != null) {
+					executor.shutdown();
+					executor = null;
+				}
 			}			
 		};
 

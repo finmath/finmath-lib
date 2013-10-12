@@ -25,10 +25,14 @@ import net.finmath.time.TimeDiscretizationInterface;
  * The approximation assumes that the forward rates (LIBOR) follow a
  * log normal model and that the model provides the integrated
  * instantaneous covariance of the log-forward rates.
+ *
+ * The getValue method calculates the approximated integrated instantaneous variance of the swap rate,
+ * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
  * 
  * The valuation can be performed in terms of value or implied
  * volatility.
  * 
+ *
  * @author Christian Fries
  */
 public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduct {
@@ -132,7 +136,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 
         double optionMaturity	= swapStart;
 
-        double valueSwaption = AnalyticFormulas.blackModelSwaptionValue(parSwaprate, volatility, optionMaturity, this.swaprate, swapAnnuity);
+        double valueSwaption = AnalyticFormulas.blackModelSwaptionValue(parSwaprate, volatility, optionMaturity, swaprate, swapAnnuity);
         return new RandomVariable(evaluationTime, valueSwaption);
     }
     
