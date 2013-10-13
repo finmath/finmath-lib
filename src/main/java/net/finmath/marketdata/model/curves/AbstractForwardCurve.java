@@ -14,8 +14,11 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
+ * Abstract base class for a forward curve, extending a curve object
+ * 
+ * It stores the maturity of the underlying index (paymentOffset) and the associated discount curve.
+ * 
  * @author Christian Fries
- *
  */
 public abstract class AbstractForwardCurve extends Curve implements ForwardCurveInterface {
 
