@@ -62,6 +62,21 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		return this.getAdjustedDate(createDateFromDateAndOffsetCode(baseDate, dateOffsetCode), dateRollConvention);
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#getRolledDate(java.util.Calendar, int)
+	 */
+	public Calendar getRolledDate(Calendar baseDate, int businessDays) {
+		Calendar			rolledDate			= (Calendar)baseDate.clone();
+		int					direction			= businessDays >= 0 ? 1: -1;
+		DateRollConvention	dateRollConvention	= direction > 0 ? DateRollConvention.FOLLOWING : DateRollConvention.PRECEDING;
+		while(businessDays != 0) {
+			rolledDate.add(Calendar.DAY_OF_YEAR, direction);
+			rolledDate = getAdjustedDate(rolledDate, dateRollConvention);
+			businessDays -= direction;
+		}
+		return rolledDate;
+	}
+
 	/**
 	 * Get an adjusted date for a given date and offset code.
 	 * 
@@ -84,7 +99,7 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 	}
 
 	/**
-	 * Create a new date by "adding" a year fraction to the spot date.
+	 * Create a new date by "adding" a year fraction to a given base date.
 	 * 
 	 * <p>
 	 * The date offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
