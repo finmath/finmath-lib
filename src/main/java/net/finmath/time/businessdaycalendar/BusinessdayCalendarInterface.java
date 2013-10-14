@@ -72,4 +72,15 @@ public interface BusinessdayCalendarInterface {
 	 * @return The adjusted date applying dateRollConvention to the given date.
 	 */
 	Calendar getAdjustedDate(Calendar baseDate, String dateOffsetCode, DateRollConvention dateRollConvention);
+
+	/**
+	 * Find a new date by adding the given number of business days to a given base date.
+	 * 
+	 * If baseDate is not a business date and businessDays is zero, the method returns the next business day.
+	 *  
+	 * @param baseDate The starting date.
+	 * @param businessDays The number of business days from the starting date (negative values are allowed).
+	 * @return A date of a business day such that the number of business days between this one (including) and the start date (excluding) is businessDays.
+	 */
+	public Calendar getRolledDate(Calendar baseDate, int businessDays);
 }
