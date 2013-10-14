@@ -261,15 +261,15 @@ public class ScheduleGenerator {
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
 				
-				// Adjust fixing date
+				// Roll fixing date
 				Calendar fixingDate = (Calendar)periodStartDate.clone();
-				fixingDate.add(Calendar.DAY_OF_YEAR, fixingOffsetDays);
-				fixingDate = businessdayCalendar.getAdjustedDate(fixingDate, dateRollConvention);
+				fixingDate = businessdayCalendar.getRolledDate(fixingDate, fixingOffsetDays);
+				// TODO: There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
 	
-				// Adjust payment date
+				// Roll payment date
 				Calendar paymentDate = (Calendar)periodEndDate.clone();
-				paymentDate.add(Calendar.DAY_OF_YEAR, paymentOffsetDays);
-				paymentDate = businessdayCalendar.getAdjustedDate(paymentDate, dateRollConvention);
+				paymentDate = businessdayCalendar.getRolledDate(paymentDate, paymentOffsetDays);
+				// TODO: There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
 	
 				// Create period
 				periods.add(0, new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
@@ -348,15 +348,71 @@ public class ScheduleGenerator {
 	 * considers short periods. Date rolling is ignored.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startOffset The start date as an offset from the referenceDate.
+	 * @param spotOffsetDays Number of business days to be added to the reference date to obtain the spot date.
+	 * @param startOffset The start date as an offset from the spotDate (build from referenceDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param maturity The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param frequency The frequency.
-	 * @param daycountConvention The daycount convention.
+	 * @param daycountConvention The day count convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
-	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @param businessdayCalendar Business day calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @return The corresponding schedule
+	 */
+	public static ScheduleInterface createScheduleFromConventions(
+			Date referenceDate,
+			int spotOffsetDays,
+			String startOffset,
+			String maturity,
+			String frequency,
+			String daycountConvention,
+			String shortPeriodConvention,
+			String dateRollConvention,
+			BusinessdayCalendarInterface businessdayCalendar,
+			int	fixingOffsetDays,
+			int	paymentOffsetDays
+			)
+	{
+		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
+		referenceDateAsCalendar.setTime(referenceDate);
+	
+		Calendar spotDateAsCalendar = businessdayCalendar.getRolledDate(referenceDateAsCalendar, spotOffsetDays);
+		
+		Calendar startDateAsCalendar = BusinessdayCalendar.createDateFromDateAndOffsetCode(spotDateAsCalendar, startOffset);
+	
+		Calendar maturityAsCalendar = BusinessdayCalendar.createDateFromDateAndOffsetCode(startDateAsCalendar, maturity);
+	
+		return createScheduleFromConventions(
+				referenceDateAsCalendar,
+				startDateAsCalendar,
+				maturityAsCalendar,
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
+				DaycountConvention.getEnum(daycountConvention),
+				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
+				DateRollConvention.getEnum(dateRollConvention),
+				businessdayCalendar,
+				fixingOffsetDays,
+				paymentOffsetDays
+				);
+	}
+
+	/**
+	 * Simple schedule generation.
+	 * 
+	 * Generates a schedule based on some meta data. The schedule generation
+	 * considers short periods. Date rolling is ignored.
+	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
+	 * @param startOffset The start date as an offset from the referenceDate entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param maturity The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param frequency The frequency.
+	 * @param daycountConvention The day count convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Business day calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
