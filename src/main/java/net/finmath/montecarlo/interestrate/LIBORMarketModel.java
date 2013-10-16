@@ -481,7 +481,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 
 		/*
-		 * Adjust for discounting
+		 * Adjust for discounting, i.e. funding or collateralization
 		 */
 		if(discountCurve != null) {
 			DiscountCurveInterface discountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);

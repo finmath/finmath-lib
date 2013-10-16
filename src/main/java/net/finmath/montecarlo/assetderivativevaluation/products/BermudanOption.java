@@ -15,7 +15,9 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements the valuation of a Bermudan option paying
+ * <br>
  * N(i) * (S(T(i)) - K(i)) at T(i),
+ * <br>
  * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
  * and T(i) the exercise date.
  * 
@@ -133,7 +135,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
             RandomVariableInterface monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
 
             // Value received if exercised at current time
-            RandomVariableInterface valueOfPaymentsIfExercised = underlyingAtExercise.getMutableCopy().sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
+            RandomVariableInterface valueOfPaymentsIfExercised = underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 
             // Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
             MonteCarloConditionalExpectation condExpEstimator;
@@ -156,9 +158,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
             	RandomVariableInterface martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));
                 martingale = martingale.sub(martingale.getAverage()).mult(lambda);
 
-                underlying	= valueOfPaymentsIfExercised.getMutableCopy().sub(martingale);
-                if(exerciseDateIndex==exerciseDates.length-1) value.sub(martingale);
-                trigger		= value.getMutableCopy().sub(underlying);
+                underlying	= valueOfPaymentsIfExercised.sub(martingale);
+                if(exerciseDateIndex==exerciseDates.length-1)	value = value.sub(martingale);
+                trigger		= value.sub(underlying);
                 break;
             }
 
@@ -193,9 +195,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
     	// Create basis functions - here: 1, S, S^2, S^3, S^4
     	basisFunctions = new RandomVariableInterface[orderOfRegressionPolynomial+1];
     	basisFunctions[0] = new RandomVariable(1.0);	// Random variable = 1
-    	basisFunctions[1] = underlying.getMutableCopy();			// Random variable = S
+    	basisFunctions[1] = underlying;					// Random variable = S
     	for(int powerOfRegressionMonomial=2; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
-    		basisFunctions[powerOfRegressionMonomial] = underlying.getMutableCopy().pow(powerOfRegressionMonomial);
+    		basisFunctions[powerOfRegressionMonomial] = underlying.pow(powerOfRegressionMonomial);
         }
         
         return basisFunctions;
