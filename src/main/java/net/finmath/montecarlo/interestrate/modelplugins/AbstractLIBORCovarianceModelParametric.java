@@ -77,7 +77,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     	double[] initialParameters = this.getParameter();
 
     	// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
-		int numberOfPaths	= 5000;
+		int numberOfPaths	= 2000;
 		int seed			= 31415;
 		final int maxIterations	= 400;
 
@@ -89,8 +89,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 * one model with 5 times the number of paths. In the case of an analytic calibration
 		 * memory requirement is not the limiting factor.
 		 */
-		int numberOfThreads = 5;	
-		
+		int numberOfThreads = 5;			
     	LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
     	{
 			// Calculate model values for given parameters
@@ -104,8 +103,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
-				int numberOfThreads = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
-				ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+				int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
+				ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 		        
 		    	ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
 		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
