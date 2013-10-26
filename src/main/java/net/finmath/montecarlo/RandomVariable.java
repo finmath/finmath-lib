@@ -474,6 +474,22 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#apply(org.apache.commons.math3.analysis.UnivariateFunction)
+	 */
+	@Override
+	public RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function) {
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = function.value(valueIfNonStochastic);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = function.value(realizations[i]);
+			return new RandomVariable(time, newRealizations);
+		}
+	}
+
+	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#cap(double)
 	 */
 	public RandomVariableInterface cap(double cap) {

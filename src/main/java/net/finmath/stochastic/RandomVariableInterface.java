@@ -6,6 +6,7 @@
 package net.finmath.stochastic;
 
 
+
 /**
  * IMPORTANT: As of version 1.3 / revision 487 the design of RandomVariable, RandomVariableInterface has changed:
  * All method of RandomVariable are now immutable and the interface ImmutableRandomVariableInterface has been renamed
@@ -260,6 +261,15 @@ public interface RandomVariableInterface {
 	 */
     double[][] getHistogram(int numberOfPoints, double standardDeviations);
 
+    /**
+     * Applies x &rarr; function.value(x) to this random variable.
+     * 
+     * @param function A univariate function mapping doubles to doubles.
+     * @return New random variable with the result of the function.
+     */
+    RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function);
+    
+    
     /**
      * Applies x &rarr; min(x,cap) to this random variable.
      * @param cap The cap.
