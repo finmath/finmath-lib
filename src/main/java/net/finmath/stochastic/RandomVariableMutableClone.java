@@ -5,6 +5,8 @@
  */
 package net.finmath.stochastic;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+
 
 /**
  * This class wraps an immutable class (here <code>RandomVariableInterface</code>)
@@ -86,6 +88,14 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 		return ensureMutable().accrue(rate, periodLength);
     }
 
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#apply(org.apache.commons.math3.analysis.UnivariateFunction)
+	 */
+	@Override
+	public RandomVariableInterface apply(UnivariateFunction function) {
+		return ensureMutable().apply(function);
+	}
+    
     /* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
 	 */
