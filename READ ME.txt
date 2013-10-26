@@ -1,13 +1,16 @@
+finmath lib
+===========
+
+Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.
 
 NOTE:
 -----
-The repository is being restructured/repopulated. It may be incomplete.
-However, files inside the repository should be functional.
-For updates check http://www.finmath.net/java
 
+For updates check http://www.finmath.net/java
 
 DOCUMENTATION:
 --------------
-For an example how to use "finmath lib" see "finmath experiments"
+
+For examples how to use "finmath lib" see "finmath experiments" and "finmath spreadsheets".
 For API documentation see http://www.finmath.net/java
 
