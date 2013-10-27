@@ -34,8 +34,15 @@ public class RandomVariable implements RandomVariableInterface {
 	private double[]    realizations;           // Realizations
 
 	// Data model for the non-stochastic case (if realizations==null)
-	private double      valueIfNonStochastic;
+	private final double      valueIfNonStochastic;
 
+    public RandomVariable(RandomVariableInterface value) {
+        super();
+        this.time = value.getFiltrationTime();
+        this.realizations = value.isDeterministic() ? null : value.getRealizations();
+        this.valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
+    }
+	
 	/**
 	 * Create a non stochastic random variable, i.e. a constant.
 	 *
@@ -432,17 +439,20 @@ public class RandomVariable implements RandomVariableInterface {
 		return realizations == null;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#expand()
-	 */
-	public void expand(int numberOfPaths) {
-		if(isDeterministic()) {
-			// Expand random variable to a vector of path values
-			realizations = new double[numberOfPaths];
-			java.util.Arrays.fill(realizations,valueIfNonStochastic);
-		}
-		return;
-	}
+    /* (non-Javadoc)
+     * @see net.finmath.stochastic.RandomVariableInterface#expand()
+     */
+    public RandomVariableInterface expand(int numberOfPaths) {
+        if(isDeterministic()) {
+            // Expand random variable to a vector of path values
+            double[] clone = new double[numberOfPaths];
+            java.util.Arrays.fill(clone,valueIfNonStochastic);
+            return new RandomVariable(time,clone);
+
+        }
+
+        return new RandomVariable(time,realizations.clone());
+    }
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations()
@@ -468,9 +478,7 @@ public class RandomVariable implements RandomVariableInterface {
 	public double[] getRealizations(int numberOfPaths) {
 
 		if(!isDeterministic() && realizations.length != numberOfPaths) throw new RuntimeException("Inconsistent number of paths.");
-		this.expand(numberOfPaths);
-
-		return realizations;//.clone();
+		return ((RandomVariable)expand(numberOfPaths)).realizations;
 	}
 
 	/* (non-Javadoc)
