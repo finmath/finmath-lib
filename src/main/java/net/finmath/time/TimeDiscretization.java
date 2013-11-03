@@ -12,8 +12,9 @@ import java.util.Iterator;
 
 /**
  * This class represents a set of discrete points in time.
+ * <br>
  * It handles the mapping from time indices to time points and back.
- * It uses a time tick size ("quantum") of 1 hour (that is 1.0 / (365.0 * 24.0)):
+ * It uses a time tick size ("quantum") of 1.0 / (365.0 * 24.0) (which corresponds to one hour if 1.0 is a non-leap-year):
  * Times are rounded to the nearest multiple of 1.0 / (365.0 * 24.0).
  * 
  * The class is immutable.
