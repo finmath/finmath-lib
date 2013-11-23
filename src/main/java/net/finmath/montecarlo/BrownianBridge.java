@@ -48,7 +48,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 			RandomVariableInterface[] start, RandomVariableInterface[] end) {
 		super();
 		this.timeDiscretization = timeDiscretization;
-		this.numberOfFactors = 1;
+		this.numberOfFactors = start.length;
 		this.numberOfPaths = numberOfPaths;
 		this.seed = seed;
 		this.start = start;
@@ -98,17 +98,16 @@ public class BrownianBridge implements BrownianMotionInterface {
 		// Allocate memory
 		brownianIncrements = new RandomVariableInterface[generator.getTimeDiscretization().getNumberOfTimeSteps()][generator.getNumberOfFactors()];
 
-		double startTime	= getTimeDiscretization().getTime(0);
 		double endTime 		= getTimeDiscretization().getTime(getTimeDiscretization().getNumberOfTimeSteps());
 		for(int factor=0; factor<generator.getNumberOfFactors(); factor++) {
-			RandomVariableInterface drift = end[factor].sub(start[factor]).div(endTime-startTime);
-			RandomVariableInterface brownianBridge = start[factor];
+			RandomVariableInterface endOfFactor		= end[factor];
+			RandomVariableInterface brownianBridge	= start[factor];
 			for(int timeIndex=0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 				double currentTime	= getTimeDiscretization().getTime(timeIndex);
 				double nextTime		= getTimeDiscretization().getTime(timeIndex+1);
 				double alpha		= (nextTime-currentTime)/(endTime-currentTime);
 
-				RandomVariableInterface nextRealization = brownianBridge.mult(1.0-alpha).add(drift.mult(alpha)).add(generator.getBrownianIncrement(timeIndex, factor).mult(Math.sqrt(1-alpha)));
+				RandomVariableInterface nextRealization = brownianBridge.mult(1.0-alpha).add(endOfFactor.mult(alpha)).add(generator.getBrownianIncrement(timeIndex, factor).mult(Math.sqrt(1-alpha)));
 				brownianIncrements[timeIndex][factor] = nextRealization.sub(brownianBridge);
 				brownianBridge = nextRealization;
 			}
