@@ -94,6 +94,8 @@ public class GoldenSectionSearch {
 	}
 	
 	/**
+	 * Returns the next point for which a valuation is requested.
+	 * 
 	 * @return Returns the next point for which a value should be set using <code>setValue</code>.
 	 */
 	public double getNextPoint() {
@@ -102,10 +104,11 @@ public class GoldenSectionSearch {
 	}
 	
 	/**
-	 * Set the value of the optimizer. If setValue is called without prior call to getNextPoint(),
+	 * Set the value corresponding to the point returned by a previous call of <code>getNextPoint()</code>.
+	 * If setValue is called without prior call to getNextPoint(),
 	 * e.g., when called twice, a RuntimeException is thrown.
 	 * 
-	 * @param value Value corresponding to point returned by previous <code>getNextPoint</code> call.
+	 * @param value Value corresponding to point returned by previous <code>getNextPoint()</code> call.
 	 */
 	public void setValue(double value) {
 		if(!expectingValue) throw new RuntimeException("Call to setValue() perfomed without prior getNextPoint() call (e.g. call performed twice).");
