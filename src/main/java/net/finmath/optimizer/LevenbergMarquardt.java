@@ -23,11 +23,11 @@ import net.finmath.functions.LinearAlgebra;
  * <p>
  * The design avoids the need to define the objective function as a
  * separate class. The objective function is defined by overriding a class
- * method, see the samle code below.
+ * method, see the sample code below.
  * </p>
  * 
  * <p>
- * The Levenberg-Marquardt solver is implemented in using multi-threadding.
+ * The Levenberg-Marquardt solver is implemented in using multi-threading.
  * The calculation of the derivatives (in case a specific implementation of
  * {@code setDerivatives(double[] parameters, double[][] derivatives)} is not
  * provided) may be performed in parallel by setting the parameter <code>numberOfThreads</code>.
