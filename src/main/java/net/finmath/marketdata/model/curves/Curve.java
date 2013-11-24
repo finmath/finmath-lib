@@ -10,7 +10,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Vector;
 
 import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.marketdata.model.AnalyticModelInterface;

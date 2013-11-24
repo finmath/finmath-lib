@@ -48,7 +48,7 @@ import org.junit.Test;
  */
 public class LIBORMarketModelValuationTest {
 
-	private final int numberOfPaths		= 10000;
+	private final int numberOfPaths		= 100000;
 	private final int numberOfFactors	= 6;
 
 	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
