@@ -17,7 +17,7 @@ import java.util.Iterator;
  * It uses a time tick size ("quantum") of 1.0 / (365.0 * 24.0) (which corresponds to one hour if 1.0 is a non-leap-year):
  * Times are rounded to the nearest multiple of 1.0 / (365.0 * 24.0).
  * 
- * The class is immutable.
+ * Objects of this class are immutable.
  * 
  * @author Christian Fries
  * @version 1.5
