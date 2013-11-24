@@ -43,7 +43,7 @@
 				<configuration>
 					<tags>
 						<tag>
-							<name>todo</name>
+							<name>TODO</name>
 							<placement>a</placement>
 							<head>To dos:</head>
 						</tag>
