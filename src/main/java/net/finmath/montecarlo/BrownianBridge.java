@@ -16,9 +16,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <p>
  * A Brownian bridge is a conditional Brownian motion, i.e. for given random variables
  * <i>X</i> and  <i>Y</i> the Brownian bridge is
- * <br/>
+ * <br>
  * <i>(W(t) | W(s) = X , W(T) = Y)</i>,
- * <br/>
+ * <br>
  * where <i>W</i> is a Brownian motion and <i>s &le; t &le; T</i>.
  * </p>
  * <p>
