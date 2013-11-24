@@ -6,7 +6,6 @@
 
 package net.finmath.modelling;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * @author Christian Fries

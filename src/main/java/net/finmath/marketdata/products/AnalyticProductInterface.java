@@ -5,11 +5,8 @@
  */
 package net.finmath.marketdata.products;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.modelling.ProductInterface;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * The interface which has to be implemented by a product which may
