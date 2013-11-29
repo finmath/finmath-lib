@@ -18,7 +18,6 @@ import net.finmath.rootfinder.NewtonsMethod;
  * @author Christian Fries
  * @version 1.6
  * @date 27.04.2012
- * 
  */
 public class AnalyticFormulas {
 	

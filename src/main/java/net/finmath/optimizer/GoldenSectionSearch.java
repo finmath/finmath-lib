@@ -7,8 +7,24 @@
 package net.finmath.optimizer;
 
 /**
- * This class implements a Golden Section search algorithm, implemented as a question-and-answer search algorithm.
- * For an example on how to use this class see its main method.
+ * This class implements a Golden Section search algorithm, i.e., a minimization,
+ * implemented as a question-and-answer search algorithm.
+ * 
+ * Example:
+ * <pre>
+ * {@code
+ * 		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);		
+ * 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
+ * 			double x = search.getNextPoint();
+ * 			
+ * 			double y = (x - 0.656) * (x - 0.656);
+ * 			
+ * 			search.setValue(y);
+ * 		}
+ * }
+ * <pre>
+ * 
+ * For an example on how to use this class see also its main method.
  * 
  * Copyright Christian Fries. All rights reserved.
  * 
