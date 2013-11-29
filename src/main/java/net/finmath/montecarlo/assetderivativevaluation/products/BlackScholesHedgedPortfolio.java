@@ -15,11 +15,12 @@ import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesMod
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements delta and/or delta-gamma hedged portfolio of an European option (a hedge simulator).
+ * This class implements a delta and delta-gamma hedged portfolio of an European option (a hedge simulator).
+ * 
  * The hedge is done under the assumption of a Black Scholes Model (even if the pricing model is a different one).
  * 
  * @author Christian Fries
- * @version 1.01
+ * @version 1.2
  */
 public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct {
 
@@ -212,6 +213,10 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 					break;
 				case deltaVegaHedge:
 					newNumberOfHedgeOptions	= vega/vegaOfHedgeOption;
+					break;
+				case deltaHedge:
+				default:
+					newNumberOfHedgeOptions	= 0.0;
 					break;
 				}
 				if(Double.isNaN(newNumberOfHedgeOptions) || Double.isInfinite(newNumberOfHedgeOptions) || maturity-model.getTime(timeIndex) < 0.15) newNumberOfHedgeOptions = 0.0;
