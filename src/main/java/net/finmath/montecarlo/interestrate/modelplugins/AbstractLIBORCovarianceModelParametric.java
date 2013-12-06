@@ -26,14 +26,19 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Base class for parametric covariance models.
+ * Base class for parametric covariance models, {@see AbstractLIBORCovarianceModel}.
+ * 
  * Parametric models feature a parameter vector which can be inspected
  * and modified for calibration purposes.
  * 
  * The parameter vector may have zero length, which indicated that the model
  * is not calibrateable.
  * 
+ * This class includes the implementation of a generic calibration algorithm.
+ * 
  * @author Christian Fries
+ * @date 20.05.2006
+ * @version 1.1
  */
 public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel {
 

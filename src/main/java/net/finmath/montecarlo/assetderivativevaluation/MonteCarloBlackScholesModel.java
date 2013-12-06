@@ -105,8 +105,8 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		this.setProcess(process);
 	}
 
-	/**
-	 * @return Returns the initialValue.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getInitialState()
 	 */
 	@Override
     public RandomVariableInterface[] getInitialState() {
@@ -121,31 +121,49 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		return new RandomVariableInterface[] { drift };
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getFactorLoading(int, int, net.finmath.stochastic.RandomVariableInterface[])
+	 */
 	@Override
     public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
 		return new RandomVariableInterface[] { volatilityOnPaths };
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#applyStateSpaceTransform(int, net.finmath.stochastic.RandomVariableInterface)
+	 */
 	@Override
 	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
 		return randomVariable.exp();
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(double, int)
+	 */
 	@Override
     public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
+	 */
 	@Override
     public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
 		return getProcessValue(timeIndex, assetIndex);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(double)
+	 */
 	@Override
     public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(int)
+	 */
 	@Override
     public RandomVariableInterface getNumeraire(int timeIndex)
 	{
@@ -162,7 +180,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		return new RandomVariable(time, numeraireValue);
 	}
 
-	@Override
+//	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return new RandomVariable(0.0, getProcess().getNumberOfPaths(), value);
 	}
