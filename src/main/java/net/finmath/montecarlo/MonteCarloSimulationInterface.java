@@ -25,13 +25,6 @@ public interface MonteCarloSimulationInterface {
 	 * 
 	 * @return Returns the numberOfPaths.
 	 */
-    int getNumberOfComponents();
-
-	/**
-	 * Returns the numberOfPaths.
-	 * 
-	 * @return Returns the numberOfPaths.
-	 */
     int getNumberOfPaths();
 
 	/**
