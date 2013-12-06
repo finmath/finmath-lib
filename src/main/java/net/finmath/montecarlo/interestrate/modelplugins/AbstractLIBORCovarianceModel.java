@@ -10,8 +10,8 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * A base class for the instantaneous covariance of
- * an interest rate model.
+ * A base class and interface description for the instantaneous covariance of
+ * an forward rate interest rate model.
  * 
  * @author Christian Fries
  */
@@ -91,15 +91,6 @@ public abstract class AbstractLIBORCovarianceModel {
 	}
 
 	/**
-	 * @param timeDiscretization the timeDiscretization to set
-	 * @deprecated Will be an immutable object soon.
-	 */
-	@Deprecated
-    public void setTimeDiscretization(TimeDiscretizationInterface timeDiscretization) {
-		this.timeDiscretization = timeDiscretization;
-	}
-
-	/**
 	 * The forward rate time discretization associated with this model (defines the components).
 	 * 
 	 * @return the forward rate time discretization associated with this model.
@@ -109,27 +100,9 @@ public abstract class AbstractLIBORCovarianceModel {
 	}
 
 	/**
-	 * @deprecated Will be an immutable object soon.
-	 * @param liborPeriodDiscretization the liborPeriodDiscretization to set
-	 */
-	@Deprecated
-    public void setLiborPeriodDiscretization(TimeDiscretizationInterface liborPeriodDiscretization) {
-		this.liborPeriodDiscretization = liborPeriodDiscretization;
-	}
-
-	/**
 	 * @return the numberOfFactors
 	 */
 	public int getNumberOfFactors() {
 		return numberOfFactors;
-	}
-
-	/**
-	 * @param numberOfFactors the numberOfFactors to set
-	 * @deprecated Will be an immutable object soon.
-	 */
-	@Deprecated
-    public void setNumberOfFactors(int numberOfFactors) {
-		this.numberOfFactors = numberOfFactors;
 	}
 }

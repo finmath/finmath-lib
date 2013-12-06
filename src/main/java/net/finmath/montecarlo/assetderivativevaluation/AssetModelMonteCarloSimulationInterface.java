@@ -44,9 +44,22 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 */
     RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
 
+	/**
+	 * Returns the numeraire associated with the valuation measure used by this model.
+	 * 
+	 * @param timeIndex The time index (associated with this models time discretization).
+	 * @return
+	 */
 	RandomVariableInterface		getNumeraire(int timeIndex);
 	RandomVariableInterface		getNumeraire(double time);
 	
+	/**
+	 * Returns a random variable which is initialized to a constant,
+	 * but has exactly the same number of paths or discretization points as the ones used by this model.
+	 * 
+	 * @param value The constant value to be used for initialized the random variable.
+	 * @return A new random variable.
+	 */
 	RandomVariableInterface		getRandomVariableForConstant(double value);
 
 	/**
