@@ -172,6 +172,9 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		return getNumeraire(time);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumeraire(double)
+	 */
 	@Override
     public RandomVariableInterface getNumeraire(double time)
 	{
@@ -180,7 +183,10 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		return new RandomVariable(time, numeraireValue);
 	}
 
-//	@Override
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getRandomVariableForConstant(double)
+	 */
+	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return new RandomVariable(0.0, getProcess().getNumberOfPaths(), value);
 	}
@@ -193,6 +199,9 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	    return 1;
     }
 
+    /* (non-Javadoc)
+     * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumberOfAssets()
+     */
     @Override
     public int getNumberOfAssets() {
 		return 1;
@@ -211,6 +220,8 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	}
 
 	/**
+	 * Returns the risk free rate parameter of this model.
+	 * 
 	 * @return Returns the riskFreeRate.
 	 */
 	public double getRiskFreeRate() {
@@ -218,6 +229,8 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	}
 
 	/**
+	 * Returns the volatility parameter of this model.
+	 * 
 	 * @return Returns the volatility.
 	 */
 	public double getVolatility() {
@@ -229,21 +242,25 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
      */
     @Override
     public MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
-    	/**
-		 *  Default case. Create a new model with the new date
+    	/*
+		 * Determine the new model parameters from the provided parameter map.
 		 */
     	double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
     	double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : riskFreeRate;
     	double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: volatility;
     	int		newSeed			= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
 
+    	/*
+    	 * Create a new model with the new model parameters
+    	 */
     	if(dataModified.get("seed") != null) {
+    		// The seed has changed. Hence we have to create a new BrownianMotion.
     		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(this.getTimeDiscretization(), 1, this.getNumberOfPaths(), newSeed));
     		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);
     	}
     	else
     	{
-    		// The seed had not changed. We may reuse the random numbers (brownian motion) of the original model
+    		// The seed had not changed. We may reuse the random numbers (Brownian motion) of the original model
     		BrownianMotionInterface brownianMotion = this.getProcess().getBrownianMotion();
     		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
     		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);    		
