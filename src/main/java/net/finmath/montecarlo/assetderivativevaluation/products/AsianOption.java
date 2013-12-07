@@ -12,7 +12,17 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements pricing of a Asian option.
+ * Implements the valuation of an Asian option.
+ * 
+ * Given a model for an asset <i>S</i>, the Asian option with strike <i>K</i>, maturity <i>T</i>
+ * and averaging points <i>T<sub>i</sub></i> for <i>i = 1,...,n</i> pays
+ * <br>
+ * 	<i>max(A(T) - K , 0)</i> in <i>T</i>
+ * <br>
+ * where
+ * <br>
+ * 	<i>A(T) = 1/n (S(T<sub>1</sub>)+ ... + S(T<sub>n</sub>))</i>
+ * <br>
  * 
  * @author Christian Fries
  * @version 1.2
