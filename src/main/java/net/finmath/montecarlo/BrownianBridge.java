@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo;
 
+import java.util.Arrays;
+
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -165,6 +167,18 @@ public class BrownianBridge implements BrownianMotionInterface {
 	@Override
 	public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
 		return new BrownianBridge(timeDiscretization, numberOfPaths, seed, start, end);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BrownianBridge [timeDiscretization=" + timeDiscretization
+				+ ", numberOfFactors=" + numberOfFactors + ", numberOfPaths="
+				+ numberOfPaths + ", seed=" + seed + ", start="
+				+ Arrays.toString(start) + ", end=" + Arrays.toString(end)
+				+ "]";
 	}
 
 }
