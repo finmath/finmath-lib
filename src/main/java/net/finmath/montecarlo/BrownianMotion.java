@@ -67,6 +67,9 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		this.brownianIncrements	= null; 	// Lazy initialization
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedSeed(int)
+	 */
 	@Override
     public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
 		return new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed);
