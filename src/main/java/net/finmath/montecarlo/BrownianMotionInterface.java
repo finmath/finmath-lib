@@ -18,11 +18,17 @@ import net.finmath.time.TimeDiscretizationInterface;
  * dimension. 
  * 
  * @author Christian Fries
- * @version 1.2
+ * @version 1.3
  */
 public interface BrownianMotionInterface {
 
 	/**
+	 * Return the Brownian increment for a given timeIndex.
+	 * 
+	 * The method returns the random variable
+	 *	 <i>&Delta; W<sub>j</sub>(t<sub>i</sub>) := W<sub>j</sub>(t<sub>i+1</sub>)-W(t<sub>i</sub>)</i>
+	 * for the given time index <i>i</i> and a given factor (index) <i>j</i>
+	 * 
 	 * @param timeIndex The time index (corresponding to the this class's time discretization)
 	 * @param factor The index of the factor (independent scalar Brownian increment)
 	 * @return The factor (component) of the Brownian increments (a random variable)
@@ -31,23 +37,30 @@ public interface BrownianMotionInterface {
 
 
 	/**
+	 * Returns the time discretization used for this set of time-discrete Brownian increments.
+	 * 
 	 * @return The time discretization used for this set of time-discrete Brownian increments.
 	 */
     TimeDiscretizationInterface getTimeDiscretization();
 
 	/**
+	 * Returns the number of factors.
+	 * 
 	 * @return The number of factors.
 	 */
     int getNumberOfFactors();
 
 	/**
+	 * Returns the number of paths.
+	 * 
 	 * @return The number of paths.
 	 */
     int getNumberOfPaths();
 	
 	/**
 	 * Return a new object implementing BrownianMotionInterface
-	 * having the same specifications as this object but a different seed.
+	 * having the same specifications as this object but a different seed
+	 * for the random number generator.
 	 * 
 	 * This method is useful if you like to make Monte-Carlo samplings by changing
 	 * the seed.
