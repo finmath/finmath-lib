@@ -10,7 +10,13 @@ import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimul
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Implements valuation of a European stock option.
+ * Implements valuation of a European option on a single asset.
+ * 
+ * Given a model for an asset <i>S</i>, the European option with strike <i>K</i>, maturity <i>T</i>
+ * pays
+ * <br>
+ * 	<i>max(S(T) - K , 0)</i> in <i>T</i>
+ * <br>
  * 
  * @author Christian Fries
  * @version 1.3
@@ -19,6 +25,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 
 	private final double maturity;
 	private final double strike;
+	private final String nameOfUnderliyng;
 	
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -27,8 +34,9 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 */
 	public EuropeanOption(double maturity, double strike) {
 		super();
-		this.maturity	= maturity;
-		this.strike		= strike;
+		this.maturity			= maturity;
+		this.strike				= strike;
+		this.nameOfUnderliyng	= null;		// Use asset with index 0
 	}
 
     /**
