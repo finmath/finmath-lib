@@ -48,9 +48,16 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * Returns the numeraire associated with the valuation measure used by this model.
 	 * 
 	 * @param timeIndex The time index (associated with this models time discretization).
-	 * @return
+	 * @return The numeraire associated with the valuation measure used by this model.
 	 */
 	RandomVariableInterface		getNumeraire(int timeIndex);
+
+	/**
+	 * Returns the numeraire associated with the valuation measure used by this model.
+	 * 
+	 * @param time The time for which the numeraire is requested.
+	 * @return The numeraire associated with the valuation measure used by this model.
+	 */
 	RandomVariableInterface		getNumeraire(double time);
 	
 	/**
