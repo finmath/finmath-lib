@@ -22,7 +22,7 @@ package net.finmath.optimizer;
  * 			search.setValue(y);
  * 		}
  * }
- * <pre>
+ * </pre>
  * 
  * For an example on how to use this class see also its main method.
  * 
