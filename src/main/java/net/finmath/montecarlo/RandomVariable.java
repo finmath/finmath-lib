@@ -195,15 +195,15 @@ public class RandomVariable implements RandomVariableInterface {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
 
-		double average = 0.0;
+		double sum = 0.0;
 		double error = 0.0;														// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
 			double value = realizations[i] * probabilities.get(i) - error;		// Error corrected value
-			double newAverage = average + value;								// New average
-			error = (newAverage - average) - value;								// New numerical error
-			average	= newAverage;
+			double newSum = sum + value;				// New sum
+			error = (newSum - sum) - value;				// New numerical error
+			sum	= newSum;
 		}
-		return average;
+		return sum/realizations.length / probabilities.getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -239,22 +239,22 @@ public class RandomVariable implements RandomVariableInterface {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
-		double mean			= 0.0;
-		double secondMoment = 0.0;
-		double errorOfMean			= 0.0;
-		double errorOfSecondMoment	= 0.0;
+		double sum			= 0.0;
+		double sumOfSquared = 0.0;
+		double errorOfSum			= 0.0;
+		double errorOfSumSquared	= 0.0;
 		for(int i=0; i<realizations.length; i++) {
-			double valueMean	= realizations[i] * probabilities.get(i) - errorOfMean;
-			double newMean		= mean + valueMean;
-			errorOfMean 		= (newMean - mean) - valueMean;
-			mean				= newMean;
+			double value	= realizations[i] * probabilities.get(i) - errorOfSum;
+			double newSum	= sum + value;
+			errorOfSum		= (newSum - sum) - value;
+			sum				= newSum;
 			
-			double valueSecondMoment	= realizations[i] * realizations[i] * probabilities.get(i) - errorOfSecondMoment;
-			double newSecondMoment		= secondMoment + valueSecondMoment;
-			errorOfSecondMoment			= (newSecondMoment - secondMoment) - valueSecondMoment;
-			secondMoment				= newSecondMoment;
+			double valueSquared		= realizations[i] * realizations[i] * probabilities.get(i) - errorOfSumSquared;
+			double newSumOfSquared	= sumOfSquared + valueSquared;
+			errorOfSumSquared		= (newSumOfSquared-sumOfSquared) - valueSquared;
+			sumOfSquared			= newSumOfSquared;
 		}
-		return secondMoment - mean*mean;
+		return (sumOfSquared - sum*sum)/realizations.length/probabilities.getAverage();
 	}
 
 	/* (non-Javadoc)
