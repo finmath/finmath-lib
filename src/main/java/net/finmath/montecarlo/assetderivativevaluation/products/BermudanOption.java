@@ -16,13 +16,24 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * This class implements the valuation of a Bermudan option paying
  * <br>
- * N(i) * (S(T(i)) - K(i)) at T(i),
+ * <i>	N(i) * (S(T(i)) - K(i))	</i> 	at <i>T(i)</i>,
  * <br>
  * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
  * and T(i) the exercise date.
  * 
+ * The code "demos" the two prominent methods for the valuation of Bermudan (American) products:
+ * <ul>
+ * 	<li>
+ * 		The valuation may be performed using an estimation of the conditional expectation to determine the
+ * 		exercise criteria. Apart from a possible foresight bias induced by the Monte-Carlo errors, this give a lower bound
+ *		for the Bermudan value.
+ * 	<li>
+ * 		The valuation may be performed using the dual method based on a minimization problem, which gives an upper bound.
+ * </ul>
+ * 
+ * 
  * @author Christian Fries
- * @version 1.3
+ * @version 1.4
  */
 public class BermudanOption extends AbstractAssetMonteCarloProduct {
     
@@ -119,9 +130,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
          */
         
         // Initialize our value random variable: the value of the option if we never exercise is zero
-        RandomVariableInterface   value = model.getRandomVariableForConstant(0.0);
+        RandomVariableInterface	value			= model.getRandomVariableForConstant(0.0);
 
-        RandomVariableInterface	exerciseTime = model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
+        RandomVariableInterface	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
 
         for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex>=0; exerciseDateIndex--)
         {
@@ -165,8 +176,8 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
             }
 
             // If trigger is positive keep value, otherwise take underlying
-            value = value.barrier(trigger, value, underlying);
-            exerciseTime = exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
+            value			= value.barrier(trigger, value, underlying);
+            exerciseTime	= exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
         }
 
         // Uncomment the following if you like to check exercise probabilities
