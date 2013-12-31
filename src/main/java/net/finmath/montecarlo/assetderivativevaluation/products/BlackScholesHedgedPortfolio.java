@@ -11,7 +11,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -19,8 +18,18 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * The hedge is done under the assumption of a Black Scholes Model (even if the pricing model is a different one).
  * 
+ * In case of the gamma hedge and the vega hedge, note that we make the assumption that the
+ * market trades these option according to Black-Scholes parameters assumed in hedging.
+ * While this is a simple model, it is to some extend resonable, when we assume that the
+ * hedge is done by calculating delta from a calibrated model (where the risk free rate and
+ * the volatility are "market implied").
+ * 
+ * That said, this class evaluates the hedge portfolio given that the market implies a given
+ * risk free rate and volatility, while the underlying follows a given (possibly different) stochastic
+ * process.
+ * 
  * @author Christian Fries
- * @version 1.2
+ * @version 1.3
  */
 public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct {
 
@@ -45,7 +54,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	private final HedgeStrategy hedgeStrategy;
 	
 	/**
-	 * Construction of a delta hedge portfolio assuming a Black-Scholes model.
+	 * Construction of a hedge portfolio assuming a Black-Scholes model for the hedge ratios.
 	 * 
 	 * @param maturity		Maturity of the option we wish to replicate.
 	 * @param strike		Strike of the option we wish to replicate.
@@ -253,12 +262,19 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		{
 			double underlyingValue = underlyingAtEvaluationTime.get(path);
 			
-			double priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
-					underlyingValue,						// current underlying value
-					((MonteCarloBlackScholesModel)model).getRiskFreeRate(),	// riskFreeRate,
-					((MonteCarloBlackScholesModel)model).getVolatility(),	// volatility,
-					hedgeOptionMaturity-model.getTime(timeIndexEvaluationTime),	// remaining time
-					hedgeOptionStrike); 
+			// In case we use option to hedge
+			double priceOfHedgeOption;
+			if(hedgeStrategy.equals(HedgeStrategy.deltaHedge)) {
+				priceOfHedgeOption = 0.0;
+			}
+			else {
+				priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
+						underlyingValue,						// current underlying value
+						riskFreeRate,
+						volatility,
+						hedgeOptionMaturity-model.getTime(timeIndexEvaluationTime),	// remaining time
+						hedgeOptionStrike); 
+			}
 
 			portfolioValue[path] =
 					amountOfNumeraireAsset[path] * numeraireAtEvaluationTime.get(path)
