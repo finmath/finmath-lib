@@ -11,12 +11,13 @@ import net.finmath.rootfinder.NewtonsMethod;
 
 /**
  * This class implements some functions as static class methods.
+ * 
  * It provides functions like the Black-Scholes formula,
  * the inverse of the Back-Scholes formula with respect to (implied) volatility,
  * the corresponding functions for caplets and swaptions.
  *
  * @author Christian Fries
- * @version 1.7
+ * @version 1.8
  * @date 27.04.2012
  */
 public class AnalyticFormulas {
@@ -43,6 +44,17 @@ public class AnalyticFormulas {
 			double optionStrike,
 			double payoffUnit)
 	{
+		if(forward < 0) {
+			// We use max(X,0) = X + max(-X,0) 
+			return (forward - optionStrike) * payoffUnit + blackScholesGeneralizedOptionValue(-forward, volatility, optionMaturity, -optionStrike, payoffUnit);
+		}
+		else if(forward == 0)
+		{
+			// Limit case (where dPlus = +/- infty)
+			if(optionStrike < 0)		return (forward - optionStrike) * payoffUnit;	// dPlus = +infinity
+			else if(optionStrike > 0)	return 0.0;										// dPlus = -infinity
+			else						return Double.NaN;								// Undefined
+		}
 		if((optionStrike <= 0.0) || (optionMaturity <= 0.0))
 		{	
 			return Math.max(forward - optionStrike,0) * payoffUnit;
@@ -195,7 +207,8 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(initialStockValue < 0) {
-			return blackScholesOptionDelta(-initialStockValue, riskFreeRate, volatility, optionMaturity, -optionMaturity);
+			// We use Indicator(S>K) = 1 - Indicator(-S>-K)
+			return 1 - blackScholesOptionDelta(-initialStockValue, riskFreeRate, volatility, optionMaturity, -optionStrike);
 		}
 		else if(initialStockValue == 0)
 		{
