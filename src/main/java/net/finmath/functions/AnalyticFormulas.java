@@ -30,6 +30,9 @@ public class AnalyticFormulas {
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
 	 * 
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward and/or the option strike is zero.
+	 * 
 	 * @param forward The forward of the underlying.
 	 * @param volatility The Black-Scholes volatility.
 	 * @param optionMaturity The option maturity T.
@@ -52,8 +55,7 @@ public class AnalyticFormulas {
 		{
 			// Limit case (where dPlus = +/- infty)
 			if(optionStrike < 0)		return (forward - optionStrike) * payoffUnit;	// dPlus = +infinity
-			else if(optionStrike > 0)	return 0.0;										// dPlus = -infinity
-			else						return Double.NaN;								// Undefined
+			else if(optionStrike >= 0)	return 0.0;										// dPlus = -infinity
 		}
 		if((optionStrike <= 0.0) || (optionMaturity <= 0.0))
 		{	
@@ -122,75 +124,11 @@ public class AnalyticFormulas {
 	}
 
 	/**
-     * Calculates the Black-Scholes option value of a call option.
-     * 
-	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
-	 * @param riskFreeRate The risk free rate of the bank account numerarie.
-     * @param volatility The Black-Scholes volatility.
-     * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike.
-	 * @return Returns the value of a European call option under the Black-Scholes model
-	 */
-	public static double blackScholesDigitalOptionValue(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
-	{
-		if(optionStrike <= 0.0)
-		{
-			// The Black-Scholes model does not consider it being an option
-			return 1.0;
-		}
-		else
-		{	
-			// Calculate analytic value
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
-			
-			double valueAnalytic = Math.exp(- riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
-			
-			return valueAnalytic;
-		}
-	}
-
-	/**
-	 * Calculates the delta of a digital option under a Black-Scholes model
-	 * 
-	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
-	 * @param riskFreeRate The risk free rate of the bank account numerarie.
-     * @param volatility The Black-Scholes volatility.
-     * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike.
-	 * @return The delta of the digital option
-	 */
-	public static double blackScholesDigitalOptionDelta(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
-	{
-		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
-		{	
-			// The Black-Scholes model does not consider it being an option
-			return 0.0;
-		}
-		else
-		{	
-			// Calculate delta
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
-			
-			double delta = Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
-			
-			return delta;
-		}
-	}
-
-	/**
 	 * Calculates the delta of a call option under a Black-Scholes model
+	 * 
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
 	 * 
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
@@ -215,7 +153,7 @@ public class AnalyticFormulas {
 			// Limit case (where dPlus = +/- infty)
 			if(optionStrike < 0)		return 1.0;					// dPlus = +infinity
 			else if(optionStrike > 0)	return 0.0;					// dPlus = -infinity
-			else						return Double.NaN;			// Undefined
+			else						return 1.0;					// Matter of definition of continuity of the payoff function
 		}
 		else if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{	
@@ -356,6 +294,74 @@ public class AnalyticFormulas {
 			}
 
 			return solver.getBestPoint();
+		}
+	}
+
+	/**
+     * Calculates the Black-Scholes option value of a digital call option.
+     * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return Returns the value of a European call option under the Black-Scholes model
+	 */
+	public static double blackScholesDigitalOptionValue(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionStrike <= 0.0)
+		{
+			// The Black-Scholes model does not consider it being an option
+			return 1.0;
+		}
+		else
+		{	
+			// Calculate analytic value
+			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+			
+			double valueAnalytic = Math.exp(- riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+			
+			return valueAnalytic;
+		}
+	}
+
+	/**
+	 * Calculates the delta of a digital option under a Black-Scholes model
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the digital option
+	 */
+	public static double blackScholesDigitalOptionDelta(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		{	
+			// The Black-Scholes model does not consider it being an option
+			return 0.0;
+		}
+		else
+		{	
+			// Calculate delta
+			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+			
+			double delta = Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
+			
+			return delta;
 		}
 	}
 
