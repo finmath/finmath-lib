@@ -16,7 +16,7 @@ import net.finmath.rootfinder.NewtonsMethod;
  * the corresponding functions for caplets and swaptions.
  *
  * @author Christian Fries
- * @version 1.6
+ * @version 1.7
  * @date 27.04.2012
  */
 public class AnalyticFormulas {
@@ -194,7 +194,17 @@ public class AnalyticFormulas {
 			double optionMaturity,
 			double optionStrike)
 	{
-		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		if(initialStockValue < 0) {
+			return blackScholesOptionDelta(-initialStockValue, riskFreeRate, volatility, optionMaturity, -optionMaturity);
+		}
+		else if(initialStockValue == 0)
+		{
+			// Limit case (where dPlus = +/- infty)
+			if(optionStrike < 0)		return 1.0;					// dPlus = +infinity
+			else if(optionStrike > 0)	return 0.0;					// dPlus = -infinity
+			else						return Double.NaN;			// Undefined
+		}
+		else if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{	
 			// The Black-Scholes model does not consider it being an option
 			return 1.0;
