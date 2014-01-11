@@ -188,7 +188,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	 */
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return new RandomVariable(0.0, getProcess().getNumberOfPaths(), value);
+		return new RandomVariable(value);
 	}
 	
 	/* (non-Javadoc)

@@ -145,7 +145,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return new RandomVariable(0.0, getNumberOfPaths(), value);
+		return new RandomVariable(value);
 	}
 	
 	/* (non-Javadoc)
