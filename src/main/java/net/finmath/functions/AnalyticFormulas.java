@@ -12,12 +12,16 @@ import net.finmath.rootfinder.NewtonsMethod;
 /**
  * This class implements some functions as static class methods.
  * 
- * It provides functions like the Black-Scholes formula,
- * the inverse of the Back-Scholes formula with respect to (implied) volatility,
- * the corresponding functions for caplets and swaptions.
- *
+ * It provides functions like
+ * <ul>
+ * 	<li>the Black-Scholes formula,
+ * 	<li>the inverse of the Back-Scholes formula with respect to (implied) volatility,
+ * 	<li>the corresponding functions (versions) for caplets and swaptions,
+ * 	<li>some convexity adjustments.
+ * </ul>
+ * 
  * @author Christian Fries
- * @version 1.8
+ * @version 1.9
  * @date 27.04.2012
  */
 public class AnalyticFormulas {
@@ -47,18 +51,16 @@ public class AnalyticFormulas {
 			double optionStrike,
 			double payoffUnit)
 	{
-		if(forward < 0) {
+		if(optionMaturity < 0) {
+			return 0;
+		}
+		else if(forward < 0) {
 			// We use max(X,0) = X + max(-X,0) 
 			return (forward - optionStrike) * payoffUnit + blackScholesGeneralizedOptionValue(-forward, volatility, optionMaturity, -optionStrike, payoffUnit);
 		}
-		else if(forward == 0)
-		{
-			// Limit case (where dPlus = +/- infty)
-			if(optionStrike < 0)		return (forward - optionStrike) * payoffUnit;	// dPlus = +infinity
-			else if(optionStrike >= 0)	return 0.0;										// dPlus = -infinity
-		}
-		if((optionStrike <= 0.0) || (optionMaturity <= 0.0))
+		else if((forward == 0) || (optionStrike <= 0.0) || (volatility <= 0.0) || (optionMaturity <= 0.0))
 		{	
+			// Limit case (where dPlus = +/- infty)
 			return Math.max(forward - optionStrike,0) * payoffUnit;
 		}
 		else
@@ -114,6 +116,8 @@ public class AnalyticFormulas {
 			double forward,
 			double payoffUnit)
 	{
+		if(optionMaturity < 0) return 0.0;
+
 		// Calculate analytic value
 		double dPlus = 0.5 * volatility * Math.sqrt(optionMaturity);
 		double dMinus = -dPlus;
@@ -144,7 +148,10 @@ public class AnalyticFormulas {
 			double optionMaturity,
 			double optionStrike)
 	{
-		if(initialStockValue < 0) {
+		if(optionMaturity < 0) {
+			return 0;
+		}
+		else if(initialStockValue < 0) {
 			// We use Indicator(S>K) = 1 - Indicator(-S>-K)
 			return 1 - blackScholesOptionDelta(-initialStockValue, riskFreeRate, volatility, optionMaturity, -optionStrike);
 		}
@@ -155,7 +162,7 @@ public class AnalyticFormulas {
 			else if(optionStrike > 0)	return 0.0;					// dPlus = -infinity
 			else						return 1.0;					// Matter of definition of continuity of the payoff function
 		}
-		else if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		else if((optionStrike <= 0.0) || (volatility <= 0.0) || (optionMaturity <= 0.0))		// (and initialStockValue > 0)
 		{	
 			// The Black-Scholes model does not consider it being an option
 			return 1.0;
