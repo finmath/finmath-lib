@@ -12,13 +12,15 @@ import net.finmath.stochastic.RandomVariableInterface;
 import org.junit.Test;
 
 /**
- * @author Christian Fries
+ * Test cases for the class net.finmath.montecarlo.RandomVariable.
  * 
+ * @author Christian Fries
+ * @see net.finmath.montecarlo.RandomVariable
  */
 public class RandomVariableTests {
 
 	@Test
-	public void testRandomVariable() {
+	public void testRandomVariableDeterministc() {
 
 		// Create a random variable with a constant
 		RandomVariableInterface randomVariable = new RandomVariable(2.0);
@@ -35,8 +37,12 @@ public class RandomVariableTests {
 		
 		// Since the random variable is deterministic, it has zero variance
 		assertTrue(randomVariable.getVariance() == 0.0);
-		
-		// Create a stochstic random variable with two paths.
+	}
+
+	@Test
+	public void testRandomVariableStochastic() {
+
+		// Create a stochastic random variable
 		RandomVariableInterface randomVariable2 = new RandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
@@ -51,6 +57,7 @@ public class RandomVariableTests {
 		assertTrue(randomVariable2.getVariance() == 2.0);
 		
 		// Multiply two random variables, this will expand the receiver to a stochastic one
+		RandomVariableInterface randomVariable = new RandomVariable(3.0);
 		randomVariable = randomVariable.mult(randomVariable2);
 		
 		// The random variable has average value 6.0
@@ -58,5 +65,44 @@ public class RandomVariableTests {
 
 		// The random variable has variance value 2 * 9
 		assertTrue(randomVariable.getVariance() == 2.0 * 9.0);
+	}
+
+	@Test
+	public void testRandomVariableArithmeticSqrtPow() {
+
+		// Create a stochastic random variable
+		RandomVariableInterface randomVariable = new RandomVariable(0.0,
+				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
+
+		RandomVariableInterface check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
+		
+		// The random variable is identical 0.0
+		assertTrue(check.getAverage() == 0.0);
+		assertTrue(check.getVariance() == 0.0);
+	}
+
+	@Test
+	public void testRandomVariableArithmeticSquaredPow() {
+
+		// Create a stochastic random variable
+		RandomVariableInterface randomVariable = new RandomVariable(0.0,
+				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
+
+		RandomVariableInterface check = randomVariable.squared().sub(randomVariable.pow(2.0));
+		
+		// The random variable is identical 0.0
+		assertTrue(check.getAverage() == 0.0);
+		assertTrue(check.getVariance() == 0.0);
+	}
+
+	@Test
+	public void testRandomVariableStandardDeviation() {
+
+		// Create a stochastic random variable
+		RandomVariableInterface randomVariable = new RandomVariable(0.0,
+				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
+
+		double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
+		assertTrue(check == 0.0);
 	}
 }
