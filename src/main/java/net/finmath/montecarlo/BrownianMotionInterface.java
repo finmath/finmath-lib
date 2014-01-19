@@ -69,4 +69,15 @@ public interface BrownianMotionInterface {
 	 * @return New object implementing BrownianMotionInterface.
 	 */
     BrownianMotionInterface getCloneWithModifiedSeed(int seed);
+
+
+	/**
+	 * Return a new object implementing BrownianMotionInterface
+	 * having the same specifications as this object but a different
+	 * time discretization.
+	 * 
+	 * @param newTimeDiscretization New time discretization
+	 * @return New object implementing BrownianMotionInterface.
+	 */
+	BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization);
 }

@@ -245,6 +245,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
     	/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
+    	double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
     	double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
     	double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : riskFreeRate;
     	double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: volatility;
@@ -261,7 +262,15 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
     	else
     	{
     		// The seed had not changed. We may reuse the random numbers (Brownian motion) of the original model
-    		BrownianMotionInterface brownianMotion = this.getProcess().getBrownianMotion();
+    		BrownianMotionInterface brownianMotion;
+    		double timeShift = newInitialTime - getTime(0);
+    		if(timeShift == 0) {
+    			brownianMotion = this.getProcess().getBrownianMotion();
+    		}
+    		else {
+    			/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
+    			brownianMotion = getProcess().getBrownianMotion().getCloneWithModifiedTimeDiscretization(getProcess().getBrownianMotion().getTimeDiscretization().getTimeShiftedTimeDiscretization(timeShift));
+    		}
     		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
     		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);    		
     	}

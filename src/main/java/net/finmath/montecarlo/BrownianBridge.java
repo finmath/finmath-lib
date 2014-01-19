@@ -170,6 +170,14 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
+	 */
+	@Override
+	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+		return new BrownianBridge(newTimeDiscretization, getNumberOfFactors(), seed, start, end);
+	}
+
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
