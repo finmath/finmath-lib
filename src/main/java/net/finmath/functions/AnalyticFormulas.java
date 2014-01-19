@@ -7,7 +7,10 @@ package net.finmath.functions;
 
 import java.util.Calendar;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+
 import net.finmath.rootfinder.NewtonsMethod;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements some functions as static class methods.
@@ -75,6 +78,44 @@ public class AnalyticFormulas {
 		}
 	}
 	
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
+	 * 
+	 * The model specific quantities are considered to be random variable, i.e.,
+	 * the function may calculate an per-path valuation in a single call.
+	 * 
+	 * @param forward The forward of the underlying.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static RandomVariableInterface blackScholesGeneralizedOptionValue(
+			RandomVariableInterface forward,
+			RandomVariableInterface volatility,
+			double optionMaturity,
+			double optionStrike,
+			RandomVariableInterface payoffUnit)
+	{
+		if(optionMaturity < 0) {
+			return forward.mult(0.0);
+		}
+		else
+		{	
+			RandomVariableInterface dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			RandomVariableInterface dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
+			
+			UnivariateFunction cumulativeNormal = new UnivariateFunction() {
+				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
+			};
+			
+			RandomVariableInterface valueAnalytic = dPlus.apply(cumulativeNormal).mult(forward).sub(dMinus.apply(cumulativeNormal).mult(optionStrike)).mult(payoffUnit);
+			
+			return valueAnalytic;
+		}
+	}
+
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
 	 * 
@@ -179,6 +220,44 @@ public class AnalyticFormulas {
 	}
 
 	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 * 
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static RandomVariableInterface blackScholesOptionDelta(
+			RandomVariableInterface initialStockValue,
+			RandomVariableInterface riskFreeRate,
+			RandomVariableInterface volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionMaturity < 0) {
+			return initialStockValue.mult(0.0);
+		}
+		else
+		{	
+			// Calculate delta
+			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			
+			UnivariateFunction cummulativeNormal = new UnivariateFunction() {
+				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
+			};
+			RandomVariableInterface delta = dPlus.apply(cummulativeNormal);
+			
+			return delta;
+		}
+	}
+
+	/**
 	 * This static method calculated the gamma of a call option under a Black-Scholes model
 	 * 
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
@@ -211,6 +290,39 @@ public class AnalyticFormulas {
 		}
 	}
 	
+	/**
+	 * This static method calculated the gamma of a call option under a Black-Scholes model
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The gamma of the option
+	 */
+	public static RandomVariableInterface blackScholesOptionGamma(
+			RandomVariableInterface initialStockValue,
+			RandomVariableInterface riskFreeRate,
+			RandomVariableInterface volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		{	
+			// The Black-Scholes model does not consider it being an option
+			return initialStockValue.mult(0.0);
+		}
+		else
+		{	
+			// Calculate gamma
+			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			
+			RandomVariableInterface gamma	= dPlus.squared().mult(-0.5).exp().div(initialStockValue.mult(volatility).mult(Math.sqrt(2.0 * Math.PI * optionMaturity)));
+			
+			return gamma;
+		}
+	}
+
 	/**
 	 * This static method calculated the vega of a call option under a Black-Scholes model
 	 * 
