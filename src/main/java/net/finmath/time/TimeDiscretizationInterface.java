@@ -81,4 +81,13 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	 */
     ArrayList<Double> getAsArrayList();
 
+    
+    /**
+     * Return a new time discretization where all time points have been shifted by
+     * a given time shift.
+     * 
+     * @param timeShift A time shift applied to all discretization points.
+     * @return A new time discretization where all time points have been shifted by the given time shift.
+     */
+    TimeDiscretizationInterface getTimeShiftedTimeDiscretization(double timeShift);
 }

@@ -76,6 +76,14 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	}
 
 	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
+	 */
+	@Override
+	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+		return new BrownianMotion(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed());
+	}
+
+	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getBrownianIncrement(int, int)
 	 */
 	@Override
@@ -180,4 +188,5 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 				+ "\n" + "numberOfFactors: " + numberOfFactors
 				+ "\n" + "seed: " + seed;
 	}
+
 }

@@ -102,4 +102,11 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedSeed(seed), factorLoadings);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
+	 */
+	@Override
+	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factorLoadings);
+	}
 }
