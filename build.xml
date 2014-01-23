@@ -5,9 +5,13 @@
 <!-- edit the following lines to your needs            -->
 <target name="init">
     <property name="project_name"   value="finmath-lib"/>
-    <property name="srcDir"         value="./src/main/java"/>
-    <property name="classDir"       value="./classes"/>
+    <property name="srcDir"         value="./src/main/java:./src/test/java"/>
+    <property name="resourceDir"    value="./src/main/resources"/>
+    <property name="testDir"		value="./src/test/java"/>
+	<property name="classDir"       value="./classes"/>
     <property name="jar"            value="${project_name}.jar"/>
+	<property name="reports.tests"	value="./reports/tests" />
+	<property name="reports.html"	value="./reports/html" />
     <mkdir dir="${classDir}" />
 </target>
 
@@ -32,11 +36,40 @@
     <jar jarfile="${jar}"
         basedir="${classDir}"
         includes="net/finmath/**">
-		<fileset dir="${srcDir}">
-        	<include name="com/mycompany/resources/*.properties"/>
+		<fileset dir="${resourceDir}">
+        	<include name="*.*"/>
 		</fileset>
     </jar>
 </target>
+
+	<target name="junit" depends="jar">
+	    <mkdir dir="${reports.tests}" />
+		<junit printsummary="true" failureproperty="junit.failure">
+			<jvmarg value="-XX:-UseSplitVerifier"/>
+			<jvmarg value="-Xmx1G"/>
+			<classpath>
+				<fileset dir="lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<pathelement path="${classDir}" />
+			</classpath>
+			<batchtest fork="yes" todir="${reports.tests}">
+				<fileset dir="${testDir}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+			<formatter type="xml" />
+		</junit>
+	</target>
+
+	<target name="junitreport" depends="junit">
+		<junitreport todir="${reports.tests}">
+			<fileset dir="${reports.tests}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="noframes" todir="${reports.html}" />
+		</junitreport>
+	</target>
 
 <!-- removes all that has been built -->
 <target name="clean" depends="init">
