@@ -166,7 +166,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
                 trigger		= valueIfNotExcercisedEstimated.sub(underlying);
             	break;
             case UPPER_BOUND_METHOD:
-            	RandomVariableInterface martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));
+            	RandomVariableInterface martingale		= model.getAssetValue(exerciseDates[exerciseDates.length-1], 0).div(model.getNumeraire(exerciseDates[exerciseDates.length-1]));
                 martingale = martingale.sub(martingale.getAverage()).mult(lambda);
 
                 underlying	= valueOfPaymentsIfExercised.sub(martingale);
