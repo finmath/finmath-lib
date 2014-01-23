@@ -46,7 +46,7 @@
 	    <mkdir dir="${reports.tests}" />
 		<junit printsummary="true" failureproperty="junit.failure">
 			<jvmarg value="-XX:-UseSplitVerifier"/>
-			<jvmarg value="-Xmx1G"/>
+			<jvmarg value="-Xmx512M"/>
 			<classpath>
 				<fileset dir="lib">
 					<include name="**/*.jar" />
