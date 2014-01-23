@@ -226,6 +226,13 @@ public class BlackScholesMonteCarloValuationTest {
 	
 	/**
 	 * Evaluates different options (European, Asian, Bermudan) using the given model.
+	 * 
+	 * The options share the same maturity and strike for the at t=3.0.
+	 * Observations which can be made:
+	 * <ul>
+	 * <li>The Asian is cheaper than the European since averaging reduces the volatility.
+	 * <li>The European is cheaper than the Bermudan since exercises into the European is one (out of may) exercises strategies of the Bermudan.
+	 * </ul>
 	 */
 	@Test
 	public void testEuropeanAsianBermudanOption() throws CalculationException {
