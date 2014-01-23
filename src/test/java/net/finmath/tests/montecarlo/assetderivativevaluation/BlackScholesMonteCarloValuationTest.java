@@ -229,33 +229,51 @@ public class BlackScholesMonteCarloValuationTest {
 	 */
 	@Test
 	public void testEuropeanAsianBermudanOption() throws CalculationException {
-		double[] averagingPoints = { 1.0, 1.5, 2.0, 2.5 , 3.0 };
+		/*
+		 * Common parameters
+		 */
 		double maturity = 3.0;
 		double strike = 1.07;
+
+		/*
+		 * European Option
+		 */
+		EuropeanOption myEuropeanOption = new EuropeanOption(maturity,strike);
+		double valueOfEuropeanOption = myEuropeanOption.getValue(model);
+
+		/*
+		 * Asian Option
+		 */
+		double[] averagingPoints = { 1.0, 1.5, 2.0, 2.5 , 3.0 };
 
 		AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretization(averagingPoints));
 		double valueOfAsianOption = myAsianOption.getValue(model);
 
-		EuropeanOption myEuropeanOption = new EuropeanOption(maturity,strike);
-		double valueOfEuropeanOption = myEuropeanOption.getValue(model);
-
+		/*
+		 * Bermudan Option
+		 */
 		double[] exerciseDates	= { 1.0,  2.0,  3.0};
-		double[] notionals		= { 1.04, 1.02, 1.0};
-		double[] strikes		= { 1.04, 1.08, 1.15 };
+		double[] notionals		= { 1.20, 1.10, 1.0};
+		double[] strikes		= { 1.03, 1.05, 1.07 };
 		
+		// Lower bound method
 		BermudanOption myBermudanOptionLowerBound = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.ESTIMATE_COND_EXPECTATION);
 		double valueOfBermudanOptionLowerBound = myBermudanOptionLowerBound.getValue(model);
 
+		// Upper bound method
 		BermudanOption myBermudanOptionUpperBound = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.UPPER_BOUND_METHOD);
 		double valueOfBermudanOptionUpperBound = myBermudanOptionUpperBound.getValue(model);
 
+		/*
+		 * Output
+		 */
 		System.out.println("Value of Asian Option is \t"	+ valueOfAsianOption);
 		System.out.println("Value of European Option is \t"	+ valueOfEuropeanOption);
 		System.out.println("Value of Bermudan Option is \t"	+ "(" + valueOfBermudanOptionLowerBound + "," + valueOfBermudanOptionUpperBound + ")");
 
 		assertTrue(valueOfAsianOption < valueOfEuropeanOption);
 		assertTrue(valueOfBermudanOptionLowerBound < valueOfBermudanOptionUpperBound);
-		assertTrue(valueOfBermudanOptionUpperBound < valueOfEuropeanOption);
+		assertTrue(valueOfEuropeanOption < valueOfBermudanOptionUpperBound);
 	}
 	
 	/**
