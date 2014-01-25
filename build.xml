@@ -2,48 +2,48 @@
 
 <project name="project" default="jar" basedir=".">
 
-<!-- edit the following lines to your needs            -->
-<target name="init">
-    <property name="project_name"   value="finmath-lib"/>
-    <property name="srcDir"         value="./src/main/java:./src/test/java"/>
-    <property name="resourceDir"    value="./src/main/resources"/>
-    <property name="testDir"		value="./src/test/java"/>
-	<property name="classDir"       value="./classes"/>
-    <property name="jar"            value="${project_name}.jar"/>
-	<property name="reports.tests"	value="./reports/tests" />
-	<property name="reports.html"	value="./reports/html" />
-    <mkdir dir="${classDir}" />
-</target>
+	<!-- edit the following lines to your needs            -->
+	<target name="init">
+		<property name="project_name"   value="finmath-lib"/>
+		<property name="srcDir"         value="./src/main/java:./src/test/java"/>
+		<property name="resourceDir"    value="./src/main/resources"/>
+		<property name="testDir"		value="./src/test/java"/>
+		<property name="classDir"       value="./classes"/>
+		<property name="jar"            value="${project_name}.jar"/>
+		<property name="reports.tests"	value="./reports/tests" />
+		<property name="reports.html"	value="./reports/html" />
+		<mkdir dir="${classDir}" />
+	</target>
 
-<!-- compile -->
-<target name="compile" depends="init">
-	<javac srcdir="${srcDir}"
+	<!-- compile -->
+	<target name="compile" depends="init">
+		<javac srcdir="${srcDir}"
 		includes="net/finmath/**/**/*.java"
 		source="1.6"
 		target="1.6"
         destdir="${classDir}"
 		includeantruntime="false">
-		<classpath>
-		    <fileset dir="lib">
-		      <include name="**/*.jar" />
-		    </fileset>
-		</classpath>
-	</javac>
-</target>
+			<classpath>
+				<fileset dir="lib">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
 
-<!-- create .jar -->
-<target name="jar" depends="compile">
-    <jar jarfile="${jar}"
+	<!-- create .jar -->
+	<target name="jar" depends="compile">
+		<jar jarfile="${jar}"
         basedir="${classDir}"
         includes="net/finmath/**">
-		<fileset dir="${resourceDir}">
-        	<include name="*.*"/>
-		</fileset>
-    </jar>
-</target>
+			<fileset dir="${resourceDir}">
+				<include name="*.*"/>
+			</fileset>
+		</jar>
+	</target>
 
 	<target name="junit" depends="jar">
-	    <mkdir dir="${reports.tests}" />
+		<mkdir dir="${reports.tests}" />
 		<junit printsummary="true" failureproperty="junit.failure">
 			<jvmarg value="-XX:-UseSplitVerifier"/>
 			<jvmarg value="-Xmx512M"/>
@@ -71,10 +71,10 @@
 		</junitreport>
 	</target>
 
-<!-- removes all that has been built -->
-<target name="clean" depends="init">
-        <delete dir="${classDir}" includeEmptyDirs="true" />
-</target>
+	<!-- removes all that has been built -->
+	<target name="clean" depends="init">
+		<delete dir="${classDir}" includeEmptyDirs="true" />
+	</target>
 </project>
 
 <!-- end file build.xml -->
