@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -16,6 +17,7 @@ import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -58,12 +60,16 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		this.volatility		= volatility;
 
 		/*
-		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
+		 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
+		 * 
+		 * Since the underlying process is configured to simulate log(S),
+		 * the initial value and the drift are transformed accordingly.
+		 * 
 		 */
-		this.initialValueVector[0]	= new RandomVariable(0.0, Math.log(initialValue));
-		this.drift					= new RandomVariable(0.0, riskFreeRate - 0.5 * volatility*volatility);
-		this.volatilityOnPaths		= new RandomVariable(0.0, volatility);
+		this.initialValueVector[0]	= new RandomVariable(Math.log(initialValue));
+		this.drift					= new RandomVariable(riskFreeRate - 0.5 * volatility*volatility);
+		this.volatilityOnPaths		= new RandomVariable(volatility);
 
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
@@ -268,8 +274,11 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
     			brownianMotion = this.getProcess().getBrownianMotion();
     		}
     		else {
-    			/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
-    			brownianMotion = getProcess().getBrownianMotion().getCloneWithModifiedTimeDiscretization(getProcess().getBrownianMotion().getTimeDiscretization().getTimeShiftedTimeDiscretization(timeShift));
+    			ArrayList<Double> newTimes = new ArrayList<Double>();
+    			newTimes.add(newInitialTime);
+    			for(Double time : getProcess().getBrownianMotion().getTimeDiscretization()) if(time > newInitialTime) newTimes.add(time);
+    			TimeDiscretizationInterface newTimeDiscretization = new TimeDiscretization(newTimes);
+    			brownianMotion = getProcess().getBrownianMotion().getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
     		}
     		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
     		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);    		

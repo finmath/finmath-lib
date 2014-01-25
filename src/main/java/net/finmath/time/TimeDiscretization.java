@@ -59,6 +59,18 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     }
 
     /**
+     * Constructs a time discretization from a given ArrayList of Doubles.
+     * 
+     * @param timeDiscretization Given ArrayList of discretization points
+     */
+    public TimeDiscretization(ArrayList<Double> timeDiscretization) {
+    	super();
+    	this.timeDiscretization = new double[timeDiscretization.size()];
+        for(int timeIndex=0; timeIndex<timeDiscretization.size(); timeIndex++) this.timeDiscretization[timeIndex] = roundToTimeTickSize(timeDiscretization.get(timeIndex));
+        java.util.Arrays.sort(this.timeDiscretization);
+    }
+
+    /**
      * Constructs an equi-distant time discretization with points timeDiscretization[i] being
      * <code>for(i=0; i &le; timeSteps; i++) timeDiscretization[i] = initial + i * deltaT;</code>
      * 
