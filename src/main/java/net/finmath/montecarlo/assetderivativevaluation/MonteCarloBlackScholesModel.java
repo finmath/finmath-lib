@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
  * and forms a Monte-Carlo implementation of the Black-Scholes Model by implementing <code>AssetModelMonteCarloSimulationInterface</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class MonteCarloBlackScholesModel extends AbstractModel implements AssetModelMonteCarloSimulationInterface {
@@ -62,13 +62,13 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		/*
 		 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
-		 * 
+		 *
 		 * Since the underlying process is configured to simulate log(S),
 		 * the initial value and the drift are transformed accordingly.
-		 * 
+		 *
 		 */
 		this.initialValueVector[0]	= new RandomVariable(Math.log(initialValue));
-		this.drift					= new RandomVariable(riskFreeRate - 0.5 * volatility*volatility);
+		this.drift					= new RandomVariable(riskFreeRate - volatility * volatility / 2.0);
 		this.volatilityOnPaths		= new RandomVariable(volatility);
 
 		// Create a corresponding MC process
@@ -171,8 +171,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(int)
 	 */
 	@Override
-    public RandomVariableInterface getNumeraire(int timeIndex)
-	{
+    public RandomVariableInterface getNumeraire(int timeIndex) {
 		double time = getTime(timeIndex);
 
 		return getNumeraire(time);
@@ -182,8 +181,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumeraire(double)
 	 */
 	@Override
-    public RandomVariableInterface getNumeraire(double time)
-	{
+    public RandomVariableInterface getNumeraire(double time) {
 		double numeraireValue = Math.exp(riskFreeRate * time);
 
 		return new RandomVariable(time, numeraireValue);
@@ -196,7 +194,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return new RandomVariable(value);
 	}
-	
+
 	/* (non-Javadoc)
      * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumberOfComponents()
      */
@@ -212,7 +210,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
     public int getNumberOfAssets() {
 		return 1;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -227,7 +225,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 
 	/**
 	 * Returns the risk free rate parameter of this model.
-	 * 
+	 *
 	 * @return Returns the riskFreeRate.
 	 */
 	public double getRiskFreeRate() {
