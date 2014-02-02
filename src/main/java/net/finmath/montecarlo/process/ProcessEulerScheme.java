@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableOperator;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -104,7 +105,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		discreteProcessWeights	= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1];
 
 		// Set initial Monte-Carlo weights
-		discreteProcessWeights[0] = new RandomVariable(getTime(0), 1.0 / numberOfPaths);
+		discreteProcessWeights[0] = new RandomVariableOperator(getTime(0), 1.0 / numberOfPaths);
 
 		// Set initial value
 		RandomVariableInterface[] initialState = getInitialState();
@@ -152,7 +153,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 						if (factorLoadings == null) return null;
 
 						// Temp storage for variance and diffusion
-						RandomVariableInterface diffusionOfComponent		= new RandomVariable(getTime(timeIndex - 1), 0.0);
+						RandomVariableInterface diffusionOfComponent		= new RandomVariableOperator(getTime(timeIndex - 1), 0.0);
 
 						// Generate values for diffusionOfComponent and varianceOfComponent 
 						for (int factor = 0; factor < numberOfFactors; factor++) {

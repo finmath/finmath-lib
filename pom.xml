@@ -4,7 +4,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.0.22-SNAPSHOT</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -12,6 +12,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <src.main.dir>src/main/java6</src.main.dir>
+        <src.test.dir>src/test/java6</src.test.dir>
 	</properties>
 
 	<dependencies>
@@ -34,6 +36,12 @@
 	</dependencies>
 
 	<build>
+		<directory>target</directory>
+		<outputDirectory>target/classes</outputDirectory>
+		<finalName>${artifactId}-${version}</finalName>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
+		<sourceDirectory>${src.main.dir}</sourceDirectory>
+		<testSourceDirectory>${src.test.dir}</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -56,6 +64,65 @@
 			</plugin>
 		</plugins>
 	</build>
+
+    <profiles>
+        <profile>
+            <id>java-6</id>
+            <properties>
+                <src.main.dir>src/main/java6</src.main.dir>
+                <src.test.dir>src/test/java6</src.test.dir>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.1</version>
+                        <configuration>
+                            <source>1.6</source>
+                            <target>1.6</target>
+                            <compilerVersion>1.7</compilerVersion>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
+                        <configuration>
+                            <classifier>jdk6</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>java-8</id>
+            <properties>
+                <src.main.dir>src/main/java</src.main.dir>
+                <src.test.dir>src/test/java</src.test.dir>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.1</version>
+                        <configuration>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                            <compilerVersion>1.8</compilerVersion>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
+                        <configuration>
+                            <classifier>jdk8</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 	<scm>
 		<url>scm:svn:http://svn.finmath.net/finmath lib/trunk</url>

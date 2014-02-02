@@ -2,8 +2,14 @@
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
  * Created on 21.10.2007
+ * Created on 02.02.2014
  */
 package net.finmath.stochastic;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
 
 
 
@@ -27,7 +33,7 @@ package net.finmath.stochastic;
  * For C++ guys: In C++ you could achieve this by making a return value const.
  *
  * @author Christian Fries
- * @version 1.2
+ * @version 1.4
  */
 public interface RandomVariableInterface {
 
@@ -90,6 +96,20 @@ public interface RandomVariableInterface {
 	 */
     double[] getRealizations(int numberOfPaths);
 	
+    /**
+     * Returns the operator path -> this.get(path) corresponding to this random variable.
+     * 
+     * @return The operator path -> this.get(path) corresponding to this random variable.
+     */
+    IntToDoubleFunction getOperator();
+
+    /**
+     * Returns a stream of doubles corresponding to the realizations of this random variable.
+     * 
+     * @return A stream of doubles corresponding to the realizations of this random variable.
+     */
+    DoubleStream getRealizationsStream();
+
 	/**
 	 * Returns the minimum value attained by this random variable.
 	 * 
@@ -267,14 +287,23 @@ public interface RandomVariableInterface {
 	 */
     double[][] getHistogram(int numberOfPoints, double standardDeviations);
 
-    /**
-     * Applies x &rarr; function.value(x) to this random variable.
+	/**
+     * Applies x &rarr; operator(x) to this random variable.
      * 
-     * @param function A univariate function mapping doubles to doubles.
+	 * @param operator An unary operator/function, mapping double to double.
      * @return New random variable with the result of the function.
-     */
-    RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function);
-    
+	 */
+	RandomVariableInterface apply(DoubleUnaryOperator operator);
+
+	/**
+     * Applies x &rarr; operator(x,r) to this random variable, where r is a given random variable.
+     * 
+	 * @param operator A binary operator/function, mapping (double,double) to double.
+	 * @param argument A random variable.
+     * @return New random variable with the result of the function.
+	 */
+	RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument);
+
     
     /**
      * Applies x &rarr; min(x,cap) to this random variable.

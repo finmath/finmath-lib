@@ -7,8 +7,6 @@ package net.finmath.functions;
 
 import java.util.Calendar;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-
 import net.finmath.rootfinder.NewtonsMethod;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -106,11 +104,7 @@ public class AnalyticFormulas {
 			RandomVariableInterface dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			RandomVariableInterface dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
 			
-			UnivariateFunction cumulativeNormal = new UnivariateFunction() {
-				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
-			};
-			
-			RandomVariableInterface valueAnalytic = dPlus.apply(cumulativeNormal).mult(forward).sub(dMinus.apply(cumulativeNormal).mult(optionStrike)).mult(payoffUnit);
+			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
 			
 			return valueAnalytic;
 		}
@@ -248,10 +242,7 @@ public class AnalyticFormulas {
 			// Calculate delta
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			
-			UnivariateFunction cummulativeNormal = new UnivariateFunction() {
-				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
-			};
-			RandomVariableInterface delta = dPlus.apply(cummulativeNormal);
+			RandomVariableInterface delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
 			
 			return delta;
 		}
@@ -353,6 +344,39 @@ public class AnalyticFormulas {
 			double vega = Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) * initialStockValue * Math.sqrt(optionMaturity);
 			
 			return vega;
+		}
+	}
+
+	/**
+	 * This static method calculated the rho of a call option under a Black-Scholes model
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+     * @param volatility The Black-Scholes volatility.
+     * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The rho of the option
+	 */
+	public static double blackScholesOptionRho(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		{	
+			// The Black-Scholes model does not consider it being an option
+			return 0.0;
+		}
+		else
+		{
+			// Calculate delta
+			double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			
+			double rho = optionStrike * optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+			
+			return rho;
 		}
 	}
 
