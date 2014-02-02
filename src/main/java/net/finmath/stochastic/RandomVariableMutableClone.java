@@ -7,6 +7,11 @@ package net.finmath.stochastic;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+
 
 /**
  * This class wraps an immutable class (here <code>RandomVariableInterface</code>)
@@ -88,14 +93,6 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 		return ensureMutable().accrue(rate, periodLength);
     }
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#apply(org.apache.commons.math3.analysis.UnivariateFunction)
-	 */
-	@Override
-	public RandomVariableInterface apply(UnivariateFunction function) {
-		return ensureMutable().apply(function);
-	}
-    
     /* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -235,6 +232,16 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 		return randomVariable.getHistogram(numberOfPoints, standardDeviations);
 	}
 
+    @Override
+    public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+        return randomVariable.apply(operator);
+    }
+
+    @Override
+    public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+        return randomVariable.apply(operator, argument);
+    }
+
     /* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
 	 */
@@ -278,9 +285,19 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 		return randomVariable.getRealizations(numberOfPaths);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
-	 */
+    @Override
+    public IntToDoubleFunction getOperator() {
+        return randomVariable.getOperator();
+    }
+
+    @Override
+    public DoubleStream getRealizationsStream() {
+        return randomVariable.getRealizationsStream();
+    }
+
+    /* (non-Javadoc)
+     * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
+     */
 	@Override
 	public double getStandardDeviation() {
 		return randomVariable.getStandardDeviation();

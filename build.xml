@@ -5,9 +5,9 @@
 	<!-- edit the following lines to your needs            -->
 	<target name="init">
 		<property name="project_name"   value="finmath-lib"/>
-		<property name="srcDir"         value="./src/main/java:./src/test/java"/>
+		<property name="srcDir"         value="./src/main/java6:./src/test/java6"/>
 		<property name="resourceDir"    value="./src/main/resources"/>
-		<property name="testDir"		value="./src/test/java"/>
+		<property name="testDir"		value="./src/test/java6"/>
 		<property name="classDir"       value="./classes"/>
 		<property name="jar"            value="${project_name}.jar"/>
 		<property name="reports.tests"	value="./reports/tests" />
@@ -22,7 +22,7 @@
 		source="1.6"
 		target="1.6"
         destdir="${classDir}"
-		includeantruntime="false">
+		includeantruntime="fals">
 			<classpath>
 				<fileset dir="lib">
 					<include name="**/*.jar" />
