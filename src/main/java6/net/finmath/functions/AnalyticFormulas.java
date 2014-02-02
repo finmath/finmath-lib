@@ -7,10 +7,10 @@ package net.finmath.functions;
 
 import java.util.Calendar;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-
 import net.finmath.rootfinder.NewtonsMethod;
 import net.finmath.stochastic.RandomVariableInterface;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /**
  * This class implements some functions as static class methods.
