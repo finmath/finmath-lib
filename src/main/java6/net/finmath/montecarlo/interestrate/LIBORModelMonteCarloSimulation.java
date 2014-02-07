@@ -99,9 +99,14 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return model.getProcess().getTimeIndex(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getBrownianMotion()
-	 */
+    @Override
+    public RandomVariableInterface getRandomVariableForConstant(double value) {
+        return model.getProcess().getBrownianMotion().getRandomVariableForConstant(value);
+    }
+
+    /* (non-Javadoc)
+     * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getBrownianMotion()
+     */
 	@Override
     public BrownianMotionInterface getBrownianMotion() {
 		return model.getProcess().getBrownianMotion();

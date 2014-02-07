@@ -91,6 +91,6 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
     		return new RandomVariable(volatility * volatility * optionMaturity);
     	}
     	
-    	return null;
+    	throw new UnsupportedOperationException("Provided valueUnit not implemented.");
     }
 }

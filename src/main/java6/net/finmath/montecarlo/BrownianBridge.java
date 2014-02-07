@@ -161,6 +161,11 @@ public class BrownianBridge implements BrownianMotionInterface {
 		return numberOfPaths;
 	}
 
+    @Override
+    public RandomVariableInterface getRandomVariableForConstant(double value) {
+        return new RandomVariable(value);
+    }
+
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedSeed(int)
 	 */

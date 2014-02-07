@@ -50,6 +50,15 @@ public interface MonteCarloSimulationInterface {
 	 */
     int getTimeIndex(double time);
 
+    /**
+     * Returns a random variable which is initialized to a constant,
+     * but has exactly the same number of paths or discretization points as the ones used by this <code>MonteCarloSimulationInterface</code>.
+     *
+     * @param value The constant value to be used for initialized the random variable.
+     * @return A new random variable.
+     */
+    RandomVariableInterface getRandomVariableForConstant(double value);
+
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
 	 * 
