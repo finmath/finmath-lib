@@ -5,8 +5,6 @@
  */
 package net.finmath.tests.montecarlo;
 
-import static org.junit.Assert.assertTrue;
-
 import java.text.DecimalFormat;
 
 import net.finmath.montecarlo.BrownianMotion;
@@ -15,6 +13,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -58,8 +57,8 @@ public class BrownianMotionTests {
 			
 			System.out.print("error of mean = " + fromatterSci4.format(mean) + "\t error of variance = " + fromatterSci4.format(variance-dt));
 
-			assertTrue(Math.abs(mean         ) < 3.0 * Math.pow(dt,0.5) / Math.pow(numberOfPaths,0.5));
-			assertTrue(Math.abs(variance - dt) < 3.0 * Math.pow(dt,1.0) / Math.pow(numberOfPaths,0.5));
+			Assert.assertTrue(Math.abs(mean         ) < 3.0 * Math.pow(dt,0.5) / Math.pow(numberOfPaths,0.5));
+			Assert.assertTrue(Math.abs(variance - dt) < 3.0 * Math.pow(dt,1.0) / Math.pow(numberOfPaths,0.5));
 			
 			System.out.println(" - OK");
 		}
@@ -111,10 +110,10 @@ public class BrownianMotionTests {
 		double meanOfSumOfCrossIncrements		= sumOfCrossIncrements.getAverage();
 		double varianceOfSumOfCrossIncrements	= sumOfCrossIncrements.getVariance();
 
-		assertTrue(Math.abs(meanOfSumOfSquaredIncrements-time) < 1.0E-3);
-		assertTrue(Math.abs(varianceOfSumOfSquaredIncrements) < 1.0E-2);
-		assertTrue(Math.abs(meanOfSumOfCrossIncrements) < 1.0E-3);
-		assertTrue(Math.abs(varianceOfSumOfCrossIncrements) < 1.0E-2);
+		Assert.assertTrue(Math.abs(meanOfSumOfSquaredIncrements-time) < 1.0E-3);
+		Assert.assertTrue(Math.abs(varianceOfSumOfSquaredIncrements) < 1.0E-2);
+		Assert.assertTrue(Math.abs(meanOfSumOfCrossIncrements) < 1.0E-3);
+		Assert.assertTrue(Math.abs(varianceOfSumOfCrossIncrements) < 1.0E-2);
 
 		
 		System.out.println("\t              t = " + fromatterReal2.format(time));
