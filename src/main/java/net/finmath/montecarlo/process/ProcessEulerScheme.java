@@ -13,8 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.RandomVariableOperator;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -105,7 +103,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		discreteProcessWeights	= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1];
 
 		// Set initial Monte-Carlo weights
-		discreteProcessWeights[0] = new RandomVariableOperator(getTime(0), 1.0 / numberOfPaths);
+		discreteProcessWeights[0] = brownianMotion.getRandomVariableForConstant(1.0 / numberOfPaths);
 
 		// Set initial value
 		RandomVariableInterface[] initialState = getInitialState();
@@ -153,7 +151,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 						if (factorLoadings == null) return null;
 
 						// Temp storage for variance and diffusion
-						RandomVariableInterface diffusionOfComponent		= new RandomVariableOperator(getTime(timeIndex - 1), 0.0);
+						RandomVariableInterface diffusionOfComponent		= brownianMotion.getRandomVariableForConstant(0.0);
 
 						// Generate values for diffusionOfComponent and varianceOfComponent 
 						for (int factor = 0; factor < numberOfFactors; factor++) {
@@ -167,7 +165,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 						if(driftOfComponent != null) increment = increment.addProduct(driftOfComponent, deltaT);
 
 						// Add increment to state and applyStateSpaceTransform
-						currentState[componentIndex] = currentState[componentIndex].add(increment);
+						currentState[componentIndex] = currentState[componentIndex].add(increment).cache();
 						
 						// Transform the state space to the value space and return it.
 						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
@@ -183,7 +181,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
 					Future<RandomVariableInterface> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
-					if(discreteProcessAtCurrentTimeIndexAndComponent != null)	discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get();
+					if(discreteProcessAtCurrentTimeIndexAndComponent != null)	discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();
 					else														discreteProcess[timeIndex][componentIndex] = null;
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -212,7 +210,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
 
 					// Reapply state space transform
-					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
+					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
 			// Set Monte-Carlo weights
