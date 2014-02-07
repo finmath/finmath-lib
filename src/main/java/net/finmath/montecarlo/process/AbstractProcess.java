@@ -67,8 +67,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
     public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
         // Delegate to model
         return model.applyStateSpaceTransform(componentIndex, randomVariable);
-    }    
-
+    }
 
 	/*
 	 * Time discretization management
