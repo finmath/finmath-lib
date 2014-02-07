@@ -19,7 +19,6 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.RandomVariableOperator;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
@@ -465,7 +464,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 */
 
 		// Initialize to 1.0
-		RandomVariableInterface numeraire = new RandomVariableOperator(1.0);
+		RandomVariableInterface numeraire = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
 
 		// The product 
 		for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
@@ -502,7 +501,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 		RandomVariableInterface[] initialStateRandomVariable = new RandomVariableInterface[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
-			initialStateRandomVariable[componentIndex] = new RandomVariable(liborInitialStates[componentIndex]);
+            initialStateRandomVariable[componentIndex] = getProcess().getBrownianMotion().getRandomVariableForConstant(liborInitialStates[componentIndex]);
 		}
 		return initialStateRandomVariable;
 	}
@@ -528,21 +527,20 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		RandomVariableInterface[]	drift = new RandomVariableInterface[getNumberOfComponents()];
 		RandomVariableInterface[][]	covarianceFactorSums	= new RandomVariableInterface[getNumberOfComponents()][getNumberOfFactors()];
 		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-			drift[componentIndex] = new RandomVariableOperator(0.0);
+			drift[componentIndex] = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
 		}
 
 		// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
 		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
 			double						periodLength		= liborPeriodDiscretization.getTimeStep(componentIndex);
 			RandomVariableInterface libor = realizationAtTimeIndex[componentIndex];
-			RandomVariableInterface oneStepMeasureTransform = (new RandomVariableOperator(periodLength)).discount(libor, periodLength);
+			RandomVariableInterface oneStepMeasureTransform = (getProcess().getBrownianMotion().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
 
     		if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 
 			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 			RandomVariableInterface[]   covarianceFactors   = new RandomVariableInterface[getNumberOfFactors()];
 			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-//				covarianceFactors[factorIndex] = factorLoading[factorIndex].mult(oneStepMeasureTransform);
 				covarianceFactors[factorIndex] = oneStepMeasureTransform.mult(factorLoading[factorIndex]);
 				covarianceFactorSums[componentIndex][factorIndex] = covarianceFactors[factorIndex];
 				if(componentIndex > firstLiborIndex)

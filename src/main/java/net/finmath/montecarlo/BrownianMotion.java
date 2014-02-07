@@ -24,7 +24,11 @@ import cern.jet.random.engine.MersenneTwister64;
  * generate multi-dimensional multi-factor Ito processes and there one might
  * use a different number of factors to generate Ito processes of different
  * dimension. 
- * 
+ *
+ * The quadruppel (time discretization, number of factors, number of paths, seed)
+ * defines the state of an object of this class, i.e., BrownianMotion for which
+ * there parameters agree, generate the same random numbers.
+ *
  * The class is immutable and thread safe. It uses lazy initialization.
  * 
  * @author Christian Fries
@@ -101,7 +105,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		return brownianIncrements[timeIndex][factor];
 	}
 
-	/**
+    /**
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateBrownianMotion() {
@@ -172,6 +176,11 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		return numberOfPaths;
 	}
 
+    @Override
+    public RandomVariableInterface getRandomVariableForConstant(double value) {
+        return new RandomVariableOperator(value);
+    }
+
 	/**
 	 * @return Returns the seed.
 	 */
@@ -190,4 +199,27 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 				+ "\n" + "seed: " + seed;
 	}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BrownianMotion that = (BrownianMotion) o;
+
+        if (numberOfFactors != that.numberOfFactors) return false;
+        if (numberOfPaths != that.numberOfPaths) return false;
+        if (seed != that.seed) return false;
+        if (!timeDiscretization.equals(that.timeDiscretization)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = timeDiscretization.hashCode();
+        result = 31 * result + numberOfFactors;
+        result = 31 * result + numberOfPaths;
+        result = 31 * result + seed;
+        return result;
+    }
 }

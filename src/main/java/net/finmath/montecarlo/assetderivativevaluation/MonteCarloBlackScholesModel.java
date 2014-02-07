@@ -192,7 +192,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	 */
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return new RandomVariable(value);
+        return getProcess().getBrownianMotion().getRandomVariableForConstant(value);
 	}
 
 	/* (non-Javadoc)

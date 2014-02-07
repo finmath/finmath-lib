@@ -61,15 +61,6 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	RandomVariableInterface		getNumeraire(double time);
 	
 	/**
-	 * Returns a random variable which is initialized to a constant,
-	 * but has exactly the same number of paths or discretization points as the ones used by this model.
-	 * 
-	 * @param value The constant value to be used for initialized the random variable.
-	 * @return A new random variable.
-	 */
-	RandomVariableInterface		getRandomVariableForConstant(double value);
-
-	/**
 	 * Create a clone of the object implementing <code>AssetModelMonteCarloSimulationInterface</code>
 	 * using a different Monte-Carlo seed.
 	 *
