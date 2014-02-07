@@ -5,8 +5,6 @@
  */
 package net.finmath.tests.montecarlo.interestrate;
 
-import static org.junit.Assert.assertTrue;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -39,6 +37,7 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -48,7 +47,7 @@ import org.junit.Test;
  */
 public class LIBORMarketModelValuationTest {
 
-	private final int numberOfPaths		= 20000;
+	private final int numberOfPaths		= 100000;
 	private final int numberOfFactors	= 6;
 
 	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
@@ -121,7 +120,7 @@ public class LIBORMarketModelValuationTest {
 
 
 		/*
-		 * Combine volatility model and corrleation model to a covariance model
+		 * Combine volatility model and correlation model to a covariance model
 		 */
 		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization,
@@ -199,7 +198,7 @@ public class LIBORMarketModelValuationTest {
 		System.out.println("__________________________________________________________________________________________\n");
 
 		// jUnit assertion: condition under which we consider this test successful
-		assertTrue(maxAbsDeviation < 5E-03);
+		Assert.assertTrue(maxAbsDeviation < 5E-03);
 	}
 
 	@Test
@@ -259,7 +258,7 @@ public class LIBORMarketModelValuationTest {
 		 * jUnit assertion: condition under which we consider this test successful
 		 * The swap should be at par (close to zero)
 		 */
-		assertTrue(maxAbsDeviation < 5E-3);
+		Assert.assertTrue(maxAbsDeviation < 5E-3);
 	}
 
 	@Test
@@ -310,7 +309,7 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		assertTrue(Math.abs(maxAbsDeviation) < 5E-2);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 5E-2);
 	}
 
 	@Test
@@ -374,7 +373,7 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		assertTrue(Math.abs(maxAbsDeviation) < 5E-3);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 5E-3);
 	}
 
 	@Test
@@ -447,7 +446,7 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		assertTrue(Math.abs(maxAbsDeviation) < 1E-1);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 1E-1);
 	}
 
 	@Test

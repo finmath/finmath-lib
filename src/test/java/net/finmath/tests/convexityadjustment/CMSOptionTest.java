@@ -5,8 +5,6 @@
  */
 package net.finmath.tests.convexityadjustment;
 
-import static org.junit.Assert.assertTrue;
-
 import java.text.DecimalFormat;
 
 import net.finmath.exception.CalculationException;
@@ -29,6 +27,7 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class CMSOptionTest {
@@ -160,7 +159,7 @@ public class CMSOptionTest {
 		System.out.println("Convexity Adjusted Forward Swaprate (Hunt-Kennedy)..........:\t" + formatterPercent.format(adjustedCMSRate));
 		
 		// Test condition
-		assertTrue(Math.abs(valueCMSOptionLMM - valueCMSOptionHK) < 1E-3);
+		Assert.assertTrue(Math.abs(valueCMSOptionLMM - valueCMSOptionHK) < 1E-3);
 		/*
 		 * Value a caplet with same fixing date
 		 */

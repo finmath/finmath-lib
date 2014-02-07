@@ -5,7 +5,7 @@
  */
 package net.finmath.stochastic;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
+import net.finmath.functions.DoubleTernaryOperator;
 
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
@@ -242,9 +242,12 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
         return randomVariable.apply(operator, argument);
     }
 
-    /* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
+    @Override
+    public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
+        return randomVariable.apply(operator, argument1, argument2);
+    }
+
+    @Override
 	public double getFiltrationTime() {
 		return randomVariable.getFiltrationTime();
 	}
@@ -442,5 +445,10 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
      */
     public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
 		return ensureMutable().subRatio(numerator, denominator);
+    }
+
+    @Override
+    public RandomVariableInterface cache() {
+        return this;
     }
 }
