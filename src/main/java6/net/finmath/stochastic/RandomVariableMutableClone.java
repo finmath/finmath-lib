@@ -426,4 +426,9 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
     public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
 		return ensureMutable().subRatio(numerator, denominator);
     }
+
+    @Override
+    public RandomVariableInterface cache() {
+        return this;
+    }
 }

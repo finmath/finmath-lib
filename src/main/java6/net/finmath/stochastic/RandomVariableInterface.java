@@ -268,6 +268,15 @@ public interface RandomVariableInterface {
     double[][] getHistogram(int numberOfPoints, double standardDeviations);
 
     /**
+     * Return a cacheable version of this object (often a self-reference).
+     * This method should be called when you store the object for later use,
+     * i.e., assign it, or when the object is consumed in a function, but later
+     * used also in another function.
+     *
+     * @return A cacheable version of this object (often a self-reference).
+     */
+    RandomVariableInterface cache();
+    /**
      * Applies x &rarr; function.value(x) to this random variable.
      * 
      * @param function A univariate function mapping doubles to doubles.
