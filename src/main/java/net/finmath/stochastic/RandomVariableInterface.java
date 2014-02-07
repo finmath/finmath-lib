@@ -6,6 +6,8 @@
  */
 package net.finmath.stochastic;
 
+import net.finmath.functions.DoubleTernaryOperator;
+
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
@@ -287,33 +289,59 @@ public interface RandomVariableInterface {
 	 */
     double[][] getHistogram(int numberOfPoints, double standardDeviations);
 
+    /**
+     * Return a cacheable version of this object (often a self-reference).
+     * This method should be called when you store the object for later use,
+     * i.e., assign it, or when the object is consumed in a function, but later
+     * used also in another function.
+     *
+     * @return A cacheable version of this object (often a self-reference).
+     */
+    RandomVariableInterface cache();
+
 	/**
      * Applies x &rarr; operator(x) to this random variable.
-     * 
+     * It returns a new random variable with the result.
+     *
 	 * @param operator An unary operator/function, mapping double to double.
      * @return New random variable with the result of the function.
 	 */
 	RandomVariableInterface apply(DoubleUnaryOperator operator);
 
-	/**
-     * Applies x &rarr; operator(x,r) to this random variable, where r is a given random variable.
-     * 
-	 * @param operator A binary operator/function, mapping (double,double) to double.
-	 * @param argument A random variable.
+    /**
+     * Applies x &rarr; operator(x,y) to this random variable, where x is this random variable and y is a given random variable.
+     * It returns a new random variable with the result.
+     *
+     * @param operator A binary operator/function, mapping (double,double) to double.
+     * @param argument A random variable.
      * @return New random variable with the result of the function.
-	 */
-	RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument);
+     */
+    RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument);
 
-    
+    /**
+     * Applies x &rarr; operator(x,y,z) to this random variable, where x is this random variable and y and z are given random variable.
+     * It returns a new random variable with the result.
+     *
+     * @param operator A ternary operator/function, mapping (double,double,double) to double.
+     * @param argument1 A random variable representing y.
+     * @param argument2 A random variable representing z.
+     * @return New random variable with the result of the function.
+     */
+    RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2);
+
     /**
      * Applies x &rarr; min(x,cap) to this random variable.
+     * It returns a new random variable with the result.
+     *
      * @param cap The cap.
      * @return New random variable with the result of the function.
      */
-    RandomVariableInterface cap(double cap);
+    default RandomVariableInterface cap(double cap) { return apply( x->Math.min(x,cap) ); }
 
     /**
      * Applies x &rarr; max(x,floor) to this random variable.
+     * It returns a new random variable with the result.
+     *
      * @param floor The floor.
      * @return New random variable with the result of the function.
      */
@@ -321,6 +349,8 @@ public interface RandomVariableInterface {
 
     /**
      * Applies x &rarr; x + value to this random variable.
+     * It returns a new random variable with the result.
+     *
      * @param value The value to add.
      * @return New random variable with the result of the function.
      */

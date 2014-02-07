@@ -5,8 +5,6 @@
  */
 package net.finmath.tests.montecarlo.assetderivativevaluation;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 
@@ -187,7 +186,7 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatValue.format(valueAnalytic) +
 					"\t" + numberFormatDeviation.format(valueMonteCarlo-valueAnalytic));
 			
-			assertTrue(Math.abs(valueMonteCarlo-valueAnalytic) < 1E-02);
+			Assert.assertTrue(Math.abs(valueMonteCarlo-valueAnalytic) < 1E-02);
 		}
 	}
 
@@ -278,9 +277,9 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("Value of European Option is \t"	+ valueOfEuropeanOption);
 		System.out.println("Value of Bermudan Option is \t"	+ "(" + valueOfBermudanOptionLowerBound + "," + valueOfBermudanOptionUpperBound + ")");
 
-		assertTrue(valueOfAsianOption < valueOfEuropeanOption);
-		assertTrue(valueOfBermudanOptionLowerBound < valueOfBermudanOptionUpperBound);
-		assertTrue(valueOfEuropeanOption < valueOfBermudanOptionUpperBound);
+		Assert.assertTrue(valueOfAsianOption < valueOfEuropeanOption);
+		Assert.assertTrue(valueOfBermudanOptionLowerBound < valueOfBermudanOptionUpperBound);
+		Assert.assertTrue(valueOfEuropeanOption < valueOfBermudanOptionUpperBound);
 	}
 	
 	/**
@@ -384,7 +383,7 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatValue.format(deltaAnalytic) +
 					"\t" + numberFormatDeviation.format(delta-deltaAnalytic));
 
-			assertTrue(Math.abs(delta-deltaAnalytic) < 1E-02);
+			Assert.assertTrue(Math.abs(delta-deltaAnalytic) < 1E-02);
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}
@@ -444,7 +443,7 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatValue.format(vegaAnalytic) +
 					"\t" + numberFormatDeviation.format(vega-vegaAnalytic));
 
-			assertTrue(Math.abs(vega-vegaAnalytic) < 1E-01);
+			Assert.assertTrue(Math.abs(vega-vegaAnalytic) < 1E-01);
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}

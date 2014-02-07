@@ -5,8 +5,6 @@
  */
 package net.finmath.tests.marketdata.curves;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -25,6 +23,7 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.TimeDiscretization;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -82,7 +81,7 @@ public class CalibrationTest {
 
 		// Check if we have the right value
 		double forwardRateFromDiscountFactor = (discountCurve.getDiscountFactor(model1, fixingTime) / discountCurve.getDiscountFactor(model1, fixingTime + periodLength) - 1) / periodLength;
-		assertTrue(Math.abs(forwardRate - forwardRateFromDiscountFactor) < 1E-15);
+		Assert.assertTrue(Math.abs(forwardRate - forwardRateFromDiscountFactor) < 1E-15);
 
 		System.out.println("__________________________________________________________________________________________\n");
 	}	
@@ -151,7 +150,7 @@ public class CalibrationTest {
 			error += calibrationProductValue*calibrationProductValue;
 		}
 		error = Math.sqrt(error);
-		assertTrue(error < 1E-14);
+		Assert.assertTrue(error < 1E-14);
 
 		System.out.println("__________________________________________________________________________________________\n");
 
@@ -207,7 +206,7 @@ public class CalibrationTest {
 			error2 += calibrationProductValue*calibrationProductValue;
 		}
 		error2 = Math.sqrt(error2);
-		assertTrue(error2 < 1E-14);
+		Assert.assertTrue(error2 < 1E-14);
 
 		System.out.println("__________________________________________________________________________________________\n");
 	}		
