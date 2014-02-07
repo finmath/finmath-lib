@@ -8,7 +8,6 @@ package net.finmath.montecarlo.interestrate.products;
 import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -52,7 +51,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-        RandomVariableInterface values						= new RandomVariable(0.0,0.0);
+        RandomVariableInterface values						= model.getRandomVariableForConstant(0.0);
 
 		for(int period=0; period<fixingDates.length; period++)
 		{
@@ -67,7 +66,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 			RandomVariableInterface libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariableInterface payoff	= libor.sub(swaprate).mult(periodLength);
 
-			RandomVariableInterface numeraire					= model.getNumeraire(paymentDate);
+			RandomVariableInterface numeraire				= model.getNumeraire(paymentDate);
 			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
