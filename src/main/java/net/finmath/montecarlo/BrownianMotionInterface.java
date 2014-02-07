@@ -56,8 +56,17 @@ public interface BrownianMotionInterface {
 	 * @return The number of paths.
 	 */
     int getNumberOfPaths();
-	
-	/**
+
+    /**
+     * Returns a random variable which is initialized to a constant,
+     * but has exactly the same number of paths or discretization points as the ones used by this BrownianMotionInterface.
+     *
+     * @param value The constant value to be used for initialized the random variable.
+     * @return A new random variable.
+     */
+    RandomVariableInterface getRandomVariableForConstant(double value);
+
+    /**
 	 * Return a new object implementing BrownianMotionInterface
 	 * having the same specifications as this object but a different seed
 	 * for the random number generator.
