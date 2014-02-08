@@ -40,7 +40,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * The storage of the simulated stochastic process.
 	 */
 	private transient RandomVariableInterface[][]	discreteProcess = null;
-	private transient RandomVariableInterface[]	discreteProcessWeights;
+	private transient RandomVariableInterface[]     discreteProcessWeights;
 
 	/**
 	 * @param brownianMotion The Brownian driver of the process
