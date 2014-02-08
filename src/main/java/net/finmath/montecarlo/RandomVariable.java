@@ -121,6 +121,19 @@ public class RandomVariable implements RandomVariableInterface {
 		this.valueIfNonStochastic = Double.NaN;
 	}
 
+    /**
+     * Create a stochastic random variable.
+     *
+     * @param time the filtration time, set to 0.0 if not used.
+     * @param realisations the vector of realizations.
+     */
+    public RandomVariable(double time, IntToDoubleFunction realisations, int size) {
+        super();
+        this.time = time;
+        this.realizations = IntStream.range(0,size).mapToDouble(i->realisations.applyAsDouble(i)).parallel().toArray();
+        this.valueIfNonStochastic = Double.NaN;
+    }
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
 	 */
