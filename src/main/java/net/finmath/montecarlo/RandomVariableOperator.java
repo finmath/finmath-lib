@@ -114,6 +114,20 @@ public class RandomVariableOperator implements RandomVariableInterface {
      * @param time the filtration time, set to 0.0 if not used.
      * @param realisations the vector of realizations.
      */
+    public RandomVariableOperator(double time, double[] realisations) {
+        super();
+        this.time = time;
+        this.size = realisations.length;
+        this.realizations = i->realisations[i];
+        this.valueIfNonStochastic = Double.NaN;
+    }
+
+    /**
+     * Create a stochastic random variable.
+     *
+     * @param time the filtration time, set to 0.0 if not used.
+     * @param realisations the vector of realizations.
+     */
     public RandomVariableOperator(double time, IntToDoubleFunction realisations, int size) {
         super();
         this.time = time;
