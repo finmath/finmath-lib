@@ -25,7 +25,7 @@ public class JNumberField extends JTextField implements ActionListener {
     DecimalFormat formatter = new DecimalFormat("0.000");
 
     double[] admissibleValues = null;
-    double lowerBound = Double.MIN_VALUE;
+    double lowerBound = -Double.MAX_VALUE;
     double upperBound = Double.MAX_VALUE;
     
     public JNumberField() {
@@ -135,7 +135,7 @@ public class JNumberField extends JTextField implements ActionListener {
         // Write and resize field
         this.setText(formatter.format(value));
 
-        if(lowerBound != Double.MIN_VALUE && upperBound != Double.MAX_VALUE)	this.setColumns(1+Math.max(formatter.format(lowerBound).length(), formatter.format(upperBound).length()));
+        if(lowerBound != -Double.MAX_VALUE && upperBound != Double.MAX_VALUE)	this.setColumns(1+Math.max(formatter.format(lowerBound).length(), formatter.format(upperBound).length()));
         else																	this.setColumns(1+this.getText().length());        
 	}
     

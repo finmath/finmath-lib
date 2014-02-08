@@ -54,7 +54,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param value the value, a constant.
 	 */
 	public RandomVariable(double value) {
-		this(Double.MIN_VALUE, value);
+		this(-Double.MAX_VALUE, value);
 	}
 
 	/**
@@ -169,8 +169,8 @@ public class RandomVariable implements RandomVariableInterface {
 	@Override
 	public double getMax() {
 		if(isDeterministic()) return valueIfNonStochastic;
-		double max = Double.MIN_VALUE;
-		if(realizations.length != 0) max = realizations[0];     /// @bug Workaround. There seems to be a bug in Java 1.4 with Math.max(Double.MIN_VALUE,0.0)
+		double max = -Double.MAX_VALUE;
+		if(realizations.length != 0) max = realizations[0];
 		for(int i=0; i<realizations.length; i++) max = Math.max(realizations[i],max);
 		return max;
 	}
