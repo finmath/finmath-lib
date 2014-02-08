@@ -459,13 +459,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
 		    return result;
 	    }
 	    else {
-            synchronized(this)
-            {
-                if(realizationsArray == null) {
-                    realizationsArray = getRealizationsStream().toArray();
-                    this.realizations = i -> realizationsArray[i];
-                }
-            }
+            cache();
 
             return realizationsArray;
 	    }
