@@ -47,7 +47,9 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private transient RandomVariableInterface[][]	brownianIncrements;	
+    private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableOperatorFactory();
+
+	private transient RandomVariableInterface[][]	brownianIncrements;
 
 	/**
 	 * Construct a Brownian motion.
@@ -142,12 +144,14 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		}
 
 		// Allocate memory for RandomVariable wrapper objects.
-		brownianIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
+		brownianIncrements = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
 
 		// Wrap the values in RandomVariable objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
+            double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
-				brownianIncrements[timeIndex][factor] = new RandomVariable(timeDiscretization.getTime(timeIndex+1), brownianIncrementsArray[timeIndex][factor]);			
+				brownianIncrements[timeIndex][factor] =
+                        randomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -178,7 +182,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 
     @Override
     public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return new RandomVariableOperator(value);
+        return randomVariableFactory.createRandomVariable(value);
     }
 
 	/**
