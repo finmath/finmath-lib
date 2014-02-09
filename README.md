@@ -38,7 +38,7 @@ We will use Java 8 concepts in the future and try to provide Java 6 compatibilit
 
 For that reason, the source code is duplicated:
 -    src/main/java				contains the Java 8 compatible source files
--    src/main/java-6				contains the Java 6 compatible source files
+-    src/main/java6				contains the Java 6 compatible source files
 
 Although the two folder share some/many identical source files, we prefer this two folder layout
 over one with a third folder like java-common.
