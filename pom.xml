@@ -67,7 +67,7 @@
 			    <artifactId>maven-surefire-plugin</artifactId>
 			    <version>2.9</version>
 			    <configuration>
-			        <argLine>-mx2G</argLine>
+			        <argLine>-mx3G</argLine>
 			    </configuration>
 			</plugin>
 		</plugins>
