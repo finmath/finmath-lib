@@ -36,10 +36,7 @@
 	</dependencies>
 
 	<build>
-		<directory>target</directory>
-		<outputDirectory>target/classes</outputDirectory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
-		<testOutputDirectory>target/test-classes</testOutputDirectory>
 		<sourceDirectory>${src.main.dir}</sourceDirectory>
 		<testSourceDirectory>${src.test.dir}</testSourceDirectory>
 		<plugins>
