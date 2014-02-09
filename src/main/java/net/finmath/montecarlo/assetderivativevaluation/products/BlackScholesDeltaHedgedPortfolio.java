@@ -5,8 +5,6 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
-import java.util.Arrays;
-
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
