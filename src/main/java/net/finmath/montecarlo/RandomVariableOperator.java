@@ -120,6 +120,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
         this.size = realisations.length;
         this.realizations = i->realisations[i];
         this.valueIfNonStochastic = Double.NaN;
+        this.realizationsArray = realisations;
     }
 
     /**
