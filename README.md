@@ -18,7 +18,7 @@ You will find several project in the repository at finmath.net:
     is provided too.
     
     Note: for convenience the provided Eclipse project is configured for Java 6.
-    The maven pom defaults to Java 6. To build the Java 8 version use the profile "java 8", i.e. "-P java-8"
+    The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e. "-P java-8"
 
 **finmath spreadsheets**  
     A collection of spreadsheets building upon *finmath lib* and
