@@ -6,7 +6,6 @@
 package net.finmath.montecarlo.conditionalexpectation;
 
 import net.finmath.functions.LinearAlgebra;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
