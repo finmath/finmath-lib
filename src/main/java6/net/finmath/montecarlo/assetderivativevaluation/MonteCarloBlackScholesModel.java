@@ -12,7 +12,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -102,9 +101,9 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
 		 */
-		this.initialValueVector[0]	= getRandomVariableForConstant(Math.log(initialValue));
-		this.drift					= getRandomVariableForConstant(riskFreeRate - 0.5 * volatility*volatility);
-		this.volatilityOnPaths		= getRandomVariableForConstant(volatility);
+		this.initialValueVector[0]	= process.getBrownianMotion().getRandomVariableForConstant(Math.log(initialValue));
+		this.drift					= process.getBrownianMotion().getRandomVariableForConstant(riskFreeRate - 0.5 * volatility*volatility);
+		this.volatilityOnPaths		= process.getBrownianMotion().getRandomVariableForConstant(volatility);
 		
 		// Link model and process for delegation
 		process.setModel(this);
