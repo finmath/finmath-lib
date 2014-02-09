@@ -175,7 +175,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		RandomVariableInterface accrualAccount = new RandomVariable(1.0);
+		RandomVariableInterface accrualAccount = getRandomVariableForConstant(1.0);
 
 		// Calculate the value of the forward bond
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)

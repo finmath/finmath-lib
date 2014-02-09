@@ -61,8 +61,8 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
     	// Calculate estimate
         RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
 
-        RandomVariableInterface conditionalExpectation = new RandomVariable(0.0);
-        for(int i=0; i<basisFunctions.length; i++) {
+        RandomVariableInterface conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
+        for(int i=1; i<basisFunctions.length; i++) {
             conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
         }
 

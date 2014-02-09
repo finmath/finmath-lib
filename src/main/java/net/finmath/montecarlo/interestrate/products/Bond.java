@@ -45,7 +45,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
         RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
 
         // Calculate numeraire relative value
-        RandomVariableInterface values = new RandomVariable(maturity, 1.0);
+        RandomVariableInterface values = model.getRandomVariableForConstant(1.0);
         values = values.div(numeraire).mult(monteCarloProbabilities);
         
         // Convert back to values
