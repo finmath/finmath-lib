@@ -6,7 +6,6 @@ package net.finmath.montecarlo.templatemethoddesign;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.stochastic.RandomVariableMutableClone;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -174,7 +173,7 @@ public abstract class LogNormalProcess {
 	 */
 	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex)
 	{
-		if(timeIndex == 0) return new RandomVariableMutableClone(getInitialValue()[componentIndex]);
+		if(timeIndex == 0) return getInitialValue()[componentIndex];
 
 		// Lazy initialization, synchronized for thread safety
 		synchronized(this) {
@@ -182,7 +181,7 @@ public abstract class LogNormalProcess {
 		}
 
 		// Return value of process
-		return new RandomVariableMutableClone(discreteProcess[timeIndex][componentIndex]);
+		return discreteProcess[timeIndex][componentIndex];
 	}
 
 	/**
@@ -199,7 +198,7 @@ public abstract class LogNormalProcess {
 		}
 
 		// Return value of process
-		return new RandomVariableMutableClone(discreteProcessWeights[timeIndex]);
+		return discreteProcessWeights[timeIndex];
 	}
 
 	/**

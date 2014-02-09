@@ -67,9 +67,9 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		 * the initial value and the drift are transformed accordingly.
 		 *
 		 */
-		this.initialValueVector[0]	= new RandomVariable(Math.log(initialValue));
-		this.drift					= new RandomVariable(riskFreeRate - volatility * volatility / 2.0);
-		this.volatilityOnPaths		= new RandomVariable(volatility);
+		this.initialValueVector[0]	= getRandomVariableForConstant(Math.log(initialValue));
+		this.drift					= getRandomVariableForConstant(riskFreeRate - volatility * volatility / 2.0);
+		this.volatilityOnPaths		= getRandomVariableForConstant(volatility);
 
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));

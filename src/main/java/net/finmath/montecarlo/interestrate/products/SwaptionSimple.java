@@ -10,7 +10,6 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
@@ -86,9 +85,9 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
     	double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
     	
     	if(valueUnit == ValueUnit.VOLATILITY) {
-    		return new RandomVariable(volatility);
+    		return model.getRandomVariableForConstant(volatility);
     	} else if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
-    		return new RandomVariable(volatility * volatility * optionMaturity);
+    		return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
     	}
     	
     	throw new UnsupportedOperationException("Provided valueUnit not implemented.");

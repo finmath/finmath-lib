@@ -540,7 +540,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 			RandomVariableInterface[]   covarianceFactors   = new RandomVariableInterface[getNumberOfFactors()];
 			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-				covarianceFactors[factorIndex] = factorLoading[factorIndex].mult(oneStepMeasureTransform);
+				covarianceFactors[factorIndex] = oneStepMeasureTransform.mult(factorLoading[factorIndex]);
 				covarianceFactorSums[componentIndex][factorIndex] = covarianceFactors[factorIndex];
 				if(componentIndex > firstLiborIndex)
 					covarianceFactorSums[componentIndex][factorIndex] = covarianceFactorSums[componentIndex][factorIndex].add(covarianceFactorSums[componentIndex-1][factorIndex]);

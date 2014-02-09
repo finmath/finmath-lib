@@ -89,8 +89,8 @@ public class BrownianMotionTests {
 		System.out.println("Test of average and variance of the integral of (Delta W)^2.");
 		System.out.println("Time step size: " + dt + "  Number of path: " + numberOfPaths);
 
-		RandomVariableInterface sumOfSquaredIncrements 	= new RandomVariable(0.0);
-		RandomVariableInterface sumOfCrossIncrements	= new RandomVariable(0.0);
+		RandomVariableInterface sumOfSquaredIncrements 	= brownian.getRandomVariableForConstant(0.0);
+		RandomVariableInterface sumOfCrossIncrements	= brownian.getRandomVariableForConstant(0.0);
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			RandomVariableInterface brownianIncrement1 = brownian.getBrownianIncrement(timeIndex,0);
 			RandomVariableInterface brownianIncrement2 = brownian.getBrownianIncrement(timeIndex,1);
