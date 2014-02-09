@@ -6,7 +6,6 @@
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
