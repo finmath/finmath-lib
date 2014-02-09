@@ -67,9 +67,9 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		 * the initial value and the drift are transformed accordingly.
 		 *
 		 */
-		this.initialValueVector[0]	= new RandomVariable(Math.log(initialValue));
-		this.drift					= new RandomVariable(riskFreeRate - volatility * volatility / 2.0);
-		this.volatilityOnPaths		= new RandomVariable(volatility);
+		this.initialValueVector[0]	= getRandomVariableForConstant(Math.log(initialValue));
+		this.drift					= getRandomVariableForConstant(riskFreeRate - volatility * volatility / 2.0);
+		this.volatilityOnPaths		= getRandomVariableForConstant(volatility);
 
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
@@ -102,9 +102,9 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
 		 */
-		this.initialValueVector[0]	= new RandomVariable(0.0, Math.log(initialValue));
-		this.drift					= new RandomVariable(0.0, riskFreeRate - 0.5 * volatility*volatility);
-		this.volatilityOnPaths		= new RandomVariable(0.0, volatility);
+		this.initialValueVector[0]	= getRandomVariableForConstant(Math.log(initialValue));
+		this.drift					= getRandomVariableForConstant(riskFreeRate - 0.5 * volatility*volatility);
+		this.volatilityOnPaths		= getRandomVariableForConstant(volatility);
 		
 		// Link model and process for delegation
 		process.setModel(this);
@@ -184,7 +184,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
     public RandomVariableInterface getNumeraire(double time) {
 		double numeraireValue = Math.exp(riskFreeRate * time);
 
-		return new RandomVariable(time, numeraireValue);
+        return getRandomVariableForConstant(numeraireValue);
 	}
 
 	/* (non-Javadoc)

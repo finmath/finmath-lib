@@ -10,7 +10,6 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
 import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.stochastic.RandomVariableMutableClone;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -105,12 +104,12 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	@Override
 	public RandomVariableInterface getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-		return new RandomVariableMutableClone(drift);
+		return drift;
 	}
 
 	@Override
 	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		return new RandomVariableMutableClone(volatilityOnPaths);
+		return volatilityOnPaths;
 	}
 
 
