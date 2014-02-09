@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="project" default="jar" basedir=".">
+<project name="project" default="junit" basedir=".">
 
 	<!-- edit the following lines to your needs            -->
 	<target name="init">
