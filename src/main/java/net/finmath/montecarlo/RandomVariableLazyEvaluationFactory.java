@@ -11,15 +11,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * @author Christian Fries
  */
-public class RandomVariableOperatorFactory extends AbstractRandomVariableFactory {
+public class RandomVariableLazyEvaluationFactory extends AbstractRandomVariableFactory {
 
     @Override
     public RandomVariableInterface createRandomVariable(double time, double value) {
-        return new RandomVariableOperator(time, value);
+        return new RandomVariableLazyEvaluation(time, value);
     }
 
     @Override
     public RandomVariableInterface createRandomVariable(double time, double[] values) {
-        return new RandomVariableOperator(time, values);
+        return new RandomVariableLazyEvaluation(time, values);
     }
 }

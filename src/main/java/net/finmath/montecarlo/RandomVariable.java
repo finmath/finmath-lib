@@ -6,7 +6,6 @@
 package net.finmath.montecarlo;
 
 import java.util.Arrays;
-import java.util.PrimitiveIterator;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
@@ -625,7 +624,7 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
-		return (new RandomVariableOperator(this)).apply(operator, new RandomVariableOperator(argument1), new RandomVariableOperator(argument2));
+		return (new RandomVariableLazyEvaluation(this)).apply(operator, new RandomVariableLazyEvaluation(argument1), new RandomVariableLazyEvaluation(argument2));
 	}
 
 	public RandomVariableInterface apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariableInterface argument1, RandomVariableInterface argument2)

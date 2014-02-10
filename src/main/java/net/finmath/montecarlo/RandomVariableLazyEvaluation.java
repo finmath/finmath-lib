@@ -32,7 +32,7 @@ import org.apache.commons.math3.util.FastMath;
  * @author OSC
  * @version 2.0
  */
-public class RandomVariableOperator implements RandomVariableInterface {
+public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 
     private final double            time;	                // Time (filtration)
 
@@ -49,7 +49,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
      *
      * @param value Object implementing <code>RandomVariableInterface</code>.
      */
-    public RandomVariableOperator(RandomVariableInterface value) {
+    public RandomVariableLazyEvaluation(RandomVariableInterface value) {
         super();
         this.time = value.getFiltrationTime();
         this.realizations = value.isDeterministic() ? null : value::get;
@@ -62,7 +62,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
      *
      * @param value the value, a constant.
      */
-    public RandomVariableOperator(double value) {
+    public RandomVariableLazyEvaluation(double value) {
         this(0.0, value);
     }
 
@@ -72,7 +72,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
      * @param value Object implementing <code>RandomVariableInterface</code>.
      * @param function A function mapping double to double.
      */
-    public RandomVariableOperator(RandomVariableInterface value, DoubleUnaryOperator function) {
+    public RandomVariableLazyEvaluation(RandomVariableInterface value, DoubleUnaryOperator function) {
         super();
         this.time = value.getFiltrationTime();
         this.realizations = value.isDeterministic() ? null : i -> function.applyAsDouble(value.get(i));
@@ -86,7 +86,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
      * @param time the filtration time, set to 0.0 if not used.
      * @param value the value, a constant.
      */
-    public RandomVariableOperator(double time, double value) {
+    public RandomVariableLazyEvaluation(double time, double value) {
         super();
         this.time = time;
         this.realizations = null;
@@ -100,7 +100,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
      * @param time the filtration time, set to 0.0 if not used.
      * @param value the value, a constant.
      */
-    public RandomVariableOperator(double time, int numberOfPath, double value) {
+    public RandomVariableLazyEvaluation(double time, int numberOfPath, double value) {
         super();
         this.time = time;
         this.size = numberOfPath;
@@ -114,7 +114,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
      * @param time the filtration time, set to 0.0 if not used.
      * @param realisations the vector of realizations.
      */
-    public RandomVariableOperator(double time, double[] realisations) {
+    public RandomVariableLazyEvaluation(double time, double[] realisations) {
         super();
         this.time = time;
         this.size = realisations.length;
@@ -129,7 +129,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
      * @param time the filtration time, set to 0.0 if not used.
      * @param realisations the vector of realizations.
      */
-    public RandomVariableOperator(double time, IntToDoubleFunction realisations, int size) {
+    public RandomVariableLazyEvaluation(double time, IntToDoubleFunction realisations, int size) {
         super();
         this.time = time;
         this.realizations = realisations;
@@ -528,12 +528,12 @@ public class RandomVariableOperator implements RandomVariableInterface {
     @Override
     public RandomVariableInterface apply(DoubleUnaryOperator operator) {
         if(isDeterministic()) {
-            return new RandomVariableOperator(time, operator.applyAsDouble(valueIfNonStochastic));
+            return new RandomVariableLazyEvaluation(time, operator.applyAsDouble(valueIfNonStochastic));
         }
         else
         {
             IntToDoubleFunction newRealizations = i -> operator.applyAsDouble(realizations.applyAsDouble(i));
-            return new RandomVariableOperator(time, newRealizations, size());
+            return new RandomVariableLazyEvaluation(time, newRealizations, size());
         }
     }
 
@@ -555,22 +555,22 @@ public class RandomVariableOperator implements RandomVariableInterface {
         double      newTime           = Math.max(time, argument.getFiltrationTime());
 
         if(isDeterministic() && argument.isDeterministic()) {
-            return new RandomVariableOperator(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
+            return new RandomVariableLazyEvaluation(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
         }
         else if(!isDeterministic() && argument.isDeterministic()) {
 	        IntToDoubleFunction newRealizations = i -> operator.applyAsDouble(realizations.applyAsDouble(i), argument.get(0));
-	        return new RandomVariableOperator(newTime, newRealizations, size());
+	        return new RandomVariableLazyEvaluation(newTime, newRealizations, size());
         }
         else if(isDeterministic() && !argument.isDeterministic()) {
 	        if(false) {
 		        final IntToDoubleFunction argumentRealizations = argument.getOperator();
 		        IntToDoubleFunction newRealizations = i -> operator.applyAsDouble(valueIfNonStochastic, argumentRealizations.applyAsDouble(i));
-		        return new RandomVariableOperator(newTime, newRealizations, argument.size());
+		        return new RandomVariableLazyEvaluation(newTime, newRealizations, argument.size());
 	        }
 	        else {
 		        final double[] argumentRealizations = argument.getRealizations();
 		        IntToDoubleFunction newRealizations = i -> operator.applyAsDouble(valueIfNonStochastic, argumentRealizations[i]);
-		        return new RandomVariableOperator(newTime, newRealizations, argument.size());
+		        return new RandomVariableLazyEvaluation(newTime, newRealizations, argument.size());
 	        }
         }
         else
@@ -578,12 +578,12 @@ public class RandomVariableOperator implements RandomVariableInterface {
 	        if(false) {
 		        final IntToDoubleFunction argumentRealizations = argument.getOperator();
 		        IntToDoubleFunction newRealizations = i -> operator.applyAsDouble(realizations.applyAsDouble(i), argumentRealizations.applyAsDouble(i));
-		        return new RandomVariableOperator(newTime, newRealizations, size());
+		        return new RandomVariableLazyEvaluation(newTime, newRealizations, size());
 	        }
 	        else {
 		        final double[] argumentRealizations = argument.getRealizations();
 		        IntToDoubleFunction newRealizations = i -> operator.applyAsDouble(realizations.applyAsDouble(i), argumentRealizations[i]);
-		        return new RandomVariableOperator(newTime, newRealizations, size());
+		        return new RandomVariableLazyEvaluation(newTime, newRealizations, size());
 	        }
         }
 
@@ -595,7 +595,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
         newTime = Math.max(newTime, argument2.getFiltrationTime());
 
         if(this.isDeterministic() && argument1.isDeterministic() && argument2.isDeterministic()) {
-            return new RandomVariableOperator(newTime, operatorOuter.applyAsDouble(valueIfNonStochastic, operatorInner.applyAsDouble(argument1.get(0), argument2.get(0))));
+            return new RandomVariableLazyEvaluation(newTime, operatorOuter.applyAsDouble(valueIfNonStochastic, operatorInner.applyAsDouble(argument1.get(0), argument2.get(0))));
         }
         else {
             int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
@@ -605,10 +605,10 @@ public class RandomVariableOperator implements RandomVariableInterface {
             		final double	argument1Realization = argument1.get(0);
             		final double	argument2Realization = argument2.get(0);
             		final double	innerResult = operatorInner.applyAsDouble(argument1Realization, argument2Realization);
-            		return new RandomVariableOperator(newTime,(int i) -> operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult), newSize);
+            		return new RandomVariableLazyEvaluation(newTime,(int i) -> operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult), newSize);
             	}
             	else {
-            		return new RandomVariableOperator(newTime,(int i) -> operatorOuter.applyAsDouble(realizations.applyAsDouble(i), operatorInner.applyAsDouble(argument1.get(i), argument2.get(i))), newSize);
+            		return new RandomVariableLazyEvaluation(newTime,(int i) -> operatorOuter.applyAsDouble(realizations.applyAsDouble(i), operatorInner.applyAsDouble(argument1.get(i), argument2.get(i))), newSize);
             	}
             }
             else {
@@ -635,10 +635,10 @@ public class RandomVariableOperator implements RandomVariableInterface {
             	}
 
                 if(isDeterministic()) {
-                    return new RandomVariableOperator(newTime,(int i) -> operatorOuter.applyAsDouble(valueIfNonStochastic,          innerResult.applyAsDouble(i)), newSize);
+                    return new RandomVariableLazyEvaluation(newTime,(int i) -> operatorOuter.applyAsDouble(valueIfNonStochastic,          innerResult.applyAsDouble(i)), newSize);
                 }
                 else {
-                    return new RandomVariableOperator(newTime,(int i) -> operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult.applyAsDouble(i)), newSize);
+                    return new RandomVariableLazyEvaluation(newTime,(int i) -> operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult.applyAsDouble(i)), newSize);
                 }
 
             }
@@ -651,7 +651,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
         newTime = Math.max(newTime, argument2.getFiltrationTime());
 
         if(this.isDeterministic() && argument1.isDeterministic() && argument2.isDeterministic()) {
-            return new RandomVariableOperator(newTime, operator.applyAsDouble(valueIfNonStochastic, argument1.get(0), argument2.get(0)));
+            return new RandomVariableLazyEvaluation(newTime, operator.applyAsDouble(valueIfNonStochastic, argument1.get(0), argument2.get(0)));
         }
         else {
             int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
@@ -701,7 +701,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
                 }
             }
 
-            return new RandomVariableOperator(newTime, result, newSize);
+            return new RandomVariableLazyEvaluation(newTime, result, newSize);
         }
     }
 
@@ -884,7 +884,7 @@ public class RandomVariableOperator implements RandomVariableInterface {
 
     @Override
     public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-        return this.barrier(trigger, valueIfTriggerNonNegative, new RandomVariableOperator(valueIfTriggerNonNegative.getFiltrationTime(), valueIfTriggerNegative));
+        return this.barrier(trigger, valueIfTriggerNonNegative, new RandomVariableLazyEvaluation(valueIfTriggerNonNegative.getFiltrationTime(), valueIfTriggerNegative));
     }
 
     /* (non-Javadoc)
