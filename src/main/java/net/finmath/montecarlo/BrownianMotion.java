@@ -47,7 +47,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-    private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableOperatorFactory();
+    private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 	private transient RandomVariableInterface[][]	brownianIncrements;
 
