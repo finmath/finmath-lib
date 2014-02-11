@@ -36,7 +36,7 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class RandomVariable implements RandomVariableInterface {
 
-	private final double      time;	                // Time (filtration)
+    private final double      time;	                // Time (filtration)
 
 	// Data model for the stochastic case (otherwise null)
 	private final double[]    realizations;           // Realizations
@@ -129,8 +129,8 @@ public class RandomVariable implements RandomVariableInterface {
     public RandomVariable(double time, IntToDoubleFunction realisations, int size) {
         super();
         this.time = time;
-        this.realizations = IntStream.range(0,size).mapToDouble(i->realisations.applyAsDouble(i)).parallel().toArray();
-        this.valueIfNonStochastic = Double.NaN;
+        this.realizations = size == 1 ? null : IntStream.range(0,size).mapToDouble(i->realisations.applyAsDouble(i)).parallel().toArray();
+        this.valueIfNonStochastic = size == 1 ? realisations.applyAsDouble(0) : Double.NaN;
     }
 
 	/* (non-Javadoc)
@@ -530,20 +530,7 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 		else
 		{
-			boolean isUseStream = true;
-			if(isUseStream) {
-				return new RandomVariable(time, this.getRealizationsStream().parallel().map(operator::applyAsDouble).toArray());
-			}
-			else {
-				double[] newRealizations = new double[realizations.length];
-
-				for(int i=0; i<newRealizations.length; i++)
-				{
-					newRealizations[i] = operator.applyAsDouble(realizations[i]);
-				}
-
-				return new RandomVariable(time,newRealizations);
-			}
+            return new RandomVariable(time, getRealizationsStream().parallel().map(operator::applyAsDouble).toArray());
 		}
 	}
 
@@ -551,80 +538,95 @@ public class RandomVariable implements RandomVariableInterface {
 	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
 
 		double      newTime           = Math.max(time, argument.getFiltrationTime());
-		double[]    newRealizations;
 
 		if(isDeterministic() && argument.isDeterministic()) {
 			return new RandomVariable(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
 		}
-		else if(isDeterministic())  // this is deterministic , argument is nondeterministic
+		else if(isDeterministic())  // this is deterministic, argument is non-deterministic
 		{
 			DoubleUnaryOperator unaryOperator = x -> operator.applyAsDouble(valueIfNonStochastic,x);
-			boolean isUseStream = true;
-			if(isUseStream) {
-				return new RandomVariable(time, argument.getRealizationsStream().parallel().map(unaryOperator).toArray());
-			}
-			else {
-				newRealizations = argument.getRealizations();
 
-				for(int i=0; i<newRealizations.length; i++)
-				{
-					newRealizations[i] = operator.applyAsDouble(valueIfNonStochastic, newRealizations[i]);
-				}
-
-				return new RandomVariable(time,newRealizations);
-			}
+            return new RandomVariable(time, argument.getRealizationsStream().parallel().map(unaryOperator).toArray());
 		}
 		else if(argument.isDeterministic()) // argument is deterministic
 		{
 			double argumentValue = argument.get(0);
-			boolean isUseStream = true;
-			if(isUseStream) {
-				DoubleUnaryOperator unaryOperator = x -> operator.applyAsDouble(x, argumentValue);
-				return new RandomVariable(time, this.getRealizationsStream().parallel().map(unaryOperator).toArray());
-			}
-			else {
-				newRealizations = new double[Math.max(this.size(),argument.size())];
+            DoubleUnaryOperator unaryOperator = x -> operator.applyAsDouble(x, argumentValue);
 
-				for(int i=0; i<newRealizations.length; i++)
-				{
-					newRealizations[i] = operator.applyAsDouble(realizations[i], argumentValue);
-				}
-
-				return new RandomVariable(time,newRealizations);
-			}
-
+            return new RandomVariable(time, this.getRealizationsStream().parallel().map(unaryOperator).toArray());
 		}
 		else        // both nondeterministic
 		{
 			int newSize = Math.max(this.size(), argument.size());
-			boolean isUseStream = false;
-			if(isUseStream) {
-				double[] argumentRealizations = argument.getRealizations();
-				return new RandomVariable(newTime,
-						IntStream.range(0, newSize).parallel().mapToDouble((i) -> {
-							return operator.applyAsDouble(realizations[i], argumentRealizations[i]);
-						}).toArray()
-						);
-			}
-			else {
-				double[] argumentRealizations = argument.getRealizations();
 
-				newRealizations = new double[newSize];
+            double[] argumentRealizations = argument.getRealizations();
 
-				for(int i=0; i<newRealizations.length; i++)
-				{
-					newRealizations[i] =  operator.applyAsDouble(realizations[i], argumentRealizations[i]);
-				}
-			}
+            return new RandomVariable(newTime,
+                    IntStream.range(0, newSize).parallel().mapToDouble((i) -> {
+                        return operator.applyAsDouble(realizations[i], argumentRealizations[i]);
+                    }).toArray()
+                    );
 		}
-
-		return new RandomVariable(newTime, newRealizations);
-
 	}
 
 	@Override
 	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
-		return (new RandomVariableLazyEvaluation(this)).apply(operator, new RandomVariableLazyEvaluation(argument1), new RandomVariableLazyEvaluation(argument2));
+        double newTime = Math.max(time, argument1.getFiltrationTime());
+        newTime = Math.max(newTime, argument2.getFiltrationTime());
+
+        if(this.isDeterministic() && argument1.isDeterministic() && argument2.isDeterministic()) {
+            return new RandomVariable(newTime, operator.applyAsDouble(valueIfNonStochastic, argument1.get(0), argument2.get(0)));
+        }
+        else {
+            int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
+            IntToDoubleFunction result;
+            if(argument1.isDeterministic() && argument2.isDeterministic()) {
+                final double	argument1Realization = argument1.get(0);
+                final double	argument2Realization = argument2.get(0);
+                if(isDeterministic()) {
+                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realization);
+                }
+                else {
+                    result = i -> operator.applyAsDouble(realizations[i], argument1Realization, argument2Realization);
+
+                }
+            }
+            else if(argument1.isDeterministic() && !argument2.isDeterministic()) {
+                final double	argument1Realization	= argument1.get(0);
+                final double[]	argument2Realizations	= argument2.getRealizations();
+                if(isDeterministic()) {
+                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realizations[i]);
+                }
+                else {
+                    result = i -> operator.applyAsDouble(realizations[i], argument1Realization, argument2Realizations[i]);
+
+                }
+            }
+            else if(!argument1.isDeterministic() && argument2.isDeterministic()) {
+                final double[]	argument1Realizations	= argument1.getRealizations();
+                final double	argument2Realization	= argument2.get(0);
+                if(isDeterministic()) {
+                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realization);
+                }
+                else {
+                    result = i -> operator.applyAsDouble(realizations[i], argument1Realizations[i], argument2Realization);
+
+                }
+            }
+            else {// if(!argument1.isDeterministic() && !argument2.isDeterministic()) {
+                final double[]	argument1Realizations	= argument1.getRealizations();
+                final double[]	argument2Realizations	= argument2.getRealizations();
+                if(isDeterministic()) {
+                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realizations[i]);
+                }
+                else {
+                    result = i -> operator.applyAsDouble(realizations[i], argument1Realizations[i], argument2Realizations[i]);
+
+                }
+            }
+
+            return new RandomVariable(newTime, result, newSize);
+        }
 	}
 
 	public RandomVariableInterface apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariableInterface argument1, RandomVariableInterface argument2)
