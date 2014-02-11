@@ -52,7 +52,9 @@ public class BrownianBridge implements BrownianMotionInterface {
 	private RandomVariableInterface[] start;
 	private RandomVariableInterface[] end;
 
-	private transient RandomVariableInterface[][]	brownianIncrements;	
+    private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+
+	private transient RandomVariableInterface[][]	brownianIncrements;
 
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
@@ -163,7 +165,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 
     @Override
     public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return new RandomVariable(value);
+        return randomVariableFactory.createRandomVariable(value);
     }
 
 	/* (non-Javadoc)
