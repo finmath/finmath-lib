@@ -34,21 +34,21 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		initialize(numberOfFactors, a);
 	}
 
-	@Override
-	public void setParameter(double[] parameter) {
-		if(!isCalibrateable) return;
-
-		a = parameter[0];
-
-		initialize(numberOfFactors, a);
-	}
-
 	public LIBORCorrelationModelExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.numberOfFactors	= numberOfFactors;
 		this.a					= a;
 		this.isCalibrateable	= false;
+
+		initialize(numberOfFactors, a);
+	}
+
+	@Override
+	public void setParameter(double[] parameter) {
+		if(!isCalibrateable) return;
+
+		a = parameter[0];
 
 		initialize(numberOfFactors, a);
 	}
