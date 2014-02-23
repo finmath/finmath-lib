@@ -8,7 +8,6 @@ package net.finmath.tests.montecarlo;
 import java.text.DecimalFormat;
 
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
