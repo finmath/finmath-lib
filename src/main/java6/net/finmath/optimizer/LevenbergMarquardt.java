@@ -104,7 +104,7 @@ public abstract class LevenbergMarquardt {
 	private double	lambda				= 0.001;
 	private double	lambdaMultiplicator	= 2.0;
 
-	private double	errorTolerance = 0.0;	// by default we solve upto machine presicion
+	private double	errorMeanSquaredTolerance = 0.0;	// by default we solve upto machine presicion
 
 	private int iteration = 0;
 
@@ -116,8 +116,8 @@ public abstract class LevenbergMarquardt {
 	private double[] valueCurrent = null;
 	private double[][] derivativeCurrent = null;
 
-	private double errorCurrent	= Double.POSITIVE_INFINITY;
-    private double errorChange	= Double.POSITIVE_INFINITY;
+	private double errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;
+    private double errorMeanSquaredChange	= Double.POSITIVE_INFINITY;
 
 	private boolean isParameterCurrentDerivativeValid = false;
 
@@ -255,10 +255,10 @@ public abstract class LevenbergMarquardt {
 	 * Set the error tolerance. The solver considers the solution "found"
 	 * if the error is not improving by this given error tolerance.
 	 * 
-	 * @param errorTolerance The error tolerance.
+	 * @param errorMeanSquaredTolerance The error tolerance.
 	 */
 	public void setErrorTolerance(double errorTolerance) {
-		this.errorTolerance = errorTolerance;
+		this.errorMeanSquaredTolerance = errorTolerance * errorTolerance;
 	}
 
 	/**
@@ -364,7 +364,7 @@ public abstract class LevenbergMarquardt {
 	 * @return Stop condition.
 	 */
 	boolean done() {
-		return iteration > maxIteration ||  errorChange <= errorTolerance;
+		return iteration > maxIteration ||  errorMeanSquaredChange <= errorMeanSquaredTolerance;
 	}
 
 	/**
@@ -402,15 +402,15 @@ public abstract class LevenbergMarquardt {
 			setValues(parameterTest, valueTest);
 
 			// calculate error
-			double errorTest = getError(valueTest);
+			double errorMeanSquaredTest = getMeanSquaredError(valueTest);
 
-			if (errorTest < errorCurrent) {
-				errorChange = errorCurrent - errorTest;
+			if (errorMeanSquaredTest < errorMeanSquaredCurrent) {
+				errorMeanSquaredChange = errorMeanSquaredCurrent - errorMeanSquaredTest;
 
 				// Accept point
 				parameterCurrent	= parameterTest.clone();
 				valueCurrent		= valueTest.clone();
-				errorCurrent		= errorTest;
+				errorMeanSquaredCurrent		= errorMeanSquaredTest;
 
 				// Derivative has to be recalculated
 				isParameterCurrentDerivativeValid = false;
@@ -419,7 +419,7 @@ public abstract class LevenbergMarquardt {
 				lambda				/= 3.0;
 				lambdaMultiplicator	= 2.0;
 			} else {
-				errorChange = errorTest - errorCurrent;
+				errorMeanSquaredChange = errorMeanSquaredTest - errorMeanSquaredCurrent;
 
 				// Reject point, increase lambda (move slower)
 				lambda				*= lambdaMultiplicator;
@@ -436,8 +436,8 @@ public abstract class LevenbergMarquardt {
 			if (logger.isLoggable(Level.FINE))
 			{
 				String logString = "Iteration: " + iteration + "\tLambda="
-						+ lambda + "\tError Current:" + errorCurrent
-						+ "\tError Change:" + errorChange + "\t";
+						+ lambda + "\tError Current:" + errorMeanSquaredCurrent
+						+ "\tError Change:" + errorMeanSquaredChange + "\t";
 				for (int i = 0; i < parameterCurrent.length; i++) {
 					logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
 				}
@@ -452,7 +452,7 @@ public abstract class LevenbergMarquardt {
 		}
 	}
 
-	private double getError(double[] value) {
+	private double getMeanSquaredError(double[] value) {
 		double error = 0.0;
 
 		for (int valueIndex = 0; valueIndex < value.length; valueIndex++) {
@@ -460,7 +460,7 @@ public abstract class LevenbergMarquardt {
 			error += weights[valueIndex] * deviation * deviation;
 		}
 
-		return error;
+		return error/value.length;
 	}
 
 	/**

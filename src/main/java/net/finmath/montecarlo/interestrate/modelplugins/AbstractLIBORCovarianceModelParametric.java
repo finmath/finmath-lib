@@ -6,6 +6,8 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +16,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
@@ -38,6 +41,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  * @date 20.05.2006
+ * @date 23.02.2014
  * @version 1.1
  */
 public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel {
@@ -77,13 +81,23 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     }
     
     public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
+    	return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
+    }
+    
+    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
     	double[] initialParameters = this.getParameter();
 
+    	Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
+    	Integer seedParameter			= (Integer)calibrationParameters.get("seed");
+    	Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+    	Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
+    	
     	// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
-		int numberOfPaths	= 2000;
-		int seed			= 31415;
-		final int maxIterations	= 400;
+		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
+		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
+		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
+		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-6;
 
 		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
@@ -107,51 +121,22 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
-				int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
-				ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
-		        
-		    	ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
-		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
-					final int workerCalibrationProductIndex = calibrationProductIndex;
-					Callable<Double> worker = new  Callable<Double>() {
-						public Double call() throws SolverException {
-				        	try {
-				        		return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
-							} catch (CalculationException e) {
-				    			throw new SolverException(e);
-							}
-						}
-					};
-					if(executor != null) {
-						Future<Double> valueFuture = executor.submit(worker);
-						valueFutures.add(calibrationProductIndex, valueFuture);
-					}
-					else {
-						FutureTask<Double> valueFutureTask = new FutureTask<Double>(worker);
-						valueFutureTask.run();
-						valueFutures.add(calibrationProductIndex, valueFutureTask);
-					}
-		        }
-		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
-		        	try {
-		        		values[calibrationProductIndex] = valueFutures.get(calibrationProductIndex).get();
-		        	}
-		    		catch (InterruptedException e) {
-		    			throw new SolverException(e);
-					} catch (ExecutionException e) {
-		    			throw new SolverException(e);
-					}
-				}
-				if(executor != null) {
-					executor.shutdown();
-					executor = null;
-				}
-			}			
+                IntStream.range(0,calibrationProducts.length).parallel().forEach(
+                        calibrationProductIndex -> {
+                            try {
+                                values[calibrationProductIndex] = calibrationProducts[calibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
+                            } catch (net.finmath.exception.CalculationException e) {
+                               throw new RuntimeException(e);
+                            }
+                        }
+                        );
+			}
 		};
 
 		// Set solver parameters
 		optimizer.setWeights(calibrationWeights);
-		
+		optimizer.setErrorTolerance(accuracy);
+
 		try {
 			optimizer.run();
 		}
