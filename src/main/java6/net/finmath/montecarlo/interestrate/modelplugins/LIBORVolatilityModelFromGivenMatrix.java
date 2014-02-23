@@ -60,7 +60,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 					}
 				}
 				parameter = new double[parameterArray.size()];
-				for(int i=0; i<parameter.length; i++) parameter[i] = parameterArray.get(i);
+				for(int i=0; i<parameter.length; i++) parameter[i] = Math.max(parameterArray.get(i),0.0);
 			}
 		}
 
@@ -74,7 +74,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 		for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 			for(int liborPeriodIndex = 0; liborPeriodIndex< getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborPeriodIndex++) {
 				if(getTimeDiscretization().getTime(timeIndex) < getLiborPeriodDiscretization().getTime(liborPeriodIndex) ) {
-					volatility[timeIndex][liborPeriodIndex] = parameter[parameterIndex++];
+					volatility[timeIndex][liborPeriodIndex] = Math.max(parameter[parameterIndex++],0.0);
 				}
 			}
 		}
