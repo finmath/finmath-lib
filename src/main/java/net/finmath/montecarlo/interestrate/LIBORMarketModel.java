@@ -661,22 +661,40 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		TimeDiscretizationInterface simulationTimeDiscretization = getTimeDiscretization();
 
 		integratedLIBORCovariance = new double[simulationTimeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
-		for(int componentIndex1 = 0; componentIndex1 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex1++) {
-			// Sum the libor cross terms (use symmetry)
-			for(int componentIndex2 = componentIndex1; componentIndex2 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex2++) {
-				double integratedLIBORCovarianceValue = 0.0;
-				for(int timeIndex = 0; timeIndex < simulationTimeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-					double dt = getTime(timeIndex+1) - getTime(timeIndex);
-					RandomVariableInterface[] factorLoadingOfComponent1 = getCovarianceModel().getFactorLoading(timeIndex, componentIndex1, null);
-					RandomVariableInterface[] factorLoadingOfComponent2 = getCovarianceModel().getFactorLoading(timeIndex, componentIndex2, null);
-					for(int factorIndex = 0; factorIndex < getNumberOfFactors(); factorIndex++) {
-						integratedLIBORCovarianceValue += factorLoadingOfComponent1[factorIndex].get(0) * factorLoadingOfComponent2[factorIndex].get(0) * dt;
+		for(int timeIndex = 0; timeIndex < simulationTimeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
+			double dt = getTime(timeIndex+1) - getTime(timeIndex);
+			RandomVariableInterface[][] factorLoadings = new RandomVariableInterface[liborPeriodDiscretization.getNumberOfTimeSteps()][];
+			// Prefetch factor loadings
+			for(int componentIndex = 0; componentIndex < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
+				factorLoadings[componentIndex] = getCovarianceModel().getFactorLoading(timeIndex, componentIndex, null);
+			}
+			for(int componentIndex1 = 0; componentIndex1 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex1++) {
+				RandomVariableInterface[] factorLoadingOfComponent1 = factorLoadings[componentIndex1];
+				// Sum the libor cross terms (use symmetry)
+				for(int componentIndex2 = componentIndex1; componentIndex2 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex2++) {
+					double integratedLIBORCovarianceValue = 0.0;
+					if(getLiborPeriod(componentIndex1) > getTime(timeIndex)) {
+						RandomVariableInterface[] factorLoadingOfComponent2 = factorLoadings[componentIndex2];
+						for(int factorIndex = 0; factorIndex < getNumberOfFactors(); factorIndex++) {
+							integratedLIBORCovarianceValue += factorLoadingOfComponent1[factorIndex].get(0) * factorLoadingOfComponent2[factorIndex].get(0) * dt;
+						}
 					}
 					integratedLIBORCovariance[timeIndex][componentIndex1][componentIndex2] = integratedLIBORCovarianceValue;
 				}
 			}
 		}
 
+		// Integrate over time (i.e. sum up).
+		for(int timeIndex = 1; timeIndex < simulationTimeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
+			double[][] prevIntegratedLIBORCovariance = integratedLIBORCovariance[timeIndex-1];
+			double[][] thisIntegratedLIBORCovariance = integratedLIBORCovariance[timeIndex];
+			for(int componentIndex1 = 0; componentIndex1 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex1++) {
+				for(int componentIndex2 = componentIndex1; componentIndex2 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex2++) {
+					thisIntegratedLIBORCovariance[componentIndex1][componentIndex2] = prevIntegratedLIBORCovariance[componentIndex1][componentIndex2] + thisIntegratedLIBORCovariance[componentIndex1][componentIndex2];
+					thisIntegratedLIBORCovariance[componentIndex2][componentIndex1] = thisIntegratedLIBORCovariance[componentIndex1][componentIndex2];
+				}
+			}
+		}
 		return integratedLIBORCovariance;
 	}
 
