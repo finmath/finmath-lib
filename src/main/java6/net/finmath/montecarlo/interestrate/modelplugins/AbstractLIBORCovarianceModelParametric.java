@@ -77,13 +77,23 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     }
     
     public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
+    	return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
+    }
+    
+    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
     	double[] initialParameters = this.getParameter();
 
+    	Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
+    	Integer seedParameter			= (Integer)calibrationParameters.get("seed");
+    	Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+    	Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
+    	
     	// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
-		int numberOfPaths	= 2000;
-		int seed			= 31415;
-		final int maxIterations	= 400;
+		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
+		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
+		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
+		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-6;
 
 		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 

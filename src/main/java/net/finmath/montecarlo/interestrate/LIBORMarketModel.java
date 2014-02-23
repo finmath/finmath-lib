@@ -245,7 +245,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			DiscountCurveInterface				discountCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData,
-			Map<String, String>					properties
+			Map<String, Object>					properties
 			) throws CalculationException {
 		this(
 				liborPeriodDiscretization,
@@ -257,7 +257,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 						forwardRateCurve,
 						swaptionMarketData,
 						// Condition under which we use analytic approximation
-						(properties == null || properties.get("stateSpace") == null || properties.get("stateSpace").toUpperCase().equals(StateSpace.LOGNORMAL.name()))
+						(properties == null || properties.get("stateSpace") == null || ((String)properties.get("stateSpace")).toUpperCase().equals(StateSpace.LOGNORMAL.name()))
 						&& AbstractLIBORCovarianceModelParametric.class.isAssignableFrom(covarianceModel.getClass())
 				),
 				properties
@@ -313,12 +313,15 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			DiscountCurveInterface				discountCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
 			CalibrationItem[]					calibrationItems,
-			Map<String, String>					properties
+			Map<String, Object>					properties
 			) throws CalculationException {
 
 		// Set some properties
-		if(properties != null && properties.containsKey("measure"))		measure		= Measure.valueOf(properties.get("measure").toUpperCase());
-		if(properties != null && properties.containsKey("stateSpace"))	stateSpace	= StateSpace.valueOf(properties.get("stateSpace").toUpperCase());
+		if(properties != null && properties.containsKey("measure"))					measure		= Measure.valueOf(((String)properties.get("measure")).toUpperCase());
+		if(properties != null && properties.containsKey("stateSpace"))				stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
+
+		Map<String,Object> calibrationParameters = null;
+		if(properties != null && properties.containsKey("calibrationParameters"))	calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
 
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
 
@@ -349,7 +352,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				calibrationWeights[i]		= calibrationItems[i].calibrationWeight;
 			}
 
-			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights);
+			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
 		}
 
 	}
@@ -701,7 +704,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	@Override
 	public Object clone() {
 		try {
-			Map<String, String> properties = new HashMap<String, String>();
+			Map<String, Object> properties = new HashMap<String, Object>();
 			properties.put("measure",		measure.name());
 			properties.put("stateSpace",	stateSpace.name());
 			return new LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, new CalibrationItem[0], properties);
@@ -753,7 +756,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		DiscountCurveInterface			discountCurve				= this.discountCurve;
 		AbstractLIBORCovarianceModel	covarianceModel				= this.covarianceModel;
 		AbstractSwaptionMarketData		swaptionMarketData			= null;		// No recalibration, unless new swaption data is specified
-		Map<String, String>				properties					= new HashMap<String, String>();
+		Map<String, Object>				properties					= new HashMap<String, Object>();
 		properties.put("measure",		measure.name());
 		properties.put("stateSpace",	stateSpace.name());
 

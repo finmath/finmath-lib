@@ -54,7 +54,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 
     private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
-	private transient RandomVariableInterface[][]	brownianIncrements;	
+	private transient RandomVariableInterface[][]	brownianIncrements;
 
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
