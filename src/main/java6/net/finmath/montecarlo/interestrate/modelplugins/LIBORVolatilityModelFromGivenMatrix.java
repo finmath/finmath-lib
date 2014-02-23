@@ -60,7 +60,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 					}
 				}
 				parameter = new double[parameterArray.size()];
-				for(int i=0; i<parameter.length; i++) parameter[i] = Math.max(parameterArray.get(i),0.0);
+				for(int i=0; i<parameter.length; i++) parameter[i] = parameterArray.get(i);
 			}
 		}
 
