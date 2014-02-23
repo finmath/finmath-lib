@@ -96,7 +96,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 
     @Override
     public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return new RandomVariable(value);
+        return uncollelatedFactors.getRandomVariableForConstant(value);
     }
 
 	/* (non-Javadoc)
