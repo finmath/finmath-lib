@@ -43,12 +43,6 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		initialize(numberOfFactors, a);
 	}
 
-	@Override
-	public Object clone() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	public LIBORCorrelationModelExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
@@ -59,6 +53,11 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		initialize(numberOfFactors, a);
 	}
 
+	@Override
+	public Object clone() {
+		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, isCalibrateable);
+	}
+	
 	@Override
     public double	getFactorLoading(int timeIndex, int factor, int component) {
 		return factorMatrix[component][factor];
