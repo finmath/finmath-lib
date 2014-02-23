@@ -84,6 +84,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
     	double[] initialParameters = this.getParameter();
 
+    	if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
     	Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
     	Integer seedParameter			= (Integer)calibrationParameters.get("seed");
     	Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
