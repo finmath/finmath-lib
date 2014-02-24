@@ -245,7 +245,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			DiscountCurveInterface				discountCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData,
-			Map<String, Object>					properties
+			Map<String, ?>					properties
 			) throws CalculationException {
 		this(
 				liborPeriodDiscretization,
@@ -279,10 +279,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * 			<code>measure</code>: Possible values:
 	 * 			<ul>
 	 * 				<li>
-	 * 					<code>SPOT</code>: Simulate under spot measure.
+	 * 					<code>SPOT</code> (<code>String</code>): Simulate under spot measure.
 	 * 				</li>
 	 * 				<li>
-	 * 					<code>TERMINAL</code>: Simulate under terminal measure.
+	 * 					<code>TERMINAL</code> (<code>String</code>): Simulate under terminal measure.
 	 * 				</li>
 	 *			</ul>
 	 *		</li>
@@ -290,11 +290,27 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * 			<code>stateSpace</code>: Possible values:
 	 * 			<ul>
 	 * 				<li>
-	 * 					<code>LOGNORMAL</code>: Simulate <i>L = exp(Y)</i>.
+	 * 					<code>LOGNORMAL</code> (<code>String</code>): Simulate <i>L = exp(Y)</i>.
 	 * 				</li>
 	 * 				<li>
-	 * 					<code>NORMAL</code>: Simulate <i>L = Y</i>.
+	 * 					<code>NORMAL</code (<code>String</code>)>: Simulate <i>L = Y</i>.
 	 * 				</li>
+	 *			</ul>
+	 *		</li>
+	 * 		<li>
+	 * 			<code>calibrationParameters</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>Map<String,Object></code> a parameter map with the following key/value pairs:
+	 * 					<ul>
+	 *				 		<li>
+	 * 							<code>accuracy</code>: <code>Double</Double> specifying the required solver accuracy.
+	 * 						</li>
+	 *				 		<li>
+	 * 							<code>maxIterations</code>: <code>Integer</Double> specifying the maximum iterations for the solver.
+	 * 						</li>
+	 *					</ul>
+	 *				</li>
 	 *			</ul>
 	 *		</li>
 	 * </ul>
@@ -313,7 +329,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			DiscountCurveInterface				discountCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
 			CalibrationItem[]					calibrationItems,
-			Map<String, Object>					properties
+			Map<String, ?>						properties
 			) throws CalculationException {
 
 		// Set some properties
