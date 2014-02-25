@@ -6,12 +6,12 @@
  */
 package net.finmath.stochastic;
 
-import net.finmath.functions.DoubleTernaryOperator;
-
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
 
 
 
