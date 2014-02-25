@@ -20,6 +20,10 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	private final double[][]		volatility;
 	
+	/**
+	 * A cache for the parameter associated with this model, it is only used when getParameter is
+	 * called repeatedly.
+	 */
 	private transient double[]		parameter = null;
 
 	/**
@@ -69,7 +73,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
 	@Override
 	public void setParameter(double[] parameter) {
-		this.parameter = parameter;
+		this.parameter = null;		// Invalidate cache
 		int parameterIndex = 0;
 		for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 			for(int liborPeriodIndex = 0; liborPeriodIndex< getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborPeriodIndex++) {
