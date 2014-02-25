@@ -36,6 +36,27 @@ public abstract class AbstractLIBORCovarianceModel {
 	}
 
 	/**
+	 * Return the factor loading for a given time and component index.
+	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
+	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
+	 * is the instantaneous covariance of the component <i>j</i> and <i>k</i>.
+	 * 
+	 * With respect to simulation time <i>t</i>, this method uses a piece wise constant interpolation, i.e.,
+	 * it calculates <i>t_<sub>i</sub></i> such that <i>t_<sub>i</sub></i> is the largest point in <code>getTimeDiscretization</code>
+	 * such that <i>t_<sub>i</sub> &leq; t </i>.
+	 * 
+	 * @param time The time <i>t</i> at which factor loading is requested.
+	 * @param component The index of the component  <i>i</i>.
+	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
+	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
+	 */
+	public	RandomVariableInterface[]	getFactorLoading(double time, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+		int timeIndex = timeDiscretization.getTimeIndex(time);
+		if(timeIndex < 0) timeIndex = Math.abs(timeIndex)-2;
+		return getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	}
+	
+	/**
 	 * Return the factor loading for a given time index and component index.
 	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
 	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
@@ -43,7 +64,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * 
 	 * @param timeIndex The time index at which factor loading is requested.
 	 * @param component The index of the component  <i>i</i>.
-	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatitliy/covarinace/correlation models).
+	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
 	public abstract	RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex);
@@ -54,10 +75,26 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * @param timeIndex The time index at which factor loading inverse is requested.
 	 * @param factor The index of the factor <i>j</i>.
 	 * @param component The index of the component  <i>i</i>.
-	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatitliy/covarinace/correlation models).
+	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
 	 * @return The entry of the pseudo-inverse of the factor loading matrix.
 	 */
 	public abstract RandomVariableInterface	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex);
+
+	/**
+	 * Returns the instantaneous covariance calculated from factor loadings.
+	 * 
+	 * @param time The time <i>t</i> at which covariance is requested.
+	 * @param component1 Index of component <i>i</i>.
+	 * @param component2  Index of component <i>j</i>.
+	 * @param realizationAtTimeIndex The realization of the stochastic process.
+	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
+	 */
+	public RandomVariableInterface getCovariance(double time, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
+		int timeIndex = timeDiscretization.getTimeIndex(time);
+		if(timeIndex < 0) timeIndex = Math.abs(timeIndex)-2;
+
+		return getCovariance(timeIndex, component1, component2, realizationAtTimeIndex);
+	}
 
 	/**
 	 * Returns the instantaneous covariance calculated from factor loadings.

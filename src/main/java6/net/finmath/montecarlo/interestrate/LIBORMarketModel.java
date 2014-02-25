@@ -579,7 +579,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		if(stateSpace == StateSpace.LOGNORMAL) {
 			// Drift adjustment for log-coordinate in each component
 			for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-				RandomVariableInterface		variance		= covarianceModel.getCovariance(timeIndex, componentIndex, componentIndex, realizationAtTimeIndex);
+				RandomVariableInterface		variance		= covarianceModel.getCovariance(getTime(timeIndex), componentIndex, componentIndex, realizationAtTimeIndex);
 				drift[componentIndex] = drift[componentIndex].addProduct(variance, -0.5);
 			}
 		}
@@ -591,7 +591,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	@Override
 	public	RandomVariableInterface[]	getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex)
 	{
-		return covarianceModel.getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+		return covarianceModel.getFactorLoading(getTime(timeIndex), componentIndex, realizationAtTimeIndex);
 	}
 
 	@Override
@@ -608,9 +608,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return driftApproximationMethod;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLIBOR(int, int)
-	 */
 	@Override
 	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException
 	{
@@ -618,18 +615,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return getProcessValue(timeIndex, liborIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumberOfComponents()
-	 */
 	@Override
 	public int getNumberOfComponents() {
 		return liborPeriodDiscretization.getNumberOfTimeSteps();
 	}
 
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getNumberOfLibors()
-	 */
 	@Override
 	public int getNumberOfLibors()
 	{
@@ -677,11 +667,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		if(integratedLIBORCovariance != null) return integratedLIBORCovariance;
 
 		TimeDiscretizationInterface liborPeriodDiscretization = getLiborPeriodDiscretization();
-		TimeDiscretizationInterface simulationTimeDiscretization = getTimeDiscretization();
+		TimeDiscretizationInterface simulationTimeDiscretization = getCovarianceModel().getTimeDiscretization();
 
 		integratedLIBORCovariance = new double[simulationTimeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex = 0; timeIndex < simulationTimeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double dt = getTime(timeIndex+1) - getTime(timeIndex);
+			double dt = simulationTimeDiscretization.getTime(timeIndex+1) - simulationTimeDiscretization.getTime(timeIndex);
 			RandomVariableInterface[][] factorLoadings = new RandomVariableInterface[liborPeriodDiscretization.getNumberOfTimeSteps()][];
 			// Prefetch factor loadings
 			for(int componentIndex = 0; componentIndex < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
