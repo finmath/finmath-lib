@@ -53,7 +53,10 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 				&&	!(day == 25 && month == 12)		// date is Christmas
 				&&	!(day == 26 && month == 12)		// date is Boxing Day
 				&&	!(day == 31 && month == 12)
+<<<<<<< HEAD
 				&&	!(day ==  1 && month ==  5)		// date is Labour Day
+=======
+>>>>>>> 3984e7e2c9c5fff2e3dde2acfbbaf1d1c228cba3
 				&&	!isEasterSunday(datePlus2)		// date is Good Friday
 				&&	!isEasterSunday(dateBefore)		// date is Easter Monday
 				;
