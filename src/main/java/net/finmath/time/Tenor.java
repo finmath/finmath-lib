@@ -12,7 +12,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
- * Implements a time discretization bases on dates using a reference
+ * Implements a time discretization based on dates using a reference
  * date and an daycount convention / year fraction.
  * 
  * The time as a double is represented as the year fraction from the reference date.
@@ -49,7 +49,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
 			timeDiscretization[timeIndex] =
-					internalDayCounting.getDaycount(referenceDate, dates[timeIndex]);
+					internalDayCounting.getDaycountFraction(referenceDate, dates[timeIndex]);
 		}
 
 		return timeDiscretization;
