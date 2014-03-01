@@ -82,6 +82,13 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double fixingDate	= legSchedule.getFixing(periodIndex);
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
+			
+			/*
+			 * We do not count empty periods. Since empty periods are an indication for a ill-specified
+			 * product, it might be reasonable to throw an illegal argument exception instead.
+			 */
+			if(periodLength == 0) continue;
+
 			double forward		= spread;
 			if(forwardCurve != null) {
 				forward			+= forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
