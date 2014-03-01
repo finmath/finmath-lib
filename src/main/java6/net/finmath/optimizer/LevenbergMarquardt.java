@@ -243,8 +243,7 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Set the weight for the objective function.
 	 * 
-	 * @param weights
-	 *            The weights for the objective function.
+	 * @param weights The weights for the objective function.
 	 */
 	public void setWeights(double[] weights) {
 		this.weights = weights;
@@ -255,9 +254,14 @@ public abstract class LevenbergMarquardt {
 	 * Set the error tolerance. The solver considers the solution "found"
 	 * if the error is not improving by this given error tolerance.
 	 * 
-	 * @param errorMeanSquaredTolerance The error tolerance.
+	 * @param errorTolerance The error tolerance.
 	 */
 	public void setErrorTolerance(double errorTolerance) {
+		/*
+		 * The solver uses internally a mean squared error.
+		 * To avoid calculation of Math.sqrt we convert the tolarance
+		 * to its squared.
+		 */
 		this.errorMeanSquaredTolerance = errorTolerance * errorTolerance;
 	}
 
@@ -364,7 +368,19 @@ public abstract class LevenbergMarquardt {
 	 * @return Stop condition.
 	 */
 	boolean done() {
-		return iteration > maxIteration ||  errorMeanSquaredChange <= errorMeanSquaredTolerance;
+		// The solver terminates if...
+		return 
+				// Maximum number of iterations is reached
+				(iteration > maxIteration)	
+				||
+				// Error does not improve by more that the given error tolerance
+				(errorMeanSquaredChange <= errorMeanSquaredTolerance)
+				||
+				/*
+				 * Lambda is infinite, i.e., no new point is acceptable.
+				 * For example, this may happen if setValue repeatedly give contains invalid (NaN) values.
+				 */
+				Double.isInfinite(lambda);
 	}
 
 	/**
