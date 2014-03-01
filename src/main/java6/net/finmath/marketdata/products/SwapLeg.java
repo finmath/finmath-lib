@@ -84,8 +84,10 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 			
 			/*
-			 * We do not count empty periods. Since empty periods are an indication for a ill-specified
-			 * product, it might be reasonable to throw an illegal argument exception instead.
+			 * We do not count empty periods.
+			 * Since empty periods are an indication for a ill-specified
+			 * product, it might be reasonable to throw an
+			 * illegal argument exception instead.
 			 */
 			if(periodLength == 0) continue;
 
