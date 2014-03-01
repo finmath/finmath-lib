@@ -58,7 +58,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	{
 		double paymentOffsetOfCurve = getPaymentOffset(fixingTime);
 		if(Double.isNaN(paymentOffsetOfCurve)) {
-			if(paymentOffset == 0) throw new IllegalArgumentException();
+			if(paymentOffset <= 0) throw new IllegalArgumentException("Requesting forward for period of length " + paymentOffset + ".");
 			paymentOffsetOfCurve = paymentOffset;
 		}
 
