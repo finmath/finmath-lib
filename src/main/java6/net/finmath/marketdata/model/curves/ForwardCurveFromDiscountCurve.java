@@ -57,7 +57,10 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
     public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
 		double paymentOffsetOfCurve = getPaymentOffset(fixingTime);
-		if(Double.isNaN(paymentOffsetOfCurve)) paymentOffsetOfCurve = paymentOffset;
+		if(Double.isNaN(paymentOffsetOfCurve)) {
+			if(paymentOffset == 0) throw new IllegalArgumentException();
+			paymentOffsetOfCurve = paymentOffset;
+		}
 
 		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffsetOfCurve) - 1.0) / paymentOffsetOfCurve;
 	}
