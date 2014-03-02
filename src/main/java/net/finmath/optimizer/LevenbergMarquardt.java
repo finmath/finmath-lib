@@ -5,15 +5,13 @@
  */
 package net.finmath.optimizer;
 
-import java.util.Vector;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import net.finmath.functions.LinearAlgebra;
 
@@ -117,7 +115,7 @@ public abstract class LevenbergMarquardt {
 	private double[][] derivativeCurrent = null;
 
 	private double errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;
-    private double errorMeanSquaredChange	= Double.POSITIVE_INFINITY;
+	private double errorMeanSquaredChange	= Double.POSITIVE_INFINITY;
 
 	private boolean isParameterCurrentDerivativeValid = false;
 
@@ -126,7 +124,6 @@ public abstract class LevenbergMarquardt {
 	private double[]	beta = null;
 
 	private int				numberOfThreads	= 1;
-	private ExecutorService executor		= null;
 
 	private final Logger logger = Logger.getLogger("net.finmath");
 
@@ -289,7 +286,7 @@ public abstract class LevenbergMarquardt {
 	 * 
 	 * @param parameters Input value. The parameter vector.
 	 * @param values Output value. The vector of values f(i,parameters), i=1,...,n
-     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public abstract void setValues(double[] parameters, double[] values) throws SolverException;
 
@@ -299,67 +296,56 @@ public abstract class LevenbergMarquardt {
 	 * 
 	 * @param parameters Input value. The parameter vector.
 	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
-     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public void setDerivatives(double[] parameters, double[][] derivatives) throws SolverException {
 		// Calculate new derivatives. Note that this method is called only with
 		// parameters = parameterCurrent, so we may use valueCurrent.
 
-    	Vector<Future<double[]>> valueFutures = new Vector<Future<double[]>>(parameterCurrent.length);
-		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
-			final double[] parametersNew	= parameters.clone();
-			final double[] derivative		= derivatives[parameterIndex];
+		// We limit the number of concurrent executions to the requires number of threads, as requested.
+		Semaphore concurrentExecution = new Semaphore(Math.max(numberOfThreads,1));
+		IntStream.range(0, parameterCurrent.length).parallel().forEach(					
+				parameterIndex -> {
+					final double[] parametersNew	= parameters.clone();
+					final double[] derivative		= derivatives[parameterIndex];
 
-			final int workerParameterIndex = parameterIndex;
-			Callable<double[]> worker = new  Callable<double[]>() {
-				public double[] call() throws SolverException {
-					double parameterFiniteDifference;
-					if(parameterSteps != null) {
-						parameterFiniteDifference = parameterSteps[workerParameterIndex];
-					}
-					else {
-						/*
-						 * Try to adaptively set a parameter shift. Note that in some
-						 * applications it may be important to set parameterSteps.
-						 * appropriately.
-						 */
-						parameterFiniteDifference = (Math.abs(parametersNew[workerParameterIndex]) + 1) * 1E-8;
-					}
-		
-					// Shift parameter value
-					parametersNew[workerParameterIndex] += parameterFiniteDifference;
-		
-					// Calculate derivative as (valueUpShift - valueCurrent) /
-					// parameterFiniteDifference
-					setValues(parametersNew, derivative);
-					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
-						derivative[valueIndex] -= valueCurrent[valueIndex];
-						derivative[valueIndex] /= parameterFiniteDifference;
-					}
-					return derivative;
-				}
-			};
-			if(executor != null) {
-				Future<double[]> valueFuture = executor.submit(worker);
-				valueFutures.add(parameterIndex, valueFuture);
-			}
-			else {
-				FutureTask<double[]> valueFutureTask = new FutureTask<double[]>(worker);
-				valueFutureTask.run();
-				valueFutures.add(parameterIndex, valueFutureTask);
-			}
-		}
+					concurrentExecution.acquireUninterruptibly();
 
-		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
-        	try {
-        		derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
-        	}
-    		catch (InterruptedException e) {
-    			throw new SolverException(e);
-			} catch (ExecutionException e) {
-    			throw new SolverException(e);
-			}
-		}
+					try {
+						double parameterFiniteDifference;
+						if(parameterSteps != null) {
+							parameterFiniteDifference = parameterSteps[parameterIndex];
+						}
+						else {
+							/*
+							 * Try to adaptively set a parameter shift. Note that in some
+							 * applications it may be important to set parameterSteps.
+							 * appropriately.
+							 */
+							parameterFiniteDifference = (Math.abs(parametersNew[parameterIndex]) + 1) * 1E-8;
+						}
+
+						// Shift parameter value
+						parametersNew[parameterIndex] += parameterFiniteDifference;
+
+						// Calculate derivative as (valueUpShift - valueCurrent) /
+						// parameterFiniteDifference
+						try {
+							setValues(parametersNew, derivative);
+						} catch (Exception e) {
+							// We signal an exception to calculate the derivative as NaN
+							Arrays.fill(derivative, Double.NaN);
+						}
+						for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
+							derivative[valueIndex] -= valueCurrent[valueIndex];
+							derivative[valueIndex] /= parameterFiniteDifference;
+						}
+						derivatives[parameterIndex] = derivative;
+					}
+					finally {
+						concurrentExecution.release();
+					}
+				});
 	}
 
 	/**
@@ -386,11 +372,10 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Runs the optimization.
 	 * 
-     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
-		if(numberOfThreads > 1) executor = Executors.newFixedThreadPool(numberOfThreads);
 
 		// Allocate memory
 		parameterTest = initialParameters.clone();
@@ -419,7 +404,7 @@ public abstract class LevenbergMarquardt {
 
 			// calculate error
 			double errorMeanSquaredTest = getMeanSquaredError(valueTest);
-			
+
 			if (errorMeanSquaredTest < errorMeanSquaredCurrent) {
 				errorMeanSquaredChange = errorMeanSquaredCurrent - errorMeanSquaredTest;
 
@@ -460,12 +445,6 @@ public abstract class LevenbergMarquardt {
 				logger.fine(logString);
 			}
 		}
-
-		// Create an executor for concurrent evaluation of derivatives
-		if(executor != null) {
-			executor.shutdown();
-			executor = null;
-		}
 	}
 
 	private double getMeanSquaredError(double[] value) {
@@ -482,7 +461,7 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Calculate a new parameter guess.
 	 * 
-     * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	private void updateParameterTest() throws SolverException {
 		if (!isParameterCurrentDerivativeValid) {
