@@ -113,6 +113,27 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		return value;
 	}
 
+	
+	public ScheduleInterface getSchedule() {
+		return legSchedule;
+	}
+
+	public String getForwardCurveName() {
+		return forwardCurveName;
+	}
+
+	public double getSpread() {
+		return spread;
+	}
+
+	public String getDiscountCurveName() {
+		return discountCurveName;
+	}
+
+	public boolean isNotionalExchanged() {
+		return isNotionalExchanged;
+	}
+
 	@Override
 	public String toString() {
 		return "SwapLeg [legSchedule=" + legSchedule + ", forwardCurveName="
