@@ -16,9 +16,10 @@ You will find several project in the repository at finmath.net:
 
     finmath lib is now on Java 8 (since February 2nd, 2014), but a Java 6 version
     is provided too.
-    
+
     Note: for convenience the provided Eclipse project is configured for Java 6.
-    The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e. "-P java-8"
+    The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e.
+    the maven command line option "-P java-8"
 
 **finmath spreadsheets**  
     A collection of spreadsheets building upon *finmath lib* and
@@ -28,7 +29,7 @@ You will find several project in the repository at finmath.net:
 **finmath experiments**  
     Small experiments, illustrating some aspects of mathematical
     finance. Also illustrates how to use the finmath lib.
-    
+
 
 finmath lib Java Library
 ------------------------
@@ -55,9 +56,9 @@ Documentation
 -------------
 
 -   [finmath lib API documentation][]  
-     provides the documentation of the library api.
+    provides the documentation of the library api.
 -   [finmath.net special topics][]  
-     cover some selected topics with demo spreadsheets and uml diagrams.
+    cover some selected topics with demo spreadsheets and uml diagrams.
     Some topics come with additional documentations (technical papers).
 
 
