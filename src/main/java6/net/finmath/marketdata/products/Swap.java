@@ -117,4 +117,18 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		
 		return floatLeg / swapAnnuity;
 	}
+
+	public SwapLeg getLegReceiver() {
+		return legReceiver;
+	}
+
+	public SwapLeg getLegPayer() {
+		return legPayer;
+	}
+
+	@Override
+	public String toString() {
+		return "Swap [legReceiver=" + legReceiver + ", legPayer=" + legPayer
+				+ "]";
+	}
 }
