@@ -24,7 +24,7 @@ import net.finmath.optimizer.SolverException;
  * will return a calibrate clone, containing clones for every curve
  * which is part of the set of curves to be calibrated.
  * 
- * The calibration is performed as a multi-threadded global optimization.
+ * The calibration is performed as a multi-threaded global optimization.
  * I will greatly profit from a multi-core architecture.
  * 
  * @author Christian Fries
@@ -34,10 +34,11 @@ public class Solver {
 	private final AnalyticModelInterface				model;
 	private final List<AnalyticProductInterface> calibrationProducts;
 
-	private double evaluationTime = 0.0;
-	private int iterations		= 0;
-	private final int maxIterations	= 10000;
+	private	final	double	evaluationTime	= 0.0;
+	private final	int		maxIterations	= 1000;
 
+	private 		int		iterations		= 0;
+	
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
 	 * objective functions (dependents).
@@ -52,8 +53,12 @@ public class Solver {
     }
 
     /**
-     * Find the model such that for the equation
+     * Find the model such that the equation
+     * <center>
+     * <code>
      * objectiveFunctions.getValue(model) = 0
+     * </code>
+     * </center>
      * holds.
      * 
      * @param curvesToCalibrates The set of curve to calibrate.
@@ -68,7 +73,7 @@ public class Solver {
 		double[] zeros	= new double[calibrationProducts.size()];
 		java.util.Arrays.fill(zeros, 0.0);
 
-		int maxThreads		= Math.min(Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
+		int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
 
 		LevenbergMarquardt optimizer = new LevenbergMarquardt(
 				initialParameters,
@@ -105,7 +110,7 @@ public class Solver {
     }
     	
     /**
-     * Returns the number of iterations requited in the last solver step.
+     * Returns the number of iterations required in the last solver step.
      * 
 	 * @return The number of iterations required.
 	 */
