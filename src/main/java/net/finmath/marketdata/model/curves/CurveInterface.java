@@ -54,9 +54,19 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
     double getValue(AnalyticModelInterface model, double time);
 
 	/**
-	 * @return
+	 * Create a deep copied clone.
+	 * 
+	 * @return A clone (deep copied).
+	 * @throws CloneNotSupportedException
 	 */
 	Object clone() throws CloneNotSupportedException;
 
+	/**
+	 * Create a clone with a modified parameter.
+	 * 
+	 * @param value The new parameter.
+	 * @return A clone with an otherwise modified parameter.
+	 * @throws CloneNotSupportedException
+	 */
 	CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
 }

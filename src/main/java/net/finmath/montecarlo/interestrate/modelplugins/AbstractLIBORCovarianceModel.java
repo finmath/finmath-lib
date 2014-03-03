@@ -43,7 +43,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * 
 	 * With respect to simulation time <i>t</i>, this method uses a piece wise constant interpolation, i.e.,
 	 * it calculates <i>t_<sub>i</sub></i> such that <i>t_<sub>i</sub></i> is the largest point in <code>getTimeDiscretization</code>
-	 * such that <i>t_<sub>i</sub> &leq; t </i>.
+	 * such that <i>t_<sub>i</sub> &le; t </i>.
 	 * 
 	 * @param time The time <i>t</i> at which factor loading is requested.
 	 * @param component The index of the component  <i>i</i>.
