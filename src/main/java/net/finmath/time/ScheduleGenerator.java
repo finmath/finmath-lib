@@ -221,6 +221,8 @@ public class ScheduleGenerator {
 
 				// Adjust period
 				Calendar periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
+				// Map to same hour (daylight savings may result in a modified hour).
+				periodEndDate.set(Calendar.HOUR_OF_DAY, startDate.get(Calendar.HOUR_OF_DAY));
 	
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
@@ -257,6 +259,8 @@ public class ScheduleGenerator {
 
 				// Adjust period
 				Calendar periodStartDate	= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
+				// Map to same hour (daylight savings may result in a modified hour).
+				periodStartDate.set(Calendar.HOUR_OF_DAY, maturity.get(Calendar.HOUR_OF_DAY));
 
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
@@ -560,6 +564,7 @@ public class ScheduleGenerator {
 		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 30;
 		maturity.add(Calendar.DAY_OF_YEAR, (int)Math.round(offsetYearFrac));
 		
+		maturity.set(Calendar.HOUR_OF_DAY, baseDate.get(Calendar.HOUR_OF_DAY));
 		return maturity;
 	}
 }
