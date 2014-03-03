@@ -293,7 +293,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * 					<code>LOGNORMAL</code> (<code>String</code>): Simulate <i>L = exp(Y)</i>.
 	 * 				</li>
 	 * 				<li>
-	 * 					<code>NORMAL</code (<code>String</code>)>: Simulate <i>L = Y</i>.
+	 * 					<code>NORMAL</code> (<code>String</code>): Simulate <i>L = Y</i>.
 	 * 				</li>
 	 *			</ul>
 	 *		</li>
@@ -301,13 +301,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * 			<code>calibrationParameters</code>: Possible values:
 	 * 			<ul>
 	 * 				<li>
-	 * 					<code>Map<String,Object></code> a parameter map with the following key/value pairs:
+	 * 					<code>Map&lt;String,Object&gt;</code> a parameter map with the following key/value pairs:
 	 * 					<ul>
 	 *				 		<li>
-	 * 							<code>accuracy</code>: <code>Double</Double> specifying the required solver accuracy.
+	 * 							<code>accuracy</code>: <code>Double</code> specifying the required solver accuracy.
 	 * 						</li>
 	 *				 		<li>
-	 * 							<code>maxIterations</code>: <code>Integer</Double> specifying the maximum iterations for the solver.
+	 * 							<code>maxIterations</code>: <code>Integer</code> specifying the maximum iterations for the solver.
 	 * 						</li>
 	 *					</ul>
 	 *				</li>
