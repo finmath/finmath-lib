@@ -288,9 +288,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param fixingTime The given fixing time.
 	 * @param forward The given forward.
 	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(double[])} and {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
-	 * @deprecated
 	 */
-	public void addForward(AnalyticModelInterface model, double fixingTime, double forward, boolean isParameter) {
+	private void addForward(AnalyticModelInterface model, double fixingTime, double forward, boolean isParameter) {
 		double interpolationEntitiyTime;
 		double interpolationEntityForwardValue;
 		switch(interpolationEntityForward) {

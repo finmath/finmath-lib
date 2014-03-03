@@ -17,7 +17,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  *  
  * @author Christian Fries
  */
-public abstract class AbstractCurve implements CurveInterface {
+public abstract class AbstractCurve implements CurveInterface, Cloneable {
 
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();//ACT_ISDA();
 	private			Calendar					referenceDate;
@@ -71,9 +71,11 @@ public abstract class AbstractCurve implements CurveInterface {
 		return super.toString() + "\n\"" + this.getName() + "\"";
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.CurveInterface#getCloneForParameter(net.finmath.marketdata.model.AnalyticModelInterface, double[])
-	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+
 	@Override
 	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();

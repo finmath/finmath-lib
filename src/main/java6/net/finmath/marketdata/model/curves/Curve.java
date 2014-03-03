@@ -31,7 +31,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * 
  * @author Christian Fries
  */
-public class Curve extends AbstractCurve implements Serializable {
+public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Possible interpolation methods.
@@ -268,14 +268,9 @@ public class Curve extends AbstractCurve implements Serializable {
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(double[] parameter) {
-		Curve newCurve = null;
-		try {
-			newCurve = (Curve) this.clone();
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public Object clone() throws CloneNotSupportedException {
+		Curve newCurve = (Curve) super.clone();
+
 		newCurve.points					= new ArrayList<Point>();
 		newCurve.pointsBeingParameters	= new ArrayList<Point>();
 		for(Point point : points) {
@@ -283,6 +278,13 @@ public class Curve extends AbstractCurve implements Serializable {
 			newCurve.points.add(newPoint);
 			if(point.isParameter) newCurve.pointsBeingParameters.add(newPoint);
 		}
+
+		return newCurve;
+	}
+
+	@Override
+	public CurveInterface getCloneForParameter(double[] parameter) throws CloneNotSupportedException {
+		Curve newCurve = (Curve) this.clone();
 
 		newCurve.setParameter(parameter);
 		
