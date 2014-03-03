@@ -35,6 +35,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
  * </ul>
  * 
  * @author Christian Fries
+ * @date 02.03.2014
  */
 public class ScheduleGenerator {
 
@@ -222,7 +223,7 @@ public class ScheduleGenerator {
 				// Adjust period
 				Calendar periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
 				// Map to same hour (daylight savings may result in a modified hour).
-				periodEndDate.set(Calendar.HOUR_OF_DAY, startDate.get(Calendar.HOUR_OF_DAY));
+				roundToSame(periodEndDate, startDate, Calendar.HOUR_OF_DAY);
 	
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
@@ -260,7 +261,7 @@ public class ScheduleGenerator {
 				// Adjust period
 				Calendar periodStartDate	= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
 				// Map to same hour (daylight savings may result in a modified hour).
-				periodStartDate.set(Calendar.HOUR_OF_DAY, maturity.get(Calendar.HOUR_OF_DAY));
+				roundToSame(periodStartDate, maturity, Calendar.HOUR_OF_DAY);
 
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
@@ -564,7 +565,16 @@ public class ScheduleGenerator {
 		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 30;
 		maturity.add(Calendar.DAY_OF_YEAR, (int)Math.round(offsetYearFrac));
 		
-		maturity.set(Calendar.HOUR_OF_DAY, baseDate.get(Calendar.HOUR_OF_DAY));
+		// Adjust hour to be the same (may differ by one due to daylight savings)
+		roundToSame(maturity, baseDate, Calendar.HOUR_OF_DAY);
 		return maturity;
+	}
+
+	private static void roundToSame(Calendar date, Calendar referenceDate, int field) {
+		int difference	= date.get(field) - referenceDate.get(field);
+		int half		= date.getActualMaximum(field) / 2;
+
+		if(difference > 0 && difference <= half || difference < 0 && difference >= half)	date.add(field, -Math.abs(difference));
+		else																				date.add(field, +Math.abs(difference));
 	}
 }
