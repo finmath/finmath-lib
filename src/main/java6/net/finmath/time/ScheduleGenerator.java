@@ -564,7 +564,7 @@ public class ScheduleGenerator {
 		// Days
 		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 30;
 		maturity.add(Calendar.DAY_OF_YEAR, (int)Math.round(offsetYearFrac));
-		
+
 		// Adjust hour to be the same (may differ by one due to daylight savings)
 		roundToSame(maturity, baseDate, Calendar.HOUR_OF_DAY);
 		return maturity;

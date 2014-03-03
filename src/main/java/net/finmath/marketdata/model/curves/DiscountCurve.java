@@ -177,7 +177,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		return values;
 	}
 
-	protected void addDiscountFactor(double maturity, double discountFactor) {
+	private void addDiscountFactor(double maturity, double discountFactor) {
 		boolean isParameter = (maturity > 0);
 
 		this.addPoint(maturity, discountFactor, isParameter);
@@ -187,7 +187,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		return super.toString();
 	}
 
-	public DiscountCurveInterface getCloneForModifiedData(double time, double newValue) {
+	public DiscountCurveInterface getCloneForModifiedData(double time, double newValue) throws CloneNotSupportedException {
 		int timeIndex = this.getTimeIndex(time);
 
 		double[] parameterOfCurve = getParameter();

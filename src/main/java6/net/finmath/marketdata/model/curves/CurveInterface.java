@@ -53,5 +53,10 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 */
     double getValue(AnalyticModelInterface model, double time);
 
+	/**
+	 * @return
+	 */
+	Object clone() throws CloneNotSupportedException;
+
 	CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
 }

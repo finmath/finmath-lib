@@ -111,9 +111,11 @@ public class AnalyticModel implements AnalyticModelInterface {
 		modelClone.curvesMap.putAll(this.curvesMap);
 
 		// Add modified clones of curves to model clone
-		for(Entry<CurveInterface,double[]> curveParameterPair : curveParameterPairs.entrySet()) {
-			CurveInterface newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
-			modelClone.setCurve(newCurve);
+		if(curveParameterPairs != null) {
+			for(Entry<CurveInterface,double[]> curveParameterPair : curveParameterPairs.entrySet()) {
+				CurveInterface newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
+				modelClone.setCurve(newCurve);
+			}
 		}
 		
 		return modelClone;

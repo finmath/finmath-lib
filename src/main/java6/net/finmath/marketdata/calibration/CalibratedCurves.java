@@ -208,8 +208,9 @@ public class CalibratedCurves {
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products and a given model.
 	 * 
-	 * WARNING: If the model already contains a curve referenced as calibration curve the
-	 * calibration will modify/alter this curve. The result is currently undefined.
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
 	 * 
 	 * If the model does not contain the curve referenced as calibration curve, the
 	 * curve will be added to the model. 
@@ -220,9 +221,10 @@ public class CalibratedCurves {
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws CloneNotSupportedException 
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException {
-		model	= calibrationModel;
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException, CloneNotSupportedException {
+		model	= calibrationModel.getCloneForParameter(null);
 
 		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
 			add(calibrationSpec);
@@ -324,7 +326,15 @@ public class CalibratedCurves {
 
 		// Create parameter to calibrate
 
-		Curve calibrationCurve = (Curve) model.getCurve(calibrationSpec.calibrationCurveName);
+		Curve calibrationCurve = null;
+		try {
+			Curve calibrationCurveOld = (Curve)model.getCurve(calibrationSpec.calibrationCurveName);
+			curvesToCalibrate.remove(calibrationCurveOld);
+			calibrationCurve = (Curve)(calibrationCurveOld.clone());
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if(false && DiscountCurveInterface.class.isInstance(calibrationCurve)) {
 			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
 			calibrationCurve.addPoint(paymentTime, 0.5, true);
@@ -343,6 +353,7 @@ public class CalibratedCurves {
 		}
 		else {
 			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.5, true);
+			model.setCurve(calibrationCurve);
 			curvesToCalibrate.add(calibrationCurve);
 		}
 	

@@ -74,7 +74,7 @@ public class Solver {
 		java.util.Arrays.fill(zeros, 0.0);
 
 		int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
-
+		
 		LevenbergMarquardt optimizer = new LevenbergMarquardt(
 				initialParameters,
 				zeros, /* targetValues */
