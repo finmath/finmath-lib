@@ -6,7 +6,7 @@
 package net.finmath.marketdata.calibration;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Vector;
 
@@ -182,26 +182,41 @@ public class CalibratedCurves {
       }
 
 	private AnalyticModelInterface				model				= new AnalyticModel();
-    private Set<CurveInterface>					curvesToCalibrate	= new HashSet<CurveInterface>();
+    private Set<CurveInterface>					curvesToCalibrate	= new LinkedHashSet<CurveInterface>();
 	private Vector<AnalyticProductInterface>	calibrationProducts	= new Vector<AnalyticProductInterface>();
 	
 	private int lastNumberOfInterations;
+	private double lastAccuracy;
+
 
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
-	 * from a vector of calibration products.
+	 * from a vector of calibration products and a given model.
+	 * 
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
+	 * 
+	 * If the model does not contain the curve referenced as calibration curve, the
+	 * curve will be added to the model. 
+	 * 
+	 * Use case: You already have a discount curve as part of the model and like
+	 * to calibrate an additional curve to an additional set of instruments.
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
+	 * @param calibrationModel A given model used to value the calibration products.
+	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs) throws SolverException {
-		model	= new AnalyticModel();
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+		if(calibrationModel != null)	model	= calibrationModel.getCloneForParameter(null);
 
 		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
 			add(calibrationSpec);
 		}
 
-		lastNumberOfInterations = calibrate();
+		lastNumberOfInterations = calibrate(calibrationAccuracy);
 	}
 
 	/**
@@ -221,16 +236,10 @@ public class CalibratedCurves {
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
-	 * @throws CloneNotSupportedException 
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException, CloneNotSupportedException {
-		model	= calibrationModel.getCloneForParameter(null);
-
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
-			add(calibrationSpec);
-		}
-
-		lastNumberOfInterations = calibrate();
+		this(calibrationSpecs, calibrationModel, 0.0);
 	}
 
 	/**
@@ -239,15 +248,22 @@ public class CalibratedCurves {
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(Collection<CalibrationSpec> calibrationSpecs) throws SolverException {
-		model	= new AnalyticModel();
+	public CalibratedCurves(Collection<CalibrationSpec> calibrationSpecs) throws SolverException, CloneNotSupportedException {
+		this(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), null);
+	}
 
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
-			add(calibrationSpec);
-		}
-
-		lastNumberOfInterations = calibrate();
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products.
+	 * 
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs) throws SolverException, CloneNotSupportedException {
+		this(calibrationSpecs, null, 0.0);
 	}
 	
 	public AnalyticProductInterface getCalibrationProductForSpec(CalibrationSpec calibrationSpec) {
@@ -295,17 +311,28 @@ public class CalibratedCurves {
 	}
 
 	/**
-	 * Return the number of calibrations needed to calibrate the model.
+	 * Return the number of iterations needed to calibrate the model.
 	 * 
-	 * @return The number of calibrations needed to calibrate the model.
+	 * @return The number of iterations needed to calibrate the model.
 	 */
 	public int getLastNumberOfInterations() {
 		return lastNumberOfInterations;
 	}
 
-	private int calibrate() throws SolverException {
-		Solver solver = new Solver(model, calibrationProducts);
+	/**
+	 * Return the accuracy achieved in the last calibration.
+	 * 
+	 * @return The accuracy achieved in the last calibration.
+	 */
+	public double getLastAccuracy() {
+		return lastAccuracy;
+	}
+	
+	private int calibrate(double accuracy) throws SolverException {
+		Solver solver = new Solver(model, calibrationProducts, accuracy);
 		model = solver.getCalibratedModel(curvesToCalibrate);
+
+		lastAccuracy = solver.getAccuracy();
 
 		return solver.getIterations();
 	}
@@ -371,7 +398,7 @@ public class CalibratedCurves {
 		if(discountCurve == null) {
 			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { }, new double[] { });
 			model.setCurve(discountCurve);
-	}
+		}
 
 		return discountCurve;
     }

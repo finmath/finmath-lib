@@ -33,6 +33,8 @@ import org.junit.Test;
  */
 public class CalibrationTest {
 
+	static final double errorTolerance = 1E-14;
+
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
 	 * 
@@ -81,7 +83,7 @@ public class CalibrationTest {
 
 		// Check if we have the right value
 		double forwardRateFromDiscountFactor = (discountCurve.getDiscountFactor(model1, fixingTime) / discountCurve.getDiscountFactor(model1, fixingTime + periodLength) - 1) / periodLength;
-		Assert.assertTrue(Math.abs(forwardRate - forwardRateFromDiscountFactor) < 1E-15);
+		Assert.assertTrue(Math.abs(forwardRate - forwardRateFromDiscountFactor) < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
 	}	
@@ -150,7 +152,7 @@ public class CalibrationTest {
 			error += calibrationProductValue*calibrationProductValue;
 		}
 		error = Math.sqrt(error);
-		Assert.assertTrue(error < 1E-14);
+		Assert.assertTrue(error < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
 
@@ -206,7 +208,7 @@ public class CalibrationTest {
 			error2 += calibrationProductValue*calibrationProductValue;
 		}
 		error2 = Math.sqrt(error2);
-		Assert.assertTrue(error2 < 1E-14);
+		Assert.assertTrue(error2 < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
 	}		
