@@ -31,14 +31,31 @@ import net.finmath.optimizer.SolverException;
  */
 public class Solver {
 
-	private final AnalyticModelInterface				model;
-	private final List<AnalyticProductInterface> calibrationProducts;
+	private final AnalyticModelInterface			model;
+	private final List<AnalyticProductInterface>	calibrationProducts;
+	private final double							calibrationAccuracy;
 
 	private	final	double	evaluationTime	= 0.0;
 	private final	int		maxIterations	= 1000;
 
 	private 		int		iterations		= 0;
+	private 		double	accuracy		= Double.POSITIVE_INFINITY;
 	
+	/**
+	 * Generate a solver for the given parameter objects (independents) and
+	 * objective functions (dependents).
+	 * 
+	 * @param model The model from which a calibrated clone should be created.
+	 * @param calibrationProducts The objective functions.
+	 * @param calibrationAccuracy The error tolerance of the solver.
+	 */
+    public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, double calibrationAccuracy) {
+	    super();
+	    this.model = model;
+	    this.calibrationProducts = calibrationProducts;
+	    this.calibrationAccuracy = calibrationAccuracy;
+    }
+
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
 	 * objective functions (dependents).
@@ -47,11 +64,9 @@ public class Solver {
 	 * @param calibrationProducts The objective functions.
 	 */
     public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts) {
-	    super();
-	    this.model = model;
-	    this.calibrationProducts = calibrationProducts;
+    	this(model, calibrationProducts, 0.0);
     }
-
+    
     /**
      * Find the model such that the equation
      * <center>
@@ -94,10 +109,11 @@ public class Solver {
 				}
 			}
 		};
+		optimizer.setErrorTolerance(calibrationAccuracy);
 		optimizer.run();
-		
+
 		iterations = optimizer.getIterations();
-	
+
 		AnalyticModelInterface calibratedModel = null;
 		try {
 			double[] bestParameters = optimizer.getBestFitParameters();
@@ -106,6 +122,14 @@ public class Solver {
 		} catch (CloneNotSupportedException e) {
 			throw new SolverException(e);
 		}
+
+		accuracy = 0.0;
+		for(int i=0; i<calibrationProducts.size(); i++) {
+			double error = calibrationProducts.get(i).getValue(evaluationTime, calibratedModel);
+			accuracy += error * error;
+		}
+		accuracy = Math.sqrt(accuracy);
+		
 		return calibratedModel;
     }
     	
@@ -116,5 +140,9 @@ public class Solver {
 	 */
     public int getIterations() {
     	return iterations;
+    }
+
+    public double getAccuracy() {
+    	return accuracy;
     }
 }
