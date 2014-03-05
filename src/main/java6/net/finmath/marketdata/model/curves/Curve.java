@@ -129,9 +129,6 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	}
 
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
-	 */
 	@Override
     public double getValue(double time)
 	{
@@ -139,9 +136,6 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	}
 
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
-	 */
 	@Override
     public double getValue(AnalyticModelInterface model, double time)
 	{
@@ -151,6 +145,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private double getInterpolationEntityValue(double time)
 	{
 		synchronized(this) {
+			// Lazy initialization of interpolation function
 			if(rationalFunctionInterpolation == null) {
 				double[] pointsArray = new double[points.size()];
 				double[] valuesArray = new double[points.size()];
@@ -176,7 +171,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * 
 	 * @param time The x<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
-	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(double[])} and {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
+	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
 	 */
 	public void addPoint(double time, double value, boolean isParameter) {
 		double interpolationEntityValue = interpolationEntityFromValue(value, time);
@@ -201,19 +196,16 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
     	this.rationalFunctionInterpolation = null;
 	}
 	
-	protected int getTimeIndex(double maturity) {
-		Point df = new Point(maturity, Double.NaN, false);
-		return java.util.Collections.binarySearch(points, df);
+	protected int getTimeIndex(double time) {
+		Point point = new Point(time, Double.NaN, false);
+		return java.util.Collections.binarySearch(points, point);
 	}
 
-	protected int getParameterIndex(double maturity) {
-		Point df = new Point(maturity, Double.NaN, false);
-		return java.util.Collections.binarySearch(pointsBeingParameters, df);
+	protected int getParameterIndex(double time) {
+		Point point = new Point(time, Double.NaN, false);
+		return java.util.Collections.binarySearch(pointsBeingParameters, point);
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.UnconstrainedParameterVectorInterface#getParameter()
-	 */
     @Override
     public double[] getParameter() {
     	double[] parameters = new double[pointsBeingParameters.size()];
@@ -223,11 +215,12 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
     	return parameters;
     }
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.UnconstrainedParameterVectorInterface#setParameter(double[])
-	 */
     @Override
     public void setParameter(double[] parameter) {
+    	throw new UnsupportedOperationException("This class is immutable. Use getCloneForParameter(double[]) instead.");
+    }
+    
+    private void setParameterPrivate(double[] parameter) {
     	for(int i=0; i<pointsBeingParameters.size(); i++) {
     		pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
     	}
@@ -273,6 +266,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 		newCurve.points					= new ArrayList<Point>();
 		newCurve.pointsBeingParameters	= new ArrayList<Point>();
+		newCurve.rationalFunctionInterpolation = null;
 		for(Point point : points) {
 			Point newPoint = (Point) point.clone();
 			newCurve.points.add(newPoint);
@@ -285,8 +279,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	@Override
 	public CurveInterface getCloneForParameter(double[] parameter) throws CloneNotSupportedException {
 		Curve newCurve = (Curve) this.clone();
-
-		newCurve.setParameter(parameter);
+		newCurve.setParameterPrivate(parameter);
 		
 		return newCurve;
 	}
