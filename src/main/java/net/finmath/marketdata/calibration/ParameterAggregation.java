@@ -73,9 +73,6 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 		parameters.remove(parameterObject);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.UnconstrainedParameterVectorInterface#getParameter()
-	 */
 	@Override
 	public double[] getParameter() {
 		// Calculate the size of the total parameter vector
@@ -101,19 +98,16 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 		return parameterArray;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.UnconstrainedParameterVectorInterface#setParamter(double[])
-	 */
 	@Override
 	public void setParameter(double[] parameter) {
 		int parameterIndex = 0;
-		for(ParameterObjectInterface parameterVector : parameters) {
-			double[] parameterVectorOfDouble = parameterVector.getParameter();
+		for(ParameterObjectInterface parametrizedObject : parameters) {
+			double[] parameterVectorOfDouble = parametrizedObject.getParameter();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble
 				System.arraycopy(parameter, parameterIndex, parameterVectorOfDouble, 0, parameterVectorOfDouble.length);
 				parameterIndex += parameterVectorOfDouble.length;
-				parameterVector.setParameter(parameterVectorOfDouble);
+				parametrizedObject.setParameter(parameterVectorOfDouble);
 			}
 		}
 	}
@@ -121,13 +115,13 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	public Map<E, double[]> getObjectsToModifyForParameter(double[] parameter) {
 		Map<E, double[]> result = new HashMap<E, double[]>();
 		int parameterIndex = 0;
-		for(ParameterObjectInterface parameterVector : parameters) {
-			double[] parameterVectorOfDouble = parameterVector.getParameter().clone();
+		for(ParameterObjectInterface parametrizedObject : parameters) {
+			double[] parameterVectorOfDouble = parametrizedObject.getParameter().clone();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble
 				System.arraycopy(parameter, parameterIndex, parameterVectorOfDouble, 0, parameterVectorOfDouble.length);
 				parameterIndex += parameterVectorOfDouble.length;
-				result.put((E)parameterVector, parameterVectorOfDouble);
+				result.put((E)parametrizedObject, parameterVectorOfDouble);
 			}
 		}
 		return result;
