@@ -57,7 +57,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * Create a deep copied clone.
 	 * 
 	 * @return A clone (deep copied).
-	 * @throws CloneNotSupportedException
+	 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 	 */
 	Object clone() throws CloneNotSupportedException;
 
@@ -66,7 +66,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * 
 	 * @param value The new parameter.
 	 * @return A clone with an otherwise modified parameter.
-	 * @throws CloneNotSupportedException
+	 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 	 */
 	CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
 }

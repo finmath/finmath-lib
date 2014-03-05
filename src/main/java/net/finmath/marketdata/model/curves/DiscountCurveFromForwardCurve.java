@@ -103,7 +103,6 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		return getDiscountFactor(model, time);
 	}
 
-
 	@Override
 	public double[] getParameter() {
 		return null;

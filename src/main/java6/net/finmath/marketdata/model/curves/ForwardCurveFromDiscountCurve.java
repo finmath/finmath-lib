@@ -86,10 +86,4 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public void setParameter(double[] parameter) {
-		// TODO Auto-generated method stub
-		
-	}
 }
