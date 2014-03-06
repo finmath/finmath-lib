@@ -19,7 +19,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 public class Portfolio extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
 	private ArrayList<AnalyticProductInterface>	products;
-	private double[]							weights;
+	private ArrayList<Double>					weights;
 
 	/**
 	 * Create a portfolio of products implementing
@@ -36,7 +36,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 * @param weights Array of weights used in the valuation as a multiplicator.
 	 */
-	public Portfolio(ArrayList<AnalyticProductInterface> products, double[] weights) {
+	public Portfolio(ArrayList<AnalyticProductInterface> products, ArrayList<Double> weights) {
 		super();
 		this.products = products;
 		this.weights = weights;
@@ -45,7 +45,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 		double value = 0.0;
-		for(int i=0; i<products.size(); i++) value += weights[i] * products.get(i).getValue(evaluationTime, model);
+		for(int i=0; i<products.size(); i++) value += weights.get(i) * products.get(i).getValue(evaluationTime, model);
 
 		return value;
 	}
