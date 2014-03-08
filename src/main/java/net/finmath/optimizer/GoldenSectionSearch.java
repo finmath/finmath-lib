@@ -26,8 +26,6 @@ package net.finmath.optimizer;
  * 
  * For an example on how to use this class see also its main method.
  * 
- * Copyright Christian Fries. All rights reserved.
- * 
  * @author Christian Fries - http://www.christian-fries.de
  * @version 1.1
  */
