@@ -45,6 +45,20 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
                 <configuration>
+			        <doctitle>${project.name} (${project.version}) documentation</doctitle>
+			 		<stylesheetfile>stylesheet.css</stylesheetfile>
+					<docfilessubdirs>true</docfilessubdirs>
+		    		<header>
+			   			<![CDATA[
+						<span class="logo-white">finMath</span><span class="logo-red"> lib</span>
+		    			documentation
+			   			]]>
+					</header>
+		    		<footer>
+			   			<![CDATA[
+						<i>Copyright &copy; 2014 Christian&nbsp;P.&nbsp;Fries.</i>
+			   			]]>
+					</footer>
 					<tags>
 						<tag>
 							<name>TODO</name>
