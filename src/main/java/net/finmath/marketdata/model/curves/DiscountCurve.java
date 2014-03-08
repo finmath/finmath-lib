@@ -14,10 +14,15 @@ import net.finmath.time.TimeDiscretizationInterface;
  * A container for discount factors. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
  * It thus features all interpolation and extrapolation methods and interpolation entities
  * as {@link net.finmath.marketdata.model.curves.Curve}.
- * In addition the discount curve has the property that getValue(0) = 1
- * and getValue(x) = 0 for all x &lt; 0.
+ * 
+ * Note that this version of the DiscountCurve will no longer make the
+ * assumption that at t=0 its value is 1.0. Such a norming is no longer
+ * necessary since valuation will always divide by the corresponding
+ * discount factor at evaluation time. See the implementation of SwapLeg
+ * for an example.
  * 
  * @author Christian Fries
+ * @see net.finmath.marketdata.products.SwapLeg
  */
 public class DiscountCurve extends Curve implements Serializable, DiscountCurveInterface {
 
@@ -47,6 +52,60 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	}
 
 	/**
+	 * Create a discount curve from given times and given discount factors using given interpolation and extrapolation methods.
+	 *
+	 * @param name The name of this discount curve.
+	 * @param times Array of times as doubles.
+	 * @param givenDiscountFactors Array of corresponding discount factors.
+	 * @param isParameter Array of booleans specifying whether this point is served "as as parameter", e.g., whether it is calibrates (e.g. using CalibratedCurves).
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @return A new discount factor object.
+	 */
+	public static DiscountCurve createDiscountCurveFromDiscountFactors(
+			String name,
+			double[] times,
+			double[] givenDiscountFactors,
+			boolean[] isParameter,
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+
+		DiscountCurve discountFactors = new DiscountCurve(name, interpolationMethod, extrapolationMethod, interpolationEntity);
+
+		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
+			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], isParameter[timeIndex]);
+		}
+
+		return discountFactors;
+	}
+
+	/**
+	 * Create a discount curve from given times and given discount factors using given interpolation and extrapolation methods.
+	 *
+	 * @param name The name of this discount curve.
+	 * @param times Array of times as doubles.
+	 * @param givenDiscountFactors Array of corresponding discount factors.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @return A new discount factor object.
+	 */
+	public static DiscountCurve createDiscountCurveFromDiscountFactors(
+			String name,
+			double[] times,
+			double[] givenDiscountFactors,
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+
+		DiscountCurve discountFactors = new DiscountCurve(name, interpolationMethod, extrapolationMethod, interpolationEntity);
+
+		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
+			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], times[timeIndex] > 0);
+		}
+
+		return discountFactors;
+	}
+
+	/**
 	 * Create a discount curve from given times and given discount factors using default interpolation and extrapolation methods.
 	 * 
 	 * @param name The name of this discount curve.
@@ -58,7 +117,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		DiscountCurve discountFactors = new DiscountCurve(name);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
-			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex]);
+			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], times[timeIndex] > 0);
 		}
 
 		return discountFactors;
@@ -97,30 +156,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		double df = 1.0;
 		for(int timeIndex=0; timeIndex<tenor.getNumberOfTimeSteps();timeIndex++) {
 			df /= 1.0 + forwardRates[timeIndex] * tenor.getTimeStep(timeIndex);
-			discountFactors.addDiscountFactor(tenor.getTime(timeIndex+1), df);
-		}
-
-		return discountFactors;
-	}
-
-	/**
-	 * Create a discount curve from given times and given discount factors using given interpolation and extrapolation methods.
-	 *
-	 * @param name The name of this discount curve.
-	 * @param times Array of times as doubles.
-	 * @param givenDiscountFactors Array of corresponding discount factors.
-	 * @param interpolationMethod The interpolation method used for the curve.
-	 * @param extrapolationMethod The extrapolation method used for the curve.
-	 * @param interpolationEntity The entity interpolated/extrapolated.
-	 * @return A new discount factor object.
-	 */
-	public static DiscountCurve createDiscountCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-
-		DiscountCurve discountFactors = new DiscountCurve(name, interpolationMethod, extrapolationMethod, interpolationEntity);
-
-		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
-			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex]);
+			discountFactors.addDiscountFactor(tenor.getTime(timeIndex+1), df, tenor.getTime(timeIndex+1) > 0);
 		}
 
 		return discountFactors;
@@ -141,9 +177,6 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	@Override
 	public double getDiscountFactor(AnalyticModelInterface model, double maturity)
 	{
-		// Check conventions
-		if(maturity == 0)	return 1.0;
-
 		return getValue(model, maturity);
 	}
 
@@ -177,9 +210,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		return values;
 	}
 
-	private void addDiscountFactor(double maturity, double discountFactor) {
-		boolean isParameter = (maturity > 0);
-
+	private void addDiscountFactor(double maturity, double discountFactor, boolean isParameter) {
 		this.addPoint(maturity, discountFactor, isParameter);
 	}
 
