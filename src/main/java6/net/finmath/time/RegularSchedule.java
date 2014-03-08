@@ -6,8 +6,11 @@
 
 package net.finmath.time;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+
+import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
@@ -27,11 +30,18 @@ public class RegularSchedule implements ScheduleInterface {
 		this.timeDiscretization = timeDiscretization;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getReferenceDate()
-	 */
 	@Override
 	public Calendar getReferenceDate() {
+		return null;
+	}
+
+	@Override
+	public ArrayList<Period> getPeriods() {
+		return null;
+	}
+
+	@Override
+	public DayCountConventionInterface getDaycountconvention() {
 		return null;
 	}
 

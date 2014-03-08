@@ -27,7 +27,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class Schedule implements ScheduleInterface {
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();//ACT_ISDA();
+	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 	private			Calendar					referenceDate;
 	
 	private ArrayList<Period>			periods;
@@ -61,6 +61,18 @@ public class Schedule implements ScheduleInterface {
 	@Override
 	public Calendar getReferenceDate() {
 		return referenceDate;
+	}
+
+
+	@Override
+	public ArrayList<Period> getPeriods() {
+		return periods;
+	}
+
+
+	@Override
+	public DayCountConventionInterface getDaycountconvention() {
+		return daycountconvention;
 	}
 
 

@@ -6,7 +6,10 @@
 
 package net.finmath.time;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+
+import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Interface of a schedule of interest rate periods with
@@ -22,8 +25,31 @@ import java.util.Calendar;
  */
 public interface ScheduleInterface extends Iterable<Period> {
 	
+	/**
+	 * Returns the reference data of this schedule.
+	 * The reference date is only used to convert dates to doubles using
+	 * and internal daycount conventions (ACT/365) which does not need to agree
+	 * with the daycount convention used to calculate period length.
+	 * 
+	 * @return The reference data of this schedule corresponding to t=0.
+	 */
 	Calendar getReferenceDate();
 	
+	/**
+	 * Returns the array of periods.
+	 * 
+	 * @return The array of periods.
+	 */
+	ArrayList<Period> getPeriods();
+
+	/**
+	 * Returns the daycount convention used to calculate period lengths.
+	 * 
+	 * @return The daycount convention used to calculate period lengths.
+	 */
+	DayCountConventionInterface getDaycountconvention();
+
+
 	int getNumberOfPeriods();
 	
 	Period getPeriod(int periodIndex);
