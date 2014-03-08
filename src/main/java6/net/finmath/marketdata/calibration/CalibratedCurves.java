@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve;
@@ -185,9 +186,41 @@ public class CalibratedCurves {
     private Set<CurveInterface>					curvesToCalibrate	= new LinkedHashSet<CurveInterface>();
 	private Vector<AnalyticProductInterface>	calibrationProducts	= new Vector<AnalyticProductInterface>();
 	
+	private double evaluationTime = 0.0;		// Default value. Should be changed if depending on the context.
 	private int lastNumberOfInterations;
 	private double lastAccuracy;
 
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products and a given model.
+	 * 
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
+	 * 
+	 * If the model does not contain the curve referenced as calibration curve, the
+	 * curve will be added to the model. 
+	 * 
+	 * Use case: You already have a discount curve as part of the model and like
+	 * to calibrate an additional curve to an additional set of instruments.
+	 * 
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @param calibrationModel A given model used to value the calibration products.
+     * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+		if(calibrationModel != null)	model	= calibrationModel.getCloneForParameter(null);
+		this.evaluationTime = evaluationTime;
+
+		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+			add(calibrationSpec);
+		}
+
+		lastNumberOfInterations = calibrate(calibrationAccuracy);
+	}
 
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
@@ -210,13 +243,7 @@ public class CalibratedCurves {
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
-		if(calibrationModel != null)	model	= calibrationModel.getCloneForParameter(null);
-
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
-			add(calibrationSpec);
-		}
-
-		lastNumberOfInterations = calibrate(calibrationAccuracy);
+		this(calibrationSpecs, calibrationModel, 0.0, calibrationAccuracy);
 	}
 
 	/**
@@ -329,7 +356,7 @@ public class CalibratedCurves {
 	}
 	
 	private int calibrate(double accuracy) throws SolverException {
-		Solver solver = new Solver(model, calibrationProducts, accuracy);
+		Solver solver = new Solver(model, calibrationProducts, evaluationTime, accuracy);
 		model = solver.getCalibratedModel(curvesToCalibrate);
 
 		lastAccuracy = solver.getAccuracy();
@@ -362,12 +389,13 @@ public class CalibratedCurves {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(false && DiscountCurveInterface.class.isInstance(calibrationCurve)) {
+		if(DiscountCurveInterface.class.isInstance(calibrationCurve)) {
 			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
-			calibrationCurve.addPoint(paymentTime, 0.5, true);
-			curvesToCalibrate.add(calibrationCurve);
+
+			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 1.0, true);
 		}
-		else if(false && ForwardCurveInterface.class.isInstance(calibrationCurve)) {
+		else if(ForwardCurveInterface.class.isInstance(calibrationCurve)) {
+/*
 			double fixingTime	= calibrationSpec.swapTenorDefinitionReceiver.getFixing(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
 			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
 			if(ForwardCurve.class.isInstance(calibrationCurve) && ((ForwardCurve)calibrationCurve).getInterpolationEntityForward() == InterpolationEntityForward.ZERO) {
@@ -376,13 +404,14 @@ public class CalibratedCurves {
 			else {
 				calibrationCurve.addPoint(fixingTime, 0.5, true);
 			}
-			curvesToCalibrate.add(calibrationCurve);
+*/
+			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.0, true);
 		}
 		else {
-			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.5, true);
-			model.setCurve(calibrationCurve);
-			curvesToCalibrate.add(calibrationCurve);
+			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 1.0, true);
 		}
+		model.setCurve(calibrationCurve);
+		curvesToCalibrate.add(calibrationCurve);
 	
 		return calibrationSpec.type;
 	}
@@ -390,13 +419,13 @@ public class CalibratedCurves {
 	/**
 	 * Get a discount curve from the model, if not existing create a discount curve.
 	 * 
-	 * @param discountCurveName The name of the disocunt curve to create.
+	 * @param discountCurveName The name of the discount curve to create.
 	 * @return The discount factor curve associated with the given name.
 	 */
     private DiscountCurveInterface createDiscountCurve(String discountCurveName) {
 		DiscountCurveInterface discountCurve	= model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
-			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { }, new double[] { });
+			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
 			model.setCurve(discountCurve);
 		}
 
@@ -435,7 +464,7 @@ public class CalibratedCurves {
 			}
 			else {
 				// Alternative: Model the forward curve through an underlying discount curve.
-				curve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { }, new double[] { });
+				curve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { 0.0 }, new double[] { 1.0 });
 				model.setCurve(curve);
 			}
 		}
