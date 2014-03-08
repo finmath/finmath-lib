@@ -25,7 +25,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
 	private final ScheduleInterface	schedule;
-	private final String discountCurveName;
+	private final String			discountCurveName;
 
 	/**
 	 * Creates a swap annuity for a given schedule and discount curve.
@@ -119,7 +119,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 			double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
 			value += periodLength * discountFactor;
 		}
-		return value;
+		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 	
 	@Override

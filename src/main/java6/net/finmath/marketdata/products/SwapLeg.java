@@ -110,7 +110,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 				value -= fixingDate > evaluationTime ? discountCurve.getDiscountFactor(model, fixingDate) : 0.0;
 			}
 		}
-		return value;
+		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 
 	
