@@ -284,7 +284,7 @@ public class ScheduleGenerator {
 				periodEndDateUnadjusted	= (Calendar)periodStartDateUnadjusted.clone();
 			}
 		}
-		
+
 		return new Schedule(referenceDate, periods, daycountConventionObject);
 	}
 
