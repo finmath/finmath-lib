@@ -174,6 +174,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
 	 */
 	public void addPoint(double time, double value, boolean isParameter) {
+		if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
+			if(value == 1.0 && isParameter == false) return;
+			else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
+		}
+
 		double interpolationEntityValue = interpolationEntityFromValue(value, time);
 
 		int index = getTimeIndex(time);
@@ -243,7 +248,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		case LOG_OF_VALUE:
 			return Math.log(value);
 		case LOG_OF_VALUE_PER_TIME:
-			if(time == 0)	return 1;
+			if(time == 0)	throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
 			else			return Math.log(value) / time;
 		}
 	}
