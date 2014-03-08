@@ -35,7 +35,7 @@ public class Solver {
 	private final List<AnalyticProductInterface>	calibrationProducts;
 	private final double							calibrationAccuracy;
 
-	private	final	double	evaluationTime	= 0.0;
+	private	final	double	evaluationTime;
 	private final	int		maxIterations	= 1000;
 
 	private 		int		iterations		= 0;
@@ -47,12 +47,14 @@ public class Solver {
 	 * 
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
+     * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy The error tolerance of the solver.
 	 */
-    public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, double calibrationAccuracy) {
+    public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, double evaluationTime, double calibrationAccuracy) {
 	    super();
 	    this.model = model;
 	    this.calibrationProducts = calibrationProducts;
+	    this.evaluationTime = evaluationTime;
 	    this.calibrationAccuracy = calibrationAccuracy;
     }
 
@@ -64,7 +66,7 @@ public class Solver {
 	 * @param calibrationProducts The objective functions.
 	 */
     public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts) {
-    	this(model, calibrationProducts, 0.0);
+    	this(model, calibrationProducts, 0.0, 0.0);
     }
     
     /**
