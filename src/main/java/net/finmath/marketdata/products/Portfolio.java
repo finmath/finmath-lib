@@ -38,8 +38,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(ArrayList<AnalyticProductInterface> products, ArrayList<Double> weights) {
 		super();
-		this.products = products;
-		this.weights = weights;
+		this.products = (ArrayList<AnalyticProductInterface>)products.clone();
+		this.weights = (ArrayList<Double>)weights.clone();
 	}
 
 	@Override
