@@ -12,6 +12,9 @@ import java.util.Vector;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
+import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -103,7 +106,10 @@ public class CalibrationTest {
 		DiscountCurve			discountCurve					= DiscountCurve.createDiscountCurveFromDiscountFactors(
 				"discountCurve"								/* name */,
 				new double[] {0.0,  1.0,  2.0,  4.0,  5.0}	/* maturities */,
-				new double[] {1.0, 0.95, 0.90, 0.85, 0.80}	/* discount factors */
+				new double[] {1.0, 0.95, 0.90, 0.85, 0.80}	/* discount factors */,
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT,
+				InterpolationEntity.LOG_OF_VALUE
 				);
 
 		// Create a forward curve from that discount curve for forward rates
