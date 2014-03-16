@@ -11,18 +11,20 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * A container for discount factors. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
+ * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.Curve}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
+ * 
  * It thus features all interpolation and extrapolation methods and interpolation entities
- * as {@link net.finmath.marketdata.model.curves.Curve}.
+ * as {@link net.finmath.marketdata.model.curves.Curve} and implements the {@link net.finmath.marketdata.model.curves.DiscountCurveInterface}.
  * 
  * Note that this version of the DiscountCurve will no longer make the
- * assumption that at t=0 its value is 1.0. Such a norming is no longer
+ * assumption that at t=0 its value is 1.0. Such a norming is not
  * necessary since valuation will always divide by the corresponding
- * discount factor at evaluation time. See the implementation of SwapLeg
+ * discount factor at evaluation time. See the implementation of {@link net.finmath.marketdata.products.SwapLeg}
  * for an example.
  * 
  * @author Christian Fries
  * @see net.finmath.marketdata.products.SwapLeg
+ * @see net.finmath.marketdata.model.curves.Curve
  */
 public class DiscountCurve extends Curve implements Serializable, DiscountCurveInterface {
 
@@ -214,19 +216,8 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		this.addPoint(maturity, discountFactor, isParameter);
 	}
 
+	@Override
 	public String toString() {
 		return super.toString();
-	}
-
-	public DiscountCurveInterface getCloneForModifiedData(double time, double newValue) throws CloneNotSupportedException {
-		int timeIndex = this.getTimeIndex(time);
-
-		double[] parameterOfCurve = getParameter();
-		parameterOfCurve[timeIndex] = newValue;
-
-		DiscountCurve newDiscountCurve = (DiscountCurve)getCloneForParameter(parameterOfCurve);
-
-		return newDiscountCurve;
-
 	}
 }
