@@ -5,6 +5,8 @@
  */
 package net.finmath.interpolation;
 
+import java.util.Arrays;
+
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix1D;
@@ -33,12 +35,22 @@ import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 public class RationalFunctionInterpolation {
 
 	public enum InterpolationMethod {
+		/** Constant interpolation. **/
+		PIECEWISE_CONSTANT,
+		/** Linear interpolation. **/
 		LINEAR,
-		CUBIC_SPLINE
+		/** Cubic spline interpolation. **/
+		CUBIC_SPLINE,
+		/** Akima interpolation (C1 sub-spline interpolation). **/
+		AKIMA,
+		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/		
+		HARMONIC_SPLINE
 	}
 
     public enum ExtrapolationMethod {
+		/** Constant extrapolation. **/
 		CONSTANT,
+		/** Linear extrapolation. **/
 		LINEAR
 	}
 
@@ -168,6 +180,9 @@ public class RationalFunctionInterpolation {
 	{
 		switch(interpolationMethod)
 		{
+			case PIECEWISE_CONSTANT:
+				doCreateRationalFunctionsForPiecewiseConstantInterpolation();
+				break;
 			case LINEAR:
 			default:
 				doCreateRationalFunctionsForLinearInterpolation();
@@ -175,9 +190,32 @@ public class RationalFunctionInterpolation {
 			case CUBIC_SPLINE:
 				doCreateRationalFunctionsForCubicSplineInterpolation();
 				break;
+			case AKIMA:
+				doCreateRationalFunctionsForAkimaInterpolation();
+				break;
+			case HARMONIC_SPLINE:
+				doCreateRationalFunctionsForHarmonicSplineInterpolation();
+				break;
 		}
 	}
 
+	private synchronized void doCreateRationalFunctionsForPiecewiseConstantInterpolation()
+	{
+		/*
+		 * Generate a rational function for each given interval
+		 */
+		interpolatingRationalFunctions = new RationalFunction[points.length-1];
+		
+		// denominator is always 1.0
+		double[] denominatorPolynomCoeff	= { 1.0 };
+	
+		// create numerator polynomials (constant)
+		for(int pointIndex = 0; pointIndex < points.length-1; pointIndex++ ) {
+			double[] numeratorPolynomCoeff		= {values[pointIndex]};			
+			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff, denominatorPolynomCoeff);			
+		}
+	}
+	
 	private synchronized void doCreateRationalFunctionsForLinearInterpolation()
 	{
 		/*
@@ -185,9 +223,12 @@ public class RationalFunctionInterpolation {
 		 */
 		interpolatingRationalFunctions = new RationalFunction[points.length-1];
 		
+		// denominator is always 1.0
+		double[] denominatorPolynomCoeff	= { 1.0 };
+	
+		// create numerator polynomials (linear)
 		for(int pointIndex = 0; pointIndex < points.length-1; pointIndex++ ) {
-			double[] nominatorPolynomCoeff		= new double[2];
-			double[] denominatorPolynomCoeff	= new double[1];
+			double[] numeratorPolynomCoeff		= new double[2];
 			
 			double xl = points[pointIndex];
 			double xr = points[pointIndex+1];
@@ -195,11 +236,10 @@ public class RationalFunctionInterpolation {
 			double fl = values[pointIndex];
 			double fr = values[pointIndex+1];
 			
-			nominatorPolynomCoeff[1] = (fr-fl) / (xr-xl);
-			nominatorPolynomCoeff[0] = fl;
-			denominatorPolynomCoeff[0] = 1;
+			numeratorPolynomCoeff[1] = (fr-fl) / (xr-xl);
+			numeratorPolynomCoeff[0] = fl;
 			
-			interpolatingRationalFunctions[pointIndex] = new RationalFunction(nominatorPolynomCoeff, denominatorPolynomCoeff);			
+			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff, denominatorPolynomCoeff);			
 		}
 	}
 		
@@ -241,18 +281,177 @@ public class RationalFunctionInterpolation {
 		 */
 		interpolatingRationalFunctions = new RationalFunction[numberOfPoints-1];
 
+		// denominator is always 1.0
+		double[] denominatorPolynomCoeff	= { 1.0 };
+
+		// create numerator polynomials (third order polynomial)
 		for(int i = 0; i < numberOfPoints-1; i++ ) {
-			double[] nominatorPolynomCoeff		= new double[4];
-			double[] denominatorPolynomCoeff	= new double[1];
-						
-			nominatorPolynomCoeff[0] = values[i];
-			nominatorPolynomCoeff[1] = (values[i+1] - values[i])/step[i] - (secondDerivativeVector[i+1] + 2*secondDerivativeVector[i])*step[i]/6;
-			nominatorPolynomCoeff[2] = secondDerivativeVector[i] / 2;
-			nominatorPolynomCoeff[3] = (secondDerivativeVector[i+1] - secondDerivativeVector[i]) / (6*step[i]);
-			denominatorPolynomCoeff[0] = 1;
+			double[] numeratortorPolynomCoeff		= new double[4];
+
+			numeratortorPolynomCoeff[0] = values[i];
+			numeratortorPolynomCoeff[1] = (values[i+1] - values[i])/step[i] - (secondDerivativeVector[i+1] + 2*secondDerivativeVector[i])*step[i]/6;
+			numeratortorPolynomCoeff[2] = secondDerivativeVector[i] / 2;
+			numeratortorPolynomCoeff[3] = (secondDerivativeVector[i+1] - secondDerivativeVector[i]) / (6*step[i]);
 			
-			interpolatingRationalFunctions[i] = new RationalFunction(nominatorPolynomCoeff, denominatorPolynomCoeff);			
+			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff, denominatorPolynomCoeff);			
 		}
+	}
+
+	private void doCreateRationalFunctionsForAkimaInterpolation()
+	{
+		if(points.length < 4) // Akima Interpolation not possible
+			doCreateRationalFunctionsForCubicSplineInterpolation();
+		
+		else{
+			int numberOfPoints = points.length;
+			
+			// Calculate slopes
+			double[] step = new double[numberOfPoints-1];
+			double[] slope = new double[numberOfPoints-1];
+			double[] absSlopeDifference	= new double[numberOfPoints-2];
+			for(int i = 0; i < numberOfPoints-1; i++){
+				step[i] = (points[i+1] - points[i]);
+				slope[i] = (values[i+1] - values[i]) / step[i];
+				if(i > 0){
+					absSlopeDifference[i-1] = Math.abs(slope[i] - slope[i-1]);
+				}
+			}
+			
+			// Calculate first derivatives ...
+			double[] derivative = new double[numberOfPoints];
+			
+			// ... for the 2 left and 2 right outer boundary points:
+			// in t_0
+			derivative[0] = 0.5 * (3 * slope[0] - slope[1]);
+			
+			// in t_1
+			if((absSlopeDifference[1] == 0) && (absSlopeDifference[0] == 0)){
+				derivative[1] = 0.5 * (slope[0] + slope[1]);
+			}
+			else{
+				derivative[1] = (absSlopeDifference[1] * slope[0] + absSlopeDifference[0] * slope[1]) 
+						/ (absSlopeDifference[1] + absSlopeDifference[0]);
+			}
+
+			// in t_{n-1}
+			if((absSlopeDifference[numberOfPoints-3] == 0) && (absSlopeDifference[numberOfPoints-4] == 0)){
+				derivative[numberOfPoints-2] = 0.5 * (slope[numberOfPoints-3] + slope[numberOfPoints-2]);
+			}
+			else{
+				derivative[numberOfPoints-2] = 
+						(absSlopeDifference[numberOfPoints-3] * slope[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4] * slope[numberOfPoints-2])
+							/ (absSlopeDifference[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4]);
+			}
+
+			// in t_n
+			derivative[numberOfPoints-1] = 0.5 * (3 * slope[numberOfPoints-2] - slope[numberOfPoints-3]);
+			
+			// ... for inner points:
+			for(int i = 2; i < numberOfPoints-2; i++){
+				// Check if denominator would be zero
+				if( (absSlopeDifference[i] == 0) && (absSlopeDifference[i-2] == 0) ){
+					// Take Convention
+					derivative[i] = 0.5 * (slope[i-1] + slope[i]);
+				}
+				else{
+					derivative[i] = 
+							(absSlopeDifference[i] * slope[i-1] + absSlopeDifference[i-2] * slope[i])
+								/ (absSlopeDifference[i] + absSlopeDifference[i-2]);
+				}
+			}
+			
+			/*
+			 * Generate a rational function for each given interval
+			 */
+			interpolatingRationalFunctions = new RationalFunction[numberOfPoints-1];
+			
+			// denominator is always 1.0
+			double[] denominatorPolynomCoeff	= { 1.0 };
+
+			// create numerator polynomials (third order polynomial)
+			for(int i = 0; i < numberOfPoints-1; i++ ) {
+				double[] numeratortorPolynomCoeff		= new double[4];
+
+				numeratortorPolynomCoeff[0] = values[i];
+				numeratortorPolynomCoeff[1] = derivative[i];
+				numeratortorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];
+				numeratortorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);
+
+				interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff, denominatorPolynomCoeff);			
+			}
+		}
+
+	}
+	
+	private void doCreateRationalFunctionsForHarmonicSplineInterpolation(){
+		int numberOfPoints = points.length;
+		
+		// Calculate parameters
+		double[] step = new double[numberOfPoints-1];
+		double[] slope = new double[numberOfPoints-1];
+		double[] doubleStep	= new double[numberOfPoints-2];
+		for(int i = 0; i < numberOfPoints-1; i++){
+			step[i] = (points[i+1] - points[i]);
+			slope[i] = (values[i+1] - values[i]) / step[i];
+			if(i > 0){
+				doubleStep[i-1] = points[i+1] - points[i-1];
+			}
+		}
+		
+		// Calculate first derivatives ...
+		double[] derivative = new double[numberOfPoints];
+		
+		// ... for boundary points:
+		// in t_0
+		derivative[0] =(2*step[0] + step[1])/doubleStep[0] * slope[0] - step[0]/doubleStep[0] * slope[1];
+		// monotonicity filtering
+		if( (derivative[0]*slope[0] > 0) && (slope[0]*slope[1] <= 0) && (Math.abs(derivative[0]) < 3*Math.abs(slope[0])))
+			derivative[0] = 3 * slope[0];
+		if( derivative[0]*slope[0] <= 0 )
+			derivative[0] = 0;
+		
+		// in t_n
+		derivative[numberOfPoints-1] =(2*step[numberOfPoints-2] + step[numberOfPoints-3])/doubleStep[numberOfPoints-3] * slope[numberOfPoints-2] 
+										- step[numberOfPoints-2]/doubleStep[numberOfPoints-3] * slope[numberOfPoints-3];
+		// monotonicity filtering
+		if( (derivative[numberOfPoints-1]*slope[numberOfPoints-2] > 0) && (slope[numberOfPoints-2]*slope[numberOfPoints-3] <= 0) 
+				&& (Math.abs(derivative[numberOfPoints-1]) < 3*Math.abs(slope[numberOfPoints-2])))
+			derivative[numberOfPoints-1] = 3 * slope[numberOfPoints-2];
+		if( derivative[numberOfPoints-1]*slope[numberOfPoints-2] <= 0 )
+			derivative[numberOfPoints-1] = 0;
+		
+		// ... for inner points:
+		for(int i = 1; i < numberOfPoints-1; i++){
+			if( slope[i-1] * slope[i] <= 0 ){
+				derivative[i] = 0;
+			}
+			else{
+				double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1]) 
+												+ (2*step[i-1] + step[i]) / (3*doubleStep[i-1]*slope[i]);
+				derivative[i] = 1.0 / weightedHarmonicMean;
+			}
+		}
+		
+		/*
+		 * Generate a rational function for each given interval
+		 */
+		interpolatingRationalFunctions = new RationalFunction[numberOfPoints-1];
+		
+		// denominator is always 1.0
+		double[] denominatorPolynomCoeff	= { 1.0 };
+
+		// create numerator polynomials (third order polynomial)
+		for(int i = 0; i < numberOfPoints-1; i++ ) {
+			double[] numeratortorPolynomCoeff		= new double[4];
+
+			numeratortorPolynomCoeff[0] = values[i];
+			numeratortorPolynomCoeff[1] = derivative[i];
+			numeratortorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];
+			numeratortorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);
+
+			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff, denominatorPolynomCoeff);			
+		}
+			
 	}
 
 	public static void main(String[] args) {
@@ -260,19 +459,69 @@ public class RationalFunctionInterpolation {
 		/**
 		 * Example. Shows how to use this class.
 		 */
-		int samplePoints = 200;
-		
+		final int samplePoints = 200;
+
+		/*
+		 * Given input points
+		 */
 		double[] givenPoints		= { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
 		double[] givenValues		= { 5.0, 6.0, 4.0, 7.0, 5.0, 6.0 };
 		
-		RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(givenPoints,
-				givenValues);
+		System.out.println("Interplation of given input points (x,y):");
+		System.out.println("  x: " + Arrays.toString(givenPoints));
+		System.out.println("  y: " + Arrays.toString(givenValues));
+		System.out.println("");
+
 
 		// Create interpolated curve
+		System.out.println("Default:");
+		RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(givenPoints, givenValues);
+
 		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
 			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
+		System.out.println("");
+
+		// Create interpolated curve
+		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.AKIMA, ExtrapolationMethod.CONSTANT);
+		System.out.println("AKIMA:");
+		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
+			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			double value = interpolation.getValue(point);
+			System.out.println("" + point + "\t" + value);
+		}
+		System.out.println("");
+
+		// Create interpolated curve
+		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.CUBIC_SPLINE, ExtrapolationMethod.CONSTANT);
+		System.out.println("CUBIC_SPLINE:");
+		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
+			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			double value = interpolation.getValue(point);
+			System.out.println("" + point + "\t" + value);
+		}
+		System.out.println("");
+		
+		// Create interpolated curve
+		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.PIECEWISE_CONSTANT, ExtrapolationMethod.CONSTANT);
+		System.out.println("PIECEWISE_CONSTANT:");
+		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
+			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			double value = interpolation.getValue(point);
+			System.out.println("" + point + "\t" + value);
+		}
+		System.out.println("");
+		
+		// Create interpolated curve
+		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.HARMONIC_SPLINE, ExtrapolationMethod.CONSTANT);
+		System.out.println("HARMONIC_SPLINE:");
+		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
+			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			double value = interpolation.getValue(point);
+			System.out.println("" + point + "\t" + value);
+		}
+		System.out.println("");
 	}
 }
