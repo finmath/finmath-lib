@@ -22,9 +22,13 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * 	<li>linear interpolation of the input points</li>
  *  <li>linear interpolation of the log of the input points</li>
  *  <li>linear interpolation of the log of the input points divided by their respective time</li>
- * 	<li>cubic spline of the input points</li>
+ * 	<li>cubic spline interpolation of the input points (or a function of the input points) (the curve will be C<sup>1</sup>).</li>
+ * 	<li>Akima interpolation of the input points (or a function of the input points).</li>
  *  <li>etc.</li>
  * </ul>
+ * 
+ * <br>
+ * 
  * For the interpolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.InterpolationMethod}.
  * For the extrapolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod}.
  * For the possible interpolation entities see {@link net.finmath.marketdata.model.curves.Curve.InterpolationEntity}.
@@ -38,10 +42,16 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @author Christian Fries
 	 */
 	public enum InterpolationMethod {
+		/** Constant interpolation. **/
+		PIECEWISE_CONSTANT,
 		/** Linear interpolation. **/
 		LINEAR,
 		/** Cubic spline interpolation. **/
-		CUBIC_SPLINE
+		CUBIC_SPLINE,
+		/** Akima interpolation (C1 sub-spline interpolation). **/
+		AKIMA,
+		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
+		HARMONIC_SPLINE
 	}
 
 	/**
