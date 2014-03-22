@@ -148,11 +148,11 @@
 	<distributionManagement>
 		<repository>
 			<id>finmath</id>
-			<url>http://www.finmath.net:8080/nexus/content/repositories/finmath-releases/</url>
+			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>finmath</id>
-			<url>http://www.finmath.net:8080/nexus/content/repositories/finmath-snapshots/</url>
+			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
