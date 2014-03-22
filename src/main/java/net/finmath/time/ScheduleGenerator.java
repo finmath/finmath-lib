@@ -52,7 +52,7 @@ public class ScheduleGenerator {
 		/** One months periods. **/
 		MONTHLY,
 		/** Three months periods. **/
-		QUATERLY,
+		QUARTERLY,
 		/** Six months periods. **/
 		SEMIANNUAL,
 		/** Twelve months periods. **/
@@ -192,7 +192,7 @@ public class ScheduleGenerator {
 		case MONTHLY:
 			periodLengthMonth	= 1;
 			break;
-		case QUATERLY:
+		case QUARTERLY:
 			periodLengthMonth	= 3;
 			break;
 		case SEMIANNUAL:
