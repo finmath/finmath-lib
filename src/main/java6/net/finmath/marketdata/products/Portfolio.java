@@ -75,7 +75,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	/**
 	 * Create a portfolio consisting of a single product with a given weight.
 	 * @param product A product, implementing  implementing <code>AnalyticProductInterface</code>.
-	 * @param weights A weight used in the valuation as a multiplicator.
+	 * @param weight A weight used in the valuation as a multiplicator.
 	 */
 	public Portfolio(AnalyticProductInterface product, double weight) {
 		super();
