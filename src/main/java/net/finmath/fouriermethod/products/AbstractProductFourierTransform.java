@@ -14,7 +14,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.integration.RealIntegralInterface;
-import net.finmath.integration.RombergRealIntegration;
 import net.finmath.integration.SimpsonRealIntegrator;
 
 /**
