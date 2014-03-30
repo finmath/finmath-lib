@@ -21,7 +21,7 @@ import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.montecarlo.interestrate.products.SwaptionSingleCurveAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -717,6 +717,14 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		} catch (CalculationException e) {
 			return null;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getDiscountCurve()
+	 */
+	@Override
+	public DiscountCurveInterface getDiscountCurve() {
+		return discountCurve;
 	}
 
 	/* (non-Javadoc)
