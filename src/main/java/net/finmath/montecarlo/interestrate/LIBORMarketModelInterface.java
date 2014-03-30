@@ -3,6 +3,7 @@ package net.finmath.montecarlo.interestrate;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
@@ -42,6 +43,13 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
 	 * @return The index corresponding to a given time (interpretation is start of period)
 	 */
     int getLiborPeriodIndex(double time);
+
+	/**
+	 * Return the discount curve associated the forwards.
+	 * 
+	 * @return the discount curve associated the forwards.
+	 */
+	DiscountCurveInterface getDiscountCurve();
 
 	/**
 	 * Return the initial forward rate curve.

@@ -686,6 +686,14 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getDiscountCurve()
+	 */
+	@Override
+	public DiscountCurveInterface getDiscountCurve() {
+		return discountCurve;
+	}
+
+	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getForwardRateCurve()
 	 */
 	@Override
