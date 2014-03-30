@@ -8,6 +8,7 @@
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
+	<description>Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.</description>
 	<url>http://www.finmath.net</url>
 
 	<properties>
@@ -15,6 +16,14 @@
 		<src.main.dir>src/main/java6</src.main.dir>
 		<src.test.dir>src/test/java6</src.test.dir>
 	</properties>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<dependencies>
 		<dependency>
