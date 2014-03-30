@@ -22,7 +22,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelTwoP
 import net.finmath.montecarlo.interestrate.products.CMSOption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
-import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.SwaptionSingleCurveAnalyticApproximation;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -129,7 +129,7 @@ public class CMSOptionTest {
 		 */
 		
 		// Calculate approximate swaprate volatility from LIBOR market model (analytic).
-		SwaptionAnalyticApproximation swaptionAnalytic	= new SwaptionAnalyticApproximation(strike, swapTenor, SwaptionAnalyticApproximation.ValueUnit.INTEGRATEDVARIANCE);
+		SwaptionSingleCurveAnalyticApproximation swaptionAnalytic	= new SwaptionSingleCurveAnalyticApproximation(strike, swapTenor, SwaptionSingleCurveAnalyticApproximation.ValueUnit.INTEGRATEDVARIANCE);
         double swaprateIntegratedVariance				= swaptionAnalytic.getValue(liborMarketModelMonteCarloSimulation);
         double swaprateVolatility						= Math.sqrt(swaprateIntegratedVariance/exerciseDate);
 		
