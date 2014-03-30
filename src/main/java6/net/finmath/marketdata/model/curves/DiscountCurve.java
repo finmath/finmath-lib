@@ -137,7 +137,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		double[] givenDiscountFactors = new double[givenZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
-			givenDiscountFactors[timeIndex] = Math.exp(givenZeroRates[timeIndex] * times[timeIndex]);
+			givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
 		}
 
 		return createDiscountCurveFromDiscountFactors(name, times, givenDiscountFactors);
