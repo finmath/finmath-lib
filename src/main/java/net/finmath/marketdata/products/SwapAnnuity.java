@@ -81,7 +81,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @return The swap annuity.
 	 */
 	static public double getSwapAnnuity(ScheduleInterface schedule, DiscountCurveInterface discountCurve) {
-		double evaluationTime = Double.NEGATIVE_INFINITY;	// Consider all values
+		double evaluationTime = 0.0;	// Consider only payment time > 0
     	return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);
 	}
 
