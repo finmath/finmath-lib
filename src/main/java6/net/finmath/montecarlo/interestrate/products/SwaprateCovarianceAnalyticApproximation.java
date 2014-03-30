@@ -63,8 +63,8 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 
         int optionMaturityIndex = model.getTimeIndex(Math.min(swapTenor1[0], swapTenor2[0]));
         
-        double[]  swapCovarianceWeights1  = SwaptionAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor1).get("values");
-        double[]  swapCovarianceWeights2  = SwaptionAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor2).get("values");
+        double[]  swapCovarianceWeights1  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor1).get("values");
+        double[]  swapCovarianceWeights2  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor2).get("values");
 
         // Get the integrated libor covariance from the model
         double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
