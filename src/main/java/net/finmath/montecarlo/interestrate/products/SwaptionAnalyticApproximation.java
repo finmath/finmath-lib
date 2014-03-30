@@ -11,7 +11,6 @@ import java.util.Map;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;

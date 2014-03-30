@@ -5,8 +5,6 @@
  */
 package net.finmath.functions;
 
-import static net.finmath.functions.NormalDistribution.cumulativeDistribution;
-
 import java.util.Calendar;
 
 import net.finmath.rootfinder.NewtonsMethod;
