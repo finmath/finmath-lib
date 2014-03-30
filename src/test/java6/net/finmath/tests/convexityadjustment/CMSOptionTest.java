@@ -22,7 +22,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelTwoP
 import net.finmath.montecarlo.interestrate.products.CMSOption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
-import net.finmath.montecarlo.interestrate.products.SwaptionSingleCurveAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
