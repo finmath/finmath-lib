@@ -32,7 +32,7 @@ import net.finmath.montecarlo.interestrate.products.Bond;
 import net.finmath.montecarlo.interestrate.products.DigitalCaplet;
 import net.finmath.montecarlo.interestrate.products.Swap;
 import net.finmath.montecarlo.interestrate.products.Swaption;
-import net.finmath.montecarlo.interestrate.products.SwaptionSingleCurveAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -357,7 +357,7 @@ public class LIBORMarketModelValuationTest {
 			System.out.print(formatterValue.format(valueSimulation) + "          ");
 
 			// Value analytic
-			SwaptionSingleCurveAnalyticApproximation swaptionAnalyitc = new SwaptionSingleCurveAnalyticApproximation(swaprate, swapTenor, SwaptionSingleCurveAnalyticApproximation.ValueUnit.VALUE);
+			SwaptionAnalyticApproximation swaptionAnalyitc = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VALUE);
 			double valueAnalytic = swaptionAnalyitc.getValue(liborMarketModel);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
@@ -417,9 +417,9 @@ public class LIBORMarketModelValuationTest {
 			}
 
 			Swaption						swaptionMonteCarlo = new Swaption(exerciseDate, fixingDates, paymentDates, swaprates);
-			SwaptionSingleCurveAnalyticApproximation	swaptionAnalyitc = new SwaptionSingleCurveAnalyticApproximation(
+			SwaptionAnalyticApproximation	swaptionAnalyitc = new SwaptionAnalyticApproximation(
 					swaprate, swapTenor,
-					SwaptionSingleCurveAnalyticApproximation.ValueUnit.VALUE);
+					SwaptionAnalyticApproximation.ValueUnit.VALUE);
 
 			System.out.print(formatterValue.format(moneyness) + "          ");
 
@@ -496,7 +496,7 @@ public class LIBORMarketModelValuationTest {
 				boolean isUseAnalyticCalibration = true;
 				if(isUseAnalyticCalibration) {
 					// Use an anylitc approximation to the swaption - much faster
-					SwaptionSingleCurveAnalyticApproximation swaptionAnalytic = new SwaptionSingleCurveAnalyticApproximation(swaprate, swapTenor, SwaptionSingleCurveAnalyticApproximation.ValueUnit.VOLATILITY);
+					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 
 					calibrationItems.add(new CalibrationItem(swaptionAnalytic, targetValueVolatilty, 1.0));
 				}
