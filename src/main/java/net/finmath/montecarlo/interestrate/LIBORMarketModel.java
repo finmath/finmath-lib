@@ -724,6 +724,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 */
 	@Override
 	public DiscountCurveInterface getDiscountCurve() {
+		if(discountCurve == null) {
+			DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(getForwardRateCurve());
+			return discountCurveFromForwardCurve;
+		}
+
 		return discountCurve;
 	}
 
