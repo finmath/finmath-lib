@@ -1,6 +1,7 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
+ * Created on 17.05.2007
  * Created on 30.03.2014
  */
 package net.finmath.montecarlo.interestrate.products;
@@ -40,12 +41,16 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  *
  * @author Christian Fries
+ * @date 17.05.2007.
  */
 public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduct {
 
     public enum ValueUnit {
+    	/** Returns the value of the swaption **/
         VALUE,
+    	/** Returns the Black-Scholes implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i> **/
         INTEGRATEDVARIANCE,
+    	/** Returns the Black-Scholes implied volatility, i.e., <i>&sigma;<sup></i> **/
         VOLATILITY
     }
 
