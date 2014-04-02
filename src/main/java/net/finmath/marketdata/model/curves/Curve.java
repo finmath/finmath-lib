@@ -16,6 +16,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * This class represents a curve build from a set of points in 2D.
+ * 
  * It provides different interpolation and extrapolation methods applied to a transformation of the input point,
  * examples are
  * <ul>
@@ -32,6 +33,11 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * For the interpolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.InterpolationMethod}.
  * For the extrapolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod}.
  * For the possible interpolation entities see {@link net.finmath.marketdata.model.curves.Curve.InterpolationEntity}.
+ * 
+ * To construct the curve, please use the inner class CurveBuilder (a builder pattern).
+ * 
+ * For a demo on how construct and/or calibrate a curve see, e.g.
+ * {@link net.finmath.tests.marketdata.curves.CurveTest}.
  * 
  * @author Christian Fries
  */
@@ -110,6 +116,47 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 	}
 
+	public static class CurveBuilder {
+		private Curve curve = null;
+		
+		/**
+		 * 
+		 */
+		public CurveBuilder(String name, Calendar referenceDate) {
+			curve = new Curve(name, referenceDate);
+		}
+		
+		public CurveBuilder() {
+			curve = new Curve(null, null);
+		}
+		
+		public Curve build() {
+			Curve buildCurve = curve;
+			curve = null;
+			return buildCurve;
+		}
+
+		public CurveBuilder setInterpolationMethod(InterpolationMethod interpolationMethod) {
+			curve.interpolationMethod = interpolationMethod;
+			return this;
+		}
+
+		public CurveBuilder setExtrapolationMethod(ExtrapolationMethod extrapolationMethod) {
+			curve.extrapolationMethod = extrapolationMethod;
+			return this;
+		}
+
+		public CurveBuilder setInterpolationEntity(InterpolationEntity interpolationEntity) {
+			curve.interpolationEntity = interpolationEntity;
+			return this;
+		}
+		
+		public CurveBuilder addPoint(double time, double value, boolean isParameter) {
+			curve.addPoint(time, value, isParameter);
+			return this;
+		}
+	}
+
 	private ArrayList<Point>	points					= new ArrayList<Point>();
 	private ArrayList<Point>	pointsBeingParameters	= new ArrayList<Point>();
 	private InterpolationMethod	interpolationMethod	= InterpolationMethod.CUBIC_SPLINE;
@@ -131,20 +178,39 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
-	public Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+	protected Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
 		this.interpolationEntity	= interpolationEntity;
 	}
 
-	
+	/**
+	 * Create a curve with a given interpolation method.
+	 * 
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 */
+	private Curve(InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+		this(null, null, interpolationMethod, extrapolationMethod, interpolationEntity);
+	}
+
+	/**
+	 * Create a curve with a given name, reference date.
+	 * 
+     * @param name The name of this curve.
+     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+     */
+	private Curve(String name, Calendar referenceDate) {
+		super(name, referenceDate);
+	}
+
 	@Override
     public double getValue(double time)
 	{
-		return getValue(null, time);
+		return valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
 	}
-
 
 	@Override
     public double getValue(AnalyticModelInterface model, double time)
@@ -183,7 +249,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
 	 */
-	public void addPoint(double time, double value, boolean isParameter) {
+	protected void addPoint(double time, double value, boolean isParameter) {
 		if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
 			if(value == 1.0 && isParameter == false) return;
 			else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
@@ -299,4 +365,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		return newCurve;
 	}
 
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
+		CurveBuilder curveBuilder = new CurveBuilder();
+		curveBuilder.curve = (Curve)this.clone();
+		return curveBuilder;
+	}
 }
