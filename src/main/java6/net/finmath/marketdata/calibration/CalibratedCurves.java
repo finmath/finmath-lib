@@ -366,8 +366,9 @@ public class CalibratedCurves {
 	 * Add a calibration product to the set of calibration instruments.
 	 * 
 	 * @param calibrationSpec The spec of the calibration product.
+	 * @throws CloneNotSupportedException Thrown if a curve could not be cloned / created.
 	 */
-	private String add(CalibrationSpec calibrationSpec)
+	private String add(CalibrationSpec calibrationSpec) throws CloneNotSupportedException
 	{
 		/* 
 		 * Add one point to the calibration curve and one new objective function
@@ -378,35 +379,34 @@ public class CalibratedCurves {
 
 		// Create parameter to calibrate
 
+		// Remove old curve
+		Curve calibrationCurveOld = (Curve)model.getCurve(calibrationSpec.calibrationCurveName);
+		curvesToCalibrate.remove(calibrationCurveOld);
+
+		// Create and add new curve
 		Curve calibrationCurve = null;
-		try {
-			Curve calibrationCurveOld = (Curve)model.getCurve(calibrationSpec.calibrationCurveName);
-			curvesToCalibrate.remove(calibrationCurveOld);
-			calibrationCurve = (Curve)(calibrationCurveOld.clone());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		if(DiscountCurveInterface.class.isInstance(calibrationCurve)) {
 			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
 
-			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 1.0, true);
+			// Build new curve with one additional point
+			calibrationCurve = calibrationCurveOld
+					.getCloneBuilder()
+					.addPoint(calibrationSpec.calibrationTime, 1.0, true)
+					.build();
 		}
 		else if(ForwardCurveInterface.class.isInstance(calibrationCurve)) {
-/*
-			double fixingTime	= calibrationSpec.swapTenorDefinitionReceiver.getFixing(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
-			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
-			if(ForwardCurve.class.isInstance(calibrationCurve) && ((ForwardCurve)calibrationCurve).getInterpolationEntityForward() == InterpolationEntityForward.ZERO) {
-				calibrationCurve.addPoint(paymentTime, 0.5, true);
-			}
-			else {
-				calibrationCurve.addPoint(fixingTime, 0.5, true);
-			}
-*/
-			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 0.0, true);
+			// Build new curve with one additional point
+			calibrationCurve = calibrationCurveOld
+					.getCloneBuilder()
+					.addPoint(calibrationSpec.calibrationTime, 0.0, true)
+					.build();
 		}
 		else {
-			calibrationCurve.addPoint(calibrationSpec.calibrationTime, 1.0, true);
+			// Build new curve with one additional point
+			calibrationCurve = calibrationCurveOld
+					.getCloneBuilder()
+					.addPoint(calibrationSpec.calibrationTime, 1.0, true)
+					.build();
 		}
 		model.setCurve(calibrationCurve);
 		curvesToCalibrate.add(calibrationCurve);
