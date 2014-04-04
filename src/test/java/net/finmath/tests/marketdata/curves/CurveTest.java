@@ -42,13 +42,13 @@ public class CurveTest {
 		curveBuilder.setInterpolationEntity(Curve.InterpolationEntity.VALUE);
 		
 		// Add some points - which will not be fitted
-		curveBuilder.addPoint(-1.0 /* time */, 1.0 /* value */, false /* is Parameter */);
-		curveBuilder.addPoint( 0.0 /* time */, 1.0 /* value */, false /* is Parameter */);
+		curveBuilder.addPoint(-1.0 /* time */, 1.0 /* value */, false /* isParameter */);
+		curveBuilder.addPoint( 0.0 /* time */, 1.0 /* value */, false /* isParameter */);
 
 		// Add some points - which will be fitted
-		curveBuilder.addPoint( 1.0 /* time */, 2.0 /* value */, true /* is Parameter */);
-		curveBuilder.addPoint( 2.0 /* time */, 2.0 /* value */, true /* is Parameter */);
-		curveBuilder.addPoint( 3.0 /* time */, 2.0 /* value */, true /* is Parameter */);
+		curveBuilder.addPoint( 1.0 /* time */, 2.0 /* value */, true /* isParameter */);
+		curveBuilder.addPoint( 2.0 /* time */, 2.0 /* value */, true /* isParameter */);
+		curveBuilder.addPoint( 3.0 /* time */, 2.0 /* value */, true /* isParameter */);
 
 		final Curve curve = curveBuilder.build();
 		

@@ -364,7 +364,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		
 		return newCurve;
 	}
-
+	
 	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
 		CurveBuilder curveBuilder = new CurveBuilder();
 		curveBuilder.curve = (Curve)this.clone();

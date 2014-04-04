@@ -45,7 +45,6 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Possible interpolation methods.
-	 * @author Christian Fries
 	 */
 	public enum InterpolationMethod {
 		/** Constant interpolation. **/
