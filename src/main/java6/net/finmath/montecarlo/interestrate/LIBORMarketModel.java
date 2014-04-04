@@ -462,19 +462,24 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 		// Calculate the numeraire, when time is part of liborPeriodDiscretization
 
-		// Get the start of the product
-		int firstLiborIndex		= getLiborPeriodIndex(time);
-		if(firstLiborIndex < 0) {
-			throw new CalculationException("Simulation time discretization not part of forward rate tenor discretization.");
+		// Get the start and end of the product
+		int firstLiborIndex, lastLiborIndex;
+		
+		if(measure == Measure.TERMINAL) {
+			firstLiborIndex	= getLiborPeriodIndex(time);
+			if(firstLiborIndex < 0) {
+				throw new CalculationException("Simulation time discretization not part of forward rate tenor discretization.");
+			}
+
+			lastLiborIndex 	= liborPeriodDiscretization.getNumberOfTimeSteps()-1;
 		}
-
-		// Get the end of the product
-		int lastLiborIndex 	= liborPeriodDiscretization.getNumberOfTimeSteps()-1;
-
-		if(measure == Measure.SPOT) {
+		else if(measure == Measure.SPOT) {
 			// Spot measure
 			firstLiborIndex	= 0;
 			lastLiborIndex	= getLiborPeriodIndex(time)-1;
+		}
+		else {
+			throw new CalculationException("Numeraire not implemented for specified measure.");
 		}
 
 		/*
