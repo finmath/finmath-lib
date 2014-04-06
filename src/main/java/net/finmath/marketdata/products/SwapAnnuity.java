@@ -76,6 +76,8 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
 	 * 
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, ScheduleInterface, DiscountCurveInterface, AnalyticModelInterface)}.
+	 * 
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
@@ -90,6 +92,8 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
 	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
 	 * 
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, ScheduleInterface, DiscountCurveInterface, AnalyticModelInterface)}.
+	 * 
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
@@ -102,6 +106,9 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
+	 * 
+	 * Note that, the value returned is divided by the discount factor at evaluation.
+	 * This matters, if the discount factor at evaluationTime is not equal to 1.0.
 	 * 
      * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
