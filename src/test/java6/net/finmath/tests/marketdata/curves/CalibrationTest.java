@@ -30,7 +30,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * This class makes some basic test related to the setup, use and calibration of discount curves and forward curve.
+ * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
  * 
  * @author Christian Fries
  */
