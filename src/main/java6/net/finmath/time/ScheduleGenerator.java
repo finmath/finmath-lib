@@ -187,7 +187,7 @@ public class ScheduleGenerator {
 			periodLengthDays	= 1;
 			break;
 		case WEEKLY:
-			periodLengthDays	= 1;
+			periodLengthWeeks	= 1;
 			break;
 		case MONTHLY:
 			periodLengthMonth	= 1;
