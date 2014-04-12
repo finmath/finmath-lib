@@ -36,8 +36,8 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * 
  * To construct the curve, please use the inner class CurveBuilder (a builder pattern).
  * 
- * For a demo on how construct and/or calibrate a curve see, e.g.
- * {@link net.finmath.tests.marketdata.curves.CurveTest}.
+ * For a demo on how to construct and/or calibrate a curve see, e.g.
+ * net.finmath.tests.marketdata.curves.CurveTest.
  * 
  * @author Christian Fries
  */
@@ -116,41 +116,85 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 	}
 
+	/**
+	 * A builder (following the builder pattern) for Curve objects.
+	 * Allows to successively construct a curve object by adding points.
+	 * 
+	 * @author Christian Fries
+	 */
 	public static class CurveBuilder {
 		private Curve curve = null;
 		
 		/**
+		 * Build a curve with a given name and given reference date.
 		 * 
+		 * @param name The name of this curve.
+		 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 		 */
 		public CurveBuilder(String name, Calendar referenceDate) {
 			curve = new Curve(name, referenceDate);
 		}
 		
+		/**
+		 * Build a curve.
+		 */
 		public CurveBuilder() {
 			curve = new Curve(null, null);
 		}
 		
+		/**
+		 * Build the curve. The method returns the curve object.
+		 * The builder cannot be used to build another curve. Use clone instead.
+		 * 
+		 * @return The curve according to the specification.
+		 */
 		public Curve build() {
 			Curve buildCurve = curve;
 			curve = null;
 			return buildCurve;
 		}
 
+		/**
+		 * Set the interpolation method of the curve.
+		 * 
+		 * @param interpolationMethod The interpolation method of the curve.
+		 * @return A self reference to this curve build object.
+		 */
 		public CurveBuilder setInterpolationMethod(InterpolationMethod interpolationMethod) {
 			curve.interpolationMethod = interpolationMethod;
 			return this;
 		}
 
+		/**
+		 * Set the extrapolation method of the curve.
+		 * 
+		 * @param extrapolationMethod The extrapolation method of the curve.
+		 * @return A self reference to this curve build object.
+		 */
 		public CurveBuilder setExtrapolationMethod(ExtrapolationMethod extrapolationMethod) {
 			curve.extrapolationMethod = extrapolationMethod;
 			return this;
 		}
 
+		/**
+		 * Set the interpolationEntity of the curve.
+		 * 
+		 * @param interpolationEntity The interpolation entity of the curve.
+		 * @return A self reference to this curve build object.
+		 */
 		public CurveBuilder setInterpolationEntity(InterpolationEntity interpolationEntity) {
 			curve.interpolationEntity = interpolationEntity;
 			return this;
 		}
 		
+		/**
+		 * Add a point to the curve.
+		 * 
+		 * @param time The time of the corresponding point.
+		 * @param value The value of the corresponding point.
+		 * @param isParameter A boolean, specifying weather the point should be considered a free parameter (true) or not (false). Fee parameters can be used to create a clone with modified values, see {@link #getCloneForParameter(double[])}
+		 * @return A self reference to this curve build object.
+		 */
 		public CurveBuilder addPoint(double time, double value, boolean isParameter) {
 			curve.addPoint(time, value, isParameter);
 			return this;
@@ -175,7 +219,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
      * @param name The name of this curve.
      * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param interpolationMethod The interpolation method used for the curve.
-	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
 	protected Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
@@ -183,17 +227,6 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
 		this.interpolationEntity	= interpolationEntity;
-	}
-
-	/**
-	 * Create a curve with a given interpolation method.
-	 * 
-	 * @param interpolationMethod The interpolation method used for the curve.
-	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
-	 * @param interpolationEntity The entity interpolated/extrapolated.
-	 */
-	private Curve(InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		this(null, null, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
 	/**

@@ -7,22 +7,16 @@ package net.finmath.marketdata.model.curves;
 
 import java.util.Calendar;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
-
 /**
- * Abstract base class for a curve. It stores the name of the curve and provides some convenient way of getting
- * values.
+ * Abstract base class for a curve. It stores the name of the curve and
+ * provides some convenient way of getting values.
  *  
  * @author Christian Fries
  */
 public abstract class AbstractCurve implements CurveInterface, Cloneable {
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();//ACT_ISDA();
-	private			Calendar					referenceDate;
-
-	private final String					name;
+	private	final	Calendar	referenceDate;
+	private final	String		name;
 
 	public AbstractCurve(String name, Calendar referenceDate) {
 		super();
@@ -40,10 +34,6 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 
 	public Calendar getReferenceDate() {
 		return referenceDate;
-	}
-
-	public void setReferenceDate(Calendar referenceDate) {
-		this.referenceDate = referenceDate;
 	}
 
 	/* (non-Javadoc)

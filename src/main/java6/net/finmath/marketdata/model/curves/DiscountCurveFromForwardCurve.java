@@ -11,17 +11,20 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * A discount curve derived from a given forward curve.
- * The discount factors df(t) are defined at t = k * d for integers k
- * via df(t+d) = df(t) / (1 + f(t) * d) and
- * for t = k * d and 0 &lt; r &lt; d
- * via df(t+r) = df(t) / (1 + f(t) * r)
- * where d is a given the payment offset and f(t) is the forward curve.
+ * 
+ * The discount factors <i>df(t)</i> are defined at <i>t = k * d</i>
+ * for integers <i>k</i> via
+ * <i>df(t+d) = df(t) / (1 + f(t) * d)</i> and
+ * for <i>t = k * d</i> and <i>0 &lt; r &lt; d</i>
+ * via <i>df(t+r) = df(t) / (1 + f(t) * r)</i>
+ * where <i>d</i> is a given the payment offset and <i>f(t)</i> is the forward curve.
  * 
  * <p>
  * <i>Note that a special interpolation is performed for in-between points.
  * Hence, creating a {@link ForwardCurveFromDiscountCurve} and from it
  * a DiscountCurveFromForwardCurve will not recover the original curve
- * since interpolation points may be lost.</i>
+ * since interpolation points may be lost.
+ * </i>
  * </p>
  * 
  * @author Christian Fries
@@ -61,7 +64,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
      */
     public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {
 		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
-
+		
 		this.forwardCurve	= forwardCurve;
     }
    
@@ -87,7 +90,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		double paymentOffset = 0;
 		while(time < maturity) {
 			paymentOffset	= forwardCurve.getPaymentOffset(time);
-			if(paymentOffset <= 0) throw new RuntimeException("Payment offset non-positive.");
+			if(paymentOffset <= 0) throw new RuntimeException("Trying to calculate a discount curve from a forward curve with non-positive payment offset.");
 			discountFactor /= 1.0 + forwardCurve.getForward(model, time) * Math.min(paymentOffset, maturity-time);
 			time += paymentOffset;
 		}
