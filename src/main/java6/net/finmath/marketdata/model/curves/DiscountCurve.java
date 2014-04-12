@@ -212,7 +212,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		return values;
 	}
 
-	private void addDiscountFactor(double maturity, double discountFactor, boolean isParameter) {
+	protected void addDiscountFactor(double maturity, double discountFactor, boolean isParameter) {
 		this.addPoint(maturity, discountFactor, isParameter);
 	}
 
