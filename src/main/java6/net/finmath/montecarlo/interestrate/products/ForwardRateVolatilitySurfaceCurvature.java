@@ -35,6 +35,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * The value returned then is calculated as the average of all those over all forward rates.
  * 
+ * Note: A tolerance leven can be specified. See the documentation of the constructor below.
+ * 
  * <br>
  * 
  * While this is not a common financial product, this class can be helpful in calibration procedures, e.g.
@@ -76,6 +78,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
      * 		without generating a penalty term
      * 		(i.e., the volatility is allowed to oscillate twice from 0.0 to 0.14 (sqrt(0.02)) and back).
      * 	</li>
+     * </ul>
      * 
      * @param tolerance The tolerance level.
      */

@@ -76,6 +76,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
      * 		without generating a penalty term
      * 		(i.e., the volatility is allowed to oscillate twice from 0.0 to 0.14 (sqrt(0.02)) and back).
      * 	</li>
+     * </ul>
      * 
      * @param tolerance The tolerance level.
      */
