@@ -12,8 +12,30 @@ import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceM
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements the calculation of the
- * curvature of the volatility surface of the forward rates.
+ * This class implements the calculation of the curvature of the volatility surface of the forward rates.
+ * 
+ * <br>
+ * 
+ * The value returned of the get value product is calculated as follows:
+ * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
+ * <center>
+ * <i>
+ * Math.sqrt( ( sum ( f(t) )<sup>2</sup> * (t<sub>i+1</sub> - t<sub>i</sub>) ) / (t<sub>n</sub> - t<sub>1</sub>) )
+ * </i>
+ * </center>
+ * (this is the root mean square / L2 norm of <i>f</i>) where
+ * <i>
+ * 	f(t<sub>i</sub>) = (x<sub>i+2</sub> - 2 * x<sub>i+1</sub> + x<sub>i</sub>) / (t<sub>i+2</sub> - t<sub>i+1</sub>) / (t<sub>i+1</sub> - t<sub>i</sub>)
+ * </i>
+ * and where
+ * <i>
+ * 	x<sub>i</sub> = &sigma;<sup>2</sup>(t<sub>i</sub>)
+ * </i> is the
+ * instantaneous variance of a specific forward rate.
+ * 
+ * The value returned then is calculated as the average of all those over all forward rates.
+ * 
+ * <br>
  * 
  * While this is not a common financial product, this class can be helpful in calibration procedures, e.g.
  * to put an additional constrain on the smoothness / curvature of the model surface. 
@@ -23,6 +45,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCarloProduct {
 
+	private double tolerance = 0.0;
+	
     /**
      * Create the calculation of the curvature of the volatility surface of the forward rates
      */
@@ -30,20 +54,48 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
         super();
     }
 
+    /**
+     * Create the calculation of the curvature of the volatility surface of the forward rates.
+     * 
+     * A tolerance level may be specified. In that case, the curvature
+     * calculated by the getValue method is approximately
+     * <br>
+     * <i>max(<code>curvature</code> - <code>tolerance</code>, 0)</i>.
+     * <br>
+     * 
+     * A rough interpretation of the tolerance is as follows:
+     * With a tolerance = 0.04, then
+     * <ul>
+     * 	<li>
+     * 		the variance can oscillate once from 0.0 to 0.04 and back within a year
+     * 		without generating a penalty term
+     * 		(i.e., the volatility is allowed to oscillate once from 0.0 to 0.2 and back within a year), or
+     * 	</li>
+     * 	<li>
+     * 		the variance can oscillate twice from 0.0 to 0.02 and back within a year
+     * 		without generating a penalty term
+     * 		(i.e., the volatility is allowed to oscillate twice from 0.0 to 0.14 (sqrt(0.02)) and back).
+     * 	</li>
+     * 
+     * @param tolerance The tolerance level.
+     */
+    public ForwardRateVolatilitySurfaceCurvature(double tolerance) {
+        super();
+        
+        this.tolerance = tolerance;
+    }
+    
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
     	return getValues(evaluationTime, model.getModel());
     }
     
     /**
-     * Calculates the squared curvature of the LIBOR volatility.
+     * Calculates the squared curvature of the LIBOR instantaneous variance.
      * 
      * @param evaluationTime Time at which the product is evaluated.
      * @param model A model implementing the LIBORModelMonteCarloSimulationInterface
-     * @return Depending on the value of value unit, the method returns either
-     * the approximated integrated instantaneous variance of the swap rate (ValueUnit.INTEGRATEDVARIANCE)
-     * or the value using the Black formula (ValueUnit.VALUE).
-     * @TODO make initial values an arg and use evaluation time.
+     * @return The squared curvature of the LIBOR instantaneous variance (reduced a possible tolerance). The return value is &ge; 0.
      */
     public RandomVariableInterface getValues(double evaluationTime, LIBORMarketModelInterface model) {
     	if(evaluationTime > 0) throw new RuntimeException("Forward start evaluation currently not supported.");
@@ -51,33 +103,55 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
     	// Fetch the covariance model of the model
     	AbstractLIBORCovarianceModel covarianceModel = model.getCovarianceModel();
 
-    	// We sum over all simulation time steps
-    	int numberOfTimeSteps = covarianceModel.getTimeDiscretization().getNumberOfTimes();
+    	// We sum over all forward rates
+    	int numberOfComponents = covarianceModel.getLiborPeriodDiscretization().getNumberOfTimeSteps();
 
     	// Accumulator
-        RandomVariableInterface integratedLIBORCurvature = new RandomVariable(0.0);
-        for(int timeIndex = 0; timeIndex < numberOfTimeSteps-2-1; timeIndex++) {
-            double time				    = covarianceModel.getTimeDiscretization().getTime(timeIndex);
-            int simulationTimeIndex		= covarianceModel.getTimeDiscretization().getTimeIndex(time);
-            int componentStartIndex		= covarianceModel.getLiborPeriodDiscretization().getTimeIndex(time);
-            int componentEndIndex		= covarianceModel.getLiborPeriodDiscretization().getNumberOfTimes()-1;
+        RandomVariableInterface	integratedLIBORCurvature	= new RandomVariable(0.0);
+        for(int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 
-            // Sum squared second derivative of the variance for all components at this time step
-            RandomVariableInterface integratedLIBORCurvaturePerTime = new RandomVariable(0.0);
-            for(int componentIndex = componentStartIndex; componentIndex < componentEndIndex; componentIndex++) {
-                RandomVariableInterface covarianceLeft		= covarianceModel.getCovariance(simulationTimeIndex+0, componentIndex, componentIndex, null);
-                RandomVariableInterface covarianceCenter	= covarianceModel.getCovariance(simulationTimeIndex+1, componentIndex, componentIndex, null);
-                RandomVariableInterface covarianceRight		= covarianceModel.getCovariance(simulationTimeIndex+2, componentIndex, componentIndex, null);
+	        // Integrate from 0 up to the fixing of the rate
+	        double timeEnd		= covarianceModel.getLiborPeriodDiscretization().getTime(componentIndex);
+	        int timeEndIndex	= covarianceModel.getTimeDiscretization().getTimeIndex(timeEnd);
+	        
+	        // If timeEnd is not in the time discretization we get timeEndIndex = -insertionPoint-1. In that case, we use the index prior to the insertionPoint
+	        if(timeEndIndex < 0) timeEndIndex = -timeEndIndex - 2;
+	        
+	        // Sum squared second derivative of the variance for all components at this time step
+	        RandomVariableInterface integratedLIBORCurvatureCurrentRate = new RandomVariable(0.0);
+	        for(int timeIndex = 0; timeIndex < timeEndIndex-2; timeIndex++) {
+	            double timeStep1	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex);
+	            double timeStep2	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex+1);
+	
+	            RandomVariableInterface covarianceLeft		= covarianceModel.getCovariance(timeIndex+0, componentIndex, componentIndex, null);
+	            RandomVariableInterface covarianceCenter	= covarianceModel.getCovariance(timeIndex+1, componentIndex, componentIndex, null);
+	            RandomVariableInterface covarianceRight		= covarianceModel.getCovariance(timeIndex+2, componentIndex, componentIndex, null);
+	
+	            // Calculate second derivative
+	            RandomVariableInterface curvatureSquared = covarianceRight.sub(covarianceCenter.mult(2.0)).add(covarianceLeft);
+	            curvatureSquared = curvatureSquared.div(timeStep1 * timeStep2);
+	                
+	            // Take square
+	            curvatureSquared = curvatureSquared.squared();
+	
+	            // Integrate over time
+	            integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.add(curvatureSquared.mult(timeStep1));
+	        }
 
-                RandomVariableInterface curvatureSquared = covarianceRight.sub(covarianceCenter.mult(2.0)).add(covarianceLeft).squared();
-
-                integratedLIBORCurvaturePerTime = integratedLIBORCurvaturePerTime.add(curvatureSquared);
-            }
-            integratedLIBORCurvaturePerTime = integratedLIBORCurvaturePerTime.div(componentEndIndex-componentStartIndex);
-
-            integratedLIBORCurvature = integratedLIBORCurvature.add(integratedLIBORCurvaturePerTime);
+	        // Empty intervall - skip
+	        if(timeEnd == 0) continue;
+	        
+	    	// Average over time
+	        integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.div(timeEnd);
+	        
+	        // Take square root
+	        integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.sqrt();
+	
+	        // Take max over all forward rates
+	        integratedLIBORCurvature = integratedLIBORCurvature.add(integratedLIBORCurvatureCurrentRate);
         }
 
-         return integratedLIBORCurvature.div(numberOfTimeSteps-3);
+        integratedLIBORCurvature = integratedLIBORCurvature.div(numberOfComponents);
+        return integratedLIBORCurvature.sub(tolerance).floor(0.0);
     }
 }
