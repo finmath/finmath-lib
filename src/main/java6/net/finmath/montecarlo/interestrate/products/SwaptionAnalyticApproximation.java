@@ -116,7 +116,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         
         Map<String, double[]>  logSwaprateDerivative  = getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getDiscountCurve(), model.getForwardRateCurve(), swapTenor);
         double[]    swapCovarianceWeights  = logSwaprateDerivative.get("values");
- 
+
         // Get the integrated libor covariance from the model
         double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
 

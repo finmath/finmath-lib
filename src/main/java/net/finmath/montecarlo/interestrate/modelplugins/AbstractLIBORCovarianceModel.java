@@ -52,7 +52,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 */
 	public	RandomVariableInterface[]	getFactorLoading(double time, int component, RandomVariableInterface[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
-		if(timeIndex < 0) timeIndex = Math.abs(timeIndex)-2;
+		if(timeIndex < 0) timeIndex = -timeIndex - 2;
 		return getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 	}
 	

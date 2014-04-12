@@ -50,7 +50,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         VALUE,
     	/** Returns the Black-Scholes implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i> **/
         INTEGRATEDVARIANCE,
-    	/** Returns the Black-Scholes implied volatility, i.e., <i>&sigma;<sup></i> **/
+    	/** Returns the Black-Scholes implied volatility, i.e., <i>&sigma;</i> **/
         VOLATILITY
     }
 
