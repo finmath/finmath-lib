@@ -116,8 +116,6 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
         
         Map<String, double[]>  logSwaprateDerivative  = getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getDiscountCurve(), model.getForwardRateCurve(), swapTenor);
         double[]    swapCovarianceWeights  = logSwaprateDerivative.get("values");
-        double[]    discountFactors        = logSwaprateDerivative.get("discountFactors");
-        double[]    swapAnnuities          = logSwaprateDerivative.get("swapAnnuities");
 
         // Get the integrated libor covariance from the model
         double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
@@ -143,7 +141,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 
         // Use black formula for swaption to calculate the price
         double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
-        double swapAnnuity      =  net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), model.getDiscountCurve());
+        double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), model.getDiscountCurve());
 
         double optionMaturity	= swapStart;
 
@@ -158,6 +156,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
      * It also returns some useful other quantities like the corresponding discout factors and swap annuities.
      * 
      * @param liborPeriodDiscretization The libor period discretization.
+     * @param discountCurveInterface The discount curve. If this parameter is null, the discount curve will be calculated from the forward curve.
      * @param forwardCurveInterface The forward curve.
      * @param swapTenor The swap tenor.
      * @return A map containing the partial derivatives (key "value"), the discount factors (key "disocuntFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
