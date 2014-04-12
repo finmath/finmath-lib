@@ -64,7 +64,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
      */
     public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {
 		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
-		
+
 		this.forwardCurve	= forwardCurve;
     }
    
