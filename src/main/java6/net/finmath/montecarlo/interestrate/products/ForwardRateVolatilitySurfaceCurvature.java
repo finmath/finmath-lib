@@ -23,7 +23,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * </center>
  * (this is the root mean square / L2 norm of <i>f</i>) where
  * <center>
- * \[	f(t_{i}) = \frac{ x_{i+2} - 2 x_{i+1} + x_{i} }{ (t_{i+2} - t_{i+1}) (t_{i+1} - t_{i+1}) } \]
+ * \[	f(t_{i}) = \frac{ x_{i+2} - 2 x_{i+1} + x_{i} }{ (t_{i+2} - t_{i+1}) (t_{i+1} - t_{i}) } \]
  * </center>
  * and where
  * <i>
