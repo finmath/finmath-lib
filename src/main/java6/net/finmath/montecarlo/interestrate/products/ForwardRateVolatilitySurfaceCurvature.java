@@ -19,14 +19,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * The value returned by the getValue method is calculated as follows:
  * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
  * <center>
- * <i>
- * Math.sqrt( ( sum ( f(t<sub>i</sub>) )<sup>2</sup> * (t<sub>i+1</sub> - t<sub>i</sub>) ) / (t<sub>n</sub> - t<sub>1</sub>) )
- * </i>
+ * \( \displaystyle \sqrt{ \frac{1}{t_{n} - t_{1}} \sum_{i=1}^{n-1} ( f(t_{i}) )^{2} \cdot (t_{i+1} - t_{i}) } \)
  * </center>
  * (this is the root mean square / L2 norm of <i>f</i>) where
- * <i>
- * 	f(t<sub>i</sub>) = (x<sub>i+2</sub> - 2 * x<sub>i+1</sub> + x<sub>i</sub>) / (t<sub>i+2</sub> - t<sub>i+1</sub>) / (t<sub>i+1</sub> - t<sub>i</sub>)
- * </i>
+ * <center>
+ * \( \displaystyle	f(t_{i}) = \frac{ x_{i+2} - 2 x_{i+1} + x_{i} }{ (t_{i+2} - t_{i+1}) (t_{i+1} - t_{i+1}) } \)
+ * </center>
  * and where
  * <i>
  * 	x<sub>i</sub> = &sigma;<sup>2</sup>(t<sub>i</sub>)
