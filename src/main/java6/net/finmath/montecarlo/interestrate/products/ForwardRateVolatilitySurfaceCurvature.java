@@ -16,11 +16,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * <br>
  * 
- * The value returned of the get value product is calculated as follows:
+ * The value returned by the getValue method is calculated as follows:
  * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
  * <center>
  * <i>
- * Math.sqrt( ( sum ( f(t) )<sup>2</sup> * (t<sub>i+1</sub> - t<sub>i</sub>) ) / (t<sub>n</sub> - t<sub>1</sub>) )
+ * Math.sqrt( ( sum ( f(t<sub>i</sub>) )<sup>2</sup> * (t<sub>i+1</sub> - t<sub>i</sub>) ) / (t<sub>n</sub> - t<sub>1</sub>) )
  * </i>
  * </center>
  * (this is the root mean square / L2 norm of <i>f</i>) where
@@ -33,10 +33,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  * </i> is the
  * instantaneous variance of a specific forward rate.
  * 
- * The value returned then is calculated as the average of all those over all forward rates.
+ * The value returned is then calculated as the average of all those curvatures for all forward rates.
  * 
- * Note: A tolerance leven can be specified. See the documentation of the constructor below.
+ * Note: A tolerance level can be specified. See the documentation of the constructor below.
  * 
+ * <br>
  * <br>
  * 
  * While this is not a common financial product, this class can be helpful in calibration procedures, e.g.
