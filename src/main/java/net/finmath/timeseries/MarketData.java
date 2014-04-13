@@ -10,6 +10,8 @@ import java.util.Calendar;
 import java.util.Map;
 
 /**
+ * A set of raw data associated with a given date.
+ * 
  * @author Christian Fries
  */
 public class MarketData {
