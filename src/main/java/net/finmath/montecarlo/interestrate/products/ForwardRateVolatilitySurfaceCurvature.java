@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * <br>
  * 
- * The value returned by the getValue method is calculated as follows:
+ * The value returned by the <code>{@link #getValue(double, LIBORModelMonteCarloSimulationInterface)}</code> method is calculated as follows:
  * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
  * <center>
  * \[	\sqrt{ \frac{1}{t_{n} - t_{1}} \sum_{i=1}^{n-1} ( f(t_{i}) )^{2} \cdot (t_{i+1} - t_{i}) } \]
@@ -33,13 +33,21 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * The value returned is then calculated as the average of all those curvatures for all forward rates.
  * 
- * Note: A tolerance level can be specified. See the documentation of the constructor below.
+ * Note: A tolerance level can be specified. See the documentation of the constructor <code>{@link #ForwardRateVolatilitySurfaceCurvature(double)}</code>.
  * 
  * <br>
  * <br>
  * 
  * While this is not a common financial product, this class can be helpful in calibration procedures, e.g.
  * to put an additional constrain on the smoothness / curvature of the model surface. 
+ * 
+ * <br>
+ * A rough interpretation of this product is a follows: If the value 0.25 is returned, then
+ * - on average - the variance of the forward rate oscillates by 0.25 per year, i.e. it moves up by 0.25 and back.
+ * This corresponds to a movement of 0.5 and back per year for the volatility.
+ * Given that you have 100 other calibrations products, and the weight of all (including this one) is 1.0, then
+ * 0.1% deviation of the other calibration products is considered as severe as 0.1 movement per year in the variance (0.3 movement in volatility).
+ * Note: You can control the relation of these by weights.
  *
  * @author Christian Fries
  * @date 12.04.2014.
