@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.finmath</groupId>
@@ -25,6 +26,16 @@
 		</license>
 	</licenses>
 
+	<developers>
+		<developer>
+			<id>fries</id>
+			<name>Christian Fries</name>
+			<email>email@christian-fries.de</email>
+			<url>http://www.christian-fries.de</url>
+			<timezone>1</timezone>
+		</developer>
+	</developers>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -45,6 +56,7 @@
 	</dependencies>
 
 	<build>
+		<defaultGoal>install javadoc:javadoc</defaultGoal>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<sourceDirectory>${src.main.dir}</sourceDirectory>
 		<testSourceDirectory>${src.test.dir}</testSourceDirectory>
@@ -55,8 +67,8 @@
 				<version>2.9.1</version>
 				<configuration>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
- 					<stylesheetfile>stylesheet.css</stylesheetfile>
- 					<docfilessubdirs>true</docfilessubdirs>
+					<stylesheetfile>stylesheet.css</stylesheetfile>
+					<docfilessubdirs>true</docfilessubdirs>
 					<header>
 			   			<![CDATA[
 						<span class="logo-white">finMath</span><span class="logo-red"> lib</span>
@@ -91,6 +103,18 @@
 				<configuration>
 					<argLine>-mx2G</argLine>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.3</version>
+				<dependencies>
+					<dependency><!-- add support for ssh/scp -->
+						<groupId>org.apache.maven.wagon</groupId>
+						<artifactId>wagon-ssh</artifactId>
+						<version>1.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
@@ -165,11 +189,19 @@
 			<id>finmath</id>
 			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-snapshots/</url>
 		</snapshotRepository>
+		<site>
+			<id>finmath-site</id>
+			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/java/finmath-lib/</url>
+		</site>
 	</distributionManagement>
 
 	<scm>
 		<url>scm:svn:http://svn.finmath.net/finmath lib/trunk</url>
 		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
 	</scm>
-</project>
 
+	<ciManagement>
+		<system>jenkins</system>
+		<url>http://ci.finmath.net</url>
+	</ciManagement>
+</project>
