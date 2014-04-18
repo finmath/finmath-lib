@@ -11,7 +11,24 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * The interface for a process (numerical scheme) of a stochastic process <i>X</i> where
+ * <i>X = f(Y)</i> and <br>
+ * \[
+ * dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
+ * \]
+ * 
+ * The parameters are provided by a model implementing {@link net.finmath.montecarlo.model.AbstractModelInterface}:
+ * <ul>
+ * <li>The value of <i>Y(0)</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getInitialState}.
+ * <li>The value of &mu; is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getDrift}.
+ * <li>The value &lambda;<sub>j</sub> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getFactorLoading}.
+ * <li>The function <i>f</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#applyStateSpaceTransform}.
+ * </ul>
+ * Here, &mu; and &lambda;<sub>j</sub> may depend on <i>X</i>, which allows to implement stochastic drifts (like in a LIBOR market model)
+ * of local volatility models.
+ * 
  * @author Christian Fries
+ * @see net.finmath.montecarlo.model.AbstractModelInterface The definition of the model.
  */
 public interface AbstractProcessInterface {
 

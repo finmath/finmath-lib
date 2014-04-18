@@ -13,6 +13,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * For details see {@link net.finmath.montecarlo.model.AbstractModelInterface}.
  * 
  * @author Christian Fries
+ * @see AbstractModelInterface The interface definition contains more details.
  * @version 1.3
  */
 public abstract class AbstractModel implements AbstractModelInterface {

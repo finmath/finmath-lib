@@ -36,7 +36,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * In its default case the class specifies a multi-factor LIBOR market model in its log-normal formulation, that is
  * <i>L<sub>j</sub> = exp(Y<sub>j</sub>) </i> where
  * <br>
- * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i>
+ * \[
+ * 		dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
+ * \]
  * <br>
  * The model uses an <code>AbstractLIBORCovarianceModel</code> for the specification of
  * <i>(&lambda;<sub>1,j</sub>,...,&lambda;<sub>m,j</sub>)</i> as a covariance model.
@@ -49,6 +51,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  *	</li>
  * 	<li>
  * 		The class implements different measure(drift) / numeraire pairs: terminal measure and spot measure.
+ *	</li>
+ * 	<li>
+ * 		The class allows to configure a discounting curve (e.g.&nbsp;for "OIS discounting") using a simple deterministic zero spread.
+ * 		In this case, the numeraire \( N(t) \) is adjusted by \( \exp( \int_0^t -\lambda(\tau) d\tau ) \). 
  *	</li>
  * </ul>
  * 
@@ -83,10 +89,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 			<code>measure</code>: Possible values:
  * 			<ul>
  * 				<li>
- * 					<code>SPOT</code>: Simulate under spot measure.
+ * 					<code>SPOT</code>: Simulate under spot measure. In this case, the single curve numeraire
+ * 					is \( N(T_{i}) = \prod_{j=0}^{i-1} (1 + L(T_{j},T_{j+1};T_{j}) (T_{j+1}-T_{j})) \).
  * 				</li>
  * 				<li>
- * 					<code>TERMINAL</code>: Simulate under terminal measure.
+ * 					<code>TERMINAL</code>: Simulate under terminal measure. In this case, the single curve numeraire
+ * 					is \( N(T_{i}) = P(T_{n};T_{i}) = \prod_{j=i}^{n-1} (1 + L(T_{j},T_{j+1};T_{i}) (T_{j+1}-T_{j}))^{-1} \).
  * 				</li>
  *			</ul>
  *		</li>
@@ -94,10 +102,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 			<code>stateSpace</code>: Possible values:
  * 			<ul>
  * 				<li>
- * 					<code>LOGNORMAL</code>: Simulate <i>L = exp(Y)</i>.
+ * 					<code>LOGNORMAL</code>: The state space transform is set to exp, i.e., <i>L = exp(Y)</i>. When the covariance model is deterministic, then this is the classical lognormal LIBOR market model. Note that the covariance model may still provide a local volatility function.
  * 				</li>
  * 				<li>
- * 					<code>NORMAL</code>: Simulate <i>L = Y</i>.
+ * 					<code>NORMAL</code>: The state space transform is set to identity, i.e., <i>L = Y</i>. When the covariance model is deterministic, then this is a normal LIBOR market model. Note that the covariance model may still provide a local volatility function.
  * 				</li>
  *			</ul>
  *		</li>
@@ -108,7 +116,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  * @version 1.1
- * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel
+ * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel The abstract covariance model plug ins.
+ * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
 public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelInterface {
 
