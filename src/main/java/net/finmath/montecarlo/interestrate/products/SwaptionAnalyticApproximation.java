@@ -34,10 +34,19 @@ import net.finmath.time.TimeDiscretizationInterface;
  * instantaneous covariance of the log-forward rates.
  *
  * The getValue method calculates the approximated integrated instantaneous variance of the swap rate,
- * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
+ * using the approximation
+ * \[
+ * 	\frac{d log(S(t))}{d log(L(t))} \approx \frac{d log(S(0))}{d log(L(0))} = : w.
+ * \]
  * 
- * The valuation can be performed in terms of value or implied
- * volatility.
+ * Since \( L \) is a vector, \( w \) is a gradient (vector). The class then approximates
+ * the Black volatility of a swaption via
+ * \[
+ * 	\sigma_S^{2} T := \sum_{i,j} w_{i} \gamma_{i,j} w_{j}
+ * \]
+ * where \( (\gamma_{i,j})_{i,j = 1,...,m} \) is the covariance matrix of the forward rates.
+ * 
+ * The valuation can be performed in terms of value or implied Black volatility.
  * 
  *
  * @author Christian Fries

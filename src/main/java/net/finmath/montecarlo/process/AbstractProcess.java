@@ -17,6 +17,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This base class manages the time discretization and delegation to the model.
  * 
  * @author Christian Fries
+ * @see AbstractProcessInterface The interface definition contains more details.
  * @version 1.5
  */
 public abstract class AbstractProcess implements AbstractProcessInterface, Cloneable {

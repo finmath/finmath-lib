@@ -13,7 +13,9 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * The interface for a model of a stochastic process <i>X</i> where
  * <i>X = f(Y)</i> and <br>
- * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
+ * \[
+ * dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
+ * \]
  * 
  * <ul>
  * <li>The value of <i>Y(0)</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getInitialState}.
@@ -23,6 +25,19 @@ import net.finmath.time.TimeDiscretizationInterface;
  * </ul>
  * Here, &mu; and &lambda;<sub>j</sub> may depend on <i>X</i>, which allows to implement stochastic drifts (like in a LIBOR market model)
  * of local volatility models.
+ * 
+ * <br>
+ * Examples:
+ * <ul>
+ * 	<li>
+ * 		The Black Scholes model can be modeled by S = X = Y (i.e. f is the identity)
+ * 		and &mu;<sub>1</sub> = r S and &lambda;<sub>1,1</sub> = &sigma; S.
+ * 	</li>
+ * 	<li>
+ * 		Alternatively, the Black Scholes model can be modeled by S = X = exp(Y) (i.e. f is exp)
+ * 		and &mu;<sub>1</sub> = r - 0.5 &sigma; &sigma; and &lambda;<sub>1,1</sub> = &sigma;.
+ * 	</li>
+ * </ul>
  * 
  * @author Christian Fries
  */

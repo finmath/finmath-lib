@@ -17,10 +17,15 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class is an abstract base class to implement a multi-dimensional multi-factor Ito process.
+ * This class implements the numerical scheme for multi-dimensional multi-factor Ito process.
+ * 
+ * It features the standard Euler scheme and the standard predictor-corrector Euler scheme
+ * for <i>Y</i>, then applies the state space transform <i>X = f(Y)</i>.
+ * 
  * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
  * 
  * @author Christian Fries
+ * @see AbstractProcessInterface The interface definition contains more details.
  * @version 1.4
  */
 public class ProcessEulerScheme extends AbstractProcess {
@@ -40,7 +45,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * The storage of the simulated stochastic process.
 	 */
 	private transient RandomVariableInterface[][]	discreteProcess = null;
-	private transient RandomVariableInterface[]     discreteProcessWeights;
+	private transient RandomVariableInterface[]	discreteProcessWeights;
 
 	/**
 	 * @param brownianMotion The Brownian driver of the process

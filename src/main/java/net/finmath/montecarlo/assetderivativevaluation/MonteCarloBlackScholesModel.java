@@ -23,7 +23,25 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
  * and forms a Monte-Carlo implementation of the Black-Scholes Model by implementing <code>AssetModelMonteCarloSimulationInterface</code>.
  *
+ * The model is
+ * \[
+ * 	dS = r S dt + \sigma S dW, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0},
+ * \]
+ * 
+ * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
+ * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 \), \( \lambda_{1,1} = \sigma \), i.e.,
+ * of the SDE
+ * \[
+ * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
+ * \]
+ * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
+ * 
  * @author Christian Fries
+ * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
 public class MonteCarloBlackScholesModel extends AbstractModel implements AssetModelMonteCarloSimulationInterface {
 
