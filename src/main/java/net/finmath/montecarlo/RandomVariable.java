@@ -109,7 +109,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	/**
 	 * Create a stochastic random variable.
-	 *
+	 * 
+	 * Important: The realizations array is not cloned (not defensive copy is made).
+	 * 
+	 * @TODO A future version should perform a defensive copy.
+	 * 
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
 	 */
@@ -124,13 +128,19 @@ public class RandomVariable implements RandomVariableInterface {
      * Create a stochastic random variable.
      *
      * @param time the filtration time, set to 0.0 if not used.
-     * @param realisations the vector of realizations.
+     * @param realizations A map mapping integer (path or state) to double, representing this random variable.
+     * @param size The size, i.e., number of paths.
      */
-    public RandomVariable(double time, IntToDoubleFunction realisations, int size) {
+    public RandomVariable(double time, IntToDoubleFunction realizations, int size) {
         super();
         this.time = time;
-        this.realizations = size == 1 ? null : IntStream.range(0,size).mapToDouble(i->realisations.applyAsDouble(i)).parallel().toArray();
-        this.valueIfNonStochastic = size == 1 ? realisations.applyAsDouble(0) : Double.NaN;
+        this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
+        this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
+        if(size > 1) {
+        	IntStream.range(0,size).parallel().forEach(i -> 
+        		this.realizations[i] = realizations.applyAsDouble(i)
+        			);
+        }
     }
 
 	/* (non-Javadoc)
@@ -492,7 +502,12 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	public IntToDoubleFunction getOperator() {
-		return i -> realizations[i];
+		if(isDeterministic()) {
+			return i -> valueIfNonStochastic;
+		}
+		else {
+			return i -> realizations[i];
+		}
 	}
 
 	/**
@@ -530,7 +545,10 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 		else
 		{
-            return new RandomVariable(time, getRealizationsStream().parallel().map(operator::applyAsDouble).toArray());
+			// Still faster than a parallel stream (2014.04)
+			double[] result = new double[this.realizations.length];
+			for(int i=0; i<result.length; i++) result[i] = operator.applyAsDouble(realizations[i]);
+			return new RandomVariable(time, result);
 		}
 	}
 
@@ -539,34 +557,13 @@ public class RandomVariable implements RandomVariableInterface {
 
 		double      newTime           = Math.max(time, argument.getFiltrationTime());
 
-		if(isDeterministic() && argument.isDeterministic()) {
-			return new RandomVariable(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
-		}
-		else if(isDeterministic())  // this is deterministic, argument is non-deterministic
-		{
-			DoubleUnaryOperator unaryOperator = x -> operator.applyAsDouble(valueIfNonStochastic,x);
+        int newSize = Math.max(this.size(), argument.size());
 
-            return new RandomVariable(time, argument.getRealizationsStream().parallel().map(unaryOperator).toArray());
-		}
-		else if(argument.isDeterministic()) // argument is deterministic
-		{
-			double argumentValue = argument.get(0);
-            DoubleUnaryOperator unaryOperator = x -> operator.applyAsDouble(x, argumentValue);
+        IntToDoubleFunction argument0Operator = this.getOperator();
+    	IntToDoubleFunction argument1Operator = argument.getOperator();
+    	IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
 
-            return new RandomVariable(time, this.getRealizationsStream().parallel().map(unaryOperator).toArray());
-		}
-		else        // both nondeterministic
-		{
-			int newSize = Math.max(this.size(), argument.size());
-
-            double[] argumentRealizations = argument.getRealizations();
-
-            return new RandomVariable(newTime,
-                    IntStream.range(0, newSize).parallel().mapToDouble((i) -> {
-                        return operator.applyAsDouble(realizations[i], argumentRealizations[i]);
-                    }).toArray()
-                    );
-		}
+    	return new RandomVariable(newTime, result, newSize);
 	}
 
 	@Override
@@ -574,59 +571,14 @@ public class RandomVariable implements RandomVariableInterface {
         double newTime = Math.max(time, argument1.getFiltrationTime());
         newTime = Math.max(newTime, argument2.getFiltrationTime());
 
-        if(this.isDeterministic() && argument1.isDeterministic() && argument2.isDeterministic()) {
-            return new RandomVariable(newTime, operator.applyAsDouble(valueIfNonStochastic, argument1.get(0), argument2.get(0)));
-        }
-        else {
-            int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
-            IntToDoubleFunction result;
-            if(argument1.isDeterministic() && argument2.isDeterministic()) {
-                final double	argument1Realization = argument1.get(0);
-                final double	argument2Realization = argument2.get(0);
-                if(isDeterministic()) {
-                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realization);
-                }
-                else {
-                    result = i -> operator.applyAsDouble(realizations[i], argument1Realization, argument2Realization);
+        int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
 
-                }
-            }
-            else if(argument1.isDeterministic() && !argument2.isDeterministic()) {
-                final double	argument1Realization	= argument1.get(0);
-                final double[]	argument2Realizations	= argument2.getRealizations();
-                if(isDeterministic()) {
-                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realizations[i]);
-                }
-                else {
-                    result = i -> operator.applyAsDouble(realizations[i], argument1Realization, argument2Realizations[i]);
+        IntToDoubleFunction argument0Operator = this.getOperator();
+    	IntToDoubleFunction argument1Operator = argument1.getOperator();
+    	IntToDoubleFunction argument2Operator = argument2.getOperator();
+    	IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
 
-                }
-            }
-            else if(!argument1.isDeterministic() && argument2.isDeterministic()) {
-                final double[]	argument1Realizations	= argument1.getRealizations();
-                final double	argument2Realization	= argument2.get(0);
-                if(isDeterministic()) {
-                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realization);
-                }
-                else {
-                    result = i -> operator.applyAsDouble(realizations[i], argument1Realizations[i], argument2Realization);
-
-                }
-            }
-            else {// if(!argument1.isDeterministic() && !argument2.isDeterministic()) {
-                final double[]	argument1Realizations	= argument1.getRealizations();
-                final double[]	argument2Realizations	= argument2.getRealizations();
-                if(isDeterministic()) {
-                    result = i -> operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realizations[i]);
-                }
-                else {
-                    result = i -> operator.applyAsDouble(realizations[i], argument1Realizations[i], argument2Realizations[i]);
-
-                }
-            }
-
-            return new RandomVariable(newTime, result, newSize);
-        }
+    	return new RandomVariable(newTime, result, newSize);
 	}
 
 	public RandomVariableInterface apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariableInterface argument1, RandomVariableInterface argument2)
