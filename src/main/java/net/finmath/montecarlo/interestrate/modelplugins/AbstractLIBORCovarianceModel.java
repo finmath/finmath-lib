@@ -36,6 +36,33 @@ public abstract class AbstractLIBORCovarianceModel {
 	}
 
 	/**
+	 * Return the factor loading for a given time and a given component.
+	 * 
+	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
+	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
+	 * is the instantaneous covariance of the component <i>j</i> and <i>k</i>.
+	 * 
+	 * With respect to simulation time <i>t</i>, this method uses a piece wise constant interpolation, i.e.,
+	 * it calculates <i>t_<sub>i</sub></i> such that <i>t_<sub>i</sub></i> is the largest point in <code>getTimeDiscretization</code>
+	 * such that <i>t_<sub>i</sub> &le; t </i>.
+	 * 
+	 * The component here, it given via a double <i>T</i> which may be associated with the LIBOR fixing date.
+	 * With respect to component time <i>T</i>, this method uses a piece wise constant interpolation, i.e.,
+	 * it calculates <i>T_<sub>j</sub></i> such that <i>T_<sub>j</sub></i> is the largest point in <code>getTimeDiscretization</code>
+	 * such that <i>T_<sub>j</sub> &le; T </i>.
+	 * 
+	 * @param time The time <i>t</i> at which factor loading is requested.
+	 * @param component The component time (as a double associated with the fixing of the forward rate)  <i>T<sub>i</sub></i>.
+	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
+	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
+	 */
+	public	RandomVariableInterface[]	getFactorLoading(double time, double component, RandomVariableInterface[] realizationAtTimeIndex) {
+		int componentIndex = liborPeriodDiscretization.getTimeIndex(component);
+		if(componentIndex < 0) componentIndex = -componentIndex - 2;
+		return getFactorLoading(time, componentIndex, realizationAtTimeIndex);
+	}
+
+	/**
 	 * Return the factor loading for a given time and component index.
 	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
 	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
@@ -46,7 +73,7 @@ public abstract class AbstractLIBORCovarianceModel {
 	 * such that <i>t_<sub>i</sub> &le; t </i>.
 	 * 
 	 * @param time The time <i>t</i> at which factor loading is requested.
-	 * @param component The index of the component  <i>i</i>.
+	 * @param component The index of the component <i>i</i>. Note that this class may have its own LIBOR time discretization and that this index refers to this discretization.
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */

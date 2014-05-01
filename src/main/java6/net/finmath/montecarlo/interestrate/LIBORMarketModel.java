@@ -602,11 +602,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return drift;
 	}
 
-
 	@Override
 	public	RandomVariableInterface[]	getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex)
 	{
-		return covarianceModel.getFactorLoading(getTime(timeIndex), componentIndex, realizationAtTimeIndex);
+		return covarianceModel.getFactorLoading(getTime(timeIndex), getLiborPeriod(componentIndex), realizationAtTimeIndex);
 	}
 
 	@Override
