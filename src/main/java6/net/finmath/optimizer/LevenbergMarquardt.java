@@ -5,6 +5,7 @@
  */
 package net.finmath.optimizer;
 
+import java.util.Arrays;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -331,7 +332,12 @@ public abstract class LevenbergMarquardt {
 		
 					// Calculate derivative as (valueUpShift - valueCurrent) /
 					// parameterFiniteDifference
-					setValues(parametersNew, derivative);
+					try {
+						setValues(parametersNew, derivative);
+					} catch (Exception e) {
+						// We signal an exception to calculate the derivative as NaN
+						Arrays.fill(derivative, Double.NaN);
+					}
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
 						derivative[valueIndex] -= valueCurrent[valueIndex];
 						derivative[valueIndex] /= parameterFiniteDifference;
