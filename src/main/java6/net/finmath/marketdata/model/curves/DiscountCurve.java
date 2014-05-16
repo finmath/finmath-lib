@@ -6,6 +6,7 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -51,6 +52,49 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity){
 
 		super(name, null, interpolationMethod, extrapolationMethod, interpolationEntity);
+	}
+
+
+	/**
+	 * Create an empty discount curve using given interpolation and extrapolation methods.
+	 *
+	 * @param name The name of this discount curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 */
+	private DiscountCurve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod,
+			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity){
+
+		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
+	}
+
+	/**
+	 * Create a discount curve from given times and given discount factors using given interpolation and extrapolation methods.
+	 *
+	 * @param name The name of this discount curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param times Array of times as doubles.
+	 * @param givenDiscountFactors Array of corresponding discount factors.
+	 * @param isParameter Array of booleans specifying whether this point is served "as as parameter", e.g., whether it is calibrates (e.g. using CalibratedCurves).
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @return A new discount factor object.
+	 */
+	public static DiscountCurve createDiscountCurveFromDiscountFactors(
+			String name, Calendar referenceDate,
+			double[] times, double[] givenDiscountFactors, boolean[] isParameter,
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+
+		DiscountCurve discountFactors = new DiscountCurve(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
+
+		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
+			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], isParameter[timeIndex]);
+		}
+
+		return discountFactors;
 	}
 
 	/**
