@@ -370,14 +370,14 @@ public class RationalFunctionInterpolation {
 
 			// create numerator polynomials (third order polynomial)
 			for(int i = 0; i < numberOfPoints-1; i++ ) {
-				double[] numeratortorPolynomCoeff		= new double[4];
+				double[] numeratorPolynomCoeff		= new double[4];
 
-				numeratortorPolynomCoeff[0] = values[i];
-				numeratortorPolynomCoeff[1] = derivative[i];
-				numeratortorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];
-				numeratortorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);
+				numeratorPolynomCoeff[0] = values[i];
+				numeratorPolynomCoeff[1] = derivative[i];
+				numeratorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];
+				numeratorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);
 
-				interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff, denominatorPolynomCoeff);			
+				interpolatingRationalFunctions[i] = new RationalFunction(numeratorPolynomCoeff, denominatorPolynomCoeff);			
 			}
 		}
 
