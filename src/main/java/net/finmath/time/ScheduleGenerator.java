@@ -215,11 +215,17 @@ public class ScheduleGenerator {
 			Calendar periodEndDateUnadjusted	= (Calendar)startDate.clone();		
 			Calendar periodStartDate			= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
 			while(periodStartDateUnadjusted.before(maturity)) {
+				// The following code only makes calculations on periodEndXxx while the periodStartXxx is only copied and used to check if we terminate
 				// Determine period end
 				periodEndDateUnadjusted.add(Calendar.DAY_OF_YEAR, periodLengthDays);
 				periodEndDateUnadjusted.add(Calendar.WEEK_OF_YEAR, periodLengthWeeks);
 				periodEndDateUnadjusted.add(Calendar.MONTH, periodLengthMonth);
-				if(periodEndDateUnadjusted.after(maturity)) periodEndDateUnadjusted = maturity;
+				if(periodEndDateUnadjusted.after(maturity)) {
+					periodEndDateUnadjusted = (Calendar) maturity.clone();
+					periodStartDateUnadjusted 	= maturity;	// Terminate loop (next periodEndDateUnadjusted)
+				}
+				// Map to same hour (daylight savings may result in a modified hour).
+				roundToSame(periodEndDateUnadjusted, startDate, Calendar.HOUR_OF_DAY);
 
 				// Adjust period
 				Calendar periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
@@ -253,11 +259,17 @@ public class ScheduleGenerator {
 			Calendar periodEndDateUnadjusted	= (Calendar)maturity.clone();
 			Calendar periodEndDate				= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
 			while(periodEndDateUnadjusted.after(startDate)) {
+				// The following code only makes calculations on periodStartXxx while the periodEndXxx is only copied and used to check if we terminate
 				// Determine period start
 				periodStartDateUnadjusted.add(Calendar.DAY_OF_YEAR, -periodLengthDays);
 				periodStartDateUnadjusted.add(Calendar.WEEK_OF_YEAR, -periodLengthWeeks);
 				periodStartDateUnadjusted.add(Calendar.MONTH, -periodLengthMonth);
-				if(periodStartDateUnadjusted.before(startDate)) periodStartDateUnadjusted = startDate;
+				if(periodStartDateUnadjusted.before(startDate))	{
+					periodStartDateUnadjusted	= (Calendar)startDate.clone();
+					periodEndDateUnadjusted 	= startDate;	// Terminate loop (next periodEndDateUnadjusted)
+				}
+				// Map to same hour (daylight savings may result in a modified hour).
+				roundToSame(periodStartDateUnadjusted, maturity, Calendar.HOUR_OF_DAY);
 
 				// Adjust period
 				Calendar periodStartDate	= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
