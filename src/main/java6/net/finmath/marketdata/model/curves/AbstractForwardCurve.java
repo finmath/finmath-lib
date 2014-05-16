@@ -41,6 +41,32 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
      * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+     * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 */
+	public AbstractForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, 
+			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, 
+			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, String discountCurveName) {
+		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
+		this.paymentOffsetCode = paymentOffsetCode;
+		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
+		this.paymentDateRollConvention = paymentDateRollConvention;
+		
+		this.paymentOffset = Double.NaN;
+		
+		this.discountCurveName = discountCurveName;
+	}
+
+	/**
+	 * Construct a base forward curve with a reference date and a payment offset.
+	 * 
+     * @param name The name of this curve.
+     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+     * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
      * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public AbstractForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, String discountCurveName) {
