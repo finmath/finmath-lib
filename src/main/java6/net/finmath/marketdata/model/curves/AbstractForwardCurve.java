@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
@@ -125,5 +126,21 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 			paymentOffsets.put(fixingTime, paymentTime-fixingTime);
 			return paymentTime-fixingTime;
 		}
+	}
+	
+	/**
+	 * Returns the forwards for a given vector fixing times.
+	 * 
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTimes The given fixing times.
+	 * @return The forward rates.
+	 */
+	public double[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
+	{
+		double[] values = new double[fixingTimes.length];
+
+		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
+
+		return values;
 	}
 }

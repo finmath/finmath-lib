@@ -35,7 +35,9 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		/** Interpolation is performed on the value = forward * discount factor **/
 		FORWARD_TIMES_DISCOUNTFACTOR,
 		/** Interpolation is performed on the zero rate **/
-		ZERO
+		ZERO,
+		/** Interpolation is performed on the (synthetic) discount factor **/
+		DISCOUNTFACTOR
 	}
 
 	private InterpolationEntityForward	interpolationEntityForward = InterpolationEntityForward.FORWARD;
@@ -64,6 +66,10 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		super(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, 
 				extrapolationMethod, interpolationEntity, discountCurveName);
 		this.interpolationEntityForward	= interpolationEntityForward;
+
+		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
+			super.addPoint(0.0, 1.0, false);
+		}
 	}
 
 	/**
@@ -81,6 +87,10 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	public ForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
 		super(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName);
 		this.interpolationEntityForward	= interpolationEntityForward;
+
+		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
+			super.addPoint(0.0, 1.0, false);
+		}
 	}
 
 	/**
@@ -125,6 +135,11 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 * @param model The model to be used to fetch the discount curve, if needed.
@@ -132,10 +147,18 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode, String interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
-		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
-		referenceDateAsCalendar.setTime(referenceDate);
-		return createForwardCurveFromForwards(name, referenceDateAsCalendar, paymentOffsetCode, InterpolationEntityForward.valueOf(interpolationEntityForward), discountCurveName, model, times, givenForwards);
+	public static ForwardCurve createForwardCurveFromForwards(String name, Calendar referenceDate, String paymentOffsetCode, 
+			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
+			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
+		ForwardCurve forwardCurve = new ForwardCurve(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,
+				interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName);
+	
+		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
+			forwardCurve.addForward(model, times[timeIndex], givenForwards[timeIndex], false);
+		}
+	
+		return forwardCurve;
 	}
 
 	/**
@@ -161,18 +184,39 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, Calendar referenceDate, String paymentOffsetCode, 
+	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode, 
 			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
-		ForwardCurve forwardCurve = new ForwardCurve(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,
-				interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName);
+		
+		Calendar referenceDateAsCalendar = new GregorianCalendar();
+		referenceDateAsCalendar.setTime(referenceDate);
 
-		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
-			forwardCurve.addForward(model, times[timeIndex], givenForwards[timeIndex], false);
-		}
+		return createForwardCurveFromForwards(name, referenceDateAsCalendar, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);
+	}
 
-		return forwardCurve;
+	/**
+	 * Create a forward curve from given times and given forwards.
+	 * 
+	 * The forward F(t) of an index is such that
+	 * F(t) * D(t+p) equals the market price of the corresponding index fixed in t and paid in t+d, where t is the fixing time
+	 * of the index and t+p is the payment time of the index. F(t) is the corresponding forward and D is the associated discount
+	 * curve.
+	 * 
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode, String interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
+		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
+		referenceDateAsCalendar.setTime(referenceDate);
+		return createForwardCurveFromForwards(name, referenceDateAsCalendar, paymentOffsetCode, InterpolationEntityForward.valueOf(interpolationEntityForward), discountCurveName, model, times, givenForwards);
 	}
 
 	/**
@@ -285,7 +329,6 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 			boolean	isParameter	= (fixingTime > 0);
 			forwardCurve.addForward(model, fixingTime, givenForwards[timeIndex], isParameter);
 		}
-
 		return forwardCurve;
 	}
 
@@ -303,9 +346,6 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		return this.getForward(model, fixingTime, getPaymentOffset(fixingTime));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.ForwardCurveInterface#getForward(double)
-	 */
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
@@ -322,27 +362,17 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		case FORWARD_TIMES_DISCOUNTFACTOR:
 			return interpolationEntityForwardValue / model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+paymentOffset);
 		case ZERO:
+		{
 			double interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
 			return (Math.exp(interpolationEntityForwardValue2 * (fixingTime+paymentOffset) - interpolationEntityForwardValue * fixingTime) - 1.0) / (paymentOffset);
 		}
+		case DISCOUNTFACTOR:
+		{
+			double interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
+			return (interpolationEntityForwardValue / interpolationEntityForwardValue2 - 1.0) / (paymentOffset);
+		}
+		}
 	}
-
-	/**
-	 * Returns the forwards for a given vector fixing times.
-	 * 
-	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
-	 * @param fixingTimes The given fixing times.
-	 * @return The forward rates.
-	 */
-	public double[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
-	{
-		double[] values = new double[fixingTimes.length];
-
-		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
-
-		return values;
-	}
-
 
 	/**
 	 * Add a forward to this curve.
@@ -366,14 +396,29 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 			interpolationEntityForwardValue = forward * model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+getPaymentOffset(fixingTime));
 			break;
 		case ZERO:
+		{
 			double paymentOffset = getPaymentOffset(fixingTime);
 			interpolationEntitiyTime = fixingTime+paymentOffset;
-			interpolationEntityForwardValue = 0.05;//Math.log(1.0 + forward * paymentOffset) / paymentOffset;
-			break;
+			interpolationEntityForwardValue = Math.log(1.0 + forward * paymentOffset) / paymentOffset;
 		}
-		this.addPoint(interpolationEntitiyTime, interpolationEntityForwardValue, isParameter);
+		break;
+		case DISCOUNTFACTOR:
+		{
+			double paymentOffset = getPaymentOffset(fixingTime);
+			interpolationEntitiyTime		= fixingTime+paymentOffset;
+			interpolationEntityForwardValue = getValue(fixingTime) / (1.0 + forward * paymentOffset);
+		}
+		break;
+		}
+		super.addPoint(interpolationEntitiyTime, interpolationEntityForwardValue, isParameter);
 	}
 
+	@Override
+	protected void addPoint(double time, double value, boolean isParameter) {
+		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) time += getPaymentOffset(time);
+		super.addPoint(time, value, isParameter);
+	}
+	
 	/**
 	 * Returns the special interpolation method used for this forward curve.
 	 * 
