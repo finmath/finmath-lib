@@ -122,7 +122,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * 
 	 * @author Christian Fries
 	 */
-	public static class CurveBuilder {
+	public static class CurveBuilder implements CurveBuilderInterface {
 		private Curve curve = null;
 		
 		/**
@@ -142,12 +142,10 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			curve = new Curve(null, null);
 		}
 		
-		/**
-		 * Build the curve. The method returns the curve object.
-		 * The builder cannot be used to build another curve. Use clone instead.
-		 * 
-		 * @return The curve according to the specification.
+		/* (non-Javadoc)
+		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#build()
 		 */
+		@Override
 		public Curve build() {
 			Curve buildCurve = curve;
 			curve = null;
@@ -160,7 +158,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @param interpolationMethod The interpolation method of the curve.
 		 * @return A self reference to this curve build object.
 		 */
-		public CurveBuilder setInterpolationMethod(InterpolationMethod interpolationMethod) {
+		public CurveBuilderInterface setInterpolationMethod(InterpolationMethod interpolationMethod) {
 			curve.interpolationMethod = interpolationMethod;
 			return this;
 		}
@@ -171,7 +169,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @param extrapolationMethod The extrapolation method of the curve.
 		 * @return A self reference to this curve build object.
 		 */
-		public CurveBuilder setExtrapolationMethod(ExtrapolationMethod extrapolationMethod) {
+		public CurveBuilderInterface setExtrapolationMethod(ExtrapolationMethod extrapolationMethod) {
 			curve.extrapolationMethod = extrapolationMethod;
 			return this;
 		}
@@ -182,20 +180,16 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @param interpolationEntity The interpolation entity of the curve.
 		 * @return A self reference to this curve build object.
 		 */
-		public CurveBuilder setInterpolationEntity(InterpolationEntity interpolationEntity) {
+		public CurveBuilderInterface setInterpolationEntity(InterpolationEntity interpolationEntity) {
 			curve.interpolationEntity = interpolationEntity;
 			return this;
 		}
 		
-		/**
-		 * Add a point to the curve.
-		 * 
-		 * @param time The time of the corresponding point.
-		 * @param value The value of the corresponding point.
-		 * @param isParameter A boolean, specifying weather the point should be considered a free parameter (true) or not (false). Fee parameters can be used to create a clone with modified values, see {@link #getCloneForParameter(double[])}
-		 * @return A self reference to this curve build object.
+		/* (non-Javadoc)
+		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#addPoint(double, double, boolean)
 		 */
-		public CurveBuilder addPoint(double time, double value, boolean isParameter) {
+		@Override
+		public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
 			curve.addPoint(time, value, isParameter);
 			return this;
 		}
@@ -285,7 +279,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	protected void addPoint(double time, double value, boolean isParameter) {
 		if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
 			if(value == 1.0 && isParameter == false) return;
-			else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
+			else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");
 		}
 
 		double interpolationEntityValue = interpolationEntityFromValue(value, time);
@@ -293,7 +287,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		int index = getTimeIndex(time);
 		if(index >= 0) {
 			if(points.get(index).value == interpolationEntityValue) return;			// Already in list
-			else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+			else return;//throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
 		}
 		else {
 			// Insert the new point, retain ordering.
@@ -355,10 +349,10 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		default:
 			return value;
 		case LOG_OF_VALUE:
-			return Math.log(value);
+			return Math.log(Math.max(value,0));
 		case LOG_OF_VALUE_PER_TIME:
 			if(time == 0)	throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
-			else			return Math.log(value) / time;
+			else			return Math.log(Math.max(value,0)) / time;
 		}
 	}
 
@@ -397,8 +391,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		
 		return newCurve;
 	}
-	
-	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
+
+	@Override
+	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
 		CurveBuilder curveBuilder = new CurveBuilder();
 		curveBuilder.curve = (Curve)this.clone();
 		return curveBuilder;

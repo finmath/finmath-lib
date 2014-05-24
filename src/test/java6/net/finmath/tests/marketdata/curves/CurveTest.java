@@ -9,12 +9,12 @@ package net.finmath.tests.marketdata.curves;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.junit.Test;
-
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
+
+import org.junit.Test;
 
 /**
  * A short demo on how to use {@link net.finmath.marketdata.model.curves.Curve}.

@@ -69,4 +69,15 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 	 */
 	CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
+
+	/**
+	 * Returns a curve builder bases on a clone of this curve. Using that curve
+	 * builder you may create a new curve from this curve by adding points or
+	 * changing properties.
+	 * Note: The clone has the same name than this one.
+	 * 
+	 * @return An object implementing the CurveBuilderInterface where the underlying curve is a clone of this curve.
+	 * @throws CloneNotSupportedException Thrown, when this curve could not be cloned.
+	 */
+	CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException;
 }

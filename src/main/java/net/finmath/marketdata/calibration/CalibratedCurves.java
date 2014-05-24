@@ -12,7 +12,6 @@ import java.util.Vector;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
@@ -380,12 +379,13 @@ public class CalibratedCurves {
 		// Create parameter to calibrate
 
 		// Remove old curve
-		Curve calibrationCurveOld = (Curve)model.getCurve(calibrationSpec.calibrationCurveName);
+		CurveInterface calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
 		curvesToCalibrate.remove(calibrationCurveOld);
 
 		// Create and add new curve
-		Curve calibrationCurve = null;
-		if(DiscountCurveInterface.class.isInstance(calibrationCurve)) {
+		CurveInterface calibrationCurve = null;
+		if(DiscountCurveInterface.class.isInstance(calibrationCurveOld)) {
+			@SuppressWarnings("unused")
 			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
 
 			// Build new curve with one additional point
@@ -394,11 +394,11 @@ public class CalibratedCurves {
 					.addPoint(calibrationSpec.calibrationTime, 1.0, true)
 					.build();
 		}
-		else if(ForwardCurveInterface.class.isInstance(calibrationCurve)) {
+		else if(ForwardCurveInterface.class.isInstance(calibrationCurveOld)) {
 			// Build new curve with one additional point
 			calibrationCurve = calibrationCurveOld
 					.getCloneBuilder()
-					.addPoint(calibrationSpec.calibrationTime, 0.0, true)
+					.addPoint(calibrationSpec.calibrationTime, 0.1, true)
 					.build();
 		}
 		else {

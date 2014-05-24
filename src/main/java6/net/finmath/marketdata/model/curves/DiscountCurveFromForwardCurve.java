@@ -114,4 +114,9 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	@Override
 	public void setParameter(double[] parameter) {
 	}
+
+	@Override
+	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
 }
