@@ -11,8 +11,12 @@ import java.util.Calendar;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
+ * A piecewise curve. The curve consists of a base curve and a second curve.
+ * If the <code>time</code> parameter of the {@link #getValue(AnalyticModelInterface, double)}
+ * method falls inside a pre-defined open interval, it is delegated to the second curve,
+ * otherwise it is delegated to the base curve.
+ * 
  * @author Christian Fries
- *
  */
 public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 
@@ -24,8 +28,8 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	
 
 	/**
-	 * A builder (following the builder pattern) for Curve objects.
-	 * Allows to successively construct a curve object by adding points.
+	 * A builder (following the builder pattern) for PiecewiseCurve objects.
+	 * Allows to successively construct a curve object by adding points to its base points.
 	 * 
 	 * @author Christian Fries
 	 */
@@ -34,10 +38,10 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 		private PiecewiseCurve			curve = null;
 		
 		/**
-		 * Build a curve with a given name and given reference date.
+		 * Create a CurveBuilder from a given piecewiseCurve
 		 * 
-		 * @param name The name of this curve.
-		 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+		 * @param curveBuilderInterface Curve builder of the base curve of the piecewise curve.
+		 * @param piecewiseCurve The piecewise curve from which to copy the fixed part upon build().
 		 */
 		public CurveBuilder(CurveBuilderInterface curveBuilderInterface, PiecewiseCurve piecewiseCurve) {
 			this.baseCurveBuilder = curveBuilderInterface;

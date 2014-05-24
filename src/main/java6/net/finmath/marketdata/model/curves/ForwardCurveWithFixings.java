@@ -15,10 +15,12 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCurveInterface {
 
 	/**
-	 * @param curveInterface
-	 * @param fixedPartCurve
-	 * @param fixedPartStartTime
-	 * @param fixedPartEndTime
+	 * Create a piecewise forward curve.
+	 * 
+	 * @param curveInterface Base curve, to be used by default.
+	 * @param fixedPartCurve Curve to be used for the open time interval from fixedPartStartTime to fixedPartEndTime.
+	 * @param fixedPartStartTime Start time of the interval where we use the fixedPartCurve.
+	 * @param fixedPartEndTime End time of the interval where we use the fixedPartCurve.
 	 */
 	public ForwardCurveWithFixings(ForwardCurveInterface curveInterface, ForwardCurveInterface fixedPartCurve, double fixedPartStartTime, double fixedPartEndTime) {
 		super(curveInterface, fixedPartCurve, fixedPartStartTime, fixedPartEndTime);
