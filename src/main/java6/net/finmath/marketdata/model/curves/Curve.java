@@ -126,6 +126,13 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		private Curve curve = null;
 		
 		/**
+		 * Build a curve.
+		 */
+		public CurveBuilder() {
+			curve = new Curve(null, null);
+		}
+
+		/**
 		 * Build a curve with a given name and given reference date.
 		 * 
 		 * @param name The name of this curve.
@@ -136,17 +143,20 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 		
 		/**
-		 * Build a curve.
+		 * Build a curve by cloning a given curve.
+		 * 
+		 * @param curve A curve to be used as starting point for the new curve.
+		 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 		 */
-		public CurveBuilder() {
-			curve = new Curve(null, null);
+		public CurveBuilder(Curve curve) throws CloneNotSupportedException {
+			this.curve = (Curve)curve.clone();
 		}
 		
 		/* (non-Javadoc)
 		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#build()
 		 */
 		@Override
-		public Curve build() {
+		public CurveInterface build() throws CloneNotSupportedException {
 			Curve buildCurve = curve;
 			curve = null;
 			return buildCurve;
@@ -304,6 +314,33 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
     	this.rationalFunctionInterpolation = null;
 	}
 	
+	/**
+	 * Returns the interpolation method used by this curve.
+	 * 
+	 * @return The interpolation method used by this curve.
+	 */
+	public InterpolationMethod getInterpolationMethod() {
+		return interpolationMethod;
+	}
+
+	/**
+	 * Returns the extrapolation method used by this curve.
+	 * 
+	 * @return The extrapolation method used by this curve.
+	 */
+	public ExtrapolationMethod getExtrapolationMethod() {
+		return extrapolationMethod;
+	}
+
+	/**
+	 * Returns the interpolation entity used by this curve.
+	 * 
+	 * @return The interpolation entity used by this curve.
+	 */
+	public InterpolationEntity getInterpolationEntity() {
+		return interpolationEntity;
+	}
+
 	protected int getTimeIndex(double time) {
 		Point point = new Point(time, Double.NaN, false);
 		return java.util.Collections.binarySearch(points, point);
@@ -394,8 +431,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	@Override
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
-		CurveBuilder curveBuilder = new CurveBuilder();
-		curveBuilder.curve = (Curve)this.clone();
+		CurveBuilder curveBuilder = new CurveBuilder(this);
 		return curveBuilder;
 	}
 }

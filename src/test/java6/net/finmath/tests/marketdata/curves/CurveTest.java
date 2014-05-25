@@ -65,7 +65,7 @@ public class CurveTest {
 		curveBuilder.addPoint( 2.2 /* time */, 2.0 /* value */, true /* isParameter */);
 		curveBuilder.addPoint( 3.0 /* time */, 2.0 /* value */, true /* isParameter */);
 
-		final Curve curve = curveBuilder.build();
+		final CurveInterface curve = curveBuilder.build();
 		
 		/*
 		 * Create data to which the curve should be fitted to
@@ -104,7 +104,7 @@ public class CurveTest {
 		// Fit the curve (find best parameters)
 		optimizer.run();
 		
-		CurveInterface fittedCurve = curve.getCloneForParameter(optimizer.getBestFitParameters());
+		final CurveInterface fittedCurve = curve.getCloneForParameter(optimizer.getBestFitParameters());
 		
 		// Print out fitted curve
 		for(double time = -2.0; time < 5.0; time += 0.1) {
