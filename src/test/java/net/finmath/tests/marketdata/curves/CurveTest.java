@@ -9,12 +9,12 @@ package net.finmath.tests.marketdata.curves;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.junit.Test;
-
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
+
+import org.junit.Test;
 
 /**
  * A short demo on how to use {@link net.finmath.marketdata.model.curves.Curve}.
@@ -65,7 +65,7 @@ public class CurveTest {
 		curveBuilder.addPoint( 2.2 /* time */, 2.0 /* value */, true /* isParameter */);
 		curveBuilder.addPoint( 3.0 /* time */, 2.0 /* value */, true /* isParameter */);
 
-		final Curve curve = curveBuilder.build();
+		final CurveInterface curve = curveBuilder.build();
 		
 		/*
 		 * Create data to which the curve should be fitted to
@@ -104,7 +104,7 @@ public class CurveTest {
 		// Fit the curve (find best parameters)
 		optimizer.run();
 		
-		CurveInterface fittedCurve = curve.getCloneForParameter(optimizer.getBestFitParameters());
+		final CurveInterface fittedCurve = curve.getCloneForParameter(optimizer.getBestFitParameters());
 		
 		// Print out fitted curve
 		for(double time = -2.0; time < 5.0; time += 0.1) {
