@@ -33,34 +33,27 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	 * 
 	 * @author Christian Fries
 	 */
-	public static class CurveBuilder implements CurveBuilderInterface {
-		private CurveBuilderInterface	baseCurveBuilder = null;
+	public static class CurveBuilder extends Curve.CurveBuilder implements CurveBuilderInterface {
+
 		private PiecewiseCurve			curve = null;
 		
 		/**
 		 * Create a CurveBuilder from a given piecewiseCurve
 		 * 
-		 * @param curveBuilderInterface Curve builder of the base curve of the piecewise curve.
 		 * @param piecewiseCurve The piecewise curve from which to copy the fixed part upon build().
+		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
-		public CurveBuilder(CurveBuilderInterface curveBuilderInterface, PiecewiseCurve piecewiseCurve) {
-			this.baseCurveBuilder = curveBuilderInterface;
+		public CurveBuilder(PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
+			super((Curve)(piecewiseCurve.baseCurve));
 			this.curve = piecewiseCurve;
 		}
 		
 		@Override
 		public CurveInterface build() throws CloneNotSupportedException {
 			PiecewiseCurve buildCurve = (PiecewiseCurve)curve.clone();
-			buildCurve.baseCurve = baseCurveBuilder.build();
-			baseCurveBuilder = null;
+			buildCurve.baseCurve = super.build();
 			curve = null;
 			return buildCurve;
-		}
-
-		@Override
-		public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
-			baseCurveBuilder.addPoint(time, value, isParameter);
-			return this;
 		}
 	}
 
@@ -152,7 +145,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 
 	@Override
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
-		return new CurveBuilder(baseCurve.getCloneBuilder(), this);
+		return new CurveBuilder(this);
 	}
 
 	@Override
