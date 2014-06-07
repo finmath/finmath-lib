@@ -165,7 +165,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		// Set solver parameters
 		optimizer.setWeights(calibrationWeights);
-//		optimizer.setErrorTolerance(accuracy);
+		optimizer.setErrorTolerance(accuracy);
 		
 		try {
 			optimizer.run();
