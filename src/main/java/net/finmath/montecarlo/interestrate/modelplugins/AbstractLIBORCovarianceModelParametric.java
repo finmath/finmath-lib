@@ -77,7 +77,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     	return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
     }
     
-    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
+    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
     	double[] initialParameters = this.getParameter();
 
@@ -91,7 +91,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-6;
+		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 
 		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
@@ -129,7 +129,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		// Set solver parameters
 		optimizer.setWeights(calibrationWeights);
-		optimizer.setErrorTolerance(accuracy);
+//		optimizer.setErrorTolerance(accuracy);
 
 		try {
 			optimizer.run();
@@ -155,4 +155,10 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
         return calibrationCovarianceModel;    	
     }
+
+	@Override
+	public String toString() {
+		return "AbstractLIBORCovarianceModelParametric [getParameter()="
+				+ Arrays.toString(getParameter()) + "]";
+	}
 }
