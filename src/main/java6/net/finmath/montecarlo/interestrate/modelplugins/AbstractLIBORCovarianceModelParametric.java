@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -40,6 +41,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  * @date 20.05.2006
+ * @date 23.02.2014
  * @version 1.1
  */
 public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel {
@@ -82,7 +84,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     	return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
     }
     
-    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
+    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
     	double[] initialParameters = this.getParameter();
 
@@ -96,8 +98,10 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-6;
+		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 
+		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
+		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		/*
@@ -120,9 +124,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
-				int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
-				ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
-		        
 		    	ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
 		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
@@ -131,7 +132,11 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				        	try {
 				        		return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
 							} catch (CalculationException e) {
-				    			throw new SolverException(e);
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
+								return calibrationTargetValues[workerCalibrationProductIndex];
+							} catch (Exception e) {
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
+								return calibrationTargetValues[workerCalibrationProductIndex];
 							}
 						}
 					};
@@ -155,21 +160,23 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		    			throw new SolverException(e);
 					}
 				}
-				if(executor != null) {
-					executor.shutdown();
-					executor = null;
-				}
 			}			
 		};
 
 		// Set solver parameters
 		optimizer.setWeights(calibrationWeights);
+//		optimizer.setErrorTolerance(accuracy);
 		
 		try {
 			optimizer.run();
 		}
 		catch(SolverException e) {
 			throw new CalculationException(e);
+		}
+		finally {
+			if(executor != null) {
+				executor.shutdown();
+			}
 		}
 
 		// Get covariance model corresponding to the best parameter set.
@@ -189,4 +196,10 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
         return calibrationCovarianceModel;    	
     }
+
+	@Override
+	public String toString() {
+		return "AbstractLIBORCovarianceModelParametric [getParameter()="
+				+ Arrays.toString(getParameter()) + "]";
+	}
 }
