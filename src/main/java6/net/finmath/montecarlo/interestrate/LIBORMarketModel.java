@@ -156,6 +156,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			this.calibrationTargetValue	= calibrationTargetValue;
 			this.calibrationWeight		= calibrationWeight;
 		}
+
+		@Override
+		public String toString() {
+			return "CalibrationItem [calibrationProduct=" + calibrationProduct
+					+ ", calibrationTargetValue=" + calibrationTargetValue
+					+ ", calibrationWeight=" + calibrationWeight + "]";
+		}
 	}
 
 	/**
@@ -810,6 +817,17 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 
 		return new LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, swaptionMarketData, properties);
+	}
+
+	@Override
+	public String toString() {
+		return "LIBORMarketModel [liborPeriodDiscretization="
+				+ liborPeriodDiscretization + ", forwardCurveName="
+				+ forwardCurveName + ", curveModel=" + curveModel
+				+ ", forwardRateCurve=" + forwardRateCurve + ", discountCurve="
+				+ discountCurve + ", covarianceModel=" + covarianceModel
+				+ ", driftApproximationMethod=" + driftApproximationMethod
+				+ ", measure=" + measure + ", stateSpace=" + stateSpace + "]";
 	}
 }
 
