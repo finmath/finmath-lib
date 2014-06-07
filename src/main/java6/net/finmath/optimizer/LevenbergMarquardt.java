@@ -438,14 +438,14 @@ public abstract class LevenbergMarquardt {
 				isParameterCurrentDerivativeValid = false;
 
 				// Decrease lambda (move faster)
-				lambda				/= 3.0;
-				lambdaMultiplicator	= 2.0;
+				lambda			/= 1.3;
+				lambdaMultiplicator	= 1.3;
 			} else {
 				errorMeanSquaredChange = errorMeanSquaredTest - errorMeanSquaredCurrent;
 
 				// Reject point, increase lambda (move slower)
 				lambda				*= lambdaMultiplicator;
-				lambdaMultiplicator *= 2.0;
+				lambdaMultiplicator *= 1.3;
 			}
 
 			// Update a new parameter trial, if we are not done
@@ -467,7 +467,7 @@ public abstract class LevenbergMarquardt {
 			}
 		}
 
-		// Create an executor for concurrent evaluation of derivatives
+		// Shutdown executor if present.
 		if(executor != null) {
 			executor.shutdown();
 			executor = null;
