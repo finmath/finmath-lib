@@ -45,11 +45,16 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Possible interpolation methods.
+	 * 
 	 * @author Christian Fries
 	 */
 	public enum InterpolationMethod {
-		/** Constant interpolation. **/
+		/** Constant interpolation. Synonym of PIECEWISE_CONSTANT_LEFTPOINT. **/
 		PIECEWISE_CONSTANT,
+		/** Constant interpolation. Right continuous, i.e. using the value of the left end point of the interval. **/
+		PIECEWISE_CONSTANT_LEFTPOINT,
+		/** Constant interpolation using the value of the right end point of the interval. **/
+		PIECEWISE_CONSTANT_RIGHTPOINT,
 		/** Linear interpolation. **/
 		LINEAR,
 		/** Cubic spline interpolation. **/
@@ -62,9 +67,12 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Possible extrapolation methods.
+	 * 
 	 * @author Christian Fries
 	 */
 	public enum ExtrapolationMethod {
+		/** Extrapolation using the interpolation function of the adjacent interval **/
+		DEFAULT,
 		/** Constant extrapolation. **/
 		CONSTANT,
 		/** Linear extrapolation. **/
@@ -297,7 +305,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		int index = getTimeIndex(time);
 		if(index >= 0) {
 			if(points.get(index).value == interpolationEntityValue) return;			// Already in list
-			else return;//throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+			else if(isParameter) return;
+			else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
 		}
 		else {
 			// Insert the new point, retain ordering.
