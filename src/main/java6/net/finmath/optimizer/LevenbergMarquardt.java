@@ -430,8 +430,8 @@ public abstract class LevenbergMarquardt {
 				errorMeanSquaredChange = errorMeanSquaredCurrent - errorMeanSquaredTest;
 
 				// Accept point
-				parameterCurrent	= parameterTest.clone();
-				valueCurrent		= valueTest.clone();
+				System.arraycopy(parameterTest, 0, parameterCurrent, 0, parameterCurrent.length);
+				System.arraycopy(valueTest, 0, valueCurrent, 0, valueCurrent.length);
 				errorMeanSquaredCurrent		= errorMeanSquaredTest;
 
 				// Derivative has to be recalculated
