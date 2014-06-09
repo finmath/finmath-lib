@@ -47,6 +47,8 @@ public class RationalFunctionInterpolation {
 		CUBIC_SPLINE,
 		/** Akima interpolation (C1 sub-spline interpolation). **/
 		AKIMA,
+		/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
+		AKIMA_CONTINUOUS,
 		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/		
 		HARMONIC_SPLINE
 	}
@@ -203,6 +205,9 @@ public class RationalFunctionInterpolation {
 			case AKIMA:
 				doCreateRationalFunctionsForAkimaInterpolation();
 				break;
+			case AKIMA_CONTINUOUS:
+				doCreateRationalFunctionsForAkimaInterpolation(1E-02);
+				break;
 			case HARMONIC_SPLINE:
 				doCreateRationalFunctionsForHarmonicSplineInterpolation();
 				break;
@@ -311,6 +316,11 @@ public class RationalFunctionInterpolation {
 
 	private void doCreateRationalFunctionsForAkimaInterpolation()
 	{
+		doCreateRationalFunctionsForAkimaInterpolation(0.0);
+	}
+
+	private void doCreateRationalFunctionsForAkimaInterpolation(double minSlopeDifferenceWeight)
+	{
 		int numberOfPoints = points.length;
 		
 		if(numberOfPoints < 4) {
@@ -326,7 +336,7 @@ public class RationalFunctionInterpolation {
 				step[i]		= (points[i+1] - points[i]);
 				slope[i]	= (values[i+1] - values[i]) / step[i];
 				if(i > 0) {
-					absSlopeDifference[i-1] = Math.abs(slope[i] - slope[i-1]);// + 2E-4;
+					absSlopeDifference[i-1] = Math.abs(slope[i] - slope[i-1]) + minSlopeDifferenceWeight;
 				}
 			}
 			

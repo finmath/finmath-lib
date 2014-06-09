@@ -8,6 +8,7 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -61,6 +62,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		CUBIC_SPLINE,
 		/** Akima interpolation (C1 sub-spline interpolation). **/
 		AKIMA,
+		/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
+		AKIMA_CONTINUOUS,
 		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
 		HARMONIC_SPLINE
 	}
@@ -432,6 +435,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	@Override
 	public CurveInterface getCloneForParameter(double[] parameter) throws CloneNotSupportedException {
+		if(Arrays.equals(parameter, getParameter())) return this;
 		Curve newCurve = (Curve) this.clone();
 		newCurve.setParameterPrivate(parameter);
 		
