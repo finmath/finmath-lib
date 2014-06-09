@@ -91,13 +91,13 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	 */
 	@Override
 	public int getNumberOfPaths() {
-		return uncollelatedFactors.getNumberOfFactors();
+		return uncollelatedFactors.getNumberOfPaths();
 	}
 
-    @Override
-    public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return uncollelatedFactors.getRandomVariableForConstant(value);
-    }
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return uncollelatedFactors.getRandomVariableForConstant(value);
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedSeed(int)
