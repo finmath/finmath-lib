@@ -9,6 +9,12 @@ package net.finmath.marketdata.products;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
@@ -22,6 +28,17 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 
 	private ArrayList<AnalyticProductInterface>	products;
 	private ArrayList<Double>					weights;
+
+	private final static int chunkSize			= 20;
+	private final static int numberOfThreads	= 32;
+	private static ExecutorService				executorService = Executors.newFixedThreadPool(numberOfThreads, new ThreadFactory() {
+		@Override
+		public Thread newThread(Runnable runnable) {
+			Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+			thread.setDaemon(true);
+			return thread;
+		}
+	});
 
 	/**
 	 * Create a portfolio of products implementing
@@ -71,7 +88,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 		this.products.addAll(products);
 		this.weights.addAll(weights);
 	}
-	
+
 	/**
 	 * Create a portfolio consisting of a single product with a given weight.
 	 * @param product A product, implementing  implementing <code>AnalyticProductInterface</code>.
@@ -86,13 +103,42 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(final double evaluationTime, final AnalyticModelInterface model) {
 		double value = 0.0;
-		for(int i=0; i<products.size(); i++) value += weights.get(i) * products.get(i).getValue(evaluationTime, model);
 
+		if(products.size() < 3 * chunkSize) {
+			for(int j=0; j<products.size(); j++) {
+				value += weights.get(j) * products.get(j).getValue(evaluationTime, model);
+			}
+			return value;
+		}
+		else {
+			ArrayList<Future<Double>>	values = new ArrayList<Future<Double>>();
+			for(int i=0; i<products.size(); i+=chunkSize) {
+				final int start = i;
+
+				values.add(i/chunkSize, executorService.submit(new Callable<Double>() {
+					public Double call() {
+						double value = 0.0;
+						for(int j=start; j<Math.min(products.size(),start+chunkSize); j++) {
+							value += weights.get(j) * products.get(j).getValue(evaluationTime, model);
+						}
+						return value;
+					}
+				}));
+			}
+
+			try {
+				for(int i=0; i<values.size(); i++) {
+					value += values.get(i).get().doubleValue();
+				}
+			} catch (InterruptedException | ExecutionException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return value;
 	}
-	
+
 	/**
 	 * Returns the list of products as an unmodifiable list. Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
 	 * 
