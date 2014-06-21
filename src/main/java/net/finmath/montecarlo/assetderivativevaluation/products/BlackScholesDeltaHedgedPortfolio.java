@@ -48,7 +48,6 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 
         // Ask the model for its discretization
         int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
-        int numberOfPath			= model.getNumberOfPaths();
 
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
@@ -81,7 +80,6 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
                     model.getRandomVariableForConstant(volatility),
                     maturity-model.getTime(timeIndex),	// remaining time
                     strike);
-
 
 			/*
 			 * Change the portfolio according to the trading strategy
