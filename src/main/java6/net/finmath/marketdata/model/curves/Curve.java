@@ -6,11 +6,14 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -65,7 +68,10 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
 		AKIMA_CONTINUOUS,
 		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
-		HARMONIC_SPLINE
+		HARMONIC_SPLINE,
+		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/	
+		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING
+
 	}
 
 	/**
@@ -223,6 +229,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;
 	
 	private RationalFunctionInterpolation rationalFunctionInterpolation =  null;
+	private SoftReference<Map<Double, Double>> curveCacheReference = null;
 
 	private static final long serialVersionUID = -4126228588123963885L;
 	static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
@@ -257,15 +264,25 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	@Override
     public double getValue(double time)
 	{
-		return valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
+		return getValue(null, time);
 	}
 
 	@Override
     public double getValue(AnalyticModelInterface model, double time)
 	{
-		return valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
+		Map<Double, Double> curveCache = curveCacheReference != null ? curveCacheReference.get() : null;
+		if(curveCache == null) {
+			curveCache = new ConcurrentHashMap<Double, Double>();
+			curveCacheReference = new SoftReference<Map<Double,Double>>(curveCache);
+		}
+		Double valueFromCache = curveCache.get(time);
+		if(valueFromCache != null) return valueFromCache.doubleValue();
+		
+		double value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
+		curveCache.put(time, value);
+		return value;
 	}
-	
+
 	private double getInterpolationEntityValue(double time)
 	{
 		synchronized(this) {
@@ -324,6 +341,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			}
 		}
     	this.rationalFunctionInterpolation = null;
+    	this.curveCacheReference = null;
+
 	}
 	
 	/**
@@ -382,6 +401,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
     		pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
     	}
     	this.rationalFunctionInterpolation = null;
+    	this.curveCacheReference = null;
     }
 
 	public String toString() {
@@ -424,6 +444,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		newCurve.points					= new ArrayList<Point>();
 		newCurve.pointsBeingParameters	= new ArrayList<Point>();
 		newCurve.rationalFunctionInterpolation = null;
+		newCurve.curveCacheReference = null;
 		for(Point point : points) {
 			Point newPoint = (Point) point.clone();
 			newCurve.points.add(newPoint);
