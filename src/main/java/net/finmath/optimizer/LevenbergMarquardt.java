@@ -396,20 +396,19 @@ public abstract class LevenbergMarquardt {
 	 */
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
-		if(numberOfThreads > 1) executor = Executors.newFixedThreadPool(numberOfThreads);
+		if(numberOfThreads > 1) if(executor == null) executor = Executors.newFixedThreadPool(numberOfThreads);
 
 		// Allocate memory
-		parameterTest = initialParameters.clone();
+		int numberOfParameters	= initialParameters.length;
+		int numberOfValues		= targetValues.length;
 
-		int numberOfParameters = initialParameters.length;
-		int numberOfValues = targetValues.length;
+		parameterTest		= initialParameters.clone();
+		parameterIncrement	= new double[numberOfParameters];
+		parameterCurrent	= new double[numberOfParameters];
 
-		parameterIncrement = new double[numberOfParameters];
-		parameterCurrent = new double[numberOfParameters];
-
-		valueTest = new double[numberOfValues];
-		valueCurrent = new double[numberOfValues];
-		derivativeCurrent = new double[parameterCurrent.length][valueCurrent.length];
+		valueTest			= new double[numberOfValues];
+		valueCurrent		= new double[numberOfValues];
+		derivativeCurrent	= new double[parameterCurrent.length][valueCurrent.length];
 
 		hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
 		beta = new double[parameterCurrent.length];
