@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.curves;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -26,7 +26,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	private static final long serialVersionUID = 3735595267579329042L;
 
 	protected final String discountCurveName;
-	private final Map<Double, Double> paymentOffsets = new TreeMap<Double, Double>();
+	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<Double, Double>();
 
 	private final String paymentOffsetCode;
 	private final BusinessdayCalendarInterface paymentBusinessdayCalendar;
@@ -37,15 +37,15 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	/**
 	 * Construct a base forward curve with a reference date and a payment offset.
 	 * 
-     * @param name The name of this curve.
-     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
-     * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
 	 * @param interpolationMethod The interpolation method used for the curve.
 	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
-     * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public AbstractForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, 
 			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, 
@@ -54,30 +54,30 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.paymentDateRollConvention = paymentDateRollConvention;
-		
+
 		this.paymentOffset = Double.NaN;
-		
+
 		this.discountCurveName = discountCurveName;
 	}
 
 	/**
 	 * Construct a base forward curve with a reference date and a payment offset.
 	 * 
-     * @param name The name of this curve.
-     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
-     * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
-     * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public AbstractForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, String discountCurveName) {
 		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.paymentDateRollConvention = paymentDateRollConvention;
-		
+
 		this.paymentOffset = Double.NaN;
-		
+
 		this.discountCurveName = discountCurveName;
 	}
 
@@ -85,10 +85,10 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	/**
 	 * Construct a base forward curve with a reference date and a payment offset.
 	 * 
-     * @param name The name of this curve.
-     * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
-     * @param paymentOffset The maturity of the index modeled by this curve.
-     * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param paymentOffset The maturity of the index modeled by this curve.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public AbstractForwardCurve(String name, Calendar referenceDate, double paymentOffset, String discountCurveName) {
 		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
@@ -99,7 +99,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 		this.paymentBusinessdayCalendar = null;
 		this.paymentDateRollConvention = null;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getDiscountCurveName()
 	 */
@@ -127,7 +127,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 			return paymentTime-fixingTime;
 		}
 	}
-	
+
 	/**
 	 * Returns the forwards for a given vector fixing times.
 	 * 
