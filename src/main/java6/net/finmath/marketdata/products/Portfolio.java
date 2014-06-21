@@ -132,7 +132,9 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 				for(int i=0; i<values.size(); i++) {
 					value += values.get(i).get().doubleValue();
 				}
-			} catch (InterruptedException | ExecutionException e) {
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			} catch (ExecutionException e) {
 				throw new RuntimeException(e);
 			}
 		}
