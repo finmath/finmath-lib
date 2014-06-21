@@ -7,10 +7,9 @@ package net.finmath.functions;
 
 import java.util.Calendar;
 
+import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.rootfinder.NewtonsMethod;
 import net.finmath.stochastic.RandomVariableInterface;
-
-import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /**
  * This class implements some functions as static class methods.
@@ -106,11 +105,7 @@ public class AnalyticFormulas {
 			RandomVariableInterface dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			RandomVariableInterface dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
 			
-			UnivariateFunction cumulativeNormal = new UnivariateFunction() {
-				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
-			};
-			
-			RandomVariableInterface valueAnalytic = dPlus.apply(cumulativeNormal).mult(forward).sub(dMinus.apply(cumulativeNormal).mult(optionStrike)).mult(payoffUnit);
+			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
 			
 			return valueAnalytic;
 		}
@@ -248,10 +243,7 @@ public class AnalyticFormulas {
 			// Calculate delta
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			
-			UnivariateFunction cummulativeNormal = new UnivariateFunction() {
-				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
-			};
-			RandomVariableInterface delta = dPlus.apply(cummulativeNormal);
+			RandomVariableInterface delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
 			
 			return delta;
 		}
@@ -584,7 +576,151 @@ public class AnalyticFormulas {
         return AnalyticFormulas.blackScholesGeneralizedOptionValue(forwardSwaprate, volatility, optionMaturity, optionStrike, swapAnnuity);
     }
 
-    /**
+	/**
+	 * Calculates the value of an Exchange option under a generalized Black-Scholes model, i.e., the payoff \( max(S_{1}(T)-S_{2}(T),0) \),
+	 * where \( S_{1} \) and \( S_{2} \) follow a log-normal process with constant log-volatility and constant instantaneous correlation.
+	 * 
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward and/or the option strike is zero.
+	 * 
+	 * @param spot1 Value of \( S_{1}(0) \)
+	 * @param spot2 Value of \( S_{2}(0) \)
+	 * @param volatility1 Volatility of \( \log(S_{1}(t)) \)
+	 * @param volatility2 Volatility of \( \log(S_{2}(t)) \)
+	 * @param correlation Instantaneous correlation of \( \log(S_{1}(t)) \) and \( \log(S_{2}(t)) \)
+     * @param optionMaturity The option maturity \( T \).
+	 * @return Returns the value of a European exchange option under the Black-Scholes model.
+	 */
+	public static double margrabeExchangeOptionValue(
+			double spot1,
+			double spot2,
+			double volatility1,
+			double volatility2,
+			double correlation,
+			double optionMaturity)
+	{
+		double volatility = Math.sqrt(volatility1*volatility1 + volatility2*volatility2 - 2.0 * volatility1*volatility2*correlation);
+		return blackScholesGeneralizedOptionValue(spot1, volatility, optionMaturity, spot2, 1.0);
+	}
+    
+	/**
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Bachelier model.
+	 * 
+	 * @param forward The forward of the underlying.
+	 * @param volatility The Bachelier volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the value of a European call option under the Bachelier model.
+	 */
+	public static double bachelierOptionValue(
+			double forward,
+			double volatility,
+			double optionMaturity,
+			double optionStrike,
+			double payoffUnit)
+	{
+		if(optionMaturity < 0) {
+			return 0;
+		}
+		else
+		{	
+			// Calculate analytic value
+			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
+
+			double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
+					+ (volatility * Math.sqrt(optionMaturity)) * NormalDistribution.density(dPlus))  * payoffUnit;
+			
+			return valueAnalytic;
+		}
+	}
+	
+	/**
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Bachelier model.
+	 * 
+	 * @param forward The forward of the underlying.
+	 * @param volatility The Bachelier volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the value of a European call option under the Bachelier model.
+	 */
+	public static RandomVariableInterface bachelierOptionValue(
+			RandomVariableInterface forward,
+			RandomVariableInterface volatility,
+			double optionMaturity,
+			double optionStrike,
+			RandomVariableInterface payoffUnit)
+	{
+		if(optionMaturity < 0) {
+			return forward.mult(0.0);
+		}
+		else
+		{	
+			RandomVariableInterface integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
+			RandomVariableInterface dPlus	= forward.sub(optionStrike).div(integratedVolatility);
+
+			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
+					.add(dPlus.apply(NormalDistribution::density).mult(integratedVolatility)).mult(payoffUnit);
+			
+			return valueAnalytic;
+		}
+	}
+
+	/**
+     * Calculates the Bachelier option implied volatility of a call, i.e., the payoff
+     * <p><i>max(S(T)-K,0)</i></p>, where <i>S</i> follows a normal process with constant volatility.
+     *
+	 * @param forward The forward of the underlying.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+     * @param optionValue The option value.
+     * @return Returns the implied volatility of a European call option under the Bachelier model.
+     */
+	public static double bachelierOptionImpliedVolatility(
+			double forward,
+			double optionMaturity,
+			double optionStrike,
+			double payoffUnit,
+			double optionValue)
+	{
+		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
+		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
+		int		maxIterations	= 500;
+		double	maxAccuracy		= 1E-15;
+		
+		if(optionStrike <= 0.0)
+		{	
+			// Actually it is not an option
+			return 0.0;
+		}
+		else
+		{
+			// Calculate an lower and upper bound for the volatility
+			double volatilityLowerBound = 0.0;
+			double volatilityUpperBound = (optionValue / payoffUnit - (forward - optionStrike) * NormalDistribution.cumulativeDistribution(0.0))
+					/ (Math.sqrt(optionMaturity) * NormalDistribution.density(0.0)) ;
+
+			// Solve for implied volatility
+			GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
+			while(solver.getAccuracy() > maxAccuracy && !solver.isDone() && solver.getNumberOfIterations() < maxIterations) {
+				double volatility = solver.getNextPoint();
+
+				double valueAnalytic	= bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+
+				double error = valueAnalytic - optionValue;
+
+				solver.setValue(error*error);
+			}
+
+			return solver.getBestPoint();
+		}
+	}
+
+	/**
      * Calculate the value of a CMS option using the Black-Scholes model for the swap rate together with
      * the Hunt-Kennedy convexity adjustment.
      * 

@@ -5,6 +5,8 @@
  */
 package net.finmath.functions;
 
+import org.apache.commons.math3.util.FastMath;
+
 /**
  * @author Christian Fries
  */
@@ -13,7 +15,17 @@ public class NormalDistribution {
     // Create normal distribution (for if we use Jakarta Commons Math)
     static final org.apache.commons.math3.distribution.NormalDistribution normalDistribution  = new org.apache.commons.math3.distribution.NormalDistribution();
 
-    /**
+	/**
+	 * Returns the value of the density at x.
+	 * 
+	 * @param x Argument
+	 * @return The value of the density at x.
+	 */
+	public static double density(double x) {
+		return FastMath.exp(-x*x/2.0) / FastMath.sqrt(FastMath.PI*2.0);
+	}
+
+	/**
      * Cumulative distribution function of the standard normal distribution.
      * The implementation is currently using Jakarta commons-math
      * 
