@@ -7,6 +7,8 @@ package net.finmath.functions;
 
 import java.util.Calendar;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.rootfinder.NewtonsMethod;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -105,7 +107,11 @@ public class AnalyticFormulas {
 			RandomVariableInterface dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			RandomVariableInterface dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
 			
-			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
+			UnivariateFunction cumulativeNormal = new UnivariateFunction() {
+				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
+			};
+			
+			RandomVariableInterface valueAnalytic = dPlus.apply(cumulativeNormal).mult(forward).sub(dMinus.apply(cumulativeNormal).mult(optionStrike)).mult(payoffUnit);
 			
 			return valueAnalytic;
 		}
@@ -243,7 +249,10 @@ public class AnalyticFormulas {
 			// Calculate delta
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			
-			RandomVariableInterface delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
+			UnivariateFunction cummulativeNormal = new UnivariateFunction() {
+				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
+			};
+			RandomVariableInterface delta = dPlus.apply(cummulativeNormal);
 			
 			return delta;
 		}
@@ -662,8 +671,14 @@ public class AnalyticFormulas {
 			RandomVariableInterface integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
 			RandomVariableInterface dPlus	= forward.sub(optionStrike).div(integratedVolatility);
 
-			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
-					.add(dPlus.apply(NormalDistribution::density).mult(integratedVolatility)).mult(payoffUnit);
+			UnivariateFunction cummulativeNormal = new UnivariateFunction() {
+				public double value(double x) { return NormalDistribution.cumulativeDistribution(x); }
+			};
+			UnivariateFunction densityNormal	= new UnivariateFunction() {
+				public double value(double x) { return NormalDistribution.density(x); }
+			};
+			RandomVariableInterface valueAnalytic = dPlus.apply(cummulativeNormal).mult(forward.sub(optionStrike))
+					.add(dPlus.apply(densityNormal).mult(integratedVolatility)).mult(payoffUnit);
 			
 			return valueAnalytic;
 		}
