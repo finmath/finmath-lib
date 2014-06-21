@@ -9,6 +9,7 @@ package net.finmath.marketdata.products;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
@@ -71,7 +72,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 		this.products.addAll(products);
 		this.weights.addAll(weights);
 	}
-	
+
 	/**
 	 * Create a portfolio consisting of a single product with a given weight.
 	 * @param product A product, implementing  implementing <code>AnalyticProductInterface</code>.
@@ -86,15 +87,15 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
-		double value = 0.0;
-		for(int i=0; i<products.size(); i++) value += weights.get(i) * products.get(i).getValue(evaluationTime, model);
-
-		return value;
+	public double getValue(final double evaluationTime, final AnalyticModelInterface model) {
+		return IntStream.range(0, products.size()).parallel().mapToDouble(
+				i -> weights.get(i) * products.get(i).getValue(evaluationTime, model)
+				).sum();
 	}
-	
+
 	/**
-	 * Returns the list of products as an unmodifiable list. Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
+	 * Returns the list of products as an unmodifiable list.
+	 * Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
 	 * 
 	 * @return The list of products as an unmodifiable list.
 	 */
@@ -103,7 +104,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	}
 
 	/**
-	 * Returns the list of weights as an unmodifiable list. Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
+	 * Returns the list of weights as an unmodifiable list.
+	 * Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
 	 * 
 	 * @return The list of weights as an unmodifiable list.
 	 */
