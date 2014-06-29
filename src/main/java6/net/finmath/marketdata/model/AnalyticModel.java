@@ -14,6 +14,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 
 /**
  * Implements a collection of market data objects (e.g., discount curves, forward curve)
@@ -25,7 +26,8 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  */
 public class AnalyticModel implements AnalyticModelInterface {
 
-	private final Map<String, CurveInterface> curvesMap = new HashMap<String, CurveInterface>();
+	private final Map<String, CurveInterface>				curvesMap			= new HashMap<String, CurveInterface>();
+	private final Map<String, VolatilitySurfaceInterface>	volatilitySufaceMap	= new HashMap<String, VolatilitySurfaceInterface>();
 
 	/**
 	 * Create an empty analytic model.
@@ -70,9 +72,6 @@ public class AnalyticModel implements AnalyticModelInterface {
 		for(CurveInterface curve : curves) setCurve(curve);
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.AnalyticModelInterface#getDiscountCurve(java.lang.String)
-	 */
 	@Override
 	public DiscountCurveInterface getDiscountCurve(String discountCurveName) {
 		DiscountCurveInterface discountCurve = null;
@@ -88,9 +87,6 @@ public class AnalyticModel implements AnalyticModelInterface {
 		return discountCurve;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.AnalyticModelInterface#getForwardCurve(java.lang.String)
-	 */
 	@Override
 	public ForwardCurveInterface getForwardCurve(String forwardCurveName) {
 		ForwardCurveInterface forwardCurve = null;
@@ -99,6 +95,17 @@ public class AnalyticModel implements AnalyticModelInterface {
 			forwardCurve	= (ForwardCurveInterface)curveForForwards;
 		}
 		return forwardCurve;
+	}
+
+	@Override
+	public VolatilitySurfaceInterface getVolatilitySurface(String name) {
+		return volatilitySufaceMap.get(name);
+	}
+	
+	@Override
+    public void setVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
+	{
+		volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
 	}
 
 	@Override

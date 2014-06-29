@@ -3,7 +3,7 @@
  *
  * Created on 20.05.2005
  */
-package net.finmath.marketdata;
+package net.finmath.marketdata.model.volatilities;
 
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
