@@ -119,4 +119,14 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
+
+	@Override
+	public double getMinimum() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public double getMaximum() {
+		throw new UnsupportedOperationException();
+	}
 }

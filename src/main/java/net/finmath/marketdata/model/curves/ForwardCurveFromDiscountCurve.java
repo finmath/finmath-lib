@@ -15,8 +15,15 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 /**
  * A forward curve derived from a given discount curve.
  * 
- * The forward with fixing in t is calculated as ( d(t)/df(t+d)-1 ) / d
- * where d is a given the payment offset.
+ * The forward with fixing in \( t \) is calculated as
+ * \(
+ * 		(\frac{1}{d} ( \frac{df(t)}{df(t+d)}-1 )
+ * \)
+ * where \( d \) is a given the payment offset and \( t \mapsto df(t) \)
+ * is the given discount curve.
+ * 
+ * The discount curve is reference by names and evaluated late (which allows use of
+ * this construct in a calibration process referencing changing discount curves.
  * 
  * @author Christian Fries
  */

@@ -156,4 +156,14 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 				+ ", getFixedPartEndTime()=" + getFixedPartEndTime()
 				+ ", toString()=" + super.toString() + "]";
 	}
+
+	@Override
+	public double getMinimum() {
+		return Math.min(this.fixedPartCurve.getMinimum(), this.baseCurve.getMinimum());
+	}
+
+	@Override
+	public double getMaximum() {
+		return Math.max(this.fixedPartCurve.getMaximum(), this.baseCurve.getMaximum());
+	}
 }
