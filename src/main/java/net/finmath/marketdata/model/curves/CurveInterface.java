@@ -80,4 +80,20 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * @throws CloneNotSupportedException Thrown, when this curve could not be cloned.
 	 */
 	CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException;
+
+	/**
+	 * Returns the minimum of the sample points constructing this curve.
+	 * This is not necessarily the minimum of the curve, which may be lower due to extrapolation and interpolation effects.
+	 * 
+	 * @return The minimum of the sample points constructing this curve.
+	 */
+	double getMinimum();
+
+	/**
+	 * Returns the maximum of the sample points constructing this curve.
+	 * This is not necessarily the maximum of the curve, which may be lower due to extrapolation and interpolation effects.
+	 * 
+	 * @return The maximum of the sample points constructing this curve.
+	 */
+	double getMaximum();
 }

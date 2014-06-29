@@ -468,4 +468,22 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		CurveBuilder curveBuilder = new CurveBuilder(this);
 		return curveBuilder;
 	}
+
+	@Override
+	public double getMinimum() {
+		double minimum = Double.MAX_VALUE;
+		for(Point point : points) {
+			minimum = Math.min(minimum, getValue(point.time));
+		}
+		return minimum;
+	}
+
+	@Override
+	public double getMaximum() {
+		double maximum = -Double.MAX_VALUE;
+		for(Point point : points) {
+			maximum = Math.max(maximum, getValue(point.time));
+		}
+		return maximum;
+	}
 }
