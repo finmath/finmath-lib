@@ -51,15 +51,13 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
         this.basisFunctionsPredictor = basisFunctionsPredictor;
     }
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation#getConditionalExpectation(net.finmath.stochastic.RandomVariableInterface)
-     */
+    @Override
     public RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable) {
+    	// Get regression parameters x as the solution of XTX x = XT y
     	double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
-    	// Calculate estimate
+    	// Calculate estimate, i.e. X x
         RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
-
         RandomVariableInterface conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
         for(int i=1; i<basisFunctions.length; i++) {
             conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
@@ -68,7 +66,13 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
         return conditionalExpectation;
     }
     
-    
+	/**
+	 * Return the solution x of XTX x = XT y for a given y.
+	 * @TODO Performance upon repeated call can be optimized by caching XTX.
+	 * 
+	 * @param dependents The sample vector of the random variable y.
+	 * @return The solution x of XTX x = XT y.
+	 */
 	public double[] getLinearRegressionParameters(RandomVariableInterface dependents) {
 
         // Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
@@ -76,15 +80,15 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
         double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
         for(int i=0; i<basisFunctions.length; i++) {
             for(int j=i; j<basisFunctions.length; j++) {
-            	XTX[i][j] = basisFunctions[i].getAverage(basisFunctions[j]);
-            	XTX[j][i] = XTX[i][j];
+            	XTX[i][j] = basisFunctions[i].getAverage(basisFunctions[j]);			// Scalar product
+            	XTX[j][i] = XTX[i][j];													// Symmetric matrix
             }
         }
 
         // Build XTy - the projection of the dependents random variable on the basis functions.
         double[] XTy = new double[basisFunctions.length];
         for(int i=0; i<basisFunctions.length; i++) {
-        	XTy[i] = dependents.getAverage(basisFunctions[i]);
+        	XTy[i] = dependents.getAverage(basisFunctions[i]);							// Scalar product
         }
 
         // Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
