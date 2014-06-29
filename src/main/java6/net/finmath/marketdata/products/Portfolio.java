@@ -142,7 +142,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	}
 
 	/**
-	 * Returns the list of products as an unmodifiable list. Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
+	 * Returns the list of products as an unmodifiable list.
+	 * Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
 	 * 
 	 * @return The list of products as an unmodifiable list.
 	 */
@@ -151,7 +152,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	}
 
 	/**
-	 * Returns the list of weights as an unmodifiable list. Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
+	 * Returns the list of weights as an unmodifiable list.
+	 * Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
 	 * 
 	 * @return The list of weights as an unmodifiable list.
 	 */

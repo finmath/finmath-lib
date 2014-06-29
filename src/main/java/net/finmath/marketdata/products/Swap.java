@@ -21,6 +21,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Support for day counting is limited to the capabilities of
  * <code>TimeDiscretizationInterface</code>.
  * 
+ * The swap is just the composition of two <code>SwapLeg</code>s, namely the
+ * receiver leg and the payer leg. The value of the swap is the value of the receiver leg minus the value of the payer leg.
+ * 
  * @author Christian Fries
  */
 public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -130,10 +133,20 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		return valueFloatLeg / swapAnnuity;
 	}
 
+	/**
+	 * Return the receiver leg of the swap, i.e. the leg who's value is added to the swap value.
+	 * 
+	 * @return The receiver leg of the swap.
+	 */
 	public SwapLeg getLegReceiver() {
 		return legReceiver;
 	}
 
+	/**
+	 * Return the payer leg of the swap, i.e. the leg who's value is subtracted from the swap value.
+	 * 
+	 * @return The payer leg of the swap.
+	 */
 	public SwapLeg getLegPayer() {
 		return legPayer;
 	}
