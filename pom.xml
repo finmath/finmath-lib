@@ -63,7 +63,7 @@
 	</dependencies>
 
 	<build>
-		<defaultGoal>install javadoc:javadoc</defaultGoal>
+		<defaultGoal>clean install javadoc:javadoc</defaultGoal>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<sourceDirectory>${src.main.dir}</sourceDirectory>
 		<testSourceDirectory>${src.test.dir}</testSourceDirectory>
@@ -101,6 +101,11 @@
 							<head>Date:</head>
 						</tag>
 					</tags>
+					<links>
+						<link>
+							http://commons.apache.org/proper/commons-math/javadocs/api-3.2
+						</link>
+					</links>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -185,24 +190,7 @@
 		</profile>
 	</profiles>
 
-	<!-- snapshots and releases are distributed via the following maven repository -->
-
-	<distributionManagement>
-		<repository>
-			<id>finmath</id>
-			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>finmath</id>
-			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-snapshots/</url>
-		</snapshotRepository>
-		<site>
-			<id>finmath-site</id>
-			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/java/finmath-lib/</url>
-		</site>
-	</distributionManagement>
-
-	<scm>
+  	<scm>
 		<url>scm:svn:http://svn.finmath.net/finmath lib/trunk</url>
 		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
 	</scm>
