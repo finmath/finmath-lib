@@ -12,7 +12,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * By changing the factory implementation used, you can (more or less globally)
  * change which implementation of random variable is used.
- * 
+ *
  * @author Christian Fries
  */
 public class RandomVariableFactory extends AbstractRandomVariableFactory {

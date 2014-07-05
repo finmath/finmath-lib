@@ -18,97 +18,97 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public abstract class AbstractModel implements AbstractModelInterface {
 
-    private AbstractProcessInterface       process;
+	private AbstractProcessInterface       process;
 
-    /**
-     * Returns the initial value of the model.
-     * 
-     * @return The initial value of the model.
-     */
-    public RandomVariableInterface[] getInitialValue() {
-    	RandomVariableInterface[] initialState = getInitialState();
-    	
-    	RandomVariableInterface[] value = new RandomVariableInterface[initialState.length];
-    	for(int i= 0; i<value.length; i++) {
-    		value[i] = applyStateSpaceTransform(i,initialState[i]);
-    	}
-    	
-    	return value;
-    }
+	/**
+	 * Returns the initial value of the model.
+	 * 
+	 * @return The initial value of the model.
+	 */
+	public RandomVariableInterface[] getInitialValue() {
+		RandomVariableInterface[] initialState = getInitialState();
 
-    /*
-     * Delegation to process (numerical scheme)
-     */
+		RandomVariableInterface[] value = new RandomVariableInterface[initialState.length];
+		for(int i= 0; i<value.length; i++) {
+			value[i] = applyStateSpaceTransform(i,initialState[i]);
+		}
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.model.AbstractModelInterface#setProcess(net.finmath.montecarlo.process.AbstractProcessInterface)
-     */
-    public void setProcess(AbstractProcessInterface process) {
-        this.process = process;
-    }
+		return value;
+	}
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.model.AbstractModelInterface#getProcess()
-     */
-    public AbstractProcessInterface getProcess() {
-    	return process;
-    }
+	/*
+	 * Delegation to process (numerical scheme)
+	 */
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumberOfFactors()
-     */
-    public int getNumberOfFactors() {
-        return process.getNumberOfFactors();
-    }
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#setProcess(net.finmath.montecarlo.process.AbstractProcessInterface)
+	 */
+	public void setProcess(AbstractProcessInterface process) {
+		this.process = process;
+	}
 
-    /**
-     * @param timeIndex The time index of evaluation time (using this models time discretization)
-     * @param componentIndex The component of the process vector
-     * @return Process realization as a random variable 
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-     * @see net.finmath.montecarlo.process.AbstractProcess#getProcessValue(int, int)
-     */
-    public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
-        return process.getProcessValue(timeIndex, componentIndex);
-    }
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getProcess()
+	 */
+	public AbstractProcessInterface getProcess() {
+		return process;
+	}
 
-    /**
-     * @param timeIndex The time index of evaluation time (using this models time discretization)
-     * @return A random variable representing the Monte-Carlo probabilities.
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-     * @see net.finmath.montecarlo.process.AbstractProcess#getMonteCarloWeights(int)
-     */
-    public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
-        return process.getMonteCarloWeights(timeIndex);
-    }
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumberOfFactors()
+	 */
+	public int getNumberOfFactors() {
+		return process.getNumberOfFactors();
+	}
 
-    /**
-     * Get the time discretization of the model (simulation time).
-     * @return The time discretization of the model (simulation time).
-     * @see net.finmath.montecarlo.process.AbstractProcess#getTimeDiscretization()
-     */
-    public final TimeDiscretizationInterface getTimeDiscretization() {
-        return process.getTimeDiscretization();
-    }
+	/**
+	 * @param timeIndex The time index of evaluation time (using this models time discretization)
+	 * @param componentIndex The component of the process vector
+	 * @return Process realization as a random variable 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @see net.finmath.montecarlo.process.AbstractProcess#getProcessValue(int, int)
+	 */
+	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
+		return process.getProcessValue(timeIndex, componentIndex);
+	}
 
-    /**
-     * Return the simulation time for a given time index.
-     * @param timeIndex Time index
-     * @return Returns the time for a given time index.
-     * @see net.finmath.montecarlo.process.AbstractProcess#getTime(int)
-     */
-    public final double getTime(int timeIndex) {
-        return process.getTime(timeIndex);
-    }
-    
+	/**
+	 * @param timeIndex The time index of evaluation time (using this models time discretization)
+	 * @return A random variable representing the Monte-Carlo probabilities.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @see net.finmath.montecarlo.process.AbstractProcess#getMonteCarloWeights(int)
+	 */
+	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+		return process.getMonteCarloWeights(timeIndex);
+	}
 
-    /**
-     * Return the time index associated for the given simulation time.
-     * @param time A given time.
-     * @return The time index corresponding to the given time.
-     * @see net.finmath.montecarlo.process.AbstractProcess#getTimeIndex(double)
-     */
-    public final int getTimeIndex(double time) {
-        return process.getTimeIndex(time);
-    }
+	/**
+	 * Get the time discretization of the model (simulation time).
+	 * @return The time discretization of the model (simulation time).
+	 * @see net.finmath.montecarlo.process.AbstractProcess#getTimeDiscretization()
+	 */
+	public final TimeDiscretizationInterface getTimeDiscretization() {
+		return process.getTimeDiscretization();
+	}
+
+	/**
+	 * Return the simulation time for a given time index.
+	 * @param timeIndex Time index
+	 * @return Returns the time for a given time index.
+	 * @see net.finmath.montecarlo.process.AbstractProcess#getTime(int)
+	 */
+	public final double getTime(int timeIndex) {
+		return process.getTime(timeIndex);
+	}
+
+
+	/**
+	 * Return the time index associated for the given simulation time.
+	 * @param time A given time.
+	 * @return The time index corresponding to the given time.
+	 * @see net.finmath.montecarlo.process.AbstractProcess#getTimeIndex(double)
+	 */
+	public final int getTimeIndex(double time) {
+		return process.getTimeIndex(time);
+	}
 }

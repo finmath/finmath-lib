@@ -31,42 +31,42 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  */
 public class DiscountCurveFromForwardCurve extends AbstractCurve implements Serializable, DiscountCurveInterface {
 
-    private static final long serialVersionUID = -4126228588123963885L;
+	private static final long serialVersionUID = -4126228588123963885L;
 
-    private String					forwardCurveName;
-    private ForwardCurveInterface	forwardCurve;
+	private String					forwardCurveName;
+	private ForwardCurveInterface	forwardCurve;
 
 	/**
-     * Create a discount curve using a given forward curve.
-     * The discount factors df(t) are defined at t = k * d for integers k
-     * via df(t+d) = df(t) / (1 + f(t) * d) and
-     * for t = k * d and 0 &lt; r &lt; d
-     * via df(t+r) = df(t) / (1 + f(t) * r)
-     * where d is a given the payment offset and f(t) is the forward curve.
-     * 
-     * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
-     */
-    public DiscountCurveFromForwardCurve(String forwardCurveName) {
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &lt; r &lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 * 
+	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
+	 */
+	public DiscountCurveFromForwardCurve(String forwardCurveName) {
 		super("DiscountCurveFromForwardCurve" + forwardCurveName + ")", null);
 
 		this.forwardCurveName	= forwardCurveName;
-    }
+	}
 
 	/**
-     * Create a discount curve using a given forward curve.
-     * The discount factors df(t) are defined at t = k * d for integers k
-     * via df(t+d) = df(t) / (1 + f(t) * d) and
-     * for t = k * d and 0 &lt; r &lt; d
-     * via df(t+r) = df(t) / (1 + f(t) * r)
-     * where d is a given the payment offset and f(t) is the forward curve.
-     * 
-     * @param forwardCurve The forward curve used for calculation of the discount factors.
-     */
-    public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &lt; r &lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 * 
+	 * @param forwardCurve The forward curve used for calculation of the discount factors.
+	 */
+	public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {
 		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
 
 		this.forwardCurve	= forwardCurve;
-    }
+	}
    
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
@@ -81,7 +81,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 */
 	@Override
 	public double getDiscountFactor(AnalyticModelInterface model, double maturity) {
-	    ForwardCurveInterface	forwardCurve;
+		ForwardCurveInterface	forwardCurve;
 		if(this.forwardCurve != null)	forwardCurve = this.forwardCurve;
 		else							forwardCurve = model.getForwardCurve(forwardCurveName);
 
@@ -118,15 +118,5 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	@Override
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
-	}
-
-	@Override
-	public double getMinimum() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public double getMaximum() {
-		throw new UnsupportedOperationException();
 	}
 }

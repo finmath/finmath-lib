@@ -70,13 +70,13 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
     
     public abstract void		setParameter(double[] parameter);
 
-    @Override
-    public abstract Object clone();
-    
+	@Override
+	public abstract Object clone();
+
     public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
     	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.clone();
 		calibrationCovarianceModel.setParameter(parameters);
-		
+
 		return calibrationCovarianceModel;
     }
     

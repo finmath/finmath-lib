@@ -36,14 +36,14 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param spread Additional fixed payment (if any).
 	 * @param discountCurveName Name of the discount curve for the forward.
 	 */
-    public Forward(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
-	    super();
+	public Forward(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
+		super();
 		this.maturity = maturity;
 		this.paymentOffset = paymentOffset;
-	    this.forwardCurveName = forwardCurveName;
-	    this.spread = spread;
-	    this.discountCurveName = discountCurveName;
-    }
+		this.forwardCurveName = forwardCurveName;
+		this.spread = spread;
+		this.discountCurveName = discountCurveName;
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
@@ -72,7 +72,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 			forward			+= (discountCurveForForward.getDiscountFactor(maturity) / discountCurveForForward.getDiscountFactor(maturity+paymentOffset) - 1.0) / paymentOffset;
 		}
 
-    	double discountFactor	= maturity+paymentOffset > evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : 0.0;
+		double discountFactor	= maturity+paymentOffset > evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : 0.0;
 
 		return forward * discountFactor / discountCurve.getDiscountFactor(model, evaluationTime);
 	}

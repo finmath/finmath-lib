@@ -76,16 +76,9 @@ public interface VolatilitySurfaceInterface {
 	VolatilitySurfaceInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
 
 	/**
-	 * Returns the minimum value possible in this volatility surface.
+	 * Return the default quoting convention of this surface.
 	 * 
-	 * @return The minimum value possible in this volatility surface.
+	 * @return the quotingConvention
 	 */
-	double getMinimum();
-
-	/**
-	 * Returns the maximum value possible in this volatility surface.
-	 * 
-	 * @return The maximum value possible in this volatility surface.
-	 */
-	double getMaximum();
+	QuotingConvention getQuotingConvention();
 }

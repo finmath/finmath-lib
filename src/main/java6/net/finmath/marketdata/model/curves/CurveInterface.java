@@ -22,7 +22,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * 
 	 * @return The name of this curve
 	 */
-    String getName();
+	String getName();
 
 	/**
 	 * Return the reference date of this curve, i.e. the date
@@ -38,7 +38,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * @param time Time for which the value should be returned.
 	 * @return The value at the give time.
 	 */
-    double getValue(double time);
+	double getValue(double time);
 
 	/**
 	 * Returns the value for the time using the interpolation method associated with this curve
@@ -51,7 +51,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * 
 	 * @return The value at the give time.
 	 */
-    double getValue(AnalyticModelInterface model, double time);
+	double getValue(AnalyticModelInterface model, double time);
 
 	/**
 	 * Create a deep copied clone.
@@ -80,20 +80,4 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * @throws CloneNotSupportedException Thrown, when this curve could not be cloned.
 	 */
 	CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException;
-
-	/**
-	 * Returns the minimum of the sample points constructing this curve.
-	 * This is not necessarily the minimum of the curve, which may be lower due to extrapolation and interpolation effects.
-	 * 
-	 * @return The minimum of the sample points constructing this curve.
-	 */
-	double getMinimum();
-
-	/**
-	 * Returns the maximum of the sample points constructing this curve.
-	 * This is not necessarily the maximum of the curve, which may be lower due to extrapolation and interpolation effects.
-	 * 
-	 * @return The maximum of the sample points constructing this curve.
-	 */
-	double getMaximum();
 }

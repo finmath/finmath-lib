@@ -114,13 +114,13 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 
 	/* (non-Javadoc)
-     * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
-     */
-    public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) {
-	    return getProcessValue(timeIndex, assetIndex);
-    }
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
+	 */
+	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) {
+		return getProcessValue(timeIndex, assetIndex);
+	}
 
-    public RandomVariableInterface getAssetValue(double time, int assetIndex) {
+	public RandomVariableInterface getAssetValue(double time, int assetIndex) {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
@@ -144,48 +144,45 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return getBrownianMotion().getRandomVariableForConstant(value);
+		return getBrownianMotion().getRandomVariableForConstant(value);
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return super.toString() + "\n" +
-		"MonteCarloBlackScholesModelByInheritance:\n" +
-		"  initial value...:" + initialValue + "\n" +
-		"  risk free rate..:" + riskFreeRate + "\n" +
-		"  volatiliy.......:" + volatility;
+				"MonteCarloBlackScholesModelByInheritance:\n" +
+				"  initial value...:" + initialValue + "\n" +
+				"  risk free rate..:" + riskFreeRate + "\n" +
+				"  volatiliy.......:" + volatility;
 	}
 
 	/**
-	 * @return Returns the riskFreeRate.
+	 * Returns the riskFreeRate.
+	 * 
+	 * @return The riskFreeRate.
 	 */
 	public double getRiskFreeRate() {
 		return riskFreeRate;
 	}
 
 	/**
-	 * @return Returns the volatility.
+	 * Returns the volatility.
+	 * 
+	 * @return The volatility.
 	 */
 	public double getVolatility() {
 		return volatility;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
-	 */
-	public Object getCloneWithModifiedSeed(int seed) {
+	@Override
+	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
 		return new MonteCarloBlackScholesModel2(this.getTimeDiscretization(), this.getNumberOfPaths(), this.getInitialValue()[0].get(0), this.getRiskFreeRate(), this.getVolatility(), seed);
 	}
 
-	/* (non-Javadoc)
-     * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
-     */
-    public MonteCarloSimulationInterface getCloneWithModifiedData(
-            Map<String, Object> dataModified) {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	@Override
+	public MonteCarloSimulationInterface getCloneWithModifiedData(
+			Map<String, Object> dataModified) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
