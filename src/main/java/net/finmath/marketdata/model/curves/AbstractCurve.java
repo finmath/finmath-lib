@@ -28,7 +28,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getName()
 	 */
 	@Override
-    public String getName() {
+	public String getName() {
 		return name;
 	}
 
@@ -40,7 +40,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-    public double getValue(double time) {
+	public double getValue(double time) {
 		return getValue(null, time);
 	}
 
@@ -62,8 +62,8 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	}
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	public AbstractCurve clone() throws CloneNotSupportedException {
+		return (AbstractCurve)super.clone();
 	}
 
 	@Override

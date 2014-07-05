@@ -95,6 +95,6 @@ public interface AbstractProcessInterface {
 	 * 
 	 * @return Clone of the process
 	 */
-    Object clone();
+    AbstractProcessInterface clone();
 
 }

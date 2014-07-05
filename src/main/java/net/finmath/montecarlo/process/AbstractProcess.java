@@ -37,7 +37,6 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 
 	public abstract Object getCloneWithModifiedSeed(int seed);	
 
-	
     /*
      * Delegation to model
      */
@@ -74,35 +73,23 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	 * Time discretization management
 	 */
 	
-	/* (non-Javadoc)
-     * @see net.finmath.montecarlo.AbstractProcessInterface#getTimeDiscretization()
-     */
 	@Override
     public TimeDiscretizationInterface getTimeDiscretization() {
 		return timeDiscretization;
 	}
 		
-	/* (non-Javadoc)
-     * @see net.finmath.montecarlo.AbstractProcessInterface#getTime(int)
-     */
 	@Override
     public double getTime(int timeIndex) {
 		if(timeIndex >= timeDiscretization.getNumberOfTimes()) throw new ArrayIndexOutOfBoundsException("Index for process time discretization out of bounds.");
 		return timeDiscretization.getTime(timeIndex);
 	}
 
-	/* (non-Javadoc)
-     * @see net.finmath.montecarlo.AbstractProcessInterface#getTimeIndex(double)
-     */
 	@Override
     public int getTimeIndex(double time) {
 		return timeDiscretization.getTimeIndex(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
 	@Override
-    public abstract Object clone();
+    public abstract AbstractProcess clone();
 
 }

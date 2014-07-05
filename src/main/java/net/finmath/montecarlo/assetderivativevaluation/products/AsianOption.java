@@ -47,25 +47,25 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 		this.timesForAveraging		= timesForAveraging;
 	}
 
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
-    	// Calculate average
-    	RandomVariableInterface average = model.getRandomVariableForConstant(0.0);
-    	for(double time : timesForAveraging) {
-    		RandomVariableInterface underlying	= model.getAssetValue(time,0);
-            average = average.add(underlying);
-    	}
-        average = average.div(timesForAveraging.getNumberOfTimes());
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+		// Calculate average
+		RandomVariableInterface average = model.getRandomVariableForConstant(0.0);
+		for(double time : timesForAveraging) {
+			RandomVariableInterface underlying	= model.getAssetValue(time,0);
+			average = average.add(underlying);
+		}
+		average = average.div(timesForAveraging.getNumberOfTimes());
 		
 		// The payoff: values = max(underlying - strike, 0)
 		RandomVariableInterface values = average.sub(strike).floor(0.0);
@@ -73,13 +73,13 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 		// Discounting...
 		RandomVariableInterface numeraireAtMaturity		= model.getNumeraire(maturity);
 		RandomVariableInterface monteCarloWeights		= model.getMonteCarloWeights(maturity);
-        values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
+		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-        RandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-        RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
-        values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
+		RandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
-        return values;
+		return values;
 	}
 }

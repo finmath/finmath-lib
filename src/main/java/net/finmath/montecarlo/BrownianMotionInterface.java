@@ -41,32 +41,32 @@ public interface BrownianMotionInterface {
 	 * 
 	 * @return The time discretization used for this set of time-discrete Brownian increments.
 	 */
-    TimeDiscretizationInterface getTimeDiscretization();
+	TimeDiscretizationInterface getTimeDiscretization();
 
 	/**
 	 * Returns the number of factors.
 	 * 
 	 * @return The number of factors.
 	 */
-    int getNumberOfFactors();
+	int getNumberOfFactors();
 
 	/**
 	 * Returns the number of paths.
 	 * 
 	 * @return The number of paths.
 	 */
-    int getNumberOfPaths();
+	int getNumberOfPaths();
 
-    /**
-     * Returns a random variable which is initialized to a constant,
-     * but has exactly the same number of paths or discretization points as the ones used by this BrownianMotionInterface.
-     *
-     * @param value The constant value to be used for initialized the random variable.
-     * @return A new random variable.
-     */
-    RandomVariableInterface getRandomVariableForConstant(double value);
+	/**
+	 * Returns a random variable which is initialized to a constant,
+	 * but has exactly the same number of paths or discretization points as the ones used by this BrownianMotionInterface.
+	 *
+	 * @param value The constant value to be used for initialized the random variable.
+	 * @return A new random variable.
+	 */
+	RandomVariableInterface getRandomVariableForConstant(double value);
 
-    /**
+	/**
 	 * Return a new object implementing BrownianMotionInterface
 	 * having the same specifications as this object but a different seed
 	 * for the random number generator.
@@ -77,7 +77,7 @@ public interface BrownianMotionInterface {
 	 * @param seed New value for the seed.
 	 * @return New object implementing BrownianMotionInterface.
 	 */
-    BrownianMotionInterface getCloneWithModifiedSeed(int seed);
+	BrownianMotionInterface getCloneWithModifiedSeed(int seed);
 
 
 	/**

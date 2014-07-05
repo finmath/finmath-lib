@@ -36,7 +36,7 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class RandomVariable implements RandomVariableInterface {
 
-    private final double      time;	                // Time (filtration)
+	private final double      time;	                // Time (filtration)
 
 	// Data model for the stochastic case (otherwise null)
 	private final double[]    realizations;           // Realizations

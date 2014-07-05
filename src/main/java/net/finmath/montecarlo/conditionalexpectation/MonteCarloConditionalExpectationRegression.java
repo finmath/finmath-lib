@@ -28,43 +28,43 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
 	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
 	private RandomVariableInterface[]    basisFunctionsPredictor		= null;
     
-    /**
-     * Creates a class for conditional expectation estimation.
-     * 
-     * @param basisFunctions A vector of random variables to be used as basis functions.
-     */
-    public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctions) {
-        super();
-        this.basisFunctionsEstimator = basisFunctions;
-        this.basisFunctionsPredictor = basisFunctions;
-    }
+	/**
+	 * Creates a class for conditional expectation estimation.
+	 * 
+	 * @param basisFunctions A vector of random variables to be used as basis functions.
+	 */
+	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctions) {
+		super();
+		this.basisFunctionsEstimator = basisFunctions;
+		this.basisFunctionsPredictor = basisFunctions;
+	}
 
-    /**
-     * Creates a class for conditional expectation estimation.
-     * 
-     * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
-     * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
-     */
-    public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctionsEstimator, RandomVariableInterface[] basisFunctionsPredictor) {
-        super();
-        this.basisFunctionsEstimator = basisFunctionsEstimator;
-        this.basisFunctionsPredictor = basisFunctionsPredictor;
-    }
+	/**
+	 * Creates a class for conditional expectation estimation.
+	 * 
+	 * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
+	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
+	 */
+	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctionsEstimator, RandomVariableInterface[] basisFunctionsPredictor) {
+		super();
+		this.basisFunctionsEstimator = basisFunctionsEstimator;
+		this.basisFunctionsPredictor = basisFunctionsPredictor;
+	}
 
-    @Override
-    public RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable) {
-    	// Get regression parameters x as the solution of XTX x = XT y
-    	double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
+	@Override
+	public RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable) {
+		// Get regression parameters x as the solution of XTX x = XT y
+		double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
-    	// Calculate estimate, i.e. X x
-        RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
-        RandomVariableInterface conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
-        for(int i=1; i<basisFunctions.length; i++) {
-            conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
-        }
+		// Calculate estimate, i.e. X x
+		RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
+		RandomVariableInterface conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
+		for(int i=1; i<basisFunctions.length; i++) {
+			conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
+		}
 
-        return conditionalExpectation;
-    }
+		return conditionalExpectation;
+	}
     
 	/**
 	 * Return the solution x of XTX x = XT y for a given y.
@@ -75,47 +75,47 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
 	 */
 	public double[] getLinearRegressionParameters(RandomVariableInterface dependents) {
 
-        // Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
-        RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsEstimator);
-        double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
-        for(int i=0; i<basisFunctions.length; i++) {
-            for(int j=i; j<basisFunctions.length; j++) {
-            	XTX[i][j] = basisFunctions[i].getAverage(basisFunctions[j]);			// Scalar product
-            	XTX[j][i] = XTX[i][j];													// Symmetric matrix
-            }
-        }
+		// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
+		RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsEstimator);
+		double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
+		for(int i=0; i<basisFunctions.length; i++) {
+			for(int j=i; j<basisFunctions.length; j++) {
+				XTX[i][j] = basisFunctions[i].getAverage(basisFunctions[j]);			// Scalar product
+				XTX[j][i] = XTX[i][j];													// Symmetric matrix
+			}
+		}
 
-        // Build XTy - the projection of the dependents random variable on the basis functions.
-        double[] XTy = new double[basisFunctions.length];
-        for(int i=0; i<basisFunctions.length; i++) {
-        	XTy[i] = dependents.getAverage(basisFunctions[i]);							// Scalar product
-        }
+		// Build XTy - the projection of the dependents random variable on the basis functions.
+		double[] XTy = new double[basisFunctions.length];
+		for(int i=0; i<basisFunctions.length; i++) {
+			XTy[i] = dependents.getAverage(basisFunctions[i]);							// Scalar product
+		}
 
-        // Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
-        double[] linearRegressionParameters = LinearAlgebra.solveLinearEquation(XTX, XTy);
+		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
+		double[] linearRegressionParameters = LinearAlgebra.solveLinearEquation(XTX, XTy);
 
-        return linearRegressionParameters;
-    }
+		return linearRegressionParameters;
+	}
 
-	
-    private RandomVariableInterface[] getNonZeroBasisFunctions(RandomVariableInterface[] basisFunctions) {
-    	int numberOfNonZeroBasisFunctions = 0;
-        for(int indexBasisFunction = 0; indexBasisFunction<basisFunctions.length; indexBasisFunction++) {
-        	if(basisFunctions[indexBasisFunction] != null) {
-        		numberOfNonZeroBasisFunctions++;
-        	}
-        }
-        
-        RandomVariableInterface[] nonZerobasisFunctions = new RandomVariableInterface[numberOfNonZeroBasisFunctions];
 
-    	int indexOfNonZeroBasisFunctions = 0;
-        for (RandomVariableInterface basisFunction : basisFunctions) {
-            if (basisFunction != null) {
-                nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
-                indexOfNonZeroBasisFunctions++;
-            }
-        }
+	private RandomVariableInterface[] getNonZeroBasisFunctions(RandomVariableInterface[] basisFunctions) {
+		int numberOfNonZeroBasisFunctions = 0;
+		for(int indexBasisFunction = 0; indexBasisFunction<basisFunctions.length; indexBasisFunction++) {
+			if(basisFunctions[indexBasisFunction] != null) {
+				numberOfNonZeroBasisFunctions++;
+			}
+		}
 
-        return nonZerobasisFunctions;
+		RandomVariableInterface[] nonZerobasisFunctions = new RandomVariableInterface[numberOfNonZeroBasisFunctions];
+
+		int indexOfNonZeroBasisFunctions = 0;
+		for (RandomVariableInterface basisFunction : basisFunctions) {
+			if (basisFunction != null) {
+				nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
+				indexOfNonZeroBasisFunctions++;
+			}
+		}
+
+		return nonZerobasisFunctions;
 	}
 }

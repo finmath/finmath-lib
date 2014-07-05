@@ -62,7 +62,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return A vector of process realizations (on path)
 	 */
 	@Override
-    public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) {
+	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcess == null || discreteProcess.length == 0) {
@@ -81,7 +81,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return A vector of positive weights
 	 */
 	@Override
-    public RandomVariableInterface getMonteCarloWeights(int timeIndex) {
+	public RandomVariableInterface getMonteCarloWeights(int timeIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcessWeights == null || discreteProcessWeights.length == 0) {
@@ -243,7 +243,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return Returns the numberOfPaths.
 	 */
 	@Override
-    public int getNumberOfPaths() {
+	public int getNumberOfPaths() {
 		return this.brownianMotion.getNumberOfPaths();
 	}
 
@@ -251,7 +251,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return Returns the numberOfFactors.
 	 */
 	@Override
-    public int getNumberOfFactors() {
+	public int getNumberOfFactors() {
 		return this.brownianMotion.getNumberOfFactors();
 	}
 
@@ -260,7 +260,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @deprecated The class will soon be changed to be immutable
 	 */
 	@Deprecated
-    public void setSeed(int seed) {
+	public void setSeed(int seed) {
 		// Create a new Brownian motion
 		this.setBrownianMotion(new net.finmath.montecarlo.BrownianMotion(
 				brownianMotion.getTimeDiscretization(), brownianMotion
@@ -274,7 +274,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return Returns the Brownian motion used in the generation of the process
 	 */
 	@Override
-    public BrownianMotionInterface getBrownianMotion() {
+	public BrownianMotionInterface getBrownianMotion() {
 		return brownianMotion;
 	}
 
@@ -283,7 +283,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @deprecated Do not use anymore. Processes should be immutable.
 	 */
 	@Deprecated
-    public void setBrownianMotion(
+	public void setBrownianMotion(
 			net.finmath.montecarlo.BrownianMotion brownianMotion) {
 		this.brownianMotion = brownianMotion;
 		// Force recalculation of the process
@@ -302,7 +302,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @deprecated Do not use anymore. Processes should be immutable.
 	 */
 	@Deprecated
-    public void setScheme(Scheme scheme) {
+	public void setScheme(Scheme scheme) {
 		this.scheme = scheme;
 		// Force recalculation of the process
 		this.reset();

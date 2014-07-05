@@ -50,7 +50,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 		
 		@Override
 		public CurveInterface build() throws CloneNotSupportedException {
-			PiecewiseCurve buildCurve = (PiecewiseCurve)curve.clone();
+			PiecewiseCurve buildCurve = curve.clone();
 			buildCurve.baseCurve = super.build();
 			curve = null;
 			return buildCurve;
@@ -132,14 +132,14 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 
 	@Override
 	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		PiecewiseCurve newCurve = (PiecewiseCurve)clone();
+		PiecewiseCurve newCurve = clone();
 		newCurve.baseCurve = baseCurve.getCloneForParameter(value);
 		
 		return newCurve;
 	}
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public PiecewiseCurve clone() throws CloneNotSupportedException {
 		return new PiecewiseCurve((CurveInterface) baseCurve.clone(), fixedPartCurve, fixedPartStartTime, fixedPartEndTime);
 	}
 
@@ -155,15 +155,5 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 				+ ", getFixedPartStartTime()=" + getFixedPartStartTime()
 				+ ", getFixedPartEndTime()=" + getFixedPartEndTime()
 				+ ", toString()=" + super.toString() + "]";
-	}
-
-	@Override
-	public double getMinimum() {
-		return Math.min(this.fixedPartCurve.getMinimum(), this.baseCurve.getMinimum());
-	}
-
-	@Override
-	public double getMaximum() {
-		return Math.max(this.fixedPartCurve.getMaximum(), this.baseCurve.getMaximum());
 	}
 }

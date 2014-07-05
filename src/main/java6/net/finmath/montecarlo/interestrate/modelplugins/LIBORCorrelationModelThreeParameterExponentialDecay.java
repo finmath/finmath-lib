@@ -21,8 +21,8 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	private double	c;
 	private final boolean isCalibrateable;
 
-	private volatile double[][]	correlationMatrix;
-	private volatile double[][]	factorMatrix;
+	private transient double[][]	correlationMatrix;
+	private transient double[][]	factorMatrix;
 	
 	public LIBORCorrelationModelThreeParameterExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a, double b, double c, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);

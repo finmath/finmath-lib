@@ -102,25 +102,25 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	}
 
 	private static class Point implements Comparable<Point>, Serializable {
-        private static final long serialVersionUID = 8857387999991917430L;
+		private static final long serialVersionUID = 8857387999991917430L;
 
-        public double time;
+		public double time;
 		public double value;
 		public boolean isParameter;
 
 		/**
-         * @param time
-         * @param value
-         */
-        public Point(double time, double value, boolean isParameter) {
-	        super();
-	        this.time = time;
-	        this.value = value;
-	        this.isParameter = isParameter;
-        }
+		 * @param time
+		 * @param value
+		 */
+		public Point(double time, double value, boolean isParameter) {
+			super();
+			this.time = time;
+			this.value = value;
+			this.isParameter = isParameter;
+		}
 
 		@Override
-        public int compareTo(Point point) {
+		public int compareTo(Point point) {
 			if(this.time < point.time) return -1;
 			if(this.time > point.time) return +1;
 
@@ -128,7 +128,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 		
 		@Override
-        public Object clone() {
+		public Object clone() {
 			return new Point(time,value,isParameter);
 		}
 	}
@@ -238,8 +238,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	/**
 	 * Create a curve with a given name, reference date and an interpolation method.
 	 * 
-     * @param name The name of this curve.
-     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param interpolationMethod The interpolation method used for the curve.
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
@@ -254,21 +254,21 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	/**
 	 * Create a curve with a given name, reference date.
 	 * 
-     * @param name The name of this curve.
-     * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
-     */
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 */
 	private Curve(String name, Calendar referenceDate) {
 		super(name, referenceDate);
 	}
 
 	@Override
-    public double getValue(double time)
+	public double getValue(double time)
 	{
 		return getValue(null, time);
 	}
 
 	@Override
-    public double getValue(AnalyticModelInterface model, double time)
+	public double getValue(AnalyticModelInterface model, double time)
 	{
 		Map<Double, Double> curveCache = curveCacheReference != null ? curveCacheReference.get() : null;
 		if(curveCache == null) {
@@ -340,8 +340,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 				pointsBeingParameters.add(-parameterIndex-1, point);
 			}
 		}
-    	this.rationalFunctionInterpolation = null;
-    	this.curveCacheReference = null;
+		this.rationalFunctionInterpolation = null;
+		this.curveCacheReference = null;
 
 	}
 	
@@ -382,33 +382,33 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		return java.util.Collections.binarySearch(pointsBeingParameters, point);
 	}
 	
-    @Override
-    public double[] getParameter() {
-    	double[] parameters = new double[pointsBeingParameters.size()];
-    	for(int i=0; i<pointsBeingParameters.size(); i++) {
-    		parameters[i] = valueFromInterpolationEntity(pointsBeingParameters.get(i).value, pointsBeingParameters.get(i).time);
-    	}
-    	return parameters;
-    }
+	@Override
+	public double[] getParameter() {
+		double[] parameters = new double[pointsBeingParameters.size()];
+		for(int i=0; i<pointsBeingParameters.size(); i++) {
+			parameters[i] = valueFromInterpolationEntity(pointsBeingParameters.get(i).value, pointsBeingParameters.get(i).time);
+		}
+		return parameters;
+	}
 
-    @Override
-    public void setParameter(double[] parameter) {
-    	throw new UnsupportedOperationException("This class is immutable. Use getCloneForParameter(double[]) instead.");
-    }
-    
-    private void setParameterPrivate(double[] parameter) {
-    	for(int i=0; i<pointsBeingParameters.size(); i++) {
-    		pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
-    	}
-    	this.rationalFunctionInterpolation = null;
-    	this.curveCacheReference = null;
-    }
+	@Override
+	public void setParameter(double[] parameter) {
+		throw new UnsupportedOperationException("This class is immutable. Use getCloneForParameter(double[]) instead.");
+	}
+
+	private void setParameterPrivate(double[] parameter) {
+		for(int i=0; i<pointsBeingParameters.size(); i++) {
+			pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
+		}
+		this.rationalFunctionInterpolation = null;
+		this.curveCacheReference = null;
+	}
 
 	public String toString() {
 		String objectAsString = super.toString() + "\n";
-        for (Point point : points) {
-            objectAsString = objectAsString + point.time + "\t" + valueFromInterpolationEntity(point.value, point.time) + "\n";
-        }
+		for (Point point : points) {
+			objectAsString = objectAsString + point.time + "\t" + valueFromInterpolationEntity(point.value, point.time) + "\n";
+		}
 		return objectAsString;
 	}
 	
@@ -438,7 +438,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	}
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public Curve clone() throws CloneNotSupportedException {
 		Curve newCurve = (Curve) super.clone();
 
 		newCurve.points					= new ArrayList<Point>();
@@ -467,23 +467,5 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
 		CurveBuilder curveBuilder = new CurveBuilder(this);
 		return curveBuilder;
-	}
-
-	@Override
-	public double getMinimum() {
-		double minimum = Double.MAX_VALUE;
-		for(Point point : points) {
-			minimum = Math.min(minimum, getValue(point.time));
-		}
-		return minimum;
-	}
-
-	@Override
-	public double getMaximum() {
-		double maximum = -Double.MAX_VALUE;
-		for(Point point : points) {
-			maximum = Math.max(maximum, getValue(point.time));
-		}
-		return maximum;
 	}
 }

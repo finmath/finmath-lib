@@ -47,8 +47,8 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	private QuotingConvention			quotingConvention;
 
 	/**
-    * @param name The name of this volatility surface.
-    * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param forwardCurve The underlying forward curve.
 	 * @param maturities The vector of maturities of the quotes.
 	 * @param strikes The vector of strikes of the quotes.
@@ -81,8 +81,8 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	/**
 	 * Private constructor for empty surface, to add points to it.
 	 * 
-    * @param name The name of this volatility surface.
-    * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 */
 	private CapletVolatilities(String name, Calendar referenceDate) {
 		super(name, referenceDate);
@@ -105,23 +105,28 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	}
 
 	@Override
-	public double getValue(double maturity, double strike, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
+	public double getValue(double maturity, double strike, VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
 		return getValue(null, maturity, strike, quotingConvention);
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double maturity, double strike, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
+	public double getValue(AnalyticModelInterface model, double maturity, double strike, VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
 		if(maturity == 0) return 0;
 		TimeDiscretizationInterface maturities = new TimeDiscretization(capletVolatilities.keySet().toArray(new Double[0]));
 		
-//		double maturityLowerOrEqual		= maturities.getTime(maturities.getTimeIndexNearestLessOrEqual(maturity));
+		//		double maturityLowerOrEqual		= maturities.getTime(maturities.getTimeIndexNearestLessOrEqual(maturity));
 		double maturityGreaterOfEqual	= maturities.getTime(Math.min(maturities.getTimeIndexNearestGreaterOrEqual(maturity),maturities.getNumberOfTimes()-1));
 
 		// Interpolation / extrapolation is performed on iso-moneyness lines.
 		double adjustedStrike	= forwardCurve.getValue(maturityGreaterOfEqual) + (strike - forwardCurve.getValue(maturity));
 		double value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
 
-		return convertFromTo(maturity, adjustedStrike, value, this.quotingConvention, quotingConvention);
+		return convertFromTo(maturity, strike, value, this.quotingConvention, quotingConvention);
+	}
+
+	@Override
+	public QuotingConvention getQuotingConvention() {
+		return quotingConvention;
 	}
 
 	/**
@@ -134,7 +139,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	 * @param toQuotingConvention The quoting convention requested.
 	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>. 
 	 */
-	private double convertFromTo(double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
+	public double convertFromTo(double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
 
 		if(fromQuotingConvention.equals(toQuotingConvention)) return value;
 		
@@ -160,7 +165,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	public static CapletVolatilities fromFile(File inputFile) throws FileNotFoundException {
 		// Read data
-        BufferedReader		dataStream	= new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));		
+		BufferedReader		dataStream	= new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));		
 		ArrayList<String>	datasets	= new ArrayList<String>();
 		try {
 			while(true) {
@@ -201,23 +206,5 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		}
 		
 		return capletVolatilities;
-	}
-
-	@Override
-	public double getMinimum() {
-		double minimum = Double.MAX_VALUE;
-		for(CurveInterface curve : capletVolatilities.values()) {
-			minimum = Math.min(minimum, curve.getMinimum());
-		}
-		return minimum;
-	}
-
-	@Override
-	public double getMaximum() {
-		double maximum = -Double.MAX_VALUE;
-		for(CurveInterface curve : capletVolatilities.values()) {
-			maximum = Math.max(maximum, curve.getMaximum());
-		}
-		return maximum;
 	}
 }
