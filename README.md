@@ -3,23 +3,23 @@ finmath lib
 
 Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.
 
+*********************************************************
+
 Projects
 --------
 
 You will find several project in the repository at finmath.net:
 
 **finmath lib**  
-    Java library providing implementations of methodologies related to
-    mathematical finance, but applicable to other fields (e.g., the
-    Monte-Carlo simulation of SDEs and the estimation of conditional
-    expectations in Monte-Carlo).
 
-    finmath lib is now on Java 8 (since February 2nd, 2014), but a Java 6 version
-    is provided too.
+Java library providing implementations of methodologies related to
+mathematical finance, but applicable to other fields (e.g., the
+Monte-Carlo simulation of SDEs and the estimation of conditional
+expectations in Monte-Carlo).
 
-    Note: for convenience the provided Eclipse project is configured for Java 6.
-    The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e.
-    the maven command line option "-P java-8"
+**finmath lib is now on Java 8 (since February 2nd, 2014), but a Java 6 version is provided too.**
+
+*Note: for convenience the provided Eclipse project is configured for Java 6. The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e. the maven command line option "-P java-8"*
 
 **finmath spreadsheets**  
     A collection of spreadsheets building upon *finmath lib* and
@@ -31,8 +31,21 @@ You will find several project in the repository at finmath.net:
     finance. Also illustrates how to use the finmath lib.
 
 
-finmath lib Java Library
-------------------------
+*********************************************************
+
+finmath lib Java Library: Distribution
+--------------------------------------
+
+Starting with version 1.2.19 finmath lib is distributed through the central maven repository. It's coordinates are:
+
+	<groupId>net.finmath</groupId>
+	<artifactId>finmath-lib</artifactId>
+	<version>1.2.19</version>
+	
+
+
+finmath lib Java Library: Source code
+-------------------------------------
 
 The finmath lib Java library comes in two flavors which have a slightly different code base: a Java 8 version and a Java 6 version.
 We will use Java 8 concepts in the future and try to provide Java 6 compatibility where possible.
