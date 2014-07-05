@@ -25,14 +25,14 @@ public interface MonteCarloSimulationInterface {
 	 * 
 	 * @return Returns the numberOfPaths.
 	 */
-    int getNumberOfPaths();
+	int getNumberOfPaths();
 
 	/**
 	 * Returns the timeDiscretization.
 	 * 
 	 * @return Returns the timeDiscretization.
 	 */
-    TimeDiscretizationInterface getTimeDiscretization();
+	TimeDiscretizationInterface getTimeDiscretization();
 
 	/**
 	 * Returns the time for a given time index.
@@ -40,7 +40,7 @@ public interface MonteCarloSimulationInterface {
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
-    double getTime(int timeIndex);
+	double getTime(int timeIndex);
 
 	/**
 	 * Returns the time index for a given time.
@@ -48,41 +48,41 @@ public interface MonteCarloSimulationInterface {
 	 * @param time The time.
 	 * @return Returns the time index for a given time.
 	 */
-    int getTimeIndex(double time);
+	int getTimeIndex(double time);
 
-    /**
-     * Returns a random variable which is initialized to a constant,
-     * but has exactly the same number of paths or discretization points as the ones used by this <code>MonteCarloSimulationInterface</code>.
-     *
-     * @param value The constant value to be used for initialized the random variable.
-     * @return A new random variable.
-     */
-    RandomVariableInterface getRandomVariableForConstant(double value);
+	/**
+	 * Returns a random variable which is initialized to a constant,
+	 * but has exactly the same number of paths or discretization points as the ones used by this <code>MonteCarloSimulationInterface</code>.
+	 *
+	 * @param value The constant value to be used for initialized the random variable.
+	 * @return A new random variable.
+	 */
+	RandomVariableInterface getRandomVariableForConstant(double value);
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
 	 * 
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-    RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
+	RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
 	 * 
 	 * @param time Time at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-    RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
+	RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
 
 	/**
 	 * Create a clone of this simulation modifying some of its properties (if any).
 	 * 
 	 * @param dataModified The data which should be changed in the new model
 	 * @return Returns a clone of this model, with some data modified (then it is no longer a clone :-)
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-    MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+	MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }
