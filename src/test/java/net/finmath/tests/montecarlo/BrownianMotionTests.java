@@ -21,16 +21,16 @@ import org.junit.Test;
  */
 public class BrownianMotionTests {
 
-	static final DecimalFormat fromatterReal2	= new DecimalFormat(" 0.00");
-	static final DecimalFormat fromatterSci4	= new DecimalFormat(" 0.0000E00;-0.0000E00");
-	static final DecimalFormat fromatterSci1	= new DecimalFormat(" 0E00;-0.E00");
+	static final DecimalFormat formatterReal2	= new DecimalFormat(" 0.00");
+	static final DecimalFormat formatterSci4	= new DecimalFormat(" 0.0000E00;-0.0000E00");
+	static final DecimalFormat formatterSci1	= new DecimalFormat(" 0E00;-0.E00");
 
 	@Test
 	public void testScalarValuedBrownianMotionTerminalDistribution() {
 		// The parameters
-		int seed			= 53252;
-		double lastTime	= 1;//0.001;
-		double dt		= 1;//0.001;
+		int		seed		= 53252;
+		double	lastTime	= 1;//0.001;
+		double	dt			= 1;//0.001;
 
 		System.out.println("Test of mean and variance of a single Brownian increment.");
 
@@ -47,14 +47,14 @@ public class BrownianMotionTests {
 					seed
 			);
 			
-			System.out.print("\tNumber of path = " + fromatterSci1.format(numberOfPaths) + "\t ");
+			System.out.print("\tNumber of path = " + formatterSci1.format(numberOfPaths) + "\t ");
 
 			RandomVariableInterface brownianRealization = brownian.getBrownianIncrement(0, 0);
 			
 			double mean		= brownianRealization.getAverage();
 			double variance	= brownianRealization.getVariance();
 			
-			System.out.print("error of mean = " + fromatterSci4.format(mean) + "\t error of variance = " + fromatterSci4.format(variance-dt));
+			System.out.print("error of mean = " + formatterSci4.format(mean) + "\t error of variance = " + formatterSci4.format(variance-dt));
 
 			Assert.assertTrue(Math.abs(mean         ) < 3.0 * Math.pow(dt,0.5) / Math.pow(numberOfPaths,0.5));
 			Assert.assertTrue(Math.abs(variance - dt) < 3.0 * Math.pow(dt,1.0) / Math.pow(numberOfPaths,0.5));
@@ -115,11 +115,11 @@ public class BrownianMotionTests {
 		Assert.assertTrue(Math.abs(varianceOfSumOfCrossIncrements) < 1.0E-2);
 
 		
-		System.out.println("\t              t = " + fromatterReal2.format(time));
-		System.out.println("\tint_0^t dW1 dW1 = " + fromatterSci4.format(meanOfSumOfSquaredIncrements)
-				+ "\t (Monte-Carlo variance: " + fromatterSci4.format(varianceOfSumOfSquaredIncrements) + ")");
-		System.out.println("\tint_0^t dW1 dW2 = " + fromatterSci4.format(meanOfSumOfCrossIncrements)
-				+ "\t (Monte-Carlo variance: " + fromatterSci4.format(varianceOfSumOfCrossIncrements) + ")");
+		System.out.println("\t              t = " + formatterReal2.format(time));
+		System.out.println("\tint_0^t dW1 dW1 = " + formatterSci4.format(meanOfSumOfSquaredIncrements)
+				+ "\t (Monte-Carlo variance: " + formatterSci4.format(varianceOfSumOfSquaredIncrements) + ")");
+		System.out.println("\tint_0^t dW1 dW2 = " + formatterSci4.format(meanOfSumOfCrossIncrements)
+				+ "\t (Monte-Carlo variance: " + formatterSci4.format(varianceOfSumOfCrossIncrements) + ")");
 
 		System.out.println("");
 	}
