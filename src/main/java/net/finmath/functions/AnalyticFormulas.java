@@ -689,8 +689,8 @@ public class AnalyticFormulas {
 	{
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
 		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
-		int		maxIterations	= 500;
-		double	maxAccuracy		= 1E-15;
+		int		maxIterations	= 100;
+		double	maxAccuracy		= 0.0;
 		
 		if(optionStrike <= 0.0)
 		{	
@@ -701,8 +701,8 @@ public class AnalyticFormulas {
 		{
 			// Calculate an lower and upper bound for the volatility
 			double volatilityLowerBound = 0.0;
-			double volatilityUpperBound = (optionValue / payoffUnit - (forward - optionStrike) * NormalDistribution.cumulativeDistribution(0.0))
-					/ (Math.sqrt(optionMaturity) * NormalDistribution.density(0.0)) ;
+			double volatilityUpperBound = (optionValue + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity) / payoffUnit;
+			volatilityUpperBound /= Math.min(1.0, NormalDistribution.density((forward - optionStrike) / (volatilityUpperBound * Math.sqrt(optionMaturity))));
 
 			// Solve for implied volatility
 			GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
