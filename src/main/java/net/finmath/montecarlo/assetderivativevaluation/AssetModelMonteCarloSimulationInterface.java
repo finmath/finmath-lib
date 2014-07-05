@@ -22,7 +22,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * 
 	 * @return The number of asset price processes
 	 */
-    int					getNumberOfAssets();
+	int					getNumberOfAssets();
 
 	/**
 	 * Returns the random variable representing the asset's value at a given time for a given asset.
@@ -30,9 +30,9 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param timeIndex		Index of simulation time
 	 * @param assetIndex	Index of the asset (0 for a single asset model)
 	 * @return				The asset process as seen on simulation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-    RandomVariableInterface		getAssetValue(int timeIndex, int assetIndex) throws CalculationException;
+	RandomVariableInterface		getAssetValue(int timeIndex, int assetIndex) throws CalculationException;
 
 	/**
 	 * Returns the random variable representing the asset's value at a given time for a given asset.
@@ -40,9 +40,9 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param time			Simulation time
 	 * @param assetIndex	Index of the asset (0 for a single asset model)
 	 * @return				The asset process as seen on simulation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-    RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
+	RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
 
 	/**
 	 * Returns the numeraire associated with the valuation measure used by this model.
@@ -67,5 +67,5 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @param seed The seed of the underlying random number generator.
 	 * @return Returns a clone of this model except for a modified Monte-Carlo seed.
 	 */
-    Object getCloneWithModifiedSeed(int seed);
+	AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed);
 }
