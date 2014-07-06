@@ -235,7 +235,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
         result = 31 * result + numberOfFactors;
         result = 31 * result + numberOfPaths;
         result = 31 * result + seed;
-        result = 31 * result + Double.hashCode(shape);
+        result = 31 * result + (new Double(shape)).hashCode();
         return result;
     }
 }
