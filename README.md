@@ -1,3 +1,7 @@
+Changes by KIC
+
+added a generic reusable LevenbergMarquardt optimizer -> LevenbergMarquardtGeneric
+
 finmath lib
 ===========
 
