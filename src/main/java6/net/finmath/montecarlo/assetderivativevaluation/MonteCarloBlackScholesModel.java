@@ -259,7 +259,7 @@ public class MonteCarloBlackScholesModel extends AbstractModel implements AssetM
 	}
 
 	@Override
-	public MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
