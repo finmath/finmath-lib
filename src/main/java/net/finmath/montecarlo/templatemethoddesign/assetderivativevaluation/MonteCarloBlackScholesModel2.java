@@ -180,9 +180,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	}
 
 	@Override
-	public MonteCarloSimulationInterface getCloneWithModifiedData(
-			Map<String, Object> dataModified) {
-		// TODO Auto-generated method stub
-		return null;
+	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+		throw new UnsupportedOperationException();
 	}
 }
