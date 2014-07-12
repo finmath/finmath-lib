@@ -42,6 +42,14 @@
 		</developer>
 	</developers>
 
+	<contributors>
+		<contributor>
+			<name>Alessandro Gnoatto</name>
+			<email>alessandro.gnoatto@math.lmu.de</email>
+			<timezone>1</timezone>
+		</contributor>
+	</contributors>
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -130,6 +138,11 @@
 						<artifactId>wagon-ssh</artifactId>
 						<version>1.0</version>
 					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-project-info-reports-plugin</artifactId>
+						<version>2.7</version>
+					</dependency>
 				</dependencies>
 			</plugin>
 		</plugins>
@@ -193,6 +206,10 @@
 			</build>
 		</profile>
 	</profiles>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/finmath/finmath-lib/issues</url>
+	</issueManagement>
 
 	<scm>
 		<url>http://svn.finmath.net/finmath lib/trunk</url>
