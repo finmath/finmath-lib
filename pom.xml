@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.4</version>
+			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -59,7 +59,12 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.2</version>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+  	</dependencies>
 
 	<build>
 		<defaultGoal>clean install javadoc:javadoc</defaultGoal>
@@ -189,10 +194,11 @@
 		</profile>
 	</profiles>
 
-  	<scm>
-		<url>scm:svn:http://svn.finmath.net/finmath lib/trunk</url>
+	<scm>
+		<url>http://svn.finmath.net/finmath lib/trunk</url>
 		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
 		<developerConnection>scm:svn:http://svn.finmath.net/finmath lib/trunk</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
 
 	<ciManagement>
