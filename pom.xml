@@ -15,7 +15,10 @@
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
-	<description>Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.</description>
+	<description>
+		finmath lib is a Mathematical Finance Library in Java.
+		It provides algorithms and methodologies related to mathematical finance.						
+	</description>
 	<url>http://www.finmath.net</url>
 
 	<properties>
@@ -46,6 +49,11 @@
 		<contributor>
 			<name>Alessandro Gnoatto</name>
 			<email>alessandro.gnoatto@math.lmu.de</email>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
+			<name>Oliver Schweitzer</name>
+			<email>oschweitzer@me.com</email>
 			<timezone>1</timezone>
 		</contributor>
 	</contributors>
@@ -138,14 +146,13 @@
 						<artifactId>wagon-ssh</artifactId>
 						<version>1.0</version>
 					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-project-info-reports-plugin</artifactId>
-						<version>2.7</version>
-					</dependency>
 				</dependencies>
 			</plugin>
-		</plugins>
+			<plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.7</version>
+        	</plugin>
+        </plugins>
 	</build>
 
 	<profiles>
