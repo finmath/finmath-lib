@@ -6,6 +6,7 @@
 package net.finmath.optimizer;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -15,6 +16,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import net.finmath.functions.LinearAlgebra;
 
@@ -91,9 +94,9 @@ import net.finmath.functions.LinearAlgebra;
  * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
  * 
  * @author Christian Fries
- * @version 1.4
+ * @version 1.5
  */
-public abstract class LevenbergMarquardt {
+public abstract class LevenbergMarquardt implements Cloneable {
 
 	private double[] initialParameters = null;
 	private double[] parameterSteps = null;
@@ -132,7 +135,7 @@ public abstract class LevenbergMarquardt {
 	private final Logger logger = Logger.getLogger("net.finmath");
 
 	// A simple test
-	public static void main(String[] args) throws SolverException {
+	public static void main(String[] args) throws SolverException, CloneNotSupportedException {
 
 		LevenbergMarquardt optimizer = new LevenbergMarquardt() {
 
@@ -153,11 +156,19 @@ public abstract class LevenbergMarquardt {
 		optimizer.run();
 
 		double[] bestParameters = optimizer.getBestFitParameters();
-		System.out.println("The solver required " + optimizer.getIterations()
-				+ " iterations. The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) {
-			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
-		}
+		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+
+		/*
+		 * Creating a clone, continuing the search with new target values.
+		 * Note that we do not re-define the setValues method.
+		 */
+		LevenbergMarquardt optimizer2 = optimizer.getCloneWithModifiedTargetValues(new double[] { 5.1, 10.2 }, new double[] { 1, 1 }, true);
+		optimizer2.run();
+
+		double[] bestParameters2 = optimizer2.getBestFitParameters();
+		System.out.println("The solver for problem 2 required " + optimizer2.getIterations() + " iterations. The best fit parameters are:");
+		for (int i = 0; i < bestParameters2.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters2[i]);
 	}
 
 	/**
@@ -201,11 +212,13 @@ public abstract class LevenbergMarquardt {
 	/**
 	 * Set the initial parameters for the solver.
 	 * 
-	 * @param initialParameters
-	 *            The initial parameters.
+	 * @param initialParameters The initial parameters.
+	 * @return A self reference.
 	 */
-	public void setInitialParameters(double[] initialParameters) {
+	public LevenbergMarquardt setInitialParameters(double[] initialParameters) {
+		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
 		this.initialParameters = initialParameters;
+		return this;
 	}
 
 	/**
@@ -214,40 +227,50 @@ public abstract class LevenbergMarquardt {
 	 * finite differences, if analytic derivatives are not provided.
 	 * 
 	 * @param parameterSteps The parameter step.
+	 * @return A self reference.
 	 */
-	public void setParameterSteps(double[] parameterSteps) {
+	public LevenbergMarquardt setParameterSteps(double[] parameterSteps) {
+		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
 		this.parameterSteps = parameterSteps;
+		return this;
 	}
 
 	/**
 	 * Set the target values for the solver. The solver will solver the
 	 * equation weights * objectiveFunction = targetValues.
 	 * 
-	 * @param targetValues
-	 *            The target values.
+	 * @param targetValues The target values.
+	 * @return A self reference.
 	 */
-	public void setTargetValues(double[] targetValues) {
+	public LevenbergMarquardt setTargetValues(double[] targetValues) {
+		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
 		this.targetValues = targetValues;
+		return this;
 	}
 
 	/**
 	 * Set the maximum number of iterations to be performed until the solver
 	 * gives up.
 	 * 
-	 * @param maxIteration
-	 *            The maximum number of iterations.
+	 * @param maxIteration The maximum number of iterations.
+	 * @return A self reference.
 	 */
-	public void setMaxIteration(int maxIteration) {
+	public LevenbergMarquardt setMaxIteration(int maxIteration) {
+		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
 		this.maxIteration = maxIteration;
+		return this;
 	}
 
 	/**
 	 * Set the weight for the objective function.
 	 * 
 	 * @param weights The weights for the objective function.
+	 * @return A self reference.
 	 */
-	public void setWeights(double[] weights) {
+	public LevenbergMarquardt setWeights(double[] weights) {
+		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
 		this.weights = weights;
+		return this;
 	}
 
 
@@ -256,14 +279,17 @@ public abstract class LevenbergMarquardt {
 	 * if the error is not improving by this given error tolerance.
 	 * 
 	 * @param errorTolerance The error tolerance.
+	 * @return A self reference.
 	 */
-	public void setErrorTolerance(double errorTolerance) {
+	public LevenbergMarquardt setErrorTolerance(double errorTolerance) {
+		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
 		/*
 		 * The solver uses internally a mean squared error.
 		 * To avoid calculation of Math.sqrt we convert the tolarance
 		 * to its squared.
 		 */
 		this.errorMeanSquaredTolerance = errorTolerance * errorTolerance;
+		return this;
 	}
 
 	/**
@@ -273,6 +299,20 @@ public abstract class LevenbergMarquardt {
 	 */
 	public double[] getBestFitParameters() {
 		return parameterCurrent;
+	}
+
+	/**
+	 * @return the the root mean square error of achieved with the the best fit parameter
+	 */
+	public double getRootMeanSquaredError() {
+		return errorMeanSquaredCurrent;
+	}
+
+	/**
+	 * @param errorMeanSquaredCurrent the errorMeanSquaredCurrent to set
+	 */
+	public void setErrorMeanSquaredCurrent(double errorMeanSquaredCurrent) {
+		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
 	}
 
 	/**
@@ -541,5 +581,78 @@ public abstract class LevenbergMarquardt {
 		for (int i = 0; i < parameterCurrent.length; i++) {
 			parameterTest[i] = parameterCurrent[i] + parameterIncrement[i];
 		}
+	}
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer.
+	 * 
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(double[], double[])} and
+	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 */
+	@Override
+	public LevenbergMarquardt clone() throws CloneNotSupportedException {
+		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)super.clone();
+		clonedOptimizer.isParameterCurrentDerivativeValid = false;
+		clonedOptimizer.iteration = 0;
+		clonedOptimizer.errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;
+		clonedOptimizer.errorMeanSquaredChange	= Double.POSITIVE_INFINITY;
+		return clonedOptimizer;
+	}
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
+	 * target values and weights.
+	 * 
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(double[], double[])} and
+	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 * 
+	 * The initial values of the cloned optimizer will either be the original
+	 * initial values of this object or the best parameters obtained by this
+	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
+	 * 
+	 * @param newTargetVaues New array of target values.
+	 * @param newWeights New array of weights.
+	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
+	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
+	 * @throws CloneNotSupportedException
+	 */
+	public LevenbergMarquardt getCloneWithModifiedTargetValues(double[] newTargetVaues, double[] newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
+		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
+		clonedOptimizer.weights = newWeights.clone();				// Defensive copy
+
+		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+		
+		return clonedOptimizer;
+	}
+	
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
+	 * target values and weights.
+	 * 
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(double[], double[])} and
+	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 * 
+	 * The initial values of the cloned optimizer will either be the original
+	 * initial values of this object or the best parameters obtained by this
+	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
+	 * 
+	 * @param newTargetVaues New list of target values.
+	 * @param newWeights New list of weights.
+	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
+	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
+	 * @throws CloneNotSupportedException
+	 */
+	public LevenbergMarquardt getCloneWithModifiedTargetValues(List<Double> newTargetVaues, List<Double> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
+		clonedOptimizer.targetValues = ArrayUtils.toPrimitive(newTargetVaues.toArray(new Double[0]));;
+		clonedOptimizer.weights = ArrayUtils.toPrimitive(newWeights.toArray(new Double[0]));
+
+		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+
+		return clonedOptimizer;
 	}
 }
