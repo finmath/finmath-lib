@@ -151,6 +151,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
+
 		ForwardCurve forwardCurve = new ForwardCurve(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,
 				interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName);
 	
