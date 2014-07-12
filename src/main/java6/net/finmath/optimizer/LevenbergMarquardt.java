@@ -129,8 +129,15 @@ public abstract class LevenbergMarquardt implements Cloneable {
 	private double[][]	hessianMatrix = null;
 	private double[]	beta = null;
 
+	/*
+	 * Used for multi-threadded calculation of the derivative.
+	 * The use may provide its own executor. If not and numberOfThreads > 1
+	 * we will temporarily create an executor with the specified number of threads.
+	 * Note: If an executor was provided upon construction, it will not receive a shutdown when done.
+	 */
 	private int				numberOfThreads	= 1;
-	private ExecutorService executor		= null;
+	private ExecutorService executor					= null;
+	private boolean			executorShutdownWhenDone	= true;
 
 	private final Logger logger = Logger.getLogger("net.finmath");
 
@@ -188,7 +195,31 @@ public abstract class LevenbergMarquardt implements Cloneable {
 		this.weights			= new double[targetValues.length];
 		java.util.Arrays.fill(weights, 1.0);
 
+		this.executor = null;
+		this.executorShutdownWhenDone = true;
 		this.numberOfThreads = numberOfThreads;
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 * 
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, ExecutorService executorService) {
+		super();
+		this.initialParameters	= initialParameters;
+		this.targetValues		= targetValues;
+		this.maxIteration		= maxIteration;
+
+		this.weights			= new double[targetValues.length];
+		java.util.Arrays.fill(weights, 1.0);
+
+		this.executor = executorService;
+		this.executorShutdownWhenDone = (executorService == null);
+		this.numberOfThreads = 1;
 	}
 
 	/**
@@ -346,7 +377,7 @@ public abstract class LevenbergMarquardt implements Cloneable {
 		// Calculate new derivatives. Note that this method is called only with
 		// parameters = parameterCurrent, so we may use valueCurrent.
 
-    	Vector<Future<double[]>> valueFutures = new Vector<Future<double[]>>(parameterCurrent.length);
+		Vector<Future<double[]>> valueFutures = new Vector<Future<double[]>>(parameterCurrent.length);
 		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
 			final double[] parametersNew	= parameters.clone();
 			final double[] derivative		= derivatives[parameterIndex];
@@ -366,10 +397,10 @@ public abstract class LevenbergMarquardt implements Cloneable {
 						 */
 						parameterFiniteDifference = (Math.abs(parametersNew[workerParameterIndex]) + 1) * 1E-8;
 					}
-		
+
 					// Shift parameter value
 					parametersNew[workerParameterIndex] += parameterFiniteDifference;
-		
+
 					// Calculate derivative as (valueUpShift - valueCurrent) /
 					// parameterFiniteDifference
 					try {
@@ -397,13 +428,13 @@ public abstract class LevenbergMarquardt implements Cloneable {
 		}
 
 		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
-        	try {
-        		derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
-        	}
-    		catch (InterruptedException e) {
-    			throw new SolverException(e);
+			try {
+				derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
+			}
+			catch (InterruptedException e) {
+				throw new SolverException(e);
 			} catch (ExecutionException e) {
-    			throw new SolverException(e);
+				throw new SolverException(e);
 			}
 		}
 	}
@@ -436,80 +467,87 @@ public abstract class LevenbergMarquardt implements Cloneable {
 	 */
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
-		if(numberOfThreads > 1) if(executor == null) executor = Executors.newFixedThreadPool(numberOfThreads);
-
-		// Allocate memory
-		int numberOfParameters	= initialParameters.length;
-		int numberOfValues		= targetValues.length;
-
-		parameterTest		= initialParameters.clone();
-		parameterIncrement	= new double[numberOfParameters];
-		parameterCurrent	= new double[numberOfParameters];
-
-		valueTest			= new double[numberOfValues];
-		valueCurrent		= new double[numberOfValues];
-		derivativeCurrent	= new double[parameterCurrent.length][valueCurrent.length];
-
-		hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
-		beta = new double[parameterCurrent.length];
-
-		iteration = 0;
-
-		while(true) {
-			// Count iterations
-			iteration++;
-
-			// Calculate values for test parameters
-			setValues(parameterTest, valueTest);
-
-			// calculate error
-			double errorMeanSquaredTest = getMeanSquaredError(valueTest);
-
-			if (errorMeanSquaredTest < errorMeanSquaredCurrent) {
-				errorMeanSquaredChange = errorMeanSquaredCurrent - errorMeanSquaredTest;
-
-				// Accept point
-				System.arraycopy(parameterTest, 0, parameterCurrent, 0, parameterCurrent.length);
-				System.arraycopy(valueTest, 0, valueCurrent, 0, valueCurrent.length);
-				errorMeanSquaredCurrent		= errorMeanSquaredTest;
-
-				// Derivative has to be recalculated
-				isParameterCurrentDerivativeValid = false;
-
-				// Decrease lambda (move faster)
-				lambda			/= 1.3;
-				lambdaMultiplicator	= 1.3;
-			} else {
-				errorMeanSquaredChange = errorMeanSquaredTest - errorMeanSquaredCurrent;
-
-				// Reject point, increase lambda (move slower)
-				lambda				*= lambdaMultiplicator;
-				lambdaMultiplicator *= 1.3;
-			}
-
-			// Update a new parameter trial, if we are not done
-			if (!done())
-				updateParameterTest();
-			else
-				break;
-
-			// Log iteration
-			if (logger.isLoggable(Level.FINE))
-			{
-				String logString = "Iteration: " + iteration + "\tLambda="
-						+ lambda + "\tError Current:" + errorMeanSquaredCurrent
-						+ "\tError Change:" + errorMeanSquaredChange + "\t";
-				for (int i = 0; i < parameterCurrent.length; i++) {
-					logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
-				}
-				logger.fine(logString);
-			}
+		if(numberOfThreads > 1) if(executor == null) {
+			executor = Executors.newFixedThreadPool(numberOfThreads);
+			executorShutdownWhenDone = true;
 		}
 
-		// Shutdown executor if present.
-		if(executor != null) {
-			executor.shutdown();
-			executor = null;
+		try {
+
+			// Allocate memory
+			int numberOfParameters	= initialParameters.length;
+			int numberOfValues		= targetValues.length;
+
+			parameterTest		= initialParameters.clone();
+			parameterIncrement	= new double[numberOfParameters];
+			parameterCurrent	= new double[numberOfParameters];
+
+			valueTest			= new double[numberOfValues];
+			valueCurrent		= new double[numberOfValues];
+			derivativeCurrent	= new double[parameterCurrent.length][valueCurrent.length];
+
+			hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
+			beta = new double[parameterCurrent.length];
+
+			iteration = 0;
+
+			while(true) {
+				// Count iterations
+				iteration++;
+
+				// Calculate values for test parameters
+				setValues(parameterTest, valueTest);
+
+				// calculate error
+				double errorMeanSquaredTest = getMeanSquaredError(valueTest);
+
+				if (errorMeanSquaredTest < errorMeanSquaredCurrent) {
+					errorMeanSquaredChange = errorMeanSquaredCurrent - errorMeanSquaredTest;
+
+					// Accept point
+					System.arraycopy(parameterTest, 0, parameterCurrent, 0, parameterCurrent.length);
+					System.arraycopy(valueTest, 0, valueCurrent, 0, valueCurrent.length);
+					errorMeanSquaredCurrent		= errorMeanSquaredTest;
+
+					// Derivative has to be recalculated
+					isParameterCurrentDerivativeValid = false;
+
+					// Decrease lambda (move faster)
+					lambda			/= 1.3;
+					lambdaMultiplicator	= 1.3;
+				} else {
+					errorMeanSquaredChange = errorMeanSquaredTest - errorMeanSquaredCurrent;
+
+					// Reject point, increase lambda (move slower)
+					lambda				*= lambdaMultiplicator;
+					lambdaMultiplicator *= 1.3;
+				}
+
+				// Update a new parameter trial, if we are not done
+				if (!done())
+					updateParameterTest();
+				else
+					break;
+
+				// Log iteration
+				if (logger.isLoggable(Level.FINE))
+				{
+					String logString = "Iteration: " + iteration + "\tLambda="
+							+ lambda + "\tError Current:" + errorMeanSquaredCurrent
+							+ "\tError Change:" + errorMeanSquaredChange + "\t";
+					for (int i = 0; i < parameterCurrent.length; i++) {
+						logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
+					}
+					logger.fine(logString);
+				}
+			}
+		}
+		finally {
+			// Shutdown executor if present.
+			if(executor != null && executorShutdownWhenDone) {
+				executor.shutdown();
+				executor = null;
+			}
 		}
 	}
 
@@ -624,10 +662,10 @@ public abstract class LevenbergMarquardt implements Cloneable {
 		clonedOptimizer.weights = newWeights.clone();				// Defensive copy
 
 		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
-		
+
 		return clonedOptimizer;
 	}
-	
+
 	/**
 	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
 	 * target values and weights.
