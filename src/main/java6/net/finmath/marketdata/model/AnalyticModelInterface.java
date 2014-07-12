@@ -19,6 +19,9 @@ public interface AnalyticModelInterface {
 
 	CurveInterface getCurve(String name);
 
+	AnalyticModelInterface addCurves(CurveInterface... curves);
+
+	@Deprecated
 	void setCurve(CurveInterface curve);
 
 	DiscountCurveInterface getDiscountCurve(String discountCurveName);
@@ -27,6 +30,9 @@ public interface AnalyticModelInterface {
 
 	VolatilitySurfaceInterface getVolatilitySurface(String name);
 
+	AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces);
+
+	@Deprecated
 	void setVolatilitySurface(VolatilitySurfaceInterface volatilitySurface);
 
 	AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curvesParameterPairs) throws CloneNotSupportedException;

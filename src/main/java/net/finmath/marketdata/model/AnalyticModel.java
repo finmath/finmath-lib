@@ -24,7 +24,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
  * 
  * @author Christian Fries
  */
-public class AnalyticModel implements AnalyticModelInterface {
+public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 
 	private final Map<String, CurveInterface>				curvesMap			= new HashMap<String, CurveInterface>();
 	private final Map<String, VolatilitySurfaceInterface>	volatilitySufaceMap	= new HashMap<String, VolatilitySurfaceInterface>();
@@ -62,12 +62,33 @@ public class AnalyticModel implements AnalyticModelInterface {
 		return curvesMap.get(name);
 	}
 
+	public AnalyticModelInterface addCurve(CurveInterface curve) {
+		AnalyticModel newModel = clone();
+		newModel.curvesMap.put(curve.getName(), curve);
+		return newModel;
+	}
+
 	@Override
+	public AnalyticModelInterface addCurves(CurveInterface... curves) {
+		AnalyticModel newModel = clone();
+		for(CurveInterface curve : curves) newModel.curvesMap.put(curve.getName(), curve);
+		return newModel;
+	}
+
+	/**
+	 * @deprecated This class will become immutable. Use addCurve instead.
+	 */
+	@Override
+	@Deprecated
     public void setCurve(CurveInterface curve)
 	{
 		curvesMap.put(curve.getName(), curve);
 	}
 
+	/**
+	 * @deprecated This class will become immutable. Use addCurve instead.
+	 */
+	@Deprecated
 	public void setCurves(CurveInterface[] curves) {
 		for(CurveInterface curve : curves) setCurve(curve);
 	}
@@ -102,20 +123,45 @@ public class AnalyticModel implements AnalyticModelInterface {
 		return volatilitySufaceMap.get(name);
 	}
 	
+	public AnalyticModelInterface addVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
+	{
+		AnalyticModel newModel = clone();
+		newModel.volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		return newModel;
+	}
+
 	@Override
+	public AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces)
+	{
+		AnalyticModel newModel = clone();
+		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		return newModel;
+	}
+
+	/**
+	 * @deprecated This class will become immutable. Use addVolatilitySurface instead.
+	 */
+	@Override
+	@Deprecated
     public void setVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
 	{
 		volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
 	}
 
 	@Override
+	public AnalyticModel clone()
+	{
+		AnalyticModel newModel = new AnalyticModel();
+		newModel.curvesMap.putAll(curvesMap);
+		newModel.volatilitySufaceMap.putAll(volatilitySufaceMap);
+		return newModel;
+	}
+
+	@Override
     public AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
-		AnalyticModel modelClone = new AnalyticModel();
-
-		// Add all other curves
-		modelClone.curvesMap.putAll(this.curvesMap);
+		AnalyticModel modelClone = clone();
 
 		// Add modified clones of curves to model clone
 		if(curveParameterPairs != null) {
