@@ -35,8 +35,9 @@ public class BasketOption extends AbstractAssetMonteCarloProduct {
 	
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
-	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
-	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param maturity The maturity T in the option payoff \( max\left( \sum_{i} \alpha_{i} S_{i}(T) - K , 0 \right) \).
+	 * @param strike The strike K in the option payoff \( max\left( \sum_{i} \alpha_{i} S_{i}(T) - K , 0 \right) \).
+	 * @param weights The weights \( \alpha_{i} \) in the option payof \( max\left( \sum_{i} \alpha_{i} S_{i}(T) - K , 0 \right) \).
 	 */
 	public BasketOption(double maturity, double strike, double[] weights) {
 		super();
