@@ -68,6 +68,8 @@ The eclipse project file is pre-configured to Java 6.
 Documentation
 -------------
 
+-   [finmath lib Project documentation][]  
+    provides the documentation of the library api.
 -   [finmath lib API documentation][]  
     provides the documentation of the library api.
 -   [finmath.net special topics][]  
@@ -81,7 +83,9 @@ License
 The code of "finmath lib" and "finmath experiments" (packages
 `net.finmath.*`) are distributed under the [Apache License version
 2.0][], unless otherwise explicitly stated.
+ 
 
+  [finmath lib Project documentation]: http://www.finmath.net/java/finmath-lib 
   [finmath lib API documentation]: http://www.finmath.net/java/finmath-lib/doc/
   [finmath.net special topics]: http://www.finmath.net/topics
   [Apache License version 2.0]: http://www.apache.org/licenses/LICENSE-2.0.html
