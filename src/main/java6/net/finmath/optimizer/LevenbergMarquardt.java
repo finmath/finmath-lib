@@ -616,7 +616,7 @@ public abstract class LevenbergMarquardt implements Cloneable {
 	 * @param newWeights New array of weights.
 	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
 	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
-	 * @throws CloneNotSupportedException
+	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public LevenbergMarquardt getCloneWithModifiedTargetValues(double[] newTargetVaues, double[] newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
 		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
@@ -644,7 +644,7 @@ public abstract class LevenbergMarquardt implements Cloneable {
 	 * @param newWeights New list of weights.
 	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
 	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
-	 * @throws CloneNotSupportedException
+	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public LevenbergMarquardt getCloneWithModifiedTargetValues(List<Double> newTargetVaues, List<Double> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
 		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();

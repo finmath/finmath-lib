@@ -86,6 +86,9 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	}
 
 	/**
+	 * Set some curves.
+	 * 
+	 * @param curves Array of curves to set.
 	 * @deprecated This class will become immutable. Use addCurve instead.
 	 */
 	@Deprecated
