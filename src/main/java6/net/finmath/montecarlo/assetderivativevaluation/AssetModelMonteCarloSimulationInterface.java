@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.util.Map;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -60,6 +62,15 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 */
 	RandomVariableInterface		getNumeraire(double time);
 	
+	/**
+	 * Create a clone of this simulation modifying some of its properties (if any).
+	 * 
+	 * @param dataModified The data which should be changed in the new model
+	 * @return Returns a clone of this model, with some data modified (then it is no longer a clone :-)
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+
 	/**
 	 * Create a clone of the object implementing <code>AssetModelMonteCarloSimulationInterface</code>
 	 * using a different Monte-Carlo seed.
