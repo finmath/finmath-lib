@@ -16,9 +16,11 @@
     <href>http://www.finmath.net</href>
   </bannerRight>
   <body>
+  	<!--
     <links>
       <item name="finmath.net" href="http://www.finmath.net/" />
     </links>
+	-->
 
     <menu name="finmath lib">
       <item name="Introduction" href="index.html"/>
