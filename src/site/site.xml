@@ -1,5 +1,8 @@
-<project xmlns="http://maven.apache.org/DECORATION/1.6.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 http://maven.apache.org/xsd/decoration-1.6.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/DECORATION/1.6.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 http://maven.apache.org/xsd/decoration-1.6.0.xsd">
 
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
@@ -7,42 +10,43 @@
 		<version>1.3.1</version>
 	</skin>
 
-  <bannerLeft>
-    <name>finmath lib</name>
-    <href>http://www.finmath.net/java/finmath-lib</href>
-  </bannerLeft>
-  <bannerRight>
-    <name>finmath.net</name>
-    <href>http://www.finmath.net</href>
-  </bannerRight>
-  <body>
-  	<!--
-    <links>
-      <item name="finmath.net" href="http://www.finmath.net/" />
-    </links>
-	-->
+	<bannerLeft>
+		<name>finmath lib</name>
+		<href>http://www.finmath.net/finmath-lib</href>
+	</bannerLeft>
+	<bannerRight>
+		<name>finmath.net</name>
+		<href>http://www.finmath.net</href>
+		<src>http://www.finmath.net/artwork/logo.png</src>
+		<width>60</width>
+	</bannerRight>
+	<body>
+		<links>
+			<item name="finmath.net" href="http://www.finmath.net/" /> 
+		</links>
 
-    <menu name="finmath lib">
-      <item name="Introduction" href="index.html"/>
-      <item name="API Documentation" href="http://finmath.net/java/finmath-lib/apidocs"/>
-      <item name="Download" href="http://finmath.net/releases/"/>
-    </menu>
+		<menu name="finmath lib">
+			<item name="Introduction" href="index.html" />
+			<item name="API Documentation" href="http://finmath.net/finmath-lib/apidocs" />
+			<item name="Download" href="http://finmath.net/releases/?C=M;O=D" />
+			<item name="Eclipse Project" href="eclipseproject.html" />
+		</menu>
 
-    <menu name="Usages">
-      <item name="Spreadsheets" href="http://finmath.net/spreadsheets/"/>
-      <item name="Special Topics" href="http://finmath.net/topics/"/>
-    </menu>
+		<menu name="Usages">
+			<item name="Spreadsheets" href="http://finmath.net/spreadsheets/" />
+			<item name="Special Topics" href="http://finmath.net/topics/" />
+			<item name="Applets" href="http://christian-fries.de/finmath/applets/" />
+		</menu>
 
-    <menu ref="reports"/>
-    
-  </body>
-  <custom>
-    <fluidoSkin>
-      <twitter>
-        <user>finmathnet</user>
-        <showUser>true</showUser>
-        <showFollowers>false</showFollowers>
-      </twitter>
-    </fluidoSkin>
-  </custom>
+		<menu ref="reports" />
+	</body>
+	<custom>
+		<fluidoSkin>
+			<twitter>
+				<user>finmathnet</user>
+				<showUser>true</showUser>
+				<showFollowers>false</showFollowers>
+			</twitter>
+		</fluidoSkin>
+	</custom>
 </project>
