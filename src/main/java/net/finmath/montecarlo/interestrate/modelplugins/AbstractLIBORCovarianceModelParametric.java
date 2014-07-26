@@ -120,9 +120,13 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
                         calibrationProductIndex -> {
                             try {
                                 values[calibrationProductIndex] = calibrationProducts[calibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
-                            } catch (net.finmath.exception.CalculationException e) {
-                               throw new RuntimeException(e);
-                            }
+							} catch (CalculationException e) {
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
+								values[calibrationProductIndex] = calibrationTargetValues[calibrationProductIndex];
+							} catch (Exception e) {
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
+								values[calibrationProductIndex] = calibrationTargetValues[calibrationProductIndex];
+							}
                         }
                         );
 			}
