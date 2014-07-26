@@ -23,13 +23,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class Option extends AbstractProductComponent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7268432817913776974L;
-	private double							exerciseDate;
-	private double							strikePrice;
-	private AbstractLIBORMonteCarloProduct	underlying;
+	private final double							exerciseDate;
+	private final double							strikePrice;
+	private final AbstractLIBORMonteCarloProduct	underlying;
 
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; 0 ? underlying : 0
