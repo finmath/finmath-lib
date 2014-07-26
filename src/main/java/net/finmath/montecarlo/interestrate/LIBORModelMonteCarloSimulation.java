@@ -42,57 +42,38 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		process.setModel(model);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getMonteCarloWeights(int)
-	 */
 	@Override
     public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getMonteCarloWeights(double)
-	 */
 	@Override
     public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
-		return model.getProcess().getMonteCarloWeights(getTimeIndex(time));
+		int timeIndex = getTimeIndex(time);
+		if(timeIndex < 0) timeIndex = (-timeIndex-1)-1;
+		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getNumberOfFactors()
-	 */
 	@Override
     public int getNumberOfFactors() {
 		return model.getProcess().getNumberOfFactors();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfPaths()
-	 */
 	@Override
     public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTime(int)
-	 */
 	@Override
     public double getTime(int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeDiscretization()
-	 */
 	@Override
     public TimeDiscretizationInterface getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeIndex(double)
-	 */
 	@Override
     public int getTimeIndex(double time) {
 		return model.getProcess().getTimeIndex(time);
@@ -103,25 +84,16 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
         return model.getProcess().getBrownianMotion().getRandomVariableForConstant(value);
     }
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getBrownianMotion()
-     */
 	@Override
     public BrownianMotionInterface getBrownianMotion() {
 		return model.getProcess().getBrownianMotion();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBOR(int, int)
-	 */
 	@Override
     public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return model.getLIBOR(timeIndex, liborIndex);
 	}
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBORs(int)
-     */
     @Override
     public RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException
     {
@@ -131,9 +103,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
     	return randomVariableVector;
     }
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLIBOR(double, double, double)
-	 */
 	@Override
     public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
 	{
@@ -142,33 +111,42 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 		// The forward rates are provided on fractional tenor discretization points using linear interpolation. See ISBN 0470047224.
 		
-		// Interpolation on tenor, consistent with interpolation on numeraire: interpolate end date
+		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate end date
 		if(periodEndIndex < 0) {
-			int		previousEndIndex	= -periodEndIndex-1;
+			int		previousEndIndex	= (-periodEndIndex-1)-1;
 			double	previousEndTime		= getLiborPeriod(previousEndIndex);
 			double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
-			RandomVariableInterface libor				= getLIBOR(time, periodStart, previousEndTime);
+			RandomVariableInterface liborLongPeriod		= getLIBOR(time, periodStart, nextEndTime);
 			RandomVariableInterface	liborShortPeriod	= getLIBOR(time, previousEndTime, nextEndTime);
-			libor = libor.mult(previousEndTime-periodStart).add(1.0).accrue(liborShortPeriod, periodEnd-previousEndTime).sub(1.0).div(periodEnd-periodStart);
+
+			RandomVariableInterface libor = liborLongPeriod.mult(nextEndTime-periodStart).add(1.0)
+					.div(
+							liborShortPeriod.mult(nextEndTime-previousEndTime).add(1.0).log().mult((nextEndTime-periodEnd)/(nextEndTime-previousEndTime)).exp()
+					).sub(1.0).div(periodEnd-periodStart);
 			return libor;
 		}
 		
-		// Interpolation on tenor, consistent with interpolation on numeraire: interpolate start date
+		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate start date
 		if(periodStartIndex < 0) {
-			int		previousStartIndex	= -periodStartIndex-1;
+			int		previousStartIndex	= (-periodStartIndex-1)-1;
 			double	previousStartTime	= getLiborPeriod(previousStartIndex);
 			double	nextStartTime		= getLiborPeriod(previousStartIndex+1);
-			RandomVariableInterface libor				= getLIBOR(time, nextStartTime, periodEnd);
+			RandomVariableInterface liborLongPeriod		= getLIBOR(time, previousStartTime, periodEnd);
 			RandomVariableInterface	liborShortPeriod	= getLIBOR(time, previousStartTime, nextStartTime);
-			libor = libor.mult(periodEnd-previousStartTime).add(1.0).discount(liborShortPeriod, periodStart-previousStartTime).sub(1.0).div(periodEnd-periodStart);
+
+			RandomVariableInterface libor = liborLongPeriod.mult(periodEnd-previousStartTime).add(1.0)
+					.div(
+							liborShortPeriod.mult(nextStartTime-previousStartTime).add(1.0).log().mult((periodStart-previousStartTime)/(nextStartTime-previousStartTime)).exp()
+					).sub(1.0).div(periodEnd-periodStart);
 			return libor;
 		}
 		
-		if(periodStartIndex < 0 || periodEndIndex < 0) throw new CalculationException("LIBOR requested outside libor discretization points. Interpolation not supported yet.");
+		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
 
 		int timeIndex           = getTimeIndex(time);
 
-		if(timeIndex < 0) throw new CalculationException("LIBOR requested at time outside simulation discretization points. Interpolation not supported yet.");
+		if(timeIndex < 0) timeIndex = -timeIndex-2;
+//			throw new CalculationException("LIBOR requested at time outside simulation discretization points. Interpolation not supported yet.");
 		
 		// If this is a model primitive then return it
 		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);

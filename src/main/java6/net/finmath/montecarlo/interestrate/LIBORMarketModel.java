@@ -470,11 +470,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		int timeIndex = getLiborPeriodIndex(time);
 		
 		if(timeIndex < 0) {
-			// Interpolation of Numeraire: linear interpolation of the reciprocal.
-			int lowerIndex = -timeIndex -1;
-			int upperIndex = -timeIndex;
+			// Interpolation of Numeraire: log linear interpolation.
+			int upperIndex = -timeIndex-1;
+			int lowerIndex = upperIndex-1;
+			if(lowerIndex < 0) throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
+
 			double alpha = (time-getLiborPeriod(lowerIndex)) / (getLiborPeriod(upperIndex) - getLiborPeriod(lowerIndex));
-			return getNumeraire(getLiborPeriod(upperIndex)).invert().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).invert().mult(1.0-alpha)).invert();
+			return getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
 		}
 
 		// Calculate the numeraire, when time is part of liborPeriodDiscretization
