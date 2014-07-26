@@ -1,10 +1,9 @@
-Pre-Configured Eclipse Project
--------------------------------------
+# Pre-Configured Eclipse Project
 
-Although not recommeded, the repository contains an Eclipse procject and classpath file including all dependencies. We provide this for convenience. We provide <a href="/java/subversion">instructions</a> on how to checkout the code using the Eclipse IDE.
+Although not recommeded, the repository contains an Eclipse project and classpath file including all dependencies. We provide this for convenience. We provide <a href="/java/subversion">instructions</a> on how to checkout the code using the Eclipse IDE.
 Of course, you may use the IDE of your choice by simply importing the maven pom.
 
-### Repositories
+## Repositories
 
 Source code and demos are provided via Github and a Subversion repository.
 			<ul>
