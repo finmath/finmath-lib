@@ -19,7 +19,22 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	private final double	maturity;
 	private final double	periodLength;
 	private final double	strike;
-	private boolean	isFloorlet = false;
+	private final boolean	isFloorlet;
+
+	/**
+	 * Create a caplet or a floorlet.
+	 * 
+	 * @param maturity The fixing date given as double. The payment is at the period end.
+     * @param periodLength The length of the forward rate period.
+	 * @param strike The strike given as double.
+	 */
+	public Caplet(double maturity, double periodLength, double strike, boolean isFloorlet) {
+		super();
+        this.maturity = maturity;
+        this.periodLength = periodLength;
+		this.strike = strike;
+		this.isFloorlet = isFloorlet;
+	}
 
 	/**
 	 * Create a caplet.
@@ -29,24 +44,9 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * @param strike The strike given as double.
 	 */
 	public Caplet(double maturity, double periodLength, double strike) {
-		super();
-        this.maturity = maturity;
-        this.periodLength = periodLength;
-		this.strike = strike;
+		this(maturity, periodLength, strike, false);
 	}
 
-	/**
-	 * Makes the caplet a floorlet.
-	 * 
-	 * @param isFloorlet Set this to true, if the product is a floorlet.
-	 * @return Self reference.
-	 */
-	public Caplet setFloorlet(boolean isFloorlet) {
-		this.isFloorlet = isFloorlet;
-
-		return this;
-	}
-	
     /**
      * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
      * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
