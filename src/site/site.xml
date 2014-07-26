@@ -27,9 +27,12 @@
 
 		<menu name="finmath lib">
 			<item name="Introduction" href="index.html" />
-			<item name="API Documentation" href="http://finmath.net/finmath-lib/apidocs" />
-			<item name="Download" href="http://finmath.net/releases/?C=M;O=D" />
-			<item name="Eclipse Project" href="eclipseproject.html" />
+			<item name="API Documentation" href="apidocs" />
+			<item name="Download" href="http://www.finmath.net/releases/?C=M;O=D" />
+			<item name="Building from Source" href="building.html" collapse="true">
+				<item name="Maven Build" href="maven.html" />
+				<item name="Eclipse Project" href="eclipseproject.html" />
+			</item>
 		</menu>
 
 		<menu name="Usages">

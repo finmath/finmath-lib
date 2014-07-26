@@ -1,14 +1,23 @@
-finmath lib
-===========
+About finmath lib
+==========
+
+
+****************************************
 
 **Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.**
 
-*********************************************************
+****************************************
+	
+The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
-About finmath lib
---------
-
-The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields, e.g., the Monte-Carlo simulation of SDEs and the estimation of conditional expectations in Monte-Carlo.
+- General numerical algorithms like
+- - Generation of random numbers
+- - Optimization (a Levenberg-Marquard algorithm is provided)
+- Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
+- Estimation of conditional expectations in a Monte-Carlo framework
+- Calibration of market data object like curve (discount and forward curve) or volatility surfaces
+- Simulation of interest rate term structure models
+- Valuation of complex derivatives (e.g. Bermudan/multi-callables)
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
 
@@ -26,37 +35,6 @@ Starting with version 1.2.19 finmath lib is distributed through the central mave
 	<artifactId>finmath-lib</artifactId>
 	<version>1.2.20</version>
 	
-
-
-Source code
--------------------------------------
-
-Source code is available from the [source repository](source-repository.html).
-
-### Java 6 and Java 8 source files
-
-The finmath lib Java library comes in two flavors which have a slightly different code base: a Java 8 version and a Java 6 version. We will use Java 8 concepts in the future and try to provide Java 6 compatibility where possible.
-
-For that reason, the source code is duplicated:
--    src/main/java				contains the Java 8 compatible source files
--    src/main/java6				contains the Java 6 compatible source files
-
-Although the two folder share some/many identical source files, we prefer this two folder layout
-over one with a third folder like java-common.
-
-
-### Building finmath lib
-
--    To build finmath lib for Java 8 use src/main/java
--    To build finmath lib for java 6 use src/main/java-6
-
-These builds may be performed via Maven the profiles "java-8" and "java-6".
-The eclipse project file is pre-configured to Java 6.
-
-#### Maven build
-
-The maven pom defaults to the Java 6 build. To build finmath lib for Java 8 use the maven profile "java-8".
-
 
 
 License
