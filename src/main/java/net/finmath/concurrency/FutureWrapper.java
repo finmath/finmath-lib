@@ -9,12 +9,12 @@ import java.util.concurrent.TimeoutException;
  * Implementation of the Future<V> interface,
  * without any concurrent execution.
  * 
- * This wrapper comes handy, if we want lazy, late valuation
+ * This wrapper comes handy, if we want direct (blocking) valuation
  * to replace concurrent valuation.
  * 
  * @author Christian Fries
  *
- * @param <V>
+ * @param <V> The result type returned by this Future's get method.
  */
 public class FutureWrapper<V> implements Future<V> {
 
