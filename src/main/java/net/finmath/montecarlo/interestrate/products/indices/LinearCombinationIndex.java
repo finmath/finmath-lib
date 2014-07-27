@@ -15,7 +15,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  */
-public class LinarCombinationIndex extends AbstractIndex {
+public class LinearCombinationIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = -8181742829635380940L;
 
@@ -32,7 +32,7 @@ public class LinarCombinationIndex extends AbstractIndex {
      * @param scaling2 Scaling for second index.
      * @param index2 Second index.
      */
-    public LinarCombinationIndex(double scaling1, AbstractProductComponent index1, double scaling2, AbstractProductComponent index2) {
+    public LinearCombinationIndex(double scaling1, AbstractProductComponent index1, double scaling2, AbstractProductComponent index2) {
 		super();
 		this.scaling1	= scaling1;
 		this.index1		= index1;
