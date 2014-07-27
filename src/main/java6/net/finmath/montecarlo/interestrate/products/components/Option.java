@@ -120,6 +120,7 @@ public class Option extends AbstractProductComponent {
 		// 1 Period
 		basisFunction = new RandomVariable(exerciseDate, 1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
+		if(liborPeriodIndex < 0) liborPeriodIndex = -liborPeriodIndex-1;
 		liborPeriodIndexEnd = liborPeriodIndex+1;
 		double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
@@ -133,6 +134,7 @@ public class Option extends AbstractProductComponent {
 		// n/2 Period
 		basisFunction = new RandomVariable(exerciseDate, 1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
+		if(liborPeriodIndex < 0) liborPeriodIndex = -liborPeriodIndex-1;
 		liborPeriodIndexEnd = (liborPeriodIndex + model.getNumberOfLibors())/2;
 
 		double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
@@ -153,6 +155,7 @@ public class Option extends AbstractProductComponent {
 		// n Period
 		basisFunction = new RandomVariable(exerciseDate, 1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
+		if(liborPeriodIndex < 0) liborPeriodIndex = -liborPeriodIndex-1;
 		liborPeriodIndexEnd = model.getNumberOfLibors();
 		double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
