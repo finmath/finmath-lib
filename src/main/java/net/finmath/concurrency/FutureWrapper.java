@@ -9,8 +9,8 @@ import java.util.concurrent.TimeoutException;
  * Implementation of the Future<V> interface,
  * without any concurrent execution.
  * 
- * This wrapper comes handy, if we want direct (blocking) valuation
- * to replace concurrent valuation.
+ * This wrapper comes handy, if we want to represent the result of a direct (blocking) valuation
+ * as a future to replace concurrent valuation.
  * 
  * @author Christian Fries
  *
@@ -20,6 +20,11 @@ public class FutureWrapper<V> implements Future<V> {
 
 	private V object;
 	
+	/**
+	 * Create a wrapper to an object that looks like a Future on that object.
+	 * 
+	 * @param object Object to wrap.
+	 */
 	public FutureWrapper(V object) {
 		super();
 		this.object = object;
