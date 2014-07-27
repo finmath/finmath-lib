@@ -16,6 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.0
  */
 public class Caplet extends AbstractLIBORMonteCarloProduct {
+
 	private final double	maturity;
 	private final double	periodLength;
 	private final double	strike;
@@ -24,9 +25,16 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Create a caplet or a floorlet.
 	 * 
+	 * A caplet pays \( max(L-K,0) * periodLength \) at maturity+periodLength
+	 * where L is fixed at maturity.
+	 * 
+	 * A floorlet pays \( -min(L-K,0) * periodLength \) at maturity+periodLength
+	 * where L is fixed at maturity.
+	 * 
 	 * @param maturity The fixing date given as double. The payment is at the period end.
 	 * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
+	 * @param isFloorlet If true, this object will represent a floorlet, otherwise a caplet.
 	 */
 	public Caplet(double maturity, double periodLength, double strike, boolean isFloorlet) {
 		super();
@@ -38,6 +46,9 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a caplet.
+	 * 
+	 * A caplet pays \( max(L-K,0) * periodLength \) at maturity+periodLength
+	 * where L is fixed at maturity.
 	 * 
 	 * @param maturity The fixing date given as double. The payment is at the period end.
 	 * @param periodLength The length of the forward rate period.
@@ -69,8 +80,8 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	
 		/*
 		 * Calculate the payoff, which is
-		 *   max(L-K,0) * periodLength         for caplet or
-		 *   min(L-K,0) * periodLength         for floorlet.
+		 *    max(L-K,0) * periodLength         for caplet or
+		 *   -min(L-K,0) * periodLength         for floorlet.
 		 */
 		RandomVariableInterface values = libor;		
 		if(!isFloorlet)	values = values.sub(strike).floor(0.0).mult(periodLength);
