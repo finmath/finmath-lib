@@ -222,6 +222,7 @@
 		<url>http://svn.finmath.net/finmath lib/trunk</url>
 		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
 		<developerConnection>scm:svn:http://svn.finmath.net/finmath lib/trunk</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
 
 	<ciManagement>
