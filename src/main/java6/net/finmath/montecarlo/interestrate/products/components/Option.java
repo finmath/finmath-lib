@@ -15,7 +15,7 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * An option. Implements the function max(underlying(t)-K,0) for any underlying objec implementing
+ * An option. Implements the function max(underlying(t)-K,0) for any underlying object implementing
  * an AbstractLIBORMonteCarloProduct.
  * 
  * @author Christian Fries
@@ -31,69 +31,69 @@ public class Option extends AbstractProductComponent {
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; 0 ? underlying : 0
 	 * 
-     * @param exerciseDate The exercise date of the option (given as a double).
-     * @param underlying The underlying.
-     */
-    public Option(double exerciseDate, AbstractLIBORMonteCarloProduct underlying) {
-	    super();
-	    this.exerciseDate	= exerciseDate;
-	    this.strikePrice	= 0.0;
-	    this.underlying		= underlying;
-    }
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param underlying The underlying.
+	 */
+	public Option(double exerciseDate, AbstractLIBORMonteCarloProduct underlying) {
+		super();
+		this.exerciseDate	= exerciseDate;
+		this.strikePrice	= 0.0;
+		this.underlying		= underlying;
+	}
 
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
 	 * 
-     * @param exerciseDate The exercise date of the option (given as a double).
-     * @param strikePrice The strike price.
-     * @param underlying The underlying.
-     */
-    public Option(double exerciseDate, double strikePrice, AbstractLIBORMonteCarloProduct underlying) {
-	    super();
-	    this.exerciseDate	= exerciseDate;
-	    this.strikePrice	= strikePrice;
-	    this.underlying		= underlying;
-    }
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param strikePrice The strike price.
+	 * @param underlying The underlying.
+	 */
+	public Option(double exerciseDate, double strikePrice, AbstractLIBORMonteCarloProduct underlying) {
+		super();
+		this.exerciseDate	= exerciseDate;
+		this.strikePrice	= strikePrice;
+		this.underlying		= underlying;
+	}
 
 	/**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
-		
-    	// >=? -
-    	if(evaluationTime > exerciseDate) return new RandomVariable(0.0);
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 
-    	RandomVariableInterface values = underlying.getValue(exerciseDate, model);
+		// >=? -
+		if(evaluationTime > exerciseDate) return new RandomVariable(0.0);
 
-    	RandomVariableInterface valueIfExcercised = null;
-    	if(values.getFiltrationTime() > exerciseDate) {
-	        // Remove foresight through conditional expectation
-	        MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
-	        
-	        // Calculate cond. expectation. Note that no discounting (numeraire division) is required!
-	        valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);
-    	}
-    	else valueIfExcercised = values;
-    	
-        // Apply exercise criteria
-    	values = values.barrier(valueIfExcercised.sub(strikePrice), values, strikePrice);
+		RandomVariableInterface values = underlying.getValue(exerciseDate, model);
 
-        // Dicount to evaluation time
-        if(evaluationTime != exerciseDate) {
-            RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
-            RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
-            values = values.div(numeraire).mult(numeraireAtEval);
-        }
-        
-        // Return values
+		RandomVariableInterface valueIfExcercised = null;
+		if(values.getFiltrationTime() > exerciseDate) {
+			// Remove foresight through conditional expectation
+			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
+
+			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
+			valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);
+		}
+		else valueIfExcercised = values;
+
+		// Apply exercise criteria
+		values = values.barrier(valueIfExcercised.sub(strikePrice), values, strikePrice);
+
+		// Dicount to evaluation time
+		if(evaluationTime != exerciseDate) {
+			RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
+			values = values.div(numeraire).mult(numeraireAtEval);
+		}
+
+		// Return values
 		return values;	
 	}
     

@@ -16,27 +16,26 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class Notional implements AbstractNotional {
 	
-	private RandomVariable notional;
-
+	private final RandomVariable notional;
 	
 	/**
 	 * Creates a constant (non-stochastic) notional.
 	 * 
-     * @param notional
-     */
-    public Notional(double notional) {
-	    super();
-	    this.notional = new RandomVariable(0.0,notional);
-    }
+	 * @param notional The constant notional value.
+	 */
+	public Notional(double notional) {
+		super();
+		this.notional = new RandomVariable(0.0,notional);
+	}
 
-    @Override
-    public RandomVariableInterface getNotionalAtPeriodEnd( AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
+	@Override
+	public RandomVariableInterface getNotionalAtPeriodEnd( AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
 		return notional;
-    }
+	}
 
-    @Override
-    public RandomVariableInterface getNotionalAtPeriodStart(
-            AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
+	@Override
+	public RandomVariableInterface getNotionalAtPeriodStart(
+			AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
 		return notional;
-    }
+	}
 }

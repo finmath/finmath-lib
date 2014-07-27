@@ -12,17 +12,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.1
  */
 public abstract class AbstractPeriod extends AbstractProductComponent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8035860121112226049L;
-	private double periodStart;
-	private double periodEnd;
-	private double fixingDate;
-	private double paymentDate;
 
-	private AbstractNotional				notional;
-	private AbstractProductComponent		index;
+	private static final long serialVersionUID = 8035860121112226049L;
+	private final double periodStart;
+	private final double periodEnd;
+	private final double fixingDate;
+	private final double paymentDate;
+
+	private final AbstractNotional				notional;
+	private final AbstractProductComponent		index;
 
     public abstract RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
     
@@ -30,12 +28,14 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 
     
     /**
-     * @param periodStart
-     * @param periodEnd
-     * @param fixingDate
-     * @param paymentDate
-     * @param notional
-     * @param index
+     * Initialize basic properties of the period.
+     * 
+     * @param periodStart The period start.
+     * @param periodEnd The period end.
+     * @param fixingDate The fixing date (as double).
+     * @param paymentDate The payment date (as double).
+     * @param notional The notional object relevant for this period.
+     * @param index The index (coupon) associated with this period.
      */
     public AbstractPeriod(double periodStart, double periodEnd,
             double fixingDate, double paymentDate, AbstractNotional notional,
@@ -50,28 +50,28 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
     }
 
 	/**
-     * @return the periodStart
+     * @return the period start
      */
     public double getPeriodStart() {
     	return periodStart;
     }
 
     /**
-     * @return the periodEnd
+     * @return the period end
      */
     public double getPeriodEnd() {
     	return periodEnd;
     }
 
     /**
-     * @return the fixingDate
+     * @return the fixing date
      */
     public double getFixingDate() {
     	return fixingDate;
     }
 
     /**
-     * @return the paymentDate
+     * @return the payment date
      */
     public double getPaymentDate() {
     	return paymentDate;

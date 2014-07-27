@@ -25,13 +25,13 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * Create a caplet or a floorlet.
 	 * 
 	 * @param maturity The fixing date given as double. The payment is at the period end.
-     * @param periodLength The length of the forward rate period.
+	 * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
 	 */
 	public Caplet(double maturity, double periodLength, double strike, boolean isFloorlet) {
 		super();
-        this.maturity = maturity;
-        this.periodLength = periodLength;
+		this.maturity = maturity;
+		this.periodLength = periodLength;
 		this.strike = strike;
 		this.isFloorlet = isFloorlet;
 	}
@@ -40,25 +40,25 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * Create a caplet.
 	 * 
 	 * @param maturity The fixing date given as double. The payment is at the period end.
-     * @param periodLength The length of the forward rate period.
+	 * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
 	 */
 	public Caplet(double maturity, double periodLength, double strike) {
 		this(maturity, periodLength, strike, false);
 	}
 
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 		// This is on the LIBOR discretization
 		double	paymentDate	= maturity+periodLength;
 				
@@ -76,7 +76,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		if(!isFloorlet)	values = values.sub(strike).floor(0.0).mult(periodLength);
 		else			values = values.sub(strike).cap(0.0).mult(-1.0 * periodLength);
 
-        values = values.div(numeraire).mult(monteCarloProbabilities);
+		values = values.div(numeraire).mult(monteCarloProbabilities);
 
 		RandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);		
 		RandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);		
