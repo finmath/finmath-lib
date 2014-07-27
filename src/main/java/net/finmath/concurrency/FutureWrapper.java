@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Implementation of the Future<V> interface,
+ * Implementation of the Future interface,
  * without any concurrent execution.
  * 
  * This wrapper comes handy, if we want to represent the result of a direct (blocking) valuation
