@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * Base class for product components.
  * 
- * Product componets are small functions mapping a vector of
+ * Product components are small functions mapping a vector of
  * random variables to a random variable.
  * 
  * Components are numeraire adjusted and can be valued on its own.
@@ -36,14 +36,14 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 
 	public static ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 16, 10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
-    public AbstractProductComponent() {
-    	super();
-    }
+	public AbstractProductComponent() {
+		super();
+	}
 
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-    	RandomVariableInterface value = this.getValue(evaluationTime, model);
-    	Map<String, Object> result = new HashMap<String, Object>();
-    	result.put("value", value);
-    	return result;
-    }
+		RandomVariableInterface value = this.getValue(evaluationTime, model);
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("value", value);
+		return result;
+	}
 }
