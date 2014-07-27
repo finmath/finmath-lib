@@ -72,12 +72,12 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 		// This is on the LIBOR discretization
 		double	paymentDate	= maturity+periodLength;
-
+				
 		// Get random variables
 		RandomVariableInterface				libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
 		RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
 		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
-
+	
 		/*
 		 * Calculate the payoff, which is
 		 *    max(L-K,0) * periodLength         for caplet or

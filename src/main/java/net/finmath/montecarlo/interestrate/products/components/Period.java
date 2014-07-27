@@ -32,7 +32,7 @@ public class Period extends AbstractPeriod {
 	 * @param notional The notional object relevant for this period.
 	 * @param index The index (coupon) associated with this period.
 	 * @param couponFlow If true, the coupon will be payed. Otherwise there will be not coupon flow.
-	 * @param notionalFlow If true, there will be a positive notional flow at period start (but only if peirodStart > evaluationTime) and a negative notional flow at period end (but only if periodEnd > evaluationTime). Otherwise there will be no notional flows.
+	 * @param notionalFlow If true, there will be a positive notional flow at period start (but only if peirodStart &gt; evaluationTime) and a negative notional flow at period end (but only if periodEnd &gt; evaluationTime). Otherwise there will be no notional flows.
 	 * @param payer If true, the period will be a payer period, i.e. notional and coupon at period end are payed (negative). Otherwise it is a receiver period.
 	 */
 	public Period(double periodStart, double periodEnd, double fixingDate,
