@@ -35,6 +35,7 @@ import net.finmath.montecarlo.interestrate.products.DigitalCaplet;
 import net.finmath.montecarlo.interestrate.products.Swap;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximationRebonato;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -322,7 +323,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 * Value a swaption
 		 */
 		System.out.println("Swaption prices:\n");
-		System.out.println("Maturity      Simulation       Analytic        Deviation");
+		System.out.println("Maturity      Simulation       Analytic 1       Analytic 2       Deviation 1           Deviation 2");
 
 		double maxAbsDeviation = 0.0;
 		for (int maturityIndex = 1; maturityIndex <= liborMarketModel.getNumberOfLibors() - 10; maturityIndex++) {
@@ -347,7 +348,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			swapTenor[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
 
 			// Swaptions swap rate
-			double swaprate = 0.05;// getParSwaprate(liborMarketModel, swapTenor);
+			double swaprate = getParSwaprate(liborMarketModel, swapTenor);
 
 			// Set swap rates for each period
 			double[] swaprates = new double[numberOfPeriods];
@@ -361,15 +362,24 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			System.out.print(formatterValue.format(valueSimulation) + "          ");
 
 			// Value analytic
-			SwaptionAnalyticApproximation swaptionAnalyitc = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VALUE);
-			double valueAnalytic = swaptionAnalyitc.getValue(liborMarketModel);
-			System.out.print(formatterValue.format(valueAnalytic) + "          ");
+			SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VALUE);
+			double valueAnalytic1 = swaptionAnalytic.getValue(liborMarketModel);
+			System.out.print(formatterValue.format(valueAnalytic1) + "          ");
+
+			// Value analytic 2
+			SwaptionAnalyticApproximationRebonato swaptionAnalytic2 = new SwaptionAnalyticApproximationRebonato(swaprate, swapTenor, SwaptionAnalyticApproximationRebonato.ValueUnit.VALUE);
+			double valueAnalytic2 = swaptionAnalytic2.getValue(liborMarketModel);
+			System.out.print(formatterValue.format(valueAnalytic2) + "          ");
 
 			// Absolute deviation
-			double deviation = (valueSimulation - valueAnalytic);
-			System.out.println(formatterDeviation.format(deviation) + "          ");
+			double deviation1 = (valueSimulation - valueAnalytic1);
+			System.out.print(formatterDeviation.format(deviation1) + "          ");
 
-			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation));
+			double deviation2 = (valueAnalytic1 - valueAnalytic2);
+			System.out.println(formatterDeviation.format(deviation2) + "          ");
+
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation1));
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation2));
 		}
 
 		System.out.println("__________________________________________________________________________________________\n");
