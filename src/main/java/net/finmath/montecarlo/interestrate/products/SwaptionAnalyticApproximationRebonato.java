@@ -51,7 +51,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * The valuation can be performed in terms of value or implied Black volatility.
  * 
  * In this implementation we use the weights as specified by Rebonato (1998) and
- * not the one derived by Hull & White (1999/2000).
+ * not the one derived by Hull and White (1999/2000).
  *
  * @author Christian Fries
  * @date 17.05.2007.
