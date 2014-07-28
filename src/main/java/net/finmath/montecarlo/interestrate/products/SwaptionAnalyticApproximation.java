@@ -26,7 +26,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * This class implements an analytic swaption valuation formula under
  * a LIBOR market model. The algorithm implemented here is the
- * OIS discouting version of the algorithm described in
+ * OIS discounting version of the algorithm described in
  * ISBN 0470047224 (see {@link net.finmath.montecarlo.interestrate.products.SwaptionSingleCurveAnalyticApproximation}).
  * 
  * The approximation assumes that the forward rates (LIBOR) follow a
