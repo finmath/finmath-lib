@@ -27,6 +27,7 @@ public class Option extends AbstractProductComponent {
 	private final double							exerciseDate;
 	private final double							strikePrice;
 	private final AbstractLIBORMonteCarloProduct	underlying;
+	private final boolean							isCall;
 
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; 0 ? underlying : 0
@@ -35,10 +36,7 @@ public class Option extends AbstractProductComponent {
 	 * @param underlying The underlying.
 	 */
 	public Option(double exerciseDate, AbstractLIBORMonteCarloProduct underlying) {
-		super();
-		this.exerciseDate	= exerciseDate;
-		this.strikePrice	= 0.0;
-		this.underlying		= underlying;
+		this(exerciseDate, 0.0, underlying);
 	}
 
 	/**
@@ -49,10 +47,23 @@ public class Option extends AbstractProductComponent {
 	 * @param underlying The underlying.
 	 */
 	public Option(double exerciseDate, double strikePrice, AbstractLIBORMonteCarloProduct underlying) {
+		this(exerciseDate, strikePrice, true, underlying);
+	}
+
+	/**
+	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
+	 * 
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param strikePrice The strike price.
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
+	 * @param underlying The underlying.
+	 */
+	public Option(double exerciseDate, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying) {
 		super();
 		this.exerciseDate	= exerciseDate;
 		this.strikePrice	= strikePrice;
 		this.underlying		= underlying;
+		this.isCall			= isCall;
 	}
 
 	/**
@@ -84,9 +95,9 @@ public class Option extends AbstractProductComponent {
 		else valueIfExcercised = values;
 
 		// Apply exercise criteria
-		values = values.barrier(valueIfExcercised.sub(strikePrice), values, strikePrice);
+		values = values.barrier(valueIfExcercised.sub(strikePrice).mult(isCall ? 1.0 : -1.0), values, strikePrice);
 
-		// Dicount to evaluation time
+		// Discount to evaluation time
 		if(evaluationTime != exerciseDate) {
 			RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
 			RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
