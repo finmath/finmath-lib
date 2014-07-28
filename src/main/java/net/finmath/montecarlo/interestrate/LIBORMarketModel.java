@@ -655,7 +655,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 */
 	@Override
 	public double getLiborPeriod(int timeIndex) {
-		if(timeIndex >= liborPeriodDiscretization.getNumberOfTimes()) throw new ArrayIndexOutOfBoundsException("Index for LIBOR period discretization out of bounds.");
+		if(timeIndex >= liborPeriodDiscretization.getNumberOfTimes() || timeIndex < 0) {
+			throw new ArrayIndexOutOfBoundsException("Index for LIBOR period discretization out of bounds.");
+		}
 		return liborPeriodDiscretization.getTime(timeIndex);
 	}
 
