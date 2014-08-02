@@ -10,7 +10,8 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * An capped and floored index paying min(max(index(t),floor(t)),cap(t)).
+ * An capped and floored index paying min(max(index(t),floor(t)),cap(t)), where index, floor and cap are indices,
+ * i.e., objects implementing <code>AbstractIndex</code>.
  * 
  * @author Christian Fries
  */
@@ -39,9 +40,9 @@ public class CappedFlooredIndex extends AbstractIndex {
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
     	RandomVariableInterface indexValues = index.getValue(evaluationTime, model);
-    	indexValues = indexValues
-    			.floor(floor.getValue(evaluationTime, model))
-    			.cap(cap.getValue(evaluationTime, model));
+
+    	if(floor != null)	indexValues = indexValues.floor(floor.getValue(evaluationTime, model));
+    	if(cap != null)		indexValues = indexValues.cap(cap.getValue(evaluationTime, model));
 
     	return indexValues;
     }
