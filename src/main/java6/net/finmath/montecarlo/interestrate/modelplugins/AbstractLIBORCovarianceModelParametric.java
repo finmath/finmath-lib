@@ -59,42 +59,42 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 	}
 
-    /**
-     * Get the parameters of determining this parametric
-     * covariance model. The parameters are usually free parameters
-     * which may be used in calibration.
-     * 
-     * @return Parameter vector.
-     */
-    public abstract double[]	getParameter();
-    
-    public abstract void		setParameter(double[] parameter);
+	/**
+	 * Get the parameters of determining this parametric
+	 * covariance model. The parameters are usually free parameters
+	 * which may be used in calibration.
+	 * 
+	 * @return Parameter vector.
+	 */
+	public abstract double[]	getParameter();
 
-    @Override
-    public abstract Object clone();
+	public abstract void		setParameter(double[] parameter);
 
-    public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.clone();
+	@Override
+	public abstract Object clone();
+
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.clone();
 		calibrationCovarianceModel.setParameter(parameters);
 
 		return calibrationCovarianceModel;
-    }
-    
-    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
-    	return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
-    }
-    
-    public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
+	}
 
-    	double[] initialParameters = this.getParameter();
+	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
+		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
+	}
 
-    	if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
-    	Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
-    	Integer seedParameter			= (Integer)calibrationParameters.get("seed");
-    	Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
-    	Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
-    	
-    	// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
+	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
+
+		double[] initialParameters = this.getParameter();
+
+		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
+		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
+		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
+		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
+
+		// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
@@ -111,26 +111,26 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 * memory requirement is not the limiting factor.
 		 */
 		int numberOfThreads = 5;			
-    	LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
-    	{
+		LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
+		{
 			// Calculate model values for given parameters
 			@Override
-            public void setValues(double[] parameters, double[] values) throws SolverException {
-		        
-		    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
+			public void setValues(double[] parameters, double[] values) throws SolverException {
 
-		    	// Create a LIBOR market model with the new covariance structure.
-		    	LIBORMarketModelInterface model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
+				AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
+
+				// Create a LIBOR market model with the new covariance structure.
+				LIBORMarketModelInterface model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-		        final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
+				final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
-		    	ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
-		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
+				ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
+				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<Double> worker = new  Callable<Double>() {
 						public Double call() throws SolverException {
-				        	try {
-				        		return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
+							try {
+								return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
 								return calibrationTargetValues[workerCalibrationProductIndex];
@@ -149,15 +149,15 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}
-		        }
-		        for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
-		        	try {
-		        		values[calibrationProductIndex] = valueFutures.get(calibrationProductIndex).get();
-		        	}
-		    		catch (InterruptedException e) {
-		    			throw new SolverException(e);
+				}
+				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
+					try {
+						values[calibrationProductIndex] = valueFutures.get(calibrationProductIndex).get();
+					}
+					catch (InterruptedException e) {
+						throw new SolverException(e);
 					} catch (ExecutionException e) {
-		    			throw new SolverException(e);
+						throw new SolverException(e);
 					}
 				}
 			}			
@@ -166,7 +166,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		// Set solver parameters
 		optimizer.setWeights(calibrationWeights);
 		optimizer.setErrorTolerance(accuracy);
-		
+
 		try {
 			optimizer.run();
 		}
@@ -181,21 +181,21 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		// Get covariance model corresponding to the best parameter set.
 		double[] bestParameters = optimizer.getBestFitParameters();
-    	AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
-		
+		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
+
 		// Diagnostic output
-    	if (logger.isLoggable(Level.FINE)) {
-    		logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+		if (logger.isLoggable(Level.FINE)) {
+			logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 
-    		String logString = "Best parameters:";
-    		for(int i=0; i<bestParameters.length; i++) {
-    			logString += "\tparameter["+i+"]: " + bestParameters[i];
-    		}
-    		logger.fine(logString);
-    	}
+			String logString = "Best parameters:";
+			for(int i=0; i<bestParameters.length; i++) {
+				logString += "\tparameter["+i+"]: " + bestParameters[i];
+			}
+			logger.fine(logString);
+		}
 
-        return calibrationCovarianceModel;    	
-    }
+		return calibrationCovarianceModel;    	
+	}
 
 	@Override
 	public String toString() {
