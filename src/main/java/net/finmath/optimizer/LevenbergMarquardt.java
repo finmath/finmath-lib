@@ -17,9 +17,9 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import net.finmath.functions.LinearAlgebra;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * This class implements a parallel Levenberg Marquardt non-linear least-squares fit
