@@ -656,7 +656,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	@Override
 	public double getLiborPeriod(int timeIndex) {
 		if(timeIndex >= liborPeriodDiscretization.getNumberOfTimes() || timeIndex < 0) {
-			throw new ArrayIndexOutOfBoundsException("Index for LIBOR period discretization out of bounds.");
+			throw new ArrayIndexOutOfBoundsException("Index for LIBOR period discretization out of bounds: " + timeIndex + ".");
 		}
 		return liborPeriodDiscretization.getTime(timeIndex);
 	}
@@ -809,6 +809,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 		if(dataModified.containsKey("forwardRateCurve")) {
 			forwardRateCurve = (ForwardCurveInterface)dataModified.get("forwardRateCurve");
+		}
+		if(dataModified.containsKey("discountCurve")) {
+			discountCurve = (DiscountCurveInterface)dataModified.get("discountCurve");
 		}
 		if(dataModified.containsKey("forwardRateShift")) {
 			throw new RuntimeException("Forward rate shift clone currently disabled.");
