@@ -435,6 +435,4 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 				+ interpolationEntityForward + ", toString()="
 				+ super.toString() + "]";
 	}
-
-
 }
