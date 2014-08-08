@@ -18,8 +18,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public abstract class AbstractMonteCarloProduct {
 
-	public AbstractMonteCarloProduct() {
+	private final String currency;
+
+	public AbstractMonteCarloProduct(String currency) {
 		super();
+		this.currency = currency;
+	}
+
+	public AbstractMonteCarloProduct() {
+		this(null);
 	}
 
 	/**
@@ -115,5 +122,14 @@ public abstract class AbstractMonteCarloProduct {
     	Map<String, Object> dataModifiedMap = new HashMap<String, Object>();
     	dataModifiedMap.put(entityKey, dataModified);
     	return getValuesForModifiedData(model, dataModifiedMap);
+	}
+
+	/**
+	 * Returns the currency string of this notional.
+	 * 
+	 * @return the currency
+	 */
+	public String getCurrency() {
+		return currency;
 	}
 }
