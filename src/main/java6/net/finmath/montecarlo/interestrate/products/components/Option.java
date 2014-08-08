@@ -66,6 +66,11 @@ public class Option extends AbstractProductComponent {
 		this.isCall			= isCall;
 	}
 
+	@Override
+	public String getCurrency() {
+		return underlying.getCurrency();
+	}
+
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.

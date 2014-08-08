@@ -37,7 +37,7 @@ public class ProductCollection extends AbstractProductComponent {
 	 * 
 	 * @param products Array of AbstractProductComponent objects
 	 */
-	public ProductCollection(AbstractProductComponent[] products) {
+	public ProductCollection(AbstractProductComponent... products) {
 		this(Arrays.asList(products));
 	}
 
@@ -51,6 +51,10 @@ public class ProductCollection extends AbstractProductComponent {
 		this.products = products;
 	}
 
+	@Override
+	public String getCurrency() {
+		return products.iterator().next().getCurrency();
+	}
 
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.

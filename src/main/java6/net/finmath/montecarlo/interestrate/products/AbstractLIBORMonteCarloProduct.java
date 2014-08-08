@@ -23,10 +23,17 @@ import net.finmath.stochastic.RandomVariableInterface;
 public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloProduct {
 
 	/**
+	 * @param currency The currency of this product (may be null for "any currency").
+	 */
+	public AbstractLIBORMonteCarloProduct(String currency) {
+		super(currency);
+	}
+
+	/**
 	 * 
 	 */
 	public AbstractLIBORMonteCarloProduct() {
-		super();
+		super(null);
 	}
 
     /**
@@ -80,5 +87,4 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
     public FactorDriftInterface getFactorDrift(LIBORModelMonteCarloSimulationInterface referenceScheme, LIBORModelMonteCarloSimulationInterface targetScheme) {
         return null;
     }
-
 }

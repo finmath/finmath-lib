@@ -8,7 +8,9 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -33,11 +35,25 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 	 * 
 	 */
 	private static final long serialVersionUID = -916286619811716575L;
+	
+	protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(
+			10 + Runtime.getRuntime().availableProcessors(),
+			100 + 2*Runtime.getRuntime().availableProcessors(),
+			10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new ThreadFactory() {
+		@Override
+		public Thread newThread(Runnable runnable) {
+			Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+			thread.setDaemon(true);
+			return thread;
+		}
+	});
 
-	public static ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 16, 10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
-
+	public AbstractProductComponent(String currency) {
+		super(currency);
+	}
+	
 	public AbstractProductComponent() {
-		super();
+		this(null);
 	}
 
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {

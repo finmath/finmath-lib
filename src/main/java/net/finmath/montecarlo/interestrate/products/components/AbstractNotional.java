@@ -17,6 +17,13 @@ import net.finmath.stochastic.RandomVariableInterface;
 public interface AbstractNotional {
 
 	/**
+	 * Returns the currency string of this notional.
+	 * 
+	 * @return the currency
+	 */
+	public String getCurrency();
+
+	/**
 	 * Calculates the notional at the start of a period, given a period.
 	 * Example: The notional can be independent of the period (constant running notional) or depending on the period (accruing notional).
 	 * 

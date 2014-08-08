@@ -30,6 +30,29 @@ public class Period extends AbstractPeriod {
 	 * @param fixingDate The fixing date (as double).
 	 * @param paymentDate The payment date (as double).
 	 * @param notional The notional object relevant for this period.
+	 * @param index The index (used for coupon calculation) associated with this period.
+	 * @param daycountFraction The daycount fraction (<code>coupon = index(fixingDate) * daycountFraction</code>).
+	 * @param couponFlow If true, the coupon will be payed. Otherwise there will be not coupon flow.
+	 * @param notionalFlow If true, there will be a positive notional flow at period start (but only if peirodStart &gt; evaluationTime) and a negative notional flow at period end (but only if periodEnd &gt; evaluationTime). Otherwise there will be no notional flows.
+	 * @param payer If true, the period will be a payer period, i.e. notional and coupon at period end are payed (negative). Otherwise it is a receiver period.
+	 */
+	public Period(double periodStart, double periodEnd, double fixingDate,
+			double paymentDate, AbstractNotional notional, AbstractProductComponent index, double daycountFraction,
+			boolean couponFlow, boolean notionalFlow, boolean payer) {
+		super(periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);
+		this.couponFlow = couponFlow;
+		this.notionalFlow = notionalFlow;
+		this.payer = payer;
+	}
+
+	/**
+	 * Create a simple period with notional and index (coupon) flow.
+	 * 
+	 * @param periodStart The period start.
+	 * @param periodEnd The period end.
+	 * @param fixingDate The fixing date (as double).
+	 * @param paymentDate The payment date (as double).
+	 * @param notional The notional object relevant for this period.
 	 * @param index The index (coupon) associated with this period.
 	 * @param couponFlow If true, the coupon will be payed. Otherwise there will be not coupon flow.
 	 * @param notionalFlow If true, there will be a positive notional flow at period start (but only if peirodStart &gt; evaluationTime) and a negative notional flow at period end (but only if periodEnd &gt; evaluationTime). Otherwise there will be no notional flows.
@@ -38,10 +61,7 @@ public class Period extends AbstractPeriod {
 	public Period(double periodStart, double periodEnd, double fixingDate,
 			double paymentDate, AbstractNotional notional, AbstractProductComponent index,
 			boolean couponFlow, boolean notionalFlow, boolean payer) {
-		super(periodStart, periodEnd, fixingDate, paymentDate, notional, index);
-		this.couponFlow = couponFlow;
-		this.notionalFlow = notionalFlow;
-		this.payer = payer;
+		this(periodStart, periodEnd, fixingDate, paymentDate, notional, index, periodEnd-periodStart, couponFlow, notionalFlow, payer);
 	}
 
 	/**
