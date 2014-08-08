@@ -22,7 +22,20 @@ public class Cashflow extends AbstractProductComponent {
 	private final double flowDate;
 	private final boolean isPayer;
 
-
+	/**
+	 * Create a single deterministic cashflow at a fixed time.
+	 * 
+	 * @param currency The currency.
+	 * @param flowAmount The amount of the cash flow.
+	 * @param flowDate The flow date.
+	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
+	 */
+	public Cashflow(String currency, double flowAmount, double flowDate, boolean isPayer) {
+		super(currency);
+		this.flowAmount = flowAmount;
+		this.flowDate = flowDate;
+		this.isPayer = isPayer;
+	}
 
 	/**
 	 * Create a single deterministic cashflow at a fixed time.
@@ -32,17 +45,13 @@ public class Cashflow extends AbstractProductComponent {
 	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
 	 */
 	public Cashflow(double flowAmount, double flowDate, boolean isPayer) {
-		super();
-		this.flowAmount = flowAmount;
-		this.flowDate = flowDate;
-		this.isPayer = isPayer;
+		this(null, flowAmount, flowDate, isPayer);
 	}
-
 
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-	 * Cashflows prior evaluationTime are not considered.
+	 * cash-flows prior evaluationTime are not considered.
 	 * 
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.

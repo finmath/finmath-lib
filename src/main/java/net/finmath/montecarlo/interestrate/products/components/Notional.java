@@ -16,16 +16,33 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class Notional implements AbstractNotional {
 	
+	private final String currency;
 	private final RandomVariable notional;
 	
 	/**
 	 * Creates a constant (non-stochastic) notional.
 	 * 
 	 * @param notional The constant notional value.
+	 * @param currency The currency.
 	 */
-	public Notional(double notional) {
+	public Notional(double notional, String currency) {
 		super();
 		this.notional = new RandomVariable(0.0,notional);
+		this.currency = currency;
+	}
+
+	/**
+	 * Creates a constant (non-stochastic) notional.
+	 * 
+	 * @param notional The constant notional value.
+	 */
+	public Notional(double notional) {
+		this(notional, null);
+	}
+
+	@Override
+	public String getCurrency() {
+		return currency;
 	}
 
 	@Override
