@@ -28,9 +28,9 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	protected final String discountCurveName;
 	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<Double, Double>();
 
-	private final String paymentOffsetCode;
-	private final BusinessdayCalendarInterface paymentBusinessdayCalendar;
-	private final BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
+	protected final String paymentOffsetCode;
+	protected final BusinessdayCalendarInterface paymentBusinessdayCalendar;
+	protected final BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
 
 	private final double paymentOffset;
 
