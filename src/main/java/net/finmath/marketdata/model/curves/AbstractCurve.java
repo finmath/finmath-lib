@@ -18,6 +18,10 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	private	final	Calendar	referenceDate;
 	private final	String		name;
 
+	/**
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date of this curve.
+	 */
 	public AbstractCurve(String name, Calendar referenceDate) {
 		super();
 		this.name = name;
