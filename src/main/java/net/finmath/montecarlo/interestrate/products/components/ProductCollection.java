@@ -97,9 +97,9 @@ public class ProductCollection extends AbstractProductComponent {
 				values = values.add(valueFuture.get());
 			}
 		} catch (InterruptedException e) {
-			throw new CalculationException(e);
+			throw e.getCause() instanceof CalculationException ? (CalculationException)(e.getCause()) : new CalculationException(e.getCause());
 		} catch (ExecutionException e) {
-			throw new CalculationException(e);
+			throw e.getCause() instanceof CalculationException ? (CalculationException)(e.getCause()) : new CalculationException(e.getCause());
 		}
 
 		// Return values
