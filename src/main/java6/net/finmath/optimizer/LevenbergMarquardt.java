@@ -19,8 +19,6 @@ import java.util.logging.Logger;
 
 import net.finmath.functions.LinearAlgebra;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 /**
  * This class implements a parallel Levenberg Marquardt non-linear least-squares fit
  * algorithm.
@@ -184,28 +182,6 @@ public abstract class LevenbergMarquardt implements Cloneable {
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
 	 * @param maxIteration Maximum number of iterations.
-	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
-	 */
-	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, int numberOfThreads) {
-		super();
-		this.initialParameters	= initialParameters;
-		this.targetValues		= targetValues;
-		this.maxIteration		= maxIteration;
-
-		this.weights			= new double[targetValues.length];
-		java.util.Arrays.fill(weights, 1.0);
-
-		this.executor = null;
-		this.executorShutdownWhenDone = true;
-		this.numberOfThreads = numberOfThreads;
-	}
-
-	/**
-	 * Create a Levenberg-Marquardt solver.
-	 * 
-	 * @param initialParameters Initial value for the parameters where the solver starts its search.
-	 * @param targetValues Target values to achieve.
-	 * @param maxIteration Maximum number of iterations.
 	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
 	 */
 	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, ExecutorService executorService) {
@@ -224,9 +200,61 @@ public abstract class LevenbergMarquardt implements Cloneable {
 
 	/**
 	 * Create a Levenberg-Marquardt solver.
+	 * 
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, int numberOfThreads) {
+		this(initialParameters, targetValues, maxIteration, null);
+
+		this.numberOfThreads = numberOfThreads;
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 * 
+	 * @param initialParameters List of initial values for the parameters where the solver starts its search.
+	 * @param targetValues List of target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(List<Number> initialParameters, List<Number> targetValues, int maxIteration, ExecutorService executorService) {
+		this(numberListToDoubleArray(initialParameters), numberListToDoubleArray(targetValues), maxIteration, executorService);
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 * 
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(List<Number> initialParameters, List<Number> targetValues, int maxIteration, int numberOfThreads) {
+		this(initialParameters, targetValues, maxIteration, null);
+
+		this.numberOfThreads = numberOfThreads;
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
 	 */
 	public LevenbergMarquardt() {
 		super();
+	}
+
+	/**
+	 * Convert a list of numbers to an array of doubles.
+	 * 
+	 * @param listOfNumbers A list of numbers.
+	 * @return A corresponding array of doubles executing <code>doubleValue()</code> on each element.
+	 */
+	private static double[] numberListToDoubleArray(List<Number> listOfNumbers) {
+		double[] arrayOfDoubles	= new double[listOfNumbers.size()];
+		for(int i=0; i<arrayOfDoubles.length; i++) arrayOfDoubles[i] = listOfNumbers.get(i).doubleValue();
+		return arrayOfDoubles;
 	}
 
 	/**
@@ -684,10 +712,10 @@ public abstract class LevenbergMarquardt implements Cloneable {
 	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
-	public LevenbergMarquardt getCloneWithModifiedTargetValues(List<Double> newTargetVaues, List<Double> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+	public LevenbergMarquardt getCloneWithModifiedTargetValues(List<Number> newTargetVaues, List<Number> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
 		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
-		clonedOptimizer.targetValues = ArrayUtils.toPrimitive(newTargetVaues.toArray(new Double[0]));;
-		clonedOptimizer.weights = ArrayUtils.toPrimitive(newWeights.toArray(new Double[0]));
+		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);
+		clonedOptimizer.weights = numberListToDoubleArray(newWeights);
 
 		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
 
