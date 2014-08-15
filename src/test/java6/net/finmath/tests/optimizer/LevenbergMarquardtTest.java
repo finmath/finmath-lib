@@ -6,6 +6,9 @@
 
 package net.finmath.tests.optimizer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
 
@@ -102,6 +105,47 @@ public class LevenbergMarquardtTest {
 		LevenbergMarquardt optimizer = new LevenbergMarquardt(
 				new double[] { 0.5, 0.5 },		// Initial parameters
 				new double[] { 0.0, 0.0 }, 		// Target values
+				100,							// Max iterations
+				10								// Number of threads
+				) {
+
+			// Override your objective function here
+			@Override
+			public void setValues(double[] parameters, double[] values) {
+				values[0] = 10.0 * (parameters[1] - parameters[0]*parameters[0]);
+				values[1] = 1.0 - parameters[0];
+			}
+		};
+
+		optimizer.run();
+
+		double[] bestParameters = optimizer.getBestFitParameters();
+		System.out.println("The solver for problem 'Rosebrock' required " + optimizer.getIterations() + " iterations. Accuracy is " + optimizer.getRootMeanSquaredError() + ". The best fit parameters are:");
+		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+
+		double[] values = new double[2];
+		optimizer.setValues(bestParameters, values);
+		for (int i = 0; i < values.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
+
+		System.out.println();
+		
+		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) < 1E-10);
+		Assert.assertTrue(Math.abs(bestParameters[1] - 1.0) < 1E-10);
+	}
+
+	@Test
+	public void testRosenbrockFunctionWithList() throws SolverException {
+		ArrayList<Number> initialParams = new ArrayList<Number>();
+		initialParams.add(0.5);
+		initialParams.add(0.5);
+
+		ArrayList<Number> targetValues = new ArrayList<Number>();
+		targetValues.add(0.0);
+		targetValues.add(0.0);
+
+		LevenbergMarquardt optimizer = new LevenbergMarquardt(
+				initialParams,					// Initial parameters
+				targetValues, 					// Target values
 				100,							// Max iterations
 				10								// Number of threads
 				) {
