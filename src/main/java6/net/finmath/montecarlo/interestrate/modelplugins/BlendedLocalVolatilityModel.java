@@ -71,6 +71,9 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	/**
 	 * Displaced diffusion model build on top of a standard covariance model.
+	 * 
+	 * The model performs a linear interpolation of a log-normal model (a = 0) and a normal model (a = 1).
+	 * 
 	 * The model constructed is <i>(a + (1-a)L) F</i> where <i>a</i> is
 	 * the displacement and <i>L</i> is
 	 * the component of the stochastic process and <i>F</i> is the factor loading
@@ -151,7 +154,8 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
         double forward = 1.0;
         if(forwardCurve != null) {
         	double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);
-        	forward = forwardCurve.getValue(null, Math.max(timeToMaturity, 0.0));
+        	// @TODO: Consider using a model context here
+        	forward = forwardCurve.getForward(null, Math.max(timeToMaturity, 0.0));
         }
         
         if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
