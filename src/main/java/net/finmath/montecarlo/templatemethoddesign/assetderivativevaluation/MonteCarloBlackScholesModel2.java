@@ -5,7 +5,6 @@ package net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation;
 
 import java.util.Map;
 
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
