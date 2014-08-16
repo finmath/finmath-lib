@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- For publishing to sonatype / central maven repo  -->
+	<!-- For publishing to sonatype / central maven repo -->
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -19,7 +20,7 @@
 		finmath lib is a Mathematical Finance Library in Java.
 		It provides algorithms and methodologies related to mathematical finance.						
 	</description>
-	<url>http://www.finmath.net</url>
+	<url>http://www.finmath.net/finmath-lib</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -47,6 +48,11 @@
 
 	<contributors>
 		<contributor>
+			<name>Oliver Dauben</name>
+			<email>oliver.dauben@gmail.com</email>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
 			<name>Alessandro Gnoatto</name>
 			<email>alessandro.gnoatto@math.lmu.de</email>
 			<timezone>1</timezone>
@@ -57,7 +63,7 @@
 			<timezone>1</timezone>
 		</contributor>
 	</contributors>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -80,7 +86,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
 		</dependency>
-  	</dependencies>
+	</dependencies>
 
 	<build>
 		<defaultGoal>clean install javadoc:javadoc</defaultGoal>
@@ -146,13 +152,14 @@
 						<artifactId>wagon-ssh</artifactId>
 						<version>1.0</version>
 					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-markdown</artifactId>
+						<version>1.5</version>
+					</dependency>
 				</dependencies>
 			</plugin>
-			<plugin>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.7</version>
-        	</plugin>
-        </plugins>
+		</plugins>
 	</build>
 
 	<profiles>
@@ -217,6 +224,86 @@
 		<system>GitHub</system>
 		<url>https://github.com/finmath/finmath-lib/issues</url>
 	</issueManagement>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<doctitle>${project.name} (${project.version}) documentation</doctitle>
+					<stylesheetfile>stylesheet.css</stylesheetfile>
+					<docfilessubdirs>true</docfilessubdirs>
+					<header>
+			   			<![CDATA[
+						<span class="logo-white">finMath</span><span class="logo-red"> lib</span>
+		    			documentation
+						<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+						</script>
+			   			]]>
+					</header>
+					<footer>
+			   			<![CDATA[
+						<i>Copyright &copy; 2014 Christian&nbsp;P.&nbsp;Fries.</i>
+			   			]]>
+					</footer>
+					<tags>
+						<tag>
+							<name>TODO</name>
+							<placement>a</placement>
+							<head>To dos:</head>
+						</tag>
+						<tag>
+							<name>date</name>
+							<placement>a</placement>
+							<head>Date:</head>
+						</tag>
+					</tags>
+					<links>
+						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
+					</links>
+					<detectLinks>true</detectLinks>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.7</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<!-- <report>index</report> -->
+							<report>scm</report>
+							<report>distribution-management</report>
+							<report>dependency-info</report>
+							<report>dependencies</report>
+							<report>issue-tracking</report>
+							<report>cim</report>
+							<report>license</report>
+							<report>project-team</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<!-- snapshots and releases are distributed via the following maven repository -->
+
+	<distributionManagement>
+		<repository>
+			<id>finmath</id>
+			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>finmath</id>
+			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-snapshots/</url>
+		</snapshotRepository>
+		<site>
+			<id>finmath-site</id>
+			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/finmath-lib/</url>
+		</site>
+	</distributionManagement>
 
 	<scm>
 		<url>http://svn.finmath.net/finmath lib/trunk</url>
