@@ -28,15 +28,15 @@ public class UnsupportedIndex extends AbstractIndex {
 	/**
 	 * Creates an unsupported index throwing an exception if his <code>getValue</code> method is called.
 	 * 
-     * @param exception The exception.
-     */
-    public UnsupportedIndex(Exception exception) {
-	    super();
-	    this.exception = exception;
-    }
+	 * @param exception The exception.
+	 */
+	public UnsupportedIndex(Exception exception) {
+		super();
+		this.exception = exception;
+	}
 
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-        throw new CalculationException(exception);
-    }
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		throw new CalculationException(exception);
+	}
 }

@@ -52,108 +52,110 @@ public class BlackScholesMonteCarloValuationTest {
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
 	 * performed with this model.
 	 * 
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-	 * @throws InterruptedException 
+	 * @param args Arguments - not used.
+	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
+	 * @throws InterruptedException Thrown if multi-threadded execution is interrupted.
 	 */
-    public static void main(String[] args) throws IOException, CalculationException, InterruptedException
-    {
-    	BlackScholesMonteCarloValuationTest pricingTest = new BlackScholesMonteCarloValuationTest();
+	public static void main(String[] args) throws CalculationException, InterruptedException
+	{
+		BlackScholesMonteCarloValuationTest pricingTest = new BlackScholesMonteCarloValuationTest();
 
-    	/*
-    	 * Read input
-    	 */
-    	int testNumber = readTestNumber();
-    	
+		/*
+		 * Read input
+		 */
+		int testNumber = readTestNumber();
 
-    	
-    	long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 
-    	switch(testNumber) {
-    	case 1:
-    		// This test requires a MonteCarloBlackScholesModel and will not work with others models
-    		pricingTest.testEuropeanCall();
-    		break;
-    	case 2:
-    		pricingTest.testModelProperties();
-    		break;
-    	case 3:
-    		pricingTest.testModelRandomVariable();
-    		break;
-    	case 4:
-    		pricingTest.testEuropeanAsianBermudanOption();
-    		break;
-    	case 5:
-    		pricingTest.testMultiThreaddedValuation();
-    		break;
-    	case 6:
-    		// This test requires a MonteCarloBlackScholesModel and will not work with others models
-    		pricingTest.testEuropeanCallDelta();    	
-        	break;
-    	case 7:
-    		// This test requires a MonteCarloBlackScholesModel and will not work with others models
-    		pricingTest.testEuropeanCallVega();    	
-        	break;
-    	}
+		switch(testNumber) {
+		case 1:
+			// This test requires a MonteCarloBlackScholesModel and will not work with others models
+			pricingTest.testEuropeanCall();
+			break;
+		case 2:
+			pricingTest.testModelProperties();
+			break;
+		case 3:
+			pricingTest.testModelRandomVariable();
+			break;
+		case 4:
+			pricingTest.testEuropeanAsianBermudanOption();
+			break;
+		case 5:
+			pricingTest.testMultiThreaddedValuation();
+			break;
+		case 6:
+			// This test requires a MonteCarloBlackScholesModel and will not work with others models
+			pricingTest.testEuropeanCallDelta();    	
+			break;
+		case 7:
+			// This test requires a MonteCarloBlackScholesModel and will not work with others models
+			pricingTest.testEuropeanCallVega();    	
+			break;
+		}
 
-    	long end = System.currentTimeMillis();
-    	
-    	System.out.println("\nCalculation time required: " + ((double)(end-start))/1000.0 + " seconds.");
-    }
+		long end = System.currentTimeMillis();
 
-    public BlackScholesMonteCarloValuationTest() {
+		System.out.println("\nCalculation time required: " + ((double)(end-start))/1000.0 + " seconds.");
+	}
+
+	public BlackScholesMonteCarloValuationTest() {
 		super();
 
 		// Create a Model (see method getModel)
-    	model = getModel();
+		model = getModel();
 	}
 
 	private static int readTestNumber() {
-    	System.out.println("Please select a test to run (click in this window and enter a number):");
-    	System.out.println("\t 1: Valuation of European call options (with different strikes).");
-    	System.out.println("\t 2: Some model properties.");
-    	System.out.println("\t 3: Print some realizations of the S(1).");
-    	System.out.println("\t 4: Valuation of European, Asian, Bermudan option.");
-    	System.out.println("\t 5: Multi-Threadded valuation of some ten thousand Asian options.");
-    	System.out.println("\t 6: Sensitivity (Delta) of European call options (with different strikes) using different methods.");
-    	System.out.println("\t 7: Sensitivity (Vega) of European call options (with different strikes) using different methods.");
-    	System.out.println("");
-    	System.out.print("Test to run: ");
-    	
-        //  open up standard input
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Please select a test to run (click in this window and enter a number):");
+		System.out.println("\t 1: Valuation of European call options (with different strikes).");
+		System.out.println("\t 2: Some model properties.");
+		System.out.println("\t 3: Print some realizations of the S(1).");
+		System.out.println("\t 4: Valuation of European, Asian, Bermudan option.");
+		System.out.println("\t 5: Multi-Threadded valuation of some ten thousand Asian options.");
+		System.out.println("\t 6: Sensitivity (Delta) of European call options (with different strikes) using different methods.");
+		System.out.println("\t 7: Sensitivity (Vega) of European call options (with different strikes) using different methods.");
+		System.out.println("");
+		System.out.print("Test to run: ");
 
-        int testNumber = 0;
-        try {
-           String test = br.readLine();
-           testNumber = Integer.valueOf(test);
-        } catch (IOException ioe) {
-           System.out.println("IO error trying to read test number!");
-           System.exit(1);
-        }
+		//  open up standard input
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        System.out.println("");
-        return testNumber;
+		int testNumber = 0;
+		try {
+			String test = br.readLine();
+			testNumber = Integer.valueOf(test);
+		} catch (IOException ioe) {
+			System.out.println("IO error trying to read test number!");
+			System.exit(1);
+		}
+
+		System.out.println("");
+		return testNumber;
 	}
 
 	public AssetModelMonteCarloSimulationInterface getModel()
-    {
+	{
 		// Create the time discretization
-        TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, deltaT);
+		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, deltaT);
 
 		// Create an instance of a black scholes monte carlo model
-        AssetModelMonteCarloSimulationInterface model = new MonteCarloBlackScholesModel(
-        	timeDiscretization,
-        	numberOfPaths,
-			initialValue,
-			riskFreeRate,
-			volatility);
-		
-        return model;
-    }
+		AssetModelMonteCarloSimulationInterface model = new MonteCarloBlackScholesModel(
+				timeDiscretization,
+				numberOfPaths,
+				initialValue,
+				riskFreeRate,
+				volatility);
 
+		return model;
+	}
+
+	/**
+	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
+	 */
 	@Test
-    public void testEuropeanCall() throws CalculationException
-    {
+	public void testEuropeanCall() throws CalculationException
+	{
 		MonteCarloBlackScholesModel blackScholesModel = (MonteCarloBlackScholesModel)model;
     	
 		// Java DecimalFormat for our output format
@@ -192,9 +194,11 @@ public class BlackScholesMonteCarloValuationTest {
 
 	/**
 	 * Test some properties of the model
+	 * 
+	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
 	 */
 	@Test
-    public void testModelProperties() throws CalculationException {
+	public void testModelProperties() throws CalculationException {
 		
 		System.out.println("Time \tAverage \t\tVariance");
 
@@ -212,6 +216,9 @@ public class BlackScholesMonteCarloValuationTest {
 		}
 	}
 	
+	/**
+	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
+	 */
 	@Test
 	public void testModelRandomVariable() throws CalculationException {
 		RandomVariableInterface stockAtTimeOne = model.getAssetValue(1.0, 0);
@@ -232,6 +239,8 @@ public class BlackScholesMonteCarloValuationTest {
 	 * <li>The Asian is cheaper than the European since averaging reduces the volatility.
 	 * <li>The European is cheaper than the Bermudan since exercises into the European is one (out of may) exercises strategies of the Bermudan.
 	 * </ul>
+	 * 
+	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
 	 */
 	@Test
 	public void testEuropeanAsianBermudanOption() throws CalculationException {
@@ -285,12 +294,12 @@ public class BlackScholesMonteCarloValuationTest {
 	/**
 	 * Evaluates 100000 Asian options in 10 parallel threads (each valuing 10000 options)
 	 * 
-	 * @throws InterruptedException
+	 * @throws InterruptedException Thrown if multi-threadded execution is interrupted.
 	 */
 	public void testMultiThreaddedValuation() throws InterruptedException {
 		final double[] averagingPoints = { 0.5, 1.0, 1.5, 2.0, 2.5, 2.5, 3.0, 3.0 , 3.0, 3.5, 4.5, 5.0 };
-        final double maturity = 5.0;
-        final double strike = 1.07;
+		final double maturity = 5.0;
+		final double strike = 1.07;
 
 		int			numberOfThreads	= 10;		
 		Thread[]	myThreads		= new Thread[numberOfThreads];
@@ -327,9 +336,12 @@ public class BlackScholesMonteCarloValuationTest {
 		// Threads are completed at this point
 	}
 
+	/**
+	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
+	 */
 	@Test
 	public void testEuropeanCallDelta() throws CalculationException
-    {
+	{
 		MonteCarloBlackScholesModel blackScholesModel = (MonteCarloBlackScholesModel)model;
 		
 		// Java DecimalFormat for our output format
@@ -368,10 +380,10 @@ public class BlackScholesMonteCarloValuationTest {
 
 			// Calculate the finite difference of the analytic value
 			double deltaFiniteDiffAnalytic	=
-				(
-					net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue+shift, riskFreeRate, volatility, optionMaturity, optionStrike)
-					- net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue-shift, riskFreeRate, volatility, optionMaturity, optionStrike)
-				)/(2*shift);
+					(
+							net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue+shift, riskFreeRate, volatility, optionMaturity, optionStrike)
+							- net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue-shift, riskFreeRate, volatility, optionMaturity, optionStrike)
+							)/(2*shift);
 			
 			// Calculate the analytic value
 			double deltaAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionDelta(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
@@ -388,9 +400,12 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("__________________________________________________________________________________________\n");
 	}
 
+	/**
+	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
+	 */
 	@Test
 	public void testEuropeanCallVega() throws CalculationException
-    {
+	{
 		MonteCarloBlackScholesModel blackScholesModel = (MonteCarloBlackScholesModel)model;
 
 		// Java DecimalFormat for our output format
@@ -429,10 +444,10 @@ public class BlackScholesMonteCarloValuationTest {
 
 			// Calculate the finite difference of the analytic value
 			double vegaFiniteDiffAnalytic	=
-				(
-					net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue+shift, riskFreeRate, volatility, optionMaturity, optionStrike)
-					- net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue-shift, riskFreeRate, volatility, optionMaturity, optionStrike)
-				)/(2*shift);
+					(
+							net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue+shift, riskFreeRate, volatility, optionMaturity, optionStrike)
+							- net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue-shift, riskFreeRate, volatility, optionMaturity, optionStrike)
+							)/(2*shift);
 			
 			// Calculate the analytic value
 			double vegaAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionVega(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);

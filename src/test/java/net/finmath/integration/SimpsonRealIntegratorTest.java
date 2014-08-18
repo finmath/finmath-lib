@@ -21,11 +21,8 @@ public class SimpsonRealIntegratorTest {
 
 	private AbstractRealIntegral integral;
 	
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		final double	lowerBound = 1.0;
 		final double	upperBound = 5.0;
 		final int		numberOfEvaluationPoints = 100;

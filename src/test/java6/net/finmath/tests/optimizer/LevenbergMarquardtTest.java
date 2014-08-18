@@ -7,7 +7,6 @@
 package net.finmath.tests.optimizer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
@@ -49,7 +48,7 @@ public class LevenbergMarquardtTest {
 
 		Assert.assertTrue(Math.abs(bestParameters[0] - 2.5) < 1E-12);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 5.0) < 1E-12);
-		
+
 		/*
 		 * Creating a clone, continuing the search with new target values.
 		 * Note that we do not re-define the setValues method.
@@ -94,12 +93,12 @@ public class LevenbergMarquardtTest {
 		double[] values = new double[3];
 		optimizer.setValues(bestParameters, values);
 		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
-		
+
 		System.out.println();
 
 		Assert.assertTrue(optimizer.getRootMeanSquaredError() < 1E-2);
 	}
-	
+
 	@Test
 	public void testRosenbrockFunction() throws SolverException {
 		LevenbergMarquardt optimizer = new LevenbergMarquardt(
@@ -128,7 +127,7 @@ public class LevenbergMarquardtTest {
 		for (int i = 0; i < values.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
 
 		System.out.println();
-		
+
 		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) < 1E-10);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 1.0) < 1E-10);
 	}
@@ -169,7 +168,7 @@ public class LevenbergMarquardtTest {
 		for (int i = 0; i < values.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
 
 		System.out.println();
-		
+
 		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) < 1E-10);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 1.0) < 1E-10);
 	}

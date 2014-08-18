@@ -44,22 +44,6 @@ public class SwaptionAnalyticApproximationTest {
 	private final int numberOfFactors = 5;
 	private final double correlationDecayParam = 0.04;
 
-	/**
-	 * @param args
-	 * @throws CalculationException 
-	 */
-	public static void main(String[] args) throws CalculationException {
-
-		System.out.println("Testing a single curve model (discounting curve corresponds to forward curve):");		
-		(new SwaptionAnalyticApproximationTest()).testModel(false /* isMultiCurve */);
-
-		System.out.println("\n");		
-		
-		System.out.println("Testing a multi curve model (discounting curve differs from forward curve):");		
-		(new SwaptionAnalyticApproximationTest()).testModel(true /* isMultiCurve */);
-
-	}
-
 	@Test
 	public void testSingleCurveModel() throws CalculationException {
 		this.testModel(false);
@@ -259,7 +243,7 @@ public class SwaptionAnalyticApproximationTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
-					liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
+				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,

@@ -41,8 +41,8 @@ public class CalibrationTest {
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
 	 * 
-	 * @param args
-	 * @throws SolverException 
+	 * @param args Arguments - not used.
+	 * @throws SolverException Thrown if the solver cannot find a solution to the calibration problem.
 	 */
 	public static void main(String[] args) throws SolverException {
 		

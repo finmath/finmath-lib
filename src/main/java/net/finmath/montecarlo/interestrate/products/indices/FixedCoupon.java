@@ -22,15 +22,15 @@ public class FixedCoupon extends AbstractIndex {
 	/**
 	 * Creates a fixed coupon index paying constant coupon.
 	 * 
-     * @param coupon The coupon.
-     */
-    public FixedCoupon(double coupon) {
-	    super();
-	    this.coupon = new RandomVariable(0.0,coupon);
-    }
+	 * @param coupon The coupon.
+	 */
+	public FixedCoupon(double coupon) {
+		super();
+		this.coupon = new RandomVariable(0.0,coupon);
+	}
 
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
-        return coupon;
-    }
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
+		return coupon;
+	}
 }
