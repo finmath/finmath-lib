@@ -30,7 +30,7 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 
 	public DiscountCurveNelsonSiegelSvenson(String name, Calendar referenceDate, double[] parameter) {
 		super(name, referenceDate);
-		
+
 		this.parameter = parameter; 
 	}
 
@@ -58,7 +58,7 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 
 		double y1 = (maturity > 0.0 ? (1.0-x1)/maturity*tau1 : 0.0);
 		double y2 = (maturity > 0.0 ? (1.0-x2)/maturity*tau2 : 0.0);
-		
+
 		double zeroRate = beta1 + beta2 * y1 + beta3 * (y1-x1) + beta4 * (y2-x2);
 
 		return Math.exp(- zeroRate * maturity);
@@ -83,7 +83,7 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 	@Deprecated
 	public void setParameter(double[] parameter) {
 		throw new UnsupportedOperationException();
-		
+
 	}
 
 	@Override

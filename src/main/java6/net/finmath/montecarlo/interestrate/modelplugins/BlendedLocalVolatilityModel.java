@@ -39,8 +39,8 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	private double displacement;
 
 	private ForwardCurveInterface forwardCurve;
-	
-    private boolean isCalibrateable = false;
+
+	private boolean isCalibrateable = false;
 
 	/**
 	 * Displaced diffusion model build on top of a standard covariance model.
@@ -98,8 +98,8 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	public Object clone() {
 		return new BlendedLocalVolatilityModel((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement, isCalibrateable);
 	}
-	
-	
+
+
 	/**
 	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>
 	 * such that this model's <i>i</i>-th factor loading is
@@ -122,7 +122,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 		double[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) return new double[] { displacement };
-		
+
 		// Append displacement to the end of covarianceParameters
 		double[] jointParameters = new double[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
@@ -149,23 +149,23 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	@Override
 	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-        RandomVariableInterface[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+		RandomVariableInterface[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
-        double forward = 1.0;
-        if(forwardCurve != null) {
-        	double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);
-        	// @TODO: Consider using a model context here
-        	forward = forwardCurve.getForward(null, Math.max(timeToMaturity, 0.0));
-        }
-        
-        if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-        	RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].mult(1.0-displacement).add(displacement * forward);
-    		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
-    			factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
-    		}
-        }
+		double forward = 1.0;
+		if(forwardCurve != null) {
+			double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);
+			// @TODO: Consider using a model context here
+			forward = forwardCurve.getForward(null, Math.max(timeToMaturity, 0.0));
+		}
 
-        return factorLoading;
+		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
+			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].mult(1.0-displacement).add(displacement * forward);
+			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
+				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
+			}
+		}
+
+		return factorLoading;
 	}
 
 	@Override
