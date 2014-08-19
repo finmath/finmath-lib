@@ -70,6 +70,10 @@ public class ProcessEulerScheme extends AbstractProcess {
 			}
 		}
 
+		if(discreteProcess[timeIndex][componentIndex] == null) {
+			throw new NullPointerException("Generation of process component " + componentIndex + " at time index " + timeIndex + " failed. Likely due to out of memory");
+		}
+		
 		// Return value of process
 		return discreteProcess[timeIndex][componentIndex];
 	}

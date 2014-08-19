@@ -99,7 +99,15 @@ public class ProductCollection extends AbstractProductComponent {
 		} catch (InterruptedException e) {
 			throw e.getCause() instanceof CalculationException ? (CalculationException)(e.getCause()) : new CalculationException(e.getCause());
 		} catch (ExecutionException e) {
-			throw e.getCause() instanceof CalculationException ? (CalculationException)(e.getCause()) : new CalculationException(e.getCause());
+			if(CalculationException.class.isInstance(e.getCause())) {
+				throw (CalculationException)(e.getCause());
+			}
+			else if(RuntimeException.class.isInstance(e.getCause())) {
+				throw (RuntimeException)(e.getCause());
+			}
+			else {
+				throw new CalculationException(e.getCause());
+			}
 		}
 
 		// Return values

@@ -135,7 +135,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			} catch (ExecutionException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException(e.getCause());
 			}
 		}
 		return value;
