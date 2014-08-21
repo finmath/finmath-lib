@@ -5,25 +5,39 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.time.TimeDiscretizationInterface;
 
 
 /**
+ * Very simple correlation model given by R, where R is a factor reduced matrix created from the
+ * \( n \) Eigenvectors of \( \tilde{R} \) belonging to the \( n \) largest non-negative Eigenvalues,
+ * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and
+ * 
+ * \( \tilde{\rho}_{i,j} = \exp( -\max(a,0) | T_{i}-T_{j} | ) \)
+ * 
  * @author Christian Fries
- *
  */
 public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
 	
-	private final int			numberOfFactors;
-	private double		a;
-	private final boolean		isCalibrateable;
-	
+	private final	int			numberOfFactors;
+	private 		double		a;
+	private final	boolean		isCalibrateable;
 
 	private double[][]	correlationMatrix;
 	private double[][]	factorMatrix;
 	
 	
+	/**
+	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
+	 * 
+	 * @param timeDiscretization Simulation time dicretization. Not used.
+	 * @param liborPeriodDiscretization Tenor time discretization, i.e., the \( T_{i} \)'s.
+	 * @param numberOfFactors Number \( n \) of factors to be used.
+	 * @param a Decay parameter. Should be positive. Negative values will be floored to 0.
+	 * @param isCalibrateable If true, the parameter will become a free parameter in a calibration.
+	 */
 	public LIBORCorrelationModelExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
@@ -48,7 +62,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	public void setParameter(double[] parameter) {
 		if(!isCalibrateable) return;
 
-		a = parameter[0];
+		a = Math.max(parameter[0], 0.0);
 
 		initialize(numberOfFactors, a);
 	}
