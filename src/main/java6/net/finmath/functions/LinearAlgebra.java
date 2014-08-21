@@ -102,12 +102,12 @@ public class LinearAlgebra {
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
 	public static double[][] getFactorMatrix(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = false;
+		boolean  isUseApacheCommonsMath = true;
 		if(isUseApacheCommonsMath) {
 			return getFactorMatrixUsingCommonsMath(correlationMatrix, numberOfFactors);
 		}
 		else {
-			return getFactorMatrix(new DenseDoubleMatrix2D(correlationMatrix), numberOfFactors).toArray();
+			return getFactorMatrixUsingColt(new DenseDoubleMatrix2D(correlationMatrix), numberOfFactors).toArray();
 		}
 	}
 
@@ -119,12 +119,12 @@ public class LinearAlgebra {
 	 * @return Factor reduced correlation matrix.
 	 */
 	public static double[][] factorReduction(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = false;
+		boolean  isUseApacheCommonsMath = true;
 		if(isUseApacheCommonsMath) {
-			return factorReduction2(correlationMatrix, numberOfFactors);
+			return factorReductionUsingCommonsMath(correlationMatrix, numberOfFactors);
 		}
 		else {
-			return factorReduction(new DenseDoubleMatrix2D(correlationMatrix), numberOfFactors).toArray();
+			return factorReductionUsingColt(new DenseDoubleMatrix2D(correlationMatrix), numberOfFactors).toArray();
 		}
 	}
 
@@ -187,7 +187,7 @@ public class LinearAlgebra {
 	 * @param numberOfFactors The requested number of factors (eigenvectors).
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
-	private static DoubleMatrix2D getFactorMatrix(DoubleMatrix2D correlationMatrix, int numberOfFactors) {
+	private static DoubleMatrix2D getFactorMatrixUsingColt(DoubleMatrix2D correlationMatrix, int numberOfFactors) {
 		/*
 		 * Factor reduction
 		 */
@@ -229,7 +229,7 @@ public class LinearAlgebra {
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Factor reduced correlation matrix.
 	 */
-	public static double[][] factorReduction2(double[][] correlationMatrix, int numberOfFactors) {
+	public static double[][] factorReductionUsingCommonsMath(double[][] correlationMatrix, int numberOfFactors) {
 
 		// Extract factors corresponding to the largest eigenvalues
 		double[][] factorMatrix = getFactorMatrix(correlationMatrix, numberOfFactors);
@@ -263,10 +263,10 @@ public class LinearAlgebra {
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Factor reduced correlation matrix.
 	 */
-	public static DoubleMatrix2D factorReduction(DoubleMatrix2D correlationMatrix, int numberOfFactors) {
+	public static DoubleMatrix2D factorReductionUsingColt(DoubleMatrix2D correlationMatrix, int numberOfFactors) {
 
 		// Extract factors corresponding to the largest eigenvalues
-		DoubleMatrix2D factorMatrix = getFactorMatrix(correlationMatrix, numberOfFactors);
+		DoubleMatrix2D factorMatrix = getFactorMatrixUsingColt(correlationMatrix, numberOfFactors);
 
 		// Renormalized rows
 		for (int row = 0; row < factorMatrix.rows(); row++) {
@@ -288,6 +288,6 @@ public class LinearAlgebra {
 		cern.colt.matrix.linalg.Algebra alg = new cern.colt.matrix.linalg.Algebra();
 		DoubleMatrix2D reducedCorrelationMatrix = alg.mult(factorMatrix, alg.transpose(factorMatrix));
 		
-		return getFactorMatrix(reducedCorrelationMatrix, numberOfFactors);
+		return getFactorMatrixUsingColt(reducedCorrelationMatrix, numberOfFactors);
 	}
 }
