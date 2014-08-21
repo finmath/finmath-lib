@@ -39,7 +39,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	private double displacement;
 
 	private ForwardCurveInterface forwardCurve;
-
+	
 	private boolean isCalibrateable = false;
 
 	/**
@@ -98,8 +98,8 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	public Object clone() {
 		return new BlendedLocalVolatilityModel((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement, isCalibrateable);
 	}
-
-
+	
+	
 	/**
 	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>
 	 * such that this model's <i>i</i>-th factor loading is
@@ -122,7 +122,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 		double[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) return new double[] { displacement };
-
+		
 		// Append displacement to the end of covarianceParameters
 		double[] jointParameters = new double[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
