@@ -46,4 +46,10 @@ public class CappedFlooredIndex extends AbstractIndex {
 
     	return indexValues;
     }
+
+	@Override
+	public String toString() {
+		return "CappedFlooredIndex [index=" + index + ", cap=" + cap
+				+ ", floor=" + floor + ", toString()=" + super.toString() + "]";
+	}
 }
