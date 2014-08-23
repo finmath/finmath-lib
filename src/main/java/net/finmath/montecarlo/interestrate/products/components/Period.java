@@ -132,4 +132,11 @@ public class Period extends AbstractPeriod {
 
 		return values;
 	}
+
+	@Override
+	public String toString() {
+		return "Period [couponFlow=" + couponFlow + ", notionalFlow="
+				+ notionalFlow + ", payer=" + payer + ", toString()="
+				+ super.toString() + "]";
+	}
 }
