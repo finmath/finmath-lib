@@ -41,4 +41,11 @@ public class LIBORIndex extends AbstractIndex {
 
     	return forwardRate;
     }
+
+	@Override
+	public String toString() {
+		return "LIBORIndex [periodStartOffset=" + periodStartOffset
+				+ ", periodLength=" + periodLength + ", toString()="
+				+ super.toString() + "]";
+	}
 }

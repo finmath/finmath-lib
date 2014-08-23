@@ -33,4 +33,10 @@ public class FixedCoupon extends AbstractIndex {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
 		return coupon;
 	}
+
+	@Override
+	public String toString() {
+		return "FixedCoupon [coupon=" + coupon + ", toString()="
+				+ super.toString() + "]";
+	}
 }

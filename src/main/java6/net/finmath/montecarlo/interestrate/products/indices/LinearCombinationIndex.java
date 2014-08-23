@@ -45,4 +45,11 @@ public class LinearCombinationIndex extends AbstractIndex {
     	return index1.getValue(evaluationTime, model).mult(scaling1)
     			.add(index2.getValue(evaluationTime, model).mult(scaling2));
     }
+
+	@Override
+	public String toString() {
+		return "LinearCombinationIndex [index1=" + index1 + ", index2="
+				+ index2 + ", scaling1=" + scaling1 + ", scaling2=" + scaling2
+				+ ", toString()=" + super.toString() + "]";
+	}
 }

@@ -76,4 +76,11 @@ public class Cashflow extends AbstractProductComponent {
 		// Return values
 		return values;	
 	}    
+
+	@Override
+	public String toString() {
+		return "Cashflow [flowAmount=" + flowAmount + ", flowDate=" + flowDate
+				+ ", isPayer=" + isPayer + ", toString()=" + super.toString()
+				+ "]";
+	}    
 }
