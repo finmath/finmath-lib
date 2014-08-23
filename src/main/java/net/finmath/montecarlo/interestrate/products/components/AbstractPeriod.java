@@ -121,4 +121,12 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	public double getDaycountFraction() {
 		return daycountFraction;
 	}    
+
+	@Override
+	public String toString() {
+		return "AbstractPeriod [periodStart=" + periodStart + ", periodEnd="
+				+ periodEnd + ", fixingDate=" + fixingDate + ", paymentDate="
+				+ paymentDate + ", notional=" + notional + ", index=" + index
+				+ ", daycountFraction=" + daycountFraction + "]";
+	}    
 }
