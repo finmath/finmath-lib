@@ -5,17 +5,20 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.time.TimeDiscretizationInterface;
 
 
 /**
- * Very simple correlation model given by R, where R is a factor reduced matrix created from the
+ * Simple correlation model given by R, where R is a factor reduced matrix
+ * (see {@link net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)}) created from the
  * \( n \) Eigenvectors of \( \tilde{R} \) belonging to the \( n \) largest non-negative Eigenvalues,
- * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and
+ * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and \[ \tilde{\rho}_{i,j} = \exp( -\max(a,0) | T_{i}-T_{j} | ) \]
  * 
- * \( \tilde{\rho}_{i,j} = \exp( -\max(a,0) | T_{i}-T_{j} | ) \)
+ * For a more general model featuring three parameters see {@link LIBORCorrelationModelThreeParameterExponentialDecay}.
+ * 
+ * @see net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)
+ * @see LIBORCorrelationModelThreeParameterExponentialDecay
  * 
  * @author Christian Fries
  */

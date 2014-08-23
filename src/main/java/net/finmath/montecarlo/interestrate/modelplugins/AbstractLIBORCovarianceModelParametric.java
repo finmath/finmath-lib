@@ -32,6 +32,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * is not calibrateable.
  * 
  * This class includes the implementation of a generic calibration algorithm.
+ * If you provide an arbitrary list of calibration products, the class can return
+ * a new instance where the parameters are chosen such that the (weighted) root-mean-square 
+ * error of the difference of the value of the calibration products and given target
+ * values is minimized.
  * 
  * @author Christian Fries
  * @date 20.05.2006
