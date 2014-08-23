@@ -35,7 +35,6 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <br><br>
  * In its default case the class specifies a multi-factor LIBOR market model in its log-normal formulation, that is
  * <i>L<sub>j</sub> = exp(Y<sub>j</sub>) </i> where
- * <br>
  * \[
  * 		dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
  * \]
@@ -114,11 +113,16 @@ import net.finmath.time.TimeDiscretizationInterface;
  * The main task of this class is to calculate the risk-neutral drift and the
  * corresponding numeraire given the covariance model.
  * 
+ * The calibration of the covariance structure is not part of this class. For the calibration
+ * of parametric models of the instantaneous covariance see
+ * {@link net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric#getCloneCalibrated(LIBORMarketModelInterface, AbstractLIBORMonteCarloProduct[], double[], double[], Map)}.
+ * 
  * @author Christian Fries
  * @version 1.1
- * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel The abstract covariance model plug ins.
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel The abstract covariance model plug ins.
+ * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric A parametic covariance model including a generic calibration algorithm.
  */
 public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelInterface {
 
