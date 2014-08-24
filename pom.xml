@@ -296,14 +296,6 @@
 	<!-- snapshots and releases are distributed via the following maven repository -->
 
 	<distributionManagement>
-		<repository>
-			<id>finmath</id>
-			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>finmath</id>
-			<url>http://mvn.finmath.net/nexus/content/repositories/finmath-snapshots/</url>
-		</snapshotRepository>
 		<site>
 			<id>finmath-site</id>
 			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/finmath-lib/</url>
