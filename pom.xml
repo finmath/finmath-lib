@@ -278,8 +278,11 @@
 					<reportSet>
 						<reports>
 							<!-- <report>index</report> -->
+							<report>summary</report>
 							<report>scm</report>
+							<!--
 							<report>distribution-management</report>
+							-->
 							<report>dependency-info</report>
 							<report>dependencies</report>
 							<report>issue-tracking</report>
