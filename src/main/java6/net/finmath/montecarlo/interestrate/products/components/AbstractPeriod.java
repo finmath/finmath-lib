@@ -120,7 +120,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	 */
 	public double getDaycountFraction() {
 		return daycountFraction;
-	}
+	}    
 
 	@Override
 	public String toString() {

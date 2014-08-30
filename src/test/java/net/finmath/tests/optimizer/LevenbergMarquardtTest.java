@@ -7,7 +7,6 @@
 package net.finmath.tests.optimizer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
