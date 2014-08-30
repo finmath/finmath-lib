@@ -9,10 +9,21 @@ package net.finmath.time;
 import java.util.Calendar;
 
 /**
+ * A period, i.e. a time interval suitable for securities with regular payment schedules.
+ * 
+ * For example, the accrual period is usually given by the interval periodStart, periodEnd, where as fixing date and payment date
+ * can be adjusted versions of periodStart and periodsEnd, e.g. via fixing offsets and payment offsets.
+ * 
+ * Period implement the Comparable<Period> interface by simply using getPeriodEnd().compareTo(), i.e., the ordering is
+ * determined by periodEnd only.
+ * 
+ * For a list of subsequent (sorted) periods it is often assumed that periodStart agrees with the periodEnd of the preceeding period,
+ * resulting in a time-discretization.
+ * 
  * @author Christian Fries
  *
  */
-public class Period {
+public class Period implements Comparable<Period> {
 
 	private Calendar fixing;
 	private Calendar payment;
@@ -42,6 +53,11 @@ public class Period {
 
 	public Calendar getPeriodEnd() {
 		return periodEnd;
+	}
+
+	@Override
+	public int compareTo(Period o) {
+		return getPeriodEnd().compareTo(o.getPeriodEnd());
 	}
 
 	@Override

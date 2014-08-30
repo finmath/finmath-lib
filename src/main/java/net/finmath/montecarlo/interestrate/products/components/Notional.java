@@ -46,13 +46,12 @@ public class Notional implements AbstractNotional {
 	}
 
 	@Override
-	public RandomVariableInterface getNotionalAtPeriodEnd( AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
+	public RandomVariableInterface getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
 		return notional;
 	}
 
 	@Override
-	public RandomVariableInterface getNotionalAtPeriodStart(
-			AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
+	public RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
 		return notional;
 	}
 }
