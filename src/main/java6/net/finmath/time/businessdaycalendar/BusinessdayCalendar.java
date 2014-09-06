@@ -27,7 +27,7 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 	@Override
 	public Calendar getAdjustedDate(Calendar date, DateRollConvention dateRollConvention) {
 		if(dateRollConvention == DateRollConvention.UNADJUSTED) {
-			return date;
+			return (Calendar)date.clone();
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_FOLLOWING) {
 			Calendar adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);
