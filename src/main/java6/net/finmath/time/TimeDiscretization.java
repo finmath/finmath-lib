@@ -50,7 +50,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	 * 
 	 * @param times Given array or arguments list of discretization points
 	 */
-	public TimeDiscretization(Double... times) {
+	public TimeDiscretization(Double[] times) {
 		super();
 		this.timeDiscretization = new double[times.length];
 		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) this.timeDiscretization[timeIndex] = roundToTimeTickSize(times[timeIndex]);
