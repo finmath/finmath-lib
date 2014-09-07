@@ -36,6 +36,44 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	private String					forwardCurveName;
 	private ForwardCurveInterface	forwardCurve;
 
+	private final double			timeScaling;
+	
+	/**
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &lt; r &lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 * 
+	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
+	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
+	 */
+	public DiscountCurveFromForwardCurve(String forwardCurveName, double periodLengthTimeScaling) {
+		super("DiscountCurveFromForwardCurve(" + forwardCurveName + ")", null);
+
+		this.forwardCurveName	= forwardCurveName;
+		this.timeScaling		= periodLengthTimeScaling;
+	}
+
+	/**
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &lt; r &lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 * 
+	 * @param forwardCurve The forward curve used for calculation of the discount factors.
+	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
+	 */
+	public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve, double periodLengthTimeScaling) {
+		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
+
+		this.forwardCurve	= forwardCurve;
+		this.timeScaling	= periodLengthTimeScaling;
+	}
+   
 	/**
 	 * Create a discount curve using a given forward curve.
 	 * The discount factors df(t) are defined at t = k * d for integers k
@@ -47,9 +85,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
 	 */
 	public DiscountCurveFromForwardCurve(String forwardCurveName) {
-		super("DiscountCurveFromForwardCurve" + forwardCurveName + ")", null);
-
-		this.forwardCurveName	= forwardCurveName;
+		this(forwardCurveName, 1.0);
 	}
 
 	/**
@@ -63,11 +99,9 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @param forwardCurve The forward curve used for calculation of the discount factors.
 	 */
 	public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {
-		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
-
-		this.forwardCurve	= forwardCurve;
+		this(forwardCurve, 1.0);
 	}
-   
+
 	/* (non-Javadoc)
 	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
 	 */
@@ -85,13 +119,15 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		if(this.forwardCurve != null)	forwardCurve = this.forwardCurve;
 		else							forwardCurve = model.getForwardCurve(forwardCurveName);
 
+		if(forwardCurve == null) throw new IllegalArgumentException("No forward curve given and no forward curve found in the model under the name " + forwardCurveName + ".");
+
 		double	time			= 0;
 		double	discountFactor	= 1.0;
 		double paymentOffset = 0;
 		while(time < maturity) {
 			paymentOffset	= forwardCurve.getPaymentOffset(time);
 			if(paymentOffset <= 0) throw new RuntimeException("Trying to calculate a discount curve from a forward curve with non-positive payment offset.");
-			discountFactor /= 1.0 + forwardCurve.getForward(model, time) * Math.min(paymentOffset, maturity-time);
+			discountFactor /= 1.0 + forwardCurve.getForward(model, time) * Math.min(paymentOffset, maturity-time) * timeScaling;
 			time += paymentOffset;
 		}
 		
