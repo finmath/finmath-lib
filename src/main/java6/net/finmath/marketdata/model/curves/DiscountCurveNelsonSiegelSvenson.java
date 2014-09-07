@@ -26,12 +26,14 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 
 	private static final long serialVersionUID = 8024640795839972709L;
 
+	private final double timeScaling;
 	private final double[] parameter;
 
-	public DiscountCurveNelsonSiegelSvenson(String name, Calendar referenceDate, double[] parameter) {
+	public DiscountCurveNelsonSiegelSvenson(String name, Calendar referenceDate, double[] parameter, double timeScaling) {
 		super(name, referenceDate);
+		this.timeScaling = timeScaling;
 
-		this.parameter = parameter; 
+		this.parameter = parameter.clone();
 	}
 
 	@Override
@@ -46,12 +48,15 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 	@Override
 	public double getDiscountFactor(AnalyticModelInterface model, double maturity)
 	{
-		double beta1 = parameter[0];
-		double beta2 = parameter[1];
-		double beta3 = parameter[2];
-		double beta4 = parameter[3];
-		double tau1	= parameter[4];
-		double tau2 = parameter[5];
+		// Change time scale
+		maturity *= timeScaling;
+		
+		double beta1	= parameter[0];
+		double beta2	= parameter[1];
+		double beta3	= parameter[2];
+		double beta4	= parameter[3];
+		double tau1		= parameter[4];
+		double tau2		= parameter[5];
 
 		double x1 = tau1 > 0 ? Math.exp(-maturity/tau1) : 0.0;
 		double x2 = tau2 > 0 ? Math.exp(-maturity/tau2) : 0.0;
@@ -93,6 +98,6 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 
 	@Override
 	public DiscountCurveNelsonSiegelSvenson getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		return new DiscountCurveNelsonSiegelSvenson(getName(), getReferenceDate(), value);
+		return new DiscountCurveNelsonSiegelSvenson(getName(), getReferenceDate(), value, timeScaling);
 	}
 }
