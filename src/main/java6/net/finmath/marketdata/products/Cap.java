@@ -53,16 +53,16 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @param strike The given strike (or moneyness).
 	 * @param isStrikeMoneyness If true, then the strike argument is interpreted as moneyness, i.e. we calculate an ATM forward from the schedule.
 	 * @param discountCurveName The discount curve to be used for discounting.
-	 * @param volatiltiySufaceName The volatility surface to be used.
+	 * @param volatilitySurfaceName The volatility surface to be used.
 	 */
-	public Cap(ScheduleInterface schedule, String forwardCurveName, double strike, boolean isStrikeMoneyness, String discountCurveName, String volatiltiySufaceName) {
+	public Cap(ScheduleInterface schedule, String forwardCurveName, double strike, boolean isStrikeMoneyness, String discountCurveName, String volatilitySurfaceName) {
 		super();
 		this.schedule = schedule;
 		this.forwardCurveName = forwardCurveName;
 		this.strike = strike;
 		this.isStrikeMoneyness = isStrikeMoneyness;
 		this.discountCurveName = discountCurveName;
-		this.volatiltiySufaceName = volatiltiySufaceName;
+		this.volatiltiySufaceName = volatilitySurfaceName;
 	}
 
 	@Override
@@ -107,6 +107,7 @@ public class Cap extends AbstractAnalyticProduct {
 					forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate-fixingDate);
 			}
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
+			double payoffUnit = discountFactor * periodLength;
 
 			double effektiveStrike = strike;
 			if(isStrikeMoneyness)	effektiveStrike += getATMForward(model, true);
@@ -114,12 +115,12 @@ public class Cap extends AbstractAnalyticProduct {
 			VolatilitySurfaceInterface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
 			if(volatilitySurface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL) {
 				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurfaceInterface.QuotingConvention.VOLATILITYLOGNORMAL);
-				value += AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, fixingDate, effektiveStrike, discountFactor);
+				value += AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);
 			}
 			else {
 				// Default to normal volatility as quoting convention
 				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurfaceInterface.QuotingConvention.VOLATILITYNORMAL);
-				value += AnalyticFormulas.bachelierOptionValue(forward, volatility, fixingDate, effektiveStrike, discountFactor);
+				value += AnalyticFormulas.bachelierOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);
 			}
 		}
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
@@ -189,10 +190,10 @@ public class Cap extends AbstractAnalyticProduct {
 			double[] strikes = { 0.0 };
 			double[] volatilities = { volatility };
 			VolatilitySurfaceInterface flatSurface = new CapletVolatilities(model.getVolatilitySurface(volatiltiySufaceName).getName(), model.getVolatilitySurface(volatiltiySufaceName).getReferenceDate(), model.getForwardCurve(forwardCurveName), maturities, strikes, volatilities, quotingConvention, model.getDiscountCurve(discountCurveName));
-			AnalyticModel flatModel = new AnalyticModel();
-			flatModel.setCurve(model.getForwardCurve(forwardCurveName));
-			flatModel.setCurve(model.getDiscountCurve(discountCurveName));
-			flatModel.setVolatilitySurface(flatSurface);
+			AnalyticModelInterface flatModel = new AnalyticModel();
+			flatModel = flatModel.addCurves(model.getForwardCurve(forwardCurveName));
+			flatModel = flatModel.addCurves(model.getDiscountCurve(discountCurveName));
+			flatModel = flatModel.addVolatilitySurfaces(flatSurface);
 			double flatModelValue = this.getValue(evaluationTime, flatModel);
 			double error = value-flatModelValue;
 			solver.setValue(error*error);

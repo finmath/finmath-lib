@@ -26,6 +26,6 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 	}
 
 	public double getValue(AnalyticModelInterface model) {
-		return getValue(0.0, model);
+ 		return getValue(0.0, model);
 	}
 }
