@@ -39,7 +39,7 @@ public class CapletVolatilitiesTest {
 		double[] givenDiscountFactors	= { 1.0, 0.98, 0.96, 0.90 };
 		DiscountCurveInterface discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors("EUR OIS", timesDf, givenDiscountFactors);
 
-		CapletVolatilities capletVolatilities = new CapletVolatilities("EUR Caplet", null, forwardCurve, maturities, strikes, volatilities, volatilityConvention, discountCurve);
+		AbstractVolatilitySurface capletVolatilities = new CapletVolatilities("EUR Caplet", null, forwardCurve, maturities, strikes, volatilities, volatilityConvention, discountCurve);
 
 		double optionMaturity	= 1.0;
 		double[] optionStrikes	= { 0.001, 0.005, 0.010, 0.015, 0.018, 0.020, 0.022, 0.050, 0.10 };
