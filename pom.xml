@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- For publishing to sonatype / central maven repo -->
@@ -12,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.2.30-SNAPSHOT</version>
+	<version>1.2.30</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -322,9 +321,9 @@
 	</distributionManagement>
 
 	<scm>
-		<url>http://svn.finmath.net/finmath lib/trunk</url>
-		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
-		<developerConnection>scm:svn:http://svn.finmath.net/finmath lib/trunk</developerConnection>
+		<url>http://svn.finmath.net/finmath lib/tags/finmath-lib-1.2.30</url>
+		<connection>scm:svn:http://svn.finmath.net/finmath lib/tags/finmath-lib-1.2.30</connection>
+		<developerConnection>scm:svn:http://svn.finmath.net/finmath lib/tags/finmath-lib-1.2.30</developerConnection>
 	</scm>
 
 	<ciManagement>
