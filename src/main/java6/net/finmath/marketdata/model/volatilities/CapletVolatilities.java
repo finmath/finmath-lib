@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
@@ -41,11 +40,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class CapletVolatilities extends AbstractVolatilitySurface {
 
-	private ForwardCurveInterface		forwardCurve;
-	private DiscountCurveInterface		discountCurve;
 	private Map<Double, CurveInterface>	capletVolatilities = new HashMap<Double, CurveInterface>();
-	private QuotingConvention			quotingConvention;
-
 	/**
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
@@ -121,49 +116,10 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		double adjustedStrike	= forwardCurve.getValue(maturityGreaterOfEqual) + (strike - forwardCurve.getValue(maturity));
 		double value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
 
-		return convertFromTo(maturity, strike, value, this.quotingConvention, quotingConvention);
+		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
 	}
 
-	@Override
-	public QuotingConvention getQuotingConvention() {
-		return quotingConvention;
-	}
-
-	/**
-	 * Convert the value of a caplet from on quoting convention to another quoting convention.
-	 * 
-	 * @param optionMaturity Option maturity of the caplet.
-	 * @param optionStrike Option strike of the cpalet.
-	 * @param value Value of the caplet given in the form of <code>fromQuotingConvention</code>.
-	 * @param fromQuotingConvention The quoting convention of the given value.
-	 * @param toQuotingConvention The quoting convention requested.
-	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>. 
-	 */
-	public double convertFromTo(double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
-
-		if(fromQuotingConvention.equals(toQuotingConvention)) return value;
-		
-		double forward = forwardCurve.getForward(null, optionMaturity);
-		double payoffUnit = discountCurve.getDiscountFactor(optionMaturity+forwardCurve.getPaymentOffset(optionMaturity)) * forwardCurve.getPaymentOffset(optionMaturity);
-		
-		if(toQuotingConvention.equals(QuotingConvention.PRICE) && fromQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
-			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
-		}
-		else if(toQuotingConvention.equals(QuotingConvention.PRICE) && fromQuotingConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
-			return AnalyticFormulas.bachelierOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
-		}
-		else if(toQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL) && fromQuotingConvention.equals(QuotingConvention.PRICE)) {
-			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);
-		}
-		else if(toQuotingConvention.equals(QuotingConvention.VOLATILITYNORMAL) && fromQuotingConvention.equals(QuotingConvention.PRICE)) {
-			return AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);
-		}
-		else {
-			return convertFromTo(optionMaturity, optionStrike, convertFromTo(optionMaturity, optionStrike, value, fromQuotingConvention, QuotingConvention.PRICE), QuotingConvention.PRICE, toQuotingConvention);
-		}
-	}
-
-	public static CapletVolatilities fromFile(File inputFile) throws FileNotFoundException {
+	public static AbstractVolatilitySurface fromFile(File inputFile) throws FileNotFoundException {
 		// Read data
 		BufferedReader		dataStream	= new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));		
 		ArrayList<String>	datasets	= new ArrayList<String>();
