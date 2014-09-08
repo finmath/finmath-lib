@@ -71,7 +71,7 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 	}
 
 	public double getCurveTime(double time) {
-		// @TODO This will later performed by an utillity time class
+		// @TODO This will later performed by an utility time class
 		Calendar modelDate	= (Calendar)getReferenceDate().clone();
 		modelDate.add(Calendar.DAY_OF_YEAR, (int)(time*365));
 
