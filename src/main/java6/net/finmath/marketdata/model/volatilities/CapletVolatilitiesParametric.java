@@ -89,7 +89,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurface {
 			 */
 			integratedVariance = a*a*T*((1-Math.exp(-2*c*T))/(2*c*T))
 					+ a*b*T*T*(((1 - Math.exp(-2*c*T))/(2*c*T) - Math.exp(-2*c*T))/(c*T))
-					+ 2*a*d*T*((1-Math.exp(-c*T))/c)
+					+ 2*a*d*T*((1-Math.exp(-c*T))/(c*T))
 					+ b*b*T*T*T*(((((1-Math.exp(-2*c*T))/(2*c*T)-Math.exp(-2*c*T))/(T*c)-Math.exp(-2*c*T)))/(2*c*T))
 					+ 2*b*d*T*T*(((1-Math.exp(-c*T))-T*c*Math.exp(-c*T))/(c*c*T*T))
 					+ d*d*T;
