@@ -17,10 +17,20 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements the numerical scheme for multi-dimensional multi-factor Ito process.
+ * This class implements some numerical schemes for multi-dimensional multi-factor Ito process.
  * 
  * It features the standard Euler scheme and the standard predictor-corrector Euler scheme
- * for <i>Y</i>, then applies the state space transform <i>X = f(Y)</i>.
+ * for <i>Y</i>, then applies the <i>state space transform</i> \( X = f(Y) \). For the standard Euler scheme
+ * the process Y is discretized as
+ * \[
+ * 	Y(t_{i+1}) = Y(t_{i}) + \mu(t_{i}) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}} \text{.} 
+ * \]
+
+ * 
+ * Hence, using the <i>state space transform</i>, it is possible to create a log-Eurler scheme, i.e.,
+ * \[
+ * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (\mu(t_{i}) - \frac{1}{2} sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}} \right) \text{.} 
+ * \]
  * 
  * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
  * 
@@ -45,7 +55,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * The storage of the simulated stochastic process.
 	 */
 	private transient RandomVariableInterface[][]	discreteProcess = null;
-	private transient RandomVariableInterface[]	discreteProcessWeights;
+	private transient RandomVariableInterface[]		discreteProcessWeights;
 
 	/**
 	 * @param brownianMotion The Brownian driver of the process
@@ -70,6 +80,10 @@ public class ProcessEulerScheme extends AbstractProcess {
 			}
 		}
 
+		if(discreteProcess[timeIndex][componentIndex] == null) {
+			throw new NullPointerException("Generation of process component " + componentIndex + " at time index " + timeIndex + " failed. Likely due to out of memory");
+		}
+		
 		// Return value of process
 		return discreteProcess[timeIndex][componentIndex];
 	}
@@ -218,6 +232,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
+
 			// Set Monte-Carlo weights
 			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex - 1];
 		} // End for(timeIndex)
@@ -226,7 +241,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			executor.shutdown();
 		}
 		catch(SecurityException e) {
-			//
+			// @TODO Improve exception handling here
 		}
 	}
 
