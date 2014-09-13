@@ -9,10 +9,8 @@ package net.finmath.time.daycount;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 
 import net.finmath.time.Period;
-import net.finmath.time.ScheduleInterface;
 
 /**
  * Implementation of ACT/ACT ICMA.
