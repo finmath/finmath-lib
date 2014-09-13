@@ -11,7 +11,9 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the volatility model
- * &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
+ * \[
+ * 	\sigma_{i}(t_{j}) = ( a + b (T_{i}-t_{j}) ) exp(-c (T_{i}-t_{j})) + d \text{.}
+ * \]
  * 
  * The parameters here have some interpretation:
  * <ul>
@@ -20,6 +22,17 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <li>The parameter c: exponential decay of the volatility in time-to-maturity.</li>
  * <li>The parameter d: if c &gt; 0 this is the very long term volatility level.</li>
  * </ul>
+ *
+ * Note that this model results in a terminal (Black 76) volatility which is given
+ * by
+ * \[
+ * 	\left( \sigma^{\text{Black}}_{i}(t_{k}) \right)^2 = \frac{1}{t_{k}} \sum_{j=0}^{k-1} \left( ( a + b (T_{i}-t_{j}) ) exp(-c (T_{i}-t_{j})) + d \right)^{2} (t_{j+1}-t_{j})
+ * \]
+ * i.e., the instantaneous volatility is given by the picewise constant approximation of the function
+ * \[
+ * 	\sigma_{i}(t) = ( a + b (T_{i}-t) ) exp(-c (T_{i}-t)) + d
+ * \]
+ * on the time discretization \( \{ t_{j} \} \). For the exact integration of this formula see {@link LIBORVolatilityModelFourParameterExponentialFormIntegrated}.
  * 
  * @author Christian Fries
  */
