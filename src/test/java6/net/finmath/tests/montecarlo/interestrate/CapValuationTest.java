@@ -23,7 +23,6 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
-import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametricFourParameterPicewiseConstant;
 import net.finmath.marketdata.products.Cap;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -31,11 +30,10 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialForm;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
 import net.finmath.montecarlo.interestrate.products.FlexiCap;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 
@@ -72,10 +70,8 @@ public class CapValuationTest {
 	/**
 	 * Initialize market data objects and the libor market model object.
 	 * 
-	 * @param numberOfPaths
-	 * @param numberOfFactors
-	 * @param correlationDecayParam
-	 * @throws CalculationException
+	 * @param numberOfPaths Numer of paths of the LIBOR market model.
+	 * @throws CalculationException Thrown if a numerical algorithm fails.
 	 */
 	private void init(int numberOfPaths) throws CalculationException {
 
@@ -114,12 +110,13 @@ public class CapValuationTest {
 		 * Create a simulation time discretization
 		 */
 		double lastTime	= 20.0;
-		double dt		= 0.05;
+		double dt		= 0.25;
 
 		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
 
 		// LIBOR volatility model
-		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+		LIBORVolatilityModelFourParameterExponentialFormIntegrated volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+//		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -161,21 +158,21 @@ public class CapValuationTest {
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		this.liborMarketModel = new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 
 	@Test
-	public void testDigitalCaplet() throws CalculationException {
+	public void testCap() throws CalculationException {
 		/*
-		 * Value a swaption
+		 * Value a set of caps
 		 */
 		System.out.println("Cap prices:\n");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
 
 		double maxAbsDeviation = 0.0;
-		for (int maturityIndex = 2; maturityIndex <= liborMarketModel.getNumberOfLibors() - 10; maturityIndex++) {
+		for (int maturityIndex = 2; maturityIndex <= liborMarketModel.getNumberOfLibors() - 1; maturityIndex++) {
 
 			double maturity = liborMarketModel.getLiborPeriod(maturityIndex);
 			System.out.print(formatterMaturity.format(maturity) + "          ");
@@ -216,6 +213,7 @@ public class CapValuationTest {
 			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation));
 		}
 
+		System.out.println("Maximum abs deviation: " + formatterDeviation.format(maxAbsDeviation));
 		System.out.println("__________________________________________________________________________________________\n");
 
 		/*
