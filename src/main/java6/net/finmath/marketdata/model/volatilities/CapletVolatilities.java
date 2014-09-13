@@ -36,6 +36,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * It needs a forward curve and a discount curve. The tenor length of the Caplet is inferred
  * from the forward curve.
  * 
+ * @TODO: Need to add forward and discount curve to support implied vol.
  * @author Christian Fries
  */
 public class CapletVolatilities extends AbstractVolatilitySurface {
@@ -112,8 +113,10 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		//		double maturityLowerOrEqual		= maturities.getTime(maturities.getTimeIndexNearestLessOrEqual(maturity));
 		double maturityGreaterOfEqual	= maturities.getTime(Math.min(maturities.getTimeIndexNearestGreaterOrEqual(maturity),maturities.getNumberOfTimes()-1));
 
+		// @TODO: Below we should trigger an exception if no forwardCurve is supplied but needed.
 		// Interpolation / extrapolation is performed on iso-moneyness lines.
-		double adjustedStrike	= forwardCurve.getValue(maturityGreaterOfEqual) + (strike - forwardCurve.getValue(maturity));
+		double adjustedStrike = forwardCurve.getValue(model, maturityGreaterOfEqual) + (strike - forwardCurve.getValue(model, maturity));
+
 		double value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
 
 		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);

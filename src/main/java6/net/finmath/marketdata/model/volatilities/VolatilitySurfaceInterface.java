@@ -67,15 +67,6 @@ public interface VolatilitySurfaceInterface {
 	double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention);
 
 	/**
-	 * Returns a clone of this volatility surface with modified parameters.
-	 * 
-	 * @param value Parameter array.
-	 * @return Clone with new parameters.
-	 * @throws CloneNotSupportedException Thrown if this object cannot be cloned.
-	 */
-	VolatilitySurfaceInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
-
-	/**
 	 * Return the default quoting convention of this surface.
 	 * 
 	 * @return the quotingConvention

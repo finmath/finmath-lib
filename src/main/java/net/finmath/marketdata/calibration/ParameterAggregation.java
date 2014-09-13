@@ -11,6 +11,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.finmath.marketdata.model.curves.CurveInterface;
+
 /**
  * Combine a set of parameter vectors to a single parameter vector.
  * 
@@ -27,7 +29,7 @@ import java.util.Set;
 public class ParameterAggregation<E extends ParameterObjectInterface> implements ParameterObjectInterface {
 
 	private final Set<ParameterObjectInterface> parameters;
-	
+
 	/**
 	 * Create a collection of parametrized objects.
 	 */
@@ -54,7 +56,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	public ParameterAggregation(E[] parameters) {
 		this.parameters = new LinkedHashSet<ParameterObjectInterface>(Arrays.asList(parameters));
 	}
-	
+
 	/**
 	 * Add an object this parameterization.
 	 * 
@@ -125,5 +127,10 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
+		throw new UnsupportedOperationException("Method getCloneForParameter not supported on an aggregate.");
 	}
 }

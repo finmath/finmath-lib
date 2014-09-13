@@ -6,14 +6,12 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Calendar;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**

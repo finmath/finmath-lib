@@ -20,7 +20,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * 
  * @author Christian Fries
  */
-public class CapletVolatilitiesParametric extends AbstractVolatilitySurface {
+public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParametric {
 
 	private final double timeScaling;
 	private final double a,b,c,d;
@@ -84,8 +84,8 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurface {
 		double integratedVariance;
 		if(c != 0) {
 			/*
-			 * http://www.wolframalpha.com/input/?i=expand+%28integrate+%28%28a+%2B+b+*+t%29+*+exp%28-+c+*+t%29+%2B+d%29%5E2+from+0+to+T%29
-			 * integral_0^T ((a+b t) exp(-(c t))+d)^2  dt = 1/4 ((e^(-2 c T) (-2 a*a c^2-2 a b c (2 c T+1)+b^2 (-(2 c T (c T+1)+1))))/c^3+(2 a*a c^2+2 a b c+b^2)/c^3-(8 d e^(-c T) (a c+b c T+b))/c^2+(8 d (a c+b))/c^2+4 d*d T)
+			 * http://www.wolframalpha.com/input/?i=integrate+%28%28a+%2B+b+*+t%29+*+exp%28-+c+*+t%29+%2B+d%29%5E2+from+0+to+T
+			 * integral_0^T ((a+b t) exp(-(c t))+d)^2  dt = 1/4 ((e^(-2 c T) (-2 a^2 c^2-2 a b c (2 c T+1)+b^2 (-(2 c T (c T+1)+1))))/c^3+(2 a^2 c^2+2 a b c+b^2)/c^3-(8 d e^(-c T) (a c+b c T+b))/c^2+(8 d (a c+b))/c^2+4 d^2 T)
 			 */
 			integratedVariance = a*a*T*((1-Math.exp(-2*c*T))/(2*c*T))
 					+ a*b*T*T*(((1 - Math.exp(-2*c*T))/(2*c*T) - Math.exp(-2*c*T))/(c*T))
@@ -97,12 +97,42 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurface {
 		else {
 			/*
 			 * http://www.wolframalpha.com/input/?i=expand+%28integrate+%28%28a+%2B+b+*+t%29+%2B+d%29%5E2+from+0+to+T%29
-			 * integral_0^T ((a+b t) exp(-(c t))+d)^2  dt = 1/4 ((e^(-2 c T) (-2 a*a c^2-2 a b c (2 c T+1)+b^2 (-(2 c T (c T+1)+1))))/c^3+(2 a*a c^2+2 a b c+b^2)/c^3-(8 d e^(-c T) (a c+b c T+b))/c^2+(8 d (a c+b))/c^2+4 d*d T)
 			 */
-			integratedVariance = a*a*T + a*b*T*T + 2*a*d*T + (b*b*T*T*T)/3 + b*d*T*T + d*d*T;
+			integratedVariance = a*a*T + a*b*T*T + 2*a*d*T + (b*b*T*T*T)/3.0 + b*d*T*T + d*d*T;
 		}
 
 		double value = Math.sqrt(integratedVariance/maturity);
 		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
 	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.calibration.ParameterObjectInterface#getParameter()
+	 */
+	@Override
+	public double[] getParameter() {
+		double[] parameter = new double[4];
+		parameter[0] = a;
+		parameter[1] = b;
+		parameter[2] = c;
+		parameter[3] = d;
+
+		return parameter;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.calibration.ParameterObjectInterface#setParameter(double[])
+	 */
+	@Override
+	public void setParameter(double[] parameter) {
+		throw new UnsupportedOperationException("This class is immutable.");
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.volatilities.AbstractVolatilitySurfaceParametric#getCloneForParameter(double[])
+	 */
+	@Override
+	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
+		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), value[0], value[1], value[2], value[3], timeScaling);
+	}
+
 }
