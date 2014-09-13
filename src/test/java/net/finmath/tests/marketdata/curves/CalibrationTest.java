@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -131,7 +132,7 @@ public class CalibrationTest {
 		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurveFromDiscountCurve });
 
 		// Create a collection of curves to calibrate
-		Set<CurveInterface> curvesToCalibrate1 = new HashSet<CurveInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<ParameterObjectInterface>();
 		curvesToCalibrate1.add(discountCurve);
 
 		// Calibrate the curve
@@ -188,7 +189,7 @@ public class CalibrationTest {
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve"));
 
 		// Create a collection of curves to calibrate
-		Set<CurveInterface> curvesToCalibrate2 = new HashSet<CurveInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<ParameterObjectInterface>();
 		curvesToCalibrate2.add(forwardCurve);
 
 		// Calibrate the curve
