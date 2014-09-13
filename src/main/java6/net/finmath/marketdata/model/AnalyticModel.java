@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
@@ -150,6 +151,12 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	{
 		volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
 	}
+	
+	private void set(Object marketDataObject) {
+		if(marketDataObject instanceof CurveInterface)					setCurve((CurveInterface)marketDataObject);
+		else if(marketDataObject instanceof VolatilitySurfaceInterface)	setVolatilitySurface((VolatilitySurfaceInterface)marketDataObject);
+		else throw new IllegalArgumentException("Provided object is not of supported type.");
+	}
 
 	@Override
 	public AnalyticModel clone()
@@ -161,16 +168,16 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	}
 
 	@Override
-    public AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curveParameterPairs) throws CloneNotSupportedException {
+    public AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, double[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
 		AnalyticModel modelClone = clone();
 
 		// Add modified clones of curves to model clone
 		if(curveParameterPairs != null) {
-			for(Entry<CurveInterface,double[]> curveParameterPair : curveParameterPairs.entrySet()) {
-				CurveInterface newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
-				modelClone.setCurve(newCurve);
+			for(Entry<ParameterObjectInterface,double[]> curveParameterPair : curveParameterPairs.entrySet()) {
+				ParameterObjectInterface newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
+				modelClone.set(newCurve);
 			}
 		}
 		

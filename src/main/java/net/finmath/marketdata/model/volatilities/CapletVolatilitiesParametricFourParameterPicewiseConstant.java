@@ -74,7 +74,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 			if(time > maturity) break;
 
 			double timeStep = timeDiscretization.getTimeStep(timeIndex);
-			double instantaneousVolatility = (a + b * time) * Math.exp(-c * time) + d;
+			double instantaneousVolatility = (a + b * (maturity-time)) * Math.exp(-c * (maturity-time)) + d;
 			
 			integratedVariance += instantaneousVolatility*instantaneousVolatility * Math.min(maturity-time, timeStep);
 		}

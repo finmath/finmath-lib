@@ -22,6 +22,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 
 	private	final	Calendar	referenceDate;
 	private final	String		name;
+
 	protected ForwardCurveInterface forwardCurve;
 	protected DiscountCurveInterface discountCurve;
 	protected QuotingConvention quotingConvention;
@@ -50,11 +51,6 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
-	}
-
-	@Override
-	public VolatilitySurfaceInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		throw new CloneNotSupportedException();
 	}
 
 	@Override
@@ -96,6 +92,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 			return convertFromTo(model, optionMaturity, optionStrike, convertFromTo(model, optionMaturity, optionStrike, value, fromQuotingConvention, QuotingConvention.PRICE), QuotingConvention.PRICE, toQuotingConvention);
 		}
 	}
+
 	/**
 	 * Convert the value of a caplet from on quoting convention to another quoting convention.
 	 * 

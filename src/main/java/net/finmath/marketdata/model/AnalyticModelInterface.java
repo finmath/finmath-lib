@@ -7,6 +7,7 @@ package net.finmath.marketdata.model;
 
 import java.util.Map;
 
+import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
@@ -15,7 +16,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 /**
  * @author Christian Fries
  */
-public interface AnalyticModelInterface {
+public interface AnalyticModelInterface extends Cloneable {
 
 	CurveInterface getCurve(String name);
 
@@ -35,5 +36,7 @@ public interface AnalyticModelInterface {
 	@Deprecated
 	void setVolatilitySurface(VolatilitySurfaceInterface volatilitySurface);
 
-	AnalyticModelInterface getCloneForParameter(Map<CurveInterface, double[]> curvesParameterPairs) throws CloneNotSupportedException;
+	AnalyticModelInterface clone();
+
+	AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, double[]> curvesParameterPairs) throws CloneNotSupportedException;
 }
