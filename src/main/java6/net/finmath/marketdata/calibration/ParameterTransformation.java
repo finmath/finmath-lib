@@ -28,7 +28,7 @@ public interface ParameterTransformation {
 	double[] getParameter(final double[] solverParameter);
 	
 	/**
-	 * Return the (unbounded) solver parameter for the given orginal parameter.
+	 * Return the (unbounded) solver parameter for the given original parameter.
 	 * 
 	 * @param parameter The parameter.
 	 * @return The corresponding unbounded solver parameter.
