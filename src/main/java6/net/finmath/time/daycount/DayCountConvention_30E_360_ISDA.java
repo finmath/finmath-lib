@@ -9,7 +9,7 @@ package net.finmath.time.daycount;
 import java.util.Calendar;
 
 /**
- * Implementation of 30/360 ISDA.
+ * Implementation of 30E/360 ISDA.
  * 
  * Calculates the day count as
  * <code>
