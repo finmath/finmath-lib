@@ -509,16 +509,16 @@ public class AnalyticFormulas {
 		}
 	}
 
-    /**
-     * Calculate the value of a caplet assuming the Black'76 model.
-     * 
-     * @param forward The forward (spot).
-     * @param volatility The Black'76 volatility.
-     * @param optionMaturity The option maturity
-     * @param optionStrike The option strike.
-     * @param periodLength The period length of the underlying forward rate.
-     * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
-     * @return Returns the value of a caplet under the Black'76 model
+	/**
+	 * Calculate the value of a caplet assuming the Black'76 model.
+	 * 
+	 * @param forward The forward (spot).
+	 * @param volatility The Black'76 volatility.
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @return Returns the value of a caplet under the Black'76 model
 	 */
 	public static double blackModelCapletValue(
 			double forward,
