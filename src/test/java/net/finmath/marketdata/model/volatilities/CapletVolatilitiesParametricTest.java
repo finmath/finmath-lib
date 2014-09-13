@@ -6,7 +6,7 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -69,14 +69,28 @@ public class CapletVolatilitiesParametricTest {
 	}
 	
 	@Test
-	public void testIntegratedFourParameterExponentialVolatility() {
-
+	public void testIntegratedFourParameterExponentialVolatilityParamSet1() {
 		double a = 0.25;
 		double b = 3.00;
 		double c = 1.50;
 		double d = 0.10;
 
-		double eps = 1E-5;
+		testIntegratedFourParameterExponentialVolatility(a, b, c, d);
+	}
+	
+	@Test
+	public void testIntegratedFourParameterExponentialVolatilityParamSetCZero() {
+		double a = 0.25;
+		double b = 0.02;
+		double c = 0.00;
+		double d = 0.10;
+
+		testIntegratedFourParameterExponentialVolatility(a, b, c, d);
+	}
+
+	private void testIntegratedFourParameterExponentialVolatility(double a, double b, double c, double d) {
+
+		final double eps = 1E-5;
 
 		System.out.println("Comparing finite difference differentiation of integrated variance with analytic value:\n");
 		System.out.println("  t  " + "\t" + " analytic " + "\t" + " finite diff " + "\t" + " deviation ");
