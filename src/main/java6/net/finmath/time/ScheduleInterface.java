@@ -8,6 +8,7 @@ package net.finmath.time;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 
@@ -40,7 +41,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * 
 	 * @return The array of periods.
 	 */
-	ArrayList<Period> getPeriods();
+	List<Period> getPeriods();
 
 	/**
 	 * Returns the daycount convention used to calculate period lengths.
