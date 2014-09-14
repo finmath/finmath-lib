@@ -12,11 +12,12 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
+import net.finmath.modelling.ModelInterface;
 
 /**
  * @author Christian Fries
  */
-public interface AnalyticModelInterface extends Cloneable {
+public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 
 	CurveInterface getCurve(String name);
 
