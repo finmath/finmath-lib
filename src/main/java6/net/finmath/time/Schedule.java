@@ -7,8 +7,12 @@
 package net.finmath.time;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
@@ -30,14 +34,18 @@ public class Schedule implements ScheduleInterface {
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 	private			Calendar					referenceDate;
 	
-	private ArrayList<Period>			periods;
+	private List<Period>			periods;
 	private DayCountConventionInterface	daycountconvention;
 	
 	private double[] fixingTimes;
 	private double[] paymentTimes;
 	private double[] periodLength;
 	
-	public Schedule(Calendar referenceDate, ArrayList<Period> periods, DayCountConventionInterface daycountconvention) {
+	public Schedule(Calendar referenceDate, DayCountConventionInterface daycountconvention, Period... periods) {
+		this(referenceDate, Arrays.asList(periods), daycountconvention);
+	}
+
+	public Schedule(Calendar referenceDate, List<Period> periods, DayCountConventionInterface daycountconvention) {
 		super();
 		this.referenceDate = referenceDate;
 		this.periods = periods;
@@ -65,7 +73,7 @@ public class Schedule implements ScheduleInterface {
 
 
 	@Override
-	public ArrayList<Period> getPeriods() {
+	public List<Period> getPeriods() {
 		return periods;
 	}
 
