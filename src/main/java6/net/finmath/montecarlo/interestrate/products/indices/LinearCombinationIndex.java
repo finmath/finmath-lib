@@ -46,6 +46,42 @@ public class LinearCombinationIndex extends AbstractIndex {
     			.add(index2.getValue(evaluationTime, model).mult(scaling2));
     }
 
+	/**
+	 * Returns the index 1.
+	 * 
+	 * @return the index 1.
+	 */
+	public AbstractProductComponent getIndex1() {
+		return index1;
+	}
+
+	/**
+	 * Returns the index 2.
+	 * 
+	 * @return the index 2
+	 */
+	public AbstractProductComponent getIndex2() {
+		return index2;
+	}
+
+	/**
+	 * Returns the scaling 1.
+	 * 
+	 * @return the scaling 1
+	 */
+	public double getScaling1() {
+		return scaling1;
+	}
+
+	/**
+	 * Returns the scaling 2.
+	 * 
+	 * @return the scaling 2
+	 */
+	public double getScaling2() {
+		return scaling2;
+	}
+
 	@Override
 	public String toString() {
 		return "LinearCombinationIndex [index1=" + index1 + ", index2="
