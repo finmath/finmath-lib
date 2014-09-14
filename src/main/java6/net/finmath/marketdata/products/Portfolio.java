@@ -91,6 +91,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 
 	/**
 	 * Create a portfolio consisting of a single product with a given weight.
+	 * 
 	 * @param product A product, implementing  implementing <code>AnalyticProductInterface</code>.
 	 * @param weight A weight used in the valuation as a multiplicator.
 	 */
@@ -100,6 +101,24 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 		this.weights = new ArrayList<Double>();
 		this.products.add(product);
 		this.weights.add(weight);
+	}
+
+	/**
+	 * Create a portfolio of products implementing
+	 * <code>AnalyticProductInterface</code>.
+	 * 
+	 * The value of the portfolio is given by the sum over
+	 * <code>
+	 * 	products.get(i).getValue(evaluationTime, model)
+	 * </code>
+	 * 
+	 * Note that a product in the array of products may itself be
+	 * a <code>Portfolio</code> (hence you may easily combine portfolios).
+	 * 
+	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
+	 */
+	public Portfolio(List<AnalyticProductInterface> products) {
+		this(products, Collections.nCopies(products.size(), new Double(1.0)));
 	}
 
 	@Override

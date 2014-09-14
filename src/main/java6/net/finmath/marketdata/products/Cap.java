@@ -31,6 +31,10 @@ import net.finmath.time.ScheduleInterface;
  * the class calculates the ATM forward. Note that this is done by omitting the first (fixed) period,
  * see {@link #getATMForward(AnalyticModelInterface, boolean)}.
  * 
+ * Note: A fixing in arrears is not handled correctly since a convexity adjustment is currently not applied.
+ * 
+ * @TODO: Support convexity adjustment if fixing is in arrears.
+ * 
  * @author Christian Fries
  */
 public class Cap extends AbstractAnalyticProduct {
@@ -60,7 +64,7 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @param isStrikeMoneyness If true, then the strike argument is interpreted as moneyness, i.e. we calculate an ATM forward from the schedule.
 	 * @param discountCurveName The discount curve to be used for discounting.
 	 * @param volatilitySurfaceName The volatility surface to be used.
-	 * @param quotingConvention The quoting convention of the value returned by the {@link getValue}-method.
+	 * @param quotingConvention The quoting convention of the value returned by the {@link #getValue}-method.
 	 */
 	public Cap(ScheduleInterface schedule, String forwardCurveName, double strike, boolean isStrikeMoneyness, String discountCurveName, String volatilitySurfaceName, QuotingConvention quotingConvention) {
 		super();
@@ -133,7 +137,7 @@ public class Cap extends AbstractAnalyticProduct {
 
 			double forward = 0.0;
 			if(forwardCurve != null) {
-				forward			+= forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
+				forward			+= forwardCurve.getForward(model, fixingDate);
 			}
 			else if(discountCurveForForward != null) {
 				/*
@@ -182,8 +186,8 @@ public class Cap extends AbstractAnalyticProduct {
 
 		ScheduleInterface remainderSchedule = schedule;
 		if(!isFirstPeriodIncluded) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Period> periods = (ArrayList<Period>)schedule.getPeriods().clone();
+			ArrayList<Period> periods = new ArrayList<Period>();
+			periods.addAll(schedule.getPeriods());
 
 			if(periods.size() > 1) periods.remove(0);
 			remainderSchedule = new Schedule(schedule.getReferenceDate(), periods, schedule.getDaycountconvention());
