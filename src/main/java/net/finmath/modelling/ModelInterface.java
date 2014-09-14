@@ -7,8 +7,10 @@
 package net.finmath.modelling;
 
 /**
+ * Interface to be implemented by all model.
+ * Used in specification of the <code>ProductInterface</code>.
+ * 
  * @author Christian Fries
- *
  */
 public interface ModelInterface {
 
