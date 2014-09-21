@@ -129,11 +129,27 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 			RandomVariableInterface liborLongPeriod		= getLIBOR(time, periodStart, nextEndTime);
 			RandomVariableInterface	liborShortPeriod	= getLIBOR(time, previousEndTime, nextEndTime);
 
+			// Interpolate libor from periodStart to periodEnd on periodEnd
 			RandomVariableInterface libor = liborLongPeriod.mult(nextEndTime-periodStart).add(1.0)
 					.div(
 							liborShortPeriod.mult(nextEndTime-previousEndTime).add(1.0).log().mult((nextEndTime-periodEnd)/(nextEndTime-previousEndTime)).exp()
 							).sub(1.0).div(periodEnd-periodStart);
-			return libor;
+
+			// Analytic adjustment for the interpolation
+			// @TODO reference to AnalyticModel must not be null
+			double analyticLibor				= model.getForwardRateCurve().getForward(null, periodStart, periodEnd-periodStart);
+			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(null, periodStart, nextEndTime-periodStart);
+			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(null, previousEndTime, nextEndTime-previousEndTime);
+			double adjustment = analyticLibor / (
+					(
+							(analyticLiborLongPeriod * (nextEndTime-periodStart) + 1.0) 
+							/
+							Math.exp(Math.log(
+									(analyticLiborShortPeriod * (nextEndTime-previousEndTime) + 1.0)
+									) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime)) - 1.0
+							) / (periodEnd-periodStart)
+					);
+			return libor.mult(adjustment);
 		}
 		
 		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate start date
@@ -148,7 +164,22 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 					.div(
 							liborShortPeriod.mult(nextStartTime-previousStartTime).add(1.0).log().mult((periodStart-previousStartTime)/(nextStartTime-previousStartTime)).exp()
 							).sub(1.0).div(periodEnd-periodStart);
-			return libor;
+
+			// Analytic adjustment for the interpolation
+			// @TODO reference to AnalyticModel must not be null
+			double analyticLibor				= model.getForwardRateCurve().getForward(null, periodStart, periodEnd-periodStart);
+			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(null, previousStartTime, periodEnd-previousStartTime);
+			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(null, previousStartTime, nextStartTime-previousStartTime);
+			double adjustment = analyticLibor / (
+					(
+							(analyticLiborLongPeriod * (periodEnd-previousStartTime) + 1.0) 
+							/
+							Math.exp(Math.log(
+									(analyticLiborShortPeriod * (nextStartTime-previousStartTime) + 1.0)
+									) * (periodStart-previousStartTime)/(nextStartTime-previousStartTime)) - 1.0
+							) / (periodEnd-periodStart)
+					);
+			return libor.mult(adjustment);
 		}
 		
 		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
