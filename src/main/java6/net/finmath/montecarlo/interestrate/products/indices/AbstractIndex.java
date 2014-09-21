@@ -21,7 +21,46 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public abstract class AbstractIndex extends AbstractProductComponent {
 
-    private static final long serialVersionUID = 7992943924779922710L;
+	private static final long serialVersionUID = 7992943924779922710L;
+
+	private final String name;
+
+	/**
+	 * Initialize name and currency of an index.
+	 * 
+	 * @param name The name of an index. Used to map an index on a curve.
+	 * @param currency The natural currency of an index. This more for compatibility purposes, since the information sould be contained in the name.
+	 */
+	public AbstractIndex(String name, String currency) {
+		super(currency);
+		this.name = name;
+	}
+
+	/**
+	 * Initialize the name of an index.
+	 * 
+	 * @param name The name of an index. Used to map an index on a curve.
+	 */
+	public AbstractIndex(String name) {
+		this(name, null);
+	}
+
+	/**
+	 * Initialize an abstract index which does not have a dedicated name or currency,
+	 * e.g. a function of other indicies.
+	 */
+	public AbstractIndex() {
+		this(null, null);
+	}
 
 	public abstract RandomVariableInterface getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
+
+	/**
+	 * Returns the name of the index.
+	 * 
+	 * @return The name of the index.
+	 */
+	public String getName() {
+		return name;
+	}
 }
