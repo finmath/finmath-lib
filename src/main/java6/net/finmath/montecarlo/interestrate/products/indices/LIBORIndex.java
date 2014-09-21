@@ -17,10 +17,10 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class LIBORIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	private final double periodStartOffset;
 	private final double periodLength;
-
+    
 
 	/**
 	 * Creates a forward rate index for a given period start offset (offset from fixing) and period length.
@@ -53,7 +53,7 @@ public class LIBORIndex extends AbstractIndex {
 		return forwardRate;
 	}
 
-
+    
 	/**
 	 * Returns the periodStartOffset as an act/365 daycount.
 	 * 
