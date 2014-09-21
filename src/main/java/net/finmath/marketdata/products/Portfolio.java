@@ -86,6 +86,24 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 		this.weights.add(weight);
 	}
 
+	/**
+	 * Create a portfolio of products implementing
+	 * <code>AnalyticProductInterface</code>.
+	 * 
+	 * The value of the portfolio is given by the sum over
+	 * <code>
+	 * 	products.get(i).getValue(evaluationTime, model)
+	 * </code>
+	 * 
+	 * Note that a product in the array of products may itself be
+	 * a <code>Portfolio</code> (hence you may easily combine portfolios).
+	 * 
+	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
+	 */
+	public Portfolio(List<AnalyticProductInterface> products) {
+		this(products, Collections.nCopies(products.size(), new Double(1.0)));
+	}
+
 	@Override
 	public double getValue(final double evaluationTime, final AnalyticModelInterface model) {
 		return IntStream.range(0, products.size()).parallel().mapToDouble(
