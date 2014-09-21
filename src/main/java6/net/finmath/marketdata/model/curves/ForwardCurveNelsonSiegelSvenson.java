@@ -18,7 +18,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * Implementation of a forward given by a Nelson-Siegel-Svensson (NSS) parameterization.
  * In the NSS parameterization the zero rate \( r(T) \) is given by
  * 
- * \( r(T) = \beta_0 + \beta_1 \frac{(1-x_0)/(T/\tau_0)} + \beta_2 ( \frac{(1-x_0)/(T/\tau_0)} - x_0) + \beta_3 ( \frac{(1-x_2)/(T/\tau_1)} - x_1) \)
+ * \[ r(T) = \beta_0 + \beta_1 \frac{1-x_0}{T/\tau_0} + \beta_2 ( \frac{1-x_0}{T/\tau_0} - x_0) + \beta_3 ( \frac{1-x_2}{T/\tau_1} - x_1) \]
  * 
  * where \( x_0 = \exp(-T/\tau_0) \) and \( x_1 = \exp(-T/\tau_1) \).
  * 
@@ -34,6 +34,7 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 	private BusinessdayCalendarInterface paymentBusinessdayCalendar;
 	private BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
 	private DayCountConventionInterface daycountConvention;
+	private double discountCurveTimeScaling = 1.0;
 
 	private DiscountCurveNelsonSiegelSvenson discountCurve;
 	
@@ -55,6 +56,7 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 		this.daycountConvention = daycountConvention;
 
 		discountCurve = new DiscountCurveNelsonSiegelSvenson(name, referenceDate, parameter, timeScaling);
+		discountCurveTimeScaling = timeScaling;
 	}
 
 	@Override
@@ -64,17 +66,7 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
-		double daycountFraction = getCurveTime(fixingTime + paymentOffset)-getCurveTime(fixingTime);
-		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / daycountFraction;
-	}
-
-	public double getCurveTime(double time) {
-		// @TODO This will later performed by an utility time class
-		Calendar modelDate	= (Calendar)getReferenceDate().clone();
-		modelDate.add(Calendar.DAY_OF_YEAR, (int)(time*365));
-
-		double paymentTime = daycountConvention.getDaycountFraction(getReferenceDate(), modelDate);
-		return paymentTime;
+		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / (paymentOffset*discountCurveTimeScaling);
 	}
 
 	@Override
@@ -117,6 +109,7 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 
 	/*
 	 * @TODO: This operates on model internal time and not on curve time - which is inefficient. Performance improvement possible.
+	 * @TODO: Should use a cache
 	 */
 	@Override
 	public double getPaymentOffset(double fixingTime) {
