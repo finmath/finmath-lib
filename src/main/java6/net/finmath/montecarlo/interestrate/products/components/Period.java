@@ -127,8 +127,8 @@ public class Period extends AbstractPeriod {
 		RandomVariableInterface values = getIndex().getValue(getFixingDate(), model);
 
 		// Apply daycount fraction
-		double periodLength = getPeriodEnd()-getPeriodStart();
-		values = values.mult(periodLength);
+		double periodDaycountFraction = getDaycountFraction();
+		values = values.mult(periodDaycountFraction);
 
 		return values;
 	}
