@@ -6,13 +6,10 @@
 
 package net.finmath.time;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
