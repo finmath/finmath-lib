@@ -17,7 +17,7 @@ import java.util.Calendar;
  * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
  * 
  * The day count fraction is calculated using ACT/365 convention, that is, the
- * day count divided by 365.
+ * day count is divided by 365.
  * 
  * <ul>
  * 	<li>
