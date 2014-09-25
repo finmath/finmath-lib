@@ -45,7 +45,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
     /**
      * Creates the volatility model
      * \[
-     * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
+     * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
      * \]
      * 
      * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
