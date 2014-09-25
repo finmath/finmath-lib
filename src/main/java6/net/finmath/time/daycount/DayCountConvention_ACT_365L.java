@@ -7,32 +7,30 @@
 package net.finmath.time.daycount;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
- * Implementation of ACT/365.
+ * Implementation of ACT/365L.
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
  * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
  * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
  * 
- * The day count fraction is calculated using ACT/365 convention, that is, the
- * day count is divided by 365.
+ * The day count fraction is calculated using ACT/365L convention, that is, the
+ * day count is divided by 365 if the end date is not a leap year and 366 if the end date is a leap year.
  * 
- * <ul>
- * 	<li>
- * 		The method {@link #getDaycountFraction(Calendar, Calendar) getDaycountFraction} corresponds to the implementation of the "ACT/365 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,3).
- * 	</li>
- * </ul>
+ * @see DayCountConvention_ACT_365A
+ * @see DayCountConvention_ACT_365
  * 
  * @author Christian Fries
  */
-public class DayCountConvention_ACT_365 extends DayCountConvention_ACT {
+public class DayCountConvention_ACT_365L extends DayCountConvention_ACT {
 
 	/**
 	 * Create an ACT/365 day count convention.
 	 */
-	public DayCountConvention_ACT_365() {
+	public DayCountConvention_ACT_365L() {
 	}
 	
 
@@ -43,7 +41,13 @@ public class DayCountConvention_ACT_365 extends DayCountConvention_ACT {
 	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
 		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);
 
-		double daycountFraction = getDaycount(startDate, endDate) / 365.0;
+		double daysPerYear = 365.0;
+		
+		// Check endDate for leap year
+		GregorianCalendar gregorianCalendar = new GregorianCalendar();
+		if(gregorianCalendar.isLeapYear(endDate.get(Calendar.YEAR))) daysPerYear = 366.0;
+		
+		double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
 
 		return daycountFraction;
 	}
