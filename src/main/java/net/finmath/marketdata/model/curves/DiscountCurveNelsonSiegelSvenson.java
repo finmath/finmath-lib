@@ -92,6 +92,10 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 
 	}
 
+	public double getTimeScaling() {
+		return timeScaling;
+	}
+
 	@Override
 	public DiscountCurveNelsonSiegelSvenson clone() throws CloneNotSupportedException {
 		return (DiscountCurveNelsonSiegelSvenson)super.clone();
