@@ -34,7 +34,6 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 	private BusinessdayCalendarInterface paymentBusinessdayCalendar;
 	private BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
 	private DayCountConventionInterface daycountConvention;
-	private double discountCurveTimeScaling = 1.0;
 
 	private DiscountCurveNelsonSiegelSvenson discountCurve;
 	
@@ -56,7 +55,6 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 		this.daycountConvention = daycountConvention;
 
 		discountCurve = new DiscountCurveNelsonSiegelSvenson(name, referenceDate, parameter, timeScaling);
-		discountCurveTimeScaling = timeScaling;
 	}
 
 	@Override
@@ -66,7 +64,7 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
-		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / (paymentOffset*discountCurveTimeScaling);
+		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / (paymentOffset*discountCurve.getTimeScaling());
 	}
 
 	@Override
