@@ -184,8 +184,11 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		
 		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
 
+		// If time is beyond fixing, use the fixing time.
+		time = Math.min(time, periodStart);
 		int timeIndex           = getTimeIndex(time);
 
+		// If time is not part of the discretization, use the latest available point.
 		if(timeIndex < 0) timeIndex = -timeIndex-2;
 		//			throw new CalculationException("LIBOR requested at time outside simulation discretization points. Interpolation not supported yet.");
 		
