@@ -9,13 +9,16 @@ package net.finmath.time.daycount;
 import java.util.Calendar;
 
 /**
- * Implementation of 30E/360.
+ * Implementation of 30E/360 and 30E+/360.
  * 
- * Calculates the day count as
+ * Calculates the day count of 30E/360 as
  * <code>
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0))
  * </code>
  * 
+ * This day count convention is sometime called <i>Eurobond basis</i> or <i>30/360 ISMA</i>.
+ * 
+ * For 30E/360 we have that:
  * <ul>
  * 	<li>
  * 		The method {@link #getDaycount(Calendar, Calendar) getDaycount} corresponds to the implementation of the "European method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,TRUE).
@@ -25,14 +28,26 @@ import java.util.Calendar;
  * 	</li>
  * </ul>
  * 
+ * The day count of 30E+/360 is that of 30E/360 whenever endDateDay is &leq; 30, otherwise it is that of 30E/360 plus one.
+ * 
  * @author Christian Fries
  */
 public class DayCountConvention_30E_360 implements DayCountConventionInterface {
+
+	private final boolean is30Eplus360;
+	
+	/**
+	 * Create a 30E/360 or 30E+/360 daycount convention.
+	 */
+	public DayCountConvention_30E_360(boolean is30Eplus360) {
+		this.is30Eplus360 = is30Eplus360;
+	}
 
 	/**
 	 * Create a 30E/360 daycount convention.
 	 */
 	public DayCountConvention_30E_360() {
+		this(false);
 	}
 	
 	/* (non-Javadoc)
@@ -42,15 +57,19 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	public double getDaycount(Calendar startDate, Calendar endDate) {
 		if(startDate.after(endDate)) return -getDaycount(endDate,startDate);
 
-		double startDateDay 	= startDate.get(Calendar.DAY_OF_MONTH);
-		double startDateMonth 	= startDate.get(Calendar.MONTH);
-		double startDateYear 	= startDate.get(Calendar.YEAR);
+		int startDateDay 	= startDate.get(Calendar.DAY_OF_MONTH);
+		int startDateMonth 	= startDate.get(Calendar.MONTH);
+		int startDateYear 	= startDate.get(Calendar.YEAR);
 		
-		double endDateDay 		= endDate.get(Calendar.DAY_OF_MONTH);
-		double endDateMonth 	= endDate.get(Calendar.MONTH);
-		double endDateYear 		= endDate.get(Calendar.YEAR);
+		int endDateDay 		= endDate.get(Calendar.DAY_OF_MONTH);
+		int endDateMonth 	= endDate.get(Calendar.MONTH);
+		int endDateYear 	= endDate.get(Calendar.YEAR);
 
-		return (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0));
+		double daycount = (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0));
+
+		if(is30Eplus360 && endDateDay == 31) daycount +=1.0;
+		
+		return daycount;
 	}
 
 	/* (non-Javadoc)
