@@ -19,7 +19,23 @@ import net.finmath.modelling.ModelInterface;
  */
 public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 
+	/**
+	 * Get a curve by a given curve name.
+	 * 
+	 * @param name The name of the curve.
+	 * @return The curve with the corresponding name, given that it is part of this model, otherwise null is return.
+	 */
 	CurveInterface getCurve(String name);
+
+	/**
+	 * Add a reference to a given curve under a given name to this model. It is not necessary that the name given agrees with
+	 * <code>curve.getName()</code>. This method comes in handy, if you like to create curve mappings.
+	 * 
+	 * @param name
+	 * @param curve
+	 * @return
+	 */
+	AnalyticModelInterface addCurve(String name, CurveInterface curve);
 
 	AnalyticModelInterface addCurves(CurveInterface... curves);
 
