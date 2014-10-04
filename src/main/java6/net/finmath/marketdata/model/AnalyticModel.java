@@ -63,6 +63,12 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 		return curvesMap.get(name);
 	}
 
+	public AnalyticModelInterface addCurve(String name, CurveInterface curve) {
+		AnalyticModel newModel = clone();
+		newModel.curvesMap.put(name, curve);
+		return newModel;
+	}
+
 	public AnalyticModelInterface addCurve(CurveInterface curve) {
 		AnalyticModel newModel = clone();
 		newModel.curvesMap.put(curve.getName(), curve);
