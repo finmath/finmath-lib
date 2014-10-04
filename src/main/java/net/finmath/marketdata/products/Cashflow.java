@@ -44,6 +44,8 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 		
+		if(discountCurve == null && flowDate > evaluationTime) throw new IllegalArgumentException("Model does not provide a discount curve under the name \"" + discountCurveName + "\"");
+		
 		double discountFactor	= flowDate > evaluationTime ? discountCurve.getDiscountFactor(model, flowDate) : 0.0;
 
 		double value = (isPayer ? -1.0 : 1.0) * flowAmount * discountFactor;
