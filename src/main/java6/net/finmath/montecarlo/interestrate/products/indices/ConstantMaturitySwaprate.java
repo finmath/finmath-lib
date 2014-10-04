@@ -27,13 +27,25 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	/**
 	 * Create a CMS index with given fixing offset and given period lengths.
 	 * 
+	 * @param name The name of the underlying index.
+	 * @param currency The currency of the underlying index, if any.
+	 * @param fixingOffset Fixing offset of this index.
+	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
+	 */
+	public ConstantMaturitySwaprate(String name, String currency, double fixingOffset, double[] periodLengths) {
+		super(name, currency);
+		this.fixingOffset = fixingOffset;
+		this.periodLengths = periodLengths;
+	}
+
+	/**
+	 * Create a CMS index with given fixing offset and given period lengths.
+	 * 
 	 * @param fixingOffset Fixing offset of this index.
 	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
 	 */
 	public ConstantMaturitySwaprate(double fixingOffset, double[] periodLengths) {
-		super();
-		this.fixingOffset = fixingOffset;
-		this.periodLengths = periodLengths;
+		this(null, null, fixingOffset, periodLengths);
 	}
 
 	/**
@@ -49,17 +61,32 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	 * Create a CMS index with given fixing offset and given maturity and given period length.
 	 * Note that maturity must be a multiple of the period length.
 	 * 
+	 * @param name The name of the underlying index.
+	 * @param currency The currency of the underlying index, if any.
 	 * @param fixingOffset Fixing offset of this index.
 	 * @param maturity The maturity.
 	 * @param periodLength Period length of underlying swap, used for the swap annuity calculation.
 	 */
-	public ConstantMaturitySwaprate(double fixingOffset, double maturity, double periodLength) {
+	public ConstantMaturitySwaprate(String name, String currency, double fixingOffset, double maturity, double periodLength) {
+		super(name, currency);
 		this.fixingOffset = fixingOffset;
 
 		int numberOfPeriods = (int) (maturity / periodLength + 0.5);
 		if(numberOfPeriods * periodLength != maturity) throw new IllegalArgumentException("matruity not divisible by periodLength");
 		this.periodLengths = new double[numberOfPeriods];
 		Arrays.fill(this.periodLengths,periodLength);
+	}
+
+	/**
+	 * Create a CMS index with given fixing offset and given maturity and given period length.
+	 * Note that maturity must be a multiple of the period length.
+	 * 
+	 * @param fixingOffset Fixing offset of this index.
+	 * @param maturity The maturity.
+	 * @param periodLength Period length of underlying swap, used for the swap annuity calculation.
+	 */
+	public ConstantMaturitySwaprate(double fixingOffset, double maturity, double periodLength) {
+		this(null, null, fixingOffset, maturity, periodLength);
 	}
 
 	/**
