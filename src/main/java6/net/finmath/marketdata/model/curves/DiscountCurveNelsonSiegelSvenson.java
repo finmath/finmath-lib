@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import org.apache.commons.math3.util.FastMath;
+
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
@@ -59,8 +61,8 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 		double tau1		= parameter[4];
 		double tau2		= parameter[5];
 
-		double x1 = tau1 > 0 ? Math.exp(-maturity/tau1) : 0.0;
-		double x2 = tau2 > 0 ? Math.exp(-maturity/tau2) : 0.0;
+		double x1 = tau1 > 0 ? FastMath.exp(-maturity/tau1) : 0.0;
+		double x2 = tau2 > 0 ? FastMath.exp(-maturity/tau2) : 0.0;
 
 		double y1 = tau1 > 0 ? (maturity > 0.0 ? (1.0-x1)/maturity*tau1 : 1.0) : 0.0;
 		double y2 = tau1 > 0 ? (maturity > 0.0 ? (1.0-x2)/maturity*tau2 : 1.0) : 0.0;
