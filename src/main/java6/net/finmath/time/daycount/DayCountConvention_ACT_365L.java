@@ -33,10 +33,6 @@ public class DayCountConvention_ACT_365L extends DayCountConvention_ACT {
 	public DayCountConvention_ACT_365L() {
 	}
 	
-
-	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
-	 */
 	@Override
 	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
 		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);

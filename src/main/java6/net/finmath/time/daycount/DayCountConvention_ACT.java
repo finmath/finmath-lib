@@ -57,7 +57,7 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	 * @param endDate The end date of the interval.
 	 * @return Number of days between startDate and endDate.
 	 */
-	private static double daysBetween(Calendar startDate, Calendar endDate) {
+	public static double daysBetween(Calendar startDate, Calendar endDate) {
 		return Math.round( ((double)(endDate.getTimeInMillis()-startDate.getTimeInMillis())) / 1000.0 / 60.0 / 60.0 / 24);
 	}
 }

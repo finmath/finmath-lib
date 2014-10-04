@@ -16,7 +16,7 @@ import java.util.Calendar;
  * where startDateDay and endDateDay are adjusted towards 30, when being larger than 30 or if isEndOfMonth, also if
  * they fall on the last day of February. See 30/360 US definition for details.
  * 
- * This daycount convention is sometime called <i>Bond basis</i>.
+ * This day count convention is sometime called <i>Bond basis</i>.
  * 
  * <ul>
  * 	<li>
