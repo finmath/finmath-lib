@@ -31,9 +31,9 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 * Add a reference to a given curve under a given name to this model. It is not necessary that the name given agrees with
 	 * <code>curve.getName()</code>. This method comes in handy, if you like to create curve mappings.
 	 * 
-	 * @param name
-	 * @param curve
-	 * @return
+	 * @param name Name under which the curve is known in the model.
+	 * @param curve The curve.
+	 * @return A clone of this model, containing the curves of this model which are not known under the given name and the new curve under the given name.
 	 */
 	AnalyticModelInterface addCurve(String name, CurveInterface curve);
 
