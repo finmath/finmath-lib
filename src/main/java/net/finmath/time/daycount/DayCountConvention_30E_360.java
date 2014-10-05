@@ -28,7 +28,7 @@ import java.util.Calendar;
  * 	</li>
  * </ul>
  * 
- * The day count of 30E+/360 is that of 30E/360 whenever endDateDay is &leq; 30, otherwise it is that of 30E/360 plus one.
+ * The day count of 30E+/360 is that of 30E/360 whenever endDateDay is &le; 30, otherwise it is that of 30E/360 plus one.
  * 
  * @author Christian Fries
  */
@@ -37,7 +37,9 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	private final boolean is30Eplus360;
 	
 	/**
-	 * Create a 30E/360 or 30E+/360 daycount convention.
+	 * Create a 30E/360 or 30E+/360 day count convention.
+	 * 
+	 * @param is30Eplus360 If true, then 30E+/360 is constructed, otherwise 30E/360 is constructed.
 	 */
 	public DayCountConvention_30E_360(boolean is30Eplus360) {
 		this.is30Eplus360 = is30Eplus360;

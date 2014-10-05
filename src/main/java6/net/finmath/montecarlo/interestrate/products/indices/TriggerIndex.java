@@ -11,7 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * A trigger index.
  * 
- * Provides the function trigger(t) &geq; 0.0 ? indexIfTriggerIsPositive(t) : indexIfTriggerIsNegative(t).
+ * Provides the function trigger(t) &ge; 0.0 ? indexIfTriggerIsPositive(t) : indexIfTriggerIsNegative(t).
  * 
  * @author Christian Fries
  * @version 1.1
@@ -26,10 +26,10 @@ public class TriggerIndex extends AbstractIndex {
 
 
     /**
-	 * Creates the function trigger(t) &geq; 0.0 ? indexIfTriggerIsPositive(t) : indexIfTriggerIsNegative(t)
+	 * Creates the function trigger(t) &ge; 0.0 ? indexIfTriggerIsPositive(t) : indexIfTriggerIsNegative(t)
 	 * 
      * @param trigger An index whose value determines which of the following indices is taken.
-     * @param indexIfTriggerIsPositive An index representing the result if trigger is non-negative (&geq; 0).
+     * @param indexIfTriggerIsPositive An index representing the result if trigger is non-negative (&ge; 0).
      * @param indexIfTriggerIsNegative An index representing the result if trigger is negative (&lt; 0)
      */
     public TriggerIndex(AbstractProductComponent trigger, AbstractProductComponent indexIfTriggerIsPositive, AbstractProductComponent indexIfTriggerIsNegative) {
