@@ -113,4 +113,5 @@ public class ProductCollection extends AbstractProductComponent {
 		// Return values
 		return values;
 	}
+
 }

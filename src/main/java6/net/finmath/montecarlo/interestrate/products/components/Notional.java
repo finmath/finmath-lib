@@ -54,4 +54,10 @@ public class Notional implements AbstractNotional {
 	public RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
 		return notional;
 	}
+
+	@Override
+	public String toString() {
+		return "Notional [currency=" + currency + ", notional=" + notional
+				+ "]";
+	}
 }
