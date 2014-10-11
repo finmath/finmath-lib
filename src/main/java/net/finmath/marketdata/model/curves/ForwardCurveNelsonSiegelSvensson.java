@@ -26,7 +26,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * 
  * @author Christian Fries
  */
-public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Serializable, ForwardCurveInterface {
+public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, ForwardCurveInterface {
 
 	private static final long serialVersionUID = 8024640795839972709L;
 
@@ -35,7 +35,7 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 	private BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
 	private DayCountConventionInterface daycountConvention;
 
-	private DiscountCurveNelsonSiegelSvenson discountCurve;
+	private DiscountCurveNelsonSiegelSvensson discountCurve;
 	
 	/**
 	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link AnalyticModel}.
@@ -47,14 +47,14 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 	 * @param parameter The six Nelson Siegel Svenson parameters, beta_0, ..., beta_3, tau_0, tau_1.
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public ForwardCurveNelsonSiegelSvenson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
+	public ForwardCurveNelsonSiegelSvensson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
 		super(name, referenceDate);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.paymentDateRollConvention = paymentDateRollConvention;
 		this.daycountConvention = daycountConvention;
 
-		discountCurve = new DiscountCurveNelsonSiegelSvenson(name, referenceDate, parameter, timeScaling);
+		discountCurve = new DiscountCurveNelsonSiegelSvensson(name, referenceDate, parameter, timeScaling);
 	}
 
 	@Override
@@ -78,12 +78,12 @@ public class ForwardCurveNelsonSiegelSvenson extends AbstractCurve implements Se
 	}
 
 	@Override
-	public ForwardCurveNelsonSiegelSvenson clone() throws CloneNotSupportedException {
-		return (ForwardCurveNelsonSiegelSvenson)super.clone();
+	public ForwardCurveNelsonSiegelSvensson clone() throws CloneNotSupportedException {
+		return (ForwardCurveNelsonSiegelSvensson)super.clone();
 	}
 
 	@Override
-	public ForwardCurveNelsonSiegelSvenson getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public ForwardCurveNelsonSiegelSvensson getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 
