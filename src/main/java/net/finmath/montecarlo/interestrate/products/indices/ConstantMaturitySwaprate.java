@@ -126,4 +126,9 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 		return forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);
 	}
 
+	@Override
+	public String toString() {
+		return "ConstantMaturitySwaprate [fixingOffset=" + fixingOffset
+				+ ", periodLengths=" + Arrays.toString(periodLengths) + "]";
+	}
 }
