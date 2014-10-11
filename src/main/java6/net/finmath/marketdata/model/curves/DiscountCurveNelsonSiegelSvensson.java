@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import org.apache.commons.math3.util.FastMath;
-
 import net.finmath.marketdata.model.AnalyticModelInterface;
+
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * Implementation of a discount factor curve given by a Nelson-Siegel-Svensson (NSS) parameterization.
@@ -23,16 +23,21 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * 
  * The sub-family of curve with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
  * 
+ * Note: This is a time-parametrized model. The finmath lib library uses an internal mapping from date to times \( t \).
+ * This mapping does not necessarily need to correspond with the curves understanding for the parameter \( T \).
+ * For that reason this class allows to re-scale the time parameter. Currently only a simple re-scaling factor is
+ * supported.
+ * 
  * @author Christian Fries
  */
-public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements Serializable, DiscountCurveInterface {
+public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, DiscountCurveInterface {
 
 	private static final long serialVersionUID = 8024640795839972709L;
 
 	private final double	timeScaling;
 	private final double[]	parameter;
 
-	public DiscountCurveNelsonSiegelSvenson(String name, Calendar referenceDate, double[] parameter, double timeScaling) {
+	public DiscountCurveNelsonSiegelSvensson(String name, Calendar referenceDate, double[] parameter, double timeScaling) {
 		super(name, referenceDate);
 		this.timeScaling = timeScaling;
 
@@ -99,18 +104,18 @@ public class DiscountCurveNelsonSiegelSvenson extends AbstractCurve implements S
 	}
 
 	@Override
-	public DiscountCurveNelsonSiegelSvenson clone() throws CloneNotSupportedException {
-		return (DiscountCurveNelsonSiegelSvenson)super.clone();
+	public DiscountCurveNelsonSiegelSvensson clone() throws CloneNotSupportedException {
+		return (DiscountCurveNelsonSiegelSvensson)super.clone();
 	}
 
 	@Override
-	public DiscountCurveNelsonSiegelSvenson getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		return new DiscountCurveNelsonSiegelSvenson(getName(), getReferenceDate(), value, timeScaling);
+	public DiscountCurveNelsonSiegelSvensson getCloneForParameter(double[] value) throws CloneNotSupportedException {
+		return new DiscountCurveNelsonSiegelSvensson(getName(), getReferenceDate(), value, timeScaling);
 	}
 
 	@Override
 	public String toString() {
-		return "DiscountCurveNelsonSiegelSvenson [timeScaling=" + timeScaling
+		return "DiscountCurveNelsonSiegelSvensson [timeScaling=" + timeScaling
 				+ ", parameter=" + Arrays.toString(parameter) + ", toString()="
 				+ super.toString() + "]";
 	}
