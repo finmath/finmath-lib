@@ -114,9 +114,11 @@ public class Option extends AbstractProductComponent {
 	}
     
 	/**
-	 * @param exerciseDate
-	 * @param model
-	 * @return
+	 * Return the regression basis functions.
+	 * 
+	 * @param exerciseDate The date w.r.t. which the basis functions should be measurable.
+	 * @param model The model.
+	 * @return Array of random variables.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
@@ -185,5 +187,12 @@ public class Option extends AbstractProductComponent {
 		}
 		
 		return basisFunctions.toArray(new RandomVariableInterface[0]);
+	}
+
+	@Override
+	public String toString() {
+		return "Option [exerciseDate=" + exerciseDate + ", strikePrice="
+				+ strikePrice + ", underlying=" + underlying + ", isCall="
+				+ isCall + ", toString()=" + super.toString() + "]";
 	}
 }
