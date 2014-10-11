@@ -9,12 +9,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 
 /**
@@ -82,6 +84,13 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 		return newModel;
 	}
 
+	@Override
+	public AnalyticModelInterface addCurves(Set<CurveInterface> curves) {
+		AnalyticModel newModel = clone();
+		for(CurveInterface curve : curves) newModel.curvesMap.put(curve.getName(), curve);
+		return newModel;
+	}
+
 	/**
 	 * @deprecated This class will become immutable. Use addCurve instead.
 	 */
@@ -143,6 +152,13 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	@Override
 	public AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces)
 	{
+		AnalyticModel newModel = clone();
+		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		return newModel;
+	}
+
+	@Override
+	public AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces) {
 		AnalyticModel newModel = clone();
 		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
 		return newModel;

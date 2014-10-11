@@ -6,15 +6,19 @@
 package net.finmath.marketdata.model;
 
 import java.util.Map;
+import java.util.Set;
 
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.ModelInterface;
 
 /**
+ * A collection of objects representing analytic valuations, i.e., curves and volatility surfaces.
+ * 
  * @author Christian Fries
  */
 public interface AnalyticModelInterface extends ModelInterface, Cloneable {
@@ -37,7 +41,21 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 */
 	AnalyticModelInterface addCurve(String name, CurveInterface curve);
 
+	/**
+	 * Create a new analytic model consisting of a clone of this one together with the given curves added.
+	 * 
+	 * @param curves The set of curves to add.
+	 * @return A new analytic model.
+	 */
 	AnalyticModelInterface addCurves(CurveInterface... curves);
+
+	/**
+	 * Create a new analytic model consisting of a clone of this one together with the given curves added.
+	 * 
+	 * @param curves The list of curves to add.
+	 * @return A new analytic model.
+	 */
+	AnalyticModelInterface addCurves(Set<CurveInterface> curves);
 
 	@Deprecated
 	void setCurve(CurveInterface curve);
@@ -49,6 +67,14 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	VolatilitySurfaceInterface getVolatilitySurface(String name);
 
 	AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces);
+
+	/**
+	 * Create a new analytic model consisting of a clone of this one together with the given volatility surfaces added.
+	 * 
+	 * @param volatilitySurfaces The list of volatility surfaces to add.
+	 * @return A new analytic model.
+	 */
+	AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces);
 
 	@Deprecated
 	void setVolatilitySurface(VolatilitySurfaceInterface volatilitySurface);
