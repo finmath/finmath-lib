@@ -154,6 +154,7 @@ public class Cap extends AbstractAnalyticProduct {
 			if(isStrikeMoneyness)	effektiveStrike += getATMForward(model, true);
 
 			VolatilitySurfaceInterface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
+			if(volatilitySurface == null) throw new IllegalArgumentException("Volatility surface not found in model: " + volatiltiySufaceName);
 			if(volatilitySurface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL) {
 				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurfaceInterface.QuotingConvention.VOLATILITYLOGNORMAL);
 				value += AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);
