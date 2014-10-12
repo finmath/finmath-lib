@@ -29,13 +29,7 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 	@Test
 	public void test() {
 
-		double[] nssParameter = new double[] {
-				0.02,
-				-0.010 ,
-				0.16 ,
-				-0.17 ,
-				4.50 ,
-				3.5 };
+		final double[] nssParameter = new double[] { 0.02, -0.010, 0.16, -0.17, 4.50, 3.5 };
 
 		Calendar referenceDate = new GregorianCalendar(2014, 07, 16);
 		String paymentOffsetCode = "3M";
