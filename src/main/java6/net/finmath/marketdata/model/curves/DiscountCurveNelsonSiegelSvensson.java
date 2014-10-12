@@ -23,10 +23,13 @@ import org.apache.commons.math3.util.FastMath;
  * 
  * The sub-family of curve with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
  * 
- * Note: This is a time-parametrized model. The finmath lib library uses an internal mapping from date to times \( t \).
+ * Note: This is a time-parameterized model. The finmath lib library uses an internal mapping from date to times \( t \).
  * This mapping does not necessarily need to correspond with the curves understanding for the parameter \( T \).
  * For that reason this class allows to re-scale the time parameter. Currently only a simple re-scaling factor is
  * supported.
+ * 
+ * The parameter T used in the parameterization is given by <code>T = timeScaling * t</code>, where t is the maturity as an ACT/365
+ * year fraction from the given reference date.
  * 
  * @author Christian Fries
  */
@@ -37,6 +40,14 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	private final double	timeScaling;
 	private final double[]	parameter;
 
+	/**
+	 * Create a discount curve using a Nelson-Siegel-Svensson parametrization.
+	 * 
+	 * @param name The name of the curve (the curve can be referenced under this name, if added to an <code>AnalyticModel</code>.
+	 * @param referenceDate The reference date of this curve, i.e. the date associated with t=0.
+	 * @param parameter The Nelson-Siegel-Svensson parameters.
+	 * @param timeScaling The time parameter argument rescaling. See {@link #getDiscountFactor(AnalyticModelInterface, double)}.
+	 */
 	public DiscountCurveNelsonSiegelSvensson(String name, Calendar referenceDate, double[] parameter, double timeScaling) {
 		super(name, referenceDate);
 		this.timeScaling = timeScaling;
@@ -50,8 +61,11 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 		return getDiscountFactor(null, maturity);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.DiscountCurveInterface#getDiscountFactor(double)
+	/**
+	 * Return the discount factor within a given model context for a given maturity.
+	 * @param model The model used as a context (not required for this class).
+	 * @param maturity The maturity in terms of ACT/365 daycount form this curve reference date. Note that this parameter might get rescaled to a different time parameter.
+	 * @see net.finmath.marketdata.model.curves.DiscountCurveInterface#getDiscountFactor(net.finmath.marketdata.model.AnalyticModelInterface, double)
 	 */
 	@Override
 	public double getDiscountFactor(AnalyticModelInterface model, double maturity)
