@@ -3,6 +3,8 @@
  */
 package net.finmath.montecarlo.interestrate.products.components;
 
+import java.util.Set;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -47,6 +49,11 @@ public class Cashflow extends AbstractProductComponent {
 	public Cashflow(double flowAmount, double flowDate, boolean isPayer) {
 		this(null, flowAmount, flowDate, isPayer);
 	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		return null;
+	}    
 
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.

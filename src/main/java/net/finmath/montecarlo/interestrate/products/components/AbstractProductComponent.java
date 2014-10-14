@@ -8,6 +8,7 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -55,6 +56,13 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 	public AbstractProductComponent() {
 		this(null);
 	}
+
+	/**
+	 * Returns a set of underlying names referenced by this product component (i.e., required for valuation) or null if none.
+	 * 
+	 * @return A set of underlying names referenced by this product component (i.e., required for valuation) or null if none.
+	 */
+	public abstract Set<String> queryUnderlyings();
 
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface value = this.getValue(evaluationTime, model);

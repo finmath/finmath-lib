@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -28,6 +31,17 @@ public class UnsupportedIndex extends AbstractIndex {
 	/**
 	 * Creates an unsupported index throwing an exception if his <code>getValue</code> method is called.
 	 * 
+	 * @param name The name of the index.
+	 * @param exception The exception to be thrown if this index is valued.
+	 */
+	public UnsupportedIndex(String name, Exception exception) {
+		super(name, null);
+		this.exception = exception;
+	}
+
+	/**
+	 * Creates an unsupported index throwing an exception if his <code>getValue</code> method is called.
+	 * 
 	 * @param exception The exception.
 	 */
 	public UnsupportedIndex(Exception exception) {
@@ -38,5 +52,14 @@ public class UnsupportedIndex extends AbstractIndex {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		throw new CalculationException(exception);
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		if(getName() == null) return null;
+
+		Set<String> underlying = new HashSet<String>();
+		underlying.add(getName());
+		return underlying;
 	}
 }

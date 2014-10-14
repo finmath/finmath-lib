@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -70,6 +73,13 @@ public class LIBORIndex extends AbstractIndex {
 	 */
 	public double getPeriodLength() {
 		return periodLength;
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		Set<String> underlyingNames = new HashSet<String>();
+		underlyingNames.add(getName());
+		return underlyingNames;
 	}
 
 	@Override

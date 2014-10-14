@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import java.util.Set;
+
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -35,6 +37,11 @@ public class FowardCurveIndex extends AbstractIndex {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
 		return new RandomVariable(fowardCurve.getForward(null,  evaluationTime));
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		return null;
 	}
 
 	@Override

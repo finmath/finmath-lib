@@ -6,6 +6,8 @@
 package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
@@ -124,6 +126,13 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 		forwardBondInverse = forwardBondInverse.mult(forwardBondOnePeriodInverse);
 
 		return forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		Set<String> underlyingNames = new HashSet<String>();
+		underlyingNames.add(getName());
+		return underlyingNames;
 	}
 
 	@Override
