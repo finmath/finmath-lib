@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import java.util.Set;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
@@ -80,6 +82,17 @@ public class LinearCombinationIndex extends AbstractIndex {
 	 */
 	public double getScaling2() {
 		return scaling2;
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		Set<String> underlyingNames			= index1.queryUnderlyings();
+		Set<String>	underlyingNames2		= index2.queryUnderlyings();
+		if(underlyingNames2 != null) {
+			if(underlyingNames != null)	underlyingNames.addAll(underlyingNames2);
+			else						underlyingNames = underlyingNames2;
+		}
+		return underlyingNames;
 	}
 
 	@Override

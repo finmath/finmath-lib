@@ -1,5 +1,7 @@
 package net.finmath.montecarlo.interestrate.products.components;
 
+import java.util.Set;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -122,6 +124,11 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	public double getDaycountFraction() {
 		return daycountFraction;
 	}    
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		return getIndex().queryUnderlyings();
+	}
 
 	@Override
 	public String toString() {

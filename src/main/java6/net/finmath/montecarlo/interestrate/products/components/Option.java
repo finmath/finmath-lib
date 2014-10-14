@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.products.components;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
@@ -69,6 +70,12 @@ public class Option extends AbstractProductComponent {
 	@Override
 	public String getCurrency() {
 		return underlying.getCurrency();
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		if(underlying instanceof AbstractProductComponent)	return ((AbstractProductComponent)underlying).queryUnderlyings();
+		else												throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
 	}
 
 	/**

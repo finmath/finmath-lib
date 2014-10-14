@@ -6,6 +6,7 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -54,6 +55,19 @@ public class ProductCollection extends AbstractProductComponent {
 	@Override
 	public String getCurrency() {
 		return products.iterator().next().getCurrency();
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		Set<String> underlyingNames = null;
+		for(AbstractProductComponent product : products) {
+			Set<String> productUnderlyingNames = product.queryUnderlyings();
+			if(productUnderlyingNames != null) {
+				if(underlyingNames == null)	underlyingNames = productUnderlyingNames;
+				else						underlyingNames.addAll(productUnderlyingNames);
+			}
+		}
+		return underlyingNames;
 	}
 
 	/**
@@ -114,4 +128,8 @@ public class ProductCollection extends AbstractProductComponent {
 		return values;
 	}
 
+	@Override
+	public String toString() {
+		return "ProductCollection [products=" + products + "]";
+	}
 }
