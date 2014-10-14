@@ -250,6 +250,33 @@ public class Cap extends AbstractAnalyticProduct {
 		return solver.getBestPoint();
 	}
 
+	/**
+	 * Returns the name of the forward curve references by this cap.
+	 * 
+	 * @return the forward curve name.
+	 */
+	public String getForwardCurveName() {
+		return forwardCurveName;
+	}
+
+	/**
+	 * Returns the strike of this caplet.
+	 * 
+	 * @return the strike
+	 */
+	public double getStrike() {
+		return strike;
+	}
+
+	/**
+	 * Returns the name of the discount curve referenced by this cap.
+	 * 
+	 * @return the discount curve name
+	 */
+	public String getDiscountCurveName() {
+		return discountCurveName;
+	}
+
 	@Override
 	public String toString() {
 		return "Cap [schedule=" + schedule + ", forwardCurveName="
