@@ -102,4 +102,18 @@ public class Portfolio extends AbstractLIBORMonteCarloProduct {
 		}
 		return values;
 	}
+
+	/**
+	 * @return the products
+	 */
+	public AbstractLIBORMonteCarloProduct[] getProducts() {
+		return products.clone();
+	}
+
+	/**
+	 * @return the weights
+	 */
+	public double[] getWeights() {
+		return weights.clone();
+	}
 }
