@@ -87,7 +87,7 @@ public class Portfolio extends AbstractProductComponent {
 	@Override
 	public String getCurrency() {
 		// @TODO: We report only the currency of the first item, because mixed currency portfolios are currently not allowed.
-		return (products != null && products.length == 0) ? products[0].getCurrency() : null;
+		return (products != null && products.length > 0) ? products[0].getCurrency() : null;
 	}
 
 	@Override
