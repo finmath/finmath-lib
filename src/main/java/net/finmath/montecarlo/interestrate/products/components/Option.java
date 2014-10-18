@@ -28,6 +28,7 @@ public class Option extends AbstractProductComponent {
 	private final double							exerciseDate;
 	private final double							strikePrice;
 	private final AbstractLIBORMonteCarloProduct	underlying;
+	private final AbstractLIBORMonteCarloProduct	strikeProduct;
 	private final boolean							isCall;
 
 	/**
@@ -65,6 +66,24 @@ public class Option extends AbstractProductComponent {
 		this.strikePrice	= strikePrice;
 		this.underlying		= underlying;
 		this.isCall			= isCall;
+		this.strikeProduct	= null;
+	}
+
+	/**
+	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
+	 * 
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
+	 * @param strikeProduct The strike.
+	 * @param underlying The underlying.
+	 */
+	public Option(double exerciseDate,boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying) {
+		super();
+		this.exerciseDate	= exerciseDate;
+		this.strikePrice	= Double.NaN;
+		this.strikeProduct	= strikeProduct;
+		this.underlying		= underlying;
+		this.isCall			= isCall;
 	}
 
 	@Override
@@ -96,18 +115,21 @@ public class Option extends AbstractProductComponent {
 
 		RandomVariableInterface values = underlying.getValue(exerciseDate, model);
 
-		RandomVariableInterface valueIfExcercised = null;
-		if(values.getFiltrationTime() > exerciseDate) {
+		RandomVariableInterface exerciseTrigger = null;
+		if(strikeProduct != null)	exerciseTrigger = values.sub(strikeProduct.getValue(exerciseDate, model)).mult(isCall ? 1.0 : -1.0);
+		else						exerciseTrigger = values.sub(strikePrice).mult(isCall ? 1.0 : -1.0);
+		
+		if(exerciseTrigger.getFiltrationTime() > exerciseDate) {
 			// Remove foresight through conditional expectation
 			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
-			valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);
+			exerciseTrigger         = condExpEstimator.getConditionalExpectation(exerciseTrigger);
 		}
-		else valueIfExcercised = values;
 
 		// Apply exercise criteria
-		values = values.barrier(valueIfExcercised.sub(strikePrice).mult(isCall ? 1.0 : -1.0), values, strikePrice);
+		if(strikeProduct != null)	values = values.barrier(exerciseTrigger, values, strikeProduct.getValue(exerciseDate, model));
+		else						values = values.barrier(exerciseTrigger, values, strikePrice);
 
 		// Discount to evaluation time
 		if(evaluationTime != exerciseDate) {
