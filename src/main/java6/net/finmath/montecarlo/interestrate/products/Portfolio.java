@@ -5,9 +5,12 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
+import java.util.Set;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -21,10 +24,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  * @date 08.09.2006
- * @version 1.1
+ * @version 1.2
  */
-public class Portfolio extends AbstractLIBORMonteCarloProduct {
-	
+public class Portfolio extends AbstractProductComponent {
+
+	private static final long serialVersionUID = -1360506093081238482L;
+
 	private AbstractLIBORMonteCarloProduct[]	products;
 	private double[]							weights;
 
@@ -77,6 +82,28 @@ public class Portfolio extends AbstractLIBORMonteCarloProduct {
 
 		this.products = products;
 		this.weights = weights;
+	}
+
+	@Override
+	public String getCurrency() {
+		// @TODO: We report only the currency of the first item, because mixed currency portfolios are currently not allowed.
+		return (products != null && products.length == 0) ? products[0].getCurrency() : null;
+	}
+
+	@Override
+	public Set<String> queryUnderlyings() {
+		Set<String> underlyingNames = null;
+		for(AbstractLIBORMonteCarloProduct product : products) {
+			Set<String> productUnderlyingNames;
+			if(product instanceof AbstractProductComponent)		productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
+			else												throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+
+			if(productUnderlyingNames != null) {
+				if(underlyingNames == null)	underlyingNames = productUnderlyingNames;
+				else						underlyingNames.addAll(productUnderlyingNames);
+			}
+		}
+		return underlyingNames;
 	}
 
 	/**
