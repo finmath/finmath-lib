@@ -103,29 +103,29 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		int firstPeriodRateIndex = model.getLiborPeriodIndex(evaluationTime+fixingOffset);
-		int lastPeriodIndex = firstPeriodRateIndex+periodLengths.length-1;
 
 		// Fetch curve
 		RandomVariableInterface forwardRates[] = new RandomVariableInterface[periodLengths.length];
 		double periodStart = evaluationTime+fixingOffset;
-		for(int periodIndex = firstPeriodRateIndex; periodIndex <= lastPeriodIndex; periodIndex++) {
-			forwardRates[periodIndex-firstPeriodRateIndex] = model.getLIBOR(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex-firstPeriodRateIndex]);
-			periodStart += periodLengths[periodIndex-firstPeriodRateIndex];
+		for(int periodIndex = 0; periodIndex < periodLengths.length; periodIndex++) {
+			forwardRates[periodIndex] = model.getLIBOR(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex]);
+			periodStart += periodLengths[periodIndex];
 		}
 
-		// Calculate swaprate
+		// Calculate float leg value (single curve/classical) and annuity.
 		RandomVariableInterface forwardBondInverse           = new RandomVariable(0.0,                                   1.0);
 		RandomVariableInterface forwardAnnuityInverse        = new RandomVariable(0.0, periodLengths[periodLengths.length-1]);
-		for(int periodIndex = lastPeriodIndex; periodIndex>= firstPeriodRateIndex+1; periodIndex--) {
-			RandomVariableInterface forwardBondOnePeriodInverse  = (forwardRates[periodIndex-firstPeriodRateIndex]).mult(periodLengths[periodIndex-firstPeriodRateIndex]).add(1.0);
+		for(int periodIndex = periodLengths.length-1; periodIndex>= 1; periodIndex--) {
+			RandomVariableInterface forwardBondOnePeriodInverse  = (forwardRates[periodIndex]).mult(periodLengths[periodIndex]).add(1.0);
 			forwardBondInverse		= forwardBondInverse.mult(forwardBondOnePeriodInverse);
-			forwardAnnuityInverse	= forwardAnnuityInverse.addProduct(forwardBondInverse, periodLengths[periodIndex-firstPeriodRateIndex]);
+			forwardAnnuityInverse	= forwardAnnuityInverse.addProduct(forwardBondInverse, periodLengths[periodIndex]);
 		}
-		RandomVariableInterface forwardBondOnePeriodInverse  = (forwardRates[firstPeriodRateIndex-firstPeriodRateIndex]).mult(periodLengths[firstPeriodRateIndex-firstPeriodRateIndex]).add(1.0);
+		RandomVariableInterface forwardBondOnePeriodInverse  = (forwardRates[0]).mult(periodLengths[0]).add(1.0);
 		forwardBondInverse = forwardBondInverse.mult(forwardBondOnePeriodInverse);
 
-		return forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);
+		RandomVariableInterface swaprate = forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);
+
+		return swaprate;
 	}
 
 	@Override
