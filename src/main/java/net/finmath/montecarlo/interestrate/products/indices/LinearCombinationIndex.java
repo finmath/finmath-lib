@@ -45,7 +45,7 @@ public class LinearCombinationIndex extends AbstractIndex {
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
     	return index1.getValue(evaluationTime, model).mult(scaling1)
-    			.add(index2.getValue(evaluationTime, model).mult(scaling2));
+    			.addProduct(index2.getValue(evaluationTime, model),scaling2);
     }
 
 	/**
