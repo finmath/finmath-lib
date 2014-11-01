@@ -161,7 +161,11 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	}
 
 	/**
-	 * Create a discount curve from given times and given discount factors using given interpolation and extrapolation methods.
+	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
+	 * The discount factor is determined by 
+	 * <code>
+	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
+	 * </code>
 	 *
 	 * @param name The name of this discount curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
@@ -188,7 +192,11 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	}
 	
 	/**
-	 * Create a discount curve from given times and given discount factors using given interpolation and extrapolation methods.
+	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
+	 * The discount factor is determined by 
+	 * <code>
+	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
+	 * </code>
 	 *
 	 * @param name The name of this discount curve.
 	 * @param times Array of times as doubles.
@@ -208,7 +216,11 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	}
 
 	/**
-	 * Create a discount curve from given times and given discount factors using given interpolation and extrapolation methods.
+	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
+	 * The discount factor is determined by 
+	 * <code>
+	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
+	 * </code>
 	 *
 	 * @param name The name of this discount curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
@@ -237,6 +249,10 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given zero rates using default interpolation and extrapolation methods.
+	 * The discount factor is determined by 
+	 * <code>
+	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
+	 * </code>
 	 * 
 	 * @param name The name of this discount curve.
 	 * @param times Array of times as doubles.
@@ -251,6 +267,69 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		}
 
 		return createDiscountCurveFromDiscountFactors(name, times, givenDiscountFactors);
+	}
+
+	/**
+	 * Create a discount curve from given times and given annualized zero rates using given interpolation and extrapolation methods.
+	 * The discount factor is determined by 
+	 * <code>
+	 * 		givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
+	 * </code>
+	 *
+	 * @param name The name of this discount curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param times Array of times as doubles.
+	 * @param givenAnnualizedZeroRates Array of corresponding zero rates.
+	 * @param isParameter Array of booleans specifying whether this point is served "as as parameter", e.g., whether it is calibrates (e.g. using CalibratedCurves).
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @return A new discount factor object.
+	 */
+	public static DiscountCurve createDiscountCurveFromAnnualizedZeroRates(
+			String name, Calendar referenceDate,
+			double[] times, double[] givenAnnualizedZeroRates, boolean[] isParameter,
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+		
+		double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
+
+		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
+			givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
+		}
+
+		return createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
+	}
+
+	/**
+	 * Create a discount curve from given times and given annualized zero rates using given interpolation and extrapolation methods.
+	 * The discount factor is determined by 
+	 * <code>
+	 * 		givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
+	 * </code>
+	 *
+	 * @param name The name of this discount curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param times Array of times as doubles.
+	 * @param givenAnnualizedZeroRates Array of corresponding zero rates.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @return A new discount factor object.
+	 */
+	public static DiscountCurve createDiscountCurveFromAnnualizedZeroRates(
+			String name, Calendar referenceDate,
+			double[] times, double[] givenAnnualizedZeroRates,
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+		
+		double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
+		boolean[] isParameter = new boolean[givenAnnualizedZeroRates.length];
+
+		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
+			givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
+			isParameter[timeIndex] = false;
+		}
+
+		return createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
 	/**
