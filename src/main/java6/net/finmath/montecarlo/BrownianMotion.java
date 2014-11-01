@@ -137,8 +137,8 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 				double sqrtDeltaT = sqrtOfTimeStep[timeIndex];
 				// Generate uncorrelated Brownian increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					double uniformIncement = mersenneTwister.nextDouble();
-					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncement) * sqrtDeltaT;
+					double uniformIncrement = mersenneTwister.nextDouble();
+					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
 				}				
 			}
 		}
