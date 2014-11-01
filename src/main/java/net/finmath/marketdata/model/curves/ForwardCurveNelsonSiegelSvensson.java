@@ -24,6 +24,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * 
  * The sub-family of curve with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
  * 
+ * @see net.finmath.marketdata.curves.DiscountCurveNelsonSiegelSvensson
  * @author Christian Fries
  */
 public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, ForwardCurveInterface {
@@ -44,7 +45,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 * @param paymentBusinessdayCalendar The payment businessday calendar.
 	 * @param paymentDateRollConvention The payment date roll convention.
 	 * @param daycountConvention The daycount convention.
-	 * @param parameter The six Nelson Siegel Svenson parameters, beta_0, ..., beta_3, tau_0, tau_1.
+	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
 	public ForwardCurveNelsonSiegelSvensson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {

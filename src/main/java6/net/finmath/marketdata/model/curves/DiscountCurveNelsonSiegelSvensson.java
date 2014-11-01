@@ -45,7 +45,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	 * 
 	 * @param name The name of the curve (the curve can be referenced under this name, if added to an <code>AnalyticModel</code>.
 	 * @param referenceDate The reference date of this curve, i.e. the date associated with t=0.
-	 * @param parameter The Nelson-Siegel-Svensson parameters.
+	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
 	 * @param timeScaling The time parameter argument rescaling. See {@link #getDiscountFactor(AnalyticModelInterface, double)}.
 	 */
 	public DiscountCurveNelsonSiegelSvensson(String name, Calendar referenceDate, double[] parameter, double timeScaling) {
