@@ -685,9 +685,11 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		this.measure = measure;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getDiscountCurve()
-	 */
+	@Override
+	public AnalyticModelInterface getAnalyticModel() {
+		return curveModel;
+	}
+
 	@Override
 	public DiscountCurveInterface getDiscountCurve() {
 		if(discountCurve == null) {
@@ -698,9 +700,6 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		return discountCurve;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getForwardRateCurve()
-	 */
 	@Override
 	public ForwardCurveInterface getForwardRateCurve() {
 		return forwardRateCurve;
@@ -737,6 +736,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	@Override
 	public LIBORMarketModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		TimeDiscretizationInterface		liborPeriodDiscretization	= this.liborPeriodDiscretization;
+		AnalyticModelInterface			analyticModel				= this.curveModel;
 		ForwardCurveInterface			forwardRateCurve			= this.forwardRateCurve;
 		AbstractLIBORCovarianceModel	covarianceModel				= this.covarianceModel;
 		AbstractSwaptionMarketData		swaptionMarketData			= null;
