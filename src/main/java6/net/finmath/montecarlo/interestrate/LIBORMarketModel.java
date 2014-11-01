@@ -219,6 +219,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * </ul>
 	 * 
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
+	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
 	 * @param covarianceModel The covariance model to use.

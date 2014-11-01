@@ -24,7 +24,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * 
  * The sub-family of curve with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
  * 
- * @see net.finmath.marketdata.curves.DiscountCurveNelsonSiegelSvensson
+ * @see net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson
  * @author Christian Fries
  */
 public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, ForwardCurveInterface {
