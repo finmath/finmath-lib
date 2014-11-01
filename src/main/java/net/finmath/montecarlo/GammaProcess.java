@@ -159,8 +159,8 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 				GammaDistribution gammaDistribution = gammaDistributions[timeIndex];
 				// Generate uncorrelated Gamma distributed increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					double uniformIncement = mersenneTwister.nextDouble();
-					gammaIncrementsArray[timeIndex][factor][path] = gammaDistribution.inverseCumulativeDistribution(uniformIncement);
+					double uniformIncrement = mersenneTwister.nextDouble();
+					gammaIncrementsArray[timeIndex][factor][path] = gammaDistribution.inverseCumulativeDistribution(uniformIncrement);
 				}				
 			}
 		}
