@@ -236,6 +236,26 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	
 
 	/**
+	 * Create a curve with a given name, reference date and an interpolation method from given points
+	 * 
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @param times A vector of times.
+	 * @param values A vector of corresponding values.
+	 */
+	public Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, double[] times, double[] values) {
+		super(name, referenceDate);
+		this.interpolationMethod	= interpolationMethod;
+		this.extrapolationMethod	= extrapolationMethod;
+		this.interpolationEntity	= interpolationEntity;
+		if(times.length != values.length) throw new IllegalArgumentException("Length of times not equal to length of values.");
+		for(int i=0; i<times.length; i++) this.addPoint(times[i], values[i], false);
+	}
+
+	/**
 	 * Create a curve with a given name, reference date and an interpolation method.
 	 * 
 	 * @param name The name of this curve.
