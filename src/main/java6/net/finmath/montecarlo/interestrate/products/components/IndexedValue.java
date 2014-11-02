@@ -10,7 +10,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -21,9 +20,6 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class IndexedValue extends AbstractProductComponent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7268432817913776974L;
 	private double exerciseDate;
 	private AbstractProductComponent index;
@@ -32,8 +28,9 @@ public class IndexedValue extends AbstractProductComponent {
 	/**
 	 * Creates the function J(t) V(t), where J(t) = E(I(t)|F_t) for the given I(t).
 	 * 
-     * @param exerciseDate
-     * @param underlying
+     * @param exerciseDate The time t at which the index I is requested (and to which it is conditioned if necessary).
+     * @param index The index I.
+     * @param underlying The value V.
      */
     public IndexedValue(double exerciseDate, AbstractProductComponent index, AbstractProductComponent underlying) {
 	    super();
@@ -81,7 +78,7 @@ public class IndexedValue extends AbstractProductComponent {
     	// Make index measurable w.r.t time exerciseDate
     	if(indexValues.getFiltrationTime() > exerciseDate && exerciseDate > evaluationTime) {
     		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
-
+            
             // Calculate cond. expectation.
             indexValues         = condExpEstimator.getConditionalExpectation(indexValues);
     	}
@@ -99,7 +96,7 @@ public class IndexedValue extends AbstractProductComponent {
 		// Return values
 		return underlyingValues;	
 	}
-
+    
 	/**
 	 * @param exerciseDate
 	 * @param model

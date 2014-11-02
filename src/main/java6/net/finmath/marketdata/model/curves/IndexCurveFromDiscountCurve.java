@@ -6,8 +6,6 @@
 
 package net.finmath.marketdata.model.curves;
 
-import java.util.Calendar;
-
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
