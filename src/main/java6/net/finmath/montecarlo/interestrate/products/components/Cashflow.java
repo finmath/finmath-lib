@@ -68,17 +68,20 @@ public class Cashflow extends AbstractProductComponent {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 
-		if(evaluationTime >= flowDate) return new RandomVariable(0.0);
-
-		// Get random variables
-		RandomVariableInterface	numeraire				= model.getNumeraire(flowDate);
-		RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
-		//        RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
+		// Note: We use > here. To distinguish an end of day valuation use hour of day for cash flows and evaluation date.
+		if(evaluationTime > flowDate) return new RandomVariable(0.0);
 
 		RandomVariableInterface values = new RandomVariable(flowAmount);
 		if(isPayer) values = values.mult(-1.0);
 
-		values = values.div(numeraire).mult(numeraireAtEval);
+		// Rebase to evaluationTime
+		if(flowDate != evaluationTime) {
+			// Get random variables
+			RandomVariableInterface	numeraire				= model.getNumeraire(flowDate);
+			RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			//        RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
+			values = values.div(numeraire).mult(numeraireAtEval);
+		}
 
 		// Return values
 		return values;	
