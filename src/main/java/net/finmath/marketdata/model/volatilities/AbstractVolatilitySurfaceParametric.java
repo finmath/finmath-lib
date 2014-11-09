@@ -48,7 +48,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 
 		// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 0.0;//1E-7;
+		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;
 		double evaluationTime		= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;
 
 		AnalyticModelInterface model = calibrationModel.addVolatilitySurfaces(this);
