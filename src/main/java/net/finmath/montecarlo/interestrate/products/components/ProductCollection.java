@@ -6,6 +6,7 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -56,6 +57,15 @@ public class ProductCollection extends AbstractProductComponent {
 	public String getCurrency() {
 		// @TODO: We report only the currency of the first item.
 		return products.iterator().next().getCurrency();
+	}
+
+	/**
+	 * Returns the collection containing all products as an unmodifiable collection.
+	 * 
+	 * @return the collection containing all products.
+	 */
+	public Collection<AbstractProductComponent> getProducts() {
+		return Collections.unmodifiableCollection(products);
 	}
 
 	@Override
