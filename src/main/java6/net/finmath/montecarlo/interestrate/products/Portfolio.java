@@ -27,7 +27,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.2
  */
 public class Portfolio extends AbstractProductComponent {
-
+	
 	private static final long serialVersionUID = -1360506093081238482L;
 
 	private AbstractLIBORMonteCarloProduct[]	products;
