@@ -65,7 +65,14 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
-		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / (paymentOffset*discountCurve.getTimeScaling());
+		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
+		if(daycountConvention != null) {
+			Calendar fixingDate		= getDateFromModelTime(fixingTime);
+			Calendar paymentDate	= getDateFromModelTime(fixingTime + paymentOffset);;
+			daycountFraction = daycountConvention.getDaycountFraction(fixingDate, paymentDate);
+		}
+
+		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / daycountFraction;
 	}
 
 	@Override
@@ -112,10 +119,15 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 */
 	@Override
 	public double getPaymentOffset(double fixingTime) {
-		Calendar paymentDate	= (Calendar)getReferenceDate().clone();
-		paymentDate.add(Calendar.DAY_OF_YEAR, (int)(fixingTime*365));
-		paymentDate = paymentBusinessdayCalendar.getAdjustedDate(paymentDate, paymentOffsetCode, paymentDateRollConvention);
+		Calendar fixingDate		= getDateFromModelTime(fixingTime);
+		Calendar paymentDate	= paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
 		double paymentTime = (new DayCountConvention_ACT_365()).getDaycountFraction(getReferenceDate(), paymentDate);
 		return paymentTime-fixingTime;
+	}
+	
+	private Calendar getDateFromModelTime(double fixingTime) {
+		Calendar date	= (Calendar)getReferenceDate().clone();
+		date.add(Calendar.DAY_OF_YEAR, (int)(fixingTime*365));
+		return date;
 	}
 }
