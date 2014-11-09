@@ -35,35 +35,39 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends LIBORVolatilityModel {
 
-    private double a;
-    private double b;
-    private double c;
-    private double d;
-    
-    private boolean isCalibrateable = false;
+	private double a;
+	private double b;
+	private double c;
+	private double d;
 
-    /**
-     * Creates the volatility model
-     * \[
-     * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
-     * \]
-     * 
-     * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
-     * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
-     * @param a The parameter a: an initial volatility level.
-     * @param b The parameter b: the slope at the short end (shortly before maturity).
-     * @param c The parameter c: exponential decay of the volatility in time-to-maturity.
-     * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
-     * @param isCalibrateable Set this to true, if the parameters are available for calibration.
-     */
-    public LIBORVolatilityModelFourParameterExponentialFormIntegrated(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
-        super(timeDiscretization, liborPeriodDiscretization);
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
-        this.isCalibrateable = isCalibrateable;
-    }
+	private boolean isCalibrateable = false;
+
+	private transient CapletVolatilitiesParametric cap;
+
+
+	/**
+	 * Creates the volatility model
+	 * \[
+	 * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
+	 * \]
+	 * 
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
+	 * @param a The parameter a: an initial volatility level.
+	 * @param b The parameter b: the slope at the short end (shortly before maturity).
+	 * @param c The parameter c: exponential decay of the volatility in time-to-maturity.
+	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
+	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
+	 */
+	public LIBORVolatilityModelFourParameterExponentialFormIntegrated(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
+		super(timeDiscretization, liborPeriodDiscretization);
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.isCalibrateable = isCalibrateable;
+		cap = new CapletVolatilitiesParametric("", null, a, b, c, d);
+	}
 
 
 	@Override
@@ -84,35 +88,36 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		if(!isCalibrateable) return;
 
 		this.a = parameter[0];
-        this.b = parameter[1];
-        this.c = parameter[2];
-        this.d = parameter[3];
+		this.b = parameter[1];
+		this.c = parameter[2];
+		this.d = parameter[3];
+		
+		cap	= new CapletVolatilitiesParametric("", null, a, b, c, d);
 	}
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
-     */
-    @Override
-    public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
-        // Create a very simple volatility model here
-        double timeStart		= getTimeDiscretization().getTime(timeIndex);
-        double timeEnd			= getTimeDiscretization().getTime(timeIndex+1);
-        double maturity			= getLiborPeriodDiscretization().getTime(liborIndex);
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
+	 */
+	@Override
+	public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
+		// Create a very simple volatility model here
+		double timeStart		= getTimeDiscretization().getTime(timeIndex);
+		double timeEnd			= getTimeDiscretization().getTime(timeIndex+1);
+		double maturity			= getLiborPeriodDiscretization().getTime(liborIndex);
 
-        CapletVolatilitiesParametric cap = new CapletVolatilitiesParametric("", null, a, b, c, d);
+		double volStart	= cap.getValue(maturity-timeStart, 0, QuotingConvention.VOLATILITYLOGNORMAL);
+		double volEnd	= cap.getValue(maturity-timeEnd, 0, QuotingConvention.VOLATILITYLOGNORMAL);
 
-        double volStart	= cap.getValue(maturity-timeStart, 0, QuotingConvention.VOLATILITYLOGNORMAL);
-        double volEnd	= cap.getValue(maturity-timeEnd, 0, QuotingConvention.VOLATILITYLOGNORMAL);
-        
-        return new RandomVariable(
-        		Math.sqrt(
-        				(
-        						volStart*volStart*(maturity-timeStart)
-        						-
-        						volEnd*volEnd*(maturity-timeEnd)
-        				)/(timeEnd-timeStart)
-        				));
-    }
+		double varianceInstantaneous = (
+				volStart*volStart*(maturity-timeStart)
+				-
+				volEnd*volEnd*(maturity-timeEnd)
+				)/(timeEnd-timeStart);
+
+		varianceInstantaneous = Math.max(varianceInstantaneous, 0.0);
+
+		return new RandomVariable(Math.sqrt(varianceInstantaneous));
+	}
 
 	@Override
 	public Object clone() {
