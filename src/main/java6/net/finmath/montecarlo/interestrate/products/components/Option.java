@@ -110,7 +110,7 @@ public class Option extends AbstractProductComponent {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 
-		// >=? -
+		// TODO >=? -
 		if(evaluationTime > exerciseDate) return new RandomVariable(0.0);
 
 		RandomVariableInterface values = underlying.getValue(exerciseDate, model);
