@@ -107,7 +107,7 @@ public class Period extends AbstractPeriod {
 		if(evaluationTime >= this.getPaymentDate()) return new RandomVariable(0.0);
 
 		// Get random variables
-		RandomVariableInterface	nationalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
+		RandomVariableInterface	notionalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
 		RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	numeraire				= model.getNumeraire(getPaymentDate());
 		// @TODO: Add support for weighted Monte-Carlo.
@@ -118,7 +118,7 @@ public class Period extends AbstractPeriod {
 		// Calculate numeraire relative value of coupon flows
 		if(couponFlow) {
 			values = getCoupon(model);
-			values = values.mult(nationalAtPeriodStart);
+			values = values.mult(notionalAtPeriodStart);
 			values = values.div(numeraire);
 			if(isExcludeAccruedInterest && evaluationTime >= getPeriodStart() && evaluationTime < getPeriodEnd()) {
 				double nonAccruedInterestRatio = (getPeriodEnd() - evaluationTime) / (getPeriodEnd() - getPeriodStart());
@@ -135,7 +135,7 @@ public class Period extends AbstractPeriod {
 
 			if(getPeriodStart() > evaluationTime) {
 				RandomVariableInterface	numeraireAtPeriodStart	= model.getNumeraire(getPeriodStart());
-				values = values.subRatio(nationalAtPeriodStart, numeraireAtPeriodStart);
+				values = values.subRatio(notionalAtPeriodStart, numeraireAtPeriodStart);
 			}
 
 			if(getPeriodEnd() > evaluationTime) {
