@@ -92,7 +92,8 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
 		}
 
 		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
-		double[] linearRegressionParameters = LinearAlgebra.solveLinearEquation(XTX, XTy);
+		// @TODO A performance improvement is possible here by caching the SVD decomposition of the basis functions
+		double[] linearRegressionParameters = LinearAlgebra.solveLinearEquationLeastSquare(XTX, XTy);
 
 		return linearRegressionParameters;
 	}

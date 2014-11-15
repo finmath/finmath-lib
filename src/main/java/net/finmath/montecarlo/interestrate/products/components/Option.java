@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * an AbstractLIBORMonteCarloProduct.
  * 
  * @author Christian Fries
- * @version 1.1
+ * @version 1.2
  */
 public class Option extends AbstractProductComponent {
 
@@ -120,8 +120,25 @@ public class Option extends AbstractProductComponent {
 		else						exerciseTrigger = values.sub(strikePrice).mult(isCall ? 1.0 : -1.0);
 		
 		if(exerciseTrigger.getFiltrationTime() > exerciseDate) {
+			RandomVariableInterface[] regressionBasisFunctions = getRegressionBasisFunctions(exerciseDate, model);
+
+			/*
+			 * Cut off two standard deviations from regression
+			 */
+			double exerciseTriggerMean		= exerciseTrigger.getAverage();
+			double exerciseTriggerStdDev	= exerciseTrigger.getStandardDeviation();
+			double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-2*exerciseTriggerStdDev;
+			double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+2*exerciseTriggerStdDev;
+			RandomVariableInterface filter = exerciseTrigger
+					.barrier(exerciseTrigger.sub(exerciseTriggerFloor), new RandomVariable(1.0), new RandomVariable(0.0))
+					.mult(exerciseTrigger.barrier(exerciseTrigger.sub(exerciseTriggerCap).mult(-1.0), new RandomVariable(1.0), new RandomVariable(0.0)));
+
+			// Filter exerciseTrigger and regressionBasisFunctions
+			exerciseTrigger = exerciseTrigger.mult(filter);
+			for(int i=0; i<regressionBasisFunctions.length; i++) regressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
+
 			// Remove foresight through conditional expectation
-			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
+			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctions);
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
 			exerciseTrigger         = condExpEstimator.getConditionalExpectation(exerciseTrigger);
