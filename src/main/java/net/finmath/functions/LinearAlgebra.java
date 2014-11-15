@@ -15,6 +15,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.CholeskyDecomposition;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.EigenDecomposition;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
@@ -30,7 +31,7 @@ import cern.colt.matrix.linalg.EigenvalueDecomposition;
  * to easily switch some parts to Apache commons math (this is the motivation for this class).
  * 
  * @author Christian Fries
- * @version 1.4
+ * @version 1.5
  */
 public class LinearAlgebra {
 	
@@ -82,7 +83,7 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationSymmetric(double[][] matrix, double[] vector) {
-		boolean  isUseApacheCommonsMath = false;
+		boolean  isUseApacheCommonsMath = true;
 		if(isUseApacheCommonsMath) {
 			// We use the linear algebra package apache commons math
 			DecompositionSolver solver = new CholeskyDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
@@ -91,6 +92,24 @@ public class LinearAlgebra {
 		else {
 			return solveLinearEquation(matrix, vector);
 		}
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b in the least square sense where
+	 * <ul>
+	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>b is an m - vector given as double[m],</li>
+	 * <li>x is an n - vector given as double[n],</li>
+	 * </ul>
+	 * 
+	 * @param A The matrix (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquationLeastSquare(double[][] matrix, double[] vector) {
+		// We use the linear algebra package apache commons math
+		DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
+		return solver.solve(new ArrayRealVector(vector)).toArray();
 	}
 
 	/**
