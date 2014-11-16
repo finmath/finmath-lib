@@ -19,7 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * Implementation of a general accrual account.
  * 
- * This class is an improved version of the {@link net.finmath.montecarlo.interestrate.product.MoneyMarketAccount} except that it
+ * This class is an improved version of the {@link net.finmath.montecarlo.interestrate.products.MoneyMarketAccount} except that it
  * allow the use of a general index for accrual and also supports past fixings.
  * 
  * @author Christian Fries
