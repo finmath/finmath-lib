@@ -209,7 +209,7 @@ public class RandomVariable implements RandomVariableInterface {
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;
 		}
-		return sum/realizations.length / probabilities.getAverage();
+		return sum / realizations.length / probabilities.getAverage();
 	}
 
 	/* (non-Javadoc)

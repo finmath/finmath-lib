@@ -102,8 +102,8 @@ public class LinearAlgebra {
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
 	 * 
-	 * @param A The matrix (left hand side of the linear equation).
-	 * @param b The vector (right hand of the linear equation).
+	 * @param matrix The matrix A (left hand side of the linear equation).
+	 * @param vector The vector b (right hand of the linear equation).
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationLeastSquare(double[][] matrix, double[] vector) {
