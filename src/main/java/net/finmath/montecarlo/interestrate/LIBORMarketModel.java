@@ -600,8 +600,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
 		if(discountCurve != null) {
-			DiscountCurveInterface discountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);
-			double deterministicNumeraireAdjustment = discountCurveFromForwardPerformance.getDiscountFactor(time) / discountCurve.getDiscountFactor(time);
+			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
 		return numeraire;

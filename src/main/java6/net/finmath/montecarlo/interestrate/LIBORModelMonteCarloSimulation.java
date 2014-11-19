@@ -137,7 +137,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 			// Analytic adjustment for the interpolation
 			// @TODO reference to AnalyticModel must not be null
-			/*
 			double analyticLibor				= model.getForwardRateCurve().getForward(null, periodStart, periodEnd-periodStart);
 			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(null, periodStart, nextEndTime-periodStart);
 			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(null, previousEndTime, nextEndTime-previousEndTime);
@@ -151,8 +150,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 							) / (periodEnd-periodStart)
 					);
 			return libor.mult(adjustment);
-			*/
-			return libor;
 		}
 
 		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate start date
@@ -170,7 +167,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 			// Analytic adjustment for the interpolation
 			// @TODO reference to AnalyticModel must not be null
-			/*
 			double analyticLibor				= model.getForwardRateCurve().getForward(null, periodStart, periodEnd-periodStart);
 			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(null, previousStartTime, periodEnd-previousStartTime);
 			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(null, previousStartTime, nextStartTime-previousStartTime);
@@ -184,8 +180,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 							) / (periodEnd-periodStart)
 					);
 			return libor.mult(adjustment);
-			*/
-			return libor;
 		}
 
 		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
