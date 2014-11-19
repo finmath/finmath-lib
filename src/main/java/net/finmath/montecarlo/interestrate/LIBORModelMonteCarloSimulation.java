@@ -151,7 +151,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 					);
 			return libor.mult(adjustment);
 		}
-		
+
 		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate start date
 		if(periodStartIndex < 0) {
 			int		previousStartIndex	= (-periodStartIndex-1)-1;
@@ -181,7 +181,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 					);
 			return libor.mult(adjustment);
 		}
-		
+
 		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
 
 		// If time is beyond fixing, use the fixing time.
