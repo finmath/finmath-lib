@@ -53,7 +53,8 @@ public class AccruedInterest extends AbstractIndex {
 	 * @param periodStartDate The period start date.
 	 * @param periodEndDate The period end date.
 	 * @param index The index.
-	 * @param daycountConvention The daycount convention.
+	 * @param indexFixingTime The fixing time \( t_{0} \) of the index.
+	 * @param daycountConvention The day count convention.
 	 * @param isNegativeAccruedInterest If true, the class represents the coupon payment minus the accrued interest, i.e., \( I(t_{0}) \cdot \frac{\max(\text{dcf}(T_{start},t),0)}{\text{dcf}(T_{start},T_{end})} \).
 	 */
 	public AccruedInterest(String name,
