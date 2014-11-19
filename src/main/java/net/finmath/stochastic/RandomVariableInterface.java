@@ -16,7 +16,13 @@ import net.finmath.functions.DoubleTernaryOperator;
 
 
 /**
- * IMPORTANT: As of version 1.3 / revision 487 the design of RandomVariable, RandomVariableInterface has changed:
+ * This interface describes the methods implemented by an immutable random variable, i.e.
+ * methods that leave a random variable unchanged (immutable).
+ * This is used to ensure that arguments or return values are not changed.
+ * 
+ * For C++ guys: In C++ you could achieve this by making a return value const.
+ *
+ * <b>IMPORTANT:</b> As of version 1.3 / revision 487 the design of RandomVariable, RandomVariableInterface has changed:
  * All method of RandomVariable are now immutable and the interface ImmutableRandomVariableInterface has been renamed
  * to RandomVariableInterface. Your code remains compatible if you perform the following changes:
  * <ul>
@@ -27,12 +33,6 @@ import net.finmath.functions.DoubleTernaryOperator;
  * The change has some performance impact, however, the original performance may be achieved again
  * via the use of Java 8 lambdas and the concept of the <code>RandomVariableAccumulatorInterface</code>.
  * <br>
- * 
- * This interface describes the methods implemented by an immuatable random variable, i.e.
- * methods that leave a random variable unchanged (immutable).
- * This is used to ensure that arguments or return values are not changed.
- * 
- * For C++ guys: In C++ you could achieve this by making a return value const.
  *
  * @author Christian Fries
  * @version 1.4
