@@ -116,7 +116,7 @@ public class ProductCollection extends AbstractProductComponent {
 		}
 
 		// Collect results
-		RandomVariableInterface values = new RandomVariable(0.0);
+		RandomVariableInterface values = model.getRandomVariableForConstant(0.0);
 		try {
 			for(Future<RandomVariableInterface> valueFuture : results) {
 				values = values.add(valueFuture.get());

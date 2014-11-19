@@ -113,8 +113,8 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 		}
 
 		// Calculate float leg value (single curve/classical) and annuity.
-		RandomVariableInterface forwardBondInverse           = new RandomVariable(0.0,                                   1.0);
-		RandomVariableInterface forwardAnnuityInverse        = new RandomVariable(0.0, periodLengths[periodLengths.length-1]);
+		RandomVariableInterface forwardBondInverse           = model.getRandomVariableForConstant(1.0);
+		RandomVariableInterface forwardAnnuityInverse        = model.getRandomVariableForConstant(periodLengths[periodLengths.length-1]);
 		for(int periodIndex = periodLengths.length-1; periodIndex>= 1; periodIndex--) {
 			RandomVariableInterface forwardBondOnePeriodInverse  = (forwardRates[periodIndex]).mult(periodLengths[periodIndex]).add(1.0);
 			forwardBondInverse		= forwardBondInverse.mult(forwardBondOnePeriodInverse);
