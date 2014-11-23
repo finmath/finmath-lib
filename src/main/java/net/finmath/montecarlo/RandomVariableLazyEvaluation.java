@@ -935,4 +935,16 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
     public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
         return apply((x,y) -> x - y, (x, y) -> x / y, numerator, denominator);
     }
+
+    @Override
+	public RandomVariableInterface isNaN() {
+		if(isDeterministic()) {
+			return new RandomVariableLazyEvaluation(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
+		}
+		else {
+			double[] newRealizations = new double[size()];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;
+			return new RandomVariableLazyEvaluation(time, newRealizations);
+		}
+	}
 }
