@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.conditionalexpectation;
 
+import java.util.Arrays;
+
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -80,15 +82,15 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
 		double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
 			for(int j=i; j<basisFunctions.length; j++) {
-				XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();		// Scalar product
-				XTX[j][i] = XTX[i][j];													// Symmetric matrix
+				XTX[i][j] = basisFunctions[i].getAverage(basisFunctions[j]);	// Scalar product
+				XTX[j][i] = XTX[i][j];											// Symmetric matrix
 			}
 		}
 
 		// Build XTy - the projection of the dependents random variable on the basis functions.
 		double[] XTy = new double[basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
-			XTy[i] = dependents.mult(basisFunctions[i]).getAverage();					// Scalar product
+			XTy[i] = dependents.getAverage(basisFunctions[i]);					// Scalar product
 		}
 
 		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
