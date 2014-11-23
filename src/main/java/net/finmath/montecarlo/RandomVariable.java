@@ -806,4 +806,28 @@ public class RandomVariable implements RandomVariableInterface {
 	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
 		return apply((x,y) -> x - y, (x, y) -> x / y, numerator, denominator);
 	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#isNaN()
+	 */
+	@Override
+	public RandomVariableInterface isNaN() {
+		if(isDeterministic()) {
+			return new RandomVariable(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
+		}
+		else {
+			double[] newRealizations = new double[size()];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;
+			return new RandomVariable(time, newRealizations);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString()
+				+ "\n" + "time: " + time
+				+ "\n" + "realizations: " + Arrays.toString(realizations);
+	}
 }
