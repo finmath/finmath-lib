@@ -87,6 +87,10 @@ public class RandomVariable implements RandomVariableInterface {
 
 	/**
 	 * Create a stochastic random variable.
+	 * 
+	 * Important: The realizations array is not cloned (not defensive copy is made).
+	 * 
+	 * @TODO A future version should perform a defensive copy.
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
@@ -209,7 +213,7 @@ public class RandomVariable implements RandomVariableInterface {
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;
 		}
-		return sum / realizations.length / probabilities.getAverage();
+		return sum / realizations.length;
 	}
 
 	/* (non-Javadoc)
@@ -260,7 +264,7 @@ public class RandomVariable implements RandomVariableInterface {
 			errorOfSumSquared		= (newSumOfSquared-sumOfSquared) - valueSquared;
 			sumOfSquared			= newSumOfSquared;
 		}
-		return (sumOfSquared - sum*sum)/realizations.length/probabilities.getAverage();
+		return (sumOfSquared - sum*sum)/realizations.length;
 	}
 
 	/* (non-Javadoc)
@@ -810,7 +814,7 @@ public class RandomVariable implements RandomVariableInterface {
 			double newValueIfNonStochastic = FastMath.min(valueIfNonStochastic, randomVariable.get(0));
 			return new RandomVariable(newTime, newValueIfNonStochastic);
 		}
-		else if(isDeterministic()) return ((RandomVariable)randomVariable).cap(this);
+		else if(isDeterministic()) return randomVariable.cap(this);
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.min(realizations[i], randomVariable.get(i));
@@ -829,7 +833,7 @@ public class RandomVariable implements RandomVariableInterface {
 			double newValueIfNonStochastic = FastMath.max(valueIfNonStochastic, randomVariable.get(0));
 			return new RandomVariable(newTime, newValueIfNonStochastic);
 		}
-		else if(isDeterministic()) return ((RandomVariable)randomVariable).floor(this);
+		else if(isDeterministic()) return randomVariable.floor(this);
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.max(realizations[i], randomVariable.get(i));
@@ -1052,6 +1056,21 @@ public class RandomVariable implements RandomVariableInterface {
 			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
 			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = get(i) - numerator.get(i) / denominator.get(i);
 			return new RandomVariable(newTime, newRealizations);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#isNaN()
+	 */
+	@Override
+	public RandomVariableInterface isNaN() {
+		if(isDeterministic()) {
+			return new RandomVariable(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
+		}
+		else {
+			double[] newRealizations = new double[size()];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;
+			return new RandomVariable(time, newRealizations);
 		}
 	}
 

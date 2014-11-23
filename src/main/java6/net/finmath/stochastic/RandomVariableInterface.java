@@ -292,6 +292,8 @@ public interface RandomVariableInterface {
 
     /**
      * Applies x &rarr; max(x,floor) to this random variable.
+     * It returns a new random variable with the result.
+     *
      * @param floor The floor.
      * @return New random variable with the result of the function.
      */
@@ -299,6 +301,8 @@ public interface RandomVariableInterface {
 
     /**
      * Applies x &rarr; x + value to this random variable.
+     * It returns a new random variable with the result.
+     *
      * @param value The value to add.
      * @return New random variable with the result of the function.
      */
@@ -492,4 +496,11 @@ public interface RandomVariableInterface {
 
      */
     RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator);
+
+	/**
+	 * Applies x &rarr; (Double.isNaN(x) ? 1.0 : 0.0)
+	 * 
+	 * @return A random variable which is 1.0 for all states that are NaN.
+	 */
+	RandomVariableInterface isNaN();
 }

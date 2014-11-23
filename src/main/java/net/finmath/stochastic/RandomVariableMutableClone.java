@@ -447,7 +447,16 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 		return ensureMutable().subRatio(numerator, denominator);
     }
 
-    @Override
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#isNaN()
+	 */
+	@Override
+	public RandomVariableInterface isNaN() {
+		// TODO Auto-generated method stub
+		return ensureMutable().isNaN();
+	}
+
+	@Override
     public RandomVariableInterface cache() {
         return this;
     }
