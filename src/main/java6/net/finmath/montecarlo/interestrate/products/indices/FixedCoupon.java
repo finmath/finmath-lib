@@ -28,7 +28,7 @@ public class FixedCoupon extends AbstractIndex {
 	 */
 	public FixedCoupon(double coupon) {
 		super();
-		this.coupon = new RandomVariable(0.0,coupon);
+		this.coupon = new RandomVariable(coupon);
 	}
 
 	@Override
