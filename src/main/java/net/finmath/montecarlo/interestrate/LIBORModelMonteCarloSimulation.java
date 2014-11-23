@@ -137,19 +137,13 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 			// Analytic adjustment for the interpolation
 			// @TODO reference to AnalyticModel must not be null
-			double analyticLibor				= model.getForwardRateCurve().getForward(null, periodStart, periodEnd-periodStart);
-			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(null, periodStart, nextEndTime-periodStart);
-			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(null, previousEndTime, nextEndTime-previousEndTime);
-			double adjustment = analyticLibor / (
-					(
-							(analyticLiborLongPeriod * (nextEndTime-periodStart) + 1.0) 
-							/
-							Math.exp(Math.log(
-									(analyticLiborShortPeriod * (nextEndTime-previousEndTime) + 1.0)
-									) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime)) - 1.0
-							) / (periodEnd-periodStart)
-					);
-			return libor.mult(adjustment);
+			double analyticLibor				= model.getForwardRateCurve().getForward(model.getAnalyticModel(), periodStart, periodEnd-periodStart);
+			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(model.getAnalyticModel(), periodStart, nextEndTime-periodStart);
+			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
+			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborLongPeriod * (nextEndTime-periodStart)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime));
+			double analyticOnePlusLiborDt					= (1 + analyticLibor * (periodEnd-periodStart));
+			double adjustment = analyticOnePlusLiborDt / analyticInterpolatedOnePlusLiborDt;
+			return libor.mult(periodEnd-periodStart).add(1.0).mult(adjustment).sub(1.0).div(periodEnd-periodStart);
 		}
 
 		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate start date
@@ -167,19 +161,13 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 			// Analytic adjustment for the interpolation
 			// @TODO reference to AnalyticModel must not be null
-			double analyticLibor				= model.getForwardRateCurve().getForward(null, periodStart, periodEnd-periodStart);
-			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(null, previousStartTime, periodEnd-previousStartTime);
-			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(null, previousStartTime, nextStartTime-previousStartTime);
-			double adjustment = analyticLibor / (
-					(
-							(analyticLiborLongPeriod * (periodEnd-previousStartTime) + 1.0) 
-							/
-							Math.exp(Math.log(
-									(analyticLiborShortPeriod * (nextStartTime-previousStartTime) + 1.0)
-									) * (periodStart-previousStartTime)/(nextStartTime-previousStartTime)) - 1.0
-							) / (periodEnd-periodStart)
-					);
-			return libor.mult(adjustment);
+			double analyticLibor				= model.getForwardRateCurve().getForward(model.getAnalyticModel(), periodStart, periodEnd-periodStart);
+			double analyticLiborLongPeriod		= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousStartTime, periodEnd-previousStartTime);
+			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousStartTime, nextStartTime-previousStartTime);
+			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborLongPeriod * (periodEnd-previousStartTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) * (periodStart-previousStartTime)/(nextStartTime-previousStartTime));
+			double analyticOnePlusLiborDt					= (1 + analyticLibor * (periodEnd-periodStart));
+			double adjustment = analyticOnePlusLiborDt / analyticInterpolatedOnePlusLiborDt;
+			return libor.mult(periodEnd-periodStart).add(1.0).mult(adjustment).sub(1.0).div(periodEnd-periodStart);
 		}
 
 		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
