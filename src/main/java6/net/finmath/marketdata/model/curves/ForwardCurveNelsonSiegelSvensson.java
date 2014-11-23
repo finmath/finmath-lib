@@ -69,7 +69,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		if(daycountConvention != null) {
 			Calendar fixingDate		= getDateFromModelTime(fixingTime);
 			Calendar paymentDate	= getDateFromModelTime(fixingTime + paymentOffset);;
-			daycountFraction = daycountConvention.getDaycountFraction(fixingDate, paymentDate);
+			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
 		}
 
 		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / daycountFraction;
