@@ -138,7 +138,6 @@ public class Solver {
 			public void setValues(double[] parameters, double[] values) throws SolverException {
 				try {
 					if(parameterTransformation != null) parameters = parameterTransformation.getParameter(parameters);
-					System.out.println(Arrays.toString(parameters));
 
 					Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(parameters);
 					AnalyticModelInterface modelClone = model.getCloneForParameter(curvesParameterPairs);
