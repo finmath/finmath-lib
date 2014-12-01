@@ -611,7 +611,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		double[] liborInitialStates = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			double rate = forwardRateCurve.getForward(null, liborPeriodDiscretization.getTime(timeIndex));
-			liborInitialStates[timeIndex] = (stateSpace == StateSpace.LOGNORMAL) ? Math.log(rate) : rate;
+			liborInitialStates[timeIndex] = (stateSpace == StateSpace.LOGNORMAL) ? Math.log(Math.max(rate,0)) : rate;
 		}
 
 		RandomVariableInterface[] initialStateRandomVariable = new RandomVariableInterface[getNumberOfComponents()];
