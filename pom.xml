@@ -11,7 +11,11 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
+<<<<<<< HEAD
 	<version>1.2.46-SNAPSHOT</version>
+=======
+	<version>1.2.45-SNAPSHOT</version>
+>>>>>>> 21f43aa08dc41612f107705ab84aa0c27b46c3a6
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>

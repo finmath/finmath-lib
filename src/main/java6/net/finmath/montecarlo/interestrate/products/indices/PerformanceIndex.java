@@ -24,6 +24,7 @@ public class PerformanceIndex extends AbstractIndex {
 	private AbstractProductComponent numeratorIndex;
 	private AbstractProductComponent denominatorIndex;
 
+<<<<<<< HEAD
 	/**
 	 * Create a performance index being numeratorIndex(t) / denominatorIndex(t)
 	 * 
@@ -31,15 +32,31 @@ public class PerformanceIndex extends AbstractIndex {
 	 * @param denominatorIndex Second index.
 	 */
 	public PerformanceIndex(AbstractProductComponent numeratorIndex, AbstractProductComponent denominatorIndex) {
+=======
+    /**
+     * Create a performance index being numeratorIndex(t) / denominatorIndex(t)
+     * 
+     * @param numeratorIndex First index.
+     * @param denominatorIndex Second index.
+     */
+    public PerformanceIndex(AbstractProductComponent numeratorIndex, AbstractProductComponent denominatorIndex) {
+>>>>>>> 21f43aa08dc41612f107705ab84aa0c27b46c3a6
 		super();
 		this.numeratorIndex		= numeratorIndex;
 		this.denominatorIndex	= denominatorIndex;
 	}
 
+<<<<<<< HEAD
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		return numeratorIndex.getValue(evaluationTime, model).div(denominatorIndex.getValue(evaluationTime, model));
 	}
+=======
+    @Override
+    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+    	return numeratorIndex.getValue(evaluationTime, model).div(denominatorIndex.getValue(evaluationTime, model));
+    }
+>>>>>>> 21f43aa08dc41612f107705ab84aa0c27b46c3a6
 
 	/**
 	 * Returns the numerator index.

@@ -6,6 +6,10 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
+<<<<<<< HEAD
+=======
+import net.finmath.montecarlo.RandomVariable;
+>>>>>>> 21f43aa08dc41612f107705ab84aa0c27b46c3a6
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
