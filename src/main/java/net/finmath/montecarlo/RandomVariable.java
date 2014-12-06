@@ -822,12 +822,11 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "time: " + time
-				+ "\n" + "realizations: " + Arrays.toString(realizations);
+				+ "\n" + "realizations: " +
+				(isDeterministic() ? valueIfNonStochastic : Arrays.toString(realizations));
 	}
 }
