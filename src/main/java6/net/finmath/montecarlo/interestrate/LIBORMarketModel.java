@@ -118,7 +118,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * {@link net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric#getCloneCalibrated(LIBORMarketModelInterface, AbstractLIBORMonteCarloProduct[], double[], double[], Map)}.
  * 
  * @author Christian Fries
- * @version 1.1
+ * @version 1.2
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel The abstract covariance model plug ins.
@@ -638,38 +638,49 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		int		firstLiborIndex		= this.getLiborPeriodIndex(time)+1;
 		if(firstLiborIndex<0) firstLiborIndex = -firstLiborIndex-1 + 1;
 
+		RandomVariableInterface		zero	= getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		
 		// Allocate drift vector and initialize to zero (will be used to sum up drift components)
 		RandomVariableInterface[]	drift = new RandomVariableInterface[getNumberOfComponents()];
-		RandomVariableInterface[][]	covarianceFactorSums	= new RandomVariableInterface[getNumberOfComponents()][getNumberOfFactors()];
 		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-			drift[componentIndex] = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+			drift[componentIndex] = zero;
 		}
 
-		// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
-		for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-			double						periodLength		= liborPeriodDiscretization.getTimeStep(componentIndex);
-			RandomVariableInterface libor = realizationAtTimeIndex[componentIndex];
-			RandomVariableInterface oneStepMeasureTransform = (getProcess().getBrownianMotion().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
-
-			if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
-
-			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
-			RandomVariableInterface[]   covarianceFactors   = new RandomVariableInterface[getNumberOfFactors()];
-			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-				covarianceFactors[factorIndex] = oneStepMeasureTransform.mult(factorLoading[factorIndex]);
-				covarianceFactorSums[componentIndex][factorIndex] = covarianceFactors[factorIndex];
-				if(componentIndex > firstLiborIndex)
-					covarianceFactorSums[componentIndex][factorIndex] = covarianceFactorSums[componentIndex][factorIndex].add(covarianceFactorSums[componentIndex-1][factorIndex]);
-			}
-			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
-				drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[componentIndex][factorIndex], factorLoading[factorIndex]);
-			}
+		RandomVariableInterface[]	covarianceFactorSums	= new RandomVariableInterface[getNumberOfFactors()];
+		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
+			covarianceFactorSums[factorIndex] = zero;
 		}
-
-		// Above is the drift for the spot measure: a simple conversion makes it the drift of the terminal measure.
-		if(measure == Measure.TERMINAL) {
+		
+		if(measure == Measure.SPOT) {
+			// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
 			for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-				drift[componentIndex] = drift[componentIndex].sub(drift[getNumberOfComponents()-1]);
+				double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
+				RandomVariableInterface		libor			= realizationAtTimeIndex[componentIndex];
+				RandomVariableInterface		oneStepMeasureTransform = (getProcess().getBrownianMotion().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
+
+				if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+
+				RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+				for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
+					covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].add(oneStepMeasureTransform.mult(factorLoading[factorIndex]));
+					drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[factorIndex], factorLoading[factorIndex]);
+				}
+			}
+		}
+		else if(measure == Measure.TERMINAL) {
+			// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
+			for(int componentIndex=getNumberOfComponents()-1; componentIndex>=firstLiborIndex; componentIndex--) {
+				double					periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
+				RandomVariableInterface libor			= realizationAtTimeIndex[componentIndex];
+				RandomVariableInterface oneStepMeasureTransform = (getProcess().getBrownianMotion().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
+
+				if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+
+				RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+				for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
+					drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[factorIndex], factorLoading[factorIndex]);
+					covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].sub(oneStepMeasureTransform.mult(factorLoading[factorIndex]));
+				}
 			}
 		}
 
