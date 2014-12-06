@@ -298,9 +298,9 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
         return randomVariable.getRealizationsStream();
     }
 
-    /* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
-     */
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
+	 */
 	@Override
 	public double getStandardDeviation() {
 		return randomVariable.getStandardDeviation();

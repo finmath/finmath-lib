@@ -30,28 +30,28 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public Swap(
-		double[] fixingDates,
-		double[] paymentDates,
-		double[] swaprates) {
+			double[] fixingDates,
+			double[] paymentDates,
+			double[] swaprates) {
 		super();
 		this.fixingDates = fixingDates;
 		this.paymentDates = paymentDates;
 		this.swaprates = swaprates;
 	}
 	
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-        RandomVariableInterface values						= model.getRandomVariableForConstant(0.0);
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariableInterface values						= model.getRandomVariableForConstant(0.0);
 
 		for(int period=0; period<fixingDates.length; period++)
 		{
@@ -77,12 +77,10 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 		RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
-        return values;
+		return values;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "fixingDates: " + Arrays.toString(fixingDates)
