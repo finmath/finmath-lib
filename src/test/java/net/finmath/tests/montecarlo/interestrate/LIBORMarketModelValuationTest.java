@@ -9,7 +9,9 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -39,13 +42,25 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * This class tests the LIBOR market model and products.
  * 
  * @author Christian Fries
  */
+@RunWith(Parameterized.class)
 public class LIBORMarketModelValuationTest {
+
+	@Parameters
+	public static Collection<Object[]> generateData()
+	{
+		return Arrays.asList(new Object[][] {
+				{ Measure.SPOT }, { Measure.TERMINAL }
+		});
+	};
 
 	private final int numberOfPaths		= 100000;
 	private final int numberOfFactors	= 6;
@@ -56,14 +71,14 @@ public class LIBORMarketModelValuationTest {
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	public LIBORMarketModelValuationTest() throws CalculationException {
+	public LIBORMarketModelValuationTest(Measure measure) throws CalculationException {
 
 		// Create a libor market model
-		liborMarketModel = createLIBORMarketModel(numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
+		liborMarketModel = createLIBORMarketModel(measure, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
-			int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			Measure measure, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -133,7 +148,7 @@ public class LIBORMarketModelValuationTest {
 		Map<String, String> properties = new HashMap<String, String>();
 
 		// Choose the simulation measure
-		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
+		properties.put("measure", measure.name());
 		
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
@@ -145,7 +160,7 @@ public class LIBORMarketModelValuationTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
-					liborPeriodDiscretization, forwardCurve, null, covarianceModel, calibrationItems, properties);
+				liborPeriodDiscretization, forwardCurve, null, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
@@ -198,7 +213,7 @@ public class LIBORMarketModelValuationTest {
 		System.out.println("__________________________________________________________________________________________\n");
 
 		// jUnit assertion: condition under which we consider this test successful
-		Assert.assertTrue(maxAbsDeviation < 5E-03);
+		Assert.assertTrue(maxAbsDeviation < 8E-03);
 	}
 
 	@Test
@@ -214,14 +229,13 @@ public class LIBORMarketModelValuationTest {
 
 			double startDate = liborMarketModel.getLiborPeriod(maturityIndex);
 
-
-			int numberOfPeriods = 5;
+			int numberOfPeriods = 10;
 
 			// Create a swap
 			double[]	fixingDates			= new double[numberOfPeriods];
 			double[]	paymentDates		= new double[numberOfPeriods];
 			double[]	swapTenor			= new double[numberOfPeriods + 1];
-			double		swapPeriodLength	= 1.0;
+			double		swapPeriodLength	= 0.5;
 
 			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
 				fixingDates[periodStartIndex]	= startDate + periodStartIndex * swapPeriodLength;
@@ -258,7 +272,7 @@ public class LIBORMarketModelValuationTest {
 		 * jUnit assertion: condition under which we consider this test successful
 		 * The swap should be at par (close to zero)
 		 */
-		Assert.assertTrue(maxAbsDeviation < 5E-3);
+		Assert.assertTrue(maxAbsDeviation < 6E-3);
 	}
 
 	@Test
@@ -343,7 +357,7 @@ public class LIBORMarketModelValuationTest {
 			swapTenor[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
 
 			// Swaptions swap rate
-			double swaprate = 0.05;// getParSwaprate(liborMarketModel, swapTenor);
+			double swaprate = getParSwaprate(liborMarketModel, swapTenor);
 
 			// Set swap rates for each period
 			double[] swaprates = new double[numberOfPeriods];
@@ -368,12 +382,13 @@ public class LIBORMarketModelValuationTest {
 			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation));
 		}
 
+		System.out.println("Maximum abs deviation: " + formatterDeviation.format(maxAbsDeviation));
 		System.out.println("__________________________________________________________________________________________\n");
 
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 5E-3);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 8E-3);
 	}
 
 	@Test
@@ -556,69 +571,10 @@ public class LIBORMarketModelValuationTest {
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
-		double swapStart = swapTenor[0];
-		double swapEnd = swapTenor[swapTenor.length - 1];
-
-		int swapStartIndex = liborMarketModel.getLiborPeriodIndex(swapStart);
-		int swapEndIndex = liborMarketModel.getLiborPeriodIndex(swapEnd);
-
-		// Calculate discount factors from model
-		double[] discountFactors = new double[swapEndIndex + 1];
-		discountFactors[0] = 1.0;
-		for (int periodIndex = 0; periodIndex < swapEndIndex; periodIndex++) {
-			double libor = liborMarketModel.getLIBOR(0, periodIndex).get(0);
-			double periodLength = liborMarketModel
-					.getLiborPeriod(periodIndex + 1)
-					- liborMarketModel.getLiborPeriod(periodIndex);
-			discountFactors[periodIndex + 1] = discountFactors[periodIndex]
-					/ (1.0 + libor * periodLength);
-
-		}
-
-		// Calculate swap annuity from discount factors
-		double swapAnnuity = 0.0;
-		for (int swapPeriodIndex = 0; swapPeriodIndex < swapTenor.length - 1; swapPeriodIndex++) {
-			int periodEndIndex = liborMarketModel
-					.getLiborPeriodIndex(swapTenor[swapPeriodIndex + 1]);
-			swapAnnuity += discountFactors[periodEndIndex]
-					* (swapTenor[swapPeriodIndex + 1] - swapTenor[swapPeriodIndex]);
-		}
-
-		// Calculate swaprate
-		double swaprate = (discountFactors[swapStartIndex] - discountFactors[swapEndIndex])
-				/ swapAnnuity;
-
-		return swaprate;
+		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
 	}
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
-		double swapEnd		= swapTenor[swapTenor.length - 1];
-
-		int swapEndIndex	= liborMarketModel.getLiborPeriodIndex(swapEnd);
-
-		// Calculate discount factors from model
-		double[] discountFactors = new double[swapEndIndex + 1];
-		discountFactors[0] = 1.0;
-		for (int periodIndex = 0; periodIndex < swapEndIndex; periodIndex++) {
-			double libor = liborMarketModel.getLIBOR(0, periodIndex).get(0);
-			double periodLength = liborMarketModel
-					.getLiborPeriod(periodIndex + 1)
-					- liborMarketModel.getLiborPeriod(periodIndex);
-			discountFactors[periodIndex + 1] = discountFactors[periodIndex]
-					/ (1.0 + libor * periodLength);
-
-		}
-
-		// Calculate swap annuity from discount factors
-		double swapAnnuity = 0.0;
-		for (int swapPeriodIndex = 0; swapPeriodIndex < swapTenor.length - 1; swapPeriodIndex++) {
-			int periodEndIndex = liborMarketModel
-					.getLiborPeriodIndex(swapTenor[swapPeriodIndex + 1]);
-			swapAnnuity += discountFactors[periodEndIndex]
-					* (swapTenor[swapPeriodIndex + 1] - swapTenor[swapPeriodIndex]);
-		}
-
-		return swapAnnuity;
+		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
 	}
-	
 }

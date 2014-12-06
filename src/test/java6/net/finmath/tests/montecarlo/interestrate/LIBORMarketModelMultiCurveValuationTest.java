@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -21,6 +22,7 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -42,13 +44,25 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * This class tests the LIBOR market model and products.
  * 
  * @author Christian Fries
  */
+@RunWith(Parameterized.class)
 public class LIBORMarketModelMultiCurveValuationTest {
+
+	@Parameters
+	public static Collection<Object[]> generateData()
+	{
+		return Arrays.asList(new Object[][] {
+				{ Measure.SPOT }, { Measure.TERMINAL }
+		});
+	};
 
 	private final int numberOfPaths		= 100000;
 	private final int numberOfFactors	= 6;
@@ -59,14 +73,14 @@ public class LIBORMarketModelMultiCurveValuationTest {
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	public LIBORMarketModelMultiCurveValuationTest() throws CalculationException {
+	public LIBORMarketModelMultiCurveValuationTest(Measure measure) throws CalculationException {
 
 		// Create a libor market model
-		liborMarketModel = createLIBORMarketModel(numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
+		liborMarketModel = createLIBORMarketModel(measure, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
-			int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			Measure measure, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -144,7 +158,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		Map<String, String> properties = new HashMap<String, String>();
 
 		// Choose the simulation measure
-		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
+		properties.put("measure", measure.name());
 		
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
@@ -156,7 +170,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
-					liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
+				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
@@ -382,12 +396,13 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation2));
 		}
 
+		System.out.println("Maximum abs deviation: " + formatterDeviation.format(maxAbsDeviation));
 		System.out.println("__________________________________________________________________________________________\n");
 
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 5E-3);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 8E-3);
 	}
 
 	@Test
@@ -570,7 +585,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
-        return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
+		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
 	}
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
