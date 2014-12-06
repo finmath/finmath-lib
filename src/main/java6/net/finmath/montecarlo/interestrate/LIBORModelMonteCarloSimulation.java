@@ -17,12 +17,12 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements convenient methods for a libor market model,
+ * Implements convenient methods for a LIBOR market model,
  * based on a given <code>LIBORMarketModel</code> model
  * and <code>AbstractLogNormalProcess</code> process.
  * 
  * @author Christian Fries
- * @version 0.6
+ * @version 0.7
  */
 public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimulationInterface {
 
@@ -200,45 +200,31 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return libor;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLiborPeriod(int)
-	 */
 	@Override
 	public double getLiborPeriod(int timeIndex) {
 		return model.getLiborPeriod(timeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLiborPeriodDiscretization()
-	 */
+	@Override
 	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
 		return model.getLiborPeriodDiscretization();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getLiborPeriodIndex(double)
-	 */
+	@Override
 	public int getLiborPeriodIndex(double time) {
 		return model.getLiborPeriodIndex(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfComponents()
-	 */
 	public int getNumberOfComponents() {
 		return model.getNumberOfComponents();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getNumberOfLibors()
-	 */
+	@Override
 	public int getNumberOfLibors() {
 		return model.getNumberOfLibors();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getNumeraire(double)
-	 */
+	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
