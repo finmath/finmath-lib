@@ -302,7 +302,7 @@ public abstract class LogNormalProcess {
 					RandomVariableInterface diffusionOfComponent		= diffusion[componentIndex];
 
 					// Get reference to newRealization (note, we force mutability of an immutable object, but we know what we are doing)
-					double[] newRealizationValues = ((RandomVariableInterface)(discreteProcess[timeIndex][componentIndex])).getRealizations(numberOfPaths);
+					double[] newRealizationValues = ((RandomVariable)(discreteProcess[timeIndex][componentIndex])).getRealizations(numberOfPaths);
 
 					// Euler Scheme with corrected drift
 					RandomVariableInterface previouseRealization 	= discreteProcess[timeIndex-1][componentIndex];

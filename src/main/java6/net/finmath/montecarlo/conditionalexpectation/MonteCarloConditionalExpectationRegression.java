@@ -5,8 +5,6 @@
  */
 package net.finmath.montecarlo.conditionalexpectation;
 
-import java.util.Arrays;
-
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.stochastic.RandomVariableInterface;
 

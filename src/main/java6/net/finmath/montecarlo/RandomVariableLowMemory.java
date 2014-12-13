@@ -9,7 +9,6 @@ import java.util.Arrays;
 
 import net.finmath.stochastic.RandomVariableInterface;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 
 /**

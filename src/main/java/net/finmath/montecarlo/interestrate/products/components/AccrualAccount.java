@@ -9,9 +9,7 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.products.MoneyMarketAccount;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.AnalyticModelIndex;
 import net.finmath.stochastic.RandomVariableInterface;
