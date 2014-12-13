@@ -550,7 +550,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			if(lowerIndex < 0) throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
 
 			double alpha = (time-getLiborPeriod(lowerIndex)) / (getLiborPeriod(upperIndex) - getLiborPeriod(lowerIndex));
-			return getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
+			RandomVariableInterface numeriare = getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
+			
+			double deterministicNumeraireAdjustment = (1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), time-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)))/(1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), getLiborPeriod(upperIndex)-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)));
+			return numeriare.mult(deterministicNumeraireAdjustment);
 		}
 
 		// Calculate the numeraire, when time is part of liborPeriodDiscretization
@@ -599,8 +602,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
-		if(discountCurve != null) {
-			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(time);
+		if(discountCurve != null) {			
+			// This includes a control for zero bonds
+			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
 		return numeraire;
@@ -610,7 +614,8 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	public RandomVariableInterface[] getInitialState() {
 		double[] liborInitialStates = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double rate = forwardRateCurve.getForward(null, liborPeriodDiscretization.getTime(timeIndex));
+//			double rate = forwardRateCurve.getForward(curveModel, liborPeriodDiscretization.getTime(timeIndex), liborPeriodDiscretization.getTimeStep(timeIndex));
+			double rate = forwardRateCurve.getForward(curveModel, liborPeriodDiscretization.getTime(timeIndex));
 			liborInitialStates[timeIndex] = (stateSpace == StateSpace.LOGNORMAL) ? Math.log(Math.max(rate,0)) : rate;
 		}
 
