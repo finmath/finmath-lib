@@ -131,8 +131,8 @@ public class Option extends AbstractProductComponent {
 			 */
 			double exerciseTriggerMean		= exerciseTriggerFiltered.getAverage();
 			double exerciseTriggerStdDev	= exerciseTriggerFiltered.getStandardDeviation();
-			double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-2.0*exerciseTriggerStdDev;
-			double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+2.0*exerciseTriggerStdDev;
+			double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-3.0*exerciseTriggerStdDev;
+			double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+3.0*exerciseTriggerStdDev;
 			RandomVariableInterface filter = exerciseTrigger
 					.barrier(exerciseTrigger.sub(exerciseTriggerFloor), one, zero)
 					.mult(exerciseTrigger.barrier(exerciseTrigger.sub(exerciseTriggerCap).mult(-1.0), one, zero));
