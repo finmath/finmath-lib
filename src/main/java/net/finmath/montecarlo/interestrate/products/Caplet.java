@@ -74,7 +74,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		double	paymentDate	= maturity+periodLength;
 				
 		// Get random variables
-		RandomVariableInterface				libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
+		RandomVariableInterface	libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
 		RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
 		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 	

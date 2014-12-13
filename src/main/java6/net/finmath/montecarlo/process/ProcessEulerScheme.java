@@ -228,7 +228,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 					// Add drift adjustment
 					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
 
-					// Reapply state space transform
+					// Re-apply state space transform
 					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)

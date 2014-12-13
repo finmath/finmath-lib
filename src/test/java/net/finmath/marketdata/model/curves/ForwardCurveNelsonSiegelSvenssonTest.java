@@ -29,7 +29,7 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 	@Test
 	public void test() {
 
-		final double[] nssParameter = new double[] { 0.02, -0.010, 0.16, -0.17, 4.50, 3.5 };
+		final double[] nssParameters = new double[] { 0.02, -0.010, 0.16, -0.17, 4.50, 3.5 };
 
 		Calendar referenceDate = new GregorianCalendar(2014, 07, 16);
 		String paymentOffsetCode = "3M";
@@ -37,7 +37,7 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 		BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
 		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_360();
 
-		ForwardCurveInterface forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameter, 365.0/360.0);
+		ForwardCurveInterface forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0);
 
 		AnalyticModelInterface model = null;		// No model context needed
 
