@@ -19,6 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class FixedCoupon extends AbstractIndex {
 
 	private static final long serialVersionUID = 5375406324063846793L;
+
 	private final RandomVariableInterface coupon;
 	
 	/**
@@ -33,6 +34,15 @@ public class FixedCoupon extends AbstractIndex {
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
+		return coupon;
+	}
+
+	/**
+	 * Returns the coupon.
+	 * 
+	 * @return the coupon
+	 */
+	public RandomVariableInterface getCoupon() {
 		return coupon;
 	}
 
