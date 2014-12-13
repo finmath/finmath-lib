@@ -550,10 +550,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			if(lowerIndex < 0) throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
 
 			double alpha = (time-getLiborPeriod(lowerIndex)) / (getLiborPeriod(upperIndex) - getLiborPeriod(lowerIndex));
-			RandomVariableInterface numeriare = getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
+			RandomVariableInterface numeraire = getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
 			
 			double deterministicNumeraireAdjustment = (1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), time-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)))/(1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), getLiborPeriod(upperIndex)-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)));
-			return numeriare.mult(deterministicNumeraireAdjustment);
+			return numeraire.mult(deterministicNumeraireAdjustment);
 		}
 
 		// Calculate the numeraire, when time is part of liborPeriodDiscretization
