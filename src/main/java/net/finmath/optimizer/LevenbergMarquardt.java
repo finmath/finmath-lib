@@ -5,6 +5,7 @@
  */
 package net.finmath.optimizer;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -43,6 +44,15 @@ import net.finmath.functions.LinearAlgebra;
  * You may also provide an a derivative for your objective function by
  * additionally overriding the function {@code setDerivatives(double[] parameters, double[][] derivatives)},
  * otherwise the solver will calculate the derivative via finite differences.
+ * </p>
+ * <p>
+ * To reject a point, it is allowed to set an element of <code>values</code> to {@link java.lang.Double#NaN}
+ * in the implementation of {@code setValues(double[] parameters, double[] values)}.
+ * Put differently: The solver handles NaN values in <code>values</code> as an error larger than
+ * the current one (regardless of the current error) and rejects the point.
+ * <br>
+ * Note, however, that is is an error if the initial parameter guess results in an NaN value.
+ * That is, the solver should be initialized with an initial parameter in an admissible region.
  * </p>
  * 
  * The following simple example finds a solution for the equation <br>
@@ -92,9 +102,11 @@ import net.finmath.functions.LinearAlgebra;
  * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
  * 
  * @author Christian Fries
- * @version 1.5
+ * @version 1.6
  */
-public abstract class LevenbergMarquardt implements Cloneable {
+public abstract class LevenbergMarquardt implements Serializable, Cloneable {
+
+	private static final long serialVersionUID = 4560864869394838155L;
 
 	private double[] initialParameters = null;
 	private double[] parameterSteps = null;
@@ -429,8 +441,7 @@ public abstract class LevenbergMarquardt implements Cloneable {
 					// Shift parameter value
 					parametersNew[workerParameterIndex] += parameterFiniteDifference;
 
-					// Calculate derivative as (valueUpShift - valueCurrent) /
-					// parameterFiniteDifference
+					// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
 					try {
 						setValues(parametersNew, derivative);
 					} catch (Exception e) {
@@ -440,6 +451,7 @@ public abstract class LevenbergMarquardt implements Cloneable {
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
 						derivative[valueIndex] -= valueCurrent[valueIndex];
 						derivative[valueIndex] /= parameterFiniteDifference;
+						if(!Double.isFinite(derivative[valueIndex])) derivative[valueIndex] = 0.0;
 					}
 					return derivative;
 				}
@@ -526,10 +538,14 @@ public abstract class LevenbergMarquardt implements Cloneable {
 				// Calculate values for test parameters
 				setValues(parameterTest, valueTest);
 
-				// calculate error
+				// Calculate error
 				double errorMeanSquaredTest = getMeanSquaredError(valueTest);
 
-				if (errorMeanSquaredTest < errorMeanSquaredCurrent) {
+				/*
+				 * Note: The following test will be false if errorMeanSquaredTest is NaN.
+				 * That is: NaN is consider as a rejected point.
+				 */
+				if(errorMeanSquaredTest < errorMeanSquaredCurrent) {
 					errorMeanSquaredChange = errorMeanSquaredCurrent - errorMeanSquaredTest;
 
 					// Accept point
@@ -579,7 +595,7 @@ public abstract class LevenbergMarquardt implements Cloneable {
 		}
 	}
 
-	private double getMeanSquaredError(double[] value) {
+	public double getMeanSquaredError(double[] value) {
 		double error = 0.0;
 
 		for (int valueIndex = 0; valueIndex < value.length; valueIndex++) {
