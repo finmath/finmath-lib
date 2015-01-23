@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
@@ -97,8 +98,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
+		BrownianMotionInterface brownianMotionParameter	= (BrownianMotionInterface)calibrationParameters.get("brownianMotion");
 
-		// @TODO: These constants should become parameters. The numberOfPaths and seed is only relevant if Monte-Carlo products are used for calibration.
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
@@ -106,7 +107,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
 		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
-		final BrownianMotion brownianMotion = new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		/*
 		 * We allow for 5 simultaneous calibration models.
@@ -156,7 +157,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
-						values[calibrationProductIndex] = valueFutures.get(calibrationProductIndex).get();
+						double value = valueFutures.get(calibrationProductIndex).get();
+//						if(Double.isNaN(value)) value = Double.POSITIVE_INFINITY;
+						values[calibrationProductIndex] = value;
 					}
 					catch (InterruptedException e) {
 						throw new SolverException(e);
@@ -164,6 +167,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						throw new SolverException(e);
 					}
 				}
+				System.out.println(Arrays.toString(parameters) + "\t"  + Arrays.toString(values));
 			}			
 		};
 
