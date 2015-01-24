@@ -83,6 +83,25 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
 	}
 
+	/**
+	 * Performs a generic calibration of the parametric model by
+	 * trying to match a given vector of calibration product to a given vector of target values
+	 * using a given vector of weights.
+	 * 
+	 * Optional calibration parameters may be passed using the map calibrationParameters. The keys are:
+	 * <ul>
+	 * 	<li>"brownianMotion"</li>: Under this key an object implementing {@link net.finmath.montecarlo.BrownianMotionInterface} may be provided. If so, this Brownian motion is used to build the valuation model.
+	 * 	<li>"maxIterations"</li>: Under this key an object of type Integer may be provided specifying the maximum number of iterations.
+	 * </ul>
+	 * 
+	 * @param calibrationModel The LIBOR market model to be used for calibrations (specifies forward curve and tenor discretization).
+	 * @param calibrationProducts The array of calibration products.
+	 * @param calibrationTargetValues The array of target values.
+	 * @param calibrationWeights The array of weights.
+	 * @param calibrationParameters A map of type Map<String, Object> specifying some (optional) calibration parameters.
+	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
+	 * @throws CalculationException Thrown if calibration has failed.
+	 */
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		double[] initialParameters = this.getParameter();
