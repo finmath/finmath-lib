@@ -451,7 +451,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable {
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
 						derivative[valueIndex] -= valueCurrent[valueIndex];
 						derivative[valueIndex] /= parameterFiniteDifference;
-						if(!Double.isFinite(derivative[valueIndex])) derivative[valueIndex] = 0.0;
+						if(Double.isNaN(derivative[valueIndex])) derivative[valueIndex] = 0.0;
 					}
 					return derivative;
 				}
