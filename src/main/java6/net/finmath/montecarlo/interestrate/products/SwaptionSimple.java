@@ -92,4 +92,13 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
     	
     	throw new UnsupportedOperationException("Provided valueUnit not implemented.");
     }
+
+    /* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SwaptionSimple [tenor=" + tenor + ", swaprate=" + swaprate
+				+ ", valueUnit=" + valueUnit + "]";
+	}
 }
