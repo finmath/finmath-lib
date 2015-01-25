@@ -29,9 +29,9 @@ public interface BrownianMotionInterface {
 	 *	 <i>&Delta; W<sub>j</sub>(t<sub>i</sub>) := W<sub>j</sub>(t<sub>i+1</sub>)-W(t<sub>i</sub>)</i>
 	 * for the given time index <i>i</i> and a given factor (index) <i>j</i>
 	 * 
-	 * @param timeIndex The time index (corresponding to the this class's time discretization)
-	 * @param factor The index of the factor (independent scalar Brownian increment)
-	 * @return The factor (component) of the Brownian increments (a random variable)
+	 * @param timeIndex The time index (corresponding to the this class's time discretization).
+	 * @param factor The index of the factor (independent scalar Brownian increment).
+	 * @return The factor (component) of the Brownian increments (a random variable).
 	 */
 	RandomVariableInterface getBrownianIncrement(int timeIndex, int factor);
 
