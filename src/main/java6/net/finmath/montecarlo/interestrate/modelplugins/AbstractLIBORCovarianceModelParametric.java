@@ -187,7 +187,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						throw new SolverException(e);
 					}
 				}
-			}			
+			}
 		};
 
 		// Set solver parameters
