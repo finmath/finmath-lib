@@ -99,7 +99,6 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		return new BlendedLocalVolatilityModel((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement, isCalibrateable);
 	}
 	
-	
 	/**
 	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>
 	 * such that this model's <i>i</i>-th factor loading is

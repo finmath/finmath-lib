@@ -9,23 +9,31 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
+/**
+ * The five parameter covariance model consisting of an
+ * {@link LIBORVolatilityModelMaturityDependentFourParameterExponentialForm}
+ * and an
+ * {@link LIBORCorrelationModelExponentialDecay}.
+ * 
+ * @author Christian Fries
+ */
 public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCovarianceModelParametric {
 
-	double[] parameter = new double[5];
+	private double[] parameter = new double[5];
 
-	LIBORVolatilityModelMaturityDependentFourParameterExponentialForm	volatilityModel;
-	LIBORCorrelationModelExponentialDecay				correlationModel;
+	private LIBORVolatilityModelMaturityDependentFourParameterExponentialForm	volatilityModel;
+	private LIBORCorrelationModelExponentialDecay								correlationModel;
 	
-	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
+	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double[] parameters) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 		
-		parameter[0] = 0.20;
-		parameter[1] = 0.05;
-		parameter[2] = 0.10;
-		parameter[3] = 0.20;
-		parameter[4] = 0.10;
+		this.parameter = parameters.clone();
 		
 		setParameter(parameter);
+	}
+
+	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
+		this(timeDiscretization, liborPeriodDiscretization, numberOfFactors, new double[] { 0.20, 0.05, 0.10, 0.20, 0.10});
 	}
 
 	@Override
@@ -37,14 +45,12 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	
 	@Override
 	public double[] getParameter() {
-		return parameter;
+		return parameter.clone();
 	}
 
 	@Override
 	public void setParameter(double[] parameter) {
-		if(parameter[4] < 0) parameter[4] = Math.max(parameter[4], 0.0);
-		
-		this.parameter = parameter;
+		this.parameter = parameter.clone();
 
 		volatilityModel		= new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3]);
 		correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4], false);
