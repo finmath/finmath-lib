@@ -18,9 +18,9 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Simple stochastic volatility model, using a process
- * \(
+ * \[
  * 	d\lambda(t) = \nu \lambda(t) \rho \mathrm{d} W_{1}(t) + \sqrt{1-\rho^{2}} \mathrm{d} W_{2}(t) \text{,}
- * \)
+ * \]
  * where \( \lambda(0) = 1 \)
  * to scale all factor loadings returned a given covariance model.
  * 
@@ -28,14 +28,14 @@ import net.finmath.time.TimeDiscretizationInterface;
  * {@link net.finmath.montecarlo.BrownianMotionInterface}. This can be used to generate correlations to
  * other objects. If you like to reuse a factor of another Brownian motion use a
  * {@link net.finmath.montecarlo.BrownianMotionView}
- * to delegate (e.g.) \( \mathrm{d} W_{1}(t) , \mathrm{d} W_{2}(t) \) to a different object.
+ * to delegate \( ( \mathrm{d} W_{1}(t) , \mathrm{d} W_{2}(t) ) \) to a different object.
  * 
  * The parameter of this model is a joint parameter vector, consisting
  * of the parameter vector of the given base covariance model and
- * appending the parameters nu and rho at the end.
+ * appending the parameters <i>&nu;</i> and <i>&rho;</i> at the end.
  * 
  * If this model is not calibrateable, its parameter vector is that of the
- * covariance model, i.e., nur and rho will be not
+ * covariance model, i.e., <i>&nu;</i> and <i>&rho;</i> will be not
  * part of the calibration.
  * 
  * @author Christian Fries
@@ -56,8 +56,9 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 	 * 
 	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
 	 * @param brownianMotion An object implementing {@link BrownianMotionInterface} with at least two factors. This class uses the first two factors, but you may use {@link BrownianMotionView} to change this.
-	 * @param nu The initial value for nu.
-	 * @param rho The initial value for rho.
+	 * @param nu The initial value for <i>&nu;</i>, the volatility of the volatility.
+	 * @param rho The initial value for <i>&rho;</i> the correlation to the first factor.
+	 * @param isCalibrateable If true, the parameters <i>&nu;</i> and <i>&rho;</i> are parameters. Note that the covariance model (<code>covarianceModel</code>) may have its own parameter calibration settings.
 	 */
 	public LIBORCovarianceModelStochasticVolatility(AbstractLIBORCovarianceModelParametric covarianceModel, BrownianMotionInterface brownianMotion, double nu, double rho, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
