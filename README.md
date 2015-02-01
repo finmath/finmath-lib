@@ -1,21 +1,30 @@
-finmath lib
-===========
+About finmath lib
+==========
+
+
+****************************************
 
 **Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.**
 
-*********************************************************
+****************************************
 
-About finmath lib
---------
+The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
-The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields, e.g., the Monte-Carlo simulation of SDEs and the estimation of conditional expectations in Monte-Carlo.
+- General numerical algorithms like
+- - Generation of random numbers
+- - Optimization (a Levenberg–Marquardt algorithm is provided)
+- Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
+- Estimation of conditional expectations in a Monte-Carlo framework
+- Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
+- Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
+- Calibration of the LIBOR market model
+- Valuation of complex derivatives (e.g. Bermudan/multi-callables)
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
 
 **finmath lib is now on Java 8 (since February 2nd, 2014), but a Java 6 version is provided too.**
 
 *Note: for convenience the provided Eclipse project is configured for Java 6. The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e. the maven command line option "-P java-8"*
-
 
 Distribution
 --------------------------------------
@@ -24,7 +33,7 @@ Starting with version 1.2.19 finmath lib is distributed through the central mave
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.2.20</version>
+	<version>1.2.47</version>
 	
 
 
