@@ -18,7 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * </center>
  * where <i>a</i> is the displacement and <i>L<sub>i</sub></i> is
  * the realization of the <i>i</i>-th component of the stochastic process and
- * <i>F<sub>i</sub></i> is the factor loading loading from the given covariance model.
+ * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
  * 
  * If a forward curve is provided, the deterministic value L<sub>i,0</sub> is
  * calculated form this curve (using fixing in <i>T<sub>i</sub></i>.
@@ -47,7 +47,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * The model constructed is <i>(a L<sub>0</sub> + (1-a)L) F</i> where <i>a</i> is
 	 * the displacement and <i>L</i> is
 	 * the component of the stochastic process and <i>F</i> is the factor loading
-	 * loading from the given covariance model.
+	 * from the given covariance model.
 	 * 
 	 * The parameter of this model is a joint parameter vector, where the first
 	 * entry is the displacement and the remaining entries are the parameter vector

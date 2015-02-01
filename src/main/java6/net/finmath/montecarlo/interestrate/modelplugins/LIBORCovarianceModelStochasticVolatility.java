@@ -21,8 +21,11 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \[
  * 	d\lambda(t) = \nu \lambda(t) \rho \mathrm{d} W_{1}(t) + \sqrt{1-\rho^{2}} \mathrm{d} W_{2}(t) \text{,}
  * \]
- * where \( \lambda(0) = 1 \)
- * to scale all factor loadings returned a given covariance model.
+ * where \( \lambda(0) = 1 \) to scale all factor loadings returned a given covariance model.
+ * 
+ * The model constructed is <i>\lambda(t) F(t)</i> where <i>\lambda(t)</i> is
+ * the (Euler discretization of the) above process and <i>F</i> is the factor loading
+ * from the given covariance model.
  * 
  * The process uses the first two factors of the Brownian motion provided by an object implementing
  * {@link net.finmath.montecarlo.BrownianMotionInterface}. This can be used to generate correlations to
@@ -67,7 +70,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		this.brownianMotion = brownianMotion;
 		this.nu		= nu;
 		this.rho	= rho;
-		
+
 		this.isCalibrateable = isCalibrateable;
 	}
 
@@ -100,7 +103,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel.setParameter(covarianceParameters);
-		
+
 		nu	= parameter[covarianceParameters.length + 0];
 		rho	= parameter[covarianceParameters.length + 1];
 
