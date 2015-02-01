@@ -46,19 +46,23 @@ public class SwaptionAnalyticApproximationTest {
 
 	@Test
 	public void testSingleCurveModel() throws CalculationException {
-		this.testModel(false);
+		System.out.println("Runnning tests with a single curve LIBOR Market Model");
+
+		LIBORModelMonteCarloSimulationInterface liborMarketModel = createSingleCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
+		
+		testModel(liborMarketModel, false);
 	}
 
 	@Test
 	public void testMultiCurveModel() throws CalculationException {
-		this.testModel(true);
+		System.out.println("Runnning tests with a multi curve LIBOR Market Model");
+
+		LIBORModelMonteCarloSimulationInterface liborMarketModel = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
+
+		testModel(liborMarketModel, true);
 	}
 
-	public void testModel(boolean isMultiCurve) throws CalculationException {
-		LIBORModelMonteCarloSimulationInterface liborMarketModel = null;
-		if(isMultiCurve)	liborMarketModel = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
-		else				liborMarketModel = createSingleCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
-		
+	public void testModel(LIBORModelMonteCarloSimulationInterface liborMarketModel, boolean isMultiCurve) throws CalculationException {
 		/*
 		 * Value a swaption
 		 */
