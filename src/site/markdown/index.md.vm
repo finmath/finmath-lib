@@ -12,11 +12,12 @@ The finmath lib libraries provides implementations of methodologies related to m
 
 - General numerical algorithms like
 - - Generation of random numbers
-- - Optimization (a Levenberg-Marquard algorithm is provided)
+- - Optimization (a Levenberg–Marquardt algorithm is provided)
 - Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
 - Estimation of conditional expectations in a Monte-Carlo framework
-- Calibration of market data object like curve (discount and forward curve) or volatility surfaces
-- Simulation of interest rate term structure models
+- Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
+- Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
+- Calibration of the LIBOR market model
 - Valuation of complex derivatives (e.g. Bermudan/multi-callables)
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
@@ -38,9 +39,8 @@ Starting with version 1.2.19 finmath lib is distributed through the central mave
 License
 -------
 
-The code of "finmath lib" and "finmath experiments" (packages
-`net.finmath.*`) are distributed under the [Apache License version
-2.0][], unless otherwise explicitly stated.
+The code of "finmath lib" and "finmath experiments" (packages `net.finmath.*`) are distributed under
+the [Apache License version 2.0][], unless otherwise explicitly stated.
  
 
   [finmath lib Project documentation]: http://www.finmath.net/java/finmath-lib 
