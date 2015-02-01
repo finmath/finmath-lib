@@ -5,12 +5,18 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
@@ -119,6 +125,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 
+		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
+		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		/*
@@ -141,19 +149,44 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 				final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
-				IntStream.range(0,calibrationProducts.length).parallel().forEach(
-						calibrationProductIndex -> {
+				ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
+				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
+					final int workerCalibrationProductIndex = calibrationProductIndex;
+					Callable<Double> worker = new  Callable<Double>() {
+						public Double call() throws SolverException {
 							try {
-								values[calibrationProductIndex] = calibrationProducts[calibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
+								return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
-								values[calibrationProductIndex] = calibrationTargetValues[calibrationProductIndex];
+								return calibrationTargetValues[workerCalibrationProductIndex];
 							} catch (Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
-								values[calibrationProductIndex] = calibrationTargetValues[calibrationProductIndex];
+								return calibrationTargetValues[workerCalibrationProductIndex];
 							}
 						}
-						);
+					};
+					if(executor != null) {
+						Future<Double> valueFuture = executor.submit(worker);
+						valueFutures.add(calibrationProductIndex, valueFuture);
+					}
+					else {
+						FutureTask<Double> valueFutureTask = new FutureTask<Double>(worker);
+						valueFutureTask.run();
+						valueFutures.add(calibrationProductIndex, valueFutureTask);
+					}
+				}
+				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
+					try {
+						double value = valueFutures.get(calibrationProductIndex).get();
+//						if(Double.isNaN(value)) value = Double.POSITIVE_INFINITY;
+						values[calibrationProductIndex] = value;
+					}
+					catch (InterruptedException e) {
+						throw new SolverException(e);
+					} catch (ExecutionException e) {
+						throw new SolverException(e);
+					}
+				}
 			}
 		};
 
@@ -166,6 +199,11 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		}
 		catch(SolverException e) {
 			throw new CalculationException(e);
+		}
+		finally {
+			if(executor != null) {
+				executor.shutdown();
+			}
 		}
 
 		// Get covariance model corresponding to the best parameter set.
