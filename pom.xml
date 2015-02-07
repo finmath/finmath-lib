@@ -11,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.2.49-SNAPSHOT</version>
+	<version>1.2.49</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -321,9 +321,9 @@
 	</distributionManagement>
 
 	<scm>
-		<url>http://svn.finmath.net/finmath lib/trunk</url>
-		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
-		<developerConnection>scm:svn:http://svn.finmath.net/finmath lib/trunk</developerConnection>
+		<url>http://svn.finmath.net/finmath lib/tags/finmath-lib-1.2.49</url>
+		<connection>scm:svn:http://svn.finmath.net/finmath lib/tags/finmath-lib-1.2.49</connection>
+		<developerConnection>scm:svn:http://svn.finmath.net/finmath lib/tags/finmath-lib-1.2.49</developerConnection>
 	</scm>
 
 	<ciManagement>
