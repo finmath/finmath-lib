@@ -117,10 +117,14 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		}
 		volSquaredEstimate /= (double)(windowIndexEnd-windowIndexStart);
 		
+		double eval			= volScaling * (Math.log((values[windowIndexStart+1]+displacement)/(values[windowIndexStart+1-1]+displacement)));
 		for (int i = windowIndexStart+1; i <= windowIndexEnd-1; i++) {
 			double evalNext	= volScaling * (Math.log((values[i+1]+displacement)/(values[i]+displacement)));
 
+			double volSquared = volSquaredEstimate / volScaling * volScaling;		// h = (sigma*)^2, volSquared = (sigma^a)^2
+
 			logLikelihood += - Math.log(volSquaredEstimate) - 2 * Math.log((values[i+1]+displacement)/volScaling) - evalNext*evalNext / volSquaredEstimate;
+			eval = evalNext;
 		}
 		logLikelihood += - Math.log(2 * Math.PI) * (double)(windowIndexEnd-windowIndexStart);
 		logLikelihood *= 0.5;
@@ -158,6 +162,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 			//			double y = (values[i]-values[i-1])/(values[i-1]+displacement);
 			szenarios[i-windowIndexStart-1]	= y / vol;
 
+			double eval		= volScaling * y;
 			vol = Math.sqrt(volSquaredEstimate) / volScaling;
 		}
 		java.util.Arrays.sort(szenarios);
@@ -189,7 +194,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters()
 	 */
 	@Override
-	public Map<String, Double> getBestParameters() {
+	public Map<String, Object> getBestParameters() {
 		return getBestParameters(null);
 	}
 
@@ -197,7 +202,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
 	 */
 	@Override
-	public Map<String, Double> getBestParameters(Map<String, Double> guess) {
+	public Map<String, Object> getBestParameters(Map<String, Object> guess) {
 
 		// Create the objective function for the solver
 		class GARCHMaxLikelihoodFunction implements MultivariateFunction, Serializable {
@@ -245,10 +250,10 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		double guessDisplacement = (lowerBoundDisplacement + upperBoundDisplacement) / 2.0;
 		if(guess != null) {
 			// A guess was provided, use that one
-			guessOmega			= guess.get("Omega");
-			guessAlpha			= guess.get("Alpha");
-			guessBeta			= guess.get("Beta");
-			guessDisplacement	= guess.get("Displacement");
+			guessOmega			= (Double)guess.get("Omega");
+			guessAlpha			= (Double)guess.get("Alpha");
+			guessBeta			= (Double)guess.get("Beta");
+			guessDisplacement	= (Double)guess.get("Displacement");
 		}
 
 		// Constrain guess to admissible range
@@ -305,7 +310,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		double[] quantiles = {0.01, 0.05, 0.5};
 		double[] quantileValues = this.getQuantilPredictionsForParameters(omega, alpha, beta, displacement, quantiles);
 
-		Map<String, Double> results = new HashMap<String, Double>();
+		Map<String, Object> results = new HashMap<String, Object>();
 		results.put("Omega", omega);
 		results.put("Alpha", alpha);
 		results.put("Beta", beta);

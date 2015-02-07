@@ -28,13 +28,13 @@ public interface HistoricalSimulationModel {
 	 * 
 	 * @return The parameters estimated for the given time series.
 	 */
-	Map<String, Double> getBestParameters();
+	Map<String, Object> getBestParameters();
 
 	/**
 	 * Returns the parameters estimated for the given time series, using a parameter guess.
 	 * 
-	 * @param guess A parameter guess.
+	 * @param previousResults A parameter guess.
 	 * @return The parameters estimated for the given time series.
 	 */
-	Map<String, Double> getBestParameters(Map<String, Double> guess);
+	Map<String, Object> getBestParameters(Map<String, Object> previousResults);
 }

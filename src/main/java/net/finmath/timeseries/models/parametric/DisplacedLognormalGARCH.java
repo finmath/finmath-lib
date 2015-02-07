@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
@@ -138,7 +140,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		return h;
 	}
 
-	public double[] getQuantilPredictionsForParameters(double omega, double alpha, double beta, double displacement, double[] quantiles) {
+	public double[] getSzenarios(double omega, double alpha, double beta, double displacement) {
 		double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
 
 		double volScaling = (1+Math.abs(displacement));
@@ -154,6 +156,16 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 			vol = Math.sqrt(h) / volScaling;
 		}
 		java.util.Arrays.sort(szenarios);
+		
+		return szenarios;
+	}
+	
+	public double[] getQuantilPredictionsForParameters(double omega, double alpha, double beta, double displacement, double[] quantiles) {
+		double[] szenarios = getSzenarios(omega, alpha, beta, displacement);
+
+		double volScaling = (1+Math.abs(displacement));
+		double h = omega / (1.0 - alpha - beta);
+		double vol = Math.sqrt(h) / volScaling;
 
 		double[] quantileValues = new double[quantiles.length];
 		for(int i=0; i<quantiles.length; i++) {
@@ -182,7 +194,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters()
 	 */
 	@Override
-	public Map<String, Double> getBestParameters() {
+	public Map<String, Object> getBestParameters() {
 		return getBestParameters(null);
 	}
 
@@ -190,7 +202,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
 	 */
 	@Override
-	public Map<String, Double> getBestParameters(Map<String, Double> guess) {
+	public Map<String, Object> getBestParameters(Map<String, Object> guess) {
 
 		// Create the objective function for the solver
 		class GARCHMaxLikelihoodFunction implements MultivariateFunction, Serializable {
@@ -229,7 +241,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 			}
 
 		}
-		GARCHMaxLikelihoodFunction objectiveFunction = new GARCHMaxLikelihoodFunction();
+		final GARCHMaxLikelihoodFunction objectiveFunction = new GARCHMaxLikelihoodFunction();
 
 		// Create a guess for the solver
 		double guessOmega = 1.0;
@@ -238,10 +250,10 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		double guessDisplacement = (lowerBoundDisplacement + upperBoundDisplacement) / 2.0;
 		if(guess != null) {
 			// A guess was provided, use that one
-			guessOmega			= guess.get("Omega");
-			guessAlpha			= guess.get("Alpha");
-			guessBeta			= guess.get("Beta");
-			guessDisplacement	= guess.get("Displacement");
+			guessOmega			= (Double)guess.get("Omega");
+			guessAlpha			= (Double)guess.get("Alpha");
+			guessBeta			= (Double)guess.get("Beta");
+			guessDisplacement	= (Double)guess.get("Displacement");
 		}
 
 		// Constrain guess to admissible range
@@ -261,29 +273,42 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		guessParameters[3] = -Math.log(1.0/((guessDisplacement-lowerBoundDisplacement)/(upperBoundDisplacement-lowerBoundDisplacement))-1.0);
 
 		// Seek optimal parameter configuration
-//		org.apache.commons.math3.optimization.direct.BOBYQAOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.BOBYQAOptimizer(6);
-		org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();
-
+		LevenbergMarquardt lm = new LevenbergMarquardt(guessParameters, new double[] { 1000 }, 10*maxIterations, 2) {
+			
+			@Override
+			public void setValues(double[] arg0, double[] arg1) throws SolverException {
+				arg1[0] = objectiveFunction.value(arg0);
+			}
+		};
+		
 		double[] bestParameters = null;
-		try {
-			PointValuePair result = optimizer2.optimize(
-					maxIterations,
-					objectiveFunction,
-					GoalType.MAXIMIZE,
-					guessParameters /* start point */
-					);
-			bestParameters = result.getPoint();
-		} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
-			// Retry with new guess. This guess corresponds to omaga=1, alpha=0.5; beta=0.25; displacement=1+lowerBoundDisplacement;
-			double[] guessParameters2 = {0.0, 0.0, 0.0, 10.0};
-			/*			PointValuePair result = optimizer2.optimize(
-			maxIterations,
-			objectiveFunction,
-			GoalType.MAXIMIZE,
-			guessParameters2
-			);*/
-			System.out.println("Solver failed");
-			bestParameters = guessParameters2;//result.getPoint();
+
+		boolean isUseLM = false;
+
+		if(isUseLM) {
+			try {
+				lm.run();
+			} catch (SolverException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			bestParameters = lm.getBestFitParameters();
+		}
+		else {
+			org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();
+
+			try {
+				PointValuePair result = optimizer2.optimize(
+						maxIterations,
+						objectiveFunction,
+						GoalType.MAXIMIZE,
+						guessParameters 
+						);
+				bestParameters = result.getPoint();
+			} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
+				System.out.println("Solver failed");
+				bestParameters = guessParameters;
+			}
 		}
 
 		// Transform parameters to GARCH parameters
@@ -295,19 +320,21 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		double displacementNormed = 1.0/(1.0+Math.exp(-bestParameters[3]));
 		double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;
 
-		double[] quantiles = {0.01, 0.05, 0.5};
-		double[] quantileValues = this.getQuantilPredictionsForParameters(omega, alpha, beta, displacement, quantiles);
+		double[] quantiles		= {0.01, 0.05, 0.5};
+		double[] quantileValues	= getQuantilPredictionsForParameters(omega, alpha, beta, displacement, quantiles);
 
-		Map<String, Double> results = new HashMap<String, Double>();
+		Map<String, Object> results = new HashMap<String, Object>();
 		results.put("Omega", omega);
 		results.put("Alpha", alpha);
 		results.put("Beta", beta);
 		results.put("Displacement", displacement);
+		results.put("Szenarios", this.getSzenarios(omega, alpha, beta, displacement));
 		results.put("Likelihood", this.getLogLikelihoodForParameters(omega, alpha, beta, displacement));
 		results.put("Vol", Math.sqrt(this.getLastResidualForParameters(omega, alpha, beta, displacement)));
 		results.put("Quantile=1%", quantileValues[0]);
 		results.put("Quantile=5%", quantileValues[1]);
 		results.put("Quantile=50%", quantileValues[2]);
+//		System.out.println(results.get("Likelihood") + "\t" + Arrays.toString(bestParameters));
 		return results;
 	}
 

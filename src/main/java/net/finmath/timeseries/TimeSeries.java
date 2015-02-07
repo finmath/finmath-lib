@@ -1,33 +1,54 @@
-/*
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christianfries.com.
- *
- * Created on 13.04.2014
- */
-
 package net.finmath.timeseries;
 
-import java.util.Calendar;
-import java.util.Map;
+import java.util.Iterator;
 
-/**
- * @author Christian Fries
- *
- */
-public class TimeSeries {
+public class TimeSeries implements TimeSeriesInterface {
 
-	private Map<Calendar, MarketData>	dataForDates;
+	private final double[] times;
+	private final double[] values;
 
-	/**
-	 * Create a time series.
-	 * 
-	 * @param dataForDates A map from dates to MarketData objects.
-	 */
-	public TimeSeries(Map<Calendar, MarketData> dataForDates) {
+	public TimeSeries(double[] times, double[] values) {
 		super();
-		this.dataForDates = dataForDates;
+		this.times = times;
+		this.values = values;
 	}
 
-	public MarketData getEntry(Calendar date) {
-		return dataForDates.get(date);
+	@Override
+	public double getTime(int index) {
+		return times[index];
 	}
+
+	@Override
+	public double getValue(int index) {
+		return values[index];
+	}
+
+	@Override
+	public int getNumberOfTimePoints() {
+		return times.length;
+	}
+
+	@Override
+	public Iterable<Double> getValues() {
+		return new Iterable<Double>() {
+			private int index = 0;
+
+			@Override
+			public Iterator<Double> iterator() {
+				return new Iterator<Double>() {
+					@Override
+					public boolean hasNext() {
+						return index < TimeSeries.this.getNumberOfTimePoints();
+					}
+
+					@Override
+					public Double next() {
+						return TimeSeries.this.getValue(index++);
+					}
+				};
+			}
+
+		};
+	}
+
 }
