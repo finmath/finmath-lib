@@ -228,7 +228,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.CONSTANT;
 	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;
 	
-	private RationalFunctionInterpolation rationalFunctionInterpolation =  null;
+	private RationalFunctionInterpolation	rationalFunctionInterpolation =  null;
+	private final Object					rationalFunctionInterpolationLazyInitLock = new Object();
 	private SoftReference<Map<Double, Double>> curveCacheReference = null;
 
 	private static final long serialVersionUID = -4126228588123963885L;
@@ -305,7 +306,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	private double getInterpolationEntityValue(double time)
 	{
-		synchronized(this) {
+		synchronized(rationalFunctionInterpolationLazyInitLock) {
 			// Lazy initialization of interpolation function
 			if(rationalFunctionInterpolation == null) {
 				double[] pointsArray = new double[points.size()];
@@ -335,34 +336,35 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
 	 */
 	protected void addPoint(double time, double value, boolean isParameter) {
-		if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
-			if(value == 1.0 && isParameter == false) return;
-			else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");
-		}
-
-		double interpolationEntityValue = interpolationEntityFromValue(value, time);
-
-		int index = getTimeIndex(time);
-		if(index >= 0) {
-			if(points.get(index).value == interpolationEntityValue) return;			// Already in list
-			else if(isParameter) return;
-			else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
-		}
-		else {
-			// Insert the new point, retain ordering.
-			Point point = new Point(time, interpolationEntityValue, isParameter);
-			points.add(-index-1, point);
-	
-			if(isParameter) {
-				// Add this point also to the list of parameters
-				int parameterIndex = getParameterIndex(time);
-				if(parameterIndex >= 0) new RuntimeException("Curve inconsistent.");
-				pointsBeingParameters.add(-parameterIndex-1, point);
+		synchronized (rationalFunctionInterpolationLazyInitLock) {
+			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
+				if(value == 1.0 && isParameter == false) return;
+				else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");
 			}
-		}
-		this.rationalFunctionInterpolation = null;
-		this.curveCacheReference = null;
 
+			double interpolationEntityValue = interpolationEntityFromValue(value, time);
+
+			int index = getTimeIndex(time);
+			if(index >= 0) {
+				if(points.get(index).value == interpolationEntityValue) return;			// Already in list
+				else if(isParameter) return;
+				else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+			}
+			else {
+				// Insert the new point, retain ordering.
+				Point point = new Point(time, interpolationEntityValue, isParameter);
+				points.add(-index-1, point);
+
+				if(isParameter) {
+					// Add this point also to the list of parameters
+					int parameterIndex = getParameterIndex(time);
+					if(parameterIndex >= 0) new RuntimeException("Curve inconsistent.");
+					pointsBeingParameters.add(-parameterIndex-1, point);
+				}
+			}
+			this.rationalFunctionInterpolation = null;
+			this.curveCacheReference = null;
+		}
 	}
 	
 	/**

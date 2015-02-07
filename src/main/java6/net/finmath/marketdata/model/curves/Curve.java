@@ -126,7 +126,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 			return 0;
 		}
-		
+
 		@Override
 		public Object clone() {
 			return new Point(time,value,isParameter);
@@ -141,7 +141,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 */
 	public static class CurveBuilder implements CurveBuilderInterface {
 		private Curve curve = null;
-		
+
 		/**
 		 * Build a curve.
 		 */
@@ -158,7 +158,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		public CurveBuilder(String name, Calendar referenceDate) {
 			curve = new Curve(name, referenceDate);
 		}
-		
+
 		/**
 		 * Build a curve by cloning a given curve.
 		 * 
@@ -168,7 +168,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		public CurveBuilder(Curve curve) throws CloneNotSupportedException {
 			this.curve = (Curve)curve.clone();
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#build()
 		 */
@@ -211,7 +211,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			curve.interpolationEntity = interpolationEntity;
 			return this;
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#addPoint(double, double, boolean)
 		 */
@@ -227,13 +227,14 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private InterpolationMethod	interpolationMethod	= InterpolationMethod.CUBIC_SPLINE;
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.CONSTANT;
 	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;
-	
-	private RationalFunctionInterpolation rationalFunctionInterpolation =  null;
+
+	private RationalFunctionInterpolation	rationalFunctionInterpolation =  null;
+	private final Object					rationalFunctionInterpolationLazyInitLock = new Object();
 	private SoftReference<Map<Double, Double>> curveCacheReference = null;
 
 	private static final long serialVersionUID = -4126228588123963885L;
 	static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
-	
+
 
 	/**
 	 * Create a curve with a given name, reference date and an interpolation method from given points
@@ -297,7 +298,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 		Double valueFromCache = curveCache.get(time);
 		if(valueFromCache != null) return valueFromCache.doubleValue();
-		
+
 		double value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
 		curveCache.put(time, value);
 		return value;
@@ -305,7 +306,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	private double getInterpolationEntityValue(double time)
 	{
-		synchronized(this) {
+		synchronized(rationalFunctionInterpolationLazyInitLock) {
 			// Lazy initialization of interpolation function
 			if(rationalFunctionInterpolation == null) {
 				double[] pointsArray = new double[points.size()];
@@ -325,7 +326,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		return rationalFunctionInterpolation.getValue(time);
 	}
 
-	
+
 	/**
 	 * Add a point to this curve. The method will throw an exception if the point
 	 * is already part of the curve.
@@ -335,36 +336,37 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
 	 */
 	protected void addPoint(double time, double value, boolean isParameter) {
-		if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
-			if(value == 1.0 && isParameter == false) return;
-			else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");
-		}
-
-		double interpolationEntityValue = interpolationEntityFromValue(value, time);
-
-		int index = getTimeIndex(time);
-		if(index >= 0) {
-			if(points.get(index).value == interpolationEntityValue) return;			// Already in list
-			else if(isParameter) return;
-			else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
-		}
-		else {
-			// Insert the new point, retain ordering.
-			Point point = new Point(time, interpolationEntityValue, isParameter);
-			points.add(-index-1, point);
-	
-			if(isParameter) {
-				// Add this point also to the list of parameters
-				int parameterIndex = getParameterIndex(time);
-				if(parameterIndex >= 0) new RuntimeException("Curve inconsistent.");
-				pointsBeingParameters.add(-parameterIndex-1, point);
+		synchronized (rationalFunctionInterpolationLazyInitLock) {
+			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
+				if(value == 1.0 && isParameter == false) return;
+				else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");
 			}
-		}
-		this.rationalFunctionInterpolation = null;
-		this.curveCacheReference = null;
 
+			double interpolationEntityValue = interpolationEntityFromValue(value, time);
+
+			int index = getTimeIndex(time);
+			if(index >= 0) {
+				if(points.get(index).value == interpolationEntityValue) return;			// Already in list
+				else if(isParameter) return;
+				else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+			}
+			else {
+				// Insert the new point, retain ordering.
+				Point point = new Point(time, interpolationEntityValue, isParameter);
+				points.add(-index-1, point);
+
+				if(isParameter) {
+					// Add this point also to the list of parameters
+					int parameterIndex = getParameterIndex(time);
+					if(parameterIndex >= 0) new RuntimeException("Curve inconsistent.");
+					pointsBeingParameters.add(-parameterIndex-1, point);
+				}
+			}
+			this.rationalFunctionInterpolation = null;
+			this.curveCacheReference = null;
+		}
 	}
-	
+
 	/**
 	 * Returns the interpolation method used by this curve.
 	 * 
@@ -401,7 +403,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		Point point = new Point(time, Double.NaN, false);
 		return java.util.Collections.binarySearch(pointsBeingParameters, point);
 	}
-	
+
 	@Override
 	public double[] getParameter() {
 		double[] parameters = new double[pointsBeingParameters.size()];
@@ -431,7 +433,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 		return objectAsString;
 	}
-	
+
 	private double interpolationEntityFromValue(double value, double time) {
 		switch(interpolationEntity) {
 		case VALUE:
@@ -479,7 +481,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		if(Arrays.equals(parameter, getParameter())) return this;
 		Curve newCurve = (Curve) this.clone();
 		newCurve.setParameterPrivate(parameter);
-		
+
 		return newCurve;
 	}
 
