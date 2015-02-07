@@ -4,6 +4,7 @@
  * Created on 15.07.2012
  */
 
+
 package net.finmath.timeseries.models.parametric;
 
 import java.io.Serializable;
@@ -17,7 +18,14 @@ import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.PointValuePair;
 
 /**
- * ARMAGARCH(1,1) volatility.
+ * Displaced lognormal process with GARCH(1,1) volatility.
+ * 
+ * This class estimate the process
+ *   d (X + a)    = (X + a)/(b + a) sigma dW , i.e.
+ *   d log(X + a) = sigma/(b + a) dW , i.e.
+ * where a > -min(X[i]) and thus X+a > 0 and b = 1 - min(X[i]) and sigma is given by a GARCH(1,1) process. The choice of b ensures that b+a >= 1.
+ * For a=0 we have a log-normal process with volatility sigma/(b + a).
+ * For a=infitnity we have a normal process with volatility sigma.
  * 
  * @author Christian Fries
  */
@@ -87,8 +95,33 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 		return h;
 	}
 
-	public double[] getQuantilPredictionsForParameters(double theta, double mu, double omega, double alpha, double beta, double[] quantiles) {
+	public double[] getSzenarios(double theta, double mu, double omega, double alpha, double beta) {
 		double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
+
+		double volScaling = (1.0);
+		double h = omega / (1.0 - alpha - beta);
+		double vol = Math.sqrt(h) / volScaling;
+		double evalPrev		= 0.0;
+		double m			= 0.0;
+		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
+			double y = Math.log((values[i])/(values[i-1]));
+			//			double y = (values[i]-values[i-1])/(values[i-1]+displacement);
+
+			double eval		= volScaling * y;
+			m = eval - theta * m - mu * evalPrev;
+
+			szenarios[i-windowIndexStart-1]	= m / vol / volScaling;
+
+			h = (omega + alpha * m * m) + beta * h;
+			vol = Math.sqrt(h) / volScaling;
+			evalPrev = eval;
+		}
+		java.util.Arrays.sort(szenarios);
+		
+		return szenarios;
+	}
+	public double[] getQuantilPredictionsForParameters(double theta, double mu, double omega, double alpha, double beta, double[] quantiles) {
+		double[] szenarios = this.getSzenarios(theta, mu, omega, alpha, beta);
 
 		double volScaling = (1.0);
 		double h = omega / (1.0 - alpha - beta);
@@ -139,7 +172,7 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters()
 	 */
 	@Override
-	public Map<String, Double> getBestParameters() {
+	public Map<String, Object> getBestParameters() {
 		return getBestParameters(null);
 	}
 
@@ -147,7 +180,7 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
 	 */
 	@Override
-	public Map<String, Double> getBestParameters(Map<String, Double> guess) {
+	public Map<String, Object> getBestParameters(Map<String, Object> guess) {
 
 		// Create the objective function for the solver
 		class GARCHMaxLikelihoodFunction implements MultivariateFunction, Serializable {
@@ -165,8 +198,8 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 				double muema	= Math.exp(-Math.exp(-variables[2]));
 				double beta		= mucorr * muema;
 				double alpha	= mucorr - beta;
-//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
-//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
+				//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
+				//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
 				double theta	= variables[3];
 				double mu		= variables[4];
 				double logLikelihood = getLogLikelihoodForParameters(theta,mu,omega,alpha,beta);
@@ -192,11 +225,11 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 		double guessMu = 0.0;	
 		if(guess != null) {
 			// A guess was provided, use that one
-			guessOmega			= guess.get("Omega");
-			guessAlpha			= guess.get("Alpha");
-			guessBeta			= guess.get("Beta");
-			guessTheta			= guess.get("Theta");
-			guessMu				= guess.get("Mu");
+			guessOmega			= (Double)guess.get("Omega");
+			guessAlpha			= (Double)guess.get("Alpha");
+			guessBeta			= (Double)guess.get("Beta");
+			guessTheta			= (Double)guess.get("Theta");
+			guessMu				= (Double)guess.get("Mu");
 		}
 
 		// Constrain guess to admissible range
@@ -216,7 +249,7 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 		guessParameters[4] = guessMu;
 
 		// Seek optimal parameter configuration
-//		org.apache.commons.math3.optimization.direct.BOBYQAOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.BOBYQAOptimizer(8);
+		//		org.apache.commons.math3.optimization.direct.BOBYQAOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.BOBYQAOptimizer(8);
 		org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();
 
 		double[] bestParameters = null;
@@ -245,12 +278,13 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 		double[] quantiles = {0.01, 0.05, 0.5};
 		double[] quantileValues = this.getQuantilPredictionsForParameters(theta, mu, omega, alpha, beta, quantiles);
 
-		Map<String, Double> results = new HashMap<String, Double>();
+		Map<String, Object> results = new HashMap<String, Object>();
 		results.put("Omega", omega);
 		results.put("Alpha", alpha);
 		results.put("Beta", beta);
 		results.put("Theta", theta);
 		results.put("Mu", mu);
+		results.put("Szenarios", this.getSzenarios(theta, mu, omega, alpha, beta));
 		results.put("Likelihood", this.getLogLikelihoodForParameters(theta, mu, omega, alpha, beta));
 		results.put("Vol", Math.sqrt(this.getLastResidualForParameters(theta, mu, omega, alpha, beta)));
 		results.put("Quantile=1%", quantileValues[0]);
