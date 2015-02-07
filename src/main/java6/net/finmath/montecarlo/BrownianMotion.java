@@ -36,9 +36,6 @@ import cern.jet.random.engine.MersenneTwister64;
  */
 public class BrownianMotion implements BrownianMotionInterface, Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5430067621669213475L;
 
 	private final TimeDiscretizationInterface						timeDiscretization;
@@ -47,9 +44,10 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-    private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
-	private transient RandomVariableInterface[][]	brownianIncrements;
+	private transient	RandomVariableInterface[][]	brownianIncrements;
+	private final		Object						brownianIncrementsLazyInitLock = new Object();
 
 	/**
 	 * Construct a Brownian motion.
@@ -73,41 +71,32 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		this.brownianIncrements	= null; 	// Lazy initialization
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedSeed(int)
-	 */
 	@Override
-    public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
+	public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
 		return new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
-	 */
 	@Override
 	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
 		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
 		return new BrownianMotion(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getBrownianIncrement(int, int)
-	 */
 	@Override
 	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
+
 		// Thread safe lazy initialization
-		synchronized(this) {
+		synchronized(brownianIncrementsLazyInitLock) {
 			if(brownianIncrements == null) doGenerateBrownianMotion();
 		}
 
 		/*
-		 *  For performance reasons we return directly the stored data (no defensive copy).
-		 *  We return an immutable object to ensure that the receiver does not alter the data.
+		 *  We return an immutable object which ensures that the receiver does not alter the data.
 		 */
 		return brownianIncrements[timeIndex][factor];
 	}
 
-    /**
+	/**
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateBrownianMotion() {
@@ -148,42 +137,33 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 
 		// Wrap the values in RandomVariable objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-            double time = timeDiscretization.getTime(timeIndex+1);
+			double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				brownianIncrements[timeIndex][factor] =
-                        randomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
+						randomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getTimeDiscretization()
-	 */
 	@Override
-    public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretizationInterface getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfFactors()
-	 */
 	@Override
-    public int getNumberOfFactors() {
+	public int getNumberOfFactors() {
 		return numberOfFactors;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfPaths()
-	 */
 	@Override
-    public int getNumberOfPaths() {
+	public int getNumberOfPaths() {
 		return numberOfPaths;
 	}
 
-    @Override
-    public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return randomVariableFactory.createRandomVariable(value);
-    }
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return randomVariableFactory.createRandomVariable(value);
+	}
 
 	/**
 	 * @return Returns the seed.
@@ -192,9 +172,6 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		return seed;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	public String toString() {
 		return super.toString()
 				+ "\n" + "timeDiscretization: " + timeDiscretization.toString()
@@ -203,27 +180,27 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 				+ "\n" + "seed: " + seed;
 	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        BrownianMotion that = (BrownianMotion) o;
+		BrownianMotion that = (BrownianMotion) o;
 
-        if (numberOfFactors != that.numberOfFactors) return false;
-        if (numberOfPaths != that.numberOfPaths) return false;
-        if (seed != that.seed) return false;
-        if (!timeDiscretization.equals(that.timeDiscretization)) return false;
+		if (numberOfFactors != that.numberOfFactors) return false;
+		if (numberOfPaths != that.numberOfPaths) return false;
+		if (seed != that.seed) return false;
+		if (!timeDiscretization.equals(that.timeDiscretization)) return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = timeDiscretization.hashCode();
-        result = 31 * result + numberOfFactors;
-        result = 31 * result + numberOfPaths;
-        result = 31 * result + seed;
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = timeDiscretization.hashCode();
+		result = 31 * result + numberOfFactors;
+		result = 31 * result + numberOfPaths;
+		result = 31 * result + seed;
+		return result;
+	}
 }

@@ -127,6 +127,7 @@ public class RationalFunctionInterpolation {
 	
 	// The interpolated curve - a rational function for each interval (one less than number of points)
 	private RationalFunction[]	interpolatingRationalFunctions;
+	private final Object		interpolatingRationalFunctionsLazyInitLock = new Object();
 
 	/**
 	 * Generate a rational function interpolation from a given set of points.
@@ -174,7 +175,7 @@ public class RationalFunctionInterpolation {
 	 */
 	public double getValue(double x)
 	{
-		synchronized(this) {
+		synchronized(interpolatingRationalFunctionsLazyInitLock) {
 			if(interpolatingRationalFunctions == null) doCreateRationalFunctions();
 		}
 
@@ -204,7 +205,7 @@ public class RationalFunctionInterpolation {
 		return rationalFunction.getValue(x-points[intervallIndex]);
 	}
 	
-	private synchronized void doCreateRationalFunctions()
+	private void doCreateRationalFunctions()
 	{
 		switch(interpolationMethod)
 		{
@@ -235,7 +236,7 @@ public class RationalFunctionInterpolation {
 		}
 	}
 
-	private synchronized void doCreateRationalFunctionsForPiecewiseConstantInterpolation()
+	private void doCreateRationalFunctionsForPiecewiseConstantInterpolation()
 	{
 		/*
 		 * Generate a rational function for each given interval
@@ -251,7 +252,7 @@ public class RationalFunctionInterpolation {
 		}
 	}
 	
-	private synchronized void doCreateRationalFunctionsForLinearInterpolation()
+	private void doCreateRationalFunctionsForLinearInterpolation()
 	{
 		/*
 		 * Generate a rational function for each given interval

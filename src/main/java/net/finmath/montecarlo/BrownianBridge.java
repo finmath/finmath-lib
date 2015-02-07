@@ -52,9 +52,10 @@ public class BrownianBridge implements BrownianMotionInterface {
 	private RandomVariableInterface[] start;
 	private RandomVariableInterface[] end;
 
-    private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 	private transient RandomVariableInterface[][]	brownianIncrements;
+	private final		Object						brownianIncrementsLazyInitLock = new Object();
 
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
@@ -94,7 +95,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 	@Override
 	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
-		synchronized(this) {
+		synchronized(brownianIncrementsLazyInitLock) {
 			if(brownianIncrements == null) doGenerateBrownianMotion();
 		}
 
@@ -163,10 +164,10 @@ public class BrownianBridge implements BrownianMotionInterface {
 		return numberOfPaths;
 	}
 
-    @Override
-    public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return randomVariableFactory.createRandomVariable(value);
-    }
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return randomVariableFactory.createRandomVariable(value);
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedSeed(int)
