@@ -44,7 +44,7 @@ public class SimpsonRealIntegratorTest {
 
 		System.out.println("Result: " + value + ". \tError: " + error);
 		
-		Assert.assertTrue(Math.abs(error) < 1E-7);
+		Assert.assertEquals("Integreation error.", 0.0, error, 1E-7);
 	}
 
 	@Test
@@ -61,6 +61,6 @@ public class SimpsonRealIntegratorTest {
 
 		System.out.println("Result: " + value + ". \tError: " + error);
 		
-		Assert.assertTrue(Math.abs(error) < 1E-13);
+		Assert.assertEquals("Integreation error.", 0.0, error, 1E-13);
 	}
 }

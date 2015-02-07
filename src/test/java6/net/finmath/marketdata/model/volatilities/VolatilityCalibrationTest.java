@@ -53,7 +53,7 @@ public class VolatilityCalibrationTest {
 	 * 
 	 * @param args Arguments - not used.
 	 * @throws SolverException Thrown if the solver cannot find a solution to the calibration problem.
-	 * @throws CalculationException 
+	 * @throws CalculationException Thrown if the calibration product failed.
 	 */
 	public static void main(String[] args) throws SolverException, CalculationException {
 
@@ -189,7 +189,7 @@ public class VolatilityCalibrationTest {
 		}
 		rms = Math.sqrt(rms/marketProducts.size());
 		System.out.println("RMS :" + rms);
-		
+
 		// Not a very strict tests
 		Assert.assertTrue(rms < 0.10);
 

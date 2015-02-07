@@ -64,10 +64,10 @@ public class CapletVolatilitiesParametricTest {
 		double maturity	= 2.0;
 		double strike	= 0.03;
 		double volatility = volatilityModel.getValue(maturity, strike, QuotingConvention.VOLATILITYLOGNORMAL);
-		
+
 		assertTrue(volatility - a * Math.sqrt((1-Math.exp(- 2 * c * maturity)) / (2 * c * maturity)) < 1E-15);
 	}
-	
+
 	@Test
 	public void testIntegratedFourParameterExponentialVolatilityParamSet1() {
 		double a = 0.25;
@@ -77,7 +77,7 @@ public class CapletVolatilitiesParametricTest {
 
 		testIntegratedFourParameterExponentialVolatility(a, b, c, d);
 	}
-	
+
 	@Test
 	public void testIntegratedFourParameterExponentialVolatilityParamSetCZero() {
 		double a = 0.25;
@@ -100,17 +100,17 @@ public class CapletVolatilitiesParametricTest {
 
 		double maxAbsDeviation = 0.0;
 		for(double t=0.01; t<=10; t += 0.01) {
-			
+
 			double volatilityUp = volatilityModel.getValue(t+eps, 0.0, QuotingConvention.VOLATILITYLOGNORMAL);
 			double volatilityDn = volatilityModel.getValue(t-eps, 0.0, QuotingConvention.VOLATILITYLOGNORMAL);
 			double integratedVarianceUp = volatilityUp*volatilityUp*(t+eps);
 			double integratedVarianceDn = volatilityDn*volatilityDn*(t-eps);
-			
+
 			double valueFiniteDifference = (integratedVarianceUp-integratedVarianceDn) / (2*eps);
 			double sigma = (a + b*t)*Math.exp(-c*t)+d;
 			double value = sigma*sigma;
 			double deviation = value-valueFiniteDifference;
-			
+
 			System.out.print(formatterMaturity.format(t) + "\t");
 			System.out.print(formatterValue.format(value) + "\t");
 			System.out.print(formatterValue.format(valueFiniteDifference) + "\t");
@@ -125,6 +125,6 @@ public class CapletVolatilitiesParametricTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 1E-8);
+		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 1E-8);
 	}
 }

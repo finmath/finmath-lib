@@ -132,7 +132,7 @@ public class SwaptionAnalyticApproximationTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviationSimulation) < 5E-3);
+		Assert.assertEquals("Deviation", 0.0, maxAbsDeviationSimulation, 5E-3);
 		Assert.assertTrue(isMultiCurve || Math.abs(maxAbsDeviationAnalytic) < 1E-15);
 	}
 

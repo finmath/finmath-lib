@@ -108,8 +108,10 @@ public class CMSOptionTest {
 		System.out.println("Forward Swaprate............................................:\t" + formatterPercent.format(rate));
 		System.out.println("Convexity Adjusted Forward Swaprate (Hunt-Kennedy)..........:\t" + formatterPercent.format(adjustedCMSRate));
 
-		// Test condition
-		Assert.assertTrue(Math.abs(valueCMSOptionLMM - valueCMSOptionHK) < 1E-3);
+		/*
+		 * jUnit assertion: condition under which we consider this test successful
+		 */
+		Assert.assertEquals("Value", valueCMSOptionLMM, valueCMSOptionHK, 1E-3);
 		/*
 		 * Value a caplet with same fixing date
 		 */

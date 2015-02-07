@@ -37,22 +37,25 @@ public class SimpsonRealIntegratorTest {
 			@Override
 			public double applyAsDouble(double x) {
 				return Math.cos(x);
-			}};
-			DoubleUnaryOperator integralAnalytic	= new DoubleUnaryOperator() {
-				@Override
-				public double applyAsDouble(double x) {
-					return Math.sin(x);
-				}};
+			}
+		};
 
-				double value = integral.integrate(integrand);
+		DoubleUnaryOperator integralAnalytic	= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) {
+				return Math.sin(x);
+			}
+		};
 
-				double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
+		double value = integral.integrate(integrand);
 
-				double error = value-valueAnalytic;
+		double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
 
-				System.out.println("Result: " + value + ". \tError: " + error);
+		double error = value-valueAnalytic;
 
-				Assert.assertTrue(Math.abs(error) < 1E-7);
+		System.out.println("Result: " + value + ". \tError: " + error);
+
+		Assert.assertEquals("Integreation error.", 0.0, error, 1E-7);
 	}
 
 	@Test
@@ -77,6 +80,6 @@ public class SimpsonRealIntegratorTest {
 
 		System.out.println("Result: " + value + ". \tError: " + error);
 
-		Assert.assertTrue(Math.abs(error) < 1E-13);
+		Assert.assertEquals("Integreation error.", 0.0, error, 1E-13);
 	}
 }

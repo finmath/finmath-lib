@@ -1,10 +1,9 @@
 package net.finmath.marketdata.model.curves;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DiscountCurveNelsonSiegelSvenssonTest {
@@ -18,6 +17,6 @@ public class DiscountCurveNelsonSiegelSvenssonTest {
 
 		double df = discountCurve.getDiscountFactor(10.0);
 		
-		assertTrue(Math.abs(df-0.847664288) < 1E-8);
+		Assert.assertEquals("Discount factor", 0.847664288, df, 1E-8);
 	}
 }

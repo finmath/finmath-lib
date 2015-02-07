@@ -6,8 +6,6 @@
 
 package net.finmath.marketdata.model.curves;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -18,6 +16,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -41,10 +40,10 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 
 		AnalyticModelInterface model = null;		// No model context needed
 
-		assertTrue(Math.abs(forwardCurve.getForward(model,  1.0) - 0.0037364893) < 1E-9);
-		assertTrue(Math.abs(forwardCurve.getForward(model,  5.0) - 0.0179295573) < 1E-9);
-		assertTrue(Math.abs(forwardCurve.getForward(model, 10.0) - 0.0298339699) < 1E-9);
-		assertTrue(Math.abs(forwardCurve.getForward(model, 20.0) - 0.0248458389) < 1E-9);
-		assertTrue(Math.abs(forwardCurve.getForward(model, 25.0) - 0.0223256887) < 1E-9);
+		Assert.assertEquals("Forward", 0.0037364893, forwardCurve.getForward(model,  1.0), 1E-9);
+		Assert.assertEquals("Forward", 0.0179295573, forwardCurve.getForward(model,  5.0), 1E-9);
+		Assert.assertEquals("Forward", 0.0298339699, forwardCurve.getForward(model, 10.0), 1E-9);
+		Assert.assertEquals("Forward", 0.0248458389, forwardCurve.getForward(model, 20.0), 1E-9);
+		Assert.assertEquals("Forward", 0.0223256887, forwardCurve.getForward(model, 25.0), 1E-9);
 	}
 }

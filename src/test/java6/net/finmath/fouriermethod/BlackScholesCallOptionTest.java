@@ -49,6 +49,6 @@ public class BlackScholesCallOptionTest {
 
 		System.out.println("Result: " + value + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
 
-		Assert.assertTrue(Math.abs(value - valueAnalytic) < 1E-7);
+		Assert.assertEquals("Value", valueAnalytic, value, 1E-7);
 	}
 }

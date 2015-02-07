@@ -56,9 +56,9 @@ public class CapletVolatilitiesTest {
 				double voLogNormal2		= capletVolatilities.convertFromTo(optionMaturity, optionStrike, volNormal2, QuotingConvention.VOLATILITYNORMAL, QuotingConvention.VOLATILITYLOGNORMAL);
 				double price2			= capletVolatilities.convertFromTo(optionMaturity, optionStrike, volNormal1, QuotingConvention.VOLATILITYNORMAL, QuotingConvention.PRICE);
 
-				Assert.assertTrue(Math.abs(price1 - price2) / (1+Math.abs(price1 - price2)) < 1E-10);
-				Assert.assertTrue(Math.abs(volLogNormal1 - voLogNormal2) / (1+Math.abs(volLogNormal1 - voLogNormal2)) < 1E-10);
-				Assert.assertTrue(Math.abs(volNormal1 - volNormal2) / (1+Math.abs(volNormal1 - volNormal2)) < 1E-10);
+				Assert.assertEquals("Price deviation", 0.0, (price1 - price2) / (1+Math.abs(price1 - price2)), 1E-10);
+				Assert.assertEquals("Implied log-normal volatility deviation", 0.0, (volLogNormal1 - voLogNormal2) / (1+Math.abs(volLogNormal1 - voLogNormal2)), 1E-10);
+				Assert.assertEquals("Implied normal volatility deviation", 0.0, (volNormal1 - volNormal2) / (1+Math.abs(volNormal1 - volNormal2)), 1E-10);
 			}
 		}
 	}

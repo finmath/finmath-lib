@@ -112,8 +112,8 @@ public class LIBORIndexTest {
 			
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
-					formatDec6.format(value) + "\t" +
-					formatDec6.format(toleranceThisTest));
+							formatDec6.format(value) + "\t" +
+							formatDec6.format(toleranceThisTest));
 			Assert.assertTrue(Math.abs(value) < toleranceThisTest);
 		}
 		System.out.println();
@@ -141,9 +141,9 @@ public class LIBORIndexTest {
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
 		System.out.println(
 				formatDec6.format(value) + "\t" +
-				formatDec6.format(toleranceThisTest));
+						formatDec6.format(toleranceThisTest));
 
-		Assert.assertTrue(Math.abs(value) < toleranceThisTest);
+		Assert.assertEquals("Deviation", 0.0, value, toleranceThisTest);
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
@@ -234,7 +234,7 @@ public class LIBORIndexTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
-//		LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, calibrationItems, properties);
+		//		LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,

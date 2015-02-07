@@ -14,6 +14,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -35,7 +36,7 @@ public class CurveTest {
 	public static void main(String[] args) throws SolverException, CloneNotSupportedException {
 		(new CurveTest()).testCurveFitting();
 	}
-	
+
 	/**
 	 * Tests fitting of curve to given data.
 	 * 
@@ -44,16 +45,16 @@ public class CurveTest {
 	 */
 	@Test
 	public void testCurveFitting() throws SolverException, CloneNotSupportedException {
-		
+
 		/*
 		 * Build a curve (initial guess for our fitting problem, defines the times).
 		 */
 		Curve.CurveBuilder curveBuilder = new Curve.CurveBuilder();
-		
+
 		curveBuilder.setInterpolationMethod(Curve.InterpolationMethod.LINEAR);
 		curveBuilder.setExtrapolationMethod(Curve.ExtrapolationMethod.LINEAR);
 		curveBuilder.setInterpolationEntity(Curve.InterpolationEntity.VALUE);
-		
+
 		// Add some points - which will not be fitted
 		curveBuilder.addPoint(-1.0 /* time */, 1.0 /* value */, false /* isParameter */);
 		curveBuilder.addPoint( 0.0 /* time */, 1.0 /* value */, false /* isParameter */);
@@ -66,7 +67,7 @@ public class CurveTest {
 		curveBuilder.addPoint( 3.0 /* time */, 2.0 /* value */, true /* isParameter */);
 
 		final CurveInterface curve = curveBuilder.build();
-		
+
 		/*
 		 * Create data to which the curve should be fitted to
 		 */
@@ -84,10 +85,12 @@ public class CurveTest {
 				100,					/* max iterations */
 				Runtime.getRuntime().availableProcessors() /* max number of threads */	
 				) {
-			
+
+			private static final long serialVersionUID = -5128114286941153154L;
+
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
-				
+
 				CurveInterface curveGuess = null;
 				try {
 					curveGuess = curve.getCloneForParameter(parameters);
@@ -103,9 +106,9 @@ public class CurveTest {
 
 		// Fit the curve (find best parameters)
 		optimizer.run();
-		
+
 		final CurveInterface fittedCurve = curve.getCloneForParameter(optimizer.getBestFitParameters());
-		
+
 		// Print out fitted curve
 		for(double time = -2.0; time < 5.0; time += 0.1) {
 			System.out.println(numberFormat.format(time) + "\t" + numberFormat.format(fittedCurve.getValue(time)));
@@ -117,11 +120,12 @@ public class CurveTest {
 			errorSum += fittedCurve.getValue(givenTimes[pointIndex]) - givenValues[pointIndex];
 		}
 		System.out.println("Mean deviation: " + errorSum);
-		
+
 		/*
-		 * Test: With the given data, the fit cannot over come that at 0.0 we have an error of -2.5.
+		 * jUnit assertion: condition under which we consider this test successful.
+		 * With the given data, the fit cannot over come that at 0.0 we have an error of -2.5.
 		 * Hence we test if the mean deviation is -2.5 (the optimizer reduces the variance)
 		 */
-		org.junit.Assert.assertTrue(Math.abs(errorSum - -2.5) < 1E-5);
+		Assert.assertEquals("Deviation", errorSum, -2.5, 1E-5);
 	}
 }
