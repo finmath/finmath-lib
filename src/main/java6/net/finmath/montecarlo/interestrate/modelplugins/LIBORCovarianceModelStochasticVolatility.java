@@ -19,12 +19,12 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * Simple stochastic volatility model, using a process
  * \[
- * 	d\lambda(t) = \nu \lambda(t) \rho \mathrm{d} W_{1}(t) + \sqrt{1-\rho^{2}} \mathrm{d} W_{2}(t) \text{,}
+ * 	d\lambda(t) = \nu \lambda(t) \left( \rho \mathrm{d} W_{1}(t) + \sqrt{1-\rho^{2}} \mathrm{d} W_{2}(t) \right) \text{,}
  * \]
- * where \( \lambda(0) = 1 \) to scale all factor loadings returned a given covariance model.
+ * where \( \lambda(0) = 1 \) to scale all factor loadings \( f_{i} \) returned by a given covariance model.
  * 
- * The model constructed is <i>\lambda(t) F(t)</i> where <i>\lambda(t)</i> is
- * the (Euler discretization of the) above process and <i>F</i> is the factor loading
+ * The model constructed is \( \lambda(t) F(t) \) where \( \lambda(t) \) is
+ * the (Euler discretization of the) above process and \( F = ( f_{1}, \ldots, f_{m} \) is the factor loading
  * from the given covariance model.
  * 
  * The process uses the first two factors of the Brownian motion provided by an object implementing
@@ -41,8 +41,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * covariance model, i.e., <i>&nu;</i> and <i>&rho;</i> will be not
  * part of the calibration.
  * 
+ * For an illustration of its usage see the associated unit test.
+ * 
  * @author Christian Fries
- *
  */
 public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovarianceModelParametric {
 
