@@ -30,11 +30,13 @@ The libraries have a focus on Monte-Carlo methods, interest rate products and mo
 Distribution
 --------------------------------------
 
-Starting with version 1.2.19 finmath lib is distributed through the central maven repository. It's coordinates are:
+finmath lib is distributed through the central maven repository. It's coordinates are:
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
 	<version>${project.version}</version>
+
+The version there is currently the Java 6 version. You may build you own Java 8 version via mvn -P java-8.
 
 License
 -------
