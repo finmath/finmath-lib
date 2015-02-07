@@ -23,15 +23,18 @@ import org.apache.commons.math3.optim.SimplePointChecker;
 import org.apache.commons.math3.random.MersenneTwister;
 
 /**
- * Displaced lognormal process with GARCH(1,1) volatility.
+ * Displaced log-normal process with ARMAGARCH(1,1) volatility.
  * 
  * This class estimate the process
- *   d (X + a)    = (X + a)/(b + a) sigma dW , i.e.
- *   d log(X + a) = sigma/(b + a) dW , i.e.
- * where a > -min(X[i]) and thus X+a > 0 and b = 1 - min(X[i]) and sigma is given by a GARCH(1,1) process.
- * The choice of b ensures that b+a >= 1.
- * For a=0 we have a log-normal process with volatility sigma/(b + a).
- * For a=infitnity we have a normal process with volatility sigma.
+ * \[
+ *   \mathrm{d} \log(X + a) = \frac{\sigma}{b + a} \mathrm{d}W(t)
+ * \]
+ * where \( a &gt; -min(X(t_{i}) \) and thus \( X+a &gt; 0 \) and \( b = 1 - -min(X(t_{i}) \) \) and
+ * \( \sigma \) is given by a ARMAGARCH(1,1) process.
+ * 
+ * The choice of b ensures that b+a &ge; 1.
+ * For a=0 we have a log-normal process with volatility &sigma;/(b + a).
+ * For a=infinity we have a normal process with volatility &sigma;.
  * 
  * @author Christian Fries
  */
@@ -84,10 +87,6 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1,	 Double.POSITIVE_INFINITY, 	 Double.POSITIVE_INFINITY, this.upperBoundDisplacement };
 	}
 
-	/**
-	 * @param parameters
-	 * @return
-	 */
 	public double getLogLikelihoodForParameters(double[] parameters)
 	{
 		double omega		= parameters[0];

@@ -23,12 +23,12 @@ import org.apache.commons.math3.optimization.PointValuePair;
  * Displaced log-normal process with GARCH(1,1) volatility.
  * 
  * This class estimate the process
- * <br>
- *   d (X + a)    = (X + a)/(b + a) &sigma; dW , i.e.
- * <br>
- *   d log(X + a) = &sigma;/(b + a) dW , i.e.
- * <br>
- * where a &gt; -min(X[i]) and thus X+a &gt; 0 and b = 1 - min(X[i]) and sigma is given by a GARCH(1,1) process.
+ * \[
+ *   \mathrm{d} \log(X + a) = \frac{\sigma}{b + a} \mathrm{d}W(t)
+ * \]
+ * where \( a &gt; -min(X(t_{i}) \) and thus \( X+a &gt; 0 \) and \( b = 1 - -min(X(t_{i}) \) \) and
+ * \( \sigma \) is given by a GARCH(1,1) process.
+ * 
  * The choice of b ensures that b+a &ge; 1.
  * For a=0 we have a log-normal process with volatility &sigma;/(b + a).
  * For a=infinity we have a normal process with volatility &sigma;.
@@ -94,9 +94,6 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.timeseries.HistoricalSimulationModel#getCloneWithWindow(int, int)
-	 */
 	@Override
 	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
 		return new DisplacedLognormalGARCH(this.values, windowIndexStart, windowIndexEnd);

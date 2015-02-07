@@ -22,8 +22,11 @@ import org.apache.commons.math3.optimization.PointValuePair;
 /**
  * Log-normal process with GARCH(1,1) volatility.
  * 
- * This class estimates the process
- *   d log(X) = &sigma; dW
+ * This class estimate the process
+ * \[
+ *   \mathrm{d} \log(X) = \sigma(t) \mathrm{d}W(t)
+ * \]
+ * where \( \sigma \) is given by a GARCH(1,1) process.
  * 
  * @author Christian Fries
  */
