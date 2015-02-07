@@ -47,11 +47,6 @@ public class TimeSeriesView implements TimeSeriesInterface {
 					public Double next() {
 						return TimeSeriesView.this.getValue(index++);
 					}
-
-					@Override
-					public void remove() {
-						throw new UnsupportedOperationException();
-					}
 				};
 			}
 
