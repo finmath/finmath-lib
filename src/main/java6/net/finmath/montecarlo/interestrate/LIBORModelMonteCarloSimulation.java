@@ -177,8 +177,11 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		int timeIndex           = getTimeIndex(time);
 
 		// If time is not part of the discretization, use the latest available point.
-		if(timeIndex < 0) timeIndex = -timeIndex-2;
-		//			throw new CalculationException("LIBOR requested at time outside simulation discretization points. Interpolation not supported yet.");
+		if(timeIndex < 0) {
+			timeIndex = -timeIndex-2;
+//			double timeStep = getTimeDiscretization().getTimeStep(timeIndex);
+//			return getLIBOR(getTime(timeIndex), periodStart, periodEnd).mult((getTime(timeIndex+1)-time)/timeStep).add(getLIBOR(getTime(timeIndex+1), periodStart, periodEnd).mult((time-getTime(timeIndex))/timeStep));
+		}
 		
 		// If this is a model primitive then return it
 		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);
