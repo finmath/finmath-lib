@@ -24,7 +24,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * where \( \lambda(0) = 1 \) to scale all factor loadings \( f_{i} \) returned by a given covariance model.
  * 
  * The model constructed is \( \lambda(t) F(t) \) where \( \lambda(t) \) is
- * the (Euler discretization of the) above process and \( F = ( f_{1}, \ldots, f_{m} \) is the factor loading
+ * the (Euler discretization of the) above process and \( F = ( f_{1}, \ldots, f_{m} ) \) is the factor loading
  * from the given covariance model.
  * 
  * The process uses the first two factors of the Brownian motion provided by an object implementing
