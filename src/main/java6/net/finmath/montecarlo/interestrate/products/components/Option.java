@@ -116,11 +116,11 @@ public class Option extends AbstractProductComponent {
 		if(evaluationTime > exerciseDate) return zero;
 
 		RandomVariableInterface values = underlying.getValue(exerciseDate, model);
-		RandomVariableInterface strike = strikeProduct.getValue(exerciseDate, model);
+		RandomVariableInterface strike;
+		if(strikeProduct != null)	strike = strikeProduct.getValue(exerciseDate, model);
+		else						strike = model.getRandomVariableForConstant(strikePrice);
 
-		RandomVariableInterface exerciseTrigger = null;
-		if(strikeProduct != null)	exerciseTrigger = values.sub(strike).mult(isCall ? 1.0 : -1.0);
-		else						exerciseTrigger = values.sub(strikePrice).mult(isCall ? 1.0 : -1.0);
+		RandomVariableInterface exerciseTrigger = values.sub(strike).mult(isCall ? 1.0 : -1.0);
 		
 		if(exerciseTrigger.getFiltrationTime() > exerciseDate) {
 			RandomVariableInterface filterNaN = exerciseTrigger.isNaN().sub(1.0).mult(-1.0);
