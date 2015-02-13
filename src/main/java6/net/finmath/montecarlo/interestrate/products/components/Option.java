@@ -15,15 +15,37 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * An option. Implements the function max(underlying(t)-K,0) for any underlying object implementing
- * an AbstractLIBORMonteCarloProduct.
+ * An option.
+ * 
+ * Implements the function <code>max(underlying(t)-strike,0)</code> for any <code>underlying</code> object
+ * implementing an {@link net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct}.
+ * 
+ * The strike may be a fixed constant value or an object implementing
+ * {@link net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct}
+ * (resulting in a stochastic strike or exchange option).
+ * 
+ * More precise, the <code>getVaue</code> method returns the value
+ * \[
+ * 	\left\{
+ * 		\begin{array}{ll}
+ * 			U(t)-S(t) &amp; \text{if E(t) &gt; 0} \\
+ * 			U(t)-S(t) &amp; \text{else.} 
+ * 		\end{array}
+ * 	\right.
+ * \]
+ * where \( E \) is an estimator for the expectation of \( U(t)-S(t) \) and \( U \) is the value
+ * returned by the call to <code>getValue</code> of the underlying product, which may return a
+ * sum on discounted futures cash-flows / values (i.e. not yet performing the expectation) and
+ * \( S \) is the strike (which may be a fixed value or another underlying product).
  * 
  * @author Christian Fries
  * @version 1.2
+ * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct
  */
 public class Option extends AbstractProductComponent {
 
-	private static final long serialVersionUID = -7268432817913776974L;
+	private static final long serialVersionUID = 2987369289230532162L;
+
 	private final double							exerciseDate;
 	private final double							strikePrice;
 	private final AbstractLIBORMonteCarloProduct	underlying;
@@ -69,11 +91,11 @@ public class Option extends AbstractProductComponent {
 	}
 
 	/**
-	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
+	 * Creates the function underlying(exerciseDate) &ge; strikeProduct ? underlying : strikeProduct
 	 * 
 	 * @param exerciseDate The exercise date of the option (given as a double).
 	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
-	 * @param strikeProduct The strike.
+	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
 	 * @param underlying The underlying.
 	 */
 	public Option(double exerciseDate,boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying) {
