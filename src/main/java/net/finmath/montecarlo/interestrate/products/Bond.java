@@ -48,9 +48,9 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
         values = values.div(numeraire).mult(monteCarloProbabilities);
         
         // Convert back to values
-        RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-        RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-        values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+        RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
+        RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
+        values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 
 		// Return values
 		return values;	
