@@ -87,6 +87,7 @@ public class ScheduleGenerator {
 	        if(string.equalsIgnoreCase("e30/360 isda"))	return E30_360_ISDA;
 	        if(string.equalsIgnoreCase("30e/360"))		return E30_360;
 	        if(string.equalsIgnoreCase("e30/360"))		return E30_360;
+	        if(string.equalsIgnoreCase("30/360"))		return E30_360;
 	        if(string.equalsIgnoreCase("30u/360"))		return U30_360;
 	        if(string.equalsIgnoreCase("u30/360"))		return U30_360;
 	        if(string.equalsIgnoreCase("act/360"))		return ACT_360;
