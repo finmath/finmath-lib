@@ -109,7 +109,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 
 		for (int i = 1; i < length-1; i++) {
 			m = eval;
-			h = (omega + (alpha + gamma * (m > mu ? 1.0 : 0.0)) * m * m) + beta * h;
+			h = (omega + (alpha + gamma * (m < mu ? 1.0 : 0.0)) * m * m) + beta * h;
 
 			double value1 = timeSeries.getValue(i);
 			double value2 = timeSeries.getValue(i+1);
@@ -145,7 +145,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 			double eval	= volScaling * (Math.log((timeSeries.getValue(i)+displacement)/(timeSeries.getValue(i-1)+displacement)));
 
 			m = eval;
-			h = (omega + (alpha + gamma * (m > mu ? 1.0 : 0.0)) * m * m) + beta * h;
+			h = (omega + (alpha + gamma * (m < mu ? 1.0 : 0.0)) * m * m) + beta * h;
 			
 			evalPrev = eval;
 		}
@@ -176,7 +176,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 
 			szenarios[i-1]	= m / vol / volScaling;
 
-			h = (omega + (alpha + gamma * (m > mu ? 1.0 : 0.0)) * m * m) + beta * h;
+			h = (omega + (alpha + gamma * (m < mu ? 1.0 : 0.0)) * m * m) + beta * h;
 			vol = Math.sqrt(h) / volScaling;
 			evalPrev = eval;
 		}
