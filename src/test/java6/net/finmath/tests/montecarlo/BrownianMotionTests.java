@@ -7,6 +7,7 @@ package net.finmath.tests.montecarlo;
 
 import java.text.DecimalFormat;
 
+import net.finmath.functions.JarqueBeraTest;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
@@ -65,6 +66,50 @@ public class BrownianMotionTests {
 		System.out.println("");
 	}
 	
+	@Test
+	public void testScalarValuedBrownianMotionWithJarqueBeraTest() {
+		// The parameters
+		int		numberOfPaths	= 100000;
+		int		seed		= 31415;
+		double	lastTime	= 60;
+		double	dt			= 0.25;
+
+		System.out.println("Jarque-Bera test of subsequent Brownian increments.");
+
+		// Create the time discretization
+		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, (int)(lastTime/dt), dt);
+
+		// Test the quality of the Brownian motion
+		BrownianMotion brownian = new BrownianMotion(
+				timeDiscretization,
+				1,
+				numberOfPaths,
+				seed
+		);
+		
+		JarqueBeraTest jb = new JarqueBeraTest();
+		int fail = 0;
+		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
+			RandomVariableInterface brownianRealization = brownian.getBrownianIncrement(timeIndex, 0);
+			double test = jb.test(brownianRealization);
+
+			System.out.print(timeIndex + ":\t" + test);
+			if(test > 4.6) {
+				fail++;
+				System.out.println(" - fail");
+			}
+			else {
+				System.out.println(" - OK");
+			}
+		}
+
+		System.out.println(fail + " out of " + timeDiscretization.getNumberOfTimeSteps() + " failed.");
+
+		Assert.assertTrue("Test on normal distribution.", 10.0 * fail < timeDiscretization.getNumberOfTimeSteps());
+
+		System.out.println("");
+	}
+
 	@Test
 	public void testBrownianIncrementSquaredDrift() {
 		// The parameters
