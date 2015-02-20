@@ -183,7 +183,7 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @return The ATM forward of this cap.
 	 */
 	public double getATMForward(AnalyticModelInterface model, boolean isFirstPeriodIncluded) {
-		if(!Double.isNaN(cachedATMForward) && cacheStateModel.get() == model && cacheStateIsFirstPeriodIncluded) return cachedATMForward;
+		if(!Double.isNaN(cachedATMForward) && cacheStateModel.get() == model && cacheStateIsFirstPeriodIncluded == isFirstPeriodIncluded) return cachedATMForward;
 
 		ScheduleInterface remainderSchedule = schedule;
 		if(!isFirstPeriodIncluded) {
