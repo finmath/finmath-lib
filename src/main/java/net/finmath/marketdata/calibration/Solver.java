@@ -174,7 +174,7 @@ public class Solver {
 			double error = calibrationProducts.get(i).getValue(evaluationTime, calibratedModel);
 			accuracy += error * error;
 		}
-		accuracy = Math.sqrt(accuracy);
+		accuracy = Math.sqrt(accuracy/calibrationProducts.size());
 
 		return calibratedModel;
 	}
