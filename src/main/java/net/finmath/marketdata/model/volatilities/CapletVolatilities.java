@@ -42,6 +42,10 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	private Map<Double, CurveInterface>	capletVolatilities = new HashMap<Double, CurveInterface>();
+	
+	private transient TimeDiscretizationInterface maturities;
+	private Object lazyInitLock = new Object();
+	
 	/**
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
@@ -97,7 +101,10 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException("Unable to build curve.");
 		}
-		capletVolatilities.put(maturity, curve);
+		synchronized (lazyInitLock) {
+			capletVolatilities.put(maturity, curve);
+			maturities = null;
+		}
 	}
 
 	@Override
@@ -108,16 +115,25 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	@Override
 	public double getValue(AnalyticModelInterface model, double maturity, double strike, VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
 		if(maturity == 0) return 0;
-		TimeDiscretizationInterface maturities = new TimeDiscretization(capletVolatilities.keySet().toArray(new Double[0]));
 		
-		//		double maturityLowerOrEqual		= maturities.getTime(maturities.getTimeIndexNearestLessOrEqual(maturity));
-		double maturityGreaterOfEqual	= maturities.getTime(Math.min(maturities.getTimeIndexNearestGreaterOrEqual(maturity),maturities.getNumberOfTimes()-1));
+		double value;
+		if(capletVolatilities.containsKey(maturity)) {
+			value			= capletVolatilities.get(maturity).getValue(strike);
+		}
+		else {
+			synchronized (lazyInitLock) {
+				if(maturities == null) maturities = new TimeDiscretization(capletVolatilities.keySet().toArray(new Double[0]));
+			}
+			
+			//		double maturityLowerOrEqual		= maturities.getTime(maturities.getTimeIndexNearestLessOrEqual(maturity));
+			double maturityGreaterOfEqual	= maturities.getTime(Math.min(maturities.getTimeIndexNearestGreaterOrEqual(maturity),maturities.getNumberOfTimes()-1));
 
-		// @TODO: Below we should trigger an exception if no forwardCurve is supplied but needed.
-		// Interpolation / extrapolation is performed on iso-moneyness lines.
-		double adjustedStrike = forwardCurve.getValue(model, maturityGreaterOfEqual) + (strike - forwardCurve.getValue(model, maturity));
+			// @TODO: Below we should trigger an exception if no forwardCurve is supplied but needed.
+			// Interpolation / extrapolation is performed on iso-moneyness lines.
+			double adjustedStrike = forwardCurve.getValue(model, maturityGreaterOfEqual) + (strike - forwardCurve.getValue(model, maturity));
 
-		double value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
+			value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
+		}
 
 		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
 	}
