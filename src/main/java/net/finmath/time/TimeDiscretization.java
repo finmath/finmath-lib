@@ -36,6 +36,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	/**
 	 * Constructs a time discretization from a given set of doubles.
+	 * The given array does not need to be sorted.
 	 * 
 	 * @param times Given array or arguments list of discretization points.
 	 */
@@ -47,8 +48,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	/**
 	 * Constructs a time discretization from a given set of Doubles.
+	 * The given array does not need to be sorted.
 	 * 
-	 * @param times Given array or arguments list of discretization points
+	 * @param times Given array or arguments list of discretization points.
 	 */
 	public TimeDiscretization(Double[] times) {
 		super();
@@ -59,6 +61,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	/**
 	 * Constructs a time discretization from a given ArrayList of Doubles.
+	 * The given list does not need to be sorted.
 	 * 
 	 * @param timeDiscretization Given ArrayList of discretization points
 	 */
