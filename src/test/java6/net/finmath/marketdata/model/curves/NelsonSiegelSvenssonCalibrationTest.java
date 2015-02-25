@@ -102,7 +102,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		double[] parametersBest = calibratedModel.getDiscountCurve(discountCurve.getName()).getParameter();
 
 		// Test calibration
-		discountCurve	= new DiscountCurveNelsonSiegelSvensson("discountCurve", referenceDate, parametersBest, 1.0);
+		discountCurve	= new DiscountCurveNelsonSiegelSvensson(discountCurve.getName(), referenceDate, parametersBest, 1.0);
 		forwardCurve	= new ForwardCurveFromDiscountCurve(discountCurve.getName(), referenceDate, forwardCurveTenor);
 		model			= new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
 		
