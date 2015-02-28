@@ -1,90 +1,79 @@
 /*
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christianfries.com.
  *
- * Created on 15.02.2004
+ * Created on 28.02.2015
  */
-package net.finmath.montecarlo.interestrate.products;
 
-import java.util.Arrays;
+package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.products.SwapLeg;
+import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
+import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.ScheduleInterface;
 
 /**
- * Implements the valuation of a swap under a LIBORModelMonteCarloSimulationInterface
+ * Create a swap from schedules, notional, indices and spreads (fixed coupons).
+ * 
+ * The getValue method of this class simple returns
+ * <code>
+ * 	legReceiver.getValue(evaluationTime, model).sub(legPayer.getValue(evaluationTime, model))
+ * </code>
+ * where <code>legReceiver</code> and <code>legPayer</code> are {@link net.finmath.montecarlo.interestrate.products.SwapLeg}s.
  * 
  * @author Christian Fries
- * @version 1.2
  */
 public class Swap extends AbstractLIBORMonteCarloProduct {
-	private double[] fixingDates;	// Vector of fixing dates
-	private double[] paymentDates;	// Vector of payment dates (same length as fixing dates)
-	private double[] swaprates;		// Vector of strikes
+
+	private final AbstractLIBORMonteCarloProduct legReceiver;
+	private final AbstractLIBORMonteCarloProduct legPayer;
 
 	/**
-	 * Create a swap.
+	 * Create a swap from schedules, notional, indices and spreads (fixed coupons).
+	 * 
+	 * @param notional The notional.
+	 * @param scheduleReceiveLeg The period schedule for the receiver leg.
+	 * @param indexReceiveLeg The index of the receiver leg, may be null if no index is received.
+	 * @param spreadReceiveLeg The constant spread or fixed coupon rate of the receiver leg.
+	 * @param schedulePayLeg The period schedule for the payer leg.
+	 * @param indexPayLeg The index of the payer leg, may be null if no index is paid.
+	 * @param spreadPayLeg The constant spread or fixed coupon rate of the payer leg.
+	 */
+	public Swap(AbstractNotional notional,
+			ScheduleInterface scheduleReceiveLeg,
+			AbstractIndex indexReceiveLeg, double spreadReceiveLeg,
+			ScheduleInterface schedulePayLeg, AbstractIndex indexPayLeg,
+			double spreadPayLeg) {
+		super();
+
+		legReceiver = new SwapLeg(scheduleReceiveLeg, notional, indexReceiveLeg, spreadReceiveLeg, false);
+		legPayer = new SwapLeg(schedulePayLeg, notional, indexPayLeg, spreadPayLeg, false);
+	}
+
+	/**
+	 * Create a payer swap from idealized data.
 	 * 
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @deprecated This constructor is deprecated. If you like to create a payer swap from fixingDates, paymentDates and swaprates use {@link net.finmath.montecarlo.interestrate.products.SimpleSwap}.
 	 */
 	public Swap(
 			double[] fixingDates,
 			double[] paymentDates,
 			double[] swaprates) {
 		super();
-		this.fixingDates = fixingDates;
-		this.paymentDates = paymentDates;
-		this.swaprates = swaprates;
+		legReceiver = new SimpleSwap(fixingDates, paymentDates, swaprates);
+		legPayer	= null;
 	}
 
-	/**
-	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-	 * Cashflows prior evaluationTime are not considered.
-	 * 
-	 * @param evaluationTime The time on which this products value should be observed.
-	 * @param model The model used to price the product.
-	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-	 */
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface values						= model.getRandomVariableForConstant(0.0);
-
-		for(int period=0; period<fixingDates.length; period++)
-		{
-			double fixingDate		= fixingDates[period];
-			double paymentDate		= paymentDates[period];
-			double swaprate 		= swaprates[period];
-			double periodLength		= paymentDate - fixingDate;
-
-			if(paymentDate < evaluationTime) continue;
-
-			// Get random variables
-			RandomVariableInterface libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
-			RandomVariableInterface payoff	= libor.sub(swaprate).mult(periodLength);
-
-			RandomVariableInterface numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
-			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
-
-			values = values.add(payoff);
-		}
-
-		RandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
-		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
-
-		return values;
-	}
-
-	@Override
-	public String toString() {
-		return super.toString()
-				+ "\n" + "fixingDates: " + Arrays.toString(fixingDates)
-				+ "\n" + "paymentDates: " + Arrays.toString(paymentDates)
-				+ "\n" + "swaprates: " + Arrays.toString(swaprates);
+		RandomVariableInterface value = legReceiver.getValue(evaluationTime, model);
+		if(legPayer != null) value = value.sub(legPayer.getValue(evaluationTime, model));
+		
+		return value;
 	}
 }
