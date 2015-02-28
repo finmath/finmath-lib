@@ -22,7 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class JarqueBeraTest {
 
 	/**
-	 * 
+	 * Create an instance of the Jarque-Bera test.
 	 */
 	public JarqueBeraTest() {
 	}
@@ -35,13 +35,13 @@ public class JarqueBeraTest {
 	 * @return The test statistic of the Jarque-Bera test the given random variable.
 	 */
 	public double test(RandomVariableInterface randomVariable) {
-		double mean = randomVariable.getAverage();
-		double stdev = randomVariable.getStandardDeviation();
+		double mean		= randomVariable.getAverage();
+		double stdev	= randomVariable.getStandardDeviation();
 		
-		double skewness = Math.pow(mean / stdev, 3);
-		double kurtosis = Math.pow(mean / stdev, 4);
+		double skewness = randomVariable.sub(mean).pow(3).getAverage() / Math.pow(stdev, 3);
+		double kurtosis = randomVariable.sub(mean).pow(4).getAverage() / Math.pow(stdev, 4);
 		
-		double test = randomVariable.size() / 6.0 * ( skewness * skewness - 0.25 * (kurtosis-3.0)*(kurtosis-3.0));
+		double test = randomVariable.size() / 6.0 * ( skewness * skewness + 0.25 * (kurtosis-3.0)*(kurtosis-3.0));
 		
 		return test;
 	}
