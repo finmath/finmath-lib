@@ -16,7 +16,7 @@ public class DiscountCurveNelsonSiegelSvenssonTest {
 		DiscountCurveInterface discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR Curve", referenceDate, nssParameters, 1.0);
 
 		double df = discountCurve.getDiscountFactor(10.0);
-		
+
 		Assert.assertEquals("Discount factor", 0.847664288, df, 1E-8);
 	}
 }

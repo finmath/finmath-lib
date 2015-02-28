@@ -605,6 +605,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 */
 		if(discountCurve != null) {
 			// This includes a control for zero bonds
+//			DiscountCurveInterface discountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);
+//			double deterministicNumeraireAdjustment = discountCurveFromForwardPerformance.getDiscountFactor(time) / discountCurve.getDiscountFactor(time);
+
 			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}

@@ -34,7 +34,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFrom
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.Bond;
 import net.finmath.montecarlo.interestrate.products.DigitalCaplet;
-import net.finmath.montecarlo.interestrate.products.Swap;
+import net.finmath.montecarlo.interestrate.products.SimpleSwap;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximationRebonato;
@@ -261,7 +261,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			}
 
 			// Create a swap
-			Swap swap = new Swap(fixingDates, paymentDates, swaprates);
+			SimpleSwap swap = new SimpleSwap(fixingDates, paymentDates, swaprates);
 
 			// Value the swap
 			double value = swap.getValue(liborMarketModel);
