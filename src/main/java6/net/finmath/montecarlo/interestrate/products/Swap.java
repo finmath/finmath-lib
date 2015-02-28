@@ -8,7 +8,6 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariableInterface;
