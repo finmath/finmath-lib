@@ -35,16 +35,16 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-    public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName, boolean isNotionalExchanged) {
-	    super();
-	    this.legSchedule = legSchedule;
-	    this.forwardCurveName = forwardCurveName;
-	    this.spread = spread;
-	    this.discountCurveName = discountCurveName;
-	    this.isNotionalExchanged = isNotionalExchanged;
-    }
+	public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName, boolean isNotionalExchanged) {
+		super();
+		this.legSchedule = legSchedule;
+		this.forwardCurveName = forwardCurveName;
+		this.spread = spread;
+		this.discountCurveName = discountCurveName;
+		this.isNotionalExchanged = isNotionalExchanged;
+	}
 
-    /**
+	/**
 	 * Creates a swap leg (without notional exchange). The swap leg has a unit notional of 1.
 	 * 
 	 * @param legSchedule Schedule of the leg.
@@ -52,25 +52,21 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 */
-    private SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName) {
-	    super();
-	    this.legSchedule = legSchedule;
-	    this.forwardCurveName = forwardCurveName;
-	    this.spread = spread;
-	    this.discountCurveName = discountCurveName;
-    }
+	public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName) {
+		this(legSchedule, forwardCurveName, spread, discountCurveName, false);
+	}
 
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
-		
+
 		DiscountCurveInterface	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			// User might like to get forward from discount curve.
 			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
-			
+
 			if(discountCurveForForward == null) {
 				// User specified a name for the forward curve, but no curve was found.
 				throw new IllegalArgumentException("No curve of the name " + forwardCurveName + " was found in the model.");
@@ -82,7 +78,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double fixingDate	= legSchedule.getFixing(periodIndex);
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
-			
+
 			/*
 			 * We do not count empty periods.
 			 * Since empty periods are an indication for a ill-specified
@@ -113,7 +109,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 
-	
+
 	public ScheduleInterface getSchedule() {
 		return legSchedule;
 	}
