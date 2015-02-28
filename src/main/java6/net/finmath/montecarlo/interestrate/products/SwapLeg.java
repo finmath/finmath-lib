@@ -81,7 +81,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 				coupon = new FixedCoupon(spread);
 			}
 
-			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, true, isNotionalExchanged, true);
+			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, true, isNotionalExchanged, false);
 			periods.add(period);
 		}
 
