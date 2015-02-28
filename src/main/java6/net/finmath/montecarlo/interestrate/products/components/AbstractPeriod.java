@@ -55,7 +55,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	}
 
 	/**
-	 * Initialize basic properties of the period unsing the idealized
+	 * Initialize basic properties of the period using the idealized
 	 * daycount faction <code>periodEnd-periodStart</code>.
 	 * 
 	 * @param periodStart The period start.
