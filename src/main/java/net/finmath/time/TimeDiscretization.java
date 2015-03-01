@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * This class represents a set of discrete points in time.
@@ -69,6 +70,19 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 		super();
 		this.timeDiscretization = new double[timeDiscretization.size()];
 		for(int timeIndex=0; timeIndex<timeDiscretization.size(); timeIndex++) this.timeDiscretization[timeIndex] = roundToTimeTickSize(timeDiscretization.get(timeIndex));
+		java.util.Arrays.sort(this.timeDiscretization);
+	}
+
+	/**
+	 * Constructs a time discretization from a given Set of Doubles.
+	 * 
+	 * @param times
+	 */
+	public TimeDiscretization(Set<Double> times) {
+		super();
+		this.timeDiscretization = new double[times.size()];
+		Iterator<Double> time = times.iterator();
+		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) this.timeDiscretization[timeIndex] = roundToTimeTickSize(time.next());
 		java.util.Arrays.sort(this.timeDiscretization);
 	}
 
