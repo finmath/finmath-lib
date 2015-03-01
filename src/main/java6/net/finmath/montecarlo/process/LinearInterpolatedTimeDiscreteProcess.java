@@ -62,10 +62,19 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 		
 	}
 
+	/**
+	 * Returns the (possibly interpolated) value of this stochastic process at a given time \( t \).
+	 * 
+	 * @param time The time \( t \).
+	 * @param component The component to be returned (if this is a vector valued process), otherwise 0.
+	 * @return The random variable \( X(t) \).
+	 * @throws CalculationException
+	 */
 	public RandomVariableInterface getProcessValue(double time, int component) throws CalculationException {
 		double timeLower = timeDiscretization.getTimeIndexNearestLessOrEqual(time);
 		double timeUpper = timeDiscretization.getTimeIndexNearestGreaterOrEqual(time);
-		
+		if(timeLower == timeUpper) return realizations.get(timeLower);
+
 		RandomVariableInterface valueLower	= realizations.get(timeLower);
 		RandomVariableInterface valueUpper	= realizations.get(timeUpper);
 		
