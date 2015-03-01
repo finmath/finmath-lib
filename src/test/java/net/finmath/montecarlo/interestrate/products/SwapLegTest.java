@@ -76,7 +76,7 @@ public class SwapLegTest {
 		/*
 		 * Create Monte-Carlo model
 		 */
-		int numberOfPaths = 100000;
+		int numberOfPaths = 10000;
 		int numberOfFactors = 5;
 		double correlationDecayParam = 0.2;
 		LIBORModelMonteCarloSimulationInterface model = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
@@ -132,7 +132,7 @@ public class SwapLegTest {
 		/*
 		 * Create Monte-Carlo model
 		 */
-		int numberOfPaths = 100000;
+		int numberOfPaths = 10000;
 		int numberOfFactors = 5;
 		double correlationDecayParam = 0.2;
 		LIBORModelMonteCarloSimulationInterface model = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);

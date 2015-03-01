@@ -90,6 +90,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double forward		= spread;
 			if(forwardCurve != null) {
 				forward			+= forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
+//				forward			+= forwardCurve.getForward(model, fixingDate, 0.5);//paymentDate-fixingDate);
 			}
 			else if(discountCurveForForward != null) {
 				/*
