@@ -59,7 +59,7 @@ public class SwapLegTest {
 		
 		Calendar	referenceDate = new GregorianCalendar(2014, Calendar.AUGUST, 12);
 		int			spotOffsetDays = 2;
-		String		forwardStartPeriod = "3M";
+		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
 		String		frequency = "semiannual";
 		String		daycountConvention = "30/360";
@@ -115,7 +115,7 @@ public class SwapLegTest {
 		
 		Calendar	referenceDate = new GregorianCalendar(2014, Calendar.AUGUST, 12);
 		int			spotOffsetDays = 2;
-		String		forwardStartPeriod = "3M";
+		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
 		String		frequency = "semiannual";
 		String		daycountConvention = "30/360";
