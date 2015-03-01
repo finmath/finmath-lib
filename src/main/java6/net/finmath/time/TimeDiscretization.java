@@ -76,7 +76,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs a time discretization from a given Set of Doubles.
 	 * 
-	 * @param times
+	 * @param times Given Set of discretization points
 	 */
 	public TimeDiscretization(Set<Double> times) {
 		super();
