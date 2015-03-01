@@ -554,7 +554,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			RandomVariableInterface numeraire = getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
 
 			double deterministicNumeraireAdjustment = (1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), time-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)))/(1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), getLiborPeriod(upperIndex)-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)));
-			return numeraire.mult(deterministicNumeraireAdjustment);
+			// @TODO This adjustment only applies if the corresponding adjustment in getLIBOR is enabled
+//			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
+			return numeraire;
 		}
 
 		// Calculate the numeraire, when time is part of liborPeriodDiscretization
@@ -604,6 +606,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
 		if(discountCurve != null) {
+			/*
+			DiscountCurveInterface discountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);
+			double deterministicNumeraireAdjustment = discountCurveFromForwardPerformance.getDiscountFactor(time) / discountCurve.getDiscountFactor(time);
+			*/
+
 			// This includes a control for zero bonds
 			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
