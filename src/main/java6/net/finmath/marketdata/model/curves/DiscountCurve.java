@@ -91,7 +91,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		DiscountCurve discountFactors = new DiscountCurve(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
-			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], isParameter[timeIndex]);
+			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], isParameter != null && isParameter[timeIndex]);
 		}
 
 		return discountFactors;
