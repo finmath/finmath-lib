@@ -88,7 +88,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @return A new process consisting of the interpolation of the random variables obtained by applying the given function to this process discrete set of random variables.
 	 */
 	public LinearInterpolatedTimeDiscreteProcess apply(DoubleUnaryOperator function) {
-		Map<Double, RandomVariableInterface> result = new HashMap<>();
+		Map<Double, RandomVariableInterface> result = new HashMap<Double, RandomVariableInterface>();
 
 		for(double time: timeDiscretization) result.put(time, realizations.get(time).apply(function));
 
