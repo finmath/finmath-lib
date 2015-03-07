@@ -67,7 +67,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @throws CalculationException
 	 */
 	public LinearInterpolatedTimeDiscreteProcess add(LinearInterpolatedTimeDiscreteProcess process) throws CalculationException {
-		Map<Double, RandomVariableInterface> sum = new HashMap<>();
+		Map<Double, RandomVariableInterface> sum = new HashMap<Double, RandomVariableInterface>();
 
 		for(double time: timeDiscretization) sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));
 
