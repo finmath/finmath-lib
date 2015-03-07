@@ -9,6 +9,8 @@ package net.finmath.montecarlo.process;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
@@ -44,7 +46,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 		this.realizations = new HashMap<Double, RandomVariableInterface>();
 		this.realizations.putAll(realizations);
 	}
-	
+
 	/**
 	 * Private constructor. Note: The arguments are not cloned.
 	 * 
@@ -56,10 +58,42 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 		this.realizations = realizations;
 	}
 
-	@Override
-	public RandomVariableInterface getProcessValue(int timeIndex, int component) throws CalculationException {
-		return realizations.get(timeDiscretization.getTime(timeIndex));
-		
+	/**
+	 * Create a new linear interpolated time discrete process by
+	 * using the time discretization of this process and the sum of this process and the given one
+	 * as its values.
+	 * 
+	 * @param process A given process.
+	 * @return A new process representing the of this and the given process.
+	 * @throws CalculationException
+	 */
+	public LinearInterpolatedTimeDiscreteProcess add(LinearInterpolatedTimeDiscreteProcess process) throws CalculationException {
+		Map<Double, RandomVariableInterface> sum = new HashMap<>();
+
+		for(double time: timeDiscretization) sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));
+
+		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, sum);
+	}
+
+	/**
+	 * Create a new process consisting of the interpolation of the random variables obtained by
+	 * applying the given function to this process discrete set of random variables.
+	 * That is \( t \mapsto Y(t) \)
+	 * where
+	 * \[
+	 * 	Y(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} f(X(t_{i})) + \frac{t - t_{i}}{t_{i+1}-t_{i}} f(X(t_{i+1})) 
+	 * \]
+	 * with \( t_{i} \leq t \leq t_{i+1} \) and a given function \( f \).
+	 * 
+	 * @param function The function \( f \), a univariate function.
+	 * @return A new process consisting of the interpolation of the random variables obtained by applying the given function to this process discrete set of random variables.
+	 */
+	public LinearInterpolatedTimeDiscreteProcess apply(UnivariateFunction function) {
+		Map<Double, RandomVariableInterface> result = new HashMap<>();
+
+		for(double time: timeDiscretization) result.put(time, realizations.get(time).apply(function));
+
+		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, result);
 	}
 
 	/**
@@ -77,8 +111,14 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 
 		RandomVariableInterface valueLower	= realizations.get(timeLower);
 		RandomVariableInterface valueUpper	= realizations.get(timeUpper);
-		
+
 		return valueUpper.mult((time-timeLower)/(timeUpper-timeLower)).add(valueLower.mult((timeUpper-time)/(timeUpper-timeLower)));
+	}
+
+	@Override
+	public RandomVariableInterface getProcessValue(int timeIndex, int component) throws CalculationException {
+		return realizations.get(timeDiscretization.getTime(timeIndex));
+
 	}
 
 	@Override
