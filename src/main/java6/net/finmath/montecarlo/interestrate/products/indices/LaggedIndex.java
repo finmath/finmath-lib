@@ -19,6 +19,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class LaggedIndex extends AbstractIndex {
 
+	private static final long serialVersionUID = 4899043672016395530L;
+
 	final AbstractProductComponent	index;
 	final double					fixingOffset;
 

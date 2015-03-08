@@ -17,7 +17,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 public interface ProcessInterface {
 
     /**
-     * This method returns the realization of a component of the process at a certain time index.
+     * This method returns the realization of a component of the process for a given time index.
      * 
      * @param timeIndex Time index at which the process should be observed
      * @param component Component index of the process
