@@ -65,7 +65,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * 
 	 * @param process A given process.
 	 * @return A new process representing the of this and the given process.
-	 * @throws CalculationException
+	 * @throws CalculationException Thrown if the given process fails to evaluate at a certain time point.
 	 */
 	public LinearInterpolatedTimeDiscreteProcess add(LinearInterpolatedTimeDiscreteProcess process) throws CalculationException {
 		Map<Double, RandomVariableInterface> sum = new HashMap<Double, RandomVariableInterface>();
@@ -102,7 +102,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @param time The time \( t \).
 	 * @param component The component to be returned (if this is a vector valued process), otherwise 0.
 	 * @return The random variable \( X(t) \).
-	 * @throws CalculationException
+	 * @throws CalculationException Thrown if this process fails to evaluate at the given time point.
 	 */
 	public RandomVariableInterface getProcessValue(double time, int component) throws CalculationException {
 		double timeLower = timeDiscretization.getTimeIndexNearestLessOrEqual(time);
