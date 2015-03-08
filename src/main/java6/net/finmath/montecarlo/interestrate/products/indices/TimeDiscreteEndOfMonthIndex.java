@@ -28,7 +28,9 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 	/**
 	 * Creates a time discrete index.
 	 * 
-	 * @param name The name of an index. Used to map an index on a curve.
+	 * @param name The name of this index. Used to map an index on a curve.
+	 * @param baseIndex The base index (will be referenced at end of month points).
+	 * @param fixingOffsetMonths A given fixing offset in month.
 	 */
 	public TimeDiscreteEndOfMonthIndex(String name, AbstractIndex baseIndex, int fixingOffsetMonths) {
 		super(name);
