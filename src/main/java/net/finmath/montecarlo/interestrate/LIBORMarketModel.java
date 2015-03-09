@@ -553,9 +553,15 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			double alpha = (time-getLiborPeriod(lowerIndex)) / (getLiborPeriod(upperIndex) - getLiborPeriod(lowerIndex));
 			RandomVariableInterface numeraire = getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
 
-			double deterministicNumeraireAdjustment = (1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), time-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)))/(1 + forwardRateCurve.getForward(curveModel, getLiborPeriod(lowerIndex), getLiborPeriod(upperIndex)-getLiborPeriod(lowerIndex)) * (time-getLiborPeriod(lowerIndex)));
-			// @TODO This adjustment only applies if the corresponding adjustment in getLIBOR is enabled
-//			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
+			/*
+			 * Adjust for discounting, i.e. funding or collateralization
+			 */
+			if(discountCurve != null) {
+				// This includes a control for zero bonds
+				double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
+				numeraire = numeraire.mult(deterministicNumeraireAdjustment);
+			}
+
 			return numeraire;
 		}
 

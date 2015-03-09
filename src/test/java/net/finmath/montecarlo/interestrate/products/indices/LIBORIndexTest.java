@@ -20,8 +20,11 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveNelsonSiegelSvensson;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
@@ -55,6 +58,11 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class LIBORIndexTest {
 
+	public enum CurveSetup {
+		NSS,				// Uses NSS curve
+		DISCRETE			// Uses forward and discount curve with interpolation points.
+	}
+
 	/**
 	 * The parameters for this test, that is an error consisting of
 	 * { numberOfPaths, measure }.
@@ -65,16 +73,26 @@ public class LIBORIndexTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ new Integer(1000) , Measure.SPOT },
-				{ new Integer(2000) , Measure.SPOT },
-				{ new Integer(4000) , Measure.SPOT },
-				{ new Integer(8000) , Measure.SPOT },
-				{ new Integer(10000) , Measure.SPOT },
-				{ new Integer(20000) , Measure.SPOT },
-				{ new Integer(40000) , Measure.SPOT },
-				{ new Integer(80000) , Measure.SPOT },
-				{ new Integer(100000) , Measure.SPOT },
-				{ new Integer(200000) , Measure.SPOT },
+				{ new Integer(1000) , CurveSetup.NSS },
+				{ new Integer(2000) , CurveSetup.NSS },
+				{ new Integer(4000) , CurveSetup.NSS },
+				{ new Integer(8000) , CurveSetup.NSS },
+				{ new Integer(10000) , CurveSetup.NSS },
+				{ new Integer(20000) , CurveSetup.NSS },
+				{ new Integer(40000) , CurveSetup.NSS },
+				{ new Integer(80000) , CurveSetup.NSS },
+				{ new Integer(100000) , CurveSetup.NSS },
+				{ new Integer(200000) , CurveSetup.NSS },
+				{ new Integer(1000) , CurveSetup.DISCRETE },
+				{ new Integer(2000) , CurveSetup.DISCRETE },
+				{ new Integer(4000) , CurveSetup.DISCRETE },
+				{ new Integer(8000) , CurveSetup.DISCRETE },
+				{ new Integer(10000) , CurveSetup.DISCRETE },
+				{ new Integer(20000) , CurveSetup.DISCRETE },
+				{ new Integer(40000) , CurveSetup.DISCRETE },
+				{ new Integer(80000) , CurveSetup.DISCRETE },
+				{ new Integer(100000) , CurveSetup.DISCRETE },
+				{ new Integer(200000) , CurveSetup.DISCRETE },
 		});
 	};
 
@@ -83,14 +101,14 @@ public class LIBORIndexTest {
 	
 	private double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };
 	private double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50 , 5.00 };
-	private double[] tolerance		= { 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 2E-4, 1E-4 , 1E-4 };
+	private double[] tolerance		= { 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4 , 3E-4 };		// Tolerance at 100.000 path
 	
 	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
 
-	public LIBORIndexTest(Integer numberOfPaths, Measure measure) throws CalculationException {
+	public LIBORIndexTest(Integer numberOfPaths, CurveSetup curveSetup) throws CalculationException {
 
 		// Create a LIBOR market model
-		liborMarketModel = createLIBORMarketModel(measure, numberOfPaths, numberOfFactors, correlationDecayParam);
+		liborMarketModel = createLIBORMarketModel(curveSetup, Measure.SPOT, numberOfPaths, numberOfFactors, correlationDecayParam);
 	}
 
 	@Test
@@ -122,7 +140,7 @@ public class LIBORIndexTest {
 	@Test
 	public void testMultiPeriodFloater() throws CalculationException {
 		
-		double tolerance = 1E-3;
+		double tolerance = 2E-3;
 		ArrayList<AbstractProductComponent> periods = new ArrayList<AbstractProductComponent>();
 		for(int iPeriod = 0; iPeriod<10; iPeriod++) {
 			double periodStart	= 2.0 + 0.5 * iPeriod;
@@ -147,7 +165,9 @@ public class LIBORIndexTest {
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
-			Measure measure, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			CurveSetup curveSetup,
+			Measure measure,
+			int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -157,18 +177,46 @@ public class LIBORIndexTest {
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		Calendar referenceDate = new GregorianCalendar(2014, Calendar.SEPTEMBER, 16);
+
 		double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
 
-		DiscountCurveInterface discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR Curve", referenceDate, nssParameters, 1.0);
+		/*
+		 * Create forwardCurve and disocuntCurve. The two need to fit to each other for this test.
+		 */
+		DiscountCurveInterface discountCurve;
+		ForwardCurveInterface forwardCurve;
+		switch(curveSetup) {
+		case NSS:
+		{
+			discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR Curve", referenceDate, nssParameters, 1.0);
 
-		String paymentOffsetCode = "6M";
-		BusinessdayCalendarInterface paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
-		BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
-		DayCountConventionInterface daycountConvention = null;//new DayCountConvention_ACT_360();
+			String paymentOffsetCode = "6M";
+			BusinessdayCalendarInterface paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
+			DayCountConventionInterface daycountConvention = null;//new DayCountConvention_ACT_360();
 
-		ForwardCurveInterface forwardRateCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 1.0);
+			forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 1.0);
+			break;
+		}
+		case DISCRETE:
+		{
+			// Create the forward curve (initial value of the LIBOR market model)
+			forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+					"forwardCurve"								/* name of the curve */,
+					new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
+					new double[] {0.02, 0.025, 0.03, 0.035, 0.04}	/* forwards */,
+					liborPeriodLength							/* tenor / period length */
+					);
 
-		AnalyticModelInterface analyticModel = new AnalyticModel(new CurveInterface[] { discountCurve, forwardRateCurve });
+			// Create the discount curve
+			discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unknown curve setup: " + curveSetup.toString());
+		}
+
+		AnalyticModelInterface analyticModel = new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
 		/*
 		 * Create a simulation time discretization
 		 */
@@ -233,7 +281,7 @@ public class LIBORIndexTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
+		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, analyticModel, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 		//		LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
