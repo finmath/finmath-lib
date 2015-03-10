@@ -35,25 +35,27 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
 	 * 
 	 * @param scheduleReceiveLeg Schedule of the receiver leg.
+	 * @param forwardCurveReceiveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadReceive Fixed spread on the forward or fix rate.
 	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
 	 * @param schedulePayLeg Schedule of the payer leg.
 	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param spreadPay Fixed spread on the forward or fix rate.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
+	 * @param isNotionalExchanged If true, both leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-    public Swap(ScheduleInterface scheduleReceiveLeg,
-            double spreadReceive,
-            String discountCurveReceiveName,
-            ScheduleInterface schedulePayLeg,
-            String forwardCurvePayName,
-            String discountCurvePayName) {
-	    super();
-
-		legReceiver		= new SwapLeg(scheduleReceiveLeg, null /* forwardCurveReceiveName */, spreadReceive, discountCurveReceiveName, true);
-		legPayer		= new SwapLeg(schedulePayLeg, forwardCurvePayName, 0.0 /* spreadPay */, discountCurvePayName, true);
-
-    }
-
+	public Swap(ScheduleInterface scheduleReceiveLeg,
+			String forwardCurveReceiveName, double spreadReceive,
+			String discountCurveReceiveName,
+			ScheduleInterface schedulePayLeg,
+			String forwardCurvePayName, double spreadPay,
+			String discountCurvePayName,
+			boolean isNotionalExchanged
+			) {
+		super();
+		legReceiver		= new SwapLeg(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, isNotionalExchanged /* Notional Exchange */);
+		legPayer		= new SwapLeg(schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, isNotionalExchanged /* Notional Exchange */);
+	}
 
 	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
@@ -67,20 +69,39 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param spreadPay Fixed spread on the forward or fix rate.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 */
-    public Swap(ScheduleInterface scheduleReceiveLeg,
-            String forwardCurveReceiveName, double spreadReceive,
-            String discountCurveReceiveName,
-            ScheduleInterface schedulePayLeg,
-            String forwardCurvePayName, double spreadPay,
-            String discountCurvePayName) {
-	    super();
-		legReceiver		= new SwapLeg(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, true);
-		legPayer		= new SwapLeg(schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, true);
-    }
+	public Swap(ScheduleInterface scheduleReceiveLeg,
+			String forwardCurveReceiveName, double spreadReceive,
+			String discountCurveReceiveName,
+			ScheduleInterface schedulePayLeg,
+			String forwardCurvePayName, double spreadPay,
+			String discountCurvePayName) {
+		this(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, false);
+	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
+	/**
+	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
+	 * 
+	 * @param scheduleReceiveLeg Schedule of the receiver leg.
+	 * @param spreadReceive Fixed spread on the forward or fix rate.
+	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
+	 * @param schedulePayLeg Schedule of the payer leg.
+	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 */
+	public Swap(ScheduleInterface scheduleReceiveLeg,
+			double spreadReceive,
+			String discountCurveReceiveName,
+			ScheduleInterface schedulePayLeg,
+			String forwardCurvePayName,
+			String discountCurvePayName) {
+		super();
+
+		legReceiver		= new SwapLeg(scheduleReceiveLeg, null /* forwardCurveReceiveName */, spreadReceive, discountCurveReceiveName, false /* Notional Exchange */);
+		legPayer		= new SwapLeg(schedulePayLeg, forwardCurvePayName, 0.0 /* spreadPay */, discountCurvePayName, false /* Notional Exchange */);
+
+	}
+
+
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		
