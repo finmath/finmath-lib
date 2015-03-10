@@ -188,6 +188,11 @@ public class Solver {
 		return iterations;
 	}
 
+	/**
+	 * Returns the accuracy achieved in the last solver run.
+	 * 
+	 * @return The accuracy achieved in the last solver run.
+	 */
 	public double getAccuracy() {
 		return accuracy;
 	}
