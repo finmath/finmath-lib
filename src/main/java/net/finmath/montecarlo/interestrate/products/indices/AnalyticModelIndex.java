@@ -25,7 +25,7 @@ public class AnalyticModelIndex extends AbstractIndex {
 
 	private final String curveName;
 	private final double fixingOffet;
-    
+
 
 	/**
 	 * Creates an analytic model index using a given fixing offset (in days / 365).
@@ -48,13 +48,13 @@ public class AnalyticModelIndex extends AbstractIndex {
 
 		CurveInterface curve = analyticModel.getCurve(curveName);
 		if(curve == null) throw new IllegalArgumentException("Associated analytic model does not carry a curve of the name " +  curveName + ".");
-		
+
 		double index = curve.getValue(analyticModel, evaluationTime + fixingOffet);
-		
+
 		return model.getRandomVariableForConstant(index);
 	}
 
-    
+
 	/**
 	 * Returns the fixingOffet as an act/365 day count.
 	 * 

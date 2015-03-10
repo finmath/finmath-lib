@@ -138,7 +138,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 			// Analytic adjustment for the interpolation
 			// @TODO reference to AnalyticModel must not be null
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
-
 			double analyticLibor				= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousEndTime, periodEnd-previousEndTime);
 			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
 			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime));
