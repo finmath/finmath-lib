@@ -32,6 +32,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	private static final long serialVersionUID = -4126228588123963885L;
 
 	private final double daycountScaling;
+	private final double periodOffset;
 
 	/**
 	 * Create a forward curve using a given discount curve.
@@ -49,11 +50,13 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
 	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
 	 * @param daycountScaling The scaling factor applied to the paymentOffset measured in ACT/365.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
 	 */
-	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling) {
+	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling, double periodOffset) {
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 
 		this.daycountScaling = daycountScaling;
+		this.periodOffset = periodOffset;
 	}
 
 	/**
@@ -76,6 +79,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 			BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention) {
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 		daycountScaling = 1.0;
+		periodOffset = 0;
 	}
 
 	/**
@@ -97,6 +101,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 				paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName
 				);
 		daycountScaling = 1.0;
+		periodOffset = 0;
 	}
 
 	/**
@@ -114,16 +119,17 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 				paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName
 				);
 		daycountScaling = 1.0;
+		periodOffset = 0;
 	}
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime)
 	{
-		double paymentOffset = getPaymentOffset(fixingTime);
+		double paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 
 		double daycount = paymentOffset * daycountScaling;
 
-		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffset) - 1.0) / daycount;
+		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+periodOffset) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;
 	}
 
 	/* (non-Javadoc)
@@ -132,7 +138,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
-		double paymentOffsetOfCurve = getPaymentOffset(fixingTime);
+		double paymentOffsetOfCurve = getPaymentOffset(fixingTime+periodOffset);
 		if(Double.isNaN(paymentOffsetOfCurve)) {
 			if(paymentOffset <= 0) throw new IllegalArgumentException("Requesting forward for period of length " + paymentOffset + ".");
 			paymentOffsetOfCurve = paymentOffset;
@@ -140,7 +146,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 
 		double daycount = paymentOffsetOfCurve * daycountScaling;
 		
-		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffsetOfCurve) - 1.0) / daycount;
+		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+periodOffset) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffsetOfCurve+periodOffset) - 1.0) / daycount;
 	}
 
 	/* (non-Javadoc)

@@ -19,6 +19,7 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -95,6 +96,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		 */
 		Solver solver = new Solver(model, calibrationProducts);
 		AnalyticModelInterface calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
+		System.out.println("Solver reported acccurary....: " + solver.getAccuracy());
 
 		Assert.assertEquals("Calibration accurarcy", 0.0, solver.getAccuracy(), 1E-3);
 
@@ -103,7 +105,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 
 		// Test calibration
 		discountCurve	= new DiscountCurveNelsonSiegelSvensson(discountCurve.getName(), referenceDate, parametersBest, 1.0);
-		forwardCurve	= new ForwardCurveFromDiscountCurve(discountCurve.getName(), referenceDate, forwardCurveTenor);
+		forwardCurve	= new ForwardCurveFromDiscountCurve(forwardCurve.getName(), discountCurve.getName(), referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.MODIFIED_FOLLOWING, 365.0/365.0, 0.0);
 		model			= new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
 		
 		double squaredErrorSum = 0.0;
@@ -115,7 +117,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		}
 		double rms = Math.sqrt(squaredErrorSum/calibrationProducts.size());
 		
-		System.out.println(rms);
+		System.out.println("Independent checked acccurary: " + rms);
 
 		return parametersBest;
 	}
