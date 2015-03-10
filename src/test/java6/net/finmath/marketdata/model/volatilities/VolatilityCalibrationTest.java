@@ -85,7 +85,7 @@ public class VolatilityCalibrationTest {
 
 		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD",new GregorianCalendar(2014,Calendar.JULY,17),
 				"3M", new BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendarInterface.DateRollConvention.MODIFIED_FOLLOWING, new DayCountConvention_ACT_360(),
-				discountCurve.getParameter(), 365.0/365.0);
+				discountCurve.getParameter(), 365.0/365.0, 0.0);
 
 		String[] maturities		= { "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y" };
 		Double[] volatilities	= { 0.72, 0.86, 0.75, 0.69, 0.67, 0.64, 0.58, 0.52, 0.47, 0.44, 0.40, 0.35, 0.32 };

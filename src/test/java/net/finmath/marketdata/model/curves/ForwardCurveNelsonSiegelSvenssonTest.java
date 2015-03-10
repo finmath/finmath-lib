@@ -36,7 +36,7 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 		BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
 		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_360();
 
-		ForwardCurveInterface forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0);
+		ForwardCurveInterface forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0, 0.0);
 
 		AnalyticModelInterface model = null;		// No model context needed
 
