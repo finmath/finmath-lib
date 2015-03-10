@@ -5,6 +5,8 @@
  */
 package net.finmath.stochastic;
 
+import java.io.Serializable;
+
 /**
  * This interface describes the methods implemented by an immutable random variable, i.e.
  * methods that leave a random variable unchanged (immutable).
@@ -27,9 +29,9 @@ package net.finmath.stochastic;
  * <br>
  *
  * @author Christian Fries
- * @version 1.4
+ * @version 1.5
  */
-public interface RandomVariableInterface {
+public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Compare this random variable with a given one

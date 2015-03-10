@@ -6,6 +6,7 @@
  */
 package net.finmath.stochastic;
 
+import java.io.Serializable;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
@@ -37,9 +38,9 @@ import net.finmath.functions.DoubleTernaryOperator;
  * <br>
  *
  * @author Christian Fries
- * @version 1.4
+ * @version 1.5
  */
-public interface RandomVariableInterface {
+public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Compare this random variable with a given one
