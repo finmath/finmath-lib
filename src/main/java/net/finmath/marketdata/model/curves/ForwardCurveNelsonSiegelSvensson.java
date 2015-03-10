@@ -35,6 +35,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	private BusinessdayCalendarInterface paymentBusinessdayCalendar;
 	private BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
 	private DayCountConventionInterface daycountConvention;
+	private double periodOffset = 0.0;
 
 	private DiscountCurveNelsonSiegelSvensson discountCurve;
 	
@@ -47,32 +48,49 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 * @param daycountConvention The daycount convention.
 	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
 	 */
-	public ForwardCurveNelsonSiegelSvensson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
+	public ForwardCurveNelsonSiegelSvensson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling, double periodOffset) {
 		super(name, referenceDate);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.paymentDateRollConvention = paymentDateRollConvention;
 		this.daycountConvention = daycountConvention;
+		this.periodOffset = periodOffset;
 
 		discountCurve = new DiscountCurveNelsonSiegelSvensson(name, referenceDate, parameter, timeScaling);
 	}
 
+	/**
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link AnalyticModel}.
+	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
+	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
+	 * @param paymentBusinessdayCalendar The payment businessday calendar.
+	 * @param paymentDateRollConvention The payment date roll convention.
+	 * @param daycountConvention The daycount convention.
+	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
+	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 */
+	public ForwardCurveNelsonSiegelSvensson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
+		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, parameter, timeScaling, 0.0);
+	}
+	
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime) {
-		return getForward(model, fixingTime, getPaymentOffset(fixingTime));
+		return getForward(model, fixingTime, getPaymentOffset(fixingTime+periodOffset));
 	}
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
+		paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
 		if(daycountConvention != null) {
-			Calendar fixingDate		= getDateFromModelTime(fixingTime);
-			Calendar paymentDate	= getDateFromModelTime(fixingTime + paymentOffset);;
+			Calendar fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
+			Calendar paymentDate	= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);;
 			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
 		}
 
-		return (discountCurve.getDiscountFactor(model, fixingTime) / discountCurve.getDiscountFactor(model, fixingTime + paymentOffset) - 1.0) / daycountFraction;
+		return (discountCurve.getDiscountFactor(model, fixingTime+periodOffset) / discountCurve.getDiscountFactor(model, fixingTime+periodOffset + paymentOffset) - 1.0) / daycountFraction;
 	}
 
 	@Override
@@ -127,7 +145,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	
 	private Calendar getDateFromModelTime(double fixingTime) {
 		Calendar date	= (Calendar)getReferenceDate().clone();
-		date.add(Calendar.DAY_OF_YEAR, (int)(fixingTime*365));
+		date.add(Calendar.DAY_OF_YEAR, (int)Math.round(fixingTime*365.0));
 		return date;
 	}
 }

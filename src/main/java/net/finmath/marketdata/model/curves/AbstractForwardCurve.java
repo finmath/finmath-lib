@@ -120,7 +120,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 		}
 		else {
 			Calendar paymentDate	= (Calendar)getReferenceDate().clone();
-			paymentDate.add(Calendar.DAY_OF_YEAR, (int)(fixingTime*365));
+			paymentDate.add(Calendar.DAY_OF_YEAR, (int)Math.round(fixingTime*365));
 			paymentDate = paymentBusinessdayCalendar.getAdjustedDate(paymentDate, paymentOffsetCode, paymentDateRollConvention);
 			double paymentTime = (new DayCountConvention_ACT_365()).getDaycountFraction(getReferenceDate(), paymentDate);
 			paymentOffsets.put(fixingTime, paymentTime-fixingTime);
