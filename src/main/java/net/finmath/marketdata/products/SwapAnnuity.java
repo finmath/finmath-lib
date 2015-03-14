@@ -33,11 +33,11 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param schedule Tenor of the swap annuity.
 	 * @param discountCurveName Name of the discount curve for the swap annuity.
 	 */
-    public SwapAnnuity(ScheduleInterface schedule, String discountCurveName) {
-	    super();
-	    this.schedule = schedule;
-	    this.discountCurveName = discountCurveName;
-    }
+	public SwapAnnuity(ScheduleInterface schedule, String discountCurveName) {
+		super();
+		this.schedule = schedule;
+		this.discountCurveName = discountCurveName;
+	}
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
@@ -54,7 +54,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @return The swap annuity.
 	 */
 	static public double getSwapAnnuity(TimeDiscretizationInterface tenor, DiscountCurveInterface discountCurve) {
-    	return getSwapAnnuity(new RegularSchedule(tenor), discountCurve);
+		return getSwapAnnuity(new RegularSchedule(tenor), discountCurve);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @return The swap annuity.
 	 */
 	static public double getSwapAnnuity(TimeDiscretizationInterface tenor, ForwardCurveInterface forwardCurve) {
-    	return getSwapAnnuity(new RegularSchedule(tenor), forwardCurve);
+		return getSwapAnnuity(new RegularSchedule(tenor), forwardCurve);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 */
 	static public double getSwapAnnuity(ScheduleInterface schedule, DiscountCurveInterface discountCurve) {
 		double evaluationTime = 0.0;	// Consider only payment time > 0
-    	return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);
+		return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	static public double getSwapAnnuity(ScheduleInterface schedule, ForwardCurveInterface forwardCurve) {
 		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
 		double evaluationTime = 0.0;	// Consider only payment time > 0
-    	return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModel( new CurveInterface[] {forwardCurve, discountCurve} ));
+		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModel( new CurveInterface[] {forwardCurve, discountCurve} ));
 	}
 
 	/**
@@ -107,14 +107,14 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * Note that, the value returned is divided by the discount factor at evaluation.
 	 * This matters, if the discount factor at evaluationTime is not equal to 1.0.
 	 * 
-     * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.
 	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.
 	 * @return The swap annuity.
 	 */
 	static public double getSwapAnnuity(double evaluationTime, ScheduleInterface schedule, DiscountCurveInterface discountCurve, AnalyticModelInterface model) {
-    	double value = 0.0;
+		double value = 0.0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
 			double paymentDate		= schedule.getPayment(periodIndex);
 			if(paymentDate <= evaluationTime) continue;
@@ -125,7 +125,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 		}
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "SwapAnnuity [schedule=" + schedule + ", discountCurveName="

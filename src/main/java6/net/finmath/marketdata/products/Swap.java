@@ -30,7 +30,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	private final SwapLeg legReceiver;
 	private final SwapLeg legPayer;
-	
+
 	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
 	 * 
@@ -100,10 +100,10 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
-		
+
 		double valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
 		double valuePayerLeg	= legPayer.getValue(evaluationTime, model);
-		
+
 		return valueReceiverLeg - valuePayerLeg;
 	}
 
@@ -132,7 +132,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 		double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
 		double swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
-		
+
 		double floatLeg = 0;
 		for(int periodIndex=0; periodIndex<floatSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixing			= floatSchedule.getFixing(periodIndex);
@@ -144,9 +144,9 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 			floatLeg += forward * periodLength * discountFactor;
 		}
-		
+
 		double valueFloatLeg = floatLeg / discountCurve.getDiscountFactor(model, evaluationTime);
-		
+
 		return valueFloatLeg / swapAnnuity;
 	}
 

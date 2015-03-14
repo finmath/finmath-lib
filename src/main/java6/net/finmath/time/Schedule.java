@@ -30,16 +30,16 @@ public class Schedule implements ScheduleInterface {
 
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 	private			Calendar					referenceDate;
-	
+
 	private List<Period>			periods;
 	private DayCountConventionInterface	daycountconvention;
-	
+
 	private double[] fixingTimes;
 	private double[] paymentTimes;
 	private double[] periodStartTimes;
 	private double[] periodEndTimes;
 	private double[] periodLength;
-	
+
 	public Schedule(Calendar referenceDate, DayCountConventionInterface daycountconvention, Period... periods) {
 		this(referenceDate, Arrays.asList(periods), daycountconvention);
 	}
@@ -84,12 +84,12 @@ public class Schedule implements ScheduleInterface {
 	public int getNumberOfPeriods() {
 		return periods.size();
 	}
-	
+
 	@Override
 	public Period getPeriod(int periodIndex) {
 		return periods.get(periodIndex);
 	}
-	
+
 	@Override
 	public double getFixing(int periodIndex) {
 		return fixingTimes[periodIndex];
@@ -99,7 +99,7 @@ public class Schedule implements ScheduleInterface {
 	public double getPayment(int periodIndex) {
 		return paymentTimes[periodIndex];
 	}
-	
+
 	@Override
 	public double getPeriodStart(int periodIndex) {
 		return periodStartTimes[periodIndex];

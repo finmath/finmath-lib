@@ -20,7 +20,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 public class RegularSchedule implements ScheduleInterface {
 
 	private TimeDiscretizationInterface timeDiscretization;
-	
+
 	/**
 	 * Create a schedule from a time discretization.
 	 * 
@@ -49,7 +49,7 @@ public class RegularSchedule implements ScheduleInterface {
 	public int getNumberOfPeriods() {
 		return timeDiscretization.getNumberOfTimeSteps();
 	}
-	
+
 	@Override
 	public Period getPeriod(int periodIndex) {
 		return null;

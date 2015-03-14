@@ -98,11 +98,11 @@ public class LIBORIndexTest {
 
 	private final int numberOfFactors = 5;
 	private final double correlationDecayParam = 0.05;
-	
+
 	private double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };
 	private double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50 , 5.00 };
 	private double[] tolerance		= { 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4 , 3E-4 };		// Tolerance at 100.000 path
-	
+
 	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
 
 	public LIBORIndexTest(Integer numberOfPaths, CurveSetup curveSetup) throws CalculationException {
@@ -113,10 +113,10 @@ public class LIBORIndexTest {
 
 	@Test
 	public void testSinglePeriods() throws CalculationException {
-		
+
 		NumberFormat formatDec2 = new DecimalFormat("0.00");
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
-		
+
 		for(int iTestCase = 0; iTestCase<periodStarts.length; iTestCase++) {
 			double periodStart	= periodStarts[iTestCase];
 			double periodEnd	= periodEnds[iTestCase];
@@ -127,7 +127,7 @@ public class LIBORIndexTest {
 			double value = period.getValue(liborMarketModel);
 
 			double toleranceThisTest = tolerance[iTestCase]/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0);
-			
+
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
 							formatDec6.format(value) + "\t" +
@@ -139,7 +139,7 @@ public class LIBORIndexTest {
 
 	@Test
 	public void testMultiPeriodFloater() throws CalculationException {
-		
+
 		double tolerance = 2E-3;
 		ArrayList<AbstractProductComponent> periods = new ArrayList<AbstractProductComponent>();
 		for(int iPeriod = 0; iPeriod<10; iPeriod++) {
@@ -153,7 +153,7 @@ public class LIBORIndexTest {
 		}
 		AbstractProductComponent floater = new ProductCollection(periods);
 		double value = floater.getValue(liborMarketModel);
-		
+
 		double toleranceThisTest = tolerance/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0);
 
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
@@ -271,7 +271,7 @@ public class LIBORIndexTest {
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());
-		
+
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 

@@ -49,7 +49,7 @@ public class SwaptionAnalyticApproximationTest {
 		System.out.println("Runnning tests with a single curve LIBOR Market Model");
 
 		LIBORModelMonteCarloSimulationInterface liborMarketModel = createSingleCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
-		
+
 		testModel(liborMarketModel, false);
 	}
 
@@ -110,7 +110,7 @@ public class SwaptionAnalyticApproximationTest {
 			SwaptionSingleCurveAnalyticApproximation swaptionAnalyitcSingleCurve = new SwaptionSingleCurveAnalyticApproximation(swaprate, swapTenor, SwaptionSingleCurveAnalyticApproximation.ValueUnit.VALUE);
 			double valueAnalyticSingleCurve = swaptionAnalyitcSingleCurve.getValue(liborMarketModel);
 			System.out.print(formatterValue.format(valueAnalyticSingleCurve) + "         ");
-			
+
 			// Value analytic
 			SwaptionAnalyticApproximation swaptionAnalyitc = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VALUE);
 			double valueAnalytic = swaptionAnalyitc.getValue(liborMarketModel);
@@ -181,7 +181,7 @@ public class SwaptionAnalyticApproximationTest {
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 20.0;
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);		
-		
+
 		/*
 		 * Create a simulation time discretization
 		 */
@@ -236,7 +236,7 @@ public class SwaptionAnalyticApproximationTest {
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
-		
+
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 

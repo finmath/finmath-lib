@@ -49,18 +49,62 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 */
 	DayCountConventionInterface getDaycountconvention();
 
-
+	/**
+	 * Returns the number of periods.
+	 * 
+	 * @return The number of periods.
+	 */
 	int getNumberOfPeriods();
 	
+	/**
+	 * Return the period for a given period index.
+	 * 
+	 * @param periodIndex A given period index.
+	 * @return The period for the given period index.
+	 */
 	Period getPeriod(int periodIndex);
 
+	/**
+	 * Return the fixing converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 * 
+	 * @param periodIndex A given period index.
+	 * @return The fixing converted to the internal daycounting relative to the schedules reference date.
+	 */
 	double getFixing(int periodIndex);
 
+	/**
+	 * Return the payment date converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 * 
+	 * @param periodIndex A given period index.
+	 * @return The payment date converted to the internal daycounting relative to the schedules reference date.
+	 */
 	double getPayment(int periodIndex);
 
+	/**
+	 * Return the period start date converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 * 
+	 * @param periodIndex A given period index.
+	 * @return The period start date converted to the internal daycounting relative to the schedules reference date.
+	 */
 	double getPeriodStart(int periodIndex);
 
+	/**
+	 * Return the period end date converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 * 
+	 * @param periodIndex A given period index.
+	 * @return The period end date converted to the internal daycounting relative to the schedules reference date.
+	 */
 	double getPeriodEnd(int periodIndex);
 
+	/**
+	 * Return the period length for a given period index.
+	 * 
+	 * @param periodIndex A given period index.
+	 * @return The period length for a given period index.
+	 */
 	double getPeriodLength(int periodIndex);
 }

@@ -57,7 +57,6 @@ public class LIBORIndex extends AbstractIndex {
 		return forwardRate;
 	}
 
-    
 	/**
 	 * Returns the periodStartOffset as an act/365 daycount.
 	 * 

@@ -37,7 +37,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	public LIBORModelMonteCarloSimulation(LIBORMarketModelInterface model, AbstractProcess process) {
 		super();
 		this.model		= model;
-		
+
 		this.model.setProcess(process);
 		process.setModel(model);
 	}
@@ -63,7 +63,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		if(timeIndex < 0) timeIndex = (-timeIndex-1)-1;
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
-	
+
 	@Override
 	public int getNumberOfFactors() {
 		return model.getProcess().getNumberOfFactors();
@@ -120,7 +120,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		int periodEndIndex      = getLiborPeriodIndex(periodEnd);
 
 		// The forward rates are provided on fractional tenor discretization points using linear interpolation. See ISBN 0470047224.
-		
+
 		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate end date
 		if(periodEndIndex < 0) {
 			int		previousEndIndex	= (-periodEndIndex-1)-1;
@@ -184,7 +184,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 //			double timeStep = getTimeDiscretization().getTimeStep(timeIndex);
 //			return getLIBOR(getTime(timeIndex), periodStart, periodEnd).mult((getTime(timeIndex+1)-time)/timeStep).add(getLIBOR(getTime(timeIndex+1), periodStart, periodEnd).mult((time-getTime(timeIndex))/timeStep));
 		}
-		
+
 		// If this is a model primitive then return it
 		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);
 
@@ -196,7 +196,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		{
 			double subPeriodLength = getLiborPeriod(periodIndex+1) - getLiborPeriod(periodIndex);
 			RandomVariableInterface liborOverSubPeriod = getLIBOR(timeIndex, periodIndex);
-			
+
 			accrualAccount = accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
 		}
 

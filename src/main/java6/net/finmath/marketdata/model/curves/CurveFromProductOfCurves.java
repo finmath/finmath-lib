@@ -16,30 +16,30 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  */
 public class CurveFromProductOfCurves extends AbstractCurve implements Serializable, CurveInterface {
-	
+
 	private static final long serialVersionUID = 8850409340966149755L;
 
 	private CurveInterface[] curves;
 
 	/**
-     * Create a curve using one or more curves.
-     * 
+	 * Create a curve using one or more curves.
+	 * 
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date of this curve.
-     * @param curves Argument list or array of curves.
-     */
-    public CurveFromProductOfCurves(String name, Calendar referenceDate, CurveInterface... curves) {
-    	super(name, referenceDate);
+	 * @param curves Argument list or array of curves.
+	 */
+	public CurveFromProductOfCurves(String name, Calendar referenceDate, CurveInterface... curves) {
+		super(name, referenceDate);
 
-    	this.curves = curves;
-    }
+		this.curves = curves;
+	}
 
 	@Override
 	public double getValue(AnalyticModelInterface model, double time) {
 		double value = 1.0;
 
 		for(CurveInterface curve : curves) value *= curve.getValue(model, time);
-		
+
 		return value;
 	}
 
