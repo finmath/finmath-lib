@@ -33,7 +33,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param discountCurveName Name of the discount curve for the leg.
-	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
 	public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName, boolean isNotionalExchanged) {
 		super();
@@ -105,14 +105,18 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += forward * periodLength * discountFactor;
+
 			if(isNotionalExchanged) {
-				value += paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
-				value -= fixingDate > evaluationTime ? discountCurve.getDiscountFactor(model, fixingDate) : 0.0;
+				double periodEnd	= legSchedule.getPeriodEnd(periodIndex);
+				value += periodEnd > evaluationTime ? discountCurve.getDiscountFactor(model, periodEnd) : 0.0;
+
+				double periodStart	= legSchedule.getPeriodStart(periodIndex);
+				value -= periodStart > evaluationTime ? discountCurve.getDiscountFactor(model, periodStart) : 0.0;
 			}
 		}
+		
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
-
 
 	public ScheduleInterface getSchedule() {
 		return legSchedule;

@@ -45,52 +45,43 @@ public class RegularSchedule implements ScheduleInterface {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getNumberOfPeriods()
-	 */
 	@Override
 	public int getNumberOfPeriods() {
 		return timeDiscretization.getNumberOfTimeSteps();
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getPeriod(int)
-	 */
 	@Override
 	public Period getPeriod(int periodIndex) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getFixing(int)
-	 */
 	@Override
 	public double getFixing(int periodIndex) {
 		return timeDiscretization.getTime(periodIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getPayment(int)
-	 */
 	@Override
 	public double getPayment(int periodIndex) {
 		return timeDiscretization.getTime(periodIndex+1);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getPeriodLength(int)
-	 */
+	@Override
+	public double getPeriodStart(int periodIndex) {
+		return timeDiscretization.getTime(periodIndex);
+	}
+
+	@Override
+	public double getPeriodEnd(int periodIndex) {
+		return timeDiscretization.getTime(periodIndex+1);
+	}
+
 	@Override
 	public double getPeriodLength(int periodIndex) {
 		return timeDiscretization.getTimeStep(periodIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Iterable#iterator()
-	 */
 	@Override
 	public Iterator<Period> iterator() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

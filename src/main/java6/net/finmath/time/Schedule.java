@@ -36,6 +36,8 @@ public class Schedule implements ScheduleInterface {
 	
 	private double[] fixingTimes;
 	private double[] paymentTimes;
+	private double[] periodStartTimes;
+	private double[] periodEndTimes;
 	private double[] periodLength;
 	
 	public Schedule(Calendar referenceDate, DayCountConventionInterface daycountconvention, Period... periods) {
@@ -51,76 +53,67 @@ public class Schedule implements ScheduleInterface {
 		// Precalculate dates to yearfrac doubles
 		fixingTimes = new double[periods.size()];
 		paymentTimes = new double[periods.size()];
+		periodStartTimes = new double[periods.size()];
+		periodEndTimes = new double[periods.size()];
 		periodLength = new double[periods.size()];
 		for(int periodIndex=0; periodIndex < periods.size(); periodIndex++) {
 			fixingTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getFixing());
 			paymentTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPayment());
+			periodStartTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodStart());
+			periodEndTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodEnd());
 			periodLength[periodIndex] = daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
 		}
 	}
 
-
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getReferenceDate()
-	 */
 	@Override
 	public Calendar getReferenceDate() {
 		return referenceDate;
 	}
-
 
 	@Override
 	public List<Period> getPeriods() {
 		return periods;
 	}
 
-
 	@Override
 	public DayCountConventionInterface getDaycountconvention() {
 		return daycountconvention;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getNumberOfPeriods()
-	 */
 	@Override
 	public int getNumberOfPeriods() {
 		return periods.size();
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getPeriod(int)
-	 */
 	@Override
 	public Period getPeriod(int periodIndex) {
 		return periods.get(periodIndex);
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getFixing(int)
-	 */
 	@Override
 	public double getFixing(int periodIndex) {
 		return fixingTimes[periodIndex];
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getPayment(int)
-	 */
 	@Override
 	public double getPayment(int periodIndex) {
 		return paymentTimes[periodIndex];
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.time.ScheduleInterface#getPeriodLength(int)
-	 */
+	@Override
+	public double getPeriodStart(int periodIndex) {
+		return periodStartTimes[periodIndex];
+	}
+
+	@Override
+	public double getPeriodEnd(int periodIndex) {
+		return periodEndTimes[periodIndex];
+	}
+
 	@Override
 	public double getPeriodLength(int periodIndex) {
 		return periodLength[periodIndex];
 	}
-
 
 	@Override
 	public String toString() {
@@ -136,7 +129,5 @@ public class Schedule implements ScheduleInterface {
 	public Iterator<Period> iterator() {
 		return periods.iterator();
 	}
-
-
 
 }

@@ -39,9 +39,6 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	    this.discountCurveName = discountCurveName;
     }
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
-	 */
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		DiscountCurveInterface discountCurve = (DiscountCurveInterface) model.getCurve(discountCurveName);

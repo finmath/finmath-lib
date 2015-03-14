@@ -42,7 +42,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadPay Fixed spread on the forward or fix rate.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
-	 * @param isNotionalExchanged If true, both leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 * @param isNotionalExchanged If true, both leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
 	public Swap(ScheduleInterface scheduleReceiveLeg,
 			String forwardCurveReceiveName, double spreadReceive,
@@ -94,11 +94,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 			ScheduleInterface schedulePayLeg,
 			String forwardCurvePayName,
 			String discountCurvePayName) {
-		super();
-
-		legReceiver		= new SwapLeg(scheduleReceiveLeg, null /* forwardCurveReceiveName */, spreadReceive, discountCurveReceiveName, false /* Notional Exchange */);
-		legPayer		= new SwapLeg(schedulePayLeg, forwardCurvePayName, 0.0 /* spreadPay */, discountCurvePayName, false /* Notional Exchange */);
-
+		this(scheduleReceiveLeg, null, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, 0.0, discountCurvePayName, false);
 	}
 
 

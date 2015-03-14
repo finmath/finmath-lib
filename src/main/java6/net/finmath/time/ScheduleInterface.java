@@ -58,5 +58,9 @@ public interface ScheduleInterface extends Iterable<Period> {
 
 	double getPayment(int periodIndex);
 
+	double getPeriodStart(int periodIndex);
+
+	double getPeriodEnd(int periodIndex);
+
 	double getPeriodLength(int periodIndex);
 }
