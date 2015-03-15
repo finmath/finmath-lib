@@ -53,7 +53,7 @@ public class RationalFunctionInterpolation {
 
 	}
 
-    public enum ExtrapolationMethod {
+	public enum ExtrapolationMethod {
 		/** Extrapolation using the interpolation function of the adjacent interval **/
 		DEFAULT,
 		/** Constant extrapolation. **/
@@ -62,7 +62,7 @@ public class RationalFunctionInterpolation {
 		LINEAR
 	}
 
-    // The curve to interpolate
+	// The curve to interpolate
 	private final double[]	points;
 	private final double[]	values;
 	
@@ -76,53 +76,53 @@ public class RationalFunctionInterpolation {
 		/**
 		 * Create a rational interpolation function.
 		 * 
-         * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
-         * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
-         */
-        public RationalFunction(double[] coefficientsNumerator, double[] coefficientsDenominator) {
-	        super();
-	        this.coefficientsNumerator = coefficientsNumerator;
-	        this.coefficientsDenominator = coefficientsDenominator;
-        }
+		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
+		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
+		 */
+		public RationalFunction(double[] coefficientsNumerator, double[] coefficientsDenominator) {
+			super();
+			this.coefficientsNumerator = coefficientsNumerator;
+			this.coefficientsDenominator = coefficientsDenominator;
+		}
         
 		/**
 		 * Create a polynomial interpolation function.
 		 * 
-         * @param coefficients The coefficients of the polynomial, in increasing order.
-         */
-        public RationalFunction(double[] coefficients) {
-	        super();
-	        this.coefficientsNumerator = coefficients;
-	        this.coefficientsDenominator = null;
-        }
+		 * @param coefficients The coefficients of the polynomial, in increasing order.
+		 */
+		public RationalFunction(double[] coefficients) {
+			super();
+			this.coefficientsNumerator = coefficients;
+			this.coefficientsDenominator = null;
+		}
 
-        /**
-         * Returns the value for a given arguments.
-         * 
-         * @param x Given argument.
-         * @return Returns the value for the given argument.
-         */
-        public double getValue(double x)
-    	{
-    		double valueNumerator	= 0.0;
-    		double valueDenominator	= 0.0;
-    		double powerOfX	= 1.0;
+		/**
+		 * Returns the value for a given arguments.
+		 * 
+		 * @param x Given argument.
+		 * @return Returns the value for the given argument.
+		 */
+		public double getValue(double x)
+		{
+			double valueNumerator	= 0.0;
+			double valueDenominator	= 0.0;
+			double powerOfX	= 1.0;
 
-            for (double polynomialCoefficient : coefficientsNumerator) {
-            	valueNumerator += polynomialCoefficient * powerOfX;
-                powerOfX *= x;
-            }
-            
-            if(coefficientsDenominator == null) return valueNumerator;
+			for (double polynomialCoefficient : coefficientsNumerator) {
+				valueNumerator += polynomialCoefficient * powerOfX;
+				powerOfX *= x;
+			}
 
-            powerOfX	= 1.0;
-            for (double polynomialCoefficient : coefficientsDenominator) {
-            	valueDenominator += polynomialCoefficient * powerOfX;
-                powerOfX *= x;
-            }
-    		
-    		return valueNumerator/valueDenominator;
-    	}
+			if(coefficientsDenominator == null) return valueNumerator;
+
+			powerOfX	= 1.0;
+			for (double polynomialCoefficient : coefficientsDenominator) {
+				valueDenominator += polynomialCoefficient * powerOfX;
+				powerOfX *= x;
+			}
+
+			return valueNumerator/valueDenominator;
+		}
 	}
 	
 	// The interpolated curve - a rational function for each interval (one less than number of points)
@@ -209,30 +209,30 @@ public class RationalFunctionInterpolation {
 	{
 		switch(interpolationMethod)
 		{
-			case PIECEWISE_CONSTANT:
-			case PIECEWISE_CONSTANT_LEFTPOINT:
-			case PIECEWISE_CONSTANT_RIGHTPOINT:
-				doCreateRationalFunctionsForPiecewiseConstantInterpolation();
-				break;
-			case LINEAR:
-			default:
-				doCreateRationalFunctionsForLinearInterpolation();
-				break;
-			case CUBIC_SPLINE:
-				doCreateRationalFunctionsForCubicSplineInterpolation();
-				break;
-			case AKIMA:
-				doCreateRationalFunctionsForAkimaInterpolation();
-				break;
-			case AKIMA_CONTINUOUS:
-				doCreateRationalFunctionsForAkimaInterpolation(1E-02);
-				break;
-			case HARMONIC_SPLINE:
-				doCreateRationalFunctionsForHarmonicSplineInterpolation();
-				break;
-			case HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING:
-				doCreateRationalFunctionsForHarmonicSplineInterpolation();
-				break;	
+		case PIECEWISE_CONSTANT:
+		case PIECEWISE_CONSTANT_LEFTPOINT:
+		case PIECEWISE_CONSTANT_RIGHTPOINT:
+			doCreateRationalFunctionsForPiecewiseConstantInterpolation();
+			break;
+		case LINEAR:
+		default:
+			doCreateRationalFunctionsForLinearInterpolation();
+			break;
+		case CUBIC_SPLINE:
+			doCreateRationalFunctionsForCubicSplineInterpolation();
+			break;
+		case AKIMA:
+			doCreateRationalFunctionsForAkimaInterpolation();
+			break;
+		case AKIMA_CONTINUOUS:
+			doCreateRationalFunctionsForAkimaInterpolation(1E-02);
+			break;
+		case HARMONIC_SPLINE:
+			doCreateRationalFunctionsForHarmonicSplineInterpolation();
+			break;
+		case HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING:
+			doCreateRationalFunctionsForHarmonicSplineInterpolation();
+			break;	
 		}
 	}
 
@@ -307,6 +307,9 @@ public class RationalFunctionInterpolation {
 			secondDerivativeMarix[intervallIndex][intervallIndex  ] = 2 * (step[intervallIndex-1] + step[intervallIndex]);
 			secondDerivativeMarix[intervallIndex][intervallIndex+1] = step[intervallIndex];
 		}
+		// Making it a symmetric matrix
+		secondDerivativeMarix[0][1] 								= secondDerivativeMarix[1][0];
+		secondDerivativeMarix[numberOfPoints-2][numberOfPoints-1]	= secondDerivativeMarix[numberOfPoints-1][numberOfPoints-2];
 
 		// Solve equation
 		secondDerivativeVector = LinearAlgebra.solveLinearEquationSymmetric(secondDerivativeMarix, v);
@@ -378,7 +381,7 @@ public class RationalFunctionInterpolation {
 			else{
 				derivative[numberOfPoints-2] = 
 						(absSlopeDifference[numberOfPoints-3] * slope[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4] * slope[numberOfPoints-2])
-							/ (absSlopeDifference[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4]);
+						/ (absSlopeDifference[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4]);
 			}
 
 			// in t_n
@@ -394,7 +397,7 @@ public class RationalFunctionInterpolation {
 				else{
 					derivative[i] = 
 							(absSlopeDifference[i] * slope[i-1] + absSlopeDifference[i-2] * slope[i])
-								/ (absSlopeDifference[i] + absSlopeDifference[i-2]);
+							/ (absSlopeDifference[i] + absSlopeDifference[i-2]);
 				}
 			}
 			
@@ -441,7 +444,7 @@ public class RationalFunctionInterpolation {
 		
 		// in t_n
 		derivative[numberOfPoints-1] =(2*step[numberOfPoints-2] + step[numberOfPoints-3])/doubleStep[numberOfPoints-3] * slope[numberOfPoints-2] 
-										- step[numberOfPoints-2]/doubleStep[numberOfPoints-3] * slope[numberOfPoints-3];
+				- step[numberOfPoints-2]/doubleStep[numberOfPoints-3] * slope[numberOfPoints-3];
 		
 		//  monotonicity filtering
 		if(interpolationMethod == InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING){
@@ -453,7 +456,7 @@ public class RationalFunctionInterpolation {
 			
 			// in t_n
 			if((derivative[numberOfPoints-1]*slope[numberOfPoints-2] > 0) && (slope[numberOfPoints-2]*slope[numberOfPoints-3] <= 0) 
-						&& (Math.abs(derivative[numberOfPoints-1]) < 3*Math.abs(slope[numberOfPoints-2])))
+					&& (Math.abs(derivative[numberOfPoints-1]) < 3*Math.abs(slope[numberOfPoints-2])))
 				derivative[numberOfPoints-1] = 3 * slope[numberOfPoints-2];
 			if( derivative[numberOfPoints-1]*slope[numberOfPoints-2] <= 0 )
 				derivative[numberOfPoints-1] = 0;
@@ -466,7 +469,7 @@ public class RationalFunctionInterpolation {
 			}
 			else{
 				double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1]) 
-												+ (2*step[i-1] + step[i]) / (3*doubleStep[i-1]*slope[i]);
+						+ (2*step[i-1] + step[i]) / (3*doubleStep[i-1]*slope[i]);
 				derivative[i] = 1.0 / weightedHarmonicMean;
 			}
 		}
