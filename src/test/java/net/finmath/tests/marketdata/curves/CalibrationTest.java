@@ -5,6 +5,8 @@
  */
 package net.finmath.tests.marketdata.curves;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -29,15 +31,41 @@ import net.finmath.time.TimeDiscretization;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
  * 
  * @author Christian Fries
  */
+@RunWith(Parameterized.class)
 public class CalibrationTest {
 
 	static final double errorTolerance = 1E-14;
+
+	final InterpolationMethod interpolationMethod;
+	
+	public CalibrationTest(InterpolationMethod interpolationMethod)
+	{
+		this.interpolationMethod = interpolationMethod;
+	}
+	
+	/**
+	 * The parameters for this test, that is an error consisting of
+	 * { numberOfPaths, setup }.
+	 * 
+	 * @return Array of parameters.
+	 */
+	@Parameters
+	public static Collection<Object[]> generateData()
+	{
+		return Arrays.asList(new Object[][] {
+				{ InterpolationMethod.CUBIC_SPLINE },
+				{ InterpolationMethod.LINEAR },
+		});
+	};
 
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
@@ -47,7 +75,7 @@ public class CalibrationTest {
 	 */
 	public static void main(String[] args) throws SolverException {
 		
-		CalibrationTest calibrationTest = new CalibrationTest();
+		CalibrationTest calibrationTest = new CalibrationTest(InterpolationMethod.LINEAR);
 
 		calibrationTest.testForwardCurveFromDiscountCurve();
 		calibrationTest.testCurvesAndCalibration();
@@ -108,7 +136,7 @@ public class CalibrationTest {
 				"discountCurve"								/* name */,
 				new double[] {0.0,  1.0,  2.0,  4.0,  5.0}	/* maturities */,
 				new double[] {1.0, 0.95, 0.90, 0.85, 0.80}	/* discount factors */,
-				InterpolationMethod.LINEAR,
+				interpolationMethod,
 				ExtrapolationMethod.CONSTANT,
 				InterpolationEntity.LOG_OF_VALUE
 				);
