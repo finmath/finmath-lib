@@ -64,6 +64,8 @@ public class CalibrationTest {
 		return Arrays.asList(new Object[][] {
 				{ InterpolationMethod.CUBIC_SPLINE },
 				{ InterpolationMethod.LINEAR },
+				{ InterpolationMethod.AKIMA },
+				{ InterpolationMethod.HARMONIC_SPLINE },
 		});
 	};
 
