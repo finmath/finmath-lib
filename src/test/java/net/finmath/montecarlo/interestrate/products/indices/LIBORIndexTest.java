@@ -20,7 +20,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson;
@@ -65,7 +64,7 @@ public class LIBORIndexTest {
 
 	/**
 	 * The parameters for this test, that is an error consisting of
-	 * { numberOfPaths, measure }.
+	 * { numberOfPaths, setup }.
 	 * 
 	 * @return Array of parameters.
 	 */
