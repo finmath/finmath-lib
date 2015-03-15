@@ -308,8 +308,10 @@ public class RationalFunctionInterpolation {
 			secondDerivativeMarix[intervallIndex][intervallIndex+1] = step[intervallIndex];
 		}
 		// Making it a symmetric matrix
-		secondDerivativeMarix[0][1] 								= secondDerivativeMarix[1][0];
-		secondDerivativeMarix[numberOfPoints-2][numberOfPoints-1]	= secondDerivativeMarix[numberOfPoints-1][numberOfPoints-2];
+		if(numberOfPoints > 1)	{
+			secondDerivativeMarix[0][1] 								= secondDerivativeMarix[1][0];
+			secondDerivativeMarix[numberOfPoints-2][numberOfPoints-1]	= secondDerivativeMarix[numberOfPoints-1][numberOfPoints-2];
+		}
 
 		// Solve equation
 		secondDerivativeVector = LinearAlgebra.solveLinearEquationSymmetric(secondDerivativeMarix, v);
