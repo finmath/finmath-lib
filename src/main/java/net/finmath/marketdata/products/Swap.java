@@ -75,7 +75,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 			ScheduleInterface schedulePayLeg,
 			String forwardCurvePayName, double spreadPay,
 			String discountCurvePayName) {
-		this(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, false);
+		this(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, true);
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 			ScheduleInterface schedulePayLeg,
 			String forwardCurvePayName,
 			String discountCurvePayName) {
-		this(scheduleReceiveLeg, null, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, 0.0, discountCurvePayName, false);
+		this(scheduleReceiveLeg, null, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, 0.0, discountCurvePayName, true);
 	}
 
 
