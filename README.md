@@ -33,7 +33,7 @@ Starting with version 1.2.19 finmath lib is distributed through the central mave
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.2.50</version>
+	<version>1.2.54</version>
 	
 
 
@@ -118,7 +118,7 @@ The code of "finmath lib" and "finmath experiments" (packages
 2.0][], unless otherwise explicitly stated.
  
 
-  [finmath lib Project documentation]: http://www.finmath.net/java/finmath-lib 
-  [finmath lib API documentation]: http://www.finmath.net/java/finmath-lib/doc/
+  [finmath lib Project documentation]: http://finmath.net/finmath-lib/ 
+  [finmath lib API documentation]: http://finmath.net/finmath-lib/apidocs/
   [finmath.net special topics]: http://www.finmath.net/topics
   [Apache License version 2.0]: http://www.apache.org/licenses/LICENSE-2.0.html
