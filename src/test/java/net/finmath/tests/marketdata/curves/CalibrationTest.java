@@ -62,10 +62,12 @@ public class CalibrationTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ InterpolationMethod.CUBIC_SPLINE },
 				{ InterpolationMethod.LINEAR },
+				{ InterpolationMethod.CUBIC_SPLINE },
 				{ InterpolationMethod.AKIMA },
+				{ InterpolationMethod.AKIMA_CONTINUOUS },
 				{ InterpolationMethod.HARMONIC_SPLINE },
+				{ InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING },
 		});
 	};
 
