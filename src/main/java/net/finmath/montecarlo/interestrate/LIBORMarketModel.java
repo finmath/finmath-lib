@@ -212,7 +212,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
 	 * 			numerical problems. To disable the cap, set <code>liborCap</code> to <code>Double.POSITIVE_INFINITY</code>.
 	 *		</li>
-	 * 		<li
+	 * 		<li>
 	 * 			<code>calibrationParameters</code>: Possible values:
 	 * 			<ul>
 	 * 				<li>
