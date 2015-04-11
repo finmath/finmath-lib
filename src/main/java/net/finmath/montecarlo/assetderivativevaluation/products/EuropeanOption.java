@@ -25,7 +25,22 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 
 	private final double maturity;
 	private final double strike;
+	private final Integer underlyingIndex;
 	private final String nameOfUnderliyng;
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param underlyingIndex The index of the underlying to be fetched from the model.
+	 */
+	public EuropeanOption(double maturity, double strike, int underlyingIndex) {
+		super();
+		this.maturity			= maturity;
+		this.strike				= strike;
+		this.underlyingIndex	= underlyingIndex;
+		this.nameOfUnderliyng	= null;		// Use underlyingIndex
+	}
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -33,10 +48,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 */
 	public EuropeanOption(double maturity, double strike) {
-		super();
-		this.maturity			= maturity;
-		this.strike				= strike;
-		this.nameOfUnderliyng	= null;		// Use asset with index 0
+		this(maturity, strike, 0);
 	}
 
 	/**
@@ -54,7 +66,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		// Get underlying and numeraire
 
 		// Get S(T)
-		RandomVariableInterface underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		RandomVariableInterface underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 
 		// The payoff: values = max(underlying - strike, 0) = V(T) = max(S(T)-K,0)
 		RandomVariableInterface values = underlyingAtMaturity.sub(strike).floor(0.0);
