@@ -108,6 +108,11 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 				</li>
  *			</ul>
  *		</li>
+ * 		<li>
+ * 			<code>liborCap</code>: An optional <code>Double</code> value applied as a cap to the LIBOR rates.
+ * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
+ * 			numerical problems. To disable the cap, set <code>liborCap</code> to <code>Double.POSITIVE_INFINITY</code>.
+ *		</li>
  * </ul>
  * <br>
  * The main task of this class is to calculate the risk-neutral drift and the
@@ -145,6 +150,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
 	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
+	private double				liborCap					= 1E5;
 
 	// This is a cache of the integrated covariance.
 	private double[][][]	integratedLIBORCovariance;
@@ -202,6 +208,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 *			</ul>
 	 *		</li>
 	 * 		<li>
+	 * 			<code>liborCap</code>: An optional <code>Double</code> value applied as a cap to the LIBOR rates.
+	 * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
+	 * 			numerical problems. To disable the cap, set <code>liborCap</code> to <code>Double.POSITIVE_INFINITY</code>.
+	 *		</li>
+	 * 		<li
 	 * 			<code>calibrationParameters</code>: Possible values:
 	 * 			<ul>
 	 * 				<li>
@@ -241,6 +252,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		// Set some properties
 		if(properties != null && properties.containsKey("measure"))					measure		= Measure.valueOf(((String)properties.get("measure")).toUpperCase());
 		if(properties != null && properties.containsKey("stateSpace"))				stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
+		if(properties != null && properties.containsKey("liborCap"))				liborCap	= (Double)properties.get("liborCap");
 
 		Map<String,Object> calibrationParameters = null;
 		if(properties != null && properties.containsKey("calibrationParameters"))	calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
@@ -615,7 +627,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			/*
 			DiscountCurveInterface discountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);
 			double deterministicNumeraireAdjustment = discountCurveFromForwardPerformance.getDiscountFactor(time) / discountCurve.getDiscountFactor(time);
-			*/
+			 */
 
 			// This includes a control for zero bonds
 			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
@@ -722,8 +734,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	@Override
 	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
-		if(stateSpace == StateSpace.LOGNORMAL)	return randomVariable.exp();
-		else									return randomVariable;
+		RandomVariableInterface value = randomVariable;
+
+		if(stateSpace == StateSpace.LOGNORMAL)	value = value.exp();
+
+		if(!Double.isInfinite(liborCap)) value = value.cap(liborCap);
+
+		return value;
 	}
 
 
