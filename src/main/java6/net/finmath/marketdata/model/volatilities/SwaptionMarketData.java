@@ -12,6 +12,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Simple swaption market data class.
+ * 
  * The class does currently not provide a surface interpolation
  * like SABR.
  * 
@@ -32,21 +33,21 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 	private final double[][]						impliedVolatilities;
 
 
-	public SwaptionMarketData(double[] optionMatruities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionMarketData(double[] optionMaturities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = null;		// Implied vol only.
 		this.discountCurve = null;		// Implied vol only.
-		this.optionMaturities = new TimeDiscretization(optionMatruities);
+		this.optionMaturities = new TimeDiscretization(optionMaturities);
 		this.tenor = new TimeDiscretization(tenor);
 		this.swapPeriodLength = swapPeriodLength;
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] optionMatruities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] optionMaturities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
-		this.optionMaturities = new TimeDiscretization(optionMatruities);
+		this.optionMaturities = new TimeDiscretization(optionMaturities);
 		this.tenor = new TimeDiscretization(tenor);
 		this.swapPeriodLength = swapPeriodLength;
 		this.impliedVolatilities = impliedVolatilities;
