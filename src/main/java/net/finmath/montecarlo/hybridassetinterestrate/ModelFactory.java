@@ -57,7 +57,7 @@ public class ModelFactory {
 	 */
 	public HybridAssetLIBORModelMonteCarloSimulationInterface getHybridAssetLIBORModel(final LIBORModelMonteCarloSimulationInterface baseModel, final BrownianMotionInterface brownianMotion, final double[] initialValues, final double riskFreeRate, final double[][] correlations, final double[] maturities, final double[] strikes, final double[] volatilities, final DiscountCurveInterface discountCurve) throws CalculationException {
 
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 5 /*numberOfThreads*/) {
+		LevenbergMarquardt optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
 			private static final long serialVersionUID = -9199565564991442848L;
 
 			@Override
