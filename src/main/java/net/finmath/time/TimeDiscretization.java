@@ -200,6 +200,28 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 				+ timeTickSize + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(timeDiscretization);
+		long temp;
+		temp = Double.doubleToLongBits(timeTickSize);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		TimeDiscretization other = (TimeDiscretization) obj;
+		if (!Arrays.equals(timeDiscretization, other.timeDiscretization)) return false;
+		if (Double.doubleToLongBits(timeTickSize) != Double.doubleToLongBits(other.timeTickSize)) return false;
+		return true;
+	}
+
 	private double roundToTimeTickSize(double time) {
 		return Math.rint(time/timeTickSize)*timeTickSize;
 	}
