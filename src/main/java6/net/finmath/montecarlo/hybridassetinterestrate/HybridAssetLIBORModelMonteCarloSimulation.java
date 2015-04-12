@@ -26,7 +26,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <code>AssetModelMonteCarloSimulationInterface</code> providing the
  * asset simulation.
  * 
- * The interest rate model needs to be in spot measure.
+ * <b>The interest rate model needs to be in spot measure.</b>
  * 
  * @author Christian Fries
  */
@@ -57,6 +57,10 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 		this.liborSimulation = liborSimulation;
 		this.assetSimulation = assetSimulation;
 		this.discountCurve = discountCurve;
+		
+		if(!liborSimulation.getTimeDiscretization().equals(assetSimulation.getTimeDiscretization())) {
+			throw new IllegalArgumentException("The interest rate simulation and the asset simulation need to share the same simulation time discretization.");
+		}
 	}
 
 	public HybridAssetLIBORModelMonteCarloSimulation(
