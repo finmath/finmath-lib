@@ -14,7 +14,10 @@ The finmath lib libraries provides implementations of methodologies related to m
 - - Generation of random numbers
 - - Optimization (a Levenberg–Marquardt algorithm is provided)
 - Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
-- Estimation of conditional expectations in a Monte-Carlo framework
+- - LIBOR Market Model
+- - Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
+- - Equity Hybrid LIBOR Market Model
+- Estimation of conditional expectations in a Monte-Carlo framework (aka *American Monte-Carlo*)
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the LIBOR market model
@@ -33,7 +36,7 @@ Starting with version 1.2.19 finmath lib is distributed through the central mave
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.2.54</version>
+	<version>1.2.55</version>
 	
 
 
