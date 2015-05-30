@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements the valuation of a simplified swaption under a
+ * Implements the valuation of a simplified (idealized) swaption under a
  * LIBORModelMonteCarloSimulationInterface
  * 
  * @author Christian Fries
