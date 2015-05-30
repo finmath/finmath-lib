@@ -21,17 +21,17 @@ public class OptimizerFactoryTest {
 	public void testRosenbrockFunctionWithCMAES() throws SolverException {
 		
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryCMAES(0.0 /* accuracy */, 200 /* maxIterations */);
-		this.testOptimizerWithRisenbrockFunction(optimizerFactory);
+		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
 	
 	@Test
 	public void testRosenbrockFunctionWithLevenbergMarquard() throws SolverException {
 		
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(200 /* maxIterations */, 2 /* maxThreads */);
-		this.testOptimizerWithRisenbrockFunction(optimizerFactory);
+		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
 
-	public void testOptimizerWithRisenbrockFunction(OptimizerFactoryInterface optimizerFactory) throws SolverException {
+	public void testOptimizerWithRosenbrockFunction(OptimizerFactoryInterface optimizerFactory) throws SolverException {
 		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
 				@Override
 				public void setValues(double[] parameters, double[] values) {
