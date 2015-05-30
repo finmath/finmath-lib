@@ -94,7 +94,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	}
 
 	/**
-	 * Convert the value of a caplet from on quoting convention to another quoting convention.
+	 * Convert the value of a caplet from one quoting convention to another quoting convention.
 	 * 
 	 * @param optionMaturity Option maturity of the caplet.
 	 * @param optionStrike Option strike of the caplet.

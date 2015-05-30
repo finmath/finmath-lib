@@ -155,4 +155,47 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((forwardCurve == null) ? 0 : forwardCurve.hashCode());
+		result = prime * result + ((forwardCurveName == null) ? 0 : forwardCurveName.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(timeScaling);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DiscountCurveFromForwardCurve other = (DiscountCurveFromForwardCurve) obj;
+		if (forwardCurve == null) {
+			if (other.forwardCurve != null)
+				return false;
+		} else if (!forwardCurve.equals(other.forwardCurve))
+			return false;
+		if (forwardCurveName == null) {
+			if (other.forwardCurveName != null)
+				return false;
+		} else if (!forwardCurveName.equals(other.forwardCurveName))
+			return false;
+		if (Double.doubleToLongBits(timeScaling) != Double
+				.doubleToLongBits(other.timeScaling))
+			return false;
+		return true;
+	}
 }

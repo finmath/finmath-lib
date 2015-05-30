@@ -57,7 +57,7 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 		this.liborSimulation = liborSimulation;
 		this.assetSimulation = assetSimulation;
 		this.discountCurve = discountCurve;
-		
+
 		if(!liborSimulation.getTimeDiscretization().equals(assetSimulation.getTimeDiscretization())) {
 			throw new IllegalArgumentException("The interest rate simulation and the asset simulation need to share the same simulation time discretization.");
 		}
