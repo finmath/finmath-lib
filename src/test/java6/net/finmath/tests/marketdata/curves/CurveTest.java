@@ -12,6 +12,7 @@ import java.text.NumberFormat;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
 
 import org.junit.Assert;
@@ -79,7 +80,7 @@ public class CurveTest {
 		 */
 
 		// Define the objective function
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(
+		OptimizerInterface optimizer = new LevenbergMarquardt(
 				curve.getParameter()	/* initial parameters */,
 				givenValues				/* target values */,
 				100,					/* max iterations */

@@ -104,7 +104,7 @@ import net.finmath.functions.LinearAlgebra;
  * @author Christian Fries
  * @version 1.6
  */
-public abstract class LevenbergMarquardt implements Serializable, Cloneable {
+public abstract class LevenbergMarquardt implements Serializable, Cloneable, OptimizerInterface {
 
 	private static final long serialVersionUID = 4560864869394838155L;
 
@@ -180,7 +180,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable {
 		 * Creating a clone, continuing the search with new target values.
 		 * Note that we do not re-define the setValues method.
 		 */
-		LevenbergMarquardt optimizer2 = optimizer.getCloneWithModifiedTargetValues(new double[] { 5.1, 10.2 }, new double[] { 1, 1 }, true);
+		OptimizerInterface optimizer2 = optimizer.getCloneWithModifiedTargetValues(new double[] { 5.1, 10.2 }, new double[] { 1, 1 }, true);
 		optimizer2.run();
 
 		double[] bestParameters2 = optimizer2.getBestFitParameters();
@@ -363,20 +363,20 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable {
 		return this;
 	}
 
-	/**
-	 * Get the best fit parameter vector.
-	 * 
-	 * @return The best fit parameter.
+	/* (non-Javadoc)
+	 * @see net.finmath.optimizer.Optimizer#getBestFitParameters()
 	 */
+	@Override
 	public double[] getBestFitParameters() {
 		return parameterCurrent;
 	}
 
-	/**
-	 * @return the the root mean square error of achieved with the the best fit parameter
+	/* (non-Javadoc)
+	 * @see net.finmath.optimizer.Optimizer#getRootMeanSquaredError()
 	 */
+	@Override
 	public double getRootMeanSquaredError() {
-		return errorMeanSquaredCurrent;
+		return Math.sqrt(errorMeanSquaredCurrent);
 	}
 
 	/**
@@ -386,11 +386,10 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable {
 		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
 	}
 
-	/**
-	 * Get the number of iterations.
-	 * 
-	 * @return The number of iterations required
+	/* (non-Javadoc)
+	 * @see net.finmath.optimizer.Optimizer#getIterations()
 	 */
+	@Override
 	public int getIterations() {
 		return iteration;
 	}
@@ -500,11 +499,10 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable {
 				Double.isInfinite(lambda);
 	}
 
-	/**
-	 * Runs the optimization.
-	 * 
-	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.optimizer.Optimizer#run()
 	 */
+	@Override
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
 		if(numberOfThreads > 1) if(executor == null) {

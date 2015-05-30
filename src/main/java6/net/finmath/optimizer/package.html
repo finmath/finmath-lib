@@ -1,5 +1,36 @@
 <html>
 <body>
-Contains the Levenberg Marquardt optimizer, a multi-dimensional non-linear least-square.
+<p>
+	This package provides classes with numerical algorithm for optimization of
+	an objective function and a factory to easy construction of the optimizers.
+</p>
+
+<b>Why a package for optimization algorithms?</b>
+<p>
+	Given that there are a variety of numerical libraries featuring optimization algorithms
+	(e.g., Apache Commons Math), why do we provide a package inside finmath lib?
+	This packages provides a unified interface for passing optimizers to other classes
+	via an <code>OptimizationFactoryInterface</code> and an <code>OptimizerInterface</code>
+	and an <code>OptimizerInterface.ObjectiveFunction</code>.
+	This allows use of different optimization frameworks without bothering with the
+	framework specific constructors and framework specific definitions of objective functions.
+</p>
+
+<p>
+	A class implementing the <code>OptimizationFactoryInterface</code> allows the
+	specification of parameters specific to the optimizer, but leave the specification
+	of the initial values and the objective function still open. It provides a factory
+	method which takes the objective function and initial values as parameters and
+	constructs the specific optimizer by returning an object implementing
+	<code>OptimizerInterface</code>.
+</p>
+
+<b>Optimization algorithms</b>
+<p>
+	The package also contains an implementation of the Levenberg Marquardt optimizer,
+	a multi-dimensional non-linear least-square.
+	In addition we provide wrappers (via specific <code>OptimizationFactoryInterface</code>
+	implementations) to some optimizers from Apache commons-math.
+</p>
 </body>
 </html>

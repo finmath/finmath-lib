@@ -15,6 +15,7 @@ import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlack
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
 
 /**
@@ -57,7 +58,7 @@ public class ModelFactory {
 	 */
 	public HybridAssetLIBORModelMonteCarloSimulationInterface getHybridAssetLIBORModel(final LIBORModelMonteCarloSimulationInterface baseModel, final BrownianMotionInterface brownianMotion, final double[] initialValues, final double riskFreeRate, final double[][] correlations, final double[] maturities, final double[] strikes, final double[] volatilities, final DiscountCurveInterface discountCurve) throws CalculationException {
 
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
+		OptimizerInterface optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
 			private static final long serialVersionUID = -9199565564991442848L;
 
 			@Override
@@ -86,7 +87,7 @@ public class ModelFactory {
 			if(e.getCause() instanceof CalculationException)	throw (CalculationException)e.getCause();
 			else												throw new CalculationException(e);
 		}
-		
+
 		AssetModelMonteCarloSimulationInterface model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);
 		
 		/*

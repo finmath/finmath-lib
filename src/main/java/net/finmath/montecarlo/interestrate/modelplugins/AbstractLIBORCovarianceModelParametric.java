@@ -178,7 +178,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
 						double value = valueFutures.get(calibrationProductIndex).get();
-//						if(Double.isNaN(value)) value = Double.POSITIVE_INFINITY;
 						values[calibrationProductIndex] = value;
 					}
 					catch (InterruptedException e) {

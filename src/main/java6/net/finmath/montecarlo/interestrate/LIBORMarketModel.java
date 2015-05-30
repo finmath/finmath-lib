@@ -861,7 +861,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			Map<String, Object> properties = new HashMap<String, Object>();
 			properties.put("measure",		measure.name());
 			properties.put("stateSpace",	stateSpace.name());
-			return new LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, new CalibrationItem[0], properties);
+			return new LIBORMarketModel(getLiborPeriodDiscretization(), getForwardRateCurve(), getDiscountCurve(), covarianceModel, new CalibrationItem[0], properties);
 		} catch (CalculationException e) {
 			return null;
 		}
@@ -876,7 +876,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	public DiscountCurveInterface getDiscountCurve() {
 		if(discountCurve == null) {
 			DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(getForwardRateCurve());
-			return discountCurveFromForwardCurve;
+			discountCurve = discountCurveFromForwardCurve;
 		}
 
 		return discountCurve;

@@ -65,7 +65,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	public void setParameter(double[] parameter) {
 		if(!isCalibrateable) return;
 
-		a = Math.max(parameter[0], 0.0);
+		a = Math.abs(parameter[0]);
 
 		initialize(numberOfFactors, a);
 	}
