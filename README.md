@@ -36,7 +36,7 @@ Starting with version 1.2.19 finmath lib is distributed through the central mave
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>1.2.55</version>
+	<version>1.3.0</version>
 	
 
 
