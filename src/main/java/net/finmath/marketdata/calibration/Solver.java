@@ -155,13 +155,10 @@ public class Solver {
 		final double[] ones					= new double[calibrationProducts.size()];
 		final double[] lowerBound			= new double[initialParameters.length];
 		final double[] upperBound			= new double[initialParameters.length];
-		final double[] parameterStep		= new double[initialParameters.length];
 		java.util.Arrays.fill(zeros, 0.0);
 		java.util.Arrays.fill(ones, 1.0);
 		java.util.Arrays.fill(lowerBound, Double.NEGATIVE_INFINITY);
 		java.util.Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
-		java.util.Arrays.fill(parameterStep, 0.1);
-
 		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
 			public void setValues(double[] parameters, double[] values) throws SolverException {
 				try {
@@ -185,12 +182,11 @@ public class Solver {
 
 		if(optimizerFactory == null) {
 			int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
-			optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, maxThreads);
+			optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);
 
 		}
 
-		OptimizerInterface optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, parameterStep, zeros);
-//		optimizer.setErrorTolerance(calibrationAccuracy);
+		OptimizerInterface optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
 		optimizer.run();
 
 		iterations = optimizer.getIterations();
