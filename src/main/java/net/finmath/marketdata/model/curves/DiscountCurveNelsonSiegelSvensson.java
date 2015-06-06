@@ -17,11 +17,11 @@ import org.apache.commons.math3.util.FastMath;
  * Implementation of a discount factor curve given by a Nelson-Siegel-Svensson (NSS) parameterization.
  * In the NSS parameterization the zero rate \( r(T) \) is given by
  * 
- * \[ r(T) = \beta_0 + \beta_1 \frac{1-x_0}{T/\tau_0} + \beta_2 ( \frac{1-x_0}{T/\tau_0} - x_0) + \beta_3 ( \frac{1-x_2}{T/\tau_1} - x_1) \]
+ * \[ r(T) = \beta_0 + \beta_1 \frac{1-x_0}{T/\tau_0} + \beta_2 ( \frac{1-x_0}{T/\tau_0} - x_0) + \beta_3 ( \frac{1-x_1}{T/\tau_1} - x_1) \]
  * 
  * where \( x_0 = \exp(-T/\tau_0) \) and \( x_1 = \exp(-T/\tau_1) \).
  * 
- * The sub-family of curve with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
+ * The sub-family of curves with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
  * 
  * Note: This is a time-parameterized model. The finmath lib library uses an internal mapping from date to times \( t \).
  * This mapping does not necessarily need to correspond with the curves understanding for the parameter \( T \).
