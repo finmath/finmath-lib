@@ -123,6 +123,9 @@ public class LinearAlgebra {
 	public static double[][] getFactorMatrix(double[][] correlationMatrix, int numberOfFactors) {
 		boolean  isUseApacheCommonsMath = true;
 		if(isUseApacheCommonsMath) {
+			/*
+			 * Note: Commons math has convergence problems, where Colt does not.
+			 */
 			return getFactorMatrixUsingCommonsMath(correlationMatrix, numberOfFactors);
 		}
 		else {
