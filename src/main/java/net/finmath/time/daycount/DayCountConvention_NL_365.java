@@ -12,7 +12,7 @@ import java.util.GregorianCalendar;
 /**
  * Implementation of NL/365.
  * 
- * Calculates the day count by calculating the actual number of days between startDate and endDate, excluding a leap day (February 29th) if present.
+ * Calculates the day count by calculating the actual number of days between startDate (excluding) and endDate (including), excluding a leap day (February 29th) if present.
  * 
  * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
  * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
@@ -43,8 +43,8 @@ public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 		GregorianCalendar gregorianCalendar = new GregorianCalendar();
 		for(int year = startDate.get(Calendar.YEAR) ; year <= endDate.get(Calendar.YEAR); year++) {
 			if(gregorianCalendar.isLeapYear(year)) {
-				Calendar leapDay = new GregorianCalendar(startDate.get(Calendar.YEAR), Calendar.FEBRUARY, 29);
-				if(!startDate.after(leapDay) && endDate.after(leapDay)) daycount -= 1.0;
+				Calendar leapDay = new GregorianCalendar(year, Calendar.FEBRUARY, 29);
+				if(startDate.before(leapDay) && !endDate.before(leapDay)) daycount -= 1.0;
 			}
 		}
 

@@ -18,7 +18,7 @@ import java.util.GregorianCalendar;
  * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
  * 
  * The day count fraction is calculated using ACT/365A convention, that is, the
- * day count is divided by 366 if February 29 lies in between startDate (including) and endDate (excluding),
+ * day count is divided by 366 if February 29 lies in between startDate (excluding) and endDate (including),
  * otherwise it the day count is divided by 365.
  * 
  * @see DayCountConvention_ACT_365
@@ -49,13 +49,13 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT {
 		// Check startDate for leap year
 		if(gregorianCalendar.isLeapYear(startDate.get(Calendar.YEAR))) {
 			Calendar leapDayStart = new GregorianCalendar(startDate.get(Calendar.YEAR), Calendar.FEBRUARY, 29);
-			if(!startDate.after(leapDayStart) && endDate.after(leapDayStart)) daysPerYear = 366.0;
+			if(startDate.before(leapDayStart) && !endDate.before(leapDayStart)) daysPerYear = 366.0;
 		}
 
 		// Check endDate for leap year
 		if(gregorianCalendar.isLeapYear(endDate.get(Calendar.YEAR))) {
 			Calendar leapDayEnd = new GregorianCalendar(endDate.get(Calendar.YEAR), Calendar.FEBRUARY, 29);
-			if(!startDate.after(leapDayEnd) && endDate.after(leapDayEnd)) daysPerYear = 366.0;
+			if(startDate.before(leapDayEnd) && !endDate.before(leapDayEnd)) daysPerYear = 366.0;
 		}
 
 		// Check in-between years for leap year
