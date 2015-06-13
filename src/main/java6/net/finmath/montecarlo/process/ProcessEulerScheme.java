@@ -48,7 +48,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	private Scheme		scheme = Scheme.EULER;
 
-	// Uses locally for multi-threadded calculation.
+	// Used locally for multi-threadded calculation.
 	private ExecutorService executor;
 
 	/*

@@ -45,7 +45,7 @@ public interface AbstractModelInterface {
 
 	/**
 	 * Returns the time discretization of the model parameters. It is not necessary that this time discretization agrees
-	 * with the discretization of the implementation.
+	 * with the discretization of the stochactic process used in Abstract Process implementation.
 	 * 
 	 * @return The time discretization
 	 */
