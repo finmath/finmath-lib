@@ -6,8 +6,6 @@
 
 package net.finmath.optimizer;
 
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 import org.junit.Test;
 

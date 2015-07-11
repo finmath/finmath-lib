@@ -5,15 +5,7 @@
  */
 package net.finmath.marketdata.products;
 
-import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.time.RegularSchedule;
-import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements an analytic product given by the ratio

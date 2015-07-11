@@ -14,6 +14,10 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * Basic interface which has to be implemented by Monte Carlo models for asset processes.
  * 
+ * This interface serves as an abstraction layer between models and simulations (providing
+ * the implementation of this interface) and products (using an object implementing this interface
+ * in its valuation code, without further knowledge of the specific model and simulation technique.
+ * 
  * @author Christian Fries
  * @version 1.0
  */
