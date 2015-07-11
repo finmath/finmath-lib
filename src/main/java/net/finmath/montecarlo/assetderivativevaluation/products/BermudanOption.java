@@ -46,8 +46,8 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	private final double[]	notionals;
 	private final double[]	strikes;
 
-	private final int			orderOfRegressionPolynomial		= 4;
-	private final boolean		intrinsicValueAsBasisFunction	= true;
+	private int			orderOfRegressionPolynomial		= 4;
+	private boolean		intrinsicValueAsBasisFunction	= true;
 
 	private ExerciseMethod exerciseMethod = ExerciseMethod.UPPER_BOUND_METHOD;
 
@@ -166,11 +166,14 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 				trigger		= valueIfNotExcercisedEstimated.sub(underlying);
 				break;
 			case UPPER_BOUND_METHOD:
-				RandomVariableInterface martingale		= model.getAssetValue(exerciseDates[exerciseDates.length-1], 0).div(model.getNumeraire(exerciseDates[exerciseDates.length-1]));
+				RandomVariableInterface martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));
+				// Construct a martingale with initial value being zero.
 				martingale = martingale.sub(martingale.getAverage()).mult(lambda);
 
+				// Initialize value as 0-M, if we are on the last exercise date.
+				if(exerciseDateIndex==exerciseDates.length-1) value = value.sub(martingale);
+
 				underlying	= valueOfPaymentsIfExercised.sub(martingale);
-				if(exerciseDateIndex==exerciseDates.length-1)	value = value.sub(martingale);
 				trigger		= value.sub(underlying);
 				break;
 			}
