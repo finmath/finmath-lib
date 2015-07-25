@@ -52,25 +52,8 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		double evaluationTime		= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;
 
 		AnalyticModelInterface model = calibrationModel.addVolatilitySurfaces(this);
-		
-		
-		// @TODO We constrain the parameters to positive values - this is experimental and will bekome a parameter
-		ParameterTransformation parameterTransformation = new ParameterTransformation() {
-			@Override
-			public double[] getSolverParameter(final double[] parameter) {
-				double[] newParameter = parameter.clone(); 
-				for(int i=0; i<parameter.length; i++) newParameter[i] = Math.log(parameter[i]);
-				return newParameter;
-			}
-			
-			@Override
-			public double[] getParameter(final double[] solverParameter) {
-				double[] newSolverParameter = solverParameter.clone(); 
-				for(int i=0; i<solverParameter.length; i++) newSolverParameter[i] = Math.exp(solverParameter[i]);
-				return newSolverParameter;
-			}
-		};
-		Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation, evaluationTime, accuracy);
+		ParameterTransformation parameterTransformation = null;
+		Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation , evaluationTime, accuracy);
 
 		Set<ParameterObjectInterface> objectsToCalibrate = new HashSet<ParameterObjectInterface>();
 		objectsToCalibrate.add(this);
