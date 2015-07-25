@@ -431,12 +431,13 @@ public class AnalyticFormulas {
 	/**
 	 * Calculates the Black-Scholes option implied volatility of a call, i.e., the payoff
 	 * <p><i>max(S(T)-K,0)</i></p>, where <i>S</i> follows a log-normal process with constant log-volatility.
+	 * The admissible values for <code>optionValue</code> are between <code>forward * payoffUnit - optionStrike</code> (the inner value) and <code>forward * payoffUnit</code>.
 	 *
 	 * @param forward The forward of the underlying.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
-	 * @param optionValue The option value.
+	 * @param optionValue The option value. The admissible values for <code>optionValue</code> are between <code>forward * payoffUnit - optionStrike</code> (the inner value) and <code>forward * payoffUnit</code>.
 	 * @return Returns the implied volatility of a European call option under the Black-Scholes model.
 	 */
 	public static double blackScholesOptionImpliedVolatility(
