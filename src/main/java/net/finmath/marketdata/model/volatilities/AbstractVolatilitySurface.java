@@ -11,6 +11,7 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Abstract base class for a volatility surface. It stores the name of the surface and
@@ -26,6 +27,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	protected ForwardCurveInterface forwardCurve;
 	protected DiscountCurveInterface discountCurve;
 	protected QuotingConvention quotingConvention;
+	protected DayCountConventionInterface daycountConvention;
 
 	public AbstractVolatilitySurface(String name, Calendar referenceDate) {
 		super();
@@ -73,8 +75,22 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 
 		if(fromQuotingConvention.equals(toQuotingConvention)) return value;
 
-		double forward = forwardCurve.getForward(null, optionMaturity);
-		double payoffUnit = discountCurve.getDiscountFactor(optionMaturity+forwardCurve.getPaymentOffset(optionMaturity)) * forwardCurve.getPaymentOffset(optionMaturity);
+		double periodStart = optionMaturity;
+		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);
+
+		double forward = forwardCurve.getForward(null, periodStart);
+
+		double daycountFraction;
+		if(daycountConvention != null) {
+			Calendar startDate = (Calendar)referenceDate.clone(); startDate.add(Calendar.DAY_OF_YEAR,(int)Math.round(periodStart*365));
+			Calendar endDate = (Calendar)referenceDate.clone(); endDate.add(Calendar.DAY_OF_YEAR,(int)Math.round(periodEnd*365));
+			daycountFraction = daycountConvention.getDaycountFraction(startDate, endDate);
+		}
+		else {
+			daycountFraction = forwardCurve.getPaymentOffset(periodStart);
+		}
+
+		double payoffUnit = discountCurve.getDiscountFactor(optionMaturity+forwardCurve.getPaymentOffset(optionMaturity)) * daycountFraction;
 
 		if(toQuotingConvention.equals(QuotingConvention.PRICE) && fromQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
 			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);

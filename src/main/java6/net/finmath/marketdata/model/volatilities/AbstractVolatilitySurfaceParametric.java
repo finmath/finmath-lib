@@ -41,6 +41,10 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 	public abstract AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException;
 
 	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModelInterface calibrationModel, final Vector<AnalyticProductInterface> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters) throws CalculationException, SolverException {
+		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationParameters, null);
+	}
+
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModelInterface calibrationModel, final Vector<AnalyticProductInterface> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation) throws CalculationException, SolverException {
 		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
@@ -52,8 +56,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		double evaluationTime		= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;
 
 		AnalyticModelInterface model = calibrationModel.addVolatilitySurfaces(this);
-		ParameterTransformation parameterTransformation = null;
-		Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation , evaluationTime, accuracy);
+		Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation, evaluationTime, accuracy);
 
 		Set<ParameterObjectInterface> objectsToCalibrate = new HashSet<ParameterObjectInterface>();
 		objectsToCalibrate.add(this);
