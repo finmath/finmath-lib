@@ -157,10 +157,10 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
 							} catch (CalculationException e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return calibrationTargetValues[workerCalibrationProductIndex];
 							} catch (Exception e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration produtcs.
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return calibrationTargetValues[workerCalibrationProductIndex];
 							}
 						}
