@@ -8,6 +8,7 @@ package net.finmath.montecarlo.interestrate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
@@ -156,6 +157,8 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private double[][][]	integratedLIBORCovariance;
 	private final Object	integratedLIBORCovarianceLazyInitLock = new Object();
 
+	private final ConcurrentHashMap<Integer, RandomVariableInterface> numeraires;
+	
 	public static class CalibrationItem {
 		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
 		public final double								calibrationTargetValue;
@@ -289,6 +292,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
 		}
 
+		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
 	}
 
 	/**
@@ -603,21 +607,25 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 * Calculation of the numeraire
 		 */
 
-		// Initialize to 1.0
-		RandomVariableInterface numeraire = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
-
-		// The product 
-		for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
-			RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
-
-			double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
-
-			if(measure == Measure.SPOT) {
-				numeraire = numeraire.accrue(libor, periodLength);
+		RandomVariableInterface numeraire = numeraires.get(timeIndex);//.get();
+		if(numeraire == null) {
+			// Initialize to 1.0
+			numeraire = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
+	
+			// The product 
+			for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
+				RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
+	
+				double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
+	
+				if(measure == Measure.SPOT) {
+					numeraire = numeraire.accrue(libor, periodLength);
+				}
+				else {
+					numeraire = numeraire.discount(libor, periodLength);
+				}
 			}
-			else {
-				numeraire = numeraire.discount(libor, periodLength);
-			}
+			numeraires.put(timeIndex, numeraire);
 		}
 
 		/*
