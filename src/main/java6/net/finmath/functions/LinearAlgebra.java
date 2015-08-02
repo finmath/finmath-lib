@@ -121,7 +121,7 @@ public class LinearAlgebra {
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
 	public static double[][] getFactorMatrix(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = true;
+		boolean  isUseApacheCommonsMath = false;
 		if(isUseApacheCommonsMath) {
 			/*
 			 * Note: Commons math has convergence problems, where Colt does not.
