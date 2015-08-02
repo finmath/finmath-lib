@@ -234,9 +234,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return getRealizationsStream().sum()/realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return valueIfNonStochastic;
@@ -245,43 +242,48 @@ public class RandomVariable implements RandomVariableInterface {
 		return this.mult(probabilities).getRealizationsStream().sum();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance()
-	 */
 	@Override
 	public double getVariance() {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
-		double sum			= 0.0;
-		double sumOfSquared = 0.0;
-		for (double realization : realizations) {
-			sum += realization;
-			sumOfSquared += realization * realization;
+		double average = getAverage();
+
+		/*
+		 * Kahan summation on (realizations[i] - average)^2
+		 */
+		double sum = 0.0;
+		double errorOfSum	= 0.0;
+		for(int i=0; i<realizations.length; i++) {
+			double value	= (realizations[i] - average)*(realizations[i] - average) - errorOfSum;
+			double newSum	= sum + value;
+			errorOfSum		= (newSum - sum) - value;
+			sum				= newSum;
 		}
-		return sumOfSquared/realizations.length - sum/realizations.length * sum/realizations.length;
+		return sum/realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
-		double mean			= 0.0;
-		double secondMoment = 0.0;
+		double average = getAverage(probabilities);
+
+		/*
+		 * Kahan summation on (realizations[i] - average)^2 * probabilities.get(i)
+		 */
+		double sum = 0.0;
+		double errorOfSum	= 0.0;
 		for(int i=0; i<realizations.length; i++) {
-			mean			+= realizations[i] * probabilities.get(i);
-			secondMoment	+= realizations[i] * realizations[i] * probabilities.get(i);
+			double value	= (realizations[i] - average) * (realizations[i] - average) * probabilities.get(i) - errorOfSum;
+			double newSum	= sum + value;
+			errorOfSum		= (newSum - sum) - value;
+			sum				= newSum;
 		}
-		return secondMoment - mean*mean;
+		return sum;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
-	 */
 	@Override
 	public double getStandardDeviation() {
 		if(isDeterministic())	return 0.0;

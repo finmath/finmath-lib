@@ -179,13 +179,13 @@ public class RandomVariable implements RandomVariableInterface {
 		return max;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage()
-	 */
 	public double getAverage() {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
 
+		/*
+		 * Kahan summation on realizations[i]
+		 */
 		double sum = 0.0;								// Running sum
 		double error = 0.0;								// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
@@ -197,14 +197,14 @@ public class RandomVariable implements RandomVariableInterface {
 		return sum/realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
 
+		/*
+		 * Kahan summation on (realizations[i] * probabilities.get(i))
+		 */
 		double sum = 0.0;
 		double error = 0.0;														// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
@@ -216,60 +216,48 @@ public class RandomVariable implements RandomVariableInterface {
 		return sum / realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance()
-	 */
 	@Override
 	public double getVariance() {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
-		double sum			= 0.0;
-		double sumOfSquared = 0.0;
-		double errorOfSum			= 0.0;
-		double errorOfSumSquared	= 0.0;
+		double average = getAverage();
+
+		/*
+		 * Kahan summation on (realizations[i] - average)^2
+		 */
+		double sum = 0.0;
+		double errorOfSum	= 0.0;
 		for(int i=0; i<realizations.length; i++) {
-			double value	= realizations[i] - errorOfSum;
+			double value	= (realizations[i] - average)*(realizations[i] - average) - errorOfSum;
 			double newSum	= sum + value;
 			errorOfSum		= (newSum - sum) - value;
 			sum				= newSum;
-
-			double valueSquared		= realizations[i] * realizations[i] - errorOfSumSquared;
-			double newSumOfSquared	= sumOfSquared + valueSquared;
-			errorOfSumSquared		= (newSumOfSquared-sumOfSquared) - valueSquared;
-			sumOfSquared			= newSumOfSquared;
 		}
-		return (sumOfSquared/realizations.length - sum/realizations.length*sum/realizations.length);
+		return sum/realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
-	 */
+	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
-		double sum			= 0.0;
-		double sumOfSquared = 0.0;
-		double errorOfSum			= 0.0;
-		double errorOfSumSquared	= 0.0;
+		double average = getAverage(probabilities);
+
+		/*
+		 * Kahan summation on (realizations[i] - average)^2 * probabilities.get(i)
+		 */
+		double sum = 0.0;
+		double errorOfSum	= 0.0;
 		for(int i=0; i<realizations.length; i++) {
-			double value	= realizations[i] * probabilities.get(i) - errorOfSum;
+			double value	= (realizations[i] - average) * (realizations[i] - average) * probabilities.get(i) - errorOfSum;
 			double newSum	= sum + value;
 			errorOfSum		= (newSum - sum) - value;
 			sum				= newSum;
-
-			double valueSquared		= realizations[i] * realizations[i] * probabilities.get(i) - errorOfSumSquared;
-			double newSumOfSquared	= sumOfSquared + valueSquared;
-			errorOfSumSquared		= (newSumOfSquared-sumOfSquared) - valueSquared;
-			sumOfSquared			= newSumOfSquared;
 		}
-		return (sumOfSquared - sum*sum)/realizations.length;
+		return sum;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
-	 */
 	@Override
 	public double getStandardDeviation() {
 		if(isDeterministic())	return 0.0;
