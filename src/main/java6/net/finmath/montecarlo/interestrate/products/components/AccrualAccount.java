@@ -56,7 +56,7 @@ public class AccrualAccount extends AbstractProductComponent {
 		if(evaluationTime <= 0) return pastFixings.getValue(evaluationTime, model);
 		
 		RandomVariableInterface value = pastFixings.getValue(0.0, model);
-		
+
 		// Loop over accrual periods
 		for(double time=0.0; time<evaluationTime; time += accrualPeriod) {	
 			// Get the forward fixed at the beginning of the period
@@ -66,7 +66,7 @@ public class AccrualAccount extends AbstractProductComponent {
 			// Accrue the value using the current forward rate
 			value = value.accrue(forwardRate, currentAccrualPeriod);
 		}
-		
+
 		return value;
 	}
 }

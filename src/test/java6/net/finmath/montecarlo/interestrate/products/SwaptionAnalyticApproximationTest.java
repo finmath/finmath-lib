@@ -14,6 +14,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
@@ -139,7 +140,7 @@ public class SwaptionAnalyticApproximationTest {
 	public static LIBORModelMonteCarloSimulationInterface createSingleCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
 				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */,
@@ -147,7 +148,7 @@ public class SwaptionAnalyticApproximationTest {
 				);
 
 		// No discount curve
-		DiscountCurve discountCurve = null;
+		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 
 		return createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, discountCurve, forwardCurve);
 	}
@@ -155,7 +156,7 @@ public class SwaptionAnalyticApproximationTest {
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
 				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */,
@@ -163,7 +164,7 @@ public class SwaptionAnalyticApproximationTest {
 				);
 
 		// Create the discount curve
-		DiscountCurve discountCurve = DiscountCurve.createDiscountCurveFromZeroRates(
+		DiscountCurveInterface discountCurve = DiscountCurve.createDiscountCurveFromZeroRates(
 				"discountCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* maturities */,
 				new double[] {0.04, 0.04, 0.04, 0.04, 0.05}	/* zero rates */

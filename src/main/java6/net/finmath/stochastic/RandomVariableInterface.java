@@ -286,6 +286,8 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Applies x &rarr; min(x,cap) to this random variable.
+	 * It returns a new random variable with the result.
+	 *
 	 * @param cap The cap.
 	 * @return New random variable with the result of the function.
 	 */

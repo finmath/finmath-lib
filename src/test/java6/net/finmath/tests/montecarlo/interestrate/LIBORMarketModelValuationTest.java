@@ -15,6 +15,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
@@ -145,7 +146,7 @@ public class LIBORMarketModelValuationTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
-				liborPeriodDiscretization, forwardCurve, null, covarianceModel, calibrationItems, properties);
+				liborPeriodDiscretization, forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve), covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
