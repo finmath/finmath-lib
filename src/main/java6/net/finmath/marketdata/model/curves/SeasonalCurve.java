@@ -6,9 +6,21 @@
 
 package net.finmath.marketdata.model.curves;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
+import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * The curve returns a value depending on the month of the time argument, that is,
@@ -60,6 +72,30 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	/**
+	 * Create a monthly seasonality adjustment curve by estimating historic log-returns from monthly index fixings.
+	 * 
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve (i.e. t=0).
+	 * @param indexFixings A <code>Map&lt;Date, Double&gt;</code> of consecutive monthly index fixings.
+	 * @param numberOfYearsToAverage The number of years over which monthly log returns should be averaged.
+	 */
+	public SeasonalCurve(String name, Calendar referenceDate, Map<Date, Double> indexFixings, int numberOfYearsToAverage) {
+		super(name, referenceDate);
+
+		double[] seasonalAdjustmentCalculated = SeasonalCurve.computeSeasonalAdjustments(referenceDate, indexFixings, numberOfYearsToAverage);
+
+		double[] seasonTimes = new double[12];
+		double[] seasonValue = new double[12];
+		double seasonValueCummulated = 1.0;
+		for(int j=0; j<12; j++) {
+			seasonValueCummulated *= Math.exp(seasonalAdjustmentCalculated[j]/12.0);
+			seasonTimes[j] = j/12.0;
+			seasonValue[j] = seasonValueCummulated;
+		}
+		this.baseCurve = new Curve(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue);
+	}
+
+	/**
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve (i.e. t=0).
 	 * @param baseCurve The base curve, i.e., the discount curve used to calculate the seasonal adjustment factors.
@@ -108,5 +144,72 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	@Override
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
 		return new CurveBuilder(this);
+	}
+
+	public static double[] computeSeasonalAdjustments(Calendar referenceDate, Map<Date, Double> indexFixings, int numberOfYearsToAverage) {
+		DayCountConventionInterface modelDcc = new DayCountConvention_ACT_365();
+
+		double[] fixingTimes = new double[indexFixings.size()];
+		double[] realizedCPIValues = new double[indexFixings.size()];
+		int i = 0;
+		List<Date> fixingDates = new ArrayList<Date>(indexFixings.keySet());
+		Collections.sort(fixingDates);
+		for(Date fixingDate : fixingDates) {
+			Calendar calendar = new GregorianCalendar();
+			calendar.setTime(fixingDate);
+			fixingTimes[i] = modelDcc.getDaycountFraction(referenceDate, calendar);
+			realizedCPIValues[i] = indexFixings.get(fixingDate).doubleValue();
+			i++;
+		}
+
+		Calendar lastMonth = new GregorianCalendar();
+		lastMonth.setTime(fixingDates.get(fixingDates.size()-1));
+
+		return computeSeasonalAdjustments(realizedCPIValues, lastMonth.get(Calendar.MONTH), numberOfYearsToAverage);
+	}
+
+	/**
+	 * Computes annualized seasonal adjustments from given monthly realized CPI values.
+	 * 
+	 * @param realizedCPIValues An array of consecutive monthly CPI values (minimum size is 12*numberOfYearsToAverage))
+	 * @param lastMonth The index of the last month in the sequence of realizedCPIValues (corresponding to the enums in <code>{@link java.util.Calendar}</code>).
+	 * @param numberOfYearsToAverage The number of years to go back in the array of realizedCPIValues.
+	 * @return Array of annualized seasonal adjustments, where [0] corresponds to the adjustment for from December to January.
+	 */
+	public static double[] computeSeasonalAdjustments(double[] realizedCPIValues, int lastMonth, int numberOfYearsToAverage) {
+
+		/*
+		 * Cacluate average log returns
+		 */
+		double[] averageLogReturn = new double[12];
+		Arrays.fill(averageLogReturn, 0.0);
+		for(int arrayIndex = 0; arrayIndex < 12*numberOfYearsToAverage; arrayIndex++){
+
+			int month = (((((lastMonth - arrayIndex) % 12) + 12) % 12));
+
+			double logReturn = Math.log(realizedCPIValues[realizedCPIValues.length - 1 - arrayIndex] / realizedCPIValues[realizedCPIValues.length - 2 - arrayIndex]);
+			averageLogReturn[month] += logReturn/numberOfYearsToAverage;
+		}
+
+		/*
+		 * Normalize
+		 */
+		double sum = 0.0;
+		for(int index = 0; index < averageLogReturn.length; index++){
+			sum += averageLogReturn[index];
+		}
+		double averageSeasonal = sum / averageLogReturn.length;
+
+		double[] seasonalAdjustments = new double[averageLogReturn.length]; 
+		for(int index = 0; index < seasonalAdjustments.length; index++){
+			seasonalAdjustments[index] = averageLogReturn[index] - averageSeasonal;
+		}
+
+		// Annualize seasonal adjustments
+		for(int index = 0; index < seasonalAdjustments.length; index++){
+			seasonalAdjustments[index] = seasonalAdjustments[index] * 12;
+		}
+
+		return seasonalAdjustments;
 	}
 }
