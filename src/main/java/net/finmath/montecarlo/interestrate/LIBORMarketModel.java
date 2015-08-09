@@ -308,7 +308,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			ForwardCurveInterface			forwardRateCurve,
 			AbstractLIBORCovarianceModel	covarianceModel
 			) throws CalculationException {
-		this(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, new CalibrationItem[0], null);
+		this(liborPeriodDiscretization, forwardRateCurve, new DiscountCurveFromForwardCurve(forwardRateCurve), covarianceModel, new CalibrationItem[0], null);
 	}
 
 	/**
@@ -345,7 +345,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			AbstractLIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
-		this(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, swaptionMarketData, null);
+		this(liborPeriodDiscretization, forwardRateCurve, new DiscountCurveFromForwardCurve(forwardRateCurve), covarianceModel, swaptionMarketData, null);
 	}
 
 	/**
@@ -882,11 +882,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	@Override
 	public DiscountCurveInterface getDiscountCurve() {
-		if(discountCurve == null) {
-			DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(getForwardRateCurve());
-			discountCurve = discountCurveFromForwardCurve;
-		}
-
 		return discountCurve;
 	}
 
