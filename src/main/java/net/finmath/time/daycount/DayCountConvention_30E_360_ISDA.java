@@ -28,13 +28,15 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	
 	/**
 	 * Create a 30E/360 ISDA daycount convention.
+	 * 
+	 * @param isTreatEndDateAsTerminationDate If true, the end date is treated as a termination date and that case the last day of february is <i>not</i> treated as 30.
 	 */
 	public DayCountConvention_30E_360_ISDA(boolean isTreatEndDateAsTerminationDate) {
 		this.isTreatEndDateAsTerminationDate = isTreatEndDateAsTerminationDate;
 	}
 
 	/**
-	 * Create a 30E/360 ISDA daycount convention.
+	 * Create a 30E/360 ISDA daycount convention using <code>isTreatEndDateAsTerminationDate = false</code>.
 	 */
 	public DayCountConvention_30E_360_ISDA() {
 		this(false);

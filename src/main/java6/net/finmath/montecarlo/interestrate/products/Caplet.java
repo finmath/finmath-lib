@@ -34,16 +34,18 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Create a caplet or a floorlet.
 	 * 
-	 * A caplet pays \( max(L-K,0) * periodLength \) at maturity+periodLength
+	 * A caplet pays \( max(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
 	 * 
-	 * A floorlet pays \( -min(L-K,0) * periodLength \) at maturity+periodLength
+	 * A floorlet pays \( -min(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
 	 * 
 	 * @param maturity The fixing date given as double. The payment is at the period end.
 	 * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
+	 * @param daycountFraction The daycount fraction used in the payout function.
 	 * @param isFloorlet If true, this object will represent a floorlet, otherwise a caplet.
+	 * @param valueUnit The unit of the value returned by the <code>getValue</code> method.
 	 */
 	public Caplet(double maturity, double periodLength, double strike, double daycountFraction, boolean isFloorlet, ValueUnit valueUnit) {
 		super();
@@ -58,14 +60,16 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Create a caplet or a floorlet.
 	 * 
-	 * A caplet pays \( max(L-K,0) * periodLength \) at maturity+periodLength
+	 * A caplet pays \( max(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
 	 * 
-	 * A floorlet pays \( -min(L-K,0) * periodLength \) at maturity+periodLength
+	 * A floorlet pays \( -min(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
+	 * 
+	 * This simplified constructor uses daycountFraction = periodLength.
 	 * 
 	 * @param maturity The fixing date given as double. The payment is at the period end.
-	 * @param periodLength The length of the forward rate period.
+	 * @param periodLength The length of the forward rate period in ACT/365 convention.
 	 * @param strike The strike given as double.
 	 * @param isFloorlet If true, this object will represent a floorlet, otherwise a caplet.
 	 */
