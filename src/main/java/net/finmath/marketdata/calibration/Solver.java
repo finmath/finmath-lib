@@ -161,10 +161,14 @@ public class Solver {
 		java.util.Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
 		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
 			public void setValues(double[] parameters, double[] values) throws SolverException {
+				double[] solverParameters = parameters;
 				try {
-					if(parameterTransformation != null) parameters = parameterTransformation.getParameter(parameters);
+					if(parameterTransformation != null) {
+						solverParameters = parameterTransformation.getParameter(parameters);
+						System.arraycopy(parameterTransformation.getSolverParameter(solverParameters), 0, parameters, 0, parameters.length);
+					}
 
-					Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(parameters);
+					Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(solverParameters);
 					AnalyticModelInterface modelClone = model.getCloneForParameter(curvesParameterPairs);
 					for(int i=0; i<calibrationProducts.size(); i++) {
 						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);
@@ -183,7 +187,6 @@ public class Solver {
 		if(optimizerFactory == null) {
 			int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
 			optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);
-
 		}
 
 		OptimizerInterface optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
