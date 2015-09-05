@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * (t,V) \mapsto E( V(t) \vert \mathcal{F}_t )
  * \)
  * where \( V(t) \) is the (sum of) discounted future value(s) of an underlying \( V \), discounted to \( t \)
- * and \( t \) is a given evaluton time.
+ * and \( t \) is a given evaluation time.
  * 
  * The conditional expectation is estimated using a regression.
  * 
@@ -36,20 +36,12 @@ public class Exposure extends AbstractProductComponent {
 
 
 	/**
-	 * Creates the function underlying(evaluationTime) &ge; strikePrice ? underlying : strikePrice
-	 * 
-	 * @param evaluationTime The exercise date of the option (given as a double).
-	 * @param strikePrice The strike price.
-	 * @param isCall If true, the function implements is underlying(evaluationTime) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(evaluationTime) &lt; strikePrice ? underlying : strikePrice.
-	 * @param underlying The underlying.
-	 */
-	public Exposure(double evaluationTime, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying) {
-		super();
-		this.underlying		= underlying;
-	}
-
-	/**
-	 * Creates the function underlying(evaluationTime) &ge; strikeProduct ? underlying : strikeProduct
+	 * Creates (a numerical approximation of) the function
+	 * \(
+	 * (t,V) \mapsto E( V(t) \vert \mathcal{F}_t )
+	 * \)
+	 * where \( V(t) \) is the (sum of) discounted future value(s) of an underlying \( V \), discounted to \( t \)
+	 * and \( t \) is a given evaluation time.
 	 * 
 	 * @param underlying The underlying.
 	 */
@@ -84,7 +76,7 @@ public class Exposure extends AbstractProductComponent {
 
 		final RandomVariableInterface one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariableInterface zero	= model.getRandomVariableForConstant(0.0);
-		
+
 		RandomVariableInterface values = underlying.getValue(evaluationTime, model);
 
 		if(values.getFiltrationTime() > evaluationTime) {
@@ -119,7 +111,7 @@ public class Exposure extends AbstractProductComponent {
 		// Return values
 		return values;	
 	}
-    
+
 	/**
 	 * Return the regression basis functions.
 	 * 
@@ -141,7 +133,7 @@ public class Exposure extends AbstractProductComponent {
 		// LIBORs
 		int liborPeriodIndex, liborPeriodIndexEnd;
 		RandomVariableInterface rate;
-		
+
 		// 1 Period
 		basisFunction = model.getRandomVariableForConstant(1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(evaluationTime);
@@ -192,7 +184,7 @@ public class Exposure extends AbstractProductComponent {
 			basisFunction = basisFunction.discount(rate, periodLength3);
 //			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 		}
-		
+
 		return basisFunctions.toArray(new RandomVariableInterface[0]);
 	}
 }
