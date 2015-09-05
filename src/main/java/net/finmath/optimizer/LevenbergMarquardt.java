@@ -116,6 +116,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	private int		maxIteration = 100;
 
 	private double	lambda				= 0.001;
+	private double	lambdaDivisor		= 1.3;
 	private double	lambdaMultiplicator	= 2.0;
 
 	private double	errorMeanSquaredTolerance = 0.0;	// by default we solve upto machine presicion
@@ -363,17 +364,77 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.optimizer.Optimizer#getBestFitParameters()
+	/**
+	 * Get the parameter &lambda; used in the Tikhonov-like regularization of the Hessian matrix,
+	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
+	 * 
+	 * @return the parameter \( \lambda \).
 	 */
+	public double getLambda() {
+		return lambda;
+	}
+
+	/**
+	 * Set the parameter &lambda; used in the Tikhonov-like regularization of the Hessian matrix,
+	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
+	 * 
+	 * @param lambda the lambda to set
+	 */
+	public void setLambda(double lambda) {
+		this.lambda = lambda;
+	}
+
+	/**
+	 * Get the multiplicator applied to lambda if the inversion of regularized
+	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
+	 * 
+	 * @return the lambdaMultiplicator
+	 */
+	public double getLambdaMultiplicator() {
+		return lambdaMultiplicator;
+	}
+
+	/**
+	 * Set the multiplicator applied to lambda if the inversion of regularized
+	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
+	 * 
+	 * This will make lambda larger, hence let the stepping move slower.
+	 * 
+	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be > 1.
+	 */
+	public void setLambdaMultiplicator(double lambdaMultiplicator) {
+		if(lambdaMultiplicator <= 1.0) throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
+		this.lambdaMultiplicator = lambdaMultiplicator;
+	}
+
+	/**
+	 * Get the divisor applied to lambda (for the next iteration) if the inversion of regularized
+	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
+	 * 
+	 * @return the lambdaDivisor
+	 */
+	public double getLambdaDivisor() {
+		return lambdaDivisor;
+	}
+
+	/**
+	 * Set the divisor applied to lambda (for the next iteration) if the inversion of regularized
+	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
+	 * 
+	 * This will make lambda smaller, hence let the stepping move faster.
+	 * 
+	 * @param lambdaDivisor the lambdaDivisor to set. Should be > 1.
+	 */
+	public void setLambdaDivisor(double lambdaDivisor) {
+		if(lambdaDivisor <= 1.0) throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
+		this.lambdaDivisor = lambdaDivisor;
+	}
+
 	@Override
 	public double[] getBestFitParameters() {
 		return parameterCurrent;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.optimizer.Optimizer#getRootMeanSquaredError()
-	 */
 	@Override
 	public double getRootMeanSquaredError() {
 		return Math.sqrt(errorMeanSquaredCurrent);
@@ -555,14 +616,12 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 					isParameterCurrentDerivativeValid = false;
 
 					// Decrease lambda (move faster)
-					lambda			/= 1.3;
-					lambdaMultiplicator	= 1.3;
+					lambda			/= lambdaDivisor;
 				} else {
 					errorMeanSquaredChange = errorMeanSquaredTest - errorMeanSquaredCurrent;
 
 					// Reject point, increase lambda (move slower)
 					lambda				*= lambdaMultiplicator;
-					lambdaMultiplicator *= 1.3;
 				}
 
 				// Update a new parameter trial, if we are not done
