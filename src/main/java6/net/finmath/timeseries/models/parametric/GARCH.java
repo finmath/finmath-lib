@@ -27,7 +27,10 @@ import org.apache.commons.math3.optimization.PointValuePair;
  * \[
  *   \mathrm{d} \log(X) = \sigma(t) \mathrm{d}W(t)
  * \]
- * where \( \sigma \) is given by a GARCH(1,1) process.
+ * where \( \sigma \) is given by a GARCH(1,1) process from time discrete
+ * realizations \( X_{i} \). That is, given a time series of values \( X_{i} \)
+ * the GARCH(1,1) volatility of the log-returns \( \log(X_{i+1}/X_{i}) \) is
+ * estimated.
  * 
  * @author Christian Fries
  */
