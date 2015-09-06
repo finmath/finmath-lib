@@ -53,6 +53,20 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationParameters, parameterTransformation, null);
 	}
 
+	/**
+	 * Create a clone of this volatility surface using a generic calibration
+	 * of its parameters to given market data.
+	 * 
+	 * @param calibrationModel The model used during calibration (contains additional objects required during valuation, e.g. curves).
+	 * @param calibrationProducts The calibration products.
+	 * @param calibrationTargetValues The target values of the calibration products.
+	 * @param calibrationParameters A map containing additional settings like "evaluationTime" (Double).
+	 * @param parameterTransformation An optional parameter transformation.
+	 * @param optimizerFactory The factory providing the optimizer to be used during calibration.
+	 * @return An object having the same type as this one, using (hopefully) calibrated parameters.
+	 * @throws CalculationException Exception thrown when evaluation fails.
+	 * @throws SolverException Exception thrown when solver fails.
+	 */
 	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModelInterface calibrationModel, final Vector<AnalyticProductInterface> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation, OptimizerFactoryInterface optimizerFactory) throws CalculationException, SolverException {
 		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
