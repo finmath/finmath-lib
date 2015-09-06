@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
@@ -27,6 +29,8 @@ import net.finmath.optimizer.SolverException;
  * @author Christian Fries
  */
 public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolatilitySurface implements ParameterObjectInterface {
+
+	private static final Logger logger = Logger.getLogger("net.finmath");
 
 	public AbstractVolatilitySurfaceParametric(String name, Calendar referenceDate) {
 		super(name, referenceDate);
@@ -66,8 +70,13 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		objectsToCalibrate.add(this);
 		AnalyticModelInterface modelCalibrated = solver.getCalibratedModel(objectsToCalibrate);
 
-		double lastAccuracy		= solver.getAccuracy();
-		double lastIterations	= solver.getIterations();
+		// Diagnostic output
+		if (logger.isLoggable(Level.FINE)) {
+			double lastAccuracy		= solver.getAccuracy();
+			int 	lastIterations	= solver.getIterations();
+
+			logger.fine("The solver achived an accuracy of " + lastAccuracy + " in " + lastIterations + ".");
+		}
 
 		return (AbstractVolatilitySurfaceParametric)modelCalibrated.getVolatilitySurface(this.getName());
 	}
