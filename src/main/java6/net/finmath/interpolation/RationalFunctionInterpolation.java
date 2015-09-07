@@ -7,6 +7,7 @@ package net.finmath.interpolation;
 
 import java.util.Arrays;
 
+import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 import net.finmath.functions.LinearAlgebra;
 
 /**
@@ -29,7 +30,7 @@ import net.finmath.functions.LinearAlgebra;
  * @author Christian Fries
  * @version 1.3
  */
-public class RationalFunctionInterpolation {
+public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 
 	public enum InterpolationMethod {
 		/** Constant interpolation. Synonym of PIECEWISE_CONSTANT_LEFTPOINT. **/
@@ -565,5 +566,10 @@ public class RationalFunctionInterpolation {
 			System.out.println("" + point + "\t" + value);
 		}
 		System.out.println("");
+	}
+
+	@Override
+	public double applyAsDouble(double operand) {
+		return getValue(operand);
 	}
 }
