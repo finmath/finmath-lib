@@ -400,7 +400,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * 
 	 * This will make lambda larger, hence let the stepping move slower.
 	 * 
-	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be > 1.
+	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &gt; 1.
 	 */
 	public void setLambdaMultiplicator(double lambdaMultiplicator) {
 		if(lambdaMultiplicator <= 1.0) throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
@@ -423,7 +423,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * 
 	 * This will make lambda smaller, hence let the stepping move faster.
 	 * 
-	 * @param lambdaDivisor the lambdaDivisor to set. Should be > 1.
+	 * @param lambdaDivisor the lambdaDivisor to set. Should be &gt; 1.
 	 */
 	public void setLambdaDivisor(double lambdaDivisor) {
 		if(lambdaDivisor <= 1.0) throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
