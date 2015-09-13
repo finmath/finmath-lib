@@ -44,6 +44,14 @@ License
 The code of "finmath lib" and "finmath experiments" (packages `net.finmath.*`) are distributed under
 the [Apache License version 2.0][], unless otherwise explicitly stated.
  
+Documentation
+-------
+
+For documentation please check out
+
+- the [finmath lib API documentation] (JavaDocs)
+- the unit tests: they also serve as examples on how to perform specific tasks.
+- the [finmath.net special topics]: where you also find spreadsheets which perform a step-by-step object creation and solve specific problems.
 
   [finmath lib Project documentation]: http://www.finmath.net/java/finmath-lib 
   [finmath lib API documentation]: http://www.finmath.net/java/finmath-lib/doc/

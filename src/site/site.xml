@@ -33,6 +33,7 @@
 				<item name="Maven Build" href="maven.html" />
 				<item name="Eclipse Project" href="eclipseproject.html" />
 			</item>
+			<item name="Release Notes" href="releasenotes.html" />
 		</menu>
 
 		<menu name="Usages">
