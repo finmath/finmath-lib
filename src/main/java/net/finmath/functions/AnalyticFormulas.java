@@ -250,6 +250,41 @@ public class AnalyticFormulas {
 	}
 
 	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 * 
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static RandomVariableInterface blackScholesOptionDelta(
+			RandomVariableInterface initialStockValue,
+			RandomVariableInterface riskFreeRate,
+			RandomVariableInterface volatility,
+			double optionMaturity,
+			RandomVariableInterface optionStrike)
+	{
+		if(optionMaturity < 0) {
+			return initialStockValue.mult(0.0);
+		}
+		else
+		{	
+			// Calculate delta
+			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+
+			RandomVariableInterface delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
+
+			return delta;
+		}
+	}
+
+	/**
 	 * This static method calculated the gamma of a call option under a Black-Scholes model
 	 * 
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
@@ -809,6 +844,75 @@ public class AnalyticFormulas {
 		double rateAdjusted		= forwardSwaprate * convexityAdjustment; 
 
 		return (a * rateUnadjusted + b * forwardSwaprate * rateAdjusted) * swapAnnuity / payoffUnit;
+	}
+
+	/**
+	 * Calculated the approximation to the lognormal Black volatility using the
+	 * standard SABR model and the standard Hagan approximation.
+	 * 
+	 * @param alpha ATM volatility parameter of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturtiy.
+	 * @return Implied lognormal Black volatility.
+	 */
+	public double sabrHaganLognormalBlackVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
+	{
+
+		if(alpha <= 0) {
+			throw new IllegalArgumentException("&alpha; must be greater than 0.");
+		}
+
+		if(rho > 1 || rho < -1) {
+			throw new IllegalArgumentException("&rho; must be between -1 and 1.");
+		}
+
+		if(nu <= 0) {
+			throw new IllegalArgumentException("&nu; must be greater than 0.");
+		}
+
+		if(underlying <= 0) {
+			throw new IllegalArgumentException("Approximation not definied for non-positive underlyings.");
+		}
+
+		if(Math.abs(underlying - strike) < 0.0001 * (1+Math.abs(underlying))) {
+			/*
+			 * ATM case - we assume underlying = strike
+			 */
+
+			double term1 = alpha / (Math.pow(underlying,1-beta));
+
+			double term2 = Math.pow(1-beta,2)/24 * Math.pow(alpha,2)/Math.pow(underlying,2*(1-beta))
+					+ rho*beta*alpha*nu/(4*Math.pow(underlying,1-beta))
+					+ (2-3*rho*rho)*nu*nu/24;
+			return term1 * (1+ term2 * maturity);
+		}
+		else{
+			/*
+			 * General non-ATM case no prob with log(F/K)
+			 */
+			double FK = underlying * strike;
+
+			double z = nu/alpha * Math.pow(FK, (1-beta)/2) * Math.log(underlying / strike); 
+
+			double x = Math.log((Math.sqrt(1- 2*rho * z + z*z) + z - rho)/(1 - rho));
+
+			double term1 = alpha / Math.pow(FK,(1-beta)/2) 
+					/ (1 + Math.pow(1-beta,2)/24*Math.pow(Math.log(underlying/strike),2)
+							+ Math.pow(1-beta,4)/1920 * Math.pow(Math.log(underlying/strike),4));
+
+			double term2 = (Math.abs(x-z) < 1E-10) ? 1 : z / x;
+
+			double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(FK, 1-beta)
+					+ rho*beta*nu*alpha / 4 / Math.pow(FK, (1-beta)/2)
+					+ (2-3*rho*rho)/24 * nu*nu) *maturity;
+
+
+			return term1 * term2 * term3;
+		}		
 	}
 
 	/**
