@@ -10,4 +10,4 @@
 
 ## 1.3.4 and earlier
 
-Please check the subversion of git log messages.
+Please check the subversion or git log messages.
