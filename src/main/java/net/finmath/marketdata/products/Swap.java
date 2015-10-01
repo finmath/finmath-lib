@@ -32,6 +32,18 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	private final SwapLeg legPayer;
 
 	/**
+	 * Create a swap which values as <code>legReceiver - legPayer</code>.
+	 * 
+	 * @param legReceiver The receiver leg.
+	 * @param legPayer The payler leg.
+	 */
+	public Swap(SwapLeg legReceiver, SwapLeg legPayer) {
+		super();
+		this.legReceiver = legReceiver;
+		this.legPayer = legPayer;
+	}
+
+	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
 	 * 
 	 * @param scheduleReceiveLeg Schedule of the receiver leg.

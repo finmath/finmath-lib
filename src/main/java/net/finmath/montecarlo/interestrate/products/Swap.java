@@ -30,6 +30,18 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	private final AbstractLIBORMonteCarloProduct legPayer;
 
 	/**
+	 * Create a swap which values as <code>legReceiver - legPayer</code>.
+	 * 
+	 * @param legReceiver The receiver leg.
+	 * @param legPayer The payer leg.
+	 */
+	public Swap(AbstractLIBORMonteCarloProduct legReceiver, AbstractLIBORMonteCarloProduct legPayer) {
+		super();
+		this.legReceiver = legReceiver;
+		this.legPayer = legPayer;
+	}
+
+	/**
 	 * Create a swap from schedules, notional, indices and spreads (fixed coupons).
 	 * 
 	 * @param notional The notional.
