@@ -18,9 +18,31 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.2
  */
 public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
-	private double[] fixingDates;	// Vector of fixing dates
-	private double[] paymentDates;	// Vector of payment dates (same length as fixing dates)
-	private double[] swaprates;		// Vector of strikes
+	private final double[] fixingDates;	// Vector of fixing dates
+	private final double[] paymentDates;	// Vector of payment dates (same length as fixing dates)
+	private final double[] swaprates;		// Vector of strikes
+
+	private final boolean isPayFix;
+	
+	/**
+	 * Create a swap.
+	 * 
+	 * @param fixingDates Vector of fixing dates
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @param isPayFix If true, the swap is receive float - pay fix, otherwise its receive fix - pay float.
+	 */
+	public SimpleSwap(
+			double[] fixingDates,
+			double[] paymentDates,
+			double[] swaprates,
+			boolean isPayFix) {
+		super();
+		this.fixingDates = fixingDates;
+		this.paymentDates = paymentDates;
+		this.swaprates = swaprates;
+		this.isPayFix = isPayFix;
+	}
 
 	/**
 	 * Create a swap.
@@ -33,10 +55,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 			double[] fixingDates,
 			double[] paymentDates,
 			double[] swaprates) {
-		super();
-		this.fixingDates = fixingDates;
-		this.paymentDates = paymentDates;
-		this.swaprates = swaprates;
+		this(fixingDates, paymentDates, swaprates, true);
 	}
 
 	/**
@@ -65,9 +84,10 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 			// Get random variables
 			RandomVariableInterface libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariableInterface payoff	= libor.sub(swaprate).mult(periodLength);
+			if(!isPayFix) payoff = payoff.mult(-1.0);
 
 			RandomVariableInterface numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
+			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeDiscretization().getTimeIndexNearestLessOrEqual(paymentDate));
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			values = values.add(payoff);
