@@ -114,7 +114,7 @@ public class ExposureTest {
 		 * Create the libor tenor structure and the initial values
 		 */
 		double liborPeriodLength	= 0.25;
-		double liborRateTimeHorzion	= 40.0;
+		double liborRateTimeHorzion	= 20.0;
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
@@ -136,7 +136,7 @@ public class ExposureTest {
 		/*
 		 * Create a simulation time discretization
 		 */
-		double lastTime	= 40.0;
+		double lastTime	= 15.0;
 		double dt		= 0.125;
 
 		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
