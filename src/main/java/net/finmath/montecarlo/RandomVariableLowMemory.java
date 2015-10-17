@@ -6,7 +6,13 @@
 package net.finmath.montecarlo;
 
 import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
+import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.stochastic.RandomVariableInterface;
 
 import org.apache.commons.math3.util.FastMath;
@@ -46,18 +52,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : getFloatArray(value.getRealizations());
 		this.valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
-	}
-
-	private float[] getFloatArray(double[] arrayOfDouble) {
-		float[] arrayOfFloat = new float[arrayOfDouble.length];
-		for(int i=0; i<arrayOfDouble.length; i++) arrayOfFloat[i] = (float)arrayOfDouble[i];
-		return arrayOfFloat;
-	}
-
-	private double[] getDoubleArray(float[] arrayOfFloat) {
-		double[] arrayOfDouble = new double[arrayOfFloat.length];
-		for(int i=0; i<arrayOfFloat.length; i++) arrayOfDouble[i] = arrayOfFloat[i];
-		return arrayOfDouble;
 	}
 
 	/**
@@ -121,6 +115,18 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		this.time = time;
 		this.realizations = getFloatArray(realisations);
 		this.valueIfNonStochastic = Double.NaN;
+	}
+
+	private float[] getFloatArray(double[] arrayOfDouble) {
+		float[] arrayOfFloat = new float[arrayOfDouble.length];
+		for(int i=0; i<arrayOfDouble.length; i++) arrayOfFloat[i] = (float)arrayOfDouble[i];
+		return arrayOfFloat;
+	}
+
+	private double[] getDoubleArray(float[] arrayOfFloat) {
+		double[] arrayOfDouble = new double[arrayOfFloat.length];
+		for(int i=0; i<arrayOfFloat.length; i++) arrayOfDouble[i] = arrayOfFloat[i];
+		return arrayOfDouble;
 	}
 
 	/* (non-Javadoc)
@@ -263,9 +269,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return (sumOfSquared/realizations.length - sum/realizations.length*sum/realizations.length);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
-	 */
+	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
@@ -299,9 +303,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return Math.sqrt(getVariance());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getStandardDeviation(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
@@ -310,9 +311,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return Math.sqrt(getVariance(probabilities));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
-	 */
 	@Override
 	public double getStandardError() {
 		if(isDeterministic())	return 0.0;
@@ -492,6 +490,18 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	}
 
 	@Override
+	public DoubleStream getRealizationsStream() {
+		if(isDeterministic()) {
+			return DoubleStream.generate(() -> {
+				return valueIfNonStochastic;
+			});
+		}
+		else {
+			return Arrays.stream(getDoubleArray(realizations));
+		}
+	}
+
+	@Override
 	public double[] getRealizations() {
 		if(isDeterministic()) {
 			double[] result = new double[1];
@@ -500,6 +510,15 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			return getDoubleArray(realizations);
+		}
+	}
+
+	public IntToDoubleFunction getOperator() {
+		if(isDeterministic()) {
+			return i -> valueIfNonStochastic;
+		}
+		else {
+			return i -> realizations[i];
 		}
 	}
 
@@ -517,25 +536,49 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return getDoubleArray(((RandomVariableLowMemory)expand(numberOfPaths)).realizations);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#apply(org.apache.commons.math3.analysis.UnivariateFunction)
-	 */
 	@Override
-	public RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function) {
+	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = function.value(valueIfNonStochastic);
-			return new RandomVariableLowMemory(time, newValueIfNonStochastic);
+			return new RandomVariable(time, operator.applyAsDouble(valueIfNonStochastic));
 		}
-		else {
-			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = function.value(realizations[i]);
-			return new RandomVariableLowMemory(time, newRealizations);
+		else
+		{
+			// Still faster than a parallel stream (2014.04)
+			double[] result = new double[this.realizations.length];
+			for(int i=0; i<result.length; i++) result[i] = operator.applyAsDouble(realizations[i]);
+			return new RandomVariable(time, result);
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cap(double)
-	 */
+	@Override
+	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+
+		double      newTime           = Math.max(time, argument.getFiltrationTime());
+
+		int newSize = Math.max(this.size(), argument.size());
+
+		IntToDoubleFunction argument0Operator = this.getOperator();
+		IntToDoubleFunction argument1Operator = argument.getOperator();
+		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
+
+		return new RandomVariable(newTime, result, newSize);
+	}
+
+	@Override
+	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
+		double newTime = Math.max(time, argument1.getFiltrationTime());
+		newTime = Math.max(newTime, argument2.getFiltrationTime());
+
+		int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
+
+		IntToDoubleFunction argument0Operator = this.getOperator();
+		IntToDoubleFunction argument1Operator = argument1.getOperator();
+		IntToDoubleFunction argument2Operator = argument2.getOperator();
+		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
+
+		return new RandomVariable(newTime, result, newSize);
+	}
+
 	public RandomVariableInterface cap(double cap) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);
@@ -564,9 +607,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(double)
-	 */
 	@Override
 	public RandomVariableInterface add(double value) {
 		if(isDeterministic()) {
@@ -580,9 +620,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(double)
-	 */
 	@Override
 	public RandomVariableInterface sub(double value) {
 		if(isDeterministic()) {
@@ -596,9 +633,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(double)
-	 */
 	@Override
 	public RandomVariableInterface mult(double value) {
 		if(isDeterministic()) {
@@ -612,9 +646,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(double)
-	 */
 	@Override
 	public RandomVariableInterface div(double value) {
 		if(isDeterministic()) {
@@ -628,9 +659,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#pow(double)
-	 */
 	@Override
 	public RandomVariableInterface pow(double exponent) {
 		if(isDeterministic()) {
@@ -644,9 +672,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
-	 */
 	@Override
 	public RandomVariableInterface squared() {
 		if(isDeterministic()) {
@@ -660,9 +685,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
-	 */
 	@Override
 	public RandomVariableInterface sqrt() {
 		if(isDeterministic()) {

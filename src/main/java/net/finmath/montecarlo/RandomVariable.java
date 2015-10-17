@@ -292,9 +292,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return Math.sqrt(getVariance());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getStandardDeviation(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
@@ -303,9 +300,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return Math.sqrt(getVariance(probabilities));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
-	 */
 	@Override
 	public double getStandardError() {
 		if(isDeterministic())	return 0.0;
