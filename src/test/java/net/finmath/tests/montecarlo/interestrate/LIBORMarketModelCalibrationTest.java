@@ -71,7 +71,11 @@ public class LIBORMarketModelCalibrationTest {
 		double[] swaprates = new double[numberOfPeriods];
 		Arrays.fill(swaprates, swaprate);
 
-		// We use Monte-Carlo calibration on implied volatiltiy.
+		/*
+		 * We use Monte-Carlo calibration on implied volatility.
+		 * Alternatively you may change here to Monte-Carlo valuation on price or
+		 * use an analytic approximation formula, etc.
+		 */
 		SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.VOLATILITY);
 //		double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetVolatility, fixingDates[0], swaprate, getSwapAnnuity(discountCurve, swapTenor));
 		return new CalibrationItem(swaptionMonteCarlo, targetVolatility, 1.0);

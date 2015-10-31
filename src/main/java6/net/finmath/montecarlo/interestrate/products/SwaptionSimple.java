@@ -32,8 +32,8 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 
     private final TimeDiscretizationInterface	tenor;
     private final double						swaprate;
-    private final Swaption					swaption;
-    private final ValueUnit					valueUnit;
+    private final Swaption						swaption;
+    private final ValueUnit						valueUnit;
 
     /**
      * Note: It is implicitly assumed that swapTenor[0] is the exercise date (no forward starting).

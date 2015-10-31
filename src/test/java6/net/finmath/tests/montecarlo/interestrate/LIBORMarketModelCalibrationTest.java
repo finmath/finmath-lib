@@ -71,7 +71,11 @@ public class LIBORMarketModelCalibrationTest {
 		double[] swaprates = new double[numberOfPeriods];
 		Arrays.fill(swaprates, swaprate);
 
-		// We use Monte-Carlo calibration on implied volatiltiy.
+		/*
+		 * We use Monte-Carlo calibration on implied volatility.
+		 * Alternatively you may change here to Monte-Carlo valuation on price or
+		 * use an analytic approximation formula, etc.
+		 */
 		SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.VOLATILITY);
 //		double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetVolatility, fixingDates[0], swaprate, getSwapAnnuity(discountCurve, swapTenor));
 		return new CalibrationItem(swaptionMonteCarlo, targetVolatility, 1.0);
@@ -205,13 +209,16 @@ public class LIBORMarketModelCalibrationTest {
 				liborMarketModelCalibrated, process);
 
 		System.out.println("\nValuation on calibrated model:");
-		double deviationSum = 0.0;
+		double deviationSum			= 0.0;
+		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationItems.size(); i++) {
 			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
 			try {
 				double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				double valueTarget = calibrationItems.get(i).calibrationTargetValue;
-				deviationSum += (valueModel-valueTarget);
+				double error = valueModel-valueTarget;
+				deviationSum += error;
+				deviationSquaredSum += error*error;
 				System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget) + "\t" + calibrationProduct.toString());
 			}
 			catch(Exception e) {
@@ -220,6 +227,7 @@ public class LIBORMarketModelCalibrationTest {
 		}
 		double averageDeviation = deviationSum/calibrationItems.size();
 		System.out.println("Mean Deviation:" + formatterValue.format(averageDeviation));
+		System.out.println("RMS Error.....:" + formatterValue.format(deviationSquaredSum/calibrationItems.size()));
 		System.out.println("__________________________________________________________________________________________\n");
 		
 		Assert.assertTrue(Math.abs(averageDeviation) < 1E-2);
