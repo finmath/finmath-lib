@@ -83,7 +83,7 @@ public class ExposureTest {
 		SwapLeg swapLegRec = new SwapLeg(legScheduleRec, notional, null, fixedCoupon /* spread */, false /* isNotionalExchanged */);
 		SwapLeg swapLegPay = new SwapLeg(legSchedulePay, notional, index, 0.0 /* spread */, false /* isNotionalExchanged */);
 		AbstractLIBORMonteCarloProduct swap = new Swap(swapLegRec, swapLegPay);
-		AbstractLIBORMonteCarloProduct swapExposue = new Exposure(swap);
+		AbstractLIBORMonteCarloProduct swapExposue = new ExposureEstimator(swap);
 
 
 		LIBORModelMonteCarloSimulationInterface lmm = createLIBORMarketModel(Measure.SPOT, 10000, 5, 0.1);

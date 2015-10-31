@@ -17,6 +17,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -28,16 +29,19 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFrom
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.Swap;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
+import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -49,7 +53,7 @@ public class ExposureTest {
 	private final NumberFormat formatter6 = new DecimalFormat("0.000000", new DecimalFormatSymbols(new Locale("en")));
 
 	@Test
-	public void test() throws CalculationException {
+	public void testExpectedPositiveExposure() throws CalculationException {
 		/*
 		 * Create a receiver swap (receive fix, pay float)
 		 */
@@ -83,29 +87,78 @@ public class ExposureTest {
 		SwapLeg swapLegRec = new SwapLeg(legScheduleRec, notional, null, fixedCoupon /* spread */, false /* isNotionalExchanged */);
 		SwapLeg swapLegPay = new SwapLeg(legSchedulePay, notional, index, 0.0 /* spread */, false /* isNotionalExchanged */);
 		AbstractLIBORMonteCarloProduct swap = new Swap(swapLegRec, swapLegPay);
-		AbstractLIBORMonteCarloProduct swapExposue = new Exposure(swap);
+		AbstractLIBORMonteCarloProduct swapExposureEstimator = new ExposureEstimator(swap);
 
 
 		LIBORModelMonteCarloSimulationInterface lmm = createLIBORMarketModel(Measure.SPOT, 10000, 5, 0.1);
 
-		/*
-		double[] swaprates = new double[40];
-		Arrays.fill(swaprates, 0.025);
-		AbstractLIBORMonteCarloProduct simpleSwap = new SimpleSwap((new TimeDiscretization(0.0, 39, 0.25)).getAsDoubleArray(), (new TimeDiscretization(0.25, 39, 0.25)).getAsDoubleArray(), swaprates, false);
-		AbstractLIBORMonteCarloProduct simpleSwapExposure = new Exposure(simpleSwap);
-		*/
-
 		// Print a single exposure path and the expected positive exposure
 		for(double observationDate : lmm.getTimeDiscretization()) {
-			RandomVariableInterface values = swapExposue.getValue(observationDate, lmm);
-			
-			double exposureOnPath = values.get(0);
-			double expectedPositiveExposure = values.floor(0.0).getAverage();
 
-			System.out.println(formatter6.format(exposureOnPath) + " \t " + formatter6.format(expectedPositiveExposure));
+			/*
+			 * Calculate expected positive exposure of a swap
+			 */
+			RandomVariableInterface valuesSwap = swap.getValue(observationDate, lmm);
+			RandomVariableInterface valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
+			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.barrier(valuesEstimatedExposure, new RandomVariable(1.0), 0.0));
+
+			double exposureOnPath				= valuesEstimatedExposure.get(0);
+			double expectedPositiveExposure		= valuesPositiveExposure.getAverage();
+
+			System.out.println(observationDate + "\t" + formatter6.format(exposureOnPath) + " \t " + formatter6.format(expectedPositiveExposure));
+
+			double basisPoint = 1E-4;
+			Assert.assertTrue("Expected positive exposure", expectedPositiveExposure >= 0-2*basisPoint);
 		}
 	}
 
+
+	@Test
+	public void testAgainstSwaption() throws CalculationException {
+		/*
+		 * Create a receiver swap (receive fix, pay float)
+		 */
+		TimeDiscretization tenor = new TimeDiscretization(0.0, 40, 0.25);
+		ScheduleInterface schedule = new RegularSchedule(tenor);
+		
+		AbstractNotional notional = new Notional(1.0);
+		AbstractIndex index = new LIBORIndex("forwardCurve", 0.0, 0.25);
+		double fixedCoupon = 0.025;
+
+		SwapLeg swapLegRec = new SwapLeg(schedule, notional, index, 0.0 /* spread */, false /* isNotionalExchanged */);
+		SwapLeg swapLegPay = new SwapLeg(schedule, notional, null, fixedCoupon /* spread */, false /* isNotionalExchanged */);
+		AbstractLIBORMonteCarloProduct swap = new Swap(swapLegRec, swapLegPay);
+		AbstractLIBORMonteCarloProduct swapExposureEstimator = new ExposureEstimator(swap);
+
+		LIBORModelMonteCarloSimulationInterface lmm = createLIBORMarketModel(Measure.SPOT, 10000, 5, 0.1);
+
+		// Print a single exposure path and the expected positive exposure
+		for(double observationDate : lmm.getTimeDiscretization()) {
+
+			/*
+			 * Calculate expected positive exposure of a swap
+			 */
+			RandomVariableInterface valuesSwap = swap.getValue(observationDate, lmm);
+			RandomVariableInterface valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
+			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.barrier(valuesEstimatedExposure, new RandomVariable(1.0), 0.0));
+
+			double exposureOnPath = valuesEstimatedExposure.get(0);
+			double expectedPositiveExposure				= valuesPositiveExposure.getAverage();
+			double expectedPositiveExposureFromEstimate	= valuesEstimatedExposure.floor(0.0).getAverage();
+
+			/*
+			 * Benchmark value against a swaption
+			 */
+			double exerciseDate = observationDate;
+			AbstractLIBORMonteCarloProduct swaption = new Swaption(exerciseDate, tenor, fixedCoupon);
+			double swaptionValue = (Double)swaption.getValues(observationDate, lmm).get("value");
+
+			System.out.println(observationDate + "\t" + formatter6.format(exposureOnPath) + " \t " + formatter6.format(expectedPositiveExposureFromEstimate) + " \t " + formatter6.format(expectedPositiveExposure) + " \t " + formatter6.format(swaptionValue) + " \t " + formatter6.format((expectedPositiveExposure-swaptionValue)*10000));
+
+			double basisPoint = 1E-4;
+			Assert.assertEquals("Expected positive exposure", swaptionValue, expectedPositiveExposure, 25*basisPoint);
+		}
+	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
 			Measure measure, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
@@ -131,7 +184,6 @@ public class ExposureTest {
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* maturities */,
 				new double[] {0.02, 0.02, 0.02, 0.02, 0.03}	/* zero rates */
 				);
-		
 		
 		/*
 		 * Create a simulation time discretization
@@ -202,8 +254,7 @@ public class ExposureTest {
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
-						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+						numberOfFactors, numberOfPaths, 3141 /* seed */), ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}

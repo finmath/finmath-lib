@@ -28,7 +28,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.3
  * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct
  */
-public class Exposure extends AbstractProductComponent {
+public class ExposureEstimator extends AbstractProductComponent {
 
 	private static final long serialVersionUID = 2987369289230532162L;
 
@@ -45,7 +45,7 @@ public class Exposure extends AbstractProductComponent {
 	 * 
 	 * @param underlying The underlying.
 	 */
-	public Exposure(AbstractLIBORMonteCarloProduct underlying) {
+	public ExposureEstimator(AbstractLIBORMonteCarloProduct underlying) {
 		super();
 		this.underlying		= underlying;
 	}
