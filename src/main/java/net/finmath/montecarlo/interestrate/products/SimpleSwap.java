@@ -23,7 +23,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	private final double[] swaprates;		// Vector of strikes
 
 	private final boolean isPayFix;
-
+	
 	/**
 	 * Create a swap.
 	 * 

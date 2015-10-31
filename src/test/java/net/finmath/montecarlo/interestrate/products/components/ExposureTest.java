@@ -95,6 +95,8 @@ public class ExposureTest {
 		// Print a single exposure path and the expected positive exposure
 		for(double observationDate : lmm.getTimeDiscretization()) {
 
+			if(observationDate == 0) continue;
+			
 			/*
 			 * Calculate expected positive exposure of a swap
 			 */
@@ -108,7 +110,7 @@ public class ExposureTest {
 			System.out.println(observationDate + "\t" + formatter6.format(exposureOnPath) + " \t " + formatter6.format(expectedPositiveExposure));
 
 			double basisPoint = 1E-4;
-			Assert.assertTrue("Expected positive exposure", expectedPositiveExposure >= 0-2*basisPoint);
+			Assert.assertTrue("Expected positive exposure", expectedPositiveExposure >= 0-1*basisPoint);
 		}
 	}
 

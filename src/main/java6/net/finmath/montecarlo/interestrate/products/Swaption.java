@@ -127,6 +127,8 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			
 			double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
 			
+			if(paymentDate <= evaluationTime) break;
+			
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
 			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
 			
@@ -150,9 +152,9 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		 */
 		RandomVariableInterface values = valueOfSwapAtExerciseDate.floor(0.0);
         
-		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 
 		return values;
 	}

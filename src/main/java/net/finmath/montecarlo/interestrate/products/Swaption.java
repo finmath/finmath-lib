@@ -7,7 +7,6 @@ package net.finmath.montecarlo.interestrate.products;
 
 import java.util.Arrays;
 
-import jdk.nashorn.internal.ir.CallNode.EvalArgs;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
@@ -35,7 +34,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	private double[]   paymentDates;	// Vector of payment dates (same length as fixing dates)
 	private double[]   periodLengths;	// Vector of payment dates (same length as fixing dates)
 	private double[]   swaprates;		// Vector of strikes
-
+		
 	/**
 	 * Create a swaption.
 	 * 
@@ -101,7 +100,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		this.swaprates = new double[swapTenor.getNumberOfTimeSteps()];
 		java.util.Arrays.fill(swaprates, swaprate);
 	}
-
+	
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
@@ -118,21 +117,21 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		 * Calculate value of the swap at exercise date on each path (beware of perfect foresight - all rates are simulationTime=exerciseDate)
 		 */
 		RandomVariableInterface valueOfSwapAtExerciseDate	= model.getRandomVariableForConstant(/*fixingDates[fixingDates.length-1],*/0.0);
-
+		
 		// Calculate the value of the swap by working backward through all periods
 		for(int period=fixingDates.length-1; period>=0; period--)
 		{
 			double fixingDate	= fixingDates[period];
 			double paymentDate	= paymentDates[period];
 			double swaprate		= swaprates[period];
-
+			
 			double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
-
+			
 			if(paymentDate <= evaluationTime) break;
 			
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
 			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
-
+			
 			// Add payment received at end of period
 			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength);
 
@@ -142,7 +141,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			// Sum discounted payoffs - discounted back to exerciseDate
 			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.add(payoff.div(numeraire).mult(monteCarloProbabilities));
 		}
-
+		
 		/*
 		 * Calculate swaption value
 		 * 
@@ -151,15 +150,15 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		 * trival. It is due to the fact that the indicator function is
 		 * measurable at exercise date.
 		 */
-		RandomVariableInterface values = valueOfSwapAtExerciseDate.floor(0.0);        
-
+		RandomVariableInterface values = valueOfSwapAtExerciseDate.floor(0.0);
+        
 		RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 
 		return values;
 	}
-
+    
 	/**
 	 * This method returns the value of the product using a Black-Scholes model for the swap rate
 	 * The model is determined by a discount factor curve and a swap rate volatility.
