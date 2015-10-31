@@ -17,13 +17,27 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class RandomVariableFactory extends AbstractRandomVariableFactory {
 
-    @Override
-    public RandomVariableInterface createRandomVariable(double time, double value) {
-        return new RandomVariable(time, value);
-    }
+	final boolean isUseDoublePrecisionFloatingPointImplementation;
 
-    @Override
-    public RandomVariableInterface createRandomVariable(double time, double[] values) {
-        return new RandomVariable(time, values);
-    }
+	public RandomVariableFactory() {
+		super();
+		this.isUseDoublePrecisionFloatingPointImplementation = true;
+	}
+
+	public RandomVariableFactory(boolean isUseDoublePrecisionFloatingPointImplementation) {
+		super();
+		this.isUseDoublePrecisionFloatingPointImplementation = isUseDoublePrecisionFloatingPointImplementation;
+	}
+
+	@Override
+	public RandomVariableInterface createRandomVariable(double time, double value) {
+		if(isUseDoublePrecisionFloatingPointImplementation) return new RandomVariable(time, value);
+		else												return new RandomVariableLowMemory(time, value);
+	}
+
+	@Override
+	public RandomVariableInterface createRandomVariable(double time, double[] values) {
+		if(isUseDoublePrecisionFloatingPointImplementation) return new RandomVariable(time, values);
+		else												return new RandomVariableLowMemory(time, values);
+	}
 }

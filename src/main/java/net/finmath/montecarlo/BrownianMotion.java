@@ -44,10 +44,41 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+	private final AbstractRandomVariableFactory randomVariableFactory;
 
 	private transient	RandomVariableInterface[][]	brownianIncrements;
 	private final		Object						brownianIncrementsLazyInitLock = new Object();
+
+	/**
+	 * Construct a Brownian motion.
+	 * 
+	 * The constructor allows to set the factory to be used for the construction of
+	 * random variables. This allows to generate Brownian increments represented
+	 * by different implementations of the RandomVariableInterface (e.g. the RandomVariableLowMemory internally
+	 * using float representations).
+	 * 
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
+	 * @param numberOfFactors Number of factors.
+	 * @param numberOfPaths Number of paths to simulate.
+	 * @param seed The seed of the random number generator.
+	 * @param randomVariableFactory Factory to be used to create random variable.
+	 */
+	public BrownianMotion(
+			TimeDiscretizationInterface timeDiscretization,
+			int numberOfFactors,
+			int numberOfPaths,
+			int seed,
+			AbstractRandomVariableFactory randomVariableFactory) {
+		super();
+		this.timeDiscretization = timeDiscretization;
+		this.numberOfFactors	= numberOfFactors;
+		this.numberOfPaths		= numberOfPaths;
+		this.seed				= seed;
+
+		this.randomVariableFactory = randomVariableFactory;
+
+		this.brownianIncrements	= null; 	// Lazy initialization
+	}
 
 	/**
 	 * Construct a Brownian motion.
@@ -62,13 +93,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 			int numberOfFactors,
 			int numberOfPaths,
 			int seed) {
-		super();
-		this.timeDiscretization = timeDiscretization;
-		this.numberOfFactors	= numberOfFactors;
-		this.numberOfPaths		= numberOfPaths;
-		this.seed				= seed;
-
-		this.brownianIncrements	= null; 	// Lazy initialization
+		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, new RandomVariableFactory());
 	}
 
 	@Override
