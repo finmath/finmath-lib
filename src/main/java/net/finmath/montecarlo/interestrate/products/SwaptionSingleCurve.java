@@ -18,23 +18,24 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationInterface.
+ * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationInterface
  * 
- * The valuation supports a multi-curve LIBOR market (in the sense that it
- * distinguishes forwards and numeraire in a proper way). If the numeraire is
- * the collateral account, then the product evaluated is the collateralized
- * option on a collateralized swap.
+ * Important: If the LIBOR Market Model is a multi-curve model in the sense that the
+ * numeraire is not calculated from the forward curve, then this valuation does
+ * not result in the valuation of a collaterlized option on a collateralized swap.
+ * It will be a collaterlized option on a single curve (uncolateralized) swap.
+ * For a multi-curve valuation see {@link Swaption}.
  * 
  * @author Christian Fries
- * @version 1.2
+ * @version 1.1
  */
-public class Swaption extends AbstractLIBORMonteCarloProduct {
+public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 	private double     exerciseDate;	// Exercise date
 	private double[]   fixingDates;		// Vector of fixing dates (must be sorted)
 	private double[]   paymentDates;	// Vector of payment dates (same length as fixing dates)
 	private double[]   periodLengths;	// Vector of payment dates (same length as fixing dates)
 	private double[]   swaprates;		// Vector of strikes
-		
+
 	/**
 	 * Create a swaption.
 	 * 
@@ -44,7 +45,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * @param periodLengths Vector of period lengths.
 	 * @param swaprates Vector of strikes (must have same length as fixing dates).
 	 */
-	public Swaption(double exerciseDate, double[] fixingDates, double[] paymentDates, double[] periodLengths, double[] swaprates) {
+	public SwaptionSingleCurve(double exerciseDate, double[] fixingDates, double[] paymentDates, double[] periodLengths, double[] swaprates) {
 		super();
 		this.exerciseDate = exerciseDate;
 		this.fixingDates = fixingDates;
@@ -61,7 +62,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates).
 	 * @param swaprates Vector of strikes (must have same length as fixing dates).
 	 */
-	public Swaption(
+	public SwaptionSingleCurve(
 			double exerciseDate,
 			double[] fixingDates,
 			double[] paymentDates,
@@ -81,7 +82,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * @param swapTenor Object specifying period start and end dates.
 	 * @param swaprate Strike.
 	 */
-	public Swaption(
+	public SwaptionSingleCurve(
 			double				exerciseDate,
 			TimeDiscretizationInterface	swapTenor,
 			double				swaprate) {
@@ -100,7 +101,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		this.swaprates = new double[swapTenor.getNumberOfTimeSteps()];
 		java.util.Arrays.fill(swaprates, swaprate);
 	}
-	
+
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
@@ -117,46 +118,52 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		 * Calculate value of the swap at exercise date on each path (beware of perfect foresight - all rates are simulationTime=exerciseDate)
 		 */
 		RandomVariableInterface valueOfSwapAtExerciseDate	= model.getRandomVariableForConstant(/*fixingDates[fixingDates.length-1],*/0.0);
-		
+
 		// Calculate the value of the swap by working backward through all periods
 		for(int period=fixingDates.length-1; period>=0; period--)
 		{
 			double fixingDate	= fixingDates[period];
 			double paymentDate	= paymentDates[period];
 			double swaprate		= swaprates[period];
-			
+
 			double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
-			
+
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
 			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
-			
+
 			// Add payment received at end of period
 			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength);
+			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.add(payoff);
 
-			RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
-
-			// Sum discounted payoffs - discounted back to exerciseDate
-			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.add(payoff.div(numeraire).mult(monteCarloProbabilities));
+			// Discount back to beginning of period
+			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.discount(libor, paymentDate - fixingDate);
 		}
-		
+
+		// If the exercise date is not the first periods start date, then discount back to the exercise date (calculate the forward starting swap)
+		if(fixingDates[0] != exerciseDate) {
+			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
+			double periodLength	= fixingDates[0] - exerciseDate;
+
+			// Discount back to beginning of period
+			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.discount(libor, periodLength);
+		}
+
 		/*
 		 * Calculate swaption value
-		 * 
-		 * Note: the fact, that the following option is allowed, in the
-		 * sense that it does not generate a foresight bias - is maybe not
-		 * trival. It is due to the fact that the indicator function is
-		 * measurable at exercise date.
 		 */
 		RandomVariableInterface values = valueOfSwapAtExerciseDate.floor(0.0);
-        
+
+		RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
+		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
+		values = values.div(numeraire).mult(monteCarloProbabilities);
+
 		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return values;
 	}
-    
+
 	/**
 	 * This method returns the value of the product using a Black-Scholes model for the swap rate
 	 * The model is determined by a discount factor curve and a swap rate volatility.

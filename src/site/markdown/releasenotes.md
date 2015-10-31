@@ -17,6 +17,7 @@ finmath lib Release Notes
 
 -	BrownianMotion allows to use a custom AbstractRandomVariableFactory. Useful to switch to single precision floating point numbers (to save memory).
 -	ProcessEulerScheme has an addition constructor (to directly construct a predictor corrector scheme).
+-	Swaption is now compatible multi-curve LMM (using collateral curve).
 
 ### Exposure
 
