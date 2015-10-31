@@ -27,6 +27,7 @@ finmath lib Release Notes
 ### Volatility
 
 -	Added SABR analytic approximations to net.finmath.functions.AnalyticFormulas
+-	BrownianMotion allows to use a custom AbstractRandomVariableFactory. Useful to switch to single precision floating point numbers (to save memory).
 
 ### Other
 
