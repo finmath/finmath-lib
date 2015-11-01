@@ -18,6 +18,7 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -48,7 +49,7 @@ import org.junit.Test;
  */
 public class LIBORMarketModelValuationTest {
 
-	private final int numberOfPaths		= 100000;
+	private final int numberOfPaths		= 20000;
 	private final int numberOfFactors	= 6;
 
 	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
@@ -145,13 +146,11 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
-				liborPeriodDiscretization, forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve), covarianceModel, calibrationItems, properties);
+		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve), covarianceModel, calibrationItems, properties);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
-						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+
+		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
