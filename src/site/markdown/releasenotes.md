@@ -6,8 +6,7 @@ finmath lib Release Notes
 # Release Notes
 
 
-
-## 1.3.6-SNAPSHOT
+## 1.3.6
 
 ### Swaps
 
