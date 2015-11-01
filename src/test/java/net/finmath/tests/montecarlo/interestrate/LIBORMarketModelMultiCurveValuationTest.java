@@ -68,6 +68,8 @@ public class LIBORMarketModelMultiCurveValuationTest {
 	private final int numberOfPaths		= 100000;
 	private final int numberOfFactors	= 6;
 
+	private final Measure measure;
+
 	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
 
 	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -75,6 +77,8 @@ public class LIBORMarketModelMultiCurveValuationTest {
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	public LIBORMarketModelMultiCurveValuationTest(Measure measure) throws CalculationException {
+		// Store measure
+		this.measure = measure;
 
 		// Create a libor market model
 		liborMarketModel = createLIBORMarketModel(measure, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
@@ -277,7 +281,8 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 * jUnit assertion: condition under which we consider this test successful
 		 * The swap should be at par (close to zero)
 		 */
-		Assert.assertTrue(maxAbsDeviation < 5E-3);
+		if(measure == Measure.SPOT)	Assert.assertTrue(maxAbsDeviation < 1E-3);
+		else						Assert.assertTrue(maxAbsDeviation < 1E-2);
 	}
 
 	@Test

@@ -136,7 +136,7 @@ public class LIBORMarketModelValuationTest {
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
-		
+
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
@@ -257,7 +257,7 @@ public class LIBORMarketModelValuationTest {
 		 * jUnit assertion: condition under which we consider this test successful
 		 * The swap should be at par (close to zero)
 		 */
-		Assert.assertTrue(maxAbsDeviation < 6E-3);
+		Assert.assertTrue(maxAbsDeviation < 2E-3);
 	}
 
 	@Test
@@ -267,25 +267,25 @@ public class LIBORMarketModelValuationTest {
 		 */
 		System.out.println("Digital caplet prices:\n");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
-	
+
 		double maxAbsDeviation = 0.0;
 		for (int maturityIndex = 1; maturityIndex <= liborMarketModel.getNumberOfLibors() - 10; maturityIndex++) {
-	
+
 			double optionMaturity = liborMarketModel.getLiborPeriod(maturityIndex);
 			System.out.print(formatterMaturity.format(optionMaturity) + "          ");
-	
+
 			double periodStart	= liborMarketModel.getLiborPeriod(maturityIndex);
 			double periodEnd	= liborMarketModel.getLiborPeriod(maturityIndex+1);
-	
+
 			double strike = 0.02;
-	
+
 			// Create a digital caplet
 			DigitalCaplet digitalCaplet = new DigitalCaplet(optionMaturity, periodStart, periodEnd, strike);
-			
+
 			// Value with Monte Carlo
 			double valueSimulation = digitalCaplet.getValue(liborMarketModel);
 			System.out.print(formatterValue.format(valueSimulation) + "          ");
-	
+
 			// Value analytic
 			double forward			= getParSwaprate(liborMarketModel, new double[] { periodStart , periodEnd});
 			double periodLength		= periodEnd-periodStart;
@@ -295,16 +295,16 @@ public class LIBORMarketModelValuationTest {
 			double volatility = Math.sqrt(liborMarketModel.getModel().getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
 			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelDgitialCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
-	
+
 			// Absolute deviation
 			double deviation = (valueSimulation - valueAnalytic);
 			System.out.println(formatterDeviation.format(deviation) + "          ");
-	
+
 			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation));
 		}
 
 		System.out.println("__________________________________________________________________________________________\n");
-	
+
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
