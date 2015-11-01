@@ -20,6 +20,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
@@ -172,10 +173,9 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
-						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+
+		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
@@ -234,13 +234,13 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			double startDate = liborMarketModel.getLiborPeriod(maturityIndex);
 
 
-			int numberOfPeriods = 5;
+			int numberOfPeriods = 10;
 
 			// Create a swap
 			double[]	fixingDates			= new double[numberOfPeriods];
 			double[]	paymentDates		= new double[numberOfPeriods];
 			double[]	swapTenor			= new double[numberOfPeriods + 1];
-			double		swapPeriodLength	= 1.0;
+			double		swapPeriodLength	= 0.5;
 
 			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
 				fixingDates[periodStartIndex]	= startDate + periodStartIndex * swapPeriodLength;

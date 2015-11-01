@@ -20,6 +20,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
@@ -103,8 +104,8 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* maturities */,
 				new double[] {0.04, 0.04, 0.04, 0.04, 0.05}	/* zero rates */
 				);
-		
-		
+
+
 		/*
 		 * Create a simulation time discretization
 		 */
@@ -159,7 +160,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());
-		
+
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
@@ -172,10 +173,9 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
-						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+
+		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
@@ -234,13 +234,13 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			double startDate = liborMarketModel.getLiborPeriod(maturityIndex);
 
 
-			int numberOfPeriods = 5;
+			int numberOfPeriods = 10;
 
 			// Create a swap
 			double[]	fixingDates			= new double[numberOfPeriods];
 			double[]	paymentDates		= new double[numberOfPeriods];
 			double[]	swapTenor			= new double[numberOfPeriods + 1];
-			double		swapPeriodLength	= 1.0;
+			double		swapPeriodLength	= 0.5;
 
 			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
 				fixingDates[periodStartIndex]	= startDate + periodStartIndex * swapPeriodLength;
@@ -287,25 +287,25 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 */
 		System.out.println("Digital caplet prices:\n");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
-	
+
 		double maxAbsDeviation = 0.0;
 		for (int maturityIndex = 1; maturityIndex <= liborMarketModel.getNumberOfLibors() - 10; maturityIndex++) {
-	
+
 			double optionMaturity = liborMarketModel.getLiborPeriod(maturityIndex);
 			System.out.print(formatterMaturity.format(optionMaturity) + "          ");
-	
+
 			double periodStart	= liborMarketModel.getLiborPeriod(maturityIndex);
 			double periodEnd	= liborMarketModel.getLiborPeriod(maturityIndex+1);
-	
+
 			double strike = 0.02;
-	
+
 			// Create a digital caplet
 			DigitalCaplet digitalCaplet = new DigitalCaplet(optionMaturity, periodStart, periodEnd, strike);
-			
+
 			// Value with Monte Carlo
 			double valueSimulation = digitalCaplet.getValue(liborMarketModel);
 			System.out.print(formatterValue.format(valueSimulation) + "          ");
-	
+
 			// Value analytic
 			double forward			= getParSwaprate(liborMarketModel, new double[] { periodStart , periodEnd});
 			double periodLength		= periodEnd-periodStart;
@@ -315,16 +315,16 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			double volatility = Math.sqrt(liborMarketModel.getModel().getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
 			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelDgitialCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
-	
+
 			// Absolute deviation
 			double deviation = (valueSimulation - valueAnalytic);
 			System.out.println(formatterDeviation.format(deviation) + "          ");
-	
+
 			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation));
 		}
 
 		System.out.println("__________________________________________________________________________________________\n");
-	
+
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
