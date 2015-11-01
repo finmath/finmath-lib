@@ -138,9 +138,9 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			// Calculated the adjustment for the discounting curve, assuming a deterministic basis
 			double discountingDate = Math.max(fixingDate,exerciseDate);
 			RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
+			RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 			RandomVariableInterface	numeraireAtFixingDate	= model.getNumeraire(discountingDate);
-			RandomVariableInterface	monteCarloProbabilitiesAtFixingDate			= model.getMonteCarloWeights(model.getTimeIndex(discountingDate));
+			RandomVariableInterface	monteCarloProbabilitiesAtFixingDate			= model.getMonteCarloWeights(discountingDate);
 			double discountingAdjustment = model.getLIBOR(discountingDate, discountingDate, paymentDate).mult(periodLength).add(1.0).div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtFixingDate).div(monteCarloProbabilitiesAtFixingDate).getAverage();
 
 			// Add payment received at end of period
@@ -156,7 +156,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		RandomVariableInterface values = valueOfSwapAtExerciseDate.floor(0.0);
 
 		RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
-		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
+		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(exerciseDate);
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
 		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
