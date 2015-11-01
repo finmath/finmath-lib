@@ -10,7 +10,6 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
 import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.stochastic.RandomVariableInterface;
