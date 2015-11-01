@@ -67,7 +67,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		});
 	};
 
-	private final int numberOfPaths		= 100000;
+	private final int numberOfPaths		= 40000;
 	private final int numberOfFactors	= 6;
 
 	private final Measure measure;
@@ -289,7 +289,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 	@Test
 	public void testCaplet() throws CalculationException {
 		/*
-		 * Value a swaption
+		 * Value a caplet
 		 */
 		System.out.println("Caplet prices:\n");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
@@ -330,12 +330,14 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation));
 		}
 
+		System.out.println("Maximum abs deviation: " + formatterDeviation.format(maxAbsDeviation));
 		System.out.println("__________________________________________________________________________________________\n");
 	
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 2E-4);
+		if(measure == Measure.SPOT) Assert.assertTrue(Math.abs(maxAbsDeviation) < 2E-4);
+		else						Assert.assertTrue(Math.abs(maxAbsDeviation) < 2E-3);
 	}
 
 	@Test
