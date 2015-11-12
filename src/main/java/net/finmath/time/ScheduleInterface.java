@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.List;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
@@ -16,7 +16,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * a fixing and payment.
  * 
  * The periods have two representations: one a {@link net.finmath.time.Period}
- * which contains {@link java.util.Calendar} dates and
+ * which contains {@link java.time.LocalDate} dates and
  * an alternative representation using doubles.
  * 
  * Within a schedule, the mapping from doubles to dates is one to one.
@@ -33,7 +33,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * 
 	 * @return The reference data of this schedule corresponding to t=0.
 	 */
-	Calendar getReferenceDate();
+	LocalDate getReferenceDate();
 	
 	/**
 	 * Returns the array of periods.

@@ -6,16 +6,15 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
 
 /**
  * Implementation of ACT/ACT AFB.
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
- * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT_ACT_AFB convention. The algorithm works as follows:
  * <ul>
@@ -54,39 +53,39 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
-		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);
+	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
 
 		/*
 		 * Find the "fractionalPeriodEnd", i.e. subtract whole years from endDate.
 		 */
-		GregorianCalendar fractionalPeriodEnd = (GregorianCalendar)endDate.clone();
-		fractionalPeriodEnd.add(Calendar.YEAR, startDate.get(Calendar.YEAR)-endDate.get(Calendar.YEAR));
-		if(endDate.get(Calendar.DAY_OF_MONTH) == endDate.getActualMaximum(Calendar.DAY_OF_MONTH))
-			fractionalPeriodEnd.set(Calendar.DAY_OF_MONTH, fractionalPeriodEnd.getActualMaximum(Calendar.DAY_OF_MONTH));
-
-		if(fractionalPeriodEnd.before(startDate)) fractionalPeriodEnd.add(Calendar.YEAR, 1);
-		if(endDate.get(Calendar.DAY_OF_MONTH) == endDate.getActualMaximum(Calendar.DAY_OF_MONTH))
-			fractionalPeriodEnd.set(Calendar.DAY_OF_MONTH, fractionalPeriodEnd.getActualMaximum(Calendar.DAY_OF_MONTH));
+		LocalDate fractionalPeriodEnd = endDate.plusYears(startDate.getYear() - endDate.getYear());
 		
-		double daycountFraction = endDate.get(Calendar.YEAR) - fractionalPeriodEnd.get(Calendar.YEAR);
+		// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year.
+		if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) 
+			fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());
+		
+		if (fractionalPeriodEnd.isBefore(startDate)) {
+			fractionalPeriodEnd.plusYears(1);
+			// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year, again after changing the years. 
+			if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) 
+				fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());
+		}
+		
+		double daycountFraction = endDate.getYear() - fractionalPeriodEnd.getYear(); 
 				
 		double fractionPeriodDenominator = 365.0;
-		if(fractionalPeriodEnd.isLeapYear(fractionalPeriodEnd.get(Calendar.YEAR))) {
-			GregorianCalendar feb29th = (GregorianCalendar)fractionalPeriodEnd.clone();
-			feb29th.set(Calendar.MONTH, Calendar.FEBRUARY);
-			feb29th.set(Calendar.DAY_OF_MONTH, 29);
+		if(fractionalPeriodEnd.isLeapYear()) {
+			LocalDate feb29th = LocalDate.of(fractionalPeriodEnd.getYear(), Month.FEBRUARY, 29);
 			if(startDate.compareTo(feb29th) <= 0 && fractionalPeriodEnd.compareTo(feb29th) > 0) {
 				fractionPeriodDenominator = 366.0;
 			}
 		}
-		else if((new GregorianCalendar()).isLeapYear(startDate.get(Calendar.YEAR))) {
-			GregorianCalendar feb29th = (GregorianCalendar)startDate.clone();
-			feb29th.set(Calendar.MONTH, Calendar.FEBRUARY);
-			feb29th.set(Calendar.DAY_OF_MONTH, 29);
+		else if(startDate.isLeapYear()) {
+			LocalDate feb29th = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);				
 			if(startDate.compareTo(feb29th) <= 0 && fractionalPeriodEnd.compareTo(feb29th) > 0) {
 				fractionPeriodDenominator = 366.0;
 			}

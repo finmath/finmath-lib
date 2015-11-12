@@ -9,7 +9,8 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -58,9 +59,9 @@ public class ExposureTest {
 		 * Create a receiver swap (receive fix, pay float)
 		 */
 		ScheduleInterface legScheduleRec = ScheduleGenerator.createScheduleFromConventions(
-				new GregorianCalendar(2015,GregorianCalendar.JANUARY,03) /* referenceDate */,
-				new GregorianCalendar(2015,GregorianCalendar.JANUARY,06) /* startDate */,
-				new GregorianCalendar(2025,GregorianCalendar.JANUARY,06) /* maturityDate */,
+				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */, 
+				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
+				LocalDate.of(2015, Month.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.ANNUAL /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
@@ -70,9 +71,9 @@ public class ExposureTest {
 				0 /* paymentOffsetDays */);
 
 		ScheduleInterface legSchedulePay = ScheduleGenerator.createScheduleFromConventions(
-				new GregorianCalendar(2015,GregorianCalendar.JANUARY,03) /* referenceDate */,
-				new GregorianCalendar(2015,GregorianCalendar.JANUARY,06) /* startDate */,
-				new GregorianCalendar(2025,GregorianCalendar.JANUARY,06) /* maturityDate */,
+				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */, 
+				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
+				LocalDate.of(2015, Month.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.QUARTERLY /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,

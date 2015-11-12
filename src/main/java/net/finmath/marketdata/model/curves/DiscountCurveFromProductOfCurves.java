@@ -6,7 +6,7 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
@@ -29,7 +29,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	 * @param referenceDate The reference date of this curve.
      * @param curves Argument list or array of curves.
      */
-    public DiscountCurveFromProductOfCurves(String name, Calendar referenceDate, DiscountCurveInterface... curves) {
+    public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, DiscountCurveInterface... curves) {
     	super(name, referenceDate);
 
     	this.curves = curves;

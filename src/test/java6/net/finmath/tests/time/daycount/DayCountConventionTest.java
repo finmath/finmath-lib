@@ -14,6 +14,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ICMA;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
+import net.finmath.time.daycount.DayCountConvention_ACT_ACT_YEARFRAC;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,6 +25,16 @@ import org.junit.Test;
  * @author Christian Fries
  */
 public class DayCountConventionTest {
+	
+	@Test
+	public void testDayCountConvention_ACT_ACT_YEARFRAC() {
+		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_ACT_YEARFRAC();
+		
+		double daycountFraction;
+		
+		daycountFraction = daycountConvention.getDaycountFraction(new GregorianCalendar(2010, Calendar.MAY, 1), new GregorianCalendar(2012, Calendar.AUGUST, 31));
+		Assert.assertEquals(853.0/((365.0+365.0+366.0)/3), daycountFraction, 1.0E-4);
+	}
 
 	@Test
 	public void testDayCountConvention_ACT_ACT_ISDA() {

@@ -6,16 +6,15 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
 
 /**
  * Implementation of ACT/ACT ISDA.
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
- * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT_ACT_ISDA convention, that is, the
  * day count fraction is <i>n<sub>1</sub>/365</i> + <i>n<sub>2</sub>/366</i>, where
@@ -60,35 +59,34 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
-		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);
+	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
 
 		/*
 		 * Number of whole years between start and end. If start and end fall in the same year, this is -1 (there will be a double counting of 1 year below if start < end).
 		 */
-		double daycountFraction = endDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR) - 1.0;
+		double daycountFraction = endDate.getYear() - startDate.getYear() - 1.0; 
 
 		/*
 		 * Fraction from start to the end of start's year
 		 */
-		GregorianCalendar startDateNextYear = (GregorianCalendar)startDate.clone();
-		startDateNextYear.set(Calendar.DAY_OF_YEAR, 1);
-		startDateNextYear.add(Calendar.YEAR, 1);
-		if(isCountLastDayNotFirst) startDateNextYear.add(Calendar.DAY_OF_YEAR, -1);
+		LocalDate startDateNextYear = LocalDate.of(startDate.getYear()+1,Month.JANUARY,1);
+		
+		if(isCountLastDayNotFirst) startDateNextYear = startDateNextYear.minusDays(1);
 
-		daycountFraction += getDaycount(startDate, startDateNextYear) / startDate.getActualMaximum(Calendar.DAY_OF_YEAR);
+		daycountFraction += getDaycount(startDate, startDateNextYear) / startDate.lengthOfYear();
 
 		/*
 		 * Fraction from beginning of end's year to end
 		 */
-		GregorianCalendar endDateStartYear = (GregorianCalendar)endDate.clone();
-		endDateStartYear.set(Calendar.DAY_OF_YEAR, 1);
-		if(isCountLastDayNotFirst) endDateStartYear.add(Calendar.DAY_OF_YEAR, -1);
+		LocalDate endDateStartYear = LocalDate.of(endDate.getYear(), Month.JANUARY, 1);
+		if (isCountLastDayNotFirst) endDateStartYear = endDateStartYear.minusDays(1);
+		
 
-		daycountFraction += getDaycount(endDateStartYear, endDate) / endDate.getActualMaximum(Calendar.DAY_OF_YEAR);
+		daycountFraction += getDaycount(endDateStartYear, endDate) / endDate.lengthOfYear();
 		
 		return Math.max(daycountFraction,0.0);
 	}

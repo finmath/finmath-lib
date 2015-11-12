@@ -5,7 +5,7 @@
  */
 package net.finmath.marketdata.model.curves;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -30,7 +30,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * 
 	 * @return The date identified as t=0.
 	 */
-	Calendar getReferenceDate();
+	LocalDate getReferenceDate();
 
 	/**
 	 * Returns the value for the time using the interpolation method associated with this curve.

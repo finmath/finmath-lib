@@ -8,11 +8,11 @@ package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -175,7 +175,7 @@ public class LIBORIndexTest {
 		double liborRateTimeHorzion	= 20.0;
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
-		Calendar referenceDate = new GregorianCalendar(2014, Calendar.SEPTEMBER, 16);
+		LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16);
 
 		double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
 

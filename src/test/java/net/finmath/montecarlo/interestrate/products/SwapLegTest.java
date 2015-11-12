@@ -8,8 +8,8 @@ package net.finmath.montecarlo.interestrate.products;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +57,7 @@ public class SwapLegTest {
 	@Test
 	public void testFloatLeg() throws CalculationException {
 		
-		Calendar	referenceDate = new GregorianCalendar(2014, Calendar.AUGUST, 12);
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -70,7 +70,7 @@ public class SwapLegTest {
 		AbstractNotional notional = new Notional(1.0);
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		double spread = 0.0;
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
 		
 		/*
@@ -113,7 +113,7 @@ public class SwapLegTest {
 	@Test
 	public void testFixLeg() throws CalculationException {
 		
-		Calendar	referenceDate = new GregorianCalendar(2014, Calendar.AUGUST, 12);
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -126,7 +126,7 @@ public class SwapLegTest {
 		AbstractNotional notional = new Notional(1.0);
 		AbstractIndex index = null;
 		double spread = 0.05;
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
 		
 		/*
@@ -163,7 +163,8 @@ public class SwapLegTest {
 
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
-		Calendar	referenceDate = new GregorianCalendar(2014, Calendar.AUGUST, 12);
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
+	
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(

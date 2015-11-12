@@ -6,7 +6,7 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -39,7 +39,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @param d The parameter d
 	 * @param timeDiscretization The timeDiscretization used in numerical integration.
 	 */
-	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, Calendar referenceDate, double a, double b, double c, double d, TimeDiscretizationInterface timeDiscretization) {
+	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, LocalDate referenceDate, double a, double b, double c, double d, TimeDiscretizationInterface timeDiscretization) {
 		super(name, referenceDate);
 		this.a = a;
 		this.b = b;

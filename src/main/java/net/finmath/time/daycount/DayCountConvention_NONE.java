@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 /**
  * This is a special day count convention, where the day count between two dates is always 0.0
@@ -27,12 +27,12 @@ public class DayCountConvention_NONE implements DayCountConventionInterface {
 	}
 
 	@Override
-	public double getDaycount(Calendar startDate, Calendar endDate) {
+	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		return 0.0;
 	}
 
 	@Override
-	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
+	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
 		return 1.0;
 	}
 }
