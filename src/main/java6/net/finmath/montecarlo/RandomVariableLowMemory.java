@@ -7,9 +7,9 @@ package net.finmath.montecarlo;
 
 import java.util.Arrays;
 
-import net.finmath.stochastic.RandomVariableInterface;
-
 import org.apache.commons.math3.util.FastMath;
+
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * The class RandomVariable represents a random variable being the evaluation of a stochastic process

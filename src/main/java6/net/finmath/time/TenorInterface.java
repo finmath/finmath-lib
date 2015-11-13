@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 /**
  * @author Christian Fries
@@ -17,7 +17,7 @@ public interface TenorInterface {
 	/**
 	 * @return The reference date of this tenor, i.e., the date mapped to 0.0
 	 */
-	public abstract Calendar getReferenceDate();
+	public abstract LocalDate getReferenceDate();
 
 	/**
 	 * Returns the date for the given time index.
@@ -25,7 +25,7 @@ public interface TenorInterface {
 	 * @param timeIndex Time index
 	 * @return Returns the date for a given time index.
 	 */
-	public abstract Calendar getDate(int timeIndex);
+	public abstract LocalDate getDate(int timeIndex);
 
 	/**
 	 * Returns the day count fraction for the period form timeIndex to to timeIndex+1.

@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 /**
  * A period, i.e. a time interval suitable for securities with regular payment schedules.
@@ -25,13 +25,13 @@ import java.util.Calendar;
  */
 public class Period implements Comparable<Period> {
 
-	private Calendar fixing;
-	private Calendar payment;
-	private Calendar periodStart;
-	private Calendar periodEnd;
+	private LocalDate fixing;
+	private LocalDate payment;
+	private LocalDate periodStart;
+	private LocalDate periodEnd;
 
-	public Period(Calendar fixing, Calendar payment,
-			Calendar periodStart, Calendar periodEnd) {
+	public Period(LocalDate fixing, LocalDate payment,
+			LocalDate periodStart, LocalDate periodEnd) {
 		super();
 		this.fixing = fixing;
 		this.payment = payment;
@@ -39,19 +39,19 @@ public class Period implements Comparable<Period> {
 		this.periodEnd = periodEnd;
 	}
 
-	public Calendar getFixing() {
+	public LocalDate getFixing() {
 		return fixing;
 	}
 
-	public Calendar getPayment() {
+	public LocalDate getPayment() {
 		return payment;
 	}
 
-	public Calendar getPeriodStart() {
+	public LocalDate getPeriodStart() {
 		return periodStart;
 	}
 
-	public Calendar getPeriodEnd() {
+	public LocalDate getPeriodEnd() {
 		return periodEnd;
 	}
 
@@ -62,8 +62,8 @@ public class Period implements Comparable<Period> {
 
 	@Override
 	public String toString() {
-		return "Period [fixing=" + fixing.getTime() + ", payment=" + payment.getTime()
-				+ ", periodStart=" + periodStart.getTime() + ", periodEnd=" + periodEnd.getTime()
+		return "Period [fixing=" + fixing + ", payment=" + payment
+				+ ", periodStart=" + periodStart + ", periodEnd=" + periodEnd
 				+ "]";
 	}
 }

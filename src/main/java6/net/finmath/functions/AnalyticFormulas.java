@@ -5,13 +5,13 @@
  */
 package net.finmath.functions;
 
-import java.util.Calendar;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.rootfinder.NewtonsMethod;
 import net.finmath.stochastic.RandomVariableInterface;
-
-import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /**
  * This class implements some functions as static class methods.
@@ -946,8 +946,8 @@ public class AnalyticFormulas {
 	 * @return price Clean price.
 	 */
 	public static double price(
-			java.util.Date settlementDate,
-			java.util.Date maturityDate,
+			LocalDate settlementDate,
+			LocalDate maturityDate,
 			double coupon,
 			double yield,
 			double redemption,
@@ -955,25 +955,25 @@ public class AnalyticFormulas {
 	{
 		double price = 0.0;
 
-		if(maturityDate.after(settlementDate)) {
+		if(maturityDate.isAfter(settlementDate)) {
 			price += redemption;
 		}
 
-		Calendar paymentDate = Calendar.getInstance();
-		paymentDate.setTime(maturityDate);
-		while(paymentDate.after(settlementDate)) {
+		LocalDate paymentDate = maturityDate;
+		while(paymentDate.isAfter(settlementDate)) {
 			price += coupon;
 
 			// Disocunt back
 			price /= 1.0 + yield / frequency;
-			paymentDate.add(Calendar.MONTH, -12/frequency);
+			paymentDate = paymentDate.plusMonths(-12/frequency); 
 		}
-
-		Calendar periodEndDate = (Calendar)paymentDate.clone();
-		periodEndDate.add(Calendar.MONTH, +12/frequency);
+		
+		LocalDate periodEndDate = paymentDate.plusMonths(12/frequency); 
 
 		// Accrue running period    	
-		double accrualPeriod = (paymentDate.getTimeInMillis() - settlementDate.getTime()) / (periodEndDate.getTimeInMillis() - paymentDate.getTimeInMillis());
+		double accrualPeriod = 1.0 * Days.daysBetween(settlementDate, paymentDate).getDays() /
+								Days.daysBetween(paymentDate, periodEndDate).getDays(); 
+
 		price *= Math.pow(1.0 + yield / frequency, accrualPeriod);
 		price -= coupon * accrualPeriod;
 

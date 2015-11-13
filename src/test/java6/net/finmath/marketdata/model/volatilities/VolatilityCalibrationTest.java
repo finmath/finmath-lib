@@ -7,9 +7,12 @@ package net.finmath.marketdata.model.volatilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Vector;
+
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.junit.Assert;
+import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -35,9 +38,6 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
@@ -71,7 +71,7 @@ public class VolatilityCalibrationTest {
 		// Create a discount curve
 		DiscountCurveInterface		discountCurve					= new DiscountCurveNelsonSiegelSvensson(
 				"EUR",
-				new GregorianCalendar(2014,Calendar.JULY,15),
+				new LocalDate(2014,DateTimeConstants.JULY,15),
 				new double[]
 						{
 					0.02,
@@ -83,7 +83,7 @@ public class VolatilityCalibrationTest {
 						}
 				, 365.0/365.0);
 
-		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD",new GregorianCalendar(2014,Calendar.JULY,17),
+		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD",new LocalDate(2014,DateTimeConstants.JULY,17),
 				"3M", new BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendarInterface.DateRollConvention.MODIFIED_FOLLOWING, new DayCountConvention_ACT_360(),
 				discountCurve.getParameter(), 365.0/365.0, 0.0);
 
@@ -118,12 +118,12 @@ public class VolatilityCalibrationTest {
 
 		Vector<AnalyticProductInterface>	marketProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					marketTargetValues = new ArrayList<Double>();
-		Calendar referenceDate = new GregorianCalendar(2014, 7-1, 15);
+		LocalDate referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST-1, 15);
 		DayCountConventionInterface modelDayCountConvention = new DayCountConvention_ACT_365();
 		DaycountConvention capDayCountConvention = DaycountConvention.ACT_360;
 		for(int i=0; i<maturities.length; i++) {
-			Calendar	tradeDate		= referenceDate;
-			Calendar	maturityDate	= BusinessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);
+			LocalDate	tradeDate		= referenceDate;
+			LocalDate	maturityDate	= BusinessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);
 			double		volatility		= volatilities[i];
 			Cap cap = new Cap(
 					ScheduleGenerator.createScheduleFromConventions(referenceDate, tradeDate, maturityDate, Frequency.SEMIANNUAL, capDayCountConvention, ShortPeriodConvention.FIRST, DateRollConvention.FOLLOWING, new BusinessdayCalendarExcludingWeekends(), 0, 0),
@@ -145,8 +145,8 @@ public class VolatilityCalibrationTest {
 		Vector<AnalyticProductInterface>	calibrationProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					calibrationTargetValues = new ArrayList<Double>();
 		for(int i=0; i<maturities.length; i++) {
-			Calendar	tradeDate		= referenceDate;
-			Calendar	maturityDate	= BusinessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);
+			LocalDate	tradeDate		= referenceDate;
+			LocalDate	maturityDate	= BusinessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);
 			double		vol		= volatilities[i];
 			Cap cap = new Cap(
 					ScheduleGenerator.createScheduleFromConventions(referenceDate, tradeDate, maturityDate, Frequency.SEMIANNUAL, capDayCountConvention, ShortPeriodConvention.FIRST, DateRollConvention.FOLLOWING, new BusinessdayCalendarExcludingWeekends(), 0, 0),

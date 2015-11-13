@@ -5,7 +5,7 @@
  */
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -21,7 +21,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  */
 public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInterface, Cloneable {
 
-	private	final	Calendar	referenceDate;
+	private	final	LocalDate	referenceDate;
 	private final	String		name;
 
 	protected ForwardCurveInterface forwardCurve;
@@ -29,7 +29,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	protected QuotingConvention quotingConvention;
 	protected DayCountConventionInterface daycountConvention;
 
-	public AbstractVolatilitySurface(String name, Calendar referenceDate) {
+	public AbstractVolatilitySurface(String name, LocalDate referenceDate) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -41,7 +41,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	}
 
 	@Override
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
 
@@ -82,8 +82,8 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 
 		double daycountFraction;
 		if(daycountConvention != null) {
-			Calendar startDate = (Calendar)referenceDate.clone(); startDate.add(Calendar.DAY_OF_YEAR,(int)Math.round(periodStart*365));
-			Calendar endDate = (Calendar)referenceDate.clone(); endDate.add(Calendar.DAY_OF_YEAR,(int)Math.round(periodEnd*365));
+			LocalDate startDate = referenceDate.plusDays((int)Math.round(periodStart*365));
+			LocalDate endDate = referenceDate.plusDays((int)Math.round(periodEnd*365));
 			daycountFraction = daycountConvention.getDaycountFraction(startDate, endDate);
 		}
 		else {

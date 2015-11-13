@@ -6,13 +6,13 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 /**
  * Base class which calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
- * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
+ * A fractional day is rounded to the approximately nearest day 
  * 
  * @author Christian Fries
  */
@@ -25,11 +25,11 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.util.Calendar, java.util.Calendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.joda.time.LocalDate, org.joda.time.LocalDate)
 	 */
 	@Override
-	public double getDaycount(Calendar startDate, Calendar endDate) {
-		if(startDate.after(endDate)) return -getDaycount(endDate,startDate);
+	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
 
 		return daysBetween(startDate, endDate);
 	}
@@ -37,8 +37,8 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	/**
 	 * Returns the number of days, between two Calendar dates.
 	 * 
-	 * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
-	 * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
+ *  A fractional day is
+	 * rounded to the approximately nearest day 
 	 * 
 	 * The formula implemented is
 	 * <code>
@@ -57,7 +57,7 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	 * @param endDate The end date of the interval.
 	 * @return Number of days between startDate and endDate.
 	 */
-	public static double daysBetween(Calendar startDate, Calendar endDate) {
-		return Math.round( ((double)(endDate.getTimeInMillis()-startDate.getTimeInMillis())) / 1000.0 / 60.0 / 60.0 / 24);
+	public static double daysBetween(LocalDate startDate, LocalDate endDate) {
+		return Days.daysBetween(startDate, endDate).getDays();
 	}
 }

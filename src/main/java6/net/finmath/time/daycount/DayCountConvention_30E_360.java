@@ -8,6 +8,8 @@ package net.finmath.time.daycount;
 
 import java.util.Calendar;
 
+import org.joda.time.LocalDate;
+
 /**
  * Implementation of 30E/360 and 30E+/360.
  * 
@@ -53,19 +55,19 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.util.Calendar, java.util.Calendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.joda.time.LocalDate, org.joda.time.LocalDate)
 	 */
 	@Override
-	public double getDaycount(Calendar startDate, Calendar endDate) {
-		if(startDate.after(endDate)) return -getDaycount(endDate,startDate);
+	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
 
-		int startDateDay 	= startDate.get(Calendar.DAY_OF_MONTH);
-		int startDateMonth 	= startDate.get(Calendar.MONTH);
-		int startDateYear 	= startDate.get(Calendar.YEAR);
+		int startDateDay 	= startDate.getDayOfMonth();
+		int startDateMonth 	= startDate.getMonthOfYear();
+		int startDateYear 	= startDate.getYear();
 		
-		int endDateDay 		= endDate.get(Calendar.DAY_OF_MONTH);
-		int endDateMonth 	= endDate.get(Calendar.MONTH);
-		int endDateYear 	= endDate.get(Calendar.YEAR);
+		int endDateDay 		= endDate.getDayOfMonth();
+		int endDateMonth 	= endDate.getMonthOfYear();
+		int endDateYear 	= endDate.getYear();
 
 		double daycount = (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0));
 
@@ -78,7 +80,7 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
 	 */
 	@Override
-	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
+	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }

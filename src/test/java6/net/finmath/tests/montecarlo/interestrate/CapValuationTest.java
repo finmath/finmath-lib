@@ -9,10 +9,14 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.junit.Assert;
+import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -37,9 +41,6 @@ import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 /**
  * This class tests the valuation of a Cap using LMM and an AnalyticModel.
  * 
@@ -47,7 +48,7 @@ import org.junit.Test;
  */
 public class CapValuationTest {
 
-	Calendar referenceDate = new GregorianCalendar(2014, Calendar.JUNE, 15);
+	LocalDate referenceDate = new LocalDate(2014, DateTimeConstants.JUNE, 15);
 
 	private ForwardCurveInterface					forwardCurve;
 	private DiscountCurveInterface					discountCurve;
@@ -196,8 +197,7 @@ public class CapValuationTest {
 			model = model.addCurves(discountCurve);
 			model = model.addVolatilitySurfaces(capletVol);
 
-			Calendar startDate = ((Calendar)referenceDate.clone());
-			startDate.add(Calendar.MONTH, 3);
+			LocalDate startDate = referenceDate.plusMonths(3);
 
 			ScheduleInterface schedule = new RegularSchedule(new TimeDiscretization(0.25, maturityIndex-1, 0.25));
 //			ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), startDate.getTime(), "quarterly", (maturityIndex-1)*0.25, "act/365", "first");

@@ -6,7 +6,7 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
@@ -36,7 +36,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public CapletVolatilitiesParametric(String name, Calendar referenceDate, double a, double b, double c, double d, double timeScaling) {
+	public CapletVolatilitiesParametric(String name, LocalDate referenceDate, double a, double b, double c, double d, double timeScaling) {
 		super(name, referenceDate);
 		this.timeScaling = timeScaling;
 		this.a = a;
@@ -56,7 +56,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param c The parameter c
 	 * @param d The parameter d
 	 */
-	public CapletVolatilitiesParametric(String name, Calendar referenceDate, double a, double b, double c, double d) {
+	public CapletVolatilitiesParametric(String name, LocalDate referenceDate, double a, double b, double c, double d) {
 		this(name, referenceDate, a, b, c, d, 1.0);
 	}
 
