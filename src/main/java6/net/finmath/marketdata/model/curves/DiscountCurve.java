@@ -6,10 +6,11 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Calendar;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.Curve}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
@@ -64,7 +65,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
-	private DiscountCurve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod,
+	private DiscountCurve(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod,
 			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity){
 
 		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
@@ -84,7 +85,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurve createDiscountCurveFromDiscountFactors(
-			String name, Calendar referenceDate,
+			String name, LocalDate referenceDate,
 			double[] times, double[] givenDiscountFactors, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 
@@ -178,7 +179,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurve createDiscountCurveFromZeroRates(
-			String name, Calendar referenceDate,
+			String name, LocalDate referenceDate,
 			double[] times, double[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		
@@ -232,7 +233,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurve createDiscountCurveFromZeroRates(
-			String name, Calendar referenceDate,
+			String name, LocalDate referenceDate,
 			double[] times, double[] givenZeroRates,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		
@@ -287,7 +288,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurve createDiscountCurveFromAnnualizedZeroRates(
-			String name, Calendar referenceDate,
+			String name, LocalDate referenceDate,
 			double[] times, double[] givenAnnualizedZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		
@@ -317,7 +318,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurve createDiscountCurveFromAnnualizedZeroRates(
-			String name, Calendar referenceDate,
+			String name, LocalDate referenceDate,
 			double[] times, double[] givenAnnualizedZeroRates,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		

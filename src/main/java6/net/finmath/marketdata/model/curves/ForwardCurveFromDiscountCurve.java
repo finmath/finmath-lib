@@ -6,11 +6,12 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Calendar;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * A forward curve derived from a given discount curve.
@@ -52,7 +53,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @param daycountScaling The scaling factor applied to the paymentOffset measured in ACT/365.
 	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
 	 */
-	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling, double periodOffset) {
+	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling, double periodOffset) {
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 
 		this.daycountScaling = daycountScaling;
@@ -75,7 +76,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
 	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
 	 */
-	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, Calendar referenceDate, String paymentOffsetCode,
+	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode,
 			BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention) {
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 		daycountScaling = 1.0;
@@ -96,7 +97,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
 	 */
-	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, Calendar referenceDate, String paymentOffsetCode) {
+	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode) {
 		super(name, referenceDate,
 				paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName
 				);
@@ -114,7 +115,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
 	 */
-	public ForwardCurveFromDiscountCurve(String discountCurveName, Calendar referenceDate, String paymentOffsetCode) {
+	public ForwardCurveFromDiscountCurve(String discountCurveName, LocalDate referenceDate, String paymentOffsetCode) {
 		super("ForwardCurveFromDiscountCurve(" +  discountCurveName + "," + paymentOffsetCode + ")", referenceDate,
 				paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName
 				);

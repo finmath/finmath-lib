@@ -7,11 +7,11 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Calendar;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
 import org.apache.commons.math3.util.FastMath;
+import org.joda.time.LocalDate;
 
 /**
  * Implementation of a discount factor curve given by a Nelson-Siegel-Svensson (NSS) parameterization.
@@ -48,7 +48,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
 	 * @param timeScaling The time parameter argument rescaling. See {@link #getDiscountFactor(AnalyticModelInterface, double)}.
 	 */
-	public DiscountCurveNelsonSiegelSvensson(String name, Calendar referenceDate, double[] parameter, double timeScaling) {
+	public DiscountCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, double[] parameter, double timeScaling) {
 		super(name, referenceDate);
 		this.timeScaling = timeScaling;
 

@@ -6,9 +6,10 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Calendar;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * A curve derived from other curves by multiplying the values.
@@ -28,7 +29,7 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 	 * @param referenceDate The reference date of this curve.
 	 * @param curves Argument list or array of curves.
 	 */
-	public CurveFromProductOfCurves(String name, Calendar referenceDate, CurveInterface... curves) {
+	public CurveFromProductOfCurves(String name, LocalDate referenceDate, CurveInterface... curves) {
 		super(name, referenceDate);
 
 		this.curves = curves;

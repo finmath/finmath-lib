@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 /**
  * Implements a placeholder object for an unknown day count convention, throwing an exception,
@@ -38,12 +38,12 @@ public class DayCountConvention_UNKNOWN implements DayCountConventionInterface {
 	}
 	
 	@Override
-	public double getDaycount(Calendar startDate, Calendar endDate) {
+	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		throw new IllegalArgumentException(errorMessage);
 	}
 
 	@Override
-	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
+	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
 		throw new IllegalArgumentException(errorMessage);
 	}
 }

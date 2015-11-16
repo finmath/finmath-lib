@@ -6,7 +6,6 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +24,8 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.optimizer.OptimizerFactoryInterface;
 import net.finmath.optimizer.SolverException;
 
+import org.joda.time.LocalDate;
+
 /**
  * Base class for parametric volatility surfaces, implementing a generic calibration algorithm.
  * 
@@ -34,7 +35,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
-	public AbstractVolatilitySurfaceParametric(String name, Calendar referenceDate) {
+	public AbstractVolatilitySurfaceParametric(String name, LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
 

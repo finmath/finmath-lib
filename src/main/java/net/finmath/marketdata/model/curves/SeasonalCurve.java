@@ -179,7 +179,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 		Arrays.fill(averageLogReturn, 0.0);
 		for(int arrayIndex = 0; arrayIndex < 12*numberOfYearsToAverage; arrayIndex++){
 
-			int month = (((((lastMonth-1 - arrayIndex) % 12) + 12) % 12));
+			int month = (((((lastMonth - arrayIndex - 1) % 12) + 12) % 12));
 
 			double logReturn = Math.log(realizedCPIValues[realizedCPIValues.length - 1 - arrayIndex] / realizedCPIValues[realizedCPIValues.length - 2 - arrayIndex]);
 			averageLogReturn[month] += logReturn/numberOfYearsToAverage;

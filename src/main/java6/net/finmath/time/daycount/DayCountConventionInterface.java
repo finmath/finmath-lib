@@ -6,16 +6,16 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 /**
  * Interface for various day count conventions.
  * 
  * Classes implementing this interface have to implement the methods
- * {@link #getDaycount(Calendar, Calendar)} and {@link #getDaycountFraction(Calendar, Calendar)}.
+ * {@link #getDaycount(LocalDate, LocalDate)} and {@link #getDaycountFraction(LocalDate, LocalDate)}.
  * 
  * Classes implementing these methods then provide day counting and day count fractions for
- * a given interval on a {@link java.util.GregorianCalendar}.
+ * a given interval.
  * 
  * @author Christian Fries
  */
@@ -25,20 +25,20 @@ public interface DayCountConventionInterface {
 	 * Return the number of days between startDate and endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.util.Calendar}.
-	 * @param endDate The end date given as a {@link java.util.Calendar}.
+	 * @param startDate The start date given as a {@link java.time.LocalDate}.
+	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @return The number of days within the given period.
 	 */
-	public abstract double getDaycount(Calendar startDate, Calendar endDate);
+	public abstract double getDaycount(LocalDate startDate, LocalDate endDate);
 
 	/**
 	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.util.Calendar}.
-	 * @param endDate The end date given as a {@link java.util.Calendar}.
+	 * @param startDate The start date given as a {@link java.time.LocalDate}.
+	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
-	public abstract double getDaycountFraction(Calendar startDate, Calendar endDate);
+	public abstract double getDaycountFraction(LocalDate startDate, LocalDate endDate);	
 	
 }

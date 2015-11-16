@@ -6,7 +6,7 @@
 
 package net.finmath.time.businessdaycalendar;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day, expect
@@ -35,18 +35,15 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.util.Calendar)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.time.LocalDate)
 	 */
 	@Override
-	public boolean isBusinessday(Calendar date) {
-		int day = date.get(Calendar.DAY_OF_MONTH);
-		int month = date.get(Calendar.MONTH)+1;
+	public boolean isBusinessday(LocalDate date) {
+		int day = date.getDayOfMonth();
+		int month = date.getMonthOfYear();
 
-		Calendar datePlus2 = (Calendar)date.clone();
-		datePlus2.add(Calendar.DAY_OF_YEAR, 2);
-		
-		Calendar dateBefore = (Calendar)date.clone();
-		dateBefore.add(Calendar.DAY_OF_YEAR, -1);
+		LocalDate datePlus2 = date.plusDays(2);
+		LocalDate dateBefore = date.minusDays(1);
 
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
 				&&	!(day ==  1 && month ==  1)		// date is New Year
@@ -68,8 +65,8 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	 * @param date The date to check.
 	 * @return True, if date is easter sunday.
 	 */
-	public static boolean isEasterSunday(Calendar date) {
-	    int Y = date.get(Calendar.YEAR);
+	public static boolean isEasterSunday(LocalDate date) {
+	    int Y = date.getYear();
 	    int a = Y % 19;
 	    int b = Y / 100;
 	    int c = Y % 100;
@@ -85,8 +82,8 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	    int easterSundayMonth	= (h + L - 7 * m + 114) / 31;
 	    int easterSundayDay		= ((h + L - 7 * m + 114) % 31) + 1;
 
-		int month = date.get(Calendar.MONTH)+1;
-		int day = date.get(Calendar.DAY_OF_MONTH);
+		int month = date.getMonthOfYear();
+		int day = date.getDayOfMonth();
 
 	    return (easterSundayMonth == month) && (easterSundayDay == day);
 	}

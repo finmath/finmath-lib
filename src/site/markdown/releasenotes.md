@@ -5,6 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.0.0-SNAPSHOT
+
+- API Change: The type java.util.Calendar has been replaced by LocalDate:
+    - For Java 6 sources (src/main/java6): Replaced Calendar and Date by org.joda.time.LocalDate.
+    - For Java 8 sources (src/main/java): Replaced Calendar and Date by java.time.LocalDate, contributed by William Wong.
+
+- API Change: The DateIndex in net.finmath.montecarlo.interestrate.products.indices now returns the month according to java.time.Month, i.e., January = 1, February = 2, etc.
 
 ## 1.3.6
 

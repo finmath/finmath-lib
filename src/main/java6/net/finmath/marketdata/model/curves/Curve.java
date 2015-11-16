@@ -10,13 +10,14 @@ import java.lang.ref.SoftReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.marketdata.model.AnalyticModelInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * This class represents a curve build from a set of points in 2D.
@@ -155,7 +156,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @param name The name of this curve.
 		 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 		 */
-		public CurveBuilder(String name, Calendar referenceDate) {
+		public CurveBuilder(String name, LocalDate referenceDate) {
 			curve = new Curve(name, referenceDate);
 		}
 
@@ -247,7 +248,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param times A vector of times.
 	 * @param values A vector of corresponding values.
 	 */
-	public Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, double[] times, double[] values) {
+	public Curve(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, double[] times, double[] values) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
@@ -265,7 +266,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
-	protected Curve(String name, Calendar referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+	protected Curve(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
@@ -278,7 +279,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 */
-	private Curve(String name, Calendar referenceDate) {
+	private Curve(String name, LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
 

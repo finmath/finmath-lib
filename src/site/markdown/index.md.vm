@@ -11,8 +11,8 @@ About finmath lib
 The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
 - General numerical algorithms like
-- - Generation of random numbers
-- - Optimization (a Levenberg–Marquardt algorithm is provided)
+    - Generation of random numbers
+    - Optimization (a Levenberg–Marquardt algorithm is provided)
 - Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
 - Estimation of conditional expectations in a Monte-Carlo framework
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
