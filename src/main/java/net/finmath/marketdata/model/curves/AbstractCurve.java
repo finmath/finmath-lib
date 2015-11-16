@@ -5,7 +5,7 @@
  */
 package net.finmath.marketdata.model.curves;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 /**
  * Abstract base class for a curve. It stores the name of the curve and
@@ -15,14 +15,14 @@ import java.util.Calendar;
  */
 public abstract class AbstractCurve implements CurveInterface, Cloneable {
 
-	private	final	Calendar	referenceDate;
+	private	final	LocalDate	referenceDate;
 	private final	String		name;
 
 	/**
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date of this curve.
 	 */
-	public AbstractCurve(String name, Calendar referenceDate) {
+	public AbstractCurve(String name, LocalDate referenceDate) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -36,7 +36,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 		return name;
 	}
 
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
 

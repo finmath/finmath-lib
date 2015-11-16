@@ -6,15 +6,14 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 /**
  * Implementation of ACT/360.
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
- * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT/360 convention, that is, the
  * day count divided by 360.
@@ -23,7 +22,7 @@ import java.util.Calendar;
  * 
  * <ul>
  * 	<li>
- * 		The method {@link #getDaycountFraction(Calendar, Calendar) getDaycountFraction} corresponds to the implementation of the "ACT/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,2).
+ * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the "ACT/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,2).
  * 	</li>
  * </ul>
  * 
@@ -39,11 +38,11 @@ public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implement
 	
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
-		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);
+	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
 
 		double daycountFraction = getDaycount(startDate, endDate) / 360.0;
 

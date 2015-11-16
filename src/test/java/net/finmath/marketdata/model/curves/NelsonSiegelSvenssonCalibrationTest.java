@@ -1,8 +1,8 @@
 package net.finmath.marketdata.model.curves;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 	 */
 	public double[] calibrateNSSCurve(Map<String, Object> parameters) throws SolverException {
 
-		final Calendar	referenceDate		= (Calendar) parameters.get("referenceDate");
+		final LocalDate	referenceDate		= (LocalDate) parameters.get("referenceDate");
 		final String	currency			= (String) parameters.get("currency");
 		final String	forwardCurveTenor	= (String) parameters.get("forwardCurveTenor");
 		final String[]	maturities			= (String[]) parameters.get("maturities");
@@ -79,8 +79,8 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		Vector<AnalyticProductInterface> calibrationProducts = new Vector<AnalyticProductInterface>();
 		for(int i=0; i<rates.length; i++) {
 			
-			ScheduleInterface schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-			ScheduleInterface scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			ScheduleInterface schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			ScheduleInterface scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 			
 			calibrationProducts.add(new Swap(schedulePay, null, rates[i], discountCurve.getName(), scheduleRec, forwardCurve.getName(), 0.0, discountCurve.getName()));
 		}
@@ -139,7 +139,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		final double[] rates					= {0.0042, 0.0032, 0.0038, 0.0052, 0.0069, 0.00855, 0.0102, 0.0119, 0.0134, 0.0150, 0.0165, 0.0178, 0.0189, 0.0200, 0.0224, 0.0250, 0.0264, 0.0271, 0.0275, 0.0276, 0.0276 };
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 
-		parameters.put("referenceDate", new GregorianCalendar(2014, Calendar.AUGUST, 12));
+		parameters.put("referenceDate", LocalDate.of(2014, Month.AUGUST, 12)); 
 		parameters.put("currency", "EUR");
 		parameters.put("forwardCurveTenor", "3M");
 		parameters.put("maturities", maturity);

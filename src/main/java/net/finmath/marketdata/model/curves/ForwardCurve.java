@@ -6,9 +6,7 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
@@ -59,7 +57,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
-	public ForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, 
+	public ForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, 
 			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, 
 			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, 
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
@@ -84,7 +82,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
-	public ForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
+	public ForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
 		super(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName);
 		this.interpolationEntityForward	= interpolationEntityForward;
 
@@ -104,7 +102,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
-	public ForwardCurve(String name, Calendar referenceDate, String paymentOffsetCode, String discountCurveName) {
+	public ForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.FORWARD, discountCurveName);
 	}
 
@@ -147,7 +145,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, Calendar referenceDate, String paymentOffsetCode, 
+	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, 
 			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
@@ -173,11 +171,6 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
-	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
-	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
-	 * @param interpolationMethod The interpolation method used for the curve.
-	 * @param extrapolationMethod The extrapolation method used for the curve.
-	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 * @param model The model to be used to fetch the discount curve, if needed.
@@ -185,15 +178,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode, 
-			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
-			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
-		
-		Calendar referenceDateAsCalendar = new GregorianCalendar();
-		referenceDateAsCalendar.setTime(referenceDate);
-
-		return createForwardCurveFromForwards(name, referenceDateAsCalendar, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);
+	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, String interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
+		return createForwardCurveFromForwards(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.valueOf(interpolationEntityForward), discountCurveName, model, times, givenForwards);
 	}
 
 	/**
@@ -214,31 +200,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode, String interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
-		Calendar referenceDateAsCalendar = GregorianCalendar.getInstance();
-		referenceDateAsCalendar.setTime(referenceDate);
-		return createForwardCurveFromForwards(name, referenceDateAsCalendar, paymentOffsetCode, InterpolationEntityForward.valueOf(interpolationEntityForward), discountCurveName, model, times, givenForwards);
-	}
-
-	/**
-	 * Create a forward curve from given times and given forwards.
-	 * 
-	 * The forward F(t) of an index is such that
-	 * F(t) * D(t+p) equals the market price of the corresponding index fixed in t and paid in t+d, where t is the fixing time
-	 * of the index and t+p is the payment time of the index. F(t) is the corresponding forward and D is the associated discount
-	 * curve.
-	 * 
-	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
-	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
-	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
-	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
-	 * @param model The model to be used to fetch the discount curve, if needed.
-	 * @param times A vector of given time points.
-	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
-	 * @return A new ForwardCurve object.
-	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, Calendar referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
+	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
 		ForwardCurve forwardCurve = new ForwardCurve(name, referenceDate, paymentOffsetCode, interpolationEntityForward, discountCurveName);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {

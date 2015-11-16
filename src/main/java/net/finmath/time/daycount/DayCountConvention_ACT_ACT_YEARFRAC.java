@@ -6,16 +6,15 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
 
 /**
  * Implementation of ACT/ACT as in Excel (2013).
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- * The method is only exact, if the two calendar dates are (approximately) on the same time. A fractional day is
- * rounded to the approximately nearest day (since daylight saving is not considered, the notion of nearest may be off by one hour).
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT_ACT_YEARFRAC convention, that is, it is calculates the daycount fraction
  * corresponding to the Excel (2013) function YEARFRAC(startDate, endDate, 1). The day count fraction is calculated by dividing
@@ -49,11 +48,11 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(Calendar startDate, Calendar endDate) {
-		if(startDate.after(endDate)) return -getDaycountFraction(endDate,startDate);
+	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
 
 
 		/*
@@ -61,30 +60,22 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 		 */
 		double denominator;
 
-		Calendar startDatePlusOneYear = (Calendar)startDate.clone();
-		startDatePlusOneYear.add(Calendar.YEAR, 1);
-		if(endDate.after(startDatePlusOneYear)) {
+		LocalDate startDatePlusOneYear = startDate.plusYears(1);
+		if(endDate.isAfter(startDatePlusOneYear)) {
 			/*
 			 * The following method applies, if the interval spans more than one year:
 			 * fraction = actual number of days / average number of days per year.
 			 */
 
-			Calendar startDateYearStart = (Calendar)startDate.clone();
-			startDateYearStart.set(Calendar.DAY_OF_YEAR, 1);
+			LocalDate startDateYearStart = startDate.withDayOfYear(1);
+			LocalDate endDateYearEnd = endDate.withDayOfYear(endDate.lengthOfYear()).plusDays(1);
 
-
-			Calendar endDateYearEnd = (Calendar)endDate.clone();
-			endDateYearEnd.set(Calendar.DAY_OF_YEAR, endDateYearEnd.getActualMaximum(Calendar.DAY_OF_YEAR));
-			endDateYearEnd.add(Calendar.DAY_OF_YEAR, 1);
-
-			double spannedYears = endDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR) + 1;
-
+			double spannedYears = endDate.getYear() - startDate.getYear() + 1; 
 			denominator = getDaycount(startDateYearStart, endDateYearEnd) / spannedYears;
 		}
 		else {
-			GregorianCalendar calendar = (GregorianCalendar)GregorianCalendar.getInstance();
-			boolean isStartLeapYear	= calendar.isLeapYear(startDate.get(Calendar.YEAR));
-			boolean isEndLeapYear	= calendar.isLeapYear(endDate.get(Calendar.YEAR));
+			boolean isStartLeapYear	= startDate.isLeapYear();
+			boolean isEndLeapYear	= endDate.isLeapYear();
 			/*
 			 * If the start and end span less or equal one year:
 			 * If start and end fall in a leap year, use ACT/366.
@@ -101,9 +92,10 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 				if(isStartLeapYear || isEndLeapYear)
 				{
 					// Get February 29th of the respective leap year
-					Calendar leapYearsFeb29th = isStartLeapYear ? (Calendar)startDate.clone() : (Calendar)endDate.clone();
-					leapYearsFeb29th.set(Calendar.MONTH, Calendar.FEBRUARY);
-					leapYearsFeb29th.set(Calendar.DAY_OF_MONTH, 29);
+					LocalDate leapYearsFeb29th = isStartLeapYear ? 
+								LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29) : 
+								LocalDate.of(endDate.getYear(), Month.FEBRUARY, 29); 
+					
 
 					// Check position of February 29th
 					if(startDate.compareTo(leapYearsFeb29th) <= 0 && endDate.compareTo(leapYearsFeb29th) >= 0) {

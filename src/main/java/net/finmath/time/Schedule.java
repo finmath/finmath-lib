@@ -6,8 +6,8 @@
 
 package net.finmath.time;
 
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,7 +19,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * a fixing and payment.
  * 
  * The periods have two representations: one a {@link net.finmath.time.Period}
- * which contains {@link java.util.Calendar} dates and
+ * which contains {@link java.time.LocalDate} dates and
  * an alternative representation using doubles.
  * 
  * Within a schedule, the mapping from doubles to dates is one to one.
@@ -29,7 +29,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
 public class Schedule implements ScheduleInterface {
 
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
-	private			Calendar					referenceDate;
+	private			LocalDate					referenceDate;
 
 	private List<Period>			periods;
 	private DayCountConventionInterface	daycountconvention;
@@ -40,11 +40,11 @@ public class Schedule implements ScheduleInterface {
 	private double[] periodEndTimes;
 	private double[] periodLength;
 
-	public Schedule(Calendar referenceDate, DayCountConventionInterface daycountconvention, Period... periods) {
+	public Schedule(LocalDate referenceDate, DayCountConventionInterface daycountconvention, Period... periods) {
 		this(referenceDate, Arrays.asList(periods), daycountconvention);
 	}
 
-	public Schedule(Calendar referenceDate, List<Period> periods, DayCountConventionInterface daycountconvention) {
+	public Schedule(LocalDate referenceDate, List<Period> periods, DayCountConventionInterface daycountconvention) {
 		super();
 		this.referenceDate = referenceDate;
 		this.periods = periods;
@@ -66,7 +66,7 @@ public class Schedule implements ScheduleInterface {
 	}
 
 	@Override
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
 
@@ -117,7 +117,7 @@ public class Schedule implements ScheduleInterface {
 
 	@Override
 	public String toString() {
-		return "Schedule [referenceDate=" + referenceDate.getTime() + ", periods="
+		return "Schedule [referenceDate=" + referenceDate + ", periods="
 				+ periods + ", daycountconvention=" + daycountconvention + "]";
 	}
 

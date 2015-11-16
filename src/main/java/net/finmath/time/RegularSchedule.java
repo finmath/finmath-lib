@@ -6,8 +6,8 @@
 
 package net.finmath.time;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
@@ -31,7 +31,7 @@ public class RegularSchedule implements ScheduleInterface {
 	}
 
 	@Override
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return null;
 	}
 

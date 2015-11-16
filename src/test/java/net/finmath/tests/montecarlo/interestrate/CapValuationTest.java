@@ -7,9 +7,9 @@ package net.finmath.tests.montecarlo.interestrate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -47,7 +47,7 @@ import org.junit.Test;
  */
 public class CapValuationTest {
 
-	Calendar referenceDate = new GregorianCalendar(2014, Calendar.JUNE, 15);
+	LocalDate referenceDate = LocalDate.of(2014, Month.JUNE, 15);
 
 	private ForwardCurveInterface					forwardCurve;
 	private DiscountCurveInterface					discountCurve;
@@ -196,8 +196,7 @@ public class CapValuationTest {
 			model = model.addCurves(discountCurve);
 			model = model.addVolatilitySurfaces(capletVol);
 
-			Calendar startDate = ((Calendar)referenceDate.clone());
-			startDate.add(Calendar.MONTH, 3);
+			LocalDate startDate = referenceDate.plusMonths(3);
 
 			ScheduleInterface schedule = new RegularSchedule(new TimeDiscretization(0.25, maturityIndex-1, 0.25));
 //			ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), startDate.getTime(), "quarterly", (maturityIndex-1)*0.25, "act/365", "first");

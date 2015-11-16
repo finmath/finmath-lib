@@ -6,7 +6,7 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +34,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
-	public AbstractVolatilitySurfaceParametric(String name, Calendar referenceDate) {
+	public AbstractVolatilitySurfaceParametric(String name, LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
 

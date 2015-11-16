@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
@@ -24,15 +24,15 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	private static final long serialVersionUID = 4027884423439197483L;
 
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
-	private			Calendar					referenceDate;
+	private			LocalDate					referenceDate;
 
-	private Calendar[]		dates;
+	private 		LocalDate[]					dates;
 
 	/**
 	 * @param dates A set of dates.
 	 * @param referenceDate The reference date, which defines t=0 with respect to the internal double representation.
 	 */
-	public Tenor(Calendar[] dates, Calendar referenceDate) {
+	public Tenor(LocalDate[] dates, LocalDate referenceDate) {
 		super(createTimeDiscretizationFromDates(dates, referenceDate));
 		this.dates				= dates;
 		this.referenceDate		= referenceDate;
@@ -43,7 +43,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	 * @param referenceDate
 	 * @return A time discretization corresponding to the given dates, relative to the reference date, using the internal day count fraction.
 	 */
-	private static double[] createTimeDiscretizationFromDates(Calendar[] dates, Calendar referenceDate) {
+	private static double[] createTimeDiscretizationFromDates(LocalDate[] dates, LocalDate referenceDate) {
 
 		double[] timeDiscretization = new double[dates.length];
 
@@ -104,7 +104,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	 * @see net.finmath.time.TenorInterface#getReferenceDate()
 	 */
 	@Override
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
 
@@ -112,7 +112,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	 * @see net.finmath.time.TenorInterface#getDate(int)
 	 */
 	@Override
-	public Calendar getDate(int timeIndex) {
+	public LocalDate getDate(int timeIndex) {
 		return dates[timeIndex];
 	}
 
