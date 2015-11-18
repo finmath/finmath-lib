@@ -96,7 +96,7 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 								LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29) : 
 								LocalDate.of(endDate.getYear(), Month.FEBRUARY, 29); 
 					
-					
+
 					// Check position of February 29th
 					if(startDate.compareTo(leapYearsFeb29th) <= 0 && endDate.compareTo(leapYearsFeb29th) >= 0) {
 						denominator = 366.0;

@@ -13,6 +13,8 @@ import org.joda.time.LocalDate;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 
+import org.joda.time.LocalDate;
+
 /**
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
  * 

@@ -6,10 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
-import java.util.GregorianCalendar;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,55 +17,54 @@ import org.junit.Test;
  */
 public class DayCountConvention_30E_360Test {
 
-
 	private static LocalDate[] startDates = {
-		new LocalDate(2007, DateTimeConstants.JANUARY,15),
-		new LocalDate(2007, DateTimeConstants.JANUARY,15),
-		new LocalDate(2007, DateTimeConstants.JANUARY,15),
-		new LocalDate(2007, DateTimeConstants.SEPTEMBER,30),
-		new LocalDate(2007, DateTimeConstants.SEPTEMBER,30),
-		new LocalDate(2007, DateTimeConstants.SEPTEMBER,30),
-		new LocalDate(2007, DateTimeConstants.JANUARY,15),
-		new LocalDate(2007, DateTimeConstants.JANUARY,31),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2006, DateTimeConstants.AUGUST,31),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,14),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,26),
-		new LocalDate(2008, DateTimeConstants.FEBRUARY,29),
-		new LocalDate(2008, DateTimeConstants.FEBRUARY,29),
-		new LocalDate(2008, DateTimeConstants.FEBRUARY,29),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2007, DateTimeConstants.OCTOBER,31),
-		new LocalDate(2007, DateTimeConstants.AUGUST,31),
-		new LocalDate(2008, DateTimeConstants.FEBRUARY,29),
-		new LocalDate(2008, DateTimeConstants.AUGUST,31),
-		new LocalDate(2009, DateTimeConstants.FEBRUARY,28)
+		new LocalDate(2007,1,15),
+		new LocalDate(2007,1,15),
+		new LocalDate(2007,1,15),
+		new LocalDate(2007,9,30),
+		new LocalDate(2007,9,30),
+		new LocalDate(2007,9,30),
+		new LocalDate(2007,1,15),
+		new LocalDate(2007,1,31),
+		new LocalDate(2007,2,28),
+		new LocalDate(2006,8,31),
+		new LocalDate(2007,2,28),
+		new LocalDate(2007,2,14),
+		new LocalDate(2007,2,26),
+		new LocalDate(2008,2,29),
+		new LocalDate(2008,2,29),
+		new LocalDate(2008,2,29),
+		new LocalDate(2007,2,28),
+		new LocalDate(2007,10,31),
+		new LocalDate(2007,8,31),
+		new LocalDate(2008,2,29),
+		new LocalDate(2008,8,31),
+		new LocalDate(2009,2,28)
 	};
 
 	private static LocalDate[] endDates = {
-		new LocalDate(2007, DateTimeConstants.JANUARY,30),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,15),
-		new LocalDate(2007, DateTimeConstants.JULY,15),
-		new LocalDate(2008, DateTimeConstants.MARCH,31),
-		new LocalDate(2007, DateTimeConstants.OCTOBER,31),
-		new LocalDate(2008, DateTimeConstants.SEPTEMBER,30),
-		new LocalDate(2007, DateTimeConstants.JANUARY,31),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2007, DateTimeConstants.MARCH,31),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2007, DateTimeConstants.AUGUST,31),
-		new LocalDate(2007, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2008, DateTimeConstants.FEBRUARY,29),
-		new LocalDate(2009, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2008, DateTimeConstants.MARCH,30),
-		new LocalDate(2008, DateTimeConstants.MARCH,31),
-		new LocalDate(2007, DateTimeConstants.MARCH,05),
-		new LocalDate(2007, DateTimeConstants.NOVEMBER,28),
-		new LocalDate(2008, DateTimeConstants.FEBRUARY,29),
-		new LocalDate(2008, DateTimeConstants.AUGUST,31),
-		new LocalDate(2009, DateTimeConstants.FEBRUARY,28),
-		new LocalDate(2009, DateTimeConstants.AUGUST,31)
+		new LocalDate(2007,1,30),
+		new LocalDate(2007,2,15),
+		new LocalDate(2007,7,15),
+		new LocalDate(2008,3,31),
+		new LocalDate(2007,10,31),
+		new LocalDate(2008,9,30),
+		new LocalDate(2007,1,31),
+		new LocalDate(2007,2,28),
+		new LocalDate(2007,3,31),
+		new LocalDate(2007,2,28),
+		new LocalDate(2007,8,31),
+		new LocalDate(2007,2,28),
+		new LocalDate(2008,2,29),
+		new LocalDate(2009,2,28),
+		new LocalDate(2008,3,30),
+		new LocalDate(2008,3,31),
+		new LocalDate(2007,3,05),
+		new LocalDate(2007,11,28),
+		new LocalDate(2008,2,29),
+		new LocalDate(2008,8,31),
+		new LocalDate(2009,2,28),
+		new LocalDate(2009,8,31)
 	};
 
 	double[] daycountFractions = new double[] {

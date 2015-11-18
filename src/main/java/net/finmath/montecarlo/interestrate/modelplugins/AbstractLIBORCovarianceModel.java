@@ -16,9 +16,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public abstract class AbstractLIBORCovarianceModel {
-	
-    private	TimeDiscretizationInterface		timeDiscretization;
-    private TimeDiscretizationInterface		liborPeriodDiscretization;
+
+	private	TimeDiscretizationInterface		timeDiscretization;
+	private TimeDiscretizationInterface		liborPeriodDiscretization;
 	private	int								numberOfFactors;
 
 	/**
@@ -82,7 +82,7 @@ public abstract class AbstractLIBORCovarianceModel {
 		if(timeIndex < 0) timeIndex = -timeIndex - 2;
 		return getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 	}
-	
+
 	/**
 	 * Return the factor loading for a given time index and component index.
 	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
@@ -134,11 +134,11 @@ public abstract class AbstractLIBORCovarianceModel {
 	 */
 	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
 		RandomVariableInterface covariance = new RandomVariable(0.0, 0.0);
-		
+
 		RandomVariableInterface[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
 		RandomVariableInterface[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
 		for(int factorIndex=0; factorIndex<this.getNumberOfFactors(); factorIndex++) {
-            covariance = covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);
+			covariance = covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);
 		}
 
 		return covariance;

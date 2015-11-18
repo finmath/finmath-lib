@@ -22,7 +22,7 @@ public class BusinessdayCalendarAny extends BusinessdayCalendar {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(org.joda.time.LocalDate)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.time.LocalDate)
 	 */
 	@Override
 	public boolean isBusinessday(LocalDate date) {

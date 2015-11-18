@@ -6,9 +6,9 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import org.joda.time.LocalDate;
-
 import net.finmath.marketdata.model.AnalyticModelInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * A parametric caplet volatility surface created form the four parameter model

@@ -58,7 +58,7 @@ public interface BusinessdayCalendarInterface {
 
 	/**
 	 * Get an adjusted date for a given date and offset code.
-	 *
+	 * 
 	 * First we create a new date by "adding" an offset to the base date.
 	 * The offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
 	 * 1Y, 2Y, etc., where the letters denote the units as follows: D denotes days, W denotes weeks, M denotes month

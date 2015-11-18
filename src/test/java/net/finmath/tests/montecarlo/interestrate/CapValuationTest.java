@@ -195,7 +195,7 @@ public class CapValuationTest {
 			model = model.addCurves(forwardCurve);
 			model = model.addCurves(discountCurve);
 			model = model.addVolatilitySurfaces(capletVol);
-			
+
 			LocalDate startDate = referenceDate.plusMonths(3);
 
 			ScheduleInterface schedule = new RegularSchedule(new TimeDiscretization(0.25, maturityIndex-1, 0.25));

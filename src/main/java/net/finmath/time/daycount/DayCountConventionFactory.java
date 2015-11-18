@@ -90,6 +90,6 @@ public class DayCountConventionFactory {
 	public static double getDaycountFraction(LocalDate startDate, LocalDate endDate, String convention) {
 		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycountFraction(startDate, endDate);
-	}
+	}	
 	
 }

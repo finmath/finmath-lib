@@ -34,12 +34,12 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(org.joda.time.LocalDate)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.util.Calendar)
 	 */
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
-			&& 	date.getDayOfWeek() != DateTimeConstants.SATURDAY
-			&& 	date.getDayOfWeek() != DateTimeConstants.SUNDAY;
+			&& date.getDayOfWeek() != DateTimeConstants.SATURDAY 
+			&& date.getDayOfWeek() != DateTimeConstants.SUNDAY;  
 	}
 }

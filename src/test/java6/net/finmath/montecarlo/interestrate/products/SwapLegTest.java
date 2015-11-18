@@ -8,14 +8,8 @@ package net.finmath.montecarlo.interestrate.products;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
-import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -45,6 +39,10 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.junit.Test;
+
 /**
  * @author Christian Fries
  *
@@ -59,7 +57,7 @@ public class SwapLegTest {
 	@Test
 	public void testFloatLeg() throws CalculationException {
 		
-		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12);
+		LocalDate	referenceDate = new LocalDate(2014,  DateTimeConstants.AUGUST,  12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -115,7 +113,7 @@ public class SwapLegTest {
 	@Test
 	public void testFixLeg() throws CalculationException {
 		
-		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12);
+		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12); 
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -165,7 +163,8 @@ public class SwapLegTest {
 
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
-		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12);
+		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12); 
+	
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(

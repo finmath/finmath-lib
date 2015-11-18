@@ -6,8 +6,6 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
-
 import org.joda.time.LocalDate;
 
 /**
@@ -15,15 +13,14 @@ import org.joda.time.LocalDate;
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- *  A fractional day is
- * rounded to the approximately nearest day 
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT/365 convention, that is, the
  * day count is divided by 365.
  * 
  * <ul>
  * 	<li>
- * 		The method {@link #getDaycountFraction(Calendar, Calendar) getDaycountFraction} corresponds to the implementation of the "ACT/365 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,3).
+ * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the "ACT/365 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,3).
  * 	</li>
  * </ul>
  * 

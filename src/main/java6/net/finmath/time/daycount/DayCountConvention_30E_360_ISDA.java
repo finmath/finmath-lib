@@ -44,19 +44,19 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.joda.time.LocalDate, org.joda.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
 
-		double startDateDay 	= startDate.getDayOfMonth();
-		double startDateMonth 	= startDate.getMonthOfYear();
-		double startDateYear 	= startDate.getYear();
+		int startDateDay 	= startDate.getDayOfMonth();
+		int startDateMonth 	= startDate.getMonthOfYear();
+		int startDateYear 	= startDate.getYear();
 
-		double endDateDay 		= endDate.getDayOfMonth();
-		double endDateMonth 	= endDate.getMonthOfYear();
-		double endDateYear 		= endDate.getYear();
+		int endDateDay 		= endDate.getDayOfMonth();
+		int endDateMonth 	= endDate.getMonthOfYear();
+		int endDateYear 	= endDate.getYear();
 
 
 		// Check if we have last day of February
@@ -71,7 +71,7 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

@@ -116,7 +116,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	@Override
 	public double getValue(AnalyticModelInterface model, double time) {
 		LocalDate calendar = getReferenceDate().plusDays((int) Math.round(time*365));
-		
+
 		int month = calendar.getMonthValue();				// Note: month = 1,2,3,...,12
 		int day   = calendar.getDayOfMonth(); 				// Note: day = 1,2,3,...,numberOfDays
 		int numberOfDays = calendar.lengthOfMonth();
@@ -156,7 +156,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 			realizedCPIValues[i] = indexFixings.get(fixingDate).doubleValue();
 			i++;
 		}
-		
+
 		LocalDate lastMonth = fixingDates.get(fixingDates.size()-1);
 
 		return computeSeasonalAdjustments(realizedCPIValues, lastMonth.getMonthValue(), numberOfYearsToAverage);

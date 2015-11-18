@@ -6,8 +6,6 @@
 
 package net.finmath.time.daycount;
 
-import java.util.GregorianCalendar;
-
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
@@ -16,7 +14,7 @@ import org.joda.time.LocalDate;
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- *  A fractional day is rounded to the approximately nearest day 
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT_ACT_YEARFRAC convention, that is, it is calculates the daycount fraction
  * corresponding to the Excel (2013) function YEARFRAC(startDate, endDate, 1). The day count fraction is calculated by dividing
@@ -50,7 +48,7 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
@@ -70,19 +68,14 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 			 */
 
 			LocalDate startDateYearStart = startDate.withDayOfYear(1);
+			LocalDate endDateYearEnd = endDate.withDayOfYear(endDate.dayOfYear().getMaximumValue()).plusDays(1);
 
-			LocalDate endDateYearEnd = endDate
-					.withDayOfYear(endDate.year().getMaximumValue())
-					.plusDays(1);
-
-			double spannedYears = endDate.getYear() - startDate.getYear() + 1;
-
+			double spannedYears = endDate.getYear() - startDate.getYear() + 1; 
 			denominator = getDaycount(startDateYearStart, endDateYearEnd) / spannedYears;
 		}
 		else {
-			GregorianCalendar calendar = (GregorianCalendar)GregorianCalendar.getInstance();
-			boolean isStartLeapYear	= calendar.isLeapYear(startDate.getYear());
-			boolean isEndLeapYear	= calendar.isLeapYear(endDate.getYear());
+			boolean isStartLeapYear	= startDate.year().isLeap();
+			boolean isEndLeapYear	= endDate.year().isLeap();
 			/*
 			 * If the start and end span less or equal one year:
 			 * If start and end fall in a leap year, use ACT/366.
@@ -99,11 +92,11 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 				if(isStartLeapYear || isEndLeapYear)
 				{
 					// Get February 29th of the respective leap year
-					LocalDate leapYearsFeb29th = new LocalDate(
-							isStartLeapYear?startDate.getYear():endDate.getYear(),
-							DateTimeConstants.FEBRUARY,
-							29);
+					LocalDate leapYearsFeb29th = isStartLeapYear ? 
+								new LocalDate(startDate.getYear(), DateTimeConstants.FEBRUARY, 29) : 
+								new LocalDate(endDate.getYear(), DateTimeConstants.FEBRUARY, 29); 
 					
+
 					// Check position of February 29th
 					if(startDate.compareTo(leapYearsFeb29th) <= 0 && endDate.compareTo(leapYearsFeb29th) >= 0) {
 						denominator = 366.0;

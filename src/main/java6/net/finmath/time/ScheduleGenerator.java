@@ -8,8 +8,6 @@ package net.finmath.time;
 
 import java.util.ArrayList;
 
-import org.joda.time.LocalDate;
-
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -21,6 +19,8 @@ import net.finmath.time.daycount.DayCountConvention_30U_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
+
+import org.joda.time.LocalDate;
 
 /**
  * Generates a schedule based on some meta data (frequency, maturity, date roll convention, etc.).
@@ -217,26 +217,26 @@ public class ScheduleGenerator {
 			while(periodStartDateUnadjusted.isBefore(maturity)) {
 				// The following code only makes calculations on periodEndXxx while the periodStartXxx is only copied and used to check if we terminate
 				// Determine period end
-				periodEndDateUnadjusted = periodEndDateUnadjusted.plusDays(periodLengthDays)
+				periodEndDateUnadjusted = periodEndDateUnadjusted
+						.plusDays(periodLengthDays)
 						.plusWeeks(periodLengthWeeks)
 						.plusMonths(periodLengthMonth);
 				if(periodEndDateUnadjusted.isAfter(maturity)) {
-					periodEndDateUnadjusted = maturity;
+					periodEndDateUnadjusted 	= maturity;
 					periodStartDateUnadjusted 	= maturity;	// Terminate loop (next periodEndDateUnadjusted)
 				}
+
 				// Adjust period
 				LocalDate periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
-				
+	
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
 
 				// Adjust fixing date
-				LocalDate fixingDate = periodStartDate.plusDays(fixingOffsetDays);
-				fixingDate = businessdayCalendar.getAdjustedDate(fixingDate, dateRollConvention);
+				LocalDate fixingDate = businessdayCalendar.getAdjustedDate(periodStartDate.plusDays(fixingOffsetDays), dateRollConvention);
 
 				// Adjust payment date
-				LocalDate paymentDate = periodEndDate.plusDays(paymentOffsetDays);
-				paymentDate = businessdayCalendar.getAdjustedDate(paymentDate, dateRollConvention);
+				LocalDate paymentDate = businessdayCalendar.getAdjustedDate(periodEndDate.plusDays(paymentOffsetDays), dateRollConvention); 
 	
 				// Create period
 				periods.add(new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
@@ -251,12 +251,16 @@ public class ScheduleGenerator {
 			LocalDate periodStartDateUnadjusted	= maturity;
 			LocalDate periodEndDateUnadjusted	= maturity;
 			LocalDate periodEndDate				= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
+			
 			while(periodEndDateUnadjusted.isAfter(startDate)) {
 				// The following code only makes calculations on periodStartXxx while the periodEndXxx is only copied and used to check if we terminate
 				// Determine period start
-				periodStartDateUnadjusted = periodStartDateUnadjusted.minusDays(periodLengthDays)
+				periodStartDateUnadjusted = periodStartDateUnadjusted
+						.minusDays(periodLengthDays)
 						.minusWeeks(periodLengthWeeks)
 						.minusMonths(periodLengthMonth);
+				
+				
 				if(periodStartDateUnadjusted.isBefore(startDate))	{
 					periodStartDateUnadjusted	= startDate;
 					periodEndDateUnadjusted 	= startDate;	// Terminate loop (next periodEndDateUnadjusted)
@@ -273,7 +277,7 @@ public class ScheduleGenerator {
 				// TODO: There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
 	
 				// Roll payment date
-				 LocalDate paymentDate = businessdayCalendar.getRolledDate(periodEndDate, paymentOffsetDays);
+				LocalDate paymentDate = businessdayCalendar.getRolledDate(periodEndDate, paymentOffsetDays);
 				// TODO: There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
 	
 				// Create period
@@ -372,6 +376,7 @@ public class ScheduleGenerator {
 			int	paymentOffsetDays
 			)
 	{
+	
 		LocalDate spotDate = businessdayCalendar.getRolledDate(tradeDate, spotOffsetDays);
 		
 		LocalDate startDate = BusinessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffset);
@@ -571,12 +576,11 @@ public class ScheduleGenerator {
 	private static LocalDate createDateFromDateAndOffset(LocalDate baseDate, double offsetYearFrac) {
 
 		// Years
-		LocalDate maturity = baseDate;
-		maturity = maturity.plusYears((int)offsetYearFrac); 
+		LocalDate maturity = baseDate.plusYears((int)offsetYearFrac);
 		
 		// Months
 		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 12;
-		maturity = maturity.plusMonths((int)offsetYearFrac); 
+		maturity = maturity.plusMonths((int)offsetYearFrac);
 		
 		// Days
 		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 30;
@@ -584,5 +588,4 @@ public class ScheduleGenerator {
 
 		return maturity;
 	}
-
 }

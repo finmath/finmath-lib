@@ -13,8 +13,7 @@ import org.joda.time.LocalDate;
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- *  A fractional day is
- * rounded to the approximately nearest day 
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT/365L convention, that is, the
  * day count is divided by 365 if the end date is not a leap year and 366 if the end date is a leap year.
@@ -39,7 +38,7 @@ public class DayCountConvention_ACT_365L extends DayCountConvention_ACT {
 		double daysPerYear = 365.0;
 		
 		// Check endDate for leap year
-		if(endDate.year().isLeap()) daysPerYear = 366.0;
+		if (endDate.year().isLeap()) daysPerYear = 366.0;
 		
 		double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
 

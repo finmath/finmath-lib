@@ -7,13 +7,13 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 
-import org.joda.time.LocalDate;
-
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
+
+import org.joda.time.LocalDate;
 
 /**
  * Implementation of a forward given by a Nelson-Siegel-Svensson (NSS) parameterization.
@@ -87,7 +87,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
 		if(daycountConvention != null) {
 			LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
-			LocalDate paymentDate	= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);;
+			LocalDate paymentDate		= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);;
 			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
 		}
 
@@ -139,7 +139,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	@Override
 	public double getPaymentOffset(double fixingTime) {
 		LocalDate fixingDate		= getDateFromModelTime(fixingTime);
-		LocalDate paymentDate	= paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
+		LocalDate paymentDate		= paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
 		double paymentTime = (new DayCountConvention_ACT_365()).getDaycountFraction(getReferenceDate(), paymentDate);
 		return paymentTime-fixingTime;
 	}

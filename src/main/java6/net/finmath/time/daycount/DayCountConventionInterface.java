@@ -25,8 +25,8 @@ public interface DayCountConventionInterface {
 	 * Return the number of days between startDate and endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link org.joda.time.LocalDate}.
-	 * @param endDate The end date given as a {@link org.joda.time.LocalDate}.
+	 * @param startDate The start date given as a {@link java.time.LocalDate}.
+	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @return The number of days within the given period.
 	 */
 	public abstract double getDaycount(LocalDate startDate, LocalDate endDate);
@@ -35,10 +35,10 @@ public interface DayCountConventionInterface {
 	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link org.joda.time.LocalDate}.
-	 * @param endDate The end date given as a {@link org.joda.time.LocalDate}.
+	 * @param startDate The start date given as a {@link java.time.LocalDate}.
+	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
-	public abstract double getDaycountFraction(LocalDate startDate, LocalDate endDate);
+	public abstract double getDaycountFraction(LocalDate startDate, LocalDate endDate);	
 	
 }

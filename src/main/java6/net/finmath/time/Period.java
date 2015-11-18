@@ -30,7 +30,7 @@ public class Period implements Comparable<Period> {
 	private LocalDate periodStart;
 	private LocalDate periodEnd;
 
-	public Period(LocalDate fixing, LocalDate payment,
+	public Period(LocalDate fixing,  LocalDate payment,
 			LocalDate periodStart, LocalDate periodEnd) {
 		super();
 		this.fixing = fixing;

@@ -6,10 +6,6 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
 import org.joda.time.LocalDate;
 
 /**
@@ -72,8 +68,8 @@ public class DayCountConventionFactory {
 	 * Return the number of days between startDate and endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.util.Date}.
-	 * @param endDate The end date given as a {@link java.util.Date}.
+	 * @param startDate The start date given as a {@link java.time.LocalDate}.
+	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @param convention A convention string.
 	 * @return The number of days within the given period.
 	 */
@@ -86,25 +82,14 @@ public class DayCountConventionFactory {
 	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.util.Date}.
-	 * @param endDate The end date given as a {@link java.util.Date}.
+	 * @param startDate The start date given as a {@link java.time.LocalDate}.
+	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @param convention A convention string.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
 	public static double getDaycountFraction(LocalDate startDate, LocalDate endDate, String convention) {
 		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycountFraction(startDate, endDate);
-	}
+	}	
 	
-	/**
-	 * Returns a org.joda.time.LocalDate for a given java.util.Date.
-	 * 
-	 * @param date A Date
-	 * @return The corresponding calendar
-	 */
-	public static Calendar getCalendarForData(Date date) {
-		Calendar calendar = GregorianCalendar.getInstance();
-		calendar.setTime(date);
-		return calendar;
-	}
 }

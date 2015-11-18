@@ -9,17 +9,16 @@ package net.finmath.time.daycount;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.joda.time.LocalDate;
-
 import net.finmath.time.Period;
+
+import org.joda.time.LocalDate;
 
 /**
  * Implementation of ACT/ACT ICMA.
  * 
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- *  A fractional day is
- * rounded to the approximately nearest day 
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using ACT_ACT_ICMA convention, that is, the
  * day count fraction is <i>n/(f*m)</i>, where
@@ -66,7 +65,7 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

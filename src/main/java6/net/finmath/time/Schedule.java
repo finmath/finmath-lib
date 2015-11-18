@@ -10,17 +10,17 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.joda.time.LocalDate;
-
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
+
+import org.joda.time.LocalDate;
 
 /**
  * A schedule of interest rate periods with
  * a fixing and payment.
  * 
  * The periods have two representations: one a {@link net.finmath.time.Period}
- * which contains {@link org.joda.time.LocalDate} dates and
+ * which contains {@link java.time.LocalDate} dates and
  * an alternative representation using doubles.
  * 
  * Within a schedule, the mapping from doubles to dates is one to one.

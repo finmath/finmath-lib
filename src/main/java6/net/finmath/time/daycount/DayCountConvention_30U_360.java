@@ -6,8 +6,6 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Calendar;
-
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
@@ -23,10 +21,10 @@ import org.joda.time.LocalDate;
  * 
  * <ul>
  * 	<li>
- * 		The method {@link #getDaycount(Calendar, Calendar) getDaycount} corresponds to the implementation of the "US method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,FALSE).
+ * 		The method {@link #getDaycount(LocalDate, LocalDate) getDaycount} corresponds to the implementation of the "US method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,FALSE).
  * 	</li>
  * 	<li>
- * 		The method {@link #getDaycountFraction(Calendar, Calendar) getDaycountFraction} corresponds to the implementation of the "30U/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,0).
+ * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the "30U/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,0).
  * 	</li>
  * </ul>
  * 
@@ -52,24 +50,24 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.joda.time.LocalDate, org.joda.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
 
-		double startDateDay 	= startDate.getDayOfMonth();
-		double startDateMonth 	= startDate.getMonthOfYear();
-		double startDateYear 	= startDate.getYear();
+		int startDateDay 	= startDate.getDayOfMonth();
+		int startDateMonth 	= startDate.dayOfMonth().getMaximumValue();
+		int startDateYear 	= startDate.getYear();
 
-		double endDateDay 		= endDate.getDayOfMonth();
-		double endDateMonth 	= endDate.getMonthOfYear();
-		double endDateYear 		= endDate.getYear();
+		int endDateDay 		= endDate.getDayOfMonth();
+		int endDateMonth 	= endDate.dayOfMonth().getMaximumValue();
+		int endDateYear 	= endDate.getYear();
 
 		if(
 				isEndOfMonth &&
 				startDate.getMonthOfYear() == DateTimeConstants.FEBRUARY &&
-				startDate.getDayOfMonth() == startDate.dayOfMonth().getMaximumValue() &&
+				startDate.getDayOfMonth() == startDate.dayOfMonth().getMaximumValue() && 
 				endDate.getMonthOfYear() == DateTimeConstants.FEBRUARY &&
 				endDate.getDayOfMonth() == endDate.dayOfMonth().getMaximumValue()
 			) endDateDay = 30;
@@ -87,7 +85,7 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

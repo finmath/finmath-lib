@@ -40,18 +40,16 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		
-		// TODO: the month values are not the same when we extracted it via Calendar (0 based indexing) and via LocalDate (1 based indexing). 
-		// We first maintenance the compatibility by adjusting the offsetMonth values with plus 1.  
-		// 
+
 		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate();
+
 		LocalDate endDate = referenceDate
 				.plusDays((int)Math.round(evaluationTime * 365))
 				.withDayOfMonth(1)
-				.withMonth(fixingOffsetMonths+1);
+				.plusMonths(fixingOffsetMonths);
+
 		endDate = endDate.withDayOfMonth(referenceDate.lengthOfMonth());
 		double time = (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, endDate);
-
 		return baseIndex.getValue(time, model);
 	}
 

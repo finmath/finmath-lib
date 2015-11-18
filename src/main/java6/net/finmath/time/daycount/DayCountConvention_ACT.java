@@ -12,7 +12,7 @@ import org.joda.time.LocalDate;
 /**
  * Base class which calculates the day count by calculating the actual number of days between startDate and endDate.
  * 
- * A fractional day is rounded to the approximately nearest day 
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * @author Christian Fries
  */
@@ -25,7 +25,7 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.joda.time.LocalDate, org.joda.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
@@ -35,23 +35,15 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	}
 	
 	/**
-	 * Returns the number of days, between two Calendar dates.
+	 * Returns the number of days, between two dates.
 	 * 
- *  A fractional day is
-	 * rounded to the approximately nearest day 
+	 * A fractional day is rounded to the approximately nearest day.
 	 * 
 	 * The formula implemented is
 	 * <code>
-	 * Math.round( ((double)(endDate.getTimeInMillis()-startDate.getTimeInMillis())) / 1000.0 / 60.0 / 60.0 / 24)
+	 * 
+	 * (endDate.toEpochDay() - startDate.toEpochDay());
 	 * </code>
-	 * 
-	 * <p>
-	 * For more accurate calculation consider org.joda.time.Days.
-	 * </p>
-	 * 
-	 * <p>
-	 * However, the method is correct if each calendar is on the same time and they differ only by days.
-	 * </p>
 	 * 
 	 * @param startDate The start date of the interval.
 	 * @param endDate The end date of the interval.

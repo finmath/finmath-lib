@@ -6,8 +6,6 @@
 
 package net.finmath.time.daycount;
 
-import java.util.GregorianCalendar;
-
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
@@ -16,7 +14,7 @@ import org.joda.time.LocalDate;
  * 
  * Calculates the day count by calculating the actual number of days between startDate (excluding) and endDate (including), excluding a leap day (February 29th) if present.
  * 
- * A fractional day is rounded to the approximately nearest day 
+ * A fractional day is rounded to the approximately nearest day.
  * 
  * The day count fraction is calculated using NL/365 convention, that is, the
  * day count is divided by 365.
@@ -41,9 +39,8 @@ public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 		/*
 		 * Remove leap days, if any.
 		 */
-		GregorianCalendar gregorianCalendar = new GregorianCalendar();
 		for(int year = startDate.getYear() ; year <= endDate.getYear(); year++) {
-			if(gregorianCalendar.isLeapYear(year)) {
+			if (new LocalDate(year,1,1).year().isLeap()) {
 				LocalDate leapDay = new LocalDate(year, DateTimeConstants.FEBRUARY, 29);
 				if(startDate.isBefore(leapDay) && !endDate.isBefore(leapDay)) daycount -= 1.0;
 			}

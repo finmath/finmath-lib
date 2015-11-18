@@ -9,6 +9,7 @@ package net.finmath.time.businessdaycalendar;
 import java.util.StringTokenizer;
 
 import org.joda.time.LocalDate;
+import org.joda.time.ReadablePeriod;
 
 /**
  * Base class for all business day calendars.
@@ -21,7 +22,7 @@ import org.joda.time.LocalDate;
 public abstract class BusinessdayCalendar implements BusinessdayCalendarInterface {
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#getAdjustedDate(org.joda.time.LocalDate, net.finmath.time.BusinessdayCalendarInterface.DateRollConvention)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#getAdjustedDate(java.time.LocalDate, net.finmath.time.BusinessdayCalendarInterface.DateRollConvention)
 	 */
 	@Override
 	public LocalDate getAdjustedDate(LocalDate date, DateRollConvention dateRollConvention) {
@@ -30,14 +31,14 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_FOLLOWING) {
 			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);
-			if(adjustedDate.getMonthOfYear() != date.getMonthOfYear()) {
+			if (adjustedDate.getMonthOfYear() != date.getMonthOfYear()){
 				return getAdjustedDate(date, DateRollConvention.PRECEDING);
 			}
 			else return adjustedDate;
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_PRECEDING) {
 			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.PRECEDING);
-			if(adjustedDate.getMonthOfYear() != date.getMonthOfYear()) {
+			if (adjustedDate.getMonthOfYear() != date.getMonthOfYear()) {
 				return getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			}
 			else return adjustedDate;
@@ -54,15 +55,17 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		throw new IllegalArgumentException("Unknown date roll convention.");
 	}
 	
+	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#getRolledDate(org.joda.time.LocalDate, int)
+	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#getRolledDate(java.time.LocalDate, int)
 	 */
 	public LocalDate getRolledDate(LocalDate baseDate, int businessDays) {
 		LocalDate			rolledDate			= baseDate;
 		int					direction			= businessDays >= 0 ? 1: -1;
 		DateRollConvention	dateRollConvention	= direction > 0 ? DateRollConvention.FOLLOWING : DateRollConvention.PRECEDING;
 		while(businessDays != 0) {
-			rolledDate = getAdjustedDate(rolledDate.plusDays(direction), dateRollConvention);
+			rolledDate = rolledDate.plusDays(direction);
+			rolledDate = getAdjustedDate(rolledDate, dateRollConvention);
 			businessDays -= direction;
 		}
 		return rolledDate;
@@ -114,21 +117,35 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		while(tokenizer.hasMoreTokens()) {
 			String maturityCodeSingle = tokenizer.nextToken();
 
-			char	unitChar		= maturityCodeSingle.toLowerCase().charAt(maturityCodeSingle.length()-1);
+			char unitChar = maturityCodeSingle.toLowerCase().charAt(maturityCodeSingle.length()-1);
+
 			switch(unitChar) {
 			case 'd':
-				maturity = maturity.plusDays(Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1)));
+			{
+				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
+				maturity = maturity.plusDays(maturityValue);
 				break;
+			}
 			case 'w':
-				maturity = maturity.plusWeeks(Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1)));
+			{
+				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
+				maturity = maturity.plusWeeks(maturityValue);
 				break;
+			}
 			case 'm':
-				maturity = maturity.plusMonths(Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1)));
+			{
+				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
+				maturity = maturity.plusMonths(maturityValue);
 				break;
+			}
 			case 'y':
-				maturity = maturity.plusYears(Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1)));
+			{
+				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
+				maturity = maturity.plusYears(maturityValue);
 				break;
+			}
 			default:
+				// Try to parse a double as ACT/365
 				double maturityValue	= Double.valueOf(maturityCodeSingle);
 				maturity = maturity.plusDays((int)Math.round(maturityValue * 365));
 			}

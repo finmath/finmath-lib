@@ -118,7 +118,7 @@ public class VolatilityCalibrationTest {
 
 		Vector<AnalyticProductInterface>	marketProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					marketTargetValues = new ArrayList<Double>();
-		LocalDate referenceDate = LocalDate.of(2014,  8-1,  15);
+		LocalDate referenceDate = LocalDate.of(2014,  Month.JULY,  15);
 		DayCountConventionInterface modelDayCountConvention = new DayCountConvention_ACT_365();
 		DaycountConvention capDayCountConvention = DaycountConvention.ACT_360;
 		for(int i=0; i<maturities.length; i++) {

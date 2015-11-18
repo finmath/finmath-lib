@@ -17,8 +17,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public abstract class AbstractLIBORCovarianceModel {
 	
-    private	TimeDiscretizationInterface		timeDiscretization;
-    private TimeDiscretizationInterface		liborPeriodDiscretization;
+	private	TimeDiscretizationInterface		timeDiscretization;
+	private TimeDiscretizationInterface		liborPeriodDiscretization;
 	private	int								numberOfFactors;
 
 	/**
@@ -138,7 +138,7 @@ public abstract class AbstractLIBORCovarianceModel {
 		RandomVariableInterface[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
 		RandomVariableInterface[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
 		for(int factorIndex=0; factorIndex<this.getNumberOfFactors(); factorIndex++) {
-            covariance = covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);
+			covariance = covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);
 		}
 
 		return covariance;

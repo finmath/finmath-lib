@@ -35,15 +35,14 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(org.joda.time.LocalDate)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.time.LocalDate)
 	 */
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		int day = date.getDayOfMonth();
-		int month = date.getMonthOfYear()+1;
+		int month = date.getMonthOfYear();
 
 		LocalDate datePlus2 = date.plusDays(2);
-		
 		LocalDate dateBefore = date.minusDays(1);
 
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
@@ -83,7 +82,7 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	    int easterSundayMonth	= (h + L - 7 * m + 114) / 31;
 	    int easterSundayDay		= ((h + L - 7 * m + 114) % 31) + 1;
 
-		int month = date.getMonthOfYear()+1;
+		int month = date.getMonthOfYear();
 		int day = date.getDayOfMonth();
 
 	    return (easterSundayMonth == month) && (easterSundayDay == day);
