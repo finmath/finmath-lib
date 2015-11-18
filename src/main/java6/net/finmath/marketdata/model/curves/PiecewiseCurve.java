@@ -6,7 +6,7 @@
 
 package net.finmath.marketdata.model.curves;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
@@ -83,7 +83,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	@Override
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return baseCurve.getReferenceDate();
 	}
 

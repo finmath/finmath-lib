@@ -6,9 +6,9 @@
 
 package net.finmath.fouriermethod;
 
-import net.finmath.compatibility.java.util.function.Function;
-
 import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.compatibility.java.util.function.Function;
 
 /**
  * Interface which has to be implemented by characteristic functions of

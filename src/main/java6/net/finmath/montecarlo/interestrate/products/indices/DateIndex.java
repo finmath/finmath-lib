@@ -6,8 +6,9 @@
 
 package net.finmath.montecarlo.interestrate.products.indices;
 
-import java.util.Calendar;
 import java.util.Set;
+
+import org.joda.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -57,26 +58,21 @@ public class DateIndex extends AbstractIndex {
 
 	@Override
 	public RandomVariableInterface getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		Calendar referenceDate = (Calendar)model.getModel().getForwardRateCurve().getReferenceDate().clone();
-		referenceDate.add(Calendar.DAY_OF_YEAR, (int)Math.round(fixingTime*365));
-		referenceDate.set(Calendar.HOUR, 0);
-		referenceDate.set(Calendar.MINUTE, 0);
-		referenceDate.set(Calendar.SECOND, 0);
-		referenceDate.set(Calendar.MILLISECOND, 0);
-		
+		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate()
+				.plusDays((int)Math.round(fixingTime*365));
 		double value = 0;
 		switch(dateIndexType) {
 		case DAY:
-			value = referenceDate.get(Calendar.DAY_OF_MONTH);
+			value = referenceDate.getDayOfMonth();
 			break;
 		case MONTH:
-			value = referenceDate.get(Calendar.MONTH);
+			value = referenceDate.getMonthOfYear();
 			break;
 		case YEAR:
-			value = referenceDate.get(Calendar.YEAR);
+			value = referenceDate.getYear();
 			break;
 		case NUMBER_OF_DAYS_IN_MONTH:
-			value = referenceDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+			value = referenceDate.dayOfMonth().getMaximumValue();
 			break;
 		}
 

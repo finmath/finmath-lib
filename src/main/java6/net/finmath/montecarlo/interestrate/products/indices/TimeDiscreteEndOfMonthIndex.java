@@ -5,8 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
-import java.util.Calendar;
 import java.util.Set;
+
+import org.joda.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -40,13 +41,11 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-
-		Calendar referenceDate = model.getModel().getForwardRateCurve().getReferenceDate();
-		Calendar cal = (Calendar) referenceDate.clone();
-		cal.add(Calendar.DAY_OF_YEAR, (int)Math.round(evaluationTime * 365));
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		cal.add(Calendar.MONTH, fixingOffsetMonths);
-		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate();
+		LocalDate cal = referenceDate.plusDays((int)Math.round(evaluationTime * 365))
+				.withDayOfMonth(1)
+				.plusMonths(1);
+		cal = cal.withDayOfMonth(cal.dayOfMonth().getMaximumValue());
 		double time = (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, cal);
 
 		return baseIndex.getValue(time, model);

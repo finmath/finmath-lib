@@ -11,11 +11,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.finmath.timeseries.HistoricalSimulationModel;
-
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.PointValuePair;
+
+import net.finmath.timeseries.HistoricalSimulationModel;
 
 /**
  * Displaced log-normal process with constanst volatility.

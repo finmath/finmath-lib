@@ -6,13 +6,13 @@
 
 package net.finmath.fouriermethod.products;
 
+import org.apache.commons.math3.complex.Complex;
+
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.integration.RealIntegralInterface;
 import net.finmath.integration.SimpsonRealIntegrator;
-
-import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Christian Fries

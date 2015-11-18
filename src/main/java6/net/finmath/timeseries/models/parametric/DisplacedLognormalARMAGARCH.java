@@ -11,6 +11,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.SimplePointChecker;
+import org.apache.commons.math3.random.MersenneTwister;
+
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
@@ -18,10 +22,6 @@ import net.finmath.timeseries.HistoricalSimulationModel;
 import net.finmath.timeseries.TimeSeriesInterface;
 import net.finmath.timeseries.TimeSeriesModelParametric;
 import net.finmath.timeseries.TimeSeriesView;
-
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.SimplePointChecker;
-import org.apache.commons.math3.random.MersenneTwister;
 
 /**
  * Displaced log-normal process with ARMAGARCH(1,1) volatility.

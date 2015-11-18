@@ -6,8 +6,9 @@
 
 package net.finmath.timeseries;
 
-import java.util.Calendar;
 import java.util.Map;
+
+import org.joda.time.LocalDate;
 
 /**
  * A set of raw data associated with a given date.
@@ -16,16 +17,16 @@ import java.util.Map;
  */
 public class MarketData {
 
-	private Calendar			date;
+	private LocalDate			date;
 	private Map<String,Double>	valuesForSymbols;
 
-	public MarketData(Calendar date, Map<String,Double> valuesForSymbols) {
+	public MarketData(LocalDate date, Map<String,Double> valuesForSymbols) {
 		super();
 		this.date				= date;
 		this.valuesForSymbols	= valuesForSymbols;
 	}
 
-	public Calendar getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 

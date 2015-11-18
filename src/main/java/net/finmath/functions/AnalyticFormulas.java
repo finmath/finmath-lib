@@ -948,11 +948,11 @@ public class AnalyticFormulas {
 
 			// Disocunt back
 			price /= 1.0 + yield / frequency;
-			paymentDate.add(Calendar.MONTH, -12/frequency);
+			paymentDate = e.plusMonths(-12/frequency); 
 		}
 
 		Calendar periodEndDate = (Calendar)paymentDate.clone();
-		periodEndDate.add(Calendar.MONTH, +12/frequency);
+		periodEndDate = e.plusMonths(+12/frequency); 
 
 		// Accrue running period    	
 		double accrualPeriod = (paymentDate.getTimeInMillis() - settlementDate.getTime()) / (periodEndDate.getTimeInMillis() - paymentDate.getTimeInMillis());

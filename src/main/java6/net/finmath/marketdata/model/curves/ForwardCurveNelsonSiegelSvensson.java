@@ -6,7 +6,8 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Calendar;
+
+import org.joda.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -50,7 +51,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
 	 */
-	public ForwardCurveNelsonSiegelSvensson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling, double periodOffset) {
+	public ForwardCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling, double periodOffset) {
 		super(name, referenceDate);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -71,7 +72,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public ForwardCurveNelsonSiegelSvensson(String name, Calendar referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
+	public ForwardCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
 		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, parameter, timeScaling, 0.0);
 	}
 	
@@ -85,8 +86,8 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
 		if(daycountConvention != null) {
-			Calendar fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
-			Calendar paymentDate	= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);;
+			LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
+			LocalDate paymentDate	= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);;
 			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
 		}
 
@@ -137,15 +138,13 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 */
 	@Override
 	public double getPaymentOffset(double fixingTime) {
-		Calendar fixingDate		= getDateFromModelTime(fixingTime);
-		Calendar paymentDate	= paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
+		LocalDate fixingDate		= getDateFromModelTime(fixingTime);
+		LocalDate paymentDate	= paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
 		double paymentTime = (new DayCountConvention_ACT_365()).getDaycountFraction(getReferenceDate(), paymentDate);
 		return paymentTime-fixingTime;
 	}
 	
-	private Calendar getDateFromModelTime(double fixingTime) {
-		Calendar date	= (Calendar)getReferenceDate().clone();
-		date.add(Calendar.DAY_OF_YEAR, (int)Math.round(fixingTime*365.0));
-		return date;
+	private LocalDate getDateFromModelTime(double fixingTime) {
+		return getReferenceDate().plusDays((int)Math.round(fixingTime*365.0));
 	}
 }

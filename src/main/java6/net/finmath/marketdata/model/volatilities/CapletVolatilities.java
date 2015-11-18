@@ -12,10 +12,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import org.joda.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve;
@@ -56,7 +57,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	 * @param volatilityConvention The quoting convention of the volatilities provided.
 	 * @param discountCurve The associated discount curve.
 	 */
-	public CapletVolatilities(String name, Calendar referenceDate, ForwardCurveInterface forwardCurve,
+	public CapletVolatilities(String name, LocalDate referenceDate, ForwardCurveInterface forwardCurve,
 			double[] maturities,
 			double[] strikes,
 			double[] volatilities,
@@ -84,7 +85,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 */
-	private CapletVolatilities(String name, Calendar referenceDate) {
+	private CapletVolatilities(String name, LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
 

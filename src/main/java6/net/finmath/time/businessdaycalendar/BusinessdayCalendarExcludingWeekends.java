@@ -6,7 +6,8 @@
 
 package net.finmath.time.businessdaycalendar;
 
-import java.util.Calendar;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day, expect SATURDAY and SUNDAY.
@@ -33,12 +34,12 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.util.Calendar)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(org.joda.time.LocalDate)
 	 */
 	@Override
-	public boolean isBusinessday(Calendar date) {
+	public boolean isBusinessday(LocalDate date) {
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
-			&&	date.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY
-			&&	date.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY;
+			&& 	date.getDayOfWeek() != DateTimeConstants.SATURDAY
+			&& 	date.getDayOfWeek() != DateTimeConstants.SUNDAY;
 	}
 }

@@ -10,6 +10,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.joda.time.LocalDate;
+
 /**
  * Factory methods for day count conventions.
  * 
@@ -75,9 +77,9 @@ public class DayCountConventionFactory {
 	 * @param convention A convention string.
 	 * @return The number of days within the given period.
 	 */
-	public static double getDaycount(Date startDate, Date endDate, String convention) {
+	public static double getDaycount(LocalDate startDate, LocalDate endDate, String convention) {
 		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
-		return daycountConvention.getDaycount(getCalendarForData(startDate), getCalendarForData(endDate));
+		return daycountConvention.getDaycount(startDate, endDate);
 	}
 
 	/**
@@ -89,13 +91,13 @@ public class DayCountConventionFactory {
 	 * @param convention A convention string.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
-	public static double getDaycountFraction(Date startDate, Date endDate, String convention) {
+	public static double getDaycountFraction(LocalDate startDate, LocalDate endDate, String convention) {
 		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
-		return daycountConvention.getDaycountFraction(getCalendarForData(startDate), getCalendarForData(endDate));
+		return daycountConvention.getDaycountFraction(startDate, endDate);
 	}
 	
 	/**
-	 * Returns a java.util.Calendar for a given java.util.Date.
+	 * Returns a org.joda.time.LocalDate for a given java.util.Date.
 	 * 
 	 * @param date A Date
 	 * @return The corresponding calendar
