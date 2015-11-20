@@ -41,9 +41,9 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	 * 
 	 * The formula implemented is
 	 * <code>
-	 * 
-	 * (endDate.toEpochDay() - startDate.toEpochDay());
+	 * 	Days.daysBetween(startDate, endDate).getDays();
 	 * </code>
+	 * using joda-time.
 	 * 
 	 * @param startDate The start date of the interval.
 	 * @param endDate The end date of the interval.
