@@ -48,7 +48,7 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 				.withDayOfMonth(1)
 				.plusMonths(fixingOffsetMonths);
 
-		endDate = endDate.withDayOfMonth(referenceDate.lengthOfMonth());
+		endDate = endDate.withDayOfMonth(endDate.lengthOfMonth());
 		double time = (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, endDate);
 		return baseIndex.getValue(time, model);
 	}
