@@ -20,7 +20,7 @@ public class IndexCurveFromDiscountCurve extends AbstractCurve implements CurveI
 	
 	/**
 	 * @param name The name of this curve.
-	 * @param indexValue The index value at the discount curve's t=0, i.e., the reference date of the disocunt curve.
+	 * @param indexValue The index value at the discount curve's t=0, i.e., the reference date of the discount curve.
 	 * @param discountCurve The discont curve.
 	 */
 	public IndexCurveFromDiscountCurve(String name, double indexValue, DiscountCurveInterface discountCurve) {

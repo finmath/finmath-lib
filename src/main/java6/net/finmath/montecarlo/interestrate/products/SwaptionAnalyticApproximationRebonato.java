@@ -172,7 +172,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
      * @param discountCurveInterface The discount curve. If this parameter is null, the discount curve will be calculated from the forward curve.
      * @param forwardCurveInterface The forward curve.
      * @param swapTenor The swap tenor.
-     * @return A map containing the partial derivatives (key "value"), the discount factors (key "disocuntFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
+     * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
      */
     static public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
     	/*

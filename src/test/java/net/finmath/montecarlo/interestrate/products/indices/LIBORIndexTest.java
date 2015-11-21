@@ -180,7 +180,7 @@ public class LIBORIndexTest {
 		double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
 
 		/*
-		 * Create forwardCurve and disocuntCurve. The two need to fit to each other for this test.
+		 * Create forwardCurve and discountCurve. The two need to fit to each other for this test.
 		 */
 		DiscountCurveInterface discountCurve;
 		ForwardCurveInterface forwardCurve;

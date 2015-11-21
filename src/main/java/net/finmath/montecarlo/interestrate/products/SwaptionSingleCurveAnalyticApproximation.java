@@ -149,7 +149,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
      * @param liborPeriodDiscretization The libor period discretization.
      * @param forwardCurveInterface The forward curve.
      * @param swapTenor The swap tenor.
-     * @return A map containing the partial derivatives (key "value"), the discount factors (key "disocuntFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
+     * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
      */
     static public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
         double swapStart    = swapTenor[0];

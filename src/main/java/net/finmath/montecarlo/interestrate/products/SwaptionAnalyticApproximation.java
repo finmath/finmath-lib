@@ -175,7 +175,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 	 * @param liborPeriodDiscretization The libor period discretization.
 	 * @param discountCurveInterface The discount curve. If this parameter is null, the discount curve will be calculated from the forward curve.
 	 * @param forwardCurveInterface The forward curve.
-	 * @return A map containing the partial derivatives (key "value"), the discount factors (key "disocuntFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
+	 * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
 	 */
 	public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface) {
 

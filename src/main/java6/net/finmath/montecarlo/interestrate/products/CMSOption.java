@@ -125,7 +125,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
      * This method returns the value of the product using a Black-Scholes model for the swap rate with the Hunt-Kennedy convexity adjustment.
      * The model is determined by a discount factor curve and a swap rate volatility.
      * 
-     * @param forwardCurve The forward curve from which the swap rate is calculated. The discount curve, associated with this forward curve is used for disocunting this option.
+     * @param forwardCurve The forward curve from which the swap rate is calculated. The discount curve, associated with this forward curve is used for discounting this option.
      * @param swaprateVolatility The volatility of the log-swaprate.
      * @return Value of this product
      */
