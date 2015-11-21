@@ -105,9 +105,6 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.ParameterObjectInterface#getParameter()
-	 */
 	@Override
 	public double[] getParameter() {
 		double[] parameter = new double[4];
@@ -119,17 +116,11 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		return parameter;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.ParameterObjectInterface#setParameter(double[])
-	 */
 	@Override
 	public void setParameter(double[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable.");
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.volatilities.AbstractVolatilitySurfaceParametric#getCloneForParameter(double[])
-	 */
 	@Override
 	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), value[0], value[1], value[2], value[3], timeScaling);
