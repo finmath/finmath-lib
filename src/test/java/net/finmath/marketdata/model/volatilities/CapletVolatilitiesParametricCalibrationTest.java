@@ -49,7 +49,7 @@ import org.junit.runners.Parameterized.Parameters;
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
-public class VolatilityCalibrationTest {
+public class CapletVolatilitiesParametricCalibrationTest {
 
 	static final double errorTolerance = 1E-5;
 
@@ -71,7 +71,7 @@ public class VolatilityCalibrationTest {
 	};
 
 	
-	public VolatilityCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
+	public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
 		super();
 		this.calibrationTargetValueQuotingConvention = calibrationTargetValueQuotingConvention;
 		
@@ -88,7 +88,7 @@ public class VolatilityCalibrationTest {
 	 */
 	public static void main(String[] args) throws SolverException, CalculationException {
 
-		VolatilityCalibrationTest calibrationTest = new VolatilityCalibrationTest(QuotingConvention.VOLATILITYLOGNORMAL);
+		CapletVolatilitiesParametricCalibrationTest calibrationTest = new CapletVolatilitiesParametricCalibrationTest(QuotingConvention.VOLATILITYLOGNORMAL);
 
 		calibrationTest.testVolatilityCalibration();
 	}
