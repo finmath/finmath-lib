@@ -74,12 +74,12 @@ public class VolatilityCalibrationTest {
 				new LocalDate(2014, DateTimeConstants.JULY, 15),
 				new double[]
 						{
-					0.02,
-					-0.01,
-					0.14,
-					-0.1,
-					4.0,
-					3.0
+								0.02,
+								-0.01,
+								0.14,
+								-0.1,
+								4.0,
+								3.0
 						}
 				, 365.0/365.0);
 
@@ -93,7 +93,7 @@ public class VolatilityCalibrationTest {
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
 		AnalyticModel model = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurve });
 
-		System.out.println("Given a disocunt curve:");
+		System.out.println("Given a discount curve:");
 		System.out.println(discountCurve.toString());
 
 		// We may ask the forward curve for a forward.
@@ -114,7 +114,8 @@ public class VolatilityCalibrationTest {
 		 */
 		double a = 0.5, b = 1.00, c = 0.5, d = 0.20;
 
-		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametric("Caplet", null, a, b, c, d);
+		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, a, b, c, d, 1.0);
+		//		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametricFourParameterPicewiseConstant("Caplet", null, a, b, c, d, new TimeDiscretization(0.0, 100, 0.5));
 
 		Vector<AnalyticProductInterface>	marketProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					marketTargetValues = new ArrayList<Double>();
@@ -134,7 +135,7 @@ public class VolatilityCalibrationTest {
 					capletVolatility.getName(),
 					QuotingConvention.PRICE);
 
-			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, 0, 0, 0, volatility);
+			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, 0, 0, 0, volatility, 1.0);
 			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
 			double valueMarket = cap.getValue(0.0, flatModel);
 
@@ -147,7 +148,7 @@ public class VolatilityCalibrationTest {
 		for(int i=0; i<maturities.length; i++) {
 			LocalDate	tradeDate		= referenceDate;
 			LocalDate	maturityDate	= BusinessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);
-			double		vol		= volatilities[i];
+			double		volatility		= volatilities[i];
 			Cap cap = new Cap(
 					ScheduleGenerator.createScheduleFromConventions(referenceDate, tradeDate, maturityDate, Frequency.SEMIANNUAL, capDayCountConvention, ShortPeriodConvention.FIRST, DateRollConvention.FOLLOWING, new BusinessdayCalendarExcludingWeekends(), 0, 0),
 					forwardCurve.getName(),
@@ -157,7 +158,7 @@ public class VolatilityCalibrationTest {
 					capletVolatility.getName(),
 					QuotingConvention.VOLATILITYLOGNORMAL);
 
-			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, 0, 0, 0, vol);
+			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, 0, 0, 0, volatility, 1.0);
 			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
 			double valueTarget = cap.getValue(0.0, flatModel);
 
@@ -180,7 +181,7 @@ public class VolatilityCalibrationTest {
 			double value = marketProducts.get(i).getValue(0.0, modelCalibrated);
 			System.out.print("\t" + value);
 
-			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, 0, 0, 0, volatilityTarget);
+			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, 0, 0, 0, volatilityTarget, 1.0);
 			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
 			double valueMarket = marketProducts.get(i).getValue(0.0, flatModel);
 			System.out.print("\t" + valueMarket);
@@ -190,10 +191,10 @@ public class VolatilityCalibrationTest {
 		rms = Math.sqrt(rms/marketProducts.size());
 		System.out.println("RMS :" + rms);
 
-		// Not a very strict tests
-		Assert.assertTrue(rms < 0.10);
-
 		System.out.println(Arrays.toString(calibratedParameters));
 		System.out.println("__________________________________________________________________________________________\n");
+
+		// Not a very strict tests
+		Assert.assertTrue(rms < 0.10);
 	}
 }
