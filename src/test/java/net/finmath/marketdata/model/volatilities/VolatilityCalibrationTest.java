@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Vector;
 
 import net.finmath.exception.CalculationException;
@@ -38,15 +39,45 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
  * 
  * @author Christian Fries
  */
+@RunWith(Parameterized.class)
 public class VolatilityCalibrationTest {
 
 	static final double errorTolerance = 1E-5;
+
+	private final QuotingConvention calibrationTargetValueQuotingConvention;
+
+	/**
+	 * The parameters for this test, that is an error consisting of
+	 * { numberOfPaths, setup }.
+	 * 
+	 * @return Array of parameters.
+	 */
+	@Parameters
+	public static Collection<Object[]> generateData()
+	{
+		return Arrays.asList(new Object[][] {
+				{ QuotingConvention.VOLATILITYLOGNORMAL },
+				{ QuotingConvention.VOLATILITYNORMAL },
+		});
+	};
+
+	
+	public VolatilityCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
+		super();
+		this.calibrationTargetValueQuotingConvention = calibrationTargetValueQuotingConvention;
+		
+		System.out.println("Running calibration test using quoting convention " + calibrationTargetValueQuotingConvention.name() + " for calibration objective function.");
+	}
+
 
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
@@ -57,13 +88,14 @@ public class VolatilityCalibrationTest {
 	 */
 	public static void main(String[] args) throws SolverException, CalculationException {
 
-		VolatilityCalibrationTest calibrationTest = new VolatilityCalibrationTest();
+		VolatilityCalibrationTest calibrationTest = new VolatilityCalibrationTest(QuotingConvention.VOLATILITYLOGNORMAL);
 
 		calibrationTest.testVolatilityCalibration();
 	}
 
 	@Test
 	public void testVolatilityCalibration() throws CalculationException, SolverException {
+
 		/*
 		 * CREATING AND USING A DISCOUNT CURVE
 		 */
@@ -74,12 +106,12 @@ public class VolatilityCalibrationTest {
 				LocalDate.of(2014, Month.JULY, 15),
 				new double[]
 						{
-					0.02,
-					-0.01,
-					0.14,
-					-0.1,
-					4.0,
-					3.0
+								0.02,
+								-0.01,
+								0.14,
+								-0.1,
+								4.0,
+								3.0
 						}
 				, 365.0/365.0);
 
@@ -99,7 +131,7 @@ public class VolatilityCalibrationTest {
 		// We may ask the forward curve for a forward.
 		double fixingTime	= 1.0;
 		double forwardRate	= forwardCurve.getForward(model, fixingTime);
-		System.out.println("Quaterly forward with fixing in " + fixingTime + " calculated from that discount curve is " + forwardRate);
+		System.out.println("Quaterly forward with fixing in " + fixingTime + " requested from forward curve is " + forwardRate);
 
 		// Check if we have the right value
 		double periodLength		= (92.0+2.0)/365.0;					// 3M + 2D rolling
@@ -117,6 +149,10 @@ public class VolatilityCalibrationTest {
 		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, a, b, c, d, 1.0);
 		//		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametricFourParameterPicewiseConstant("Caplet", null, a, b, c, d, new TimeDiscretization(0.0, 100, 0.5));
 
+
+		/*
+		 * Convert given market products (which are in VOLATILITYLOGNORMAL) to the calibration (objective function) quoting conventions
+		 */
 		Vector<AnalyticProductInterface>	marketProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					marketTargetValues = new ArrayList<Double>();
 		LocalDate referenceDate = LocalDate.of(2014,  Month.JULY,  15);
@@ -133,16 +169,22 @@ public class VolatilityCalibrationTest {
 					true,
 					discountCurve.getName(),
 					capletVolatility.getName(),
-					QuotingConvention.PRICE);
+					calibrationTargetValueQuotingConvention);
 
-			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, 0, 0, 0, volatility, 1.0);
+			// Create flat lognormal surface under the same name, using market quoted lognormal volatility.
+			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric(capletVolatility.getName(), null, forwardCurve, discountCurve, 0, 0, 0, volatility, 1.0);
 			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
+
+			// Convert to calibrationTargetValueQuotingConvention
 			double valueMarket = cap.getValue(0.0, flatModel);
 
 			marketProducts.add(cap);
 			marketTargetValues.add(new Double(valueMarket));
 		}
 
+		/*
+		 * Calibrate a surface to given marketTargetValues using the calibrationTargetValueQuotingConvention
+		 */
 		Vector<AnalyticProductInterface>	calibrationProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					calibrationTargetValues = new ArrayList<Double>();
 		for(int i=0; i<maturities.length; i++) {
@@ -156,7 +198,7 @@ public class VolatilityCalibrationTest {
 					true,
 					discountCurve.getName(),
 					capletVolatility.getName(),
-					QuotingConvention.VOLATILITYLOGNORMAL);
+					calibrationTargetValueQuotingConvention);
 
 			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, 0, 0, 0, volatility, 1.0);
 			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
@@ -189,12 +231,25 @@ public class VolatilityCalibrationTest {
 			rms += (value-valueMarket)*(value-valueMarket);
 		}
 		rms = Math.sqrt(rms/marketProducts.size());
-		System.out.println("RMS :" + rms);
+		System.out.println("RMS (" + calibrationTargetValueQuotingConvention.name() + "):" + rms);
 
 		System.out.println(Arrays.toString(calibratedParameters));
 		System.out.println("__________________________________________________________________________________________\n");
 
-		// Not a very strict tests
-		Assert.assertTrue(rms < 0.10);
+		/*
+		 * Check results - results may vary depending on the quoting convention used for calibration
+		 */
+		if(calibrationTargetValueQuotingConvention ==  QuotingConvention.VOLATILITYLOGNORMAL) {
+			// Check parameters
+			Assert.assertArrayEquals(new double[] { -1.04, 8.35 , 2.10, -0.01 }, calibratedParameters, 0.01 /* tolerance */ );
+			// Check rms (not a very strict test)
+			Assert.assertTrue(rms < 0.08);
+		}
+		else {
+			// Check parameters
+			Assert.assertArrayEquals(new double[] { -1.08, 8.73 , 2.19, -0.01 }, calibratedParameters, 0.01 /* tolerance */ );
+			// Check rms (not a very strict test)
+			Assert.assertTrue(rms < 0.02);
+		}
 	}
 }
