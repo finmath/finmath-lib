@@ -11,15 +11,17 @@ import java.time.LocalDate;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 
 /**
  * A parametric caplet volatility surface created form the four parameter model
- * for the instantaneous forward rate volatility given by
+ * for the instantaneous forward rate lognormal volatility given by
  * \( \sigma(t) = (a + b t) \exp(- c t) + d \).
  * 
  * In other words, the Black volatility for maturity T is given by
  * \[ \sqrt{ \frac{1}{T} \int_0^T ((a + b t) \exp(- c t) + d)^2 dt } \].
+ * 
+ * Note: quoting convention of the functional form is LOGNORMAL, but container may
+ * provide data in other conventions.
  * 
  * @author Christian Fries
  */
@@ -29,13 +31,12 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	private final double a,b,c,d;
 
 	/**
-	 * Create a model with parameters a,b,c,d.
+	 * Create a model with parameters a,b,c,d defining a lognormal volatility surface.
 	 * 
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param forwardCurve The underlying forward curve.
 	 * @param discountCurve The associated discount curve.
-	 * @param volatilityConvention The quoting convention of the volatilities provided.
 	 * @param a The parameter a
 	 * @param b The parameter b
 	 * @param c The parameter c
@@ -62,8 +63,6 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * 
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
-	 * @param forwardCurve The underlying forward curve.
-	 * @param discountCurve The associated discount curve.
 	 * @param a The parameter a
 	 * @param b The parameter b
 	 * @param c The parameter c
