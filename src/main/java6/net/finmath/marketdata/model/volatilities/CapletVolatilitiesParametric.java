@@ -7,6 +7,9 @@
 package net.finmath.marketdata.model.volatilities;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 
 import org.joda.time.LocalDate;
 
@@ -30,20 +33,46 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * 
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param forwardCurve The underlying forward curve.
+	 * @param discountCurve The associated discount curve.
+	 * @param volatilityConvention The quoting convention of the volatilities provided.
 	 * @param a The parameter a
 	 * @param b The parameter b
 	 * @param c The parameter c
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public CapletVolatilitiesParametric(String name, LocalDate referenceDate, double a, double b, double c, double d, double timeScaling) {
+	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
+			ForwardCurveInterface forwardCurve,
+			DiscountCurveInterface discountCurve,
+			double a, double b, double c, double d, double timeScaling) {
 		super(name, referenceDate);
+		this.forwardCurve = forwardCurve;
+		this.discountCurve = discountCurve;
 		this.timeScaling = timeScaling;
 		this.a = a;
 		this.b = b;
 		this.c = c;
 		this.d = d;
 		this.quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
+	}
+
+	/**
+	 * Create a model with parameters a,b,c,d.
+	 * 
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param forwardCurve The underlying forward curve.
+	 * @param discountCurve The associated discount curve.
+	 * @param a The parameter a
+	 * @param b The parameter b
+	 * @param c The parameter c
+	 * @param d The parameter d
+	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 */
+	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
+			double a, double b, double c, double d, double timeScaling) {
+		this(name, referenceDate, null, null, a, b, c, d, timeScaling);
 	}
 
 	/**
@@ -123,7 +152,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	@Override
 	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), value[0], value[1], value[2], value[3], timeScaling);
+		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), forwardCurve, discountCurve, value[0], value[1], value[2], value[3], timeScaling);
 	}
 
 }
