@@ -29,16 +29,6 @@ import org.junit.Test;
 public class DayCountConventionTest {
 	
 	@Test
-	public void testDayCountConvention_ACT_ACT_YEARFRAC() {
-		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_ACT_YEARFRAC();
-		
-		double daycountFraction;
-		
-		daycountFraction = daycountConvention.getDaycountFraction(new GregorianCalendar(2010, Calendar.MAY, 1), new GregorianCalendar(2012, Calendar.AUGUST, 31));
-		Assert.assertEquals(853.0/((365.0+365.0+366.0)/3), daycountFraction, 1.0E-4);
-	}
-
-	@Test
 	public void testDayCountConvention_ACT_ACT_ISDA() {
 		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_ACT_ISDA();
 		
