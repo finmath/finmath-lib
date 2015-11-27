@@ -27,7 +27,7 @@ import org.junit.Test;
  * @author Christian Fries
  */
 public class DayCountConventionTest {
-	
+
 	@Test
 	public void testDayCountConvention_ACT_ACT_ISDA() {
 		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_ACT_ISDA();

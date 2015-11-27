@@ -6,10 +6,10 @@
 
 package net.finmath.optimizer;
 
-import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
-
 import org.apache.commons.math3.optim.SimplePointChecker;
 import org.apache.commons.math3.random.MersenneTwister;
+
+import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 
 /**
  * @author Christian Fries

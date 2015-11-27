@@ -9,6 +9,8 @@ package net.finmath.time;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 import org.joda.time.LocalDate;
