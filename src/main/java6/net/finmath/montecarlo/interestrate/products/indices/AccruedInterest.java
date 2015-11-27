@@ -5,13 +5,14 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
-import java.util.Calendar;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.daycount.DayCountConventionInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * An accrued interest index.
@@ -34,10 +35,10 @@ public class AccruedInterest extends AbstractIndex {
 
 	private static final long serialVersionUID = 147619920344514766L;
 
-	private final Calendar	referenceDate;
+	private final LocalDate	referenceDate;
 
-	private final Calendar	periodStartDate;
-	private final Calendar	periodEndDate;
+	private final LocalDate	periodStartDate;
+	private final LocalDate	periodEndDate;
 
 	private final AbstractIndex					index;
 	private final Double						indexFixingTime;
@@ -59,8 +60,8 @@ public class AccruedInterest extends AbstractIndex {
 	 */
 	public AccruedInterest(String name,
 			String currency,
-			Calendar referenceDate, Calendar periodStartDate,
-			Calendar periodEndDate, AbstractIndex index, Double indexFixingTime,
+			LocalDate referenceDate, LocalDate periodStartDate,
+			LocalDate periodEndDate, AbstractIndex index, Double indexFixingTime,
 			DayCountConventionInterface daycountConvention, boolean isNegativeAccruedInterest) {
 		super(name, currency);
 		this.referenceDate = referenceDate;
@@ -87,9 +88,7 @@ public class AccruedInterest extends AbstractIndex {
 		return index.queryUnderlyings();
 	}
 
-	private Calendar getModelDate(double fixingTime) {
-		Calendar modelDate = (Calendar)referenceDate.clone();
-		modelDate.add(Calendar.DAY_OF_YEAR, (int)(fixingTime*365.0));
-		return modelDate;
+	private LocalDate getModelDate(double fixingTime) {
+		return referenceDate.plusDays((int)(fixingTime*365.0));
 	}
 }

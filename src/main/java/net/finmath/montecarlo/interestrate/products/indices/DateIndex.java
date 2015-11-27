@@ -66,9 +66,6 @@ public class DateIndex extends AbstractIndex {
 			value = referenceDate.getDayOfMonth();
 			break;
 		case MONTH:
-			// TODO: ?? should we adjust the value returned? 
-			// Months in Calendar is '0,1,2,3,..,11'
-			// Months in LocalDate is '1,2,3,4,..,12' 
 			value = referenceDate.getMonthValue();
 			break;
 		case YEAR:

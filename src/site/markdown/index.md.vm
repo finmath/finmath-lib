@@ -11,11 +11,17 @@ About finmath lib
 The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
 - General numerical algorithms like
-- - Generation of random numbers
-- - Optimization (a Levenberg–Marquardt algorithm is provided)
+    - Generation of random numbers
+    - Optimization (a Levenberg–Marquardt algorithm is provided)
 - Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
+    - LIBOR Market Model
+    - Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
+    - Equity Hybrid LIBOR Market Model
 - Estimation of conditional expectations in a Monte-Carlo framework
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
+    - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
+    - Various interpolation entities (value, log-value, rate, etc.).
+    - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the LIBOR market model
 - Valuation of complex derivatives (e.g. Bermudan/multi-callables)

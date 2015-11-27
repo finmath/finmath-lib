@@ -6,7 +6,7 @@
 
 package net.finmath.time.businessdaycalendar;
 
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day.
@@ -22,10 +22,10 @@ public class BusinessdayCalendarAny extends BusinessdayCalendar {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.util.Calendar)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.time.LocalDate)
 	 */
 	@Override
-	public boolean isBusinessday(Calendar date) {
+	public boolean isBusinessday(LocalDate date) {
 		return true;
 	}
 

@@ -7,10 +7,11 @@
 package net.finmath.time;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
@@ -31,7 +32,7 @@ public class RegularSchedule implements ScheduleInterface {
 	}
 
 	@Override
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return null;
 	}
 

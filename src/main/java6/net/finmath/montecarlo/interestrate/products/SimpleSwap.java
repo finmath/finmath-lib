@@ -87,7 +87,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 			if(!isPayFix) payoff = payoff.mult(-1.0);
 
 			RandomVariableInterface numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeDiscretization().getTimeIndexNearestLessOrEqual(paymentDate));
+			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			values = values.add(payoff);

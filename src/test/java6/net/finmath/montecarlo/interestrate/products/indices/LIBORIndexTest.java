@@ -10,9 +10,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +43,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -175,12 +175,12 @@ public class LIBORIndexTest {
 		double liborRateTimeHorzion	= 20.0;
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
-		Calendar referenceDate = new GregorianCalendar(2014, Calendar.SEPTEMBER, 16);
+		LocalDate referenceDate = new LocalDate(2014, DateTimeConstants.SEPTEMBER, 16);
 
 		double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
 
 		/*
-		 * Create forwardCurve and disocuntCurve. The two need to fit to each other for this test.
+		 * Create forwardCurve and discountCurve. The two need to fit to each other for this test.
 		 */
 		DiscountCurveInterface discountCurve;
 		ForwardCurveInterface forwardCurve;

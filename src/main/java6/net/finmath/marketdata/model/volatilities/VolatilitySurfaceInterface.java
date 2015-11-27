@@ -6,9 +6,9 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
-
 import net.finmath.marketdata.model.AnalyticModelInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * Interface for classes representing a volatility surface,
@@ -43,7 +43,7 @@ public interface VolatilitySurfaceInterface {
 	 * 
 	 * @return The date identified as t=0.
 	 */
-	Calendar getReferenceDate();
+	LocalDate getReferenceDate();
 
 	/**
 	 * Returns the price or implied volatility for the corresponding maturity and strike.

@@ -5,13 +5,13 @@
  */
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
-
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.time.daycount.DayCountConventionInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * Abstract base class for a volatility surface. It stores the name of the surface and
@@ -21,7 +21,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  */
 public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInterface, Cloneable {
 
-	private	final	Calendar	referenceDate;
+	private	final	LocalDate	referenceDate;
 	private final	String		name;
 
 	protected ForwardCurveInterface forwardCurve;
@@ -29,7 +29,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	protected QuotingConvention quotingConvention;
 	protected DayCountConventionInterface daycountConvention;
 
-	public AbstractVolatilitySurface(String name, Calendar referenceDate) {
+	public AbstractVolatilitySurface(String name, LocalDate referenceDate) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -41,7 +41,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	}
 
 	@Override
-	public Calendar getReferenceDate() {
+	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
 
@@ -61,11 +61,11 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	}
 
 	/**
-	 * Convert the value of a caplet from on quoting convention to another quoting convention.
+	 * Convert the value of a caplet from one quoting convention to another quoting convention.
 	 * 
 	 * @param model An analytic model providing the context when fetching required market date.
 	 * @param optionMaturity Option maturity of the caplet.
-	 * @param optionStrike Option strike of the cpalet.
+	 * @param optionStrike Option strike of the caplet.
 	 * @param value Value of the caplet given in the form of <code>fromQuotingConvention</code>.
 	 * @param fromQuotingConvention The quoting convention of the given value.
 	 * @param toQuotingConvention The quoting convention requested.
@@ -75,6 +75,9 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 
 		if(fromQuotingConvention.equals(toQuotingConvention)) return value;
 
+		if(discountCurve == null)	throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		if(forwardCurve == null)	throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+
 		double periodStart = optionMaturity;
 		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);
 
@@ -82,8 +85,8 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 
 		double daycountFraction;
 		if(daycountConvention != null) {
-			Calendar startDate = (Calendar)referenceDate.clone(); startDate.add(Calendar.DAY_OF_YEAR,(int)Math.round(periodStart*365));
-			Calendar endDate = (Calendar)referenceDate.clone(); endDate.add(Calendar.DAY_OF_YEAR,(int)Math.round(periodEnd*365));
+			LocalDate startDate = referenceDate.plusDays((int)Math.round(periodStart*365));
+			LocalDate endDate   = referenceDate.plusDays((int)Math.round(periodEnd*365));
 			daycountFraction = daycountConvention.getDaycountFraction(startDate, endDate);
 		}
 		else {

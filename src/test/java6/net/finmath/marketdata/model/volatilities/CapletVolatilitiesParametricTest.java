@@ -10,12 +10,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +30,7 @@ public class CapletVolatilitiesParametricTest {
 
 	@Test
 	public void testFlatVolatilityUsingD() {
-		Calendar referenceDate = new GregorianCalendar();
+		LocalDate referenceDate = LocalDate.now();
 		double a = 0, b = 0, c = 0, d = 0.4;
 		CapletVolatilitiesParametric volatilityModel = new CapletVolatilitiesParametric("flat", referenceDate, a, b, c, d);
 
@@ -44,7 +43,7 @@ public class CapletVolatilitiesParametricTest {
 
 	@Test
 	public void testFlatVolatilityUsingA() {
-		Calendar referenceDate = new GregorianCalendar();
+		LocalDate referenceDate = LocalDate.now();
 		double a = 0.4, b = 0, c = 0, d = 0.0;
 		CapletVolatilitiesParametric volatilityModel = new CapletVolatilitiesParametric("flat", referenceDate, a, b, c, d);
 
@@ -57,7 +56,7 @@ public class CapletVolatilitiesParametricTest {
 
 	@Test
 	public void testDecayVolatility() {
-		Calendar referenceDate = new GregorianCalendar();
+		LocalDate referenceDate = LocalDate.now();
 		double a = 0.1, b = 0, c = 0.2, d = 0.0;
 		CapletVolatilitiesParametric volatilityModel = new CapletVolatilitiesParametric("flat", referenceDate, a, b, c, d);
 
@@ -95,7 +94,7 @@ public class CapletVolatilitiesParametricTest {
 		System.out.println("Comparing finite difference differentiation of integrated variance with analytic value:\n");
 		System.out.println("  t  " + "\t" + " analytic " + "\t" + " finite diff " + "\t" + " deviation ");
 
-		Calendar referenceDate = new GregorianCalendar();
+		LocalDate referenceDate = LocalDate.now();
 		CapletVolatilitiesParametric volatilityModel = new CapletVolatilitiesParametric("volSurface", referenceDate, a, b, c, d);
 
 		double maxAbsDeviation = 0.0;

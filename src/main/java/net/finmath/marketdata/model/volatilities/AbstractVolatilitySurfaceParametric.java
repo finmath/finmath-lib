@@ -75,9 +75,10 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		Double	evaluationTimeParameter		= (Double)calibrationParameters.get("evaluationTime");
 
-		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 600;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;
-		double evaluationTime		= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;
+		// @TODO currently ignored, we use the setting form the OptimizerFactoryInterface
+		int maxIterations		= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 600;
+		double accuracy			= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;
+		double evaluationTime	= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;
 
 		AnalyticModelInterface model = calibrationModel.addVolatilitySurfaces(this);
 		Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation, evaluationTime, optimizerFactory);

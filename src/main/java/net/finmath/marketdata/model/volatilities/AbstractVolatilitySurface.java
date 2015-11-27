@@ -61,11 +61,11 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	}
 
 	/**
-	 * Convert the value of a caplet from on quoting convention to another quoting convention.
+	 * Convert the value of a caplet from one quoting convention to another quoting convention.
 	 * 
 	 * @param model An analytic model providing the context when fetching required market date.
 	 * @param optionMaturity Option maturity of the caplet.
-	 * @param optionStrike Option strike of the cpalet.
+	 * @param optionStrike Option strike of the caplet.
 	 * @param value Value of the caplet given in the form of <code>fromQuotingConvention</code>.
 	 * @param fromQuotingConvention The quoting convention of the given value.
 	 * @param toQuotingConvention The quoting convention requested.
@@ -74,6 +74,9 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	public double convertFromTo(AnalyticModelInterface model, double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
 
 		if(fromQuotingConvention.equals(toQuotingConvention)) return value;
+
+		if(discountCurve == null)	throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		if(forwardCurve == null)	throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
 
 		double periodStart = optionMaturity;
 		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);

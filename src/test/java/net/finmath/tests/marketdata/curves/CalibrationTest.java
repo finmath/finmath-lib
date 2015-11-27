@@ -108,7 +108,7 @@ public class CalibrationTest {
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
 		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurveFromDiscountCurve });
 
-		System.out.println("Given a disocunt curve:");
+		System.out.println("Given a discount curve:");
 		System.out.println(discountCurve.toString());
 
 		// We may ask the forward curve for a forward.

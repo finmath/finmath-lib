@@ -9,14 +9,19 @@ package net.finmath.marketdata.model.volatilities;
 import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 
 /**
  * A parametric caplet volatility surface created form the four parameter model
- * for the instantaneous forward rate volatility given by
+ * for the instantaneous forward rate lognormal volatility given by
  * \( \sigma(t) = (a + b t) \exp(- c t) + d \).
  * 
  * In other words, the Black volatility for maturity T is given by
  * \[ \sqrt{ \frac{1}{T} \int_0^T ((a + b t) \exp(- c t) + d)^2 dt } \].
+ * 
+ * Note: quoting convention of the functional form is LOGNORMAL, but container may
+ * provide data in other conventions.
  * 
  * @author Christian Fries
  */
@@ -24,6 +29,34 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	private final double timeScaling;
 	private final double a,b,c,d;
+
+	/**
+	 * Create a model with parameters a,b,c,d defining a lognormal volatility surface.
+	 * 
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param forwardCurve The underlying forward curve.
+	 * @param discountCurve The associated discount curve.
+	 * @param a The parameter a
+	 * @param b The parameter b
+	 * @param c The parameter c
+	 * @param d The parameter d
+	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 */
+	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
+			ForwardCurveInterface forwardCurve,
+			DiscountCurveInterface discountCurve,
+			double a, double b, double c, double d, double timeScaling) {
+		super(name, referenceDate);
+		this.forwardCurve = forwardCurve;
+		this.discountCurve = discountCurve;
+		this.timeScaling = timeScaling;
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
+	}
 
 	/**
 	 * Create a model with parameters a,b,c,d.
@@ -36,14 +69,9 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public CapletVolatilitiesParametric(String name, LocalDate referenceDate, double a, double b, double c, double d, double timeScaling) {
-		super(name, referenceDate);
-		this.timeScaling = timeScaling;
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
-		this.quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
+	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
+			double a, double b, double c, double d, double timeScaling) {
+		this(name, referenceDate, null, null, a, b, c, d, timeScaling);
 	}
 
 	/**
@@ -105,9 +133,6 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.ParameterObjectInterface#getParameter()
-	 */
 	@Override
 	public double[] getParameter() {
 		double[] parameter = new double[4];
@@ -119,20 +144,14 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		return parameter;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.ParameterObjectInterface#setParameter(double[])
-	 */
 	@Override
 	public void setParameter(double[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable.");
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.volatilities.AbstractVolatilitySurfaceParametric#getCloneForParameter(double[])
-	 */
 	@Override
 	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), value[0], value[1], value[2], value[3], timeScaling);
+		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), forwardCurve, discountCurve, value[0], value[1], value[2], value[3], timeScaling);
 	}
 
 }

@@ -964,7 +964,7 @@ public class AnalyticFormulas {
 		while(paymentDate.after(settlementDate)) {
 			price += coupon;
 
-			// Disocunt back
+			// Discount back
 			price /= 1.0 + yield / frequency;
 			paymentDate.add(Calendar.MONTH, -12/frequency);
 		}

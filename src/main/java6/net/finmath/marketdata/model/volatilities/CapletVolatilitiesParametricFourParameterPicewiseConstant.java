@@ -6,10 +6,10 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import java.util.Calendar;
-
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
+
+import org.joda.time.LocalDate;
 
 /**
  * A parametric caplet volatility surface created form the
@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  */
-public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends AbstractVolatilitySurface {
+public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends AbstractVolatilitySurfaceParametric {
 
 	private final double a,b,c,d;
 	private final TimeDiscretizationInterface timeDiscretization;
@@ -39,7 +39,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @param d The parameter d
 	 * @param timeDiscretization The timeDiscretization used in numerical integration.
 	 */
-	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, Calendar referenceDate, double a, double b, double c, double d, TimeDiscretizationInterface timeDiscretization) {
+	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, LocalDate referenceDate, double a, double b, double c, double d, TimeDiscretizationInterface timeDiscretization) {
 		super(name, referenceDate);
 		this.a = a;
 		this.b = b;
@@ -81,5 +81,26 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 
 		double value = Math.sqrt(integratedVariance/maturity);
 		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
+	}
+
+	@Override
+	public double[] getParameter() {
+		double[] parameter = new double[4];
+		parameter[0] = a;
+		parameter[1] = b;
+		parameter[2] = c;
+		parameter[3] = d;
+
+		return parameter;
+	}
+
+	@Override
+	public void setParameter(double[] parameter) {
+		throw new UnsupportedOperationException("This class is immutable.");
+	}
+
+	@Override
+	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
+		return new CapletVolatilitiesParametricFourParameterPicewiseConstant(getName(), getReferenceDate(), value[0], value[1], value[2], value[3], timeDiscretization);
 	}
 }
