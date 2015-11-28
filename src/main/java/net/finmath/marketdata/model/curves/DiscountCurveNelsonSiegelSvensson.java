@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-
 import org.apache.commons.math3.util.FastMath;
+
+import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * Implementation of a discount factor curve given by a Nelson-Siegel-Svensson (NSS) parameterization.

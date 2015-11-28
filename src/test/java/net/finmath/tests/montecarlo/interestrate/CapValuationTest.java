@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -36,9 +39,6 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * This class tests the valuation of a Cap using LMM and an AnalyticModel.

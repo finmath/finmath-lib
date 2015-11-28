@@ -11,10 +11,10 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 
+import org.apache.commons.math3.util.FastMath;
+
 import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.stochastic.RandomVariableInterface;
-
-import org.apache.commons.math3.util.FastMath;
 
 /**
  * The class RandomVariable represents a random variable being the evaluation of a stochastic process

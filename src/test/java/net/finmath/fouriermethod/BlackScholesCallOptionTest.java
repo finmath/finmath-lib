@@ -6,15 +6,15 @@
 
 package net.finmath.fouriermethod;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
 import net.finmath.fouriermethod.products.EuropeanOption;
 import net.finmath.functions.AnalyticFormulas;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * Test class for the valuation of a call option under Black Scholes

@@ -8,13 +8,13 @@ package net.finmath.fouriermethod.products;
 
 import java.util.function.DoubleUnaryOperator;
 
+import org.apache.commons.math3.complex.Complex;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.integration.RealIntegralInterface;
 import net.finmath.integration.SimpsonRealIntegrator;
-
-import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Christian Fries

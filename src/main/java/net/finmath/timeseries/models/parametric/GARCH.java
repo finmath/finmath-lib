@@ -11,14 +11,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optimization.GoalType;
+import org.apache.commons.math3.optimization.PointValuePair;
+
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
-
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optimization.GoalType;
-import org.apache.commons.math3.optimization.PointValuePair;
 
 /**
  * Log-normal process with GARCH(1,1) volatility.

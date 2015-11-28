@@ -12,6 +12,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -36,12 +42,6 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.

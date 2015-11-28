@@ -6,11 +6,11 @@
 
 package net.finmath.functions;
 
-import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.time.TimeDiscretization;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Unit test, testing that the Brownian increment is normal distributed

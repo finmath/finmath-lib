@@ -8,6 +8,8 @@ package net.finmath.montecarlo.interestrate.products;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 

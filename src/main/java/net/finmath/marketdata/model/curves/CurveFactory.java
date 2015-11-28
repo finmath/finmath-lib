@@ -7,7 +7,6 @@
 package net.finmath.marketdata.model.curves;
 
 import java.time.LocalDate;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -102,8 +101,7 @@ public class CurveFactory {
 		List<LocalDate> dates = new ArrayList<LocalDate>(annualizedZeroRates.keySet());
 		Collections.sort(dates);
 		for(LocalDate forwardDate : dates) {
-			LocalDate calendar = new LocalDate(forwardDate);
-			LocalDate cpiDate = calendar;
+			LocalDate cpiDate = forwardDate;
 			if(forwardsFixingType != null && forwardsFixingLag != null) {
 				if(forwardsFixingType.equals("endOfMonth")) {
 					cpiDate = cpiDate.withDayOfMonth(1);
@@ -111,7 +109,7 @@ public class CurveFactory {
 					else if(forwardsFixingLag.equals("-3M")) cpiDate = cpiDate.minusMonths(3);
 					else if(forwardsFixingLag.equals("-4M")) cpiDate = cpiDate.minusMonths(4);
 					else throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
-					cpiDate = cpiDate.withDayOfMonth(cpiDate.dayOfMonth().getMaximumValue());
+					cpiDate = cpiDate.withDayOfMonth(cpiDate.lengthOfMonth());
 				}
 				else {
 					throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
@@ -119,7 +117,7 @@ public class CurveFactory {
 			}
 			times[index] = modelDcc.getDaycountFraction(referenceDate, cpiDate);
 			double rate = annualizedZeroRates.get(forwardDate).doubleValue();
-			givenDiscountFactors[index] = 1.0/Math.pow(1 + rate, (new DayCountConvention_30E_360()).getDaycountFraction(referenceDate, calendar));
+			givenDiscountFactors[index] = 1.0/Math.pow(1 + rate, (new DayCountConvention_30E_360()).getDaycountFraction(referenceDate, forwardDate));
 			index++;
 		}
 		DiscountCurveInterface discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
@@ -131,7 +129,7 @@ public class CurveFactory {
 			else if(forwardsFixingLag.equals("-3M")) baseDate = baseDate.minusMonths(3);
 			else if(forwardsFixingLag.equals("-4M")) baseDate = baseDate.minusMonths(4);
 			else throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
-			baseDate = baseDate.withDayOfMonth(baseDate.dayOfMonth().getMaximumValue());
+			baseDate = baseDate.withDayOfMonth(baseDate.lengthOfMonth());
 		}
 		Double baseValue	= indexFixings.get(baseDate);
 		if(baseValue == null) throw new IllegalArgumentException("Curve " + name + " has missing index value for base date " + baseDate);

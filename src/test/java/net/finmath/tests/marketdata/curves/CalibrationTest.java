@@ -11,6 +11,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -28,12 +34,6 @@ import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.TimeDiscretization;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.

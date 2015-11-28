@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -20,9 +23,6 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class NelsonSiegelSvenssonCalibrationTest {
 

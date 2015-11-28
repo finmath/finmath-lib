@@ -7,14 +7,14 @@ package net.finmath.tests.montecarlo;
 
 import java.text.DecimalFormat;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.montecarlo.GammaProcess;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author Christian Fries

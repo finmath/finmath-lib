@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -41,9 +44,6 @@ import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author Christian Fries

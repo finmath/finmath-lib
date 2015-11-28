@@ -9,6 +9,9 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.time.Period;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
@@ -17,9 +20,6 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ICMA;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_YEARFRAC;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * Unit test for day count convention implementations.

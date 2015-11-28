@@ -6,9 +6,9 @@
 
 package net.finmath.fouriermethod.models;
 
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
-
 import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 
 /**
  * Implements the characteristic function of a Black Scholes model.

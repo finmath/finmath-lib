@@ -7,9 +7,9 @@ package net.finmath.montecarlo;
 
 import java.io.Serializable;
 
+import cern.jet.random.engine.MersenneTwister64;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
-import cern.jet.random.engine.MersenneTwister64;
 
 /**
  * Implementation of a time-discrete n-dimensional Brownian motion

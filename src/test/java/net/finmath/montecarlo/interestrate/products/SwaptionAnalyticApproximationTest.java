@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
@@ -27,9 +30,6 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFrom
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author Christian Fries

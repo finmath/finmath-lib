@@ -8,7 +8,6 @@ package net.finmath.time;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
@@ -335,56 +334,6 @@ public class ScheduleGenerator {
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
 				DateRollConvention.getEnum(dateRollConvention),
-				businessdayCalendar,
-				fixingOffsetDays,
-				paymentOffsetDays
-				);
-	}
-
-	/**
-	 * Schedule generation from meta data (method using Date instead of LocalDate for backward compatibility).
-	 * 
-	 * Generates a schedule based on some meta data.
-	 * <ul>
-	 * 	<li>The schedule generation considers short stub periods at beginning or at the end.</li>
-	 * 	<li>Date rolling is performed using the provided businessdayCalendar.</li>
-	 * </ul>
-	 * 
-	 * The reference date is used internally to represent all dates as doubles.
-	 * 
-	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
-	 * @param frequency The frequency.
-	 * @param daycountConvention The daycount convention.
-	 * @param shortPeriodConvention If short period exists, have it first or last.
-	 * @param dateRollConvention Adjustment to be applied to the all dates.
-	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
-	 * @return The corresponding schedule
-	 */
-	public static ScheduleInterface createScheduleFromConventions(
-			Date referenceDate,
-			Date startDate,
-			Date maturityDate,
-			String frequency,
-			String daycountConvention,
-			String shortPeriodConvention,
-			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
-			int	fixingOffsetDays,
-			int	paymentOffsetDays
-			)
-	{
-		return createScheduleFromConventions(
-				new LocalDate(frequency),
-				new LocalDate(startDate),
-				new LocalDate(maturityDate),
-				frequency,
-				daycountConvention,
-				shortPeriodConvention,
-				dateRollConvention,
 				businessdayCalendar,
 				fixingOffsetDays,
 				paymentOffsetDays
