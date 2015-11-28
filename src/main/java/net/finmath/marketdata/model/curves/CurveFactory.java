@@ -131,6 +131,10 @@ public class CurveFactory {
 			else throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
 			baseDate = baseDate.withDayOfMonth(baseDate.lengthOfMonth());
 		}
+
+		/*
+		 * Index base value
+		 */
 		Double baseValue	= indexFixings.get(baseDate);
 		if(baseValue == null) throw new IllegalArgumentException("Curve " + name + " has missing index value for base date " + baseDate);
 		double baseTime		= (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, baseDate);
@@ -140,16 +144,17 @@ public class CurveFactory {
 		 */
 		double currentProjectedIndexValue = baseValue;
 		if(seasonCurve != null) {
+			// Rescale initial value of with seasonality  
 			currentProjectedIndexValue /= seasonCurve.getValue(baseTime);
 
-			CurveInterface indexCurveCurv = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
-			CurveInterface indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, new CurveInterface[] { indexCurveCurv, seasonCurve });
+			CurveInterface indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
+			CurveInterface indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, new CurveInterface[] { indexCurve, seasonCurve });
 			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurveWithSeason, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1] + 1.0/365.0);
 			return indexCurveWithFixing;
 		}
 		else {
-			CurveInterface indexCurveCurv = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
-			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurveCurv, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1]);
+			CurveInterface indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
+			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurve, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1]);
 			return indexCurveWithFixing;
 		}
 	}

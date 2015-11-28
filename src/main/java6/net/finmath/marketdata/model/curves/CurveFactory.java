@@ -102,8 +102,7 @@ public class CurveFactory {
 		List<LocalDate> dates = new ArrayList<LocalDate>(annualizedZeroRates.keySet());
 		Collections.sort(dates);
 		for(LocalDate forwardDate : dates) {
-			LocalDate calendar = new LocalDate(forwardDate);
-			LocalDate cpiDate = calendar;
+			LocalDate cpiDate = forwardDate;
 			if(forwardsFixingType != null && forwardsFixingLag != null) {
 				if(forwardsFixingType.equals("endOfMonth")) {
 					cpiDate = cpiDate.withDayOfMonth(1);
@@ -119,7 +118,7 @@ public class CurveFactory {
 			}
 			times[index] = modelDcc.getDaycountFraction(referenceDate, cpiDate);
 			double rate = annualizedZeroRates.get(forwardDate).doubleValue();
-			givenDiscountFactors[index] = 1.0/Math.pow(1 + rate, (new DayCountConvention_30E_360()).getDaycountFraction(referenceDate, calendar));
+			givenDiscountFactors[index] = 1.0/Math.pow(1 + rate, (new DayCountConvention_30E_360()).getDaycountFraction(referenceDate, forwardDate));
 			index++;
 		}
 		DiscountCurveInterface discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
