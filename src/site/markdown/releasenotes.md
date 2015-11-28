@@ -5,7 +5,11 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 2.0.0-SNAPSHOT
+## 2.0.1-SNAPSHOT
+
+- A
+
+## 2.0.0
 
 - API Change: The type java.util.Calendar has been replaced by LocalDate:
     - For Java 6 sources (src/main/java6): Replaced Calendar and Date by org.joda.time.LocalDate.
