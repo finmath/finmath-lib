@@ -9,6 +9,8 @@ package net.finmath.time;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -20,8 +22,6 @@ import net.finmath.time.daycount.DayCountConvention_30U_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
-
-import org.joda.time.LocalDate;
 
 /**
  * Generates a schedule based on some meta data (frequency, maturity, date roll convention, etc.).

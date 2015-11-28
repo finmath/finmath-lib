@@ -9,7 +9,6 @@ package net.finmath.time.businessdaycalendar;
 import java.util.StringTokenizer;
 
 import org.joda.time.LocalDate;
-import org.joda.time.ReadablePeriod;
 
 /**
  * Base class for all business day calendars.

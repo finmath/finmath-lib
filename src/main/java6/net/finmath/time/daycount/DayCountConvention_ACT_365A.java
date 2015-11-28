@@ -8,7 +8,6 @@ package net.finmath.time.daycount;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
-import org.joda.time.chrono.ISOChronology;
 
 /**
  * Implementation of ACT/365A.

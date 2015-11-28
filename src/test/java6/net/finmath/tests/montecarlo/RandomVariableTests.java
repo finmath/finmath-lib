@@ -5,11 +5,11 @@
  */
 package net.finmath.tests.montecarlo;
 
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Test cases for the class net.finmath.montecarlo.RandomVariable.

@@ -15,6 +15,8 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.ParameterTransformation;
@@ -23,8 +25,6 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.optimizer.OptimizerFactoryInterface;
 import net.finmath.optimizer.SolverException;
-
-import org.joda.time.LocalDate;
 
 /**
  * Base class for parametric volatility surfaces, implementing a generic calibration algorithm.

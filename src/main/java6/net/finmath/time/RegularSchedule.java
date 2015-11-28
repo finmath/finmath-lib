@@ -9,9 +9,9 @@ package net.finmath.time;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
-
 import org.joda.time.LocalDate;
+
+import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}

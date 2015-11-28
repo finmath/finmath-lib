@@ -8,9 +8,9 @@ package net.finmath.time;
 
 import java.util.List;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
-
 import org.joda.time.LocalDate;
+
+import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Interface of a schedule of interest rate periods with

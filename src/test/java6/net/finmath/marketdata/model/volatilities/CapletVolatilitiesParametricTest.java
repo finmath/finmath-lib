@@ -12,11 +12,11 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
-
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
+
+import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 
 /**
  * @author Christian Fries

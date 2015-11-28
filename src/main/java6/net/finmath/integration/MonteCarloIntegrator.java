@@ -1,7 +1,7 @@
 package net.finmath.integration;
 
-import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 import cern.jet.random.engine.MersenneTwister64;
+import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 
 
 /**

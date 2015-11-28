@@ -6,14 +6,14 @@
 
 package net.finmath.integration;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
 import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author Christian Fries

@@ -6,11 +6,11 @@
 
 package net.finmath.integration;
 
-import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 
 /**
  * Unit test for the SimpsonRealIntegrator.

@@ -6,10 +6,10 @@
 
 package net.finmath.time;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
-import org.joda.time.LocalDate;
 
 /**
  * Implements a time discretization based on dates using a reference

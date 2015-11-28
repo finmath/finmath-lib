@@ -5,10 +5,10 @@
  */
 package net.finmath.marketdata.model.curves;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.AnalyticModelInterface;
-
-import org.joda.time.LocalDate;
 
 /**
  * The interface which is implemented by a general curve.

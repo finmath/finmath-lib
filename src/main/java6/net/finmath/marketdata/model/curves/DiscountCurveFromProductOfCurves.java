@@ -7,9 +7,9 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-
 import org.joda.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * A discount curve derived from other discount curves

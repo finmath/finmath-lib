@@ -8,11 +8,11 @@ package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.util.Set;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
-
-import org.joda.time.LocalDate;
 
 /**
  * An index whose value is a function of the fixing date, for example the DAY, MONTH or NUMBER_OF_DAYS_IN_MONTH.

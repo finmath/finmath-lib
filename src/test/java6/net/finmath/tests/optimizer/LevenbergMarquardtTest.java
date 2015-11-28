@@ -8,12 +8,12 @@ package net.finmath.tests.optimizer;
 
 import java.util.ArrayList;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author Christian Fries

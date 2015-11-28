@@ -8,10 +8,10 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
-
-import org.joda.time.LocalDate;
 
 /**
  * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.Curve}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.

@@ -8,11 +8,11 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-
-import org.joda.time.LocalDate;
 
 /**
  * A container for a forward (rate) curve.

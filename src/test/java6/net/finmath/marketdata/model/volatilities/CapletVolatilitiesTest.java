@@ -6,14 +6,14 @@
 
 package net.finmath.marketdata.model.volatilities;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * Test of the caplet volatilities class.

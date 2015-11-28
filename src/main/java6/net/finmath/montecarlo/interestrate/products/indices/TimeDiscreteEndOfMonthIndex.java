@@ -7,12 +7,12 @@ package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.util.Set;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
-import org.joda.time.LocalDate;
 
 /**
  * An index which maps is evaluation point to a fixed discrete point, the end of the month,

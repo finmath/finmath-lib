@@ -5,13 +5,13 @@
  */
 package net.finmath.marketdata.model.volatilities;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.time.daycount.DayCountConventionInterface;
-
-import org.joda.time.LocalDate;
 
 /**
  * Abstract base class for a volatility surface. It stores the name of the surface and

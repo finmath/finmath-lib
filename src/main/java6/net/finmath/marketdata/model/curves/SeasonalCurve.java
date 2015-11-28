@@ -12,14 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
-import org.joda.time.LocalDate;
 
 /**
  * The curve returns a value depending on the month of the time argument, that is,

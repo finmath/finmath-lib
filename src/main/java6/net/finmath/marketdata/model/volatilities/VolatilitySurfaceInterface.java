@@ -6,9 +6,9 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-
 import org.joda.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * Interface for classes representing a volatility surface,

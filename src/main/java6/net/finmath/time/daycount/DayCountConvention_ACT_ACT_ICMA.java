@@ -9,9 +9,9 @@ package net.finmath.time.daycount;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import net.finmath.time.Period;
-
 import org.joda.time.LocalDate;
+
+import net.finmath.time.Period;
 
 /**
  * Implementation of ACT/ACT ICMA.

@@ -7,13 +7,13 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 
+import org.joda.time.LocalDate;
+
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
-import org.joda.time.LocalDate;
 
 /**
  * Implementation of a forward given by a Nelson-Siegel-Svensson (NSS) parameterization.
