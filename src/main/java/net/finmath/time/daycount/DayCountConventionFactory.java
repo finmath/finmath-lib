@@ -6,6 +6,8 @@
 
 package net.finmath.time.daycount;
 
+import java.util.Date;
+
 import java.time.LocalDate;
 
 /**
@@ -92,4 +94,18 @@ public class DayCountConventionFactory {
 		return daycountConvention.getDaycountFraction(startDate, endDate);
 	}	
 	
+	/**
+	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
+	 * specific daycount convention.
+	 * 
+	 * Method using <code>java.util.Date</code> instead of <code>LocalDate</code> for backward compatibility.
+	 * 
+	 * @param startDate The start date given as a {@link java.time.LocalDate}.
+	 * @param endDate The end date given as a {@link java.time.LocalDate}.
+	 * @param convention A convention string.
+	 * @return The daycount fraction corresponding to the given period.
+	 */
+	public static double getDaycountFraction(Date startDate, Date endDate, String convention) {
+		return getDaycountFraction(new LocalDate(startDate), new LocalDate(endDate), convention);
+	}	
 }

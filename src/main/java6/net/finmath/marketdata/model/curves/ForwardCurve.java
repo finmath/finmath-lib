@@ -6,6 +6,7 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
@@ -48,7 +49,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * curve.
 	 * 
 	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
@@ -78,7 +79,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * curve.
 	 * 
 	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
@@ -99,7 +100,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * curve.
 	 * 
 	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
@@ -132,7 +133,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * curve.
 	 * 
 	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
@@ -170,7 +171,38 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * curve.
 	 * 
 	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode, 
+			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
+			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
+
+		return createForwardCurveFromForwards(name, new LocalDate(referenceDate), paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);
+	}
+
+	/**
+	 * Create a forward curve from given times and given forwards.
+	 * 
+	 * The forward F(t) of an index is such that
+	 * F(t) * D(t+p) equals the market price of the corresponding index fixed in t and paid in t+d, where t is the fixing time
+	 * of the index and t+p is the payment time of the index. F(t) is the corresponding forward and D is the associated discount
+	 * curve.
+	 * 
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
@@ -192,7 +224,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * curve.
 	 * 
 	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
