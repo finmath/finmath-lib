@@ -6,8 +6,6 @@
 
 package net.finmath.time;
 
-import static org.junit.Assert.*;
-
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,7 +16,6 @@ import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
-import net.finmath.time.daycount.DayCountConvention_ACT_360;
 
 /**
  * @author Christian Fries
