@@ -5,8 +5,10 @@
  */
 package net.finmath.marketdata.calibration;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -41,6 +43,8 @@ public class CalibratedCurves {
 	 */
 	public static class CalibrationSpec {
 
+		private String				symbol;
+
 		private String				type;
 
 		private	ScheduleInterface	swapTenorDefinitionReceiver;
@@ -72,6 +76,7 @@ public class CalibratedCurves {
 		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
 		 */
 		public CalibrationSpec(
+				String symbol,
 				String type,
 				ScheduleInterface swapTenorDefinitionReceiver,
 				String forwardCurveReceiverName, double spreadReceiver,
@@ -82,6 +87,7 @@ public class CalibratedCurves {
 				String calibrationCurveName,
 				double calibrationTime) {
 			super();
+			this.symbol = symbol;
 			this.type = type;
 			this.swapTenorDefinitionReceiver = swapTenorDefinitionReceiver;
 			this.forwardCurveReceiverName = forwardCurveReceiverName;
@@ -93,6 +99,34 @@ public class CalibratedCurves {
 			this.discountCurvePayerName = discountCurvePayerName;
 			this.calibrationCurveName = calibrationCurveName;
 			this.calibrationTime = calibrationTime;
+		}
+
+		/**
+		 * Calibration specification.
+		 * 
+		 * @param type The type of the calibration product.
+		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+		 * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+		 * @param discountCurveReceiverName The discount curve of the receiver leg.
+		 * @param swapTenorDefinitionPayer The schedule of periods of the payer leg.
+		 * @param forwardCurvePayerName The forward curve of the payer leg (may be null).
+		 * @param spreadPayer The spread or fixed coupon of the payer leg.
+		 * @param discountCurvePayerName The discount curve of the payer leg.
+		 * @param calibrationCurveName The curve to calibrate, by this product.
+		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
+		 */
+		public CalibrationSpec(
+				String type,
+				ScheduleInterface swapTenorDefinitionReceiver,
+				String forwardCurveReceiverName, double spreadReceiver,
+				String discountCurveReceiverName,
+				ScheduleInterface swapTenorDefinitionPayer,
+				String forwardCurvePayerName, double spreadPayer,
+				String discountCurvePayerName,
+				String calibrationCurveName,
+				double calibrationTime) {
+			this(null, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer, discountCurvePayerName, calibrationCurveName, calibrationTime);
 		}
 
 		/**
@@ -162,20 +196,24 @@ public class CalibratedCurves {
 			this.calibrationTime = calibrationTime;
 		}
 
+		public CalibrationSpec getCloneShifted(double shift) {
+			if(discountCurvePayerName == null || type.toLowerCase().equals("swapleg")) {
+				return new CalibrationSpec(symbol, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver+shift, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer, discountCurvePayerName, calibrationCurveName, calibrationTime);
+			}
+			else {
+				return new CalibrationSpec(symbol, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer+shift, discountCurvePayerName, calibrationCurveName, calibrationTime);
+			}
+		}
+
 		@Override
 		public String toString() {
-			return "CalibrationSpec [type=" + type
-					+ ", swapTenorDefinitionReceiver="
-					+ swapTenorDefinitionReceiver
-					+ ", forwardCurveReceiverName=" + forwardCurveReceiverName
-					+ ", spreadReceiver=" + spreadReceiver
-					+ ", discountCurveReceiverName="
-					+ discountCurveReceiverName + ", swapTenorDefinitionPayer="
-					+ swapTenorDefinitionPayer + ", forwardCurvePayerName="
-					+ forwardCurvePayerName + ", spreadPayer=" + spreadPayer
-					+ ", discountCurvePayerName=" + discountCurvePayerName
-					+ ", calibrationCurveName=" + calibrationCurveName
-					+ ", calibrationTime=" + calibrationTime + "]";
+			return "CalibrationSpec [symbol=" + symbol + ", type=" + type + ", swapTenorDefinitionReceiver="
+					+ swapTenorDefinitionReceiver + ", forwardCurveReceiverName=" + forwardCurveReceiverName
+					+ ", spreadReceiver=" + spreadReceiver + ", discountCurveReceiverName=" + discountCurveReceiverName
+					+ ", swapTenorDefinitionPayer=" + swapTenorDefinitionPayer + ", forwardCurvePayerName="
+					+ forwardCurvePayerName + ", spreadPayer=" + spreadPayer + ", discountCurvePayerName="
+					+ discountCurvePayerName + ", calibrationCurveName=" + calibrationCurveName + ", calibrationTime="
+					+ calibrationTime + "]";
 		}
 	}
 
@@ -183,9 +221,46 @@ public class CalibratedCurves {
 	private Set<ParameterObjectInterface>		objectsToCalibrate	= new LinkedHashSet<ParameterObjectInterface>();
 	private Vector<AnalyticProductInterface>	calibrationProducts	= new Vector<AnalyticProductInterface>();
 
-	private double evaluationTime = 0.0;		// Default value. Should be changed if depending on the context.
+	private List<CalibrationSpec>				calibrationSpecs	= new ArrayList<CalibrationSpec>();
+	
+	private final double evaluationTime;
+	private final double calibrationAccuracy;
+
 	private int lastNumberOfInterations;
 	private double lastAccuracy;
+
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products and a given model.
+	 * 
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
+	 * 
+	 * If the model does not contain the curve referenced as calibration curve, the
+	 * curve will be added to the model. 
+	 * 
+	 * Use case: You already have a discount curve as part of the model and like
+	 * to calibrate an additional curve to an additional set of instruments.
+	 * 
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @param calibrationModel A given model used to value the calibration products.
+	 * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+	public CalibratedCurves(List<CalibrationSpec> calibrationSpecs, AnalyticModelInterface calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+		if(calibrationModel != null)	model	= calibrationModel.getCloneForParameter(null);
+		this.evaluationTime = evaluationTime;
+		this.calibrationAccuracy = calibrationAccuracy;
+
+		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+			add(calibrationSpec);
+		}
+
+		lastNumberOfInterations = calibrate(calibrationAccuracy);
+	}
 
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
@@ -211,6 +286,7 @@ public class CalibratedCurves {
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		if(calibrationModel != null)	model	= calibrationModel.getCloneForParameter(null);
 		this.evaluationTime = evaluationTime;
+		this.calibrationAccuracy = calibrationAccuracy;
 
 		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
 			add(calibrationSpec);
@@ -343,6 +419,21 @@ public class CalibratedCurves {
 		return lastNumberOfInterations;
 	}
 
+	public CalibratedCurves getCloneShifted(String symbol, double shift) throws SolverException, CloneNotSupportedException {
+		// Clone calibration specs, shifting the desired symbol
+		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
+		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+			if(calibrationSpec.symbol.equals(symbol)) {
+				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
+			}
+			else {
+				calibrationSpecsShifted.add(calibrationSpec);				
+			}
+		}
+		
+		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
+	}
+
 	/**
 	 * Return the accuracy achieved in the last calibration.
 	 * 
@@ -369,6 +460,8 @@ public class CalibratedCurves {
 	 */
 	private String add(CalibrationSpec calibrationSpec) throws CloneNotSupportedException
 	{
+		calibrationSpecs.add(calibrationSpec);
+		
 		/* 
 		 * Add one point to the calibration curve and one new objective function
 		 */
@@ -408,7 +501,7 @@ public class CalibratedCurves {
 					.addPoint(calibrationSpec.calibrationTime, 1.0, true)
 					.build();
 		}
-		model.setCurve(calibrationCurve);
+		model = model.addCurves(calibrationCurve);
 		objectsToCalibrate.add(calibrationCurve);
 
 		return calibrationSpec.type;
@@ -424,7 +517,7 @@ public class CalibratedCurves {
 		DiscountCurveInterface discountCurve	= model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
-			model.setCurve(discountCurve);
+			model = model.addCurves(discountCurve);
 		}
 
 		return discountCurve;
@@ -463,7 +556,7 @@ public class CalibratedCurves {
 			else {
 				// Alternative: Model the forward curve through an underlying discount curve.
 				curve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { 0.0 }, new double[] { 1.0 });
-				model.setCurve(curve);
+				model = model.addCurves(curve);
 			}
 		}
 
@@ -484,7 +577,7 @@ public class CalibratedCurves {
 			forwardCurve = curve;
 		}
 
-		model.setCurve(forwardCurve);
+		model = model.addCurves(forwardCurve);
 
 		return forwardCurve.getName();
 	}
