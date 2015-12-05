@@ -46,6 +46,7 @@ import net.finmath.montecarlo.interestrate.products.components.Period;
 import net.finmath.montecarlo.interestrate.products.components.ProductCollection;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
@@ -161,6 +162,39 @@ public class LIBORIndexTest {
 						formatDec6.format(toleranceThisTest));
 
 		Assert.assertEquals("Deviation", 0.0, value, toleranceThisTest);
+	}
+
+	@Test
+	public void testUnalignedPeriods() throws CalculationException {
+		
+		NumberFormat formatDec2 = new DecimalFormat("0.00");
+		NumberFormat formatDec6 = new DecimalFormat("0.000000");
+		
+		TimeDiscretizationInterface liborPeriodDiscretization = liborMarketModel.getLiborPeriodDiscretization();
+		
+		for(int iPeriodStart=liborPeriodDiscretization.getNumberOfTimeSteps()-2; iPeriodStart < liborPeriodDiscretization.getNumberOfTimeSteps()-1; iPeriodStart++) {
+			double periodStart	= liborPeriodDiscretization.getTime(3);
+			double periodEnd	= liborPeriodDiscretization.getTime(iPeriodStart+1);
+			double periodLength	= periodEnd-periodStart;
+
+			// Shift period by half libor period
+			periodStart	+= liborPeriodDiscretization.getTime(4)-liborPeriodDiscretization.getTime(3);
+			periodEnd	+= liborPeriodDiscretization.getTime(4)-liborPeriodDiscretization.getTime(3);
+			
+			AbstractIndex index = new LIBORIndex(0.0, periodLength);
+			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new Notional(1.0), index, periodLength, true, true, false);
+			double value = period.getValue(liborMarketModel);
+			
+			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
+			double toleranceThisTest = oneBasisPoint/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0);
+
+			Assert.assertEquals(0.0, value / periodLength, toleranceThisTest);
+
+			System.out.println(
+					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
+							formatDec6.format(value) + "\t");
+		}
+		System.out.println();
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
