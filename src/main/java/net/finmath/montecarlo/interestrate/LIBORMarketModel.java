@@ -548,6 +548,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Return the numeraire at a given time.
+	 * 
 	 * The numeraire is provided for interpolated points. If requested on points which are not
 	 * part of the tenor discretization, the numeraire uses a linear interpolation of the reciprocal
 	 * value. See ISBN 0470047224 for details.
@@ -632,11 +633,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
 		if(discountCurve != null) {
-			/*
-			DiscountCurveInterface discountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);
-			double deterministicNumeraireAdjustment = discountCurveFromForwardPerformance.getDiscountFactor(time) / discountCurve.getDiscountFactor(time);
-			 */
-
 			// This includes a control for zero bonds
 			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
