@@ -21,7 +21,6 @@ import org.joda.time.LocalDate;
  * resulting in a time-discretization.
  * 
  * @author Christian Fries
- *
  */
 public class Period implements Comparable<Period> {
 
@@ -58,6 +57,49 @@ public class Period implements Comparable<Period> {
 	@Override
 	public int compareTo(Period o) {
 		return getPeriodEnd().compareTo(o.getPeriodEnd());
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((fixing == null) ? 0 : fixing.hashCode());
+		result = prime * result + ((payment == null) ? 0 : payment.hashCode());
+		result = prime * result + ((periodEnd == null) ? 0 : periodEnd.hashCode());
+		result = prime * result + ((periodStart == null) ? 0 : periodStart.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Period other = (Period) obj;
+		if (fixing == null) {
+			if (other.fixing != null)
+				return false;
+		} else if (!fixing.equals(other.fixing))
+			return false;
+		if (payment == null) {
+			if (other.payment != null)
+				return false;
+		} else if (!payment.equals(other.payment))
+			return false;
+		if (periodEnd == null) {
+			if (other.periodEnd != null)
+				return false;
+		} else if (!periodEnd.equals(other.periodEnd))
+			return false;
+		if (periodStart == null) {
+			if (other.periodStart != null)
+				return false;
+		} else if (!periodStart.equals(other.periodStart))
+			return false;
+		return true;
 	}
 
 	@Override
