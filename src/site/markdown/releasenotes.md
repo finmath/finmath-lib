@@ -5,9 +5,9 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 2.0.1-SNAPSHOT
+## 2.0.2
 
-- A
+- The CalibrationItem of CalibratedCurves may now carry a symbol to create a shifted model (for calculation of sensitivities using finite differences).
 
 ## 2.0.0
 
