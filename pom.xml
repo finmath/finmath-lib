@@ -181,6 +181,9 @@
 	<profiles>
 		<profile>
 			<id>java-6</id>
+			<activation>
+				<jdk>[1.6,1.8)</jdk>
+			</activation>
 			<properties>
 				<src.main.dir>src/main/java6</src.main.dir>
 				<src.test.dir>src/test/java6</src.test.dir>
@@ -209,6 +212,9 @@
 		</profile>
 		<profile>
 			<id>java-8</id>
+			<activation>
+				<jdk>1.8</jdk>
+			</activation>
 			<properties>
 				<src.main.dir>src/main/java</src.main.dir>
 				<src.test.dir>src/test/java</src.test.dir>
