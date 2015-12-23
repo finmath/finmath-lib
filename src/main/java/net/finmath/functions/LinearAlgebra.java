@@ -35,6 +35,11 @@ import cern.colt.matrix.linalg.EigenvalueDecomposition;
  */
 public class LinearAlgebra {
 	
+
+	private static boolean isUseApacheCommonsMath() {
+		return Boolean.getBoolean("finmath.useCommonsMath");
+	}
+
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
@@ -83,8 +88,7 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationSymmetric(double[][] matrix, double[] vector) {
-		boolean  isUseApacheCommonsMath = true;
-		if(isUseApacheCommonsMath) {
+		if(isUseApacheCommonsMath()) {
 			// We use the linear algebra package apache commons math
 			DecompositionSolver solver = new CholeskyDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
 			return solver.solve(new ArrayRealVector(vector)).toArray();
@@ -121,8 +125,7 @@ public class LinearAlgebra {
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
 	public static double[][] getFactorMatrix(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = false;
-		if(isUseApacheCommonsMath) {
+		if(isUseApacheCommonsMath()) {
 			/*
 			 * Note: Commons math has convergence problems, where Colt does not.
 			 */
@@ -141,8 +144,7 @@ public class LinearAlgebra {
 	 * @return Factor reduced correlation matrix.
 	 */
 	public static double[][] factorReduction(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = true;
-		if(isUseApacheCommonsMath) {
+		if(isUseApacheCommonsMath()) {
 			return factorReductionUsingCommonsMath(correlationMatrix, numberOfFactors);
 		}
 		else {
