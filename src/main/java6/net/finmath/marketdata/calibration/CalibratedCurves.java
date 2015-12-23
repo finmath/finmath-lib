@@ -319,6 +319,10 @@ public class CalibratedCurves {
 		this(calibrationSpecs, calibrationModel, 0.0, calibrationAccuracy);
 	}
 
+	private static boolean isUseForwardCurve(){
+		return Boolean.parseBoolean(System.getProperty("finmath.useForwardCurve","true"));
+	}
+
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products and a given model.
@@ -549,8 +553,7 @@ public class CalibratedCurves {
 		CurveInterface	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
-			boolean isUseForwardCurve = true;
-			if(isUseForwardCurve) {
+			if(isUseForwardCurve()) {
 				curve = new ForwardCurve(forwardCurveName, swapTenorDefinition.getReferenceDate(), indexMaturityCode, ForwardCurve.InterpolationEntityForward.FORWARD, null);
 			}
 			else {
