@@ -366,6 +366,10 @@ public class CalibratedCurves {
 		this(calibrationSpecs, null, 0.0);
 	}
 
+	private static boolean isUseForwardCurve(){
+		return Boolean.parseBoolean(System.getProperty("finmath.useForwardCurve","true"));
+	}
+
 	public AnalyticProductInterface getCalibrationProductForSpec(CalibrationSpec calibrationSpec) {
 		createDiscountCurve(calibrationSpec.discountCurveReceiverName);
 		createDiscountCurve(calibrationSpec.discountCurvePayerName);
@@ -549,8 +553,7 @@ public class CalibratedCurves {
 		CurveInterface	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
-			boolean isUseForwardCurve = true;
-			if(isUseForwardCurve) {
+			if(isUseForwardCurve()) {
 				curve = new ForwardCurve(forwardCurveName, swapTenorDefinition.getReferenceDate(), indexMaturityCode, ForwardCurve.InterpolationEntityForward.FORWARD, null);
 			}
 			else {
