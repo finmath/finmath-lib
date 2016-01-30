@@ -30,8 +30,9 @@ public interface AbstractNotional {
 	 * @param period Period.
 	 * @param model The model against we are evaluation.
 	 * @return The notional for the given period as of period start.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 */
-	public abstract RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model);
+	public abstract RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
 	/**
 	 * Calculates the notional at the end of a period, given a period.
