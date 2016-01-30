@@ -234,16 +234,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return model.getNumeraire(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCovarianceModel()
-	 */
-	public AbstractLIBORCovarianceModel getCovarianceModel() {
-		return model.getCovarianceModel();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getModel()
-	 */
 	public LIBORMarketModelInterface getModel() {
 		return model;
 	}
@@ -263,9 +253,6 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return new LIBORModelMonteCarloSimulation(model, process);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
-	 */
 	public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		LIBORMarketModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {

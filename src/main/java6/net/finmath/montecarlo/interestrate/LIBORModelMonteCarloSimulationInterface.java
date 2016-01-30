@@ -116,11 +116,6 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	AbstractProcessInterface getProcess();
 	
 	/**
-	 * @return the covarianceModel
-	 */
-	AbstractLIBORCovarianceModel getCovarianceModel();
-
-	/**
 	 * Return a clone of this model with a modified Brownian motion using a different seed.
 	 * 
 	 * @param seed The seed

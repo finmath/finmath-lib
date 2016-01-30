@@ -166,10 +166,6 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 		return liborSimulation.getProcess();
 	}
 
-	public AbstractLIBORCovarianceModel getCovarianceModel() {
-		return liborSimulation.getCovarianceModel();
-	}
-
 	/**
 	 * @deprecated
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
