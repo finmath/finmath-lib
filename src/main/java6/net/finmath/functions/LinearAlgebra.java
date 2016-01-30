@@ -299,13 +299,13 @@ public class LinearAlgebra {
 			for (int factor = 0; factor < factorMatrix.columns(); factor++)
 				sumSquared += factorMatrix.get(row, factor) * factorMatrix.get(row, factor);
 			if(sumSquared != 0) {
-			    for (int factor = 0; factor < factorMatrix.columns(); factor++)
+				for (int factor = 0; factor < factorMatrix.columns(); factor++)
 					factorMatrix.set(row, factor, factorMatrix.get(row, factor) / Math.sqrt(sumSquared));
 			}
 			else {
-			    // This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
-			    for (int factor = 0; factor < factorMatrix.columns(); factor++)
-					factorMatrix.set(row, factor, 1.0);			    
+				// This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
+				for (int factor = 0; factor < factorMatrix.columns(); factor++)
+					factorMatrix.set(row, factor, 1.0);
 			}
 		}
 
