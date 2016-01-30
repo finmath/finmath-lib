@@ -34,7 +34,11 @@ import cern.colt.matrix.linalg.EigenvalueDecomposition;
  * @version 1.5
  */
 public class LinearAlgebra {
-	
+
+	private static boolean isUseApacheCommonsMath() {
+		return Boolean.getBoolean("finmath.useCommonsMath");
+	}
+
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
@@ -83,8 +87,7 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationSymmetric(double[][] matrix, double[] vector) {
-		boolean  isUseApacheCommonsMath = true;
-		if(isUseApacheCommonsMath) {
+		if(isUseApacheCommonsMath()) {
 			// We use the linear algebra package apache commons math
 			DecompositionSolver solver = new CholeskyDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
 			return solver.solve(new ArrayRealVector(vector)).toArray();
@@ -121,8 +124,7 @@ public class LinearAlgebra {
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
 	public static double[][] getFactorMatrix(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = false;
-		if(isUseApacheCommonsMath) {
+		if(isUseApacheCommonsMath()) {
 			/*
 			 * Note: Commons math has convergence problems, where Colt does not.
 			 */
@@ -290,21 +292,21 @@ public class LinearAlgebra {
 		// Extract factors corresponding to the largest eigenvalues
 		DoubleMatrix2D factorMatrix = getFactorMatrixUsingColt(correlationMatrix, numberOfFactors);
 
-		// Renormalized rows
 		for (int row = 0; row < factorMatrix.rows(); row++) {
 			double sumSquared = 0;
 			for (int factor = 0; factor < factorMatrix.columns(); factor++)
 				sumSquared += factorMatrix.get(row, factor) * factorMatrix.get(row, factor);
 			if(sumSquared != 0) {
-			    for (int factor = 0; factor < factorMatrix.columns(); factor++)
+				for (int factor = 0; factor < factorMatrix.columns(); factor++)
 					factorMatrix.set(row, factor, factorMatrix.get(row, factor) / Math.sqrt(sumSquared));
 			}
 			else {
-			    // This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
-			    for (int factor = 0; factor < factorMatrix.columns(); factor++)
-					factorMatrix.set(row, factor, 1.0);			    
+				// This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
+				for (int factor = 0; factor < factorMatrix.columns(); factor++)
+					factorMatrix.set(row, factor, 1.0);
 			}
 		}
+		// Renormalized rows
 
 		// Orthogonalized again
 		cern.colt.matrix.linalg.Algebra alg = new cern.colt.matrix.linalg.Algebra();
