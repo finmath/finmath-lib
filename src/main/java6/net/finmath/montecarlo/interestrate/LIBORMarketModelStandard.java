@@ -52,6 +52,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORMarketModelStandard extends AbstractModel implements LIBORMarketModelInterface {
 
+	private static final boolean isUseAnalyticApproximation;
+	static {
+		// Default value is true;
+		isUseAnalyticApproximation = Boolean.parseBoolean(System.getProperty("net.finmath.montecarlo.interestrate.LIBORMarketModelStandard.isUseAnalyticApproximation","true"));
+	}
+
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }
 
 	public enum Measure				{ SPOT, TERMINAL }
@@ -211,10 +217,6 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights);
 	}
 
-	private static boolean isUseAnalyticApproximation(){
-		return Boolean.parseBoolean(System.getProperty("finmath.useAnalyticApproximation","true"));
-	}
-
 	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
 		if(swaptionMarketData == null) return null;
 		
@@ -257,7 +259,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 					swaprates[periodStartIndex] = swaprate;
 				}
 
-				if(isUseAnalyticApproximation()) {
+				if(isUseAnalyticApproximation) {
 					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 					double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
 
