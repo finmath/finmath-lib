@@ -211,6 +211,10 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights);
 	}
 
+	private static boolean isUseAnalyticApproximation(){
+		return Boolean.parseBoolean(System.getProperty("finmath.useAnalyticApproximation","true"));
+	}
+
 	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
 		if(swaptionMarketData == null) return null;
 		
@@ -253,8 +257,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 					swaprates[periodStartIndex] = swaprate;
 				}
 
-				boolean isUseAnalyticApproximation = true;
-				if(isUseAnalyticApproximation) {
+				if(isUseAnalyticApproximation()) {
 					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 					double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
 
