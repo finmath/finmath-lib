@@ -856,10 +856,10 @@ public class AnalyticFormulas {
 	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
 	 * @param underlying Underlying (spot) value.
 	 * @param strike Strike.
-	 * @param maturity Maturtiy.
+	 * @param maturity Maturity.
 	 * @return Implied lognormal Black volatility.
 	 */
-	public double sabrHaganLognormalBlackVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
+	public static double sabrHaganLognormalBlackVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
 	{
 
 		if(alpha <= 0) {
