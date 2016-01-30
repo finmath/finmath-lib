@@ -144,7 +144,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
      * This function calculate the partial derivative <i>d log(S) / d log(L<sub>k</sub>)</i> for
      * a given swap rate with respect to a vector of forward rates (on a given forward rate tenor).
      * 
-     * It also returns some useful other quantities like the corresponding discout factors and swap annuities.
+     * It also returns some useful other quantities like the corresponding discount factors and swap annuities.
      * 
      * @param liborPeriodDiscretization The libor period discretization.
      * @param forwardCurveInterface The forward curve.
