@@ -68,7 +68,7 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
 	ForwardCurveInterface getForwardRateCurve();
 
 	/**
-	 * Return the covariance model.
+	 * Return the libor covariance model.
 	 * 
 	 * @return The covariance model.
 	 */
@@ -93,7 +93,7 @@ public interface LIBORMarketModelInterface extends AbstractModelInterface {
 
 	/**
 	 * Returns the integrated instantaneous log-forward rate covariance, i.e.,
-	 * <i>\int_0^t_i d log(L_j) d log(L_k) dt</i>.
+	 * \( \int_{0}^{t_i} \mathrm{d} \log(L_{j}) \mathrm{d} \log(L_{k}) \mathrm{d}t \).
 	 * 
 	 * The array returned has the parametrization [i][j][k], i.e.,
 	 * <code>integratedLIBORCovariance[timeIndex][componentIndex1][componentIndex2]</code>.
