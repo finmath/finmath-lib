@@ -5,6 +5,11 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.0.3
+
+- Some internals may be configured via Java system properties.
+- A bug introduce in 2.0.0 in DayCountConvention_30U_360 in the Java 6 branch has been fixed
+
 ## 2.0.2
 
 - The CalibrationItem of CalibratedCurves may now carry a symbol to create a shifted model (for calculation of sensitivities using finite differences).
