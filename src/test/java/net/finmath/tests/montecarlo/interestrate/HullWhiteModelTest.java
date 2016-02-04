@@ -121,7 +121,7 @@ public class HullWhiteModelTest {
 					new double[] { shortRateMeanreversion, shortRateMeanreversion } /* meanReversion */);
 
 			LIBORMarketModelInterface hullWhiteModel = new HullWhiteModel(
-					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
+					liborPeriodDiscretization, null, forwardCurve, discountCurve, volatilityModel, null);
 
 			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
