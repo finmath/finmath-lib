@@ -568,7 +568,7 @@ public class HullWhiteModelTest {
 		 */
 
 		System.out.println("Zero-CMS-Swap prices:\n");
-		System.out.println("Swap \t\t\t Value");
+		System.out.println("Swap             \tValue (HW)         Value (LMM)     Deviation");
 
 		long startMillis	= System.currentTimeMillis();
 
