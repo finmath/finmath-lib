@@ -75,8 +75,8 @@ public class HullWhiteModelTest {
 	public HullWhiteModelTest() throws CalculationException {
 		initModels();
 		System.out.println("Initialized models:");
-		System.out.println("\t" + hullWhiteModelSimulation.getClass().getName());
-		System.out.println("\t" + liborMarketModelSimulation.getClass().getName());
+		System.out.println("\t" + hullWhiteModelSimulation.getModel().getClass().getName());
+		System.out.println("\t" + liborMarketModelSimulation.getModel().getClass().getName());
 	}
 
 	public void initModels() throws CalculationException {

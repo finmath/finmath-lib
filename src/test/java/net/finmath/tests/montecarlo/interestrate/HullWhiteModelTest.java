@@ -22,8 +22,6 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
-import net.finmath.montecarlo.interestrate.HullWhiteModelWithDirectSimulation;
-import net.finmath.montecarlo.interestrate.HullWhiteModelWithShiftExtension;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
@@ -77,8 +75,8 @@ public class HullWhiteModelTest {
 	public HullWhiteModelTest() throws CalculationException {
 		initModels();
 		System.out.println("Initialized models:");
-		System.out.println("\t" + hullWhiteModelSimulation.getClass().getName());
-		System.out.println("\t" + liborMarketModelSimulation.getClass().getName());
+		System.out.println("\t" + hullWhiteModelSimulation.getModel().getClass().getName());
+		System.out.println("\t" + liborMarketModelSimulation.getModel().getClass().getName());
 	}
 
 	public void initModels() throws CalculationException {
