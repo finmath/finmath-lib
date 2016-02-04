@@ -61,6 +61,11 @@
 			<email>oschweitzer@me.com</email>
 			<timezone>1</timezone>
 		</contributor>
+		<contributor>
+			<name>William Wong</name>
+			<email>william1104@gmail.com</email>
+			<timezone>1</timezone>
+		</contributor>
 	</contributors>
 
 	<dependencies>
