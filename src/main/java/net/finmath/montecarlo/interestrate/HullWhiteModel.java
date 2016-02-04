@@ -82,7 +82,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * The Hull-White model is essentially equivalent to LIBOR Market Model where the forward rate <b>normal</b> volatility \( \sigma(t,T) \) is
  * given by
- * \[  \sigma(t,T_{i}) \ = \ (1 + L_{i}(t) (T_{i+1}-T_{i})) \sigma(t) \exp(-a (T_{i}-t)) \]
+ * \[  \sigma(t,T_{i}) \ = \ (1 + L_{i}(t) (T_{i+1}-T_{i})) \sigma(t) \exp(-a (T_{i}-t)) \frac{1-\exp(-a (T_{i+1}-T_{i}))}{a (T_{i+1}-T_{i})} \]
  * (where \( \{ T_{i} \} \) is the forward rates tenor time discretization (note that this is the <b>normal</b> volatility, not the <b>log-normal</b> volatility).
  * Hence, we interpret both, short rate mean reversion speed and short rate volatility as part of the <i>volatility model</i>.
  * 
@@ -95,7 +95,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @TODO Need to check/extend/correct documentation.
  * 
  * @author Christian Fries
- * @version 1.1
+ * @version 1.2
  */
 public class HullWhiteModel extends AbstractModel implements LIBORMarketModelInterface {
 

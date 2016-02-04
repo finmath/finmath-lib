@@ -144,16 +144,25 @@ public class HullWhiteModelTest {
 					double time = timeDiscretization.getTime(timeIndex);
 					double time2 = timeDiscretization.getTime(timeIndex+1);
 					double maturity = liborPeriodDiscretization.getTime(liborIndex);
-					double timeToMaturity = maturity - time;
-					double timeToMaturity2 = maturity - time2;
+					double maturity2 = liborPeriodDiscretization.getTime(liborIndex+1);
 
-					double meanReversion = 0.1;
+					double timeToMaturity	= maturity - time;
+					double deltaTime		= time2-time;
+					double deltaMaturity	= maturity2-maturity;
+
+					double meanReversion = shortRateMeanreversion;
 
 					double instVolatility;
-					if(timeToMaturity <= 0)
+					if(timeToMaturity <= 0) {
 						instVolatility = 0;				// This forward rate is already fixed, no volatility
-					else
-						instVolatility = shortRateVolatility * Math.sqrt((Math.exp(-meanReversion * 2 * timeToMaturity2)-Math.exp(-meanReversion * 2 * timeToMaturity))/(meanReversion * 2 * (timeToMaturity-timeToMaturity2)));
+					}
+					else {
+						instVolatility = shortRateVolatility * Math.exp(-meanReversion * timeToMaturity)
+								*
+								Math.sqrt((Math.exp(2 * meanReversion * deltaTime) - 1)/ (2 * meanReversion * deltaTime))
+								*
+								(1-Math.exp(-meanReversion * deltaMaturity))/(meanReversion * deltaMaturity);
+					}
 
 					// Store
 					volatility[timeIndex][liborIndex] = instVolatility;
