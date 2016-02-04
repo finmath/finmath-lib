@@ -37,26 +37,26 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	private final boolean						isNotionalAccruing;
 
 	private final ProductCollection				components;
-	
+
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
 	 * 
 	 * @param legSchedule Schedule of the leg.
-     * @param notional The notional.
-     * @param index The index.
+	 * @param notional The notional.
+	 * @param index The index.
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param couponFlow If true, the coupon is payed. If false, the coupon is not payed, but may still be part of an accruing notional, see <code>isNotionalAccruing</code>.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 * @param isNotionalAccruing If true, the notional is accruing, that is, the notional of a period is given by the notional of the previous period, accrued with the coupon of the previous period.
-     */
+	 */
 	public SwapLeg(ScheduleInterface legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged, boolean isNotionalAccruing) {
-	    super();
-	    this.legSchedule = legSchedule;
-	    this.notional = notional;
-	    this.index = index;
-	    this.spread = spread;
+		super();
+		this.legSchedule = legSchedule;
+		this.notional = notional;
+		this.index = index;
+		this.spread = spread;
 		this.couponFlow = couponFlow;
-	    this.isNotionalExchanged = isNotionalExchanged;
+		this.isNotionalExchanged = isNotionalExchanged;
 		this.isNotionalAccruing = isNotionalAccruing;
 
 		/*
@@ -71,7 +71,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 			double fixingDate	= legSchedule.getFixing(periodIndex);
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
-			
+
 			/*
 			 * We do not count empty periods.
 			 * Since empty periods are an indication for a ill-specified

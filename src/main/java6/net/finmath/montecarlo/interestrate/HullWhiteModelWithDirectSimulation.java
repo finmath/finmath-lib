@@ -23,6 +23,12 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * Implements a Hull-White model.
  * 
+ * <i>
+ * Note: This implementation is for illustrative purposes.
+ * For a numerically equivalent, more efficient implementation see {@link net.finmath.montecarlo.interestrate.HullWhiteModel}.
+ * Please use {@link net.finmath.montecarlo.interestrate.HullWhiteModel} for real applications.
+ * </i>
+ * 
  * <p>
  * <b>Model Dynamics</b>
  * </p>
@@ -91,8 +97,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * 
  * @see net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface
- * 
- * @TODO Need to check/extend/correct documentation.
+ * @see net.finmath.montecarlo.interestrate.HullWhiteModel
  * 
  * @author Christian Fries
  * @version 1.1
