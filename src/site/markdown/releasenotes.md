@@ -5,6 +5,11 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.0.4-SNAPSHOT
+
+- Added implementation of a Monte-Carlo simulation of the Hull-White model.
+- Added LIBOR Market Model (LMM) local volatiltiy model to generate Hull-White model dynamic in an LMM
+
 ## 2.0.3
 
 - Some internals may be configured via Java system properties.
