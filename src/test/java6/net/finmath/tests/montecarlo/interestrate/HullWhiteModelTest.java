@@ -22,8 +22,6 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
-import net.finmath.montecarlo.interestrate.HullWhiteModelWithDirectSimulation;
-import net.finmath.montecarlo.interestrate.HullWhiteModelWithShiftExtension;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
@@ -606,7 +604,6 @@ public class HullWhiteModelTest {
 			}
 
 			// Create a swap
-			//			AbstractIndex index = new LIBORIndex(0.0, 0.5);
 			AbstractIndex index = new ConstantMaturitySwaprate(10.0, 0.5);
 			index = new CappedFlooredIndex(index, new FixedCoupon(0.1) /* cap */, new FixedCoupon(0.04) /* Floor */);
 			SimpleZeroSwap swap = new SimpleZeroSwap(fixingDates, paymentDates, swaprates, index, true);
