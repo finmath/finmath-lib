@@ -78,12 +78,12 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
         this.valueUnit	= valueUnit;
     }
 
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
     	AbstractModelInterface modelBase = model.getModel();
     	if(modelBase instanceof LIBORMarketModelInterface) return getValues(evaluationTime, (LIBORMarketModelInterface)modelBase);
     	else throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModelInterface.");
-    }
+	}
     
     /**
      * Calculates the approximated integrated instantaneous variance of the swap rate,
