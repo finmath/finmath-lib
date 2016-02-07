@@ -5,15 +5,30 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 2.0.4-SNAPSHOT
+## 2.1.0
+
+### Monte-Carlo Simulation of Interest Rate Models
+
+#### Interfaces
+
+- From the interface `LIBORMarketModelInterface` the narrower interface  `LIBORModelInterface` has been extracted,
+leaving the methods related to the covariance model to `LIBORMarketModelInterface` only. The method `getModel()`
+of `LIBORModelMonteCarloSimulationInterface` now returns a `LIBORModelInterface` interface only. In case your
+code requires access to the covariance model, you have to check for `LIBORMarketModelInterface` (see the code
+of `getValue` in `SwaptionAnalyticApproximation` for an example).
+
+#### Hull-White Model
 
 - Added implementation of a Monte-Carlo simulation of the Hull-White model.
+
+#### LIBOR Market Model
+
 - Added LIBOR Market Model (LMM) local volatiltiy model to generate Hull-White model dynamic in an LMM
 
 ## 2.0.3
 
 - Some internals may be configured via Java system properties.
-- A bug introduce in 2.0.0 in DayCountConvention_30U_360 in the Java 6 branch has been fixed
+- A bug introduce in 2.0.0 in `DayCountConvention_30U_360` in the Java 6 branch has been fixed
 
 ## 2.0.2
 

@@ -24,6 +24,7 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
@@ -49,8 +50,8 @@ import net.finmath.time.TimeDiscretization;
 /**
  * This class tests the Hull White model and products.
  * 
- * It also compares a Hull White model to a special parametization of the
- * LIBOR Market model, illustrating that a special parametrization of the 
+ * It also compares a Hull White model to a special parameterization of the
+ * LIBOR Market model, illustrating that a special parameterization of the 
  * LIBOR Market model is equivalent to the Hull White model.
  * 
  * @author Christian Fries
@@ -59,8 +60,8 @@ public class HullWhiteModelTest {
 
 	private final int numberOfPaths		= 200000;
 
-	private final int numberOfFactors	= 1;
-	private final double correlationDecay = 0.1;
+	private final int numberOfFactors	= 5;
+	private final double correlationDecay = 0.2;
 
 	private final double shortRateVolatility = 0.02;
 	private final double shortRateMeanreversion = 0.1;
@@ -118,7 +119,10 @@ public class HullWhiteModelTest {
 					new double[] { shortRateVolatility, shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion, shortRateMeanreversion } /* meanReversion */);
 
-			LIBORMarketModelInterface hullWhiteModel = new HullWhiteModel(
+//			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
+//					liborPeriodDiscretization, null, forwardCurve, discountCurve, volatilityModel, null);
+
+			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
 					liborPeriodDiscretization, null, forwardCurve, discountCurve, volatilityModel, null);
 
 			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
@@ -374,12 +378,15 @@ public class HullWhiteModelTest {
 			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
 
 			// Value with analytic formula
-			double forwardBondVolatility = Math.sqrt(((HullWhiteModel)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
-			double bondForward = (1.0+forward*periodLength);
-			double bondStrike = (1.0+strike*periodLength);
-
-			double zeroBondPut = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
-			double valueAnalytic = zeroBondPut / bondStrike / periodLength;
+			double valueAnalytic = Double.NaN;
+			if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModel) {
+				double forwardBondVolatility = Math.sqrt(((HullWhiteModel)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
+				double bondForward = (1.0+forward*periodLength);
+				double bondStrike = (1.0+strike*periodLength);
+	
+				double zeroBondPut = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
+				valueAnalytic = zeroBondPut / bondStrike / periodLength;
+			}
 			//valueAnalytic = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
@@ -393,7 +400,10 @@ public class HullWhiteModelTest {
 
 			System.out.println();
 
-			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWAnalytic));
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWLMM));
+			if(!Double.isNaN(valueAnalytic)) {
+				maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWAnalytic));
+			}
 		}
 
 		long endMillis		= System.currentTimeMillis();

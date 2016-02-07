@@ -14,7 +14,6 @@ import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -102,7 +101,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.2
  */
-public class HullWhiteModelWithDirectSimulation extends AbstractModel implements LIBORMarketModelInterface {
+public class HullWhiteModelWithDirectSimulation extends AbstractModel implements LIBORModelInterface {
 
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;
 
@@ -317,24 +316,8 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		return forwardRateCurve;
 	}
 
-
-	@Override
-	public AbstractLIBORCovarianceModel getCovarianceModel() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public LIBORMarketModelInterface getCloneWithModifiedCovarianceModel(AbstractLIBORCovarianceModel calibrationCovarianceModel) {
-		throw new UnsupportedOperationException();
-	}
-
 	@Override
 	public LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public double[][][] getIntegratedLIBORCovariance() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -439,7 +422,7 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	 * Calculates the variance \( \mathop{Var}(r(t) \vert r(s) ) \), that is
 	 * \(
 	 * \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau
-	 * \) where \( a \) is the meanReversion and \( sigma \) is the short rate instantaneous volatility.
+	 * \) where \( a \) is the meanReversion and \( \sigma \) is the short rate instantaneous volatility.
 	 * 
 	 * @param time The parameter s in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau \)
 	 * @param maturity The parameter t in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau \)

@@ -107,7 +107,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * 
 	 * @return The underlying model
 	 */
-	LIBORMarketModelInterface getModel();
+	LIBORModelInterface getModel();
 
 	/**
 	 * @return The implementation of the process
