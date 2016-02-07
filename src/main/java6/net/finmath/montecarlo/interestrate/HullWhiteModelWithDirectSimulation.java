@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements a Hull-White model.
+ * Implements a Hull-White model with time dependent mean reversion speed and time dependent short rate volatility.
  * 
  * <i>
  * Note: This implementation is for illustrative purposes.
@@ -187,10 +187,10 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 			double previousTime = getProcess().getTime(previousTimeIndex);
 
 			// Get value of short rate for period from previousTime to time.
-			RandomVariableInterface value = getShortRate(previousTimeIndex);
+			RandomVariableInterface rate = getShortRate(previousTimeIndex);
 
 			// Piecewise constant rate for the increment
-			RandomVariableInterface integratedRate = value.mult(time-previousTime);
+			RandomVariableInterface integratedRate = rate.mult(time-previousTime);
 
 			return getNumeraire(previousTime).mult(integratedRate.exp());
 		}
@@ -207,7 +207,8 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		RandomVariableInterface integratedRate = new RandomVariable(0.0);
 		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 		for(int i=0; i<timeIndex; i++) {
-			integratedRate = integratedRate.addProduct(getShortRate(i), getProcess().getTimeDiscretization().getTimeStep(i));
+			RandomVariableInterface rate = getShortRate(i);
+			integratedRate = integratedRate.addProduct(rate, getProcess().getTimeDiscretization().getTimeStep(i));
 
 			numeraire = integratedRate.exp();
 			numeraires.put(i+1, numeraire);
@@ -249,13 +250,23 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double meanReversionEffective = meanReversion*getB(time,timeNext)/(timeNext-time);
 
-		double shortRateVariance = getShortRateConditionalVariance(0, time);
+		// Alternative way of expessing the drift
+//		double dV = getShortRateConditionalVariance(0, time);
+//		double phi = dV*getB(time,t1)/(t1-time);
 
+		double dV = getDV(0, time);
+		double dVChange = 0.0;
+		if(timeIndex > 1) {
+			double timePrev = getProcess().getTime(timeIndex-1); 
+			dVChange = (getDV(0,time) - getDV(0,timePrev))/(time-timePrev);
+		}
+		double phi = dVChange + meanReversionEffective * dV;		
+		
 		/*
 		 * The +meanReversionEffective * forwardPrev removes the previous forward from the mean-reversion part.
 		 * The +forwardChange updates the forward to the next period.
 		 */
-		double theta = forwardChange + meanReversionEffective * forward + shortRateVariance*getB(time,t1)/(t1-time);
+		double theta = forwardChange + meanReversionEffective * forward + phi;
 
 		return new RandomVariableInterface[] { realizationAtTimeIndex[0].mult(-meanReversionEffective).add(theta) };
 	}
@@ -269,7 +280,6 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		if(timeIndexVolatility < 0) timeIndexVolatility = -timeIndexVolatility-2;
 
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
-		//		double scaling = getB(time,timeNext)/(timeNext-time);
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
 		double volatilityEffective = scaling*volatilityModel.getVolatility(timeIndexVolatility);
 
@@ -327,8 +337,11 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	}
 
 	private RandomVariableInterface getZeroCouponBond(double time, double maturity) throws CalculationException {
-		RandomVariableInterface shortRate = getShortRate(getProcess().getTimeIndex(time));
-		return shortRate.mult(-getB(time,maturity)).exp().mult(getA(time, maturity));
+		int timeIndex = getProcess().getTimeIndex(time);
+		RandomVariableInterface shortRate = getShortRate(timeIndex);
+		double A = getA(time, maturity);
+		double B = getB(time, maturity);
+		return shortRate.mult(-B).exp().mult(A);
 	}
 
 	/**
@@ -414,6 +427,74 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
 		timeNext = maturity;
 		integral += (Math.exp(-getMRTime(timeNext,maturity)) - Math.exp(-getMRTime(timePrev,maturity)))/meanReversion;
+
+		return integral;
+	}
+
+	/**
+	 * Calculates the drift adjustment for the log numeraire, that is
+	 * \(
+	 * \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s
+	 * \) where \( B(t,T) = \int_{t}^{T} \exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau) \mathrm{d}s \).
+	 * 
+	 * @param time The parameter t in \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \)
+	 * @param maturity The parameter T in \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \)
+	 * @return The integral \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \).
+	 */
+	private double getV(double time, double maturity) {
+		if(time==maturity) return 0;
+		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
+		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+
+		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
+		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+
+		double integral = 0.0;
+		double timePrev = time;
+		double timeNext;
+		for(int timeIndex=timeIndexStart+1; timeIndex<=timeIndexEnd; timeIndex++) {
+			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);
+			double meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
+			double volatility = volatilityModel.getVolatility(timeIndex-1);
+			integral += volatility * volatility * (timeNext-timePrev)/(meanReversion*meanReversion);
+			integral -= volatility * volatility * 2 * (Math.exp(- getMRTime(timeNext,maturity))-Math.exp(- getMRTime(timePrev,maturity))) / (meanReversion*meanReversion*meanReversion);
+			integral += volatility * volatility * (Math.exp(- 2 * getMRTime(timeNext,maturity))-Math.exp(- 2 * getMRTime(timePrev,maturity))) / (2 * meanReversion*meanReversion*meanReversion);
+			timePrev = timeNext;
+		}
+		timeNext = maturity;
+		double meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
+		double volatility = volatilityModel.getVolatility(timeIndexEnd);
+		integral += volatility * volatility * (timeNext-timePrev)/(meanReversion*meanReversion);
+		integral -= volatility * volatility * 2 * (Math.exp(- getMRTime(timeNext,maturity))-Math.exp(- getMRTime(timePrev,maturity))) / (meanReversion*meanReversion*meanReversion);
+		integral += volatility * volatility * (Math.exp(- 2 * getMRTime(timeNext,maturity))-Math.exp(- 2 * getMRTime(timePrev,maturity))) / (2 * meanReversion*meanReversion*meanReversion);
+
+		return integral;
+	}
+
+	private double getDV(double time, double maturity) {
+		if(time==maturity) return 0;
+		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
+		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+
+		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
+		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+
+		double integral = 0.0;
+		double timePrev = time;
+		double timeNext;
+		for(int timeIndex=timeIndexStart+1; timeIndex<=timeIndexEnd; timeIndex++) {
+			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);
+			double meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
+			double volatility = volatilityModel.getVolatility(timeIndex-1);
+			integral += volatility * volatility * (Math.exp(- getMRTime(timeNext,maturity))-Math.exp(- getMRTime(timePrev,maturity))) / (meanReversion*meanReversion);
+			integral -= volatility * volatility * (Math.exp(- 2 * getMRTime(timeNext,maturity))-Math.exp(- 2 * getMRTime(timePrev,maturity))) / (2 * meanReversion*meanReversion);
+			timePrev = timeNext;
+		}
+		timeNext = maturity;
+		double meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
+		double volatility = volatilityModel.getVolatility(timeIndexEnd);
+		integral += volatility * volatility * (Math.exp(- getMRTime(timeNext,maturity))-Math.exp(- getMRTime(timePrev,maturity))) / (meanReversion*meanReversion);
+		integral -= volatility * volatility * (Math.exp(- 2 * getMRTime(timeNext,maturity))-Math.exp(- 2 * getMRTime(timePrev,maturity))) / (2 * meanReversion*meanReversion);
 
 		return integral;
 	}
