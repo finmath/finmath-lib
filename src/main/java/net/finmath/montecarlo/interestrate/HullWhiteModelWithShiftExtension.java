@@ -40,7 +40,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * The dynamic above is under the equivalent martingale measure corresponding to the numeraire
  * \[ N(t) = \exp\left( \int_0^t r(\tau) \mathrm{d}\tau \right) \text{.} \]
  * 
- * The main task of this class is to calculate the risk-neutral drift and the volatility to the numerical scheme (given the volatility model), simulating
+ * The main task of this class is to provide the risk-neutral drift and the volatility to the numerical scheme (given the volatility model), simulating
  * \( r(t_{i}) \). The class then also provides and the corresponding numeraire and forward rates (LIBORs).
  * 
  * <p>
@@ -49,7 +49,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * Since the class specifies the drift and factor loadings as piecewise constant functions for
  * an Euler-scheme, the class simulates the \( \Delta t_{i} \)-rate, that is the model primitive is
- * \[ \bar{r}(t_{i}) = \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} f(t_{i},\tau) \mathrm{d}\tau \]
+ * \[ \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} f(t_{i},\tau) \mathrm{d}\tau \]
  * (and not the short rate \( r \)). Here \( \{ t_{i} \} \) is the time discretization of the simulation time (used in the Euler-scheme).
  * 
  * More specifically (assuming a constant mean reversion speed \( a \) for a moment), considering
@@ -426,12 +426,12 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	/**
 	 * Calculates the variance \( \mathop{Var}(r(t) \vert r(s) ) \), that is
 	 * \(
-	 * \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau
+	 * \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau
 	 * \) where \( a \) is the meanReversion and \( \sigma \) is the short rate instantaneous volatility.
 	 * 
-	 * @param time The parameter s in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau \)
-	 * @param maturity The parameter t in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau \)
-	 * @return The integrated square volatility.
+	 * @param time The parameter s in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau \)
+	 * @param maturity The parameter t in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau \)
+	 * @return The conditional variance of the short rate, \( \mathop{Var}(r(t) \vert r(s) ) \).
 	 */
 	public double getShortRateConditionalVariance(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
