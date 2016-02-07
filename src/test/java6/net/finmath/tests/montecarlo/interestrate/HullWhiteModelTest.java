@@ -22,7 +22,6 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
-import net.finmath.montecarlo.interestrate.HullWhiteModelOrgi;
 import net.finmath.montecarlo.interestrate.HullWhiteModelWithDirectSimulation;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
