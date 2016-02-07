@@ -579,7 +579,7 @@ public class HullWhiteModelTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 5E-3);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 2E-2);
 	}
 
 

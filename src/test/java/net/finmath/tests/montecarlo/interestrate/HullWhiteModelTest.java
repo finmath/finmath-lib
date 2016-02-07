@@ -22,8 +22,10 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
+import net.finmath.montecarlo.interestrate.HullWhiteModelWithDirectSimulation;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
@@ -49,8 +51,8 @@ import net.finmath.time.TimeDiscretization;
 /**
  * This class tests the Hull White model and products.
  * 
- * It also compares a Hull White model to a special parametization of the
- * LIBOR Market model, illustrating that a special parametrization of the 
+ * It also compares a Hull White model to a special parameterization of the
+ * LIBOR Market model, illustrating that a special parameterization of the 
  * LIBOR Market model is equivalent to the Hull White model.
  * 
  * @author Christian Fries
@@ -60,7 +62,7 @@ public class HullWhiteModelTest {
 	private final int numberOfPaths		= 200000;
 
 	private final int numberOfFactors	= 1;
-	private final double correlationDecay = 0.1;
+	private final double correlationDecay = 0.0;	// If 1 factor, parameter has no effect.
 
 	private final double shortRateVolatility = 0.02;
 	private final double shortRateMeanreversion = 0.1;
@@ -118,8 +120,8 @@ public class HullWhiteModelTest {
 					new double[] { shortRateVolatility, shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion, shortRateMeanreversion } /* meanReversion */);
 
-			LIBORMarketModelInterface hullWhiteModel = new HullWhiteModel(
-					liborPeriodDiscretization, null, forwardCurve, discountCurve, volatilityModel, null);
+			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
+					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
 
 			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
@@ -201,11 +203,11 @@ public class HullWhiteModelTest {
 			 * Create corresponding LIBOR Market Model
 			 */
 			LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
-					liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel2, calibrationItems, properties);
+					liborPeriodDiscretization, forwardCurve, null /*discountCurve*/, covarianceModel2, calibrationItems, properties);
 
 			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
-			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
 			liborMarketModelSimulation = new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 		}
@@ -276,7 +278,7 @@ public class HullWhiteModelTest {
 		 */
 
 		System.out.println("Par-Swap prices:\n");
-		System.out.println("Swap \t\t\t Value");
+		System.out.println("Swap             \tValue (HW)       Value (LMM)     Deviation");
 
 		long startMillis	= System.currentTimeMillis();
 
@@ -314,11 +316,21 @@ public class HullWhiteModelTest {
 			// Create a swap
 			SimpleSwap swap = new SimpleSwap(fixingDates, paymentDates, swaprates);
 
-			// Value the swap
-			double value = swap.getValue(hullWhiteModelSimulation);
-			System.out.print(formatterValue.format(value) + "\n");
+			// Value with Hull-White Model Monte Carlo
+			double valueSimulationHW = swap.getValue(hullWhiteModelSimulation);
+			System.out.print(formatterValue.format(valueSimulationHW) + "          ");
 
-			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(value));
+			// Value with LIBOR Market Model Monte Carlo
+			double valueSimulationLMM = swap.getValue(liborMarketModelSimulation);
+			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
+
+			// Absolute deviation
+			double deviationHWLMM = (valueSimulationHW - valueSimulationLMM);
+			System.out.print(formatterDeviation.format(deviationHWLMM) + "          ");
+
+			System.out.println();
+
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(valueSimulationHW));
 		}
 
 		long endMillis		= System.currentTimeMillis();
@@ -374,11 +386,18 @@ public class HullWhiteModelTest {
 			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
 
 			// Value with analytic formula
-			double forwardBondVolatility = Math.sqrt(((HullWhiteModel)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
+			double forwardBondVolatility = Double.NaN;
+			if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModel) {
+				forwardBondVolatility = Math.sqrt(((HullWhiteModel)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
+			}
+			else if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModelWithDirectSimulation) {
+				forwardBondVolatility = Math.sqrt(((HullWhiteModelWithDirectSimulation)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
+			}				
 			double bondForward = (1.0+forward*periodLength);
 			double bondStrike = (1.0+strike*periodLength);
 
 			double zeroBondPut = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
+
 			double valueAnalytic = zeroBondPut / bondStrike / periodLength;
 			//valueAnalytic = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
@@ -393,7 +412,10 @@ public class HullWhiteModelTest {
 
 			System.out.println();
 
-			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWAnalytic));
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWLMM));
+			if(!Double.isNaN(valueAnalytic)) {
+				maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWAnalytic));
+			}
 		}
 
 		long endMillis		= System.currentTimeMillis();
@@ -545,7 +567,7 @@ public class HullWhiteModelTest {
 
 			System.out.println();
 
-			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWLMM));
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWAnalytic));
 		}
 
 		long endMillis		= System.currentTimeMillis();
@@ -557,7 +579,7 @@ public class HullWhiteModelTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 1E-2);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 2E-2);
 	}
 
 
@@ -568,7 +590,7 @@ public class HullWhiteModelTest {
 		 */
 
 		System.out.println("Zero-CMS-Swap prices:\n");
-		System.out.println("Swap             \tValue (HW)         Value (LMM)     Deviation");
+		System.out.println("Swap             \tValue (HW)       Value (LMM)     Deviation");
 
 		long startMillis	= System.currentTimeMillis();
 
