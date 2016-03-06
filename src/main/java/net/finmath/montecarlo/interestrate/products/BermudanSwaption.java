@@ -153,6 +153,13 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		basisFunction = basisFunctions.get(1).discount(rate, periodLength);
 		basisFunctions.add(basisFunction);
 
+		// Numeraire
+		RandomVariableInterface numeraire = model.getNumeraire(fixingDate);
+		basisFunction = numeraire;
+		basisFunctions.add(basisFunction);
+		basisFunction = numeraire.squared();
+		basisFunctions.add(basisFunction);
+
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
 }
