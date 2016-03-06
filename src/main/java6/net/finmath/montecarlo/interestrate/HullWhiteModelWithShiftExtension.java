@@ -103,6 +103,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class HullWhiteModelWithShiftExtension extends AbstractModel implements LIBORModelInterface {
 
+	private enum DriftFormula {
+		ANALYTIC,
+		DISCRETE
+	}
+	private final DriftFormula driftFormula;
+	
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;
 
 	private String							forwardCurveName;
@@ -148,6 +154,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
 
 		initialState = new RandomVariableInterface[] { new RandomVariable(0.0) };
+		
+		if(properties != null && properties.containsKey("driftFormula")) driftFormula = DriftFormula.valueOf((String)properties.get("driftFormula"));
+		else driftFormula = DriftFormula.DISCRETE;
 	}
 
 	@Override
@@ -203,7 +212,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 		for(int i=0; i<timeIndex; i++) {
 			RandomVariableInterface rate = getShortRate(i);
-			integratedRate = integratedRate.addProduct(rate, getProcess().getTimeDiscretization().getTimeStep(i));
+			double dt = getProcess().getTimeDiscretization().getTimeStep(i);
+//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
+			integratedRate = integratedRate.addProduct(rate, dt);
 
 			numeraire = integratedRate.exp();
 			numeraires.put(i+1, numeraire);
@@ -303,7 +314,17 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
 		double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(time+dt)/discountCurveFromForwardCurve.getDiscountFactor(time)) / dt;
 
-		double alpha = zeroRate+getIntegratedDriftAdjustment(timeIndex);
+		double alpha = zeroRate;
+
+		/*
+		 * One may try different drifts here. The value
+		 * getDV(0,time)
+		 * would correspond to the analytic value (for dt -> 0). The value 
+		 * getIntegratedDriftAdjustment(timeIndex)
+		 * is the correct one given the discretized numeraire.
+		 */
+		if(driftFormula == DriftFormula.DISCRETE)		alpha += getIntegratedDriftAdjustment(timeIndex);
+		else if(driftFormula == DriftFormula.ANALYTIC)	alpha += getDV(0,time);
 
 		value = value.add(alpha);
 

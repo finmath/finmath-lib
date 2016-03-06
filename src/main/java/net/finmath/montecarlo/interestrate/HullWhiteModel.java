@@ -173,18 +173,18 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 			 * time is not part of the time discretization.
 			 */
 
-			// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
-			int previousTimeIndex = getProcess().getTimeIndex(time);
-			if(previousTimeIndex < 0) previousTimeIndex = -previousTimeIndex-1;
-			previousTimeIndex--;
-			double previousTime = getProcess().getTime(previousTimeIndex);
-			double nextTime = getProcess().getTime(previousTimeIndex+1);
-
-			// Log-linear interpolation
-			return getNumeraire(previousTime).log().mult(nextTime-time)
-					.add(getNumeraire(nextTime).log().mult(time-previousTime))
-					.div(nextTime-previousTime).exp();
-		}
+				// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
+				int previousTimeIndex = getProcess().getTimeIndex(time);
+				if(previousTimeIndex < 0) previousTimeIndex = -previousTimeIndex-1;
+				previousTimeIndex--;
+				double previousTime = getProcess().getTime(previousTimeIndex);
+				double nextTime = getProcess().getTime(previousTimeIndex+1);
+	
+				// Log-linear interpolation
+				return getNumeraire(previousTime).log().mult(nextTime-time)
+						.add(getNumeraire(nextTime).log().mult(time-previousTime))
+						.div(nextTime-previousTime).exp();
+			}
 
 		/*
 		 * Check if numeraire is part of the cache
@@ -249,10 +249,10 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		}
 		else if(componentIndex == 1) {
 			// Factor loadings for the numeraire driver.
-			double volatilityLogNumeraire = Math.sqrt((getV(time,timeNext)) / (timeNext-time));
+			double volatilityLogNumeraire = Math.sqrt(getV(time,timeNext) / (timeNext-time));
 			double rho = (getDV(time,timeNext) / (timeNext-time)) / (volatilityEffective * volatilityLogNumeraire);
 			factorLoading1 = volatilityLogNumeraire * rho;
-			factorLoading2 = volatilityLogNumeraire * Math.sqrt(1-rho*rho);
+			factorLoading2 = volatilityLogNumeraire * Math.sqrt(1.0-rho*rho);
 		}
 		else {
 			throw new IllegalArgumentException();

@@ -249,8 +249,8 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double meanReversionEffective = meanReversion*getB(time,timeNext)/(timeNext-time);
 
-		double phi = getShortRateConditionalVariance(0, timeNext) * getB(time,timeNext)/(timeNext-time);
-//		double phi = (getDV(0, timeNext) - Math.exp(-meanReversion * (timeNext-time)) *  getDV(0, time)) / (timeNext-time);
+//		double phi = getShortRateConditionalVariance(0, timeNext) * getB(time,timeNext)/(timeNext-time);
+		double phi = (getDV(0, timeNext) - Math.exp(-meanReversion * (timeNext-time)) *  getDV(0, time)) / (timeNext-time);
 		
 		/*
 		 * The +meanReversionEffective * forwardPrev removes the previous forward from the mean-reversion part.

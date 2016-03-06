@@ -21,6 +21,7 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
@@ -74,7 +75,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
  */
 public class HullWhiteModelTest {
 
-	private final int numberOfPaths		= 20000;
+	private final int numberOfPaths		= 200000;
 
 	// LMM parameters
 	private final int numberOfFactors	= 1;		// For LMM Model.
@@ -109,9 +110,13 @@ public class HullWhiteModelTest {
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
+				LocalDate.of(2014, Month.AUGUST, 12),
+				"6M",
+				ForwardCurve.InterpolationEntityForward.FORWARD,
+				null,
+				null,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
-				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */,
-				liborPeriodLength							/* tenor / period length */
+				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */
 				);
 
 		// Create the discount curve
@@ -311,6 +316,7 @@ public class HullWhiteModelTest {
 			double[]	paymentDates		= new double[numberOfPeriods];
 			double[]	swapTenor			= new double[numberOfPeriods + 1];
 			double		swapPeriodLength	= 0.5;
+			String		tenorCode			= "6M";
 
 			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
 				fixingDates[periodStartIndex]	= startDate + periodStartIndex * swapPeriodLength;
@@ -322,7 +328,7 @@ public class HullWhiteModelTest {
 			System.out.print("(" + formatterMaturity.format(swapTenor[0]) + "," + formatterMaturity.format(swapTenor[numberOfPeriods-1]) + "," + swapPeriodLength + ")" + "\t");
 
 			// Par swap rate
-			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor);
+			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor, tenorCode);
 
 			// Set swap rates for each period
 			double[] swaprates = new double[numberOfPeriods];
@@ -384,9 +390,14 @@ public class HullWhiteModelTest {
 			double periodLength	= periodEnd-periodStart;
 			double daycountFraction = periodEnd-periodStart;
 
+			String		tenorCode;
+			if(periodLength == 0.5) tenorCode = "6M";
+			else if(periodLength == 1.0) tenorCode = "1Y";
+			else throw new IllegalArgumentException("Unsupported period length.");
+
 			double strike = 0.05;
 
-			double forward			= getParSwaprate(hullWhiteModelSimulation, new double[] { periodStart , periodEnd});
+			double forward			= getParSwaprate(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}, tenorCode);
 			double discountFactor	= getSwapAnnuity(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}) / periodLength;
 
 			// Create a caplet
@@ -475,6 +486,7 @@ public class HullWhiteModelTest {
 			double[] paymentDates = new double[numberOfPeriods];
 			double[] swapTenor = new double[numberOfPeriods + 1];
 			double swapPeriodLength = 0.5;
+			String tenorCode = "6M";
 
 			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
 				fixingDates[periodStartIndex] = exerciseDate + periodStartIndex * swapPeriodLength;
@@ -484,7 +496,7 @@ public class HullWhiteModelTest {
 			swapTenor[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
 
 			// Swaptions swap rate
-			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor);
+			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor, tenorCode);
 			double swapAnnuity = getSwapAnnuity(hullWhiteModelSimulation, swapTenor);
 
 			// Set swap rates for each period
@@ -552,7 +564,12 @@ public class HullWhiteModelTest {
 			double periodEnd		= optionMaturity+periodLength;
 			double daycountFraction = periodEnd-periodStart;
 
-			double forward			= getParSwaprate(hullWhiteModelSimulation, new double[] { periodStart , periodEnd});
+			String		tenorCode;
+			if(periodLength == 0.5) tenorCode = "6M";
+			else if(periodLength == 1.0) tenorCode = "1Y";
+			else throw new IllegalArgumentException("Unsupported period length.");
+
+			double forward			= getParSwaprate(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}, tenorCode);
 			double discountFactor	= getSwapAnnuity(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}) / periodLength;
 
 			// Create a caplet
@@ -627,6 +644,7 @@ public class HullWhiteModelTest {
 			double[]	paymentDates		= new double[numberOfPeriods];
 			double[]	swapTenor			= new double[numberOfPeriods + 1];
 			double		swapPeriodLength	= 0.5;
+			String		tenorCode			= "6M";
 
 			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
 				fixingDates[periodStartIndex]	= startDate + periodStartIndex * swapPeriodLength;
@@ -638,7 +656,7 @@ public class HullWhiteModelTest {
 			System.out.print("(" + formatterMaturity.format(swapTenor[0]) + "," + formatterMaturity.format(swapTenor[numberOfPeriods-1]) + "," + swapPeriodLength + ")" + "\t");
 
 			// Par swap rate
-			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor);
+			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor, tenorCode);
 
 			// Set swap rates for each period
 			double[] swaprates = new double[numberOfPeriods];
@@ -699,7 +717,7 @@ public class HullWhiteModelTest {
 		 */
 		AbstractNotional notional = new Notional(1.0);
 		AbstractIndex liborIndex = new LIBORIndex(0.0, 0.5);
-		AbstractIndex index = new LinearCombinationIndex(1.0, liborIndex, -1, new LaggedIndex(liborIndex, -0.5 /* fixingOffset */));
+		AbstractIndex index = new LinearCombinationIndex(-1.0, liborIndex, +1, new LaggedIndex(liborIndex, +0.5 /* fixingOffset */));
 		double spread = 0.0;
 
 		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
@@ -750,8 +768,12 @@ public class HullWhiteModelTest {
 		Assert.assertTrue(deviationHWLMM >= 0);
 	}
 
-	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
-		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
+	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor, String tenorCode) throws CalculationException {
+		DiscountCurveInterface modelCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
+		ForwardCurveInterface forwardCurve = new ForwardCurveFromDiscountCurve(modelCurve.getName(), liborMarketModel.getModel().getForwardRateCurve().getReferenceDate(), tenorCode);
+		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor),
+				forwardCurve,
+				modelCurve);
 	}
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
