@@ -5,6 +5,14 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.1.1
+
+### Monte-Carlo Simulation of Interest Rate Models
+
+#### Hull-White Model
+
+- Improved implementation and unit testing. Implementation now uses Browninan motion as a factory for RandomVariableInterface objects.
+
 ## 2.1.0
 
 ### Monte-Carlo Simulation of Interest Rate Models
