@@ -47,10 +47,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <b>Time Discrete Model</b>
  * </p>
  * 
- * Since the class specifies the drift and factor loadings as piecewise constant functions for
- * an Euler-scheme, the class simulates the \( \Delta t_{i} \)-rate, that is the model primitive is
- * \[ \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} f(t_{i},\tau) \mathrm{d}\tau \]
- * (and not the short rate \( r \)). Here \( \{ t_{i} \} \) is the time discretization of the simulation time (used in the Euler-scheme).
+ * Assuming piecewise constant coefficients (mean reversion speed \( a \) and short
+ * rate volatility \( \sigma \) the class specifies the drift and factor loadings as
+ * piecewise constant functions for an Euler-scheme.
+ * The class provides the exact Euler step for the short rate r.
  * 
  * More specifically (assuming a constant mean reversion speed \( a \) for a moment), considering
  * \[ \Delta \bar{r}(t_{i}) = \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} d r(t) \]
@@ -163,7 +163,6 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	public RandomVariableInterface[] getInitialState() {
 		if(initialState == null) {
 			double dt = getProcess().getTimeDiscretization().getTimeStep(0);
-			//liborPeriodDiscretization.getTimeStep(0);
 			initialState = new RandomVariableInterface[] { new RandomVariable(Math.log(discountCurveFromForwardCurve.getDiscountFactor(0.0)/discountCurveFromForwardCurve.getDiscountFactor(dt))/dt) };
 		}
 
@@ -250,17 +249,8 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double meanReversionEffective = meanReversion*getB(time,timeNext)/(timeNext-time);
 
-		// Alternative way of expessing the drift
-//		double dV = getShortRateConditionalVariance(0, time);
-//		double phi = dV*getB(time,t1)/(t1-time);
-
-		double dV = getDV(0, time);
-		double dVChange = 0.0;
-		if(timeIndex > 1) {
-			double timePrev = getProcess().getTime(timeIndex-1); 
-			dVChange = (getDV(0,time) - getDV(0,timePrev))/(time-timePrev);
-		}
-		double phi = dVChange + meanReversionEffective * dV;		
+		double phi = getShortRateConditionalVariance(0, timeNext) * getB(time,timeNext)/(timeNext-time);
+//		double phi = (getDV(0, timeNext) - Math.exp(-meanReversion * (timeNext-time)) *  getDV(0, time)) / (timeNext-time);
 		
 		/*
 		 * The +meanReversionEffective * forwardPrev removes the previous forward from the mean-reversion part.

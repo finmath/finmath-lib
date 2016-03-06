@@ -7,6 +7,8 @@ package net.finmath.tests.montecarlo.interestrate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -23,6 +25,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.HullWhiteModelWithDirectSimulation;
+import net.finmath.montecarlo.interestrate.HullWhiteModelWithShiftExtension;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelInterface;
@@ -39,14 +42,26 @@ import net.finmath.montecarlo.interestrate.products.Bond;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.SimpleSwap;
 import net.finmath.montecarlo.interestrate.products.SimpleZeroSwap;
+import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
+import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.Numeraire;
+import net.finmath.montecarlo.interestrate.products.components.Option;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.CappedFlooredIndex;
 import net.finmath.montecarlo.interestrate.products.indices.ConstantMaturitySwaprate;
 import net.finmath.montecarlo.interestrate.products.indices.FixedCoupon;
+import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
+import net.finmath.montecarlo.interestrate.products.indices.LaggedIndex;
+import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.ScheduleGenerator;
+import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 /**
  * This class tests the Hull White model and products.
@@ -59,13 +74,15 @@ import net.finmath.time.TimeDiscretization;
  */
 public class HullWhiteModelTest {
 
-	private final int numberOfPaths		= 200000;
+	private final int numberOfPaths		= 20000;
 
-	private final int numberOfFactors	= 1;
-	private final double correlationDecay = 0.0;	// If 1 factor, parameter has no effect.
+	// LMM parameters
+	private final int numberOfFactors	= 1;		// For LMM Model.
+	private final double correlationDecay = 0.0;	// For LMM Model. If 1 factor, parameter has no effect.
 
-	private final double shortRateVolatility = 0.02;
-	private final double shortRateMeanreversion = 0.1;
+	// Hull White parameters (example: sigma = 0.02, a = 0.1 or sigma = 0.05, a = 0.5)
+	private final double shortRateVolatility = 0.05;	// Investigating LIBOR in Arrears, use a high volatility here (e.g. 0.1)
+	private final double shortRateMeanreversion = 0.5;
 
 	private LIBORModelMonteCarloSimulationInterface hullWhiteModelSimulation;
 	private LIBORModelMonteCarloSimulationInterface liborMarketModelSimulation;
@@ -123,7 +140,7 @@ public class HullWhiteModelTest {
 			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
 					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
 
-			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
+			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
 			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
@@ -393,6 +410,10 @@ public class HullWhiteModelTest {
 			else if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModelWithDirectSimulation) {
 				forwardBondVolatility = Math.sqrt(((HullWhiteModelWithDirectSimulation)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
 			}				
+			else if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModelWithShiftExtension) {
+				forwardBondVolatility = Math.sqrt(((HullWhiteModelWithShiftExtension)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
+			}				
+
 			double bondForward = (1.0+forward*periodLength);
 			double bondStrike = (1.0+strike*periodLength);
 
@@ -427,7 +448,7 @@ public class HullWhiteModelTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 2E-4);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 2.6E-4);
 	}
 
 	@Test
@@ -654,9 +675,79 @@ public class HullWhiteModelTest {
 
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
-		 * The swap should be at par (close to zero)
 		 */
 		Assert.assertTrue(maxAbsDeviation < 1E-3);
+	}
+
+	@Test
+	public void testLIBORInArrearsFloatLeg() throws CalculationException {
+
+		/*
+		 * Create a payment schedule from conventions
+		 */
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
+		int			spotOffsetDays = 2;
+		String		forwardStartPeriod = "6M";
+		String		maturity = "6M";
+		String		frequency = "semiannual";
+		String		daycountConvention = "30/360";
+
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+
+		/*
+		 * Create the leg with a notional and index
+		 */
+		AbstractNotional notional = new Notional(1.0);
+		AbstractIndex liborIndex = new LIBORIndex(0.0, 0.5);
+		AbstractIndex index = new LinearCombinationIndex(1.0, liborIndex, -1, new LaggedIndex(liborIndex, -0.5 /* fixingOffset */));
+		double spread = 0.0;
+
+		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
+
+		// Value the swap
+		RandomVariableInterface valueSimulationHW = leg.getValue(0,hullWhiteModelSimulation);
+		System.out.print(formatterValue.format(valueSimulationHW.getAverage()) + " " + formatterValue.format(valueSimulationHW.getStandardError()) + "          ");
+
+		RandomVariableInterface valueSimulationLMM = leg.getValue(0,liborMarketModelSimulation);
+		System.out.print(formatterValue.format(valueSimulationLMM.getAverage()) + " " + formatterValue.format(valueSimulationLMM.getStandardError()) + "          ");
+
+		// Absolute deviation
+		double deviationHWLMM = (valueSimulationHW.getAverage() - valueSimulationLMM.getAverage());
+		System.out.print(formatterDeviation.format(deviationHWLMM) + "          ");
+
+		System.out.println();
+
+		/*
+		 * jUnit assertion: condition under which we consider this test successful
+		 */
+		Assert.assertTrue(deviationHWLMM < 1E-3);
+	}
+
+	@Test
+	public void testPutOnMoneyMarketAccount() throws CalculationException {
+
+		/*
+		 * Create the product
+		 */
+		Option product = new Option(0.5, 1.025, new Numeraire());
+
+		// Value the product
+		RandomVariableInterface valueSimulationHW = product.getValue(0,hullWhiteModelSimulation);
+		System.out.print(formatterValue.format(valueSimulationHW.getAverage()) + " " + formatterValue.format(valueSimulationHW.getStandardError()) + "          ");
+
+		RandomVariableInterface valueSimulationLMM = product.getValue(0,liborMarketModelSimulation);
+		System.out.print(formatterValue.format(valueSimulationLMM.getAverage()) + " " + formatterValue.format(valueSimulationLMM.getStandardError()) + "          ");
+
+		// Absolute deviation
+		double deviationHWLMM = (valueSimulationHW.getAverage() - valueSimulationLMM.getAverage());
+		System.out.print(formatterDeviation.format(deviationHWLMM) + "          ");
+
+		System.out.println();
+
+		/*
+		 * jUnit assertion: condition under which we consider this test successful
+		 */
+		Assert.assertTrue(deviationHWLMM >= 0);
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {

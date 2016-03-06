@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Implements a Hull-White model.
+ * Implements a Hull-White model with time dependent mean reversion speed and time dependent short rate volatility.
  * 
  * <i>
  * Note: This implementation is for illustrative purposes.
@@ -47,10 +47,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <b>Time Discrete Model</b>
  * </p>
  * 
- * Since the class specifies the drift and factor loadings as piecewise constant functions for
- * an Euler-scheme, the class simulates the \( \Delta t_{i} \)-rate, that is the model primitive is
- * \[ \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} f(t_{i},\tau) \mathrm{d}\tau \]
- * (and not the short rate \( r \)). Here \( \{ t_{i} \} \) is the time discretization of the simulation time (used in the Euler-scheme).
+ * Assuming piecewise constant coefficients (mean reversion speed \( a \) and short
+ * rate volatility \( \sigma \) the class specifies the drift and factor loadings as
+ * piecewise constant functions for an Euler-scheme.
+ * The class provides the exact Euler step for the short rate r.
  * 
  * More specifically (assuming a constant mean reversion speed \( a \) for a moment), considering
  * \[ \Delta \bar{r}(t_{i}) = \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} d r(t) \]
@@ -306,12 +306,16 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		double alpha = zeroRate+getIntegratedDriftAdjustment(timeIndex);
 
 		value = value.add(alpha);
+
 		return value;
 	}
 
 	private RandomVariableInterface getZeroCouponBond(double time, double maturity) throws CalculationException {
-		RandomVariableInterface shortRate = getShortRate(getProcess().getTimeIndex(time));
-		return shortRate.mult(-getB(time,maturity)).exp().mult(getA(time, maturity));
+		int timeIndex = getProcess().getTimeIndex(time);
+		RandomVariableInterface shortRate = getShortRate(timeIndex);
+		double A = getA(time, maturity);
+		double B = getB(time, maturity);
+		return shortRate.mult(-B).exp().mult(A);
 	}
 
 	/**
@@ -424,7 +428,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	}
 
 	/**
-	 * Calculates the drift adjustment for the numeraire, that is
+	 * Calculates the drift adjustment for the log numeraire, that is
 	 * \(
 	 * \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s
 	 * \) where \( B(t,T) = \int_{t}^{T} \exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau) \mathrm{d}s \).

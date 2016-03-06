@@ -41,10 +41,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <b>Time Discrete Model</b>
  * </p>
  * 
- * Since the class specifies the drift and factor loadings as piecewise constant functions for
- * an Euler-scheme, the class simulates the \( \Delta t_{i} \)-rate, that is the model primitive is
- * \[ \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} f(t_{i},\tau) \mathrm{d}\tau \]
- * (and not the short rate \( r \)). Here \( \{ t_{i} \} \) is the time discretization of the simulation time (used in the Euler-scheme).
+ * Assuming piecewise constant coefficients (mean reversion speed \( a \) and short
+ * rate volatility \( \sigma \) the class specifies the drift and factor loadings as
+ * piecewise constant functions for an Euler-scheme.
+ * The class provides the exact Euler step for the joint distribution of
+ * \( (r,N) \), where \( r \) denotes the short rate and \( N \) denotes the
+ * numeraire, following the scheme in <a href="http://ssrn.com/abstract=2737091">ssrn.com/abstract=2737091</a>.
  * 
  * More specifically (assuming a constant mean reversion speed \( a \) for a moment), considering
  * \[ \Delta \bar{r}(t_{i}) = \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} d r(t) \]
@@ -88,13 +90,14 @@ import net.finmath.time.TimeDiscretizationInterface;
  * The mean reversion speed and the short rate volatility have to be provided to this class via an object implementing
  * {@link net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface}. 
  * 
- * 
  * @see net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface
+ * @see <a href="http://ssrn.com/abstract=2737091">ssrn.com/abstract=2737091</a>
  * 
  * @TODO Need to check/extend/correct documentation.
+ * @TODO getB only valid for non-time dep a(t).
  * 
  * @author Christian Fries
- * @version 1.2
+ * @version 1.3
  */
 public class HullWhiteModel extends AbstractModel implements LIBORModelInterface {
 
@@ -142,12 +145,12 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 
 		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
 
-		initialState = new RandomVariableInterface[] { new RandomVariable(0.0) };
+		initialState = new RandomVariableInterface[] { new RandomVariable(0.0), new RandomVariable(0.0) };
 	}
 
 	@Override
 	public int getNumberOfComponents() {
-		return 1;
+		return 2;
 	}
 
 	@Override
@@ -175,14 +178,12 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 			if(previousTimeIndex < 0) previousTimeIndex = -previousTimeIndex-1;
 			previousTimeIndex--;
 			double previousTime = getProcess().getTime(previousTimeIndex);
+			double nextTime = getProcess().getTime(previousTimeIndex+1);
 
-			// Get value of short rate for period from previousTime to time.
-			RandomVariableInterface rate = getShortRate(previousTimeIndex);
-
-			// Piecewise constant rate for the increment
-			RandomVariableInterface integratedRate = rate.mult(time-previousTime);
-
-			return getNumeraire(previousTime).mult(integratedRate.exp());
+			// Log-linear interpolation
+			return getNumeraire(previousTime).log().mult(nextTime-time)
+					.add(getNumeraire(nextTime).log().mult(time-previousTime))
+					.div(nextTime-previousTime).exp();
 		}
 
 		/*
@@ -194,16 +195,9 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		/*
 		 * Numeraire is not part of the cache, calculate it (populate the cache with intermediate numeraires too)
 		 */
-		RandomVariableInterface integratedRate = new RandomVariable(0.0);
-		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
-		for(int i=0; i<timeIndex; i++) {
-			RandomVariableInterface rate = getShortRate(i);
-			integratedRate = integratedRate.addProduct(rate, getProcess().getTimeDiscretization().getTimeStep(i));
-
-			numeraire = integratedRate.exp();
-			numeraires.put(i+1, numeraire);
-		}
-
+		RandomVariableInterface logNum = getProcessValue(timeIndex, 1).add(0.5*getV(0,time));
+		numeraire = logNum.exp().div(discountCurveFromForwardCurve.getDiscountFactor(time));
+		numeraires.put(timeIndex, numeraire);
 
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization
@@ -228,7 +222,10 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double meanReversionEffective = meanReversion*getB(time,timeNext)/(timeNext-time);
 
-		return new RandomVariableInterface[] { realizationAtTimeIndex[0].mult(-meanReversionEffective) };
+		RandomVariableInterface driftShortRate		= realizationAtTimeIndex[0].mult(-meanReversionEffective);
+		RandomVariableInterface driftLogNumeraire	= realizationAtTimeIndex[0].mult(getB(time,timeNext)/(timeNext-time));
+
+		return new RandomVariableInterface[] { driftShortRate, driftLogNumeraire };
 	}
 
 	@Override
@@ -241,9 +238,27 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
-		double volatilityEffective = scaling*volatilityModel.getVolatility(timeIndexVolatility);
 
-		return new RandomVariableInterface[] { new RandomVariable(volatilityEffective) };
+		double volatilityEffective = scaling * volatilityModel.getVolatility(timeIndexVolatility);
+
+		double factorLoading1, factorLoading2;
+		if(componentIndex == 0) {
+			// Factor loadings for the short rate driver.
+			factorLoading1 = volatilityEffective;
+			factorLoading2 = 0.0;
+		}
+		else if(componentIndex == 1) {
+			// Factor loadings for the numeraire driver.
+			double volatilityLogNumeraire = Math.sqrt((getV(time,timeNext)) / (timeNext-time));
+			double rho = (getDV(time,timeNext) / (timeNext-time)) / (volatilityEffective * volatilityLogNumeraire);
+			factorLoading1 = volatilityLogNumeraire * rho;
+			factorLoading2 = volatilityLogNumeraire * Math.sqrt(1-rho*rho);
+		}
+		else {
+			throw new IllegalArgumentException();
+		}
+
+		return new RandomVariableInterface[] { new RandomVariable(factorLoading1), new RandomVariable(factorLoading2) };
 	}
 
 	@Override
@@ -298,8 +313,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 
 		double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(timeNext)/discountCurveFromForwardCurve.getDiscountFactor(time)) / (timeNext-time);
 
-		double alpha = zeroRate;
-		if(time > timePrev)  alpha += 0.5 * (getV(0,time)-getV(0,Math.max(timePrev,0)))/(time-timePrev);
+		double alpha = zeroRate + getDV(0, time);
 
 		RandomVariableInterface value = getProcess().getProcessValue(timeIndex, 0);
 		value = value.add(alpha);
@@ -313,6 +327,28 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		double A = getA(time, maturity);
 		double B = getB(time, maturity);
 		return shortRate.mult(-B).exp().mult(A);
+	}
+
+	/**
+	 * This is the shift alpha of the process, which essentially represents
+	 * the integrated drift of the short rate (without the interest rate curve related part).
+	 * 
+	 * @param timeIndex Time index associated with the time discretization obtained from <code>getProcess</code>
+	 * @return The integrated drift (integrating from 0 to getTime(timeIndex)).
+	 */
+	private double getIntegratedDriftAdjustment(int timeIndex) {
+		double integratedDriftAdjustment = 0;
+		for(int i=1; i<=timeIndex; i++) {
+			double t = getProcess().getTime(i-1);
+			double t2 = getProcess().getTime(i);
+
+			int timeIndexVolatilityModel = volatilityModel.getTimeDiscretization().getTimeIndex(t);
+			if(timeIndexVolatilityModel < 0) timeIndexVolatilityModel = -timeIndexVolatilityModel-2;	// Get timeIndex corresponding to previous point
+			double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatilityModel);
+
+			integratedDriftAdjustment += getShortRateConditionalVariance(0, t) * getB(t,t2)/(t2-t) * (t2-t) - integratedDriftAdjustment * meanReversion * (t2-t) * getB(t,t2)/(t2-t);
+		}
+		return integratedDriftAdjustment;
 	}
 
 	/**
