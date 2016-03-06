@@ -318,7 +318,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			double discountFactor	= getSwapAnnuity(liborMarketModel, new double[] { periodStart , periodEnd}) / periodLength;
 			int optionMaturityIndex = liborMarketModel.getTimeIndex(optionMaturity);
 			int liborIndex = liborMarketModel.getLiborPeriodIndex(periodStart);
-			double volatility = Math.sqrt(liborMarketModel.getModel().getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
+			double volatility = Math.sqrt(((LIBORMarketModelInterface)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
 			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, strike, periodLength, discountFactor);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 	
@@ -371,7 +371,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			double discountFactor	= getSwapAnnuity(liborMarketModel, new double[] { periodStart , periodEnd}) / periodLength;
 			int optionMaturityIndex = liborMarketModel.getTimeIndex(optionMaturity);
 			int liborIndex = liborMarketModel.getLiborPeriodIndex(periodStart);
-			double volatility = Math.sqrt(liborMarketModel.getModel().getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
+			double volatility = Math.sqrt(((LIBORMarketModelInterface)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
 			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelDgitialCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 	
