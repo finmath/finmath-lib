@@ -13,6 +13,7 @@ import java.time.Month;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
@@ -34,7 +35,10 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFrom
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
+import net.finmath.montecarlo.interestrate.products.indices.ConstantMaturitySwaprate;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
+import net.finmath.montecarlo.interestrate.products.indices.LaggedIndex;
+import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.ScheduleGenerator;
@@ -56,14 +60,14 @@ public class SwapLegTest {
 	 */
 	@Test
 	public void testFloatLeg() throws CalculationException {
-		
+
 		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
 		String		frequency = "semiannual";
 		String		daycountConvention = "30/360";
-		
+
 		/*
 		 * Create Monte-Carlo leg
 		 */
@@ -72,7 +76,7 @@ public class SwapLegTest {
 		double spread = 0.0;
 		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
-		
+
 		/*
 		 * Create Monte-Carlo model
 		 */
@@ -101,7 +105,9 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("Float leg (analytic)..: " + valueAnalytic);
-		
+
+		System.out.println();
+
 		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 4E-3);
 	}
 
@@ -112,14 +118,14 @@ public class SwapLegTest {
 	 */
 	@Test
 	public void testFixLeg() throws CalculationException {
-		
+
 		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
 		String		frequency = "semiannual";
 		String		daycountConvention = "30/360";
-		
+
 		/*
 		 * Create Monte-Carlo leg
 		 */
@@ -128,7 +134,7 @@ public class SwapLegTest {
 		double spread = 0.05;
 		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
-		
+
 		/*
 		 * Create Monte-Carlo model
 		 */
@@ -157,14 +163,204 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("Fixed leg (analytic)..: " + valueAnalytic);
-		
+
+		System.out.println();
+
 		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 4E-3);
+	}
+
+	@Test
+	public void testCMSFloatLeg() throws CalculationException {
+
+		/*
+		 * Create a payment schedule from conventions
+		 */
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
+		int			spotOffsetDays = 2;
+		String		forwardStartPeriod = "0D";
+		String		maturity = "20Y";
+		String		frequency = "semiannual";
+		String		daycountConvention = "30/360";
+
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+
+		/*
+		 * Create the leg with a notional and index
+		 */
+		AbstractNotional notional = new Notional(1.0);
+		AbstractIndex index = new ConstantMaturitySwaprate(10.0, 0.5);
+		double spread = 0.0;
+
+		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
+
+		/*
+		 * Create Monte-Carlo model
+		 */
+		int numberOfPaths = 10000;
+		int numberOfFactors = 5;
+		double correlationDecayParam = 0.2;
+		LIBORModelMonteCarloSimulationInterface model = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
+
+		/*
+		 * Monte-Carlo value
+		 */
+		RandomVariableInterface value = leg.getValue(0.0, model);
+		double valueSimulation = value.getAverage();
+		System.out.println("CMS   leg (simulation)...........: " + value.getAverage() + "\t +/-" + value.getStandardError());
+
+		/*
+		 * Create analytic leg
+		 */
+		String forwardCurveName = "forwardCurve";
+		String discountCurveName = "discountCurve";
+		net.finmath.marketdata.products.SwapLeg legAnalytic = new net.finmath.marketdata.products.SwapLeg(schedule, forwardCurveName, spread, discountCurveName, false /* isNotionalExchanged */);
+
+		/*
+		 * Analytic value
+		 */
+		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
+		System.out.println("CMS   leg (analytic, zero vol)...: " + valueAnalytic);
+		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+
+		System.out.println();
+
+		Assert.assertTrue("Monte-Carlo value", valueSimulation > valueAnalytic);
+	}
+
+	/**
+	 * Test a CMS spread floating rate leg.
+	 * 
+	 * @throws CalculationException Thrown if calculation fails.
+	 */
+	@Test
+	public void testCMSSpreadLeg() throws CalculationException {
+
+		/*
+		 * Create a payment schedule from conventions
+		 */
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
+		int			spotOffsetDays = 2;
+		String		forwardStartPeriod = "0D";
+		String		maturity = "20Y";
+		String		frequency = "semiannual";
+		String		daycountConvention = "30/360";
+
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+
+		/*
+		 * Create the leg with a notional and index
+		 */
+		AbstractNotional notional = new Notional(1.0);
+
+		AbstractIndex cms10 = new ConstantMaturitySwaprate(10,0.5);
+		AbstractIndex cms2 = new ConstantMaturitySwaprate(2,0.5);
+		AbstractIndex cmsSpread = new LinearCombinationIndex(1.0, cms10, -1.0, cms2);
+		AbstractIndex index = cmsSpread;
+
+		double spread = 0.05;
+
+		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
+
+		/*
+		 * Create Monte-Carlo model
+		 */
+		int numberOfPaths = 10000;
+		int numberOfFactors = 5;
+		double correlationDecayParam = 0.2;
+		LIBORModelMonteCarloSimulationInterface model = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
+
+		/*
+		 * Monte-Carlo value
+		 */
+		RandomVariableInterface value = leg.getValue(0.0, model);
+		double valueSimulation = value.getAverage();
+		System.out.println("CMS leg (simulation)........: " + value.getAverage() + "\t +/-" + value.getStandardError());
+
+		/*
+		 * Create analytic leg
+		 */
+		String forwardCurveName = null;
+		String discountCurveName = "discountCurve";
+		net.finmath.marketdata.products.SwapLeg legAnalytic = new net.finmath.marketdata.products.SwapLeg(schedule, forwardCurveName, spread, discountCurveName, false /* isNotionalExchanged */);
+
+		/*
+		 * Analytic value
+		 */
+		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
+		System.out.println("CMS leg (analytic, zero vol): " + valueAnalytic);
+		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+
+		System.out.println();
+
+		Assert.assertTrue("Monte-Carlo value", valueSimulation > valueAnalytic);
+	}
+
+	@Test
+	public void testLIBORInArrearsFloatLeg() throws CalculationException {
+
+		/*
+		 * Create a payment schedule from conventions
+		 */
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
+		int			spotOffsetDays = 2;
+		String		forwardStartPeriod = "0D";
+		String		maturity = "35Y";
+		String		frequency = "semiannual";
+		String		daycountConvention = "30/360";
+
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+
+		/*
+		 * Create the leg with a notional and index
+		 */
+		AbstractNotional notional = new Notional(1.0);
+		AbstractIndex liborIndex = new LIBORIndex(0.0, 0.5);
+		AbstractIndex index = new LaggedIndex(liborIndex, 0.5 /* fixingOffset */);
+		double spread = 0.0;
+
+		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
+
+		/*
+		 * Create Monte-Carlo model
+		 */
+		int numberOfPaths = 10000;
+		int numberOfFactors = 5;
+		double correlationDecayParam = 0.2;
+		LIBORModelMonteCarloSimulationInterface model = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
+
+		/*
+		 * Monte-Carlo value
+		 */
+		RandomVariableInterface value = leg.getValue(0.0, model);
+		double valueSimulation = value.getAverage();
+		System.out.println("Arrears leg (simulation)........: " + value.getAverage() + "\t +/-" + value.getStandardError());
+
+		/*
+		 * Create analytic leg
+		 */
+		String forwardCurveName = "forwardCurve";
+		String discountCurveName = "discountCurve";
+		net.finmath.marketdata.products.SwapLeg legAnalytic = new net.finmath.marketdata.products.SwapLeg(schedule, forwardCurveName, spread, discountCurveName, false /* isNotionalExchanged */);
+
+		/*
+		 * Analytic value
+		 */
+		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
+		System.out.println("Arrears leg (analytic, zero vol): " + valueAnalytic);
+		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+
+		System.out.println();
+
+		Assert.assertTrue("Monte-Carlo value", valueSimulation > valueAnalytic);
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
-	
+
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
@@ -204,7 +400,7 @@ public class SwapLegTest {
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 40.0;
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);		
-		
+
 		/*
 		 * Create a simulation time discretization
 		 */
@@ -259,7 +455,7 @@ public class SwapLegTest {
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
-		
+
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 

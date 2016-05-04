@@ -25,7 +25,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class CurveFactory {
 
-	private static DayCountConvention_ACT_365 modelDcc;
+	private static DayCountConvention_ACT_365 modelDcc = new DayCountConvention_ACT_365();
 
 	/**
 	 * Creates a monthly index curve with seasonality and past fixings.
@@ -44,13 +44,13 @@ public class CurveFactory {
 	 * @param referenceDate The reference date of the curve.
 	 * @param indexFixings A Map&lt;LocalDate, Double&gt; of past fixings. 
 	 * @param seasonalityAdjustments A Map&lt;String, Double&gt; of seasonality adjustments (annualized continuously compounded rates for the given month, i.e., the seasonality factor is exp(seasonalityAdjustment/12)), where the String keys are "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december".
-	 * @param seasonalAveragingNumerOfYears If seasonalityAdjustments is null you may provide an integer representing a number of years to have the seasonality estimated from the past fixings in <code>indexFixings</code>.
+	 * @param seasonalAveragingNumberOfYears If seasonalityAdjustments is null you may provide an integer representing a number of years to have the seasonality estimated from the past fixings in <code>indexFixings</code>.
 	 * @param annualizedZeroRates Map&lt;LocalDate, Double&gt; of annualized zero rates for given maturities.
 	 * @param forwardsFixingLag The fixing lag (e.g. "-3M" for -3 month)
 	 * @param forwardsFixingType The fixing type (e.g. "endOfMonth")
 	 * @return An index curve.
 	 */
-	public static CurveInterface createIndexCurveWithSeasonality(String name, LocalDate referenceDate, Map<LocalDate, Double> indexFixings, Map<String, Double> seasonalityAdjustments, Integer seasonalAveragingNumerOfYears, Map<LocalDate, Double> annualizedZeroRates, String forwardsFixingLag, String forwardsFixingType) {
+	public static CurveInterface createIndexCurveWithSeasonality(String name, LocalDate referenceDate, Map<LocalDate, Double> indexFixings, Map<String, Double> seasonalityAdjustments, Integer seasonalAveragingNumberOfYears, Map<LocalDate, Double> annualizedZeroRates, String forwardsFixingLag, String forwardsFixingType) {
 
 		/*
 		 * Create a curve containing past fixings (using picewise constant interpolation)
@@ -71,7 +71,7 @@ public class CurveFactory {
 		 * Create a curve modeling the seasonality
 		 */
 		CurveInterface seasonCurve = null;
-		if(seasonalityAdjustments != null && seasonalityAdjustments.size() > 0 && seasonalAveragingNumerOfYears == null) {
+		if(seasonalityAdjustments != null && seasonalityAdjustments.size() > 0 && seasonalAveragingNumberOfYears == null) {
 			String[] monthList = { "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december" };
 			double[] seasonTimes = new double[12];
 			double[] seasonValue = new double[12];
@@ -83,10 +83,10 @@ public class CurveFactory {
 			}
 			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate,new Curve(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue));
 		}
-		else if(seasonalAveragingNumerOfYears != null && seasonalityAdjustments == null) {
-			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate, indexFixings, seasonalAveragingNumerOfYears);
+		else if(seasonalAveragingNumberOfYears != null && seasonalityAdjustments == null) {
+			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate, indexFixings, seasonalAveragingNumberOfYears);
 		}
-		else if(seasonalAveragingNumerOfYears != null && seasonalityAdjustments != null) {
+		else if(seasonalAveragingNumberOfYears != null && seasonalityAdjustments != null) {
 			throw new IllegalArgumentException("Specified seasonal factors and seasonal averaging at the same time.");
 		}
 		

@@ -35,6 +35,12 @@ import cern.colt.matrix.linalg.EigenvalueDecomposition;
  */
 public class LinearAlgebra {
 	
+	private final static boolean isUseApacheCommonsMath;
+	static {
+		// Default value is false
+		isUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","false"));
+	}
+
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
@@ -83,7 +89,6 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationSymmetric(double[][] matrix, double[] vector) {
-		boolean  isUseApacheCommonsMath = true;
 		if(isUseApacheCommonsMath) {
 			// We use the linear algebra package apache commons math
 			DecompositionSolver solver = new CholeskyDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
@@ -121,7 +126,6 @@ public class LinearAlgebra {
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
 	public static double[][] getFactorMatrix(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = false;
 		if(isUseApacheCommonsMath) {
 			/*
 			 * Note: Commons math has convergence problems, where Colt does not.
@@ -141,7 +145,6 @@ public class LinearAlgebra {
 	 * @return Factor reduced correlation matrix.
 	 */
 	public static double[][] factorReduction(double[][] correlationMatrix, int numberOfFactors) {
-		boolean  isUseApacheCommonsMath = true;
 		if(isUseApacheCommonsMath) {
 			return factorReductionUsingCommonsMath(correlationMatrix, numberOfFactors);
 		}
@@ -256,7 +259,7 @@ public class LinearAlgebra {
 		// Extract factors corresponding to the largest eigenvalues
 		double[][] factorMatrix = getFactorMatrix(correlationMatrix, numberOfFactors);
 
-		// Renormalized rows
+		// Renormalize rows
 		for (int row = 0; row < correlationMatrix.length; row++) {
 			double sumSquared = 0;
 			for (int factor = 0; factor < numberOfFactors; factor++)
@@ -290,7 +293,7 @@ public class LinearAlgebra {
 		// Extract factors corresponding to the largest eigenvalues
 		DoubleMatrix2D factorMatrix = getFactorMatrixUsingColt(correlationMatrix, numberOfFactors);
 
-		// Renormalized rows
+		// Renormalize rows
 		for (int row = 0; row < factorMatrix.rows(); row++) {
 			double sumSquared = 0;
 			for (int factor = 0; factor < factorMatrix.columns(); factor++)

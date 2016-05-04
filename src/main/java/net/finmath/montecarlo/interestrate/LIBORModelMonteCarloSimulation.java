@@ -10,7 +10,6 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -26,7 +25,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimulationInterface {
 
-	private final LIBORMarketModelInterface model;
+	private final LIBORModelInterface model;
 
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel and an AbstractProcess.
@@ -34,7 +33,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	 * @param model The LIBORMarketModel.
 	 * @param process The process.
 	 */
-	public LIBORModelMonteCarloSimulation(LIBORMarketModelInterface model, AbstractProcess process) {
+	public LIBORModelMonteCarloSimulation(LIBORModelInterface model, AbstractProcess process) {
 		super();
 		this.model		= model;
 
@@ -234,17 +233,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return model.getNumeraire(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCovarianceModel()
-	 */
-	public AbstractLIBORCovarianceModel getCovarianceModel() {
-		return model.getCovarianceModel();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getModel()
-	 */
-	public LIBORMarketModelInterface getModel() {
+	public LIBORModelInterface getModel() {
 		return model;
 	}
 
@@ -255,17 +244,11 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return model.getProcess();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
-	 */
 	public Object getCloneWithModifiedSeed(int seed) {
 		AbstractProcess process = (AbstractProcess) ((AbstractProcess)getProcess()).getCloneWithModifiedSeed(seed);
 		return new LIBORModelMonteCarloSimulation(model, process);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
-	 */
 	public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		LIBORMarketModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {

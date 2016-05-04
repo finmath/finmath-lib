@@ -74,7 +74,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 
 		if(valueUnit == ValueUnit.VALUE) return value;
 
-		ForwardCurveInterface forwardCurve	= model.getModel().getForwardRateCurve();
+    	ForwardCurveInterface forwardCurve	= model.getModel().getForwardRateCurve();
 		ForwardCurveInterface discountCurve	= forwardCurve;
 
 		double parSwaprate = Swap.getForwardSwapRate(tenor, tenor, forwardCurve);

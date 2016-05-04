@@ -12,9 +12,8 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -158,16 +157,12 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 		return liborSimulation.getBrownianMotion();
 	}
 
-	public LIBORMarketModelInterface getModel() {
+	public LIBORModelInterface getModel() {
 		return liborSimulation.getModel();
 	}
 
 	public AbstractProcessInterface getProcess() {
 		return liborSimulation.getProcess();
-	}
-
-	public AbstractLIBORCovarianceModel getCovarianceModel() {
-		return liborSimulation.getCovarianceModel();
 	}
 
 	/**

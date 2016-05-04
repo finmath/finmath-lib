@@ -98,6 +98,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
      * Create a non stochastic random variable, i.e. a constant.
      *
      * @param time the filtration time, set to 0.0 if not used.
+     * @param numberOfPath The number of path/state of the associated Monte-Carlo simulation or lattice.
      * @param value the value, a constant.
      */
     public RandomVariableLazyEvaluation(double time, int numberOfPath, double value) {
@@ -128,6 +129,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
      *
      * @param time the filtration time, set to 0.0 if not used.
      * @param realisations the vector of realizations.
+     * @param size The number of path/state of the associated Monte-Carlo simulation or lattice.
      */
     public RandomVariableLazyEvaluation(double time, IntToDoubleFunction realisations, int size) {
         super();

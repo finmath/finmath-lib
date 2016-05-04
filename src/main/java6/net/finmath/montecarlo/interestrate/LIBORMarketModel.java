@@ -158,7 +158,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private final Object	integratedLIBORCovarianceLazyInitLock = new Object();
 
 	private final ConcurrentHashMap<Integer, RandomVariableInterface> numeraires;
-	
+
 	public static class CalibrationItem {
 		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
 		public final double								calibrationTargetValue;
@@ -407,7 +407,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 						(properties == null || properties.get("stateSpace") == null || ((String)properties.get("stateSpace")).toUpperCase().equals(StateSpace.LOGNORMAL.name()))
 						&& AbstractLIBORCovarianceModelParametric.class.isAssignableFrom(covarianceModel.getClass())
 						),
-						properties
+				properties
 				);
 	}
 
@@ -582,43 +582,49 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			return numeraire;
 		}
 
-		// Calculate the numeraire, when time is part of liborPeriodDiscretization
-
-		// Get the start and end of the product
-		int firstLiborIndex, lastLiborIndex;
-
-		if(measure == Measure.TERMINAL) {
-			firstLiborIndex	= getLiborPeriodIndex(time);
-			if(firstLiborIndex < 0) {
-				throw new CalculationException("Simulation time discretization not part of forward rate tenor discretization.");
-			}
-
-			lastLiborIndex 	= liborPeriodDiscretization.getNumberOfTimeSteps()-1;
-		}
-		else if(measure == Measure.SPOT) {
-			// Spot measure
-			firstLiborIndex	= 0;
-			lastLiborIndex	= getLiborPeriodIndex(time)-1;
-		}
-		else {
-			throw new CalculationException("Numeraire not implemented for specified measure.");
-		}
-
 		/*
-		 * Calculation of the numeraire
+		 * Calculate the numeraire, when time is part of liborPeriodDiscretization
 		 */
 
-		RandomVariableInterface numeraire = numeraires.get(timeIndex);//.get();
+		/*
+		 * Check if numeraire is part of the cache
+		 */
+		RandomVariableInterface numeraire = numeraires.get(timeIndex);
 		if(numeraire == null) {
+			/*
+			 * Calculate the numeraire for timeIndex
+			 */
+
 			// Initialize to 1.0
 			numeraire = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
-	
+
+
+			// Get the start and end of the product
+			int firstLiborIndex, lastLiborIndex;
+
+			if(measure == Measure.TERMINAL) {
+				firstLiborIndex	= getLiborPeriodIndex(time);
+				if(firstLiborIndex < 0) {
+					throw new CalculationException("Simulation time discretization not part of forward rate tenor discretization.");
+				}
+
+				lastLiborIndex 	= liborPeriodDiscretization.getNumberOfTimeSteps()-1;
+			}
+			else if(measure == Measure.SPOT) {
+				// Spot measure
+				firstLiborIndex	= 0;
+				lastLiborIndex	= getLiborPeriodIndex(time)-1;
+			}
+			else {
+				throw new CalculationException("Numeraire not implemented for specified measure.");
+			}
+
 			// The product 
 			for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
 				RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
-	
+
 				double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
-	
+
 				if(measure == Measure.SPOT) {
 					numeraire = numeraire.accrue(libor, periodLength);
 				}
@@ -872,7 +878,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				}
 			}
 		}
-		
+
 		return integratedLIBORCovariance;
 	}
 

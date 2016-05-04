@@ -11,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>2.0.3-SNAPSHOT</version>
+	<version>2.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -59,6 +59,11 @@
 		<contributor>
 			<name>Oliver Schweitzer</name>
 			<email>oschweitzer@me.com</email>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
+			<name>William Wong</name>
+			<email>william1104@gmail.com</email>
 			<timezone>1</timezone>
 		</contributor>
 	</contributors>

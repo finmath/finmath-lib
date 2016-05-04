@@ -99,9 +99,9 @@ public interface RandomVariableInterface extends Serializable {
 	double[] getRealizations(int numberOfPaths);
 
 	/**
-	 * Returns the operator path -> this.get(path) corresponding to this random variable.
+	 * Returns the operator path &rarr; this.get(path) corresponding to this random variable.
 	 * 
-	 * @return The operator path -> this.get(path) corresponding to this random variable.
+	 * @return The operator path &rarr; this.get(path) corresponding to this random variable.
 	 */
 	IntToDoubleFunction getOperator();
 

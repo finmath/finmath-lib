@@ -14,6 +14,7 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -77,10 +78,12 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
         this.valueUnit	= valueUnit;
     }
 
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
-    	return getValues(evaluationTime, model.getModel());
-    }
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
+    	AbstractModelInterface modelBase = model.getModel();
+    	if(modelBase instanceof LIBORMarketModelInterface) return getValues(evaluationTime, (LIBORMarketModelInterface)modelBase);
+    	else throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModelInterface.");
+	}
     
     /**
      * Calculates the approximated integrated instantaneous variance of the swap rate,
@@ -144,7 +147,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
      * This function calculate the partial derivative <i>d log(S) / d log(L<sub>k</sub>)</i> for
      * a given swap rate with respect to a vector of forward rates (on a given forward rate tenor).
      * 
-     * It also returns some useful other quantities like the corresponding discout factors and swap annuities.
+     * It also returns some useful other quantities like the corresponding discount factors and swap annuities.
      * 
      * @param liborPeriodDiscretization The libor period discretization.
      * @param forwardCurveInterface The forward curve.
