@@ -13,7 +13,6 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -114,8 +113,6 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 
 	private final ShortRateVolailityModelInterface volatilityModel;
 
-	private final RandomVariableInterface[] initialState;
-
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
 	 * 
@@ -144,8 +141,6 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 
 		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
-
-		initialState = new RandomVariableInterface[] { new RandomVariable(0.0), new RandomVariable(0.0) };
 	}
 
 	@Override
@@ -160,12 +155,18 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 
 	@Override
 	public RandomVariableInterface[] getInitialState() {
-		return initialState;
+		// Initial value is zero - BrownianMotionInterface serves as a factory here.
+		RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		return new RandomVariableInterface[] { zero, zero };
 	}
 
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
-		if(time == getTime(0)) return new RandomVariable(1.0);
+		if(time == getTime(0)) {
+			// Initial value of numeraire is one - BrownianMotionInterface serves as a factory here.
+			RandomVariableInterface one = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
+			return one;
+		}
 
 		int timeIndex = getProcess().getTimeIndex(time);
 		if(timeIndex < 0) {
@@ -258,7 +259,10 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 			throw new IllegalArgumentException();
 		}
 
-		return new RandomVariableInterface[] { new RandomVariable(factorLoading1), new RandomVariable(factorLoading2) };
+		RandomVariableInterface factorLoading1RV = getProcess().getBrownianMotion().getRandomVariableForConstant(factorLoading1);
+		RandomVariableInterface factorLoading2RV = getProcess().getBrownianMotion().getRandomVariableForConstant(factorLoading2);
+
+		return new RandomVariableInterface[] { factorLoading1RV, factorLoading2RV };
 	}
 
 	@Override

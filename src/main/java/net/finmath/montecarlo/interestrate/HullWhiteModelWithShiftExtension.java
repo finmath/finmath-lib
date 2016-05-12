@@ -13,7 +13,6 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -122,8 +121,6 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 
 	private final ShortRateVolailityModelInterface volatilityModel;
 
-	private final RandomVariableInterface[] initialState;
-
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
 	 * 
@@ -153,8 +150,6 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 
 		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
 
-		initialState = new RandomVariableInterface[] { new RandomVariable(0.0) };
-		
 		if(properties != null && properties.containsKey("driftFormula")) driftFormula = DriftFormula.valueOf((String)properties.get("driftFormula"));
 		else driftFormula = DriftFormula.DISCRETE;
 	}
@@ -171,12 +166,18 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 
 	@Override
 	public RandomVariableInterface[] getInitialState() {
-		return initialState;
+		// Initial value is zero - BrownianMotionInterface serves as a factory here.
+		RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		return new RandomVariableInterface[] { zero };
 	}
 
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
-		if(time == getTime(0)) return new RandomVariable(1.0);
+		if(time == getTime(0)) {
+			// Initial value of numeraire is one - BrownianMotionInterface serves as a factory here.
+			RandomVariableInterface one = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
+			return one;
+		}
 
 		int timeIndex = getProcess().getTimeIndex(time);
 		if(timeIndex < 0) {
@@ -208,7 +209,8 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		/*
 		 * Numeraire is not part of the cache, calculate it (populate the cache with intermediate numeraires too)
 		 */
-		RandomVariableInterface integratedRate = new RandomVariable(0.0);
+		RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		RandomVariableInterface integratedRate = zero;
 		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 		for(int i=0; i<timeIndex; i++) {
 			RandomVariableInterface rate = getShortRate(i);
@@ -259,7 +261,8 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
 		double volatilityEffective = scaling*volatilityModel.getVolatility(timeIndexVolatility);
 
-		return new RandomVariableInterface[] { new RandomVariable(volatilityEffective) };
+		RandomVariableInterface factorLoading = getProcess().getBrownianMotion().getRandomVariableForConstant(volatilityEffective);
+		return new RandomVariableInterface[] { factorLoading };
 	}
 
 	@Override

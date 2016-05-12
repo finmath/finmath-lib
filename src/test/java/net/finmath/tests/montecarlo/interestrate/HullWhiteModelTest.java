@@ -39,6 +39,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFrom
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModel;
+import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Bond;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.SimpleSwap;
@@ -75,7 +76,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
  */
 public class HullWhiteModelTest {
 
-	private final int numberOfPaths		= 200000;
+	private final int numberOfPaths		= 20000;
 
 	// LMM parameters
 	private final int numberOfFactors	= 1;		// For LMM Model.
@@ -135,12 +136,12 @@ public class HullWhiteModelTest {
 		 */
 		{
 			/*
-			 * Create a volatility model
+			 * Create a volatility model: Hull white with constant coefficients (non time dep.).
 			 */
 			ShortRateVolailityModelInterface volatilityModel = new ShortRateVolatilityModel(
-					new TimeDiscretization(0.0, 5.0),
-					new double[] { shortRateVolatility, shortRateVolatility } /* volatility */,
-					new double[] { shortRateMeanreversion, shortRateMeanreversion } /* meanReversion */);
+					new TimeDiscretization(0.0),
+					new double[] { shortRateVolatility } /* volatility */,
+					new double[] { shortRateMeanreversion } /* meanReversion */);
 
 			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
 					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
@@ -544,6 +545,94 @@ public class HullWhiteModelTest {
 	}
 
 	@Test
+	public void testBermudanSwaption() throws CalculationException {
+		/*
+		 * Value a swaption
+		 */
+		System.out.println("Bermudan Swaption prices:\n");
+		System.out.println("Maturity      Simulation(HW)  Simulation(LMM)  AnalyticSwaption  Deviation          ");
+
+		long startMillis	= System.currentTimeMillis();
+
+		double maxAbsDeviation = 0.0;
+		for (int maturityIndex = 1; maturityIndex <= hullWhiteModelSimulation.getNumberOfLibors() - 10; maturityIndex++) {
+
+			double exerciseDate = hullWhiteModelSimulation.getLiborPeriod(maturityIndex);
+			System.out.print(formatterMaturity.format(exerciseDate) + "          ");
+
+			int numberOfPeriods = 5;
+
+			// Create a swaption
+
+			double[] fixingDates = new double[numberOfPeriods];
+			double[] paymentDates = new double[numberOfPeriods];
+			double[] swapTenor = new double[numberOfPeriods + 1];
+			double swapPeriodLength = 0.5;
+			String tenorCode = "6M";
+
+			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
+				fixingDates[periodStartIndex] = exerciseDate + periodStartIndex * swapPeriodLength;
+				paymentDates[periodStartIndex] = exerciseDate + (periodStartIndex + 1) * swapPeriodLength;
+				swapTenor[periodStartIndex] = exerciseDate + periodStartIndex * swapPeriodLength;
+			}
+			swapTenor[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
+
+			// Swaptions swap rate
+			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor, tenorCode);
+			double swapAnnuity = getSwapAnnuity(hullWhiteModelSimulation, swapTenor);
+
+			// Set swap rates for each period
+			double[] swaprates = new double[numberOfPeriods];
+			Arrays.fill(swaprates, swaprate);
+
+			double[] periodLength = new double[numberOfPeriods];
+			Arrays.fill(periodLength, swapPeriodLength);
+
+			double[] periodNotionals = new double[numberOfPeriods];
+			Arrays.fill(periodNotionals, 1.0);
+
+			boolean[] isPeriodStartDateExerciseDate = new boolean[numberOfPeriods];
+			Arrays.fill(isPeriodStartDateExerciseDate, true);
+
+			// Create a bermudan swaption
+			BermudanSwaption bermudanSwaption = new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLength, paymentDates, periodNotionals, swaprates);
+
+			// Value with Hull-White Model Monte Carlo
+			double valueSimulationHW = bermudanSwaption.getValue(hullWhiteModelSimulation);
+			System.out.print(formatterValue.format(valueSimulationHW) + "          ");
+
+			// Value with LIBOR Market Model Monte Carlo
+			double valueSimulationLMM = bermudanSwaption.getValue(liborMarketModelSimulation);
+			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
+
+			// Value the underlying swaption with analytic formula (approximate, using Bachelier formula)
+			SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+			double volatilityAnalytic = swaptionAnalytic.getValue(liborMarketModelSimulation);
+			double valueAnalytic = AnalyticFormulas.bachelierOptionValue(swaprate, volatilityAnalytic, exerciseDate, swaprate, swapAnnuity);
+			System.out.print(formatterValue.format(valueAnalytic) + "          ");
+
+			// Absolute deviation
+			double deviationHWLMM = (valueSimulationHW - valueSimulationLMM);
+			System.out.print(formatterDeviation.format(deviationHWLMM) + "          ");
+
+			System.out.println();
+
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWLMM));
+		}
+
+		long endMillis		= System.currentTimeMillis();
+
+		System.out.println("Maximum abs deviation  : " + formatterDeviation.format(maxAbsDeviation));
+		System.out.println("Calculation time (sec) : " + ((endMillis-startMillis) / 1000.0));
+		System.out.println("__________________________________________________________________________________________\n");
+
+		/*
+		 * jUnit assertion: condition under which we consider this test successful
+		 */
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 8E-3);
+	}
+
+	@Test
 	public void testCapletSmile() throws CalculationException {
 		/*
 		 * Value a caplet
@@ -577,12 +666,12 @@ public class HullWhiteModelTest {
 
 			// Value with Hull-White Model Monte Carlo
 			double valueSimulationHW = caplet.getValue(hullWhiteModelSimulation);
-			valueSimulationHW = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationHW);
+			valueSimulationHW = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationHW);
 			System.out.print(formatterValue.format(valueSimulationHW) + "          ");
 
 			// Value with LIBOR Market Model Monte Carlo
 			double valueSimulationLMM = caplet.getValue(liborMarketModelSimulation);
-			valueSimulationLMM = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationLMM);
+			valueSimulationLMM = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationLMM);
 			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
 
 			// Value analytic
@@ -592,7 +681,7 @@ public class HullWhiteModelTest {
 
 			double zeroBondPut = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
 			double valueAnalytic = zeroBondPut / bondStrike / periodLength;
-			valueAnalytic = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
+			valueAnalytic = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
 			// Absolute deviation
@@ -617,7 +706,7 @@ public class HullWhiteModelTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 2E-2);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 1E-3);
 	}
 
 
@@ -722,6 +811,9 @@ public class HullWhiteModelTest {
 
 		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
 
+		System.out.println("LIBOR in Arrears Swap prices:\n");
+		System.out.println("Value (HW)               Value (LMM)              Deviation");
+
 		// Value the swap
 		RandomVariableInterface valueSimulationHW = leg.getValue(0,hullWhiteModelSimulation);
 		System.out.print(formatterValue.format(valueSimulationHW.getAverage()) + " " + formatterValue.format(valueSimulationHW.getStandardError()) + "          ");
@@ -734,6 +826,8 @@ public class HullWhiteModelTest {
 		System.out.print(formatterDeviation.format(deviationHWLMM) + "          ");
 
 		System.out.println();
+
+		System.out.println("__________________________________________________________________________________________\n");
 
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
@@ -749,6 +843,9 @@ public class HullWhiteModelTest {
 		 */
 		Option product = new Option(0.5, 1.025, new Numeraire());
 
+		System.out.println("Put-on-Money-Market-Account prices:\n");
+		System.out.println("Value (HW)               Value (LMM)              Deviation");
+
 		// Value the product
 		RandomVariableInterface valueSimulationHW = product.getValue(0,hullWhiteModelSimulation);
 		System.out.print(formatterValue.format(valueSimulationHW.getAverage()) + " " + formatterValue.format(valueSimulationHW.getStandardError()) + "          ");
@@ -761,6 +858,8 @@ public class HullWhiteModelTest {
 		System.out.print(formatterDeviation.format(deviationHWLMM) + "          ");
 
 		System.out.println();
+
+		System.out.println("__________________________________________________________________________________________\n");
 
 		/*
 		 * jUnit assertion: condition under which we consider this test successful

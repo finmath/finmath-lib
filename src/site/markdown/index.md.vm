@@ -17,6 +17,7 @@ The finmath lib libraries provides implementations of methodologies related to m
     - LIBOR Market Model
     - Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
     - Equity Hybrid LIBOR Market Model
+    - Hull-White Short Rate Model (with time dependent parameters)
 - Estimation of conditional expectations in a Monte-Carlo framework
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
     - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
