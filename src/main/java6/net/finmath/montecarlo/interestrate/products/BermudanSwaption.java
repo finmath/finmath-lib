@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
@@ -48,17 +49,17 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		this.swaprates = swaprates;
 	}
 
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-     */
-    @Override
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
@@ -83,61 +84,60 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 			// Apply discounting and Monte-Carlo probabilities
 			RandomVariableInterface	numeraire               = model.getNumeraire(paymentDate);
 			RandomVariableInterface	monteCarloProbabilities = model.getMonteCarloWeights(paymentDate);
-            payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
-			
-//			model.discount(paymentDate, values);
-            valuesUnderlying = valuesUnderlying.add(payoff);
+			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
+
+			//			model.discount(paymentDate, values);
+			valuesUnderlying = valuesUnderlying.add(payoff);
 
 			if(isPeriodStartDateExerciseDate[period]) {
 				RandomVariableInterface triggerValuesDiscounted = values.sub(valuesUnderlying);
 
 				// Remove foresight through condition expectation
-		    	MonteCarloConditionalExpectation condExpEstimator = getConditionalExpectationEstimator(period, model);
-		    	
+				MonteCarloConditionalExpectation condExpEstimator = getConditionalExpectationEstimator(fixingDate, model);
+
 				// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
 				RandomVariableInterface triggerValues         = condExpEstimator.getConditionalExpectation(triggerValuesDiscounted);
 
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
-                values = values.barrier(triggerValues, values, valuesUnderlying);
+				values = values.barrier(triggerValues, values, valuesUnderlying);
 			}
 		}
 
-//		model.discount(evaluationTime, values);
+		//		model.discount(evaluationTime, values);
 
-        // Note that values is a relative price - no numeraire division is required
-        RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-        RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-        values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		// Note that values is a relative price - no numeraire division is required
+		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
-        return values;
+		return values;
 	}
 
 	/**
 	 * Return the conditional expectation estimator suitable for this product.
 	 * 
-     * @param fixingDateIndex The time index corresponding to the fixing date
-     * @param model The model
-     * @return The conditional expectation estimator suitable for this product
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-     */
-    private MonteCarloConditionalExpectation getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-    	MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(
-    			getRegressionBasisFunctions(fixingDateIndex, model)
-    			);
+	 * @param fixingDate The condition time.
+	 * @param model The model
+	 * @return The conditional expectation estimator suitable for this product
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	public MonteCarloConditionalExpectation getConditionalExpectationEstimator(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(
+				getRegressionBasisFunctions(fixingDate, model)
+				);
 		return condExpEstimator;
-    }
+	}
 
 	/**
 	 * Return the basis functions for the regression suitable for this product.
 	 * 
-     * @param fixingDateIndex The time index corresponding to the fixing date
-     * @param model The model
+	 * @param fixingDateIndex The time index corresponding to the fixing date
+	 * @param model The model
 	 * @return The basis functions for the regression suitable for this product.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 */
-	private RandomVariableInterface[] getRegressionBasisFunctions(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		double fixingDate   = fixingDates[fixingDateIndex];
+	private RandomVariableInterface[] getRegressionBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
 
@@ -145,20 +145,30 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		RandomVariableInterface basisFunction = new RandomVariable(fixingDate, 1.0);
 		basisFunctions.add(basisFunction);
 
-		// LIBORs
-		RandomVariableInterface rate = model.getLIBOR(fixingDate, fixingDates[0], paymentDates[paymentDates.length-1]);
-		double periodLength = paymentDates[paymentDates.length-1]-fixingDates[0];
-		basisFunction = basisFunctions.get(0).discount(rate, periodLength);
-		basisFunctions.add(basisFunction);
-		basisFunction = basisFunctions.get(1).discount(rate, periodLength);
-		basisFunctions.add(basisFunction);
+		int fixingDateIndex = Arrays.binarySearch(fixingDates, fixingDate);
+		if(fixingDateIndex < 0) fixingDateIndex = -fixingDateIndex;
+		if(fixingDateIndex >= fixingDates.length) fixingDateIndex = fixingDates.length-1;
+
+		// forward rate to the next period
+		RandomVariableInterface rateShort = model.getLIBOR(fixingDate, fixingDate, paymentDates[fixingDateIndex]);
+		basisFunctions.add(rateShort);
+		basisFunctions.add(rateShort.pow(2.0));
+		basisFunctions.add(rateShort.pow(3.0));
+
+		// forward rate to the end of the product
+		RandomVariableInterface rateLong = model.getLIBOR(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);
+		basisFunctions.add(rateLong);
+		basisFunctions.add(rateLong.pow(2.0));
+		basisFunctions.add(rateLong.pow(3.0));
 
 		// Numeraire
 		RandomVariableInterface numeraire = model.getNumeraire(fixingDate);
-		basisFunction = numeraire;
-		basisFunctions.add(basisFunction);
-		basisFunction = numeraire.squared();
-		basisFunctions.add(basisFunction);
+		basisFunctions.add(numeraire);
+		basisFunctions.add(numeraire.pow(2.0));
+		basisFunctions.add(numeraire.pow(3.0));
+
+		// Cross
+		basisFunctions.add(rateLong.mult(numeraire));
 
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
