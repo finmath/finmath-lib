@@ -144,6 +144,35 @@ public class AnalyticFormulas {
 	}
 
 	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), or a put, i.e., the payoff max(K-S(T),0), where S follows a log-normal process with constant log-volatility.
+	 * 
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T for the call and zero for the put.
+	 * @param isCall If true, the value of a call is calculated, if false, the value of a put is calculated.
+	 * @return Returns the value of a European call/put option under the Black-Scholes model.
+	 */
+	public static double blackScholesOptionValue(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double optionMaturity,
+			double optionStrike,
+			boolean isCall)	{
+
+		double callValue = blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+		if(isCall) {
+			return callValue;
+		}
+		else {
+			double putValue = callValue - (initialStockValue-optionStrike *  Math.exp(-riskFreeRate * optionMaturity));
+			return putValue;
+		}
+	}
+
+	/**
 	 * Calculates the Black-Scholes option value of an atm call option.
 	 * 
 	 * @param volatility The Black-Scholes volatility.
