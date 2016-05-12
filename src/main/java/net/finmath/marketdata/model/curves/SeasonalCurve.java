@@ -144,9 +144,9 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	public static double[] computeSeasonalAdjustments(LocalDate referenceDate, Map<LocalDate, Double> indexFixings, int numberOfYearsToAverage) {
-		DayCountConventionInterface modelDcc = new DayCountConvention_ACT_365();
+		DayCountConventionInterface modelDcc = new DayCountConvention_ACT_365();			// Not needed: remove
 
-		double[] fixingTimes = new double[indexFixings.size()];
+		double[] fixingTimes = new double[indexFixings.size()];								// Not needed: remove
 		double[] realizedCPIValues = new double[indexFixings.size()];
 		int i = 0;
 		List<LocalDate> fixingDates = new ArrayList<LocalDate>(indexFixings.keySet());
