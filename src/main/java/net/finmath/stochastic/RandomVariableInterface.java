@@ -548,7 +548,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Applies x &rarr; (Double.isNaN(x) ? 1.0 : 0.0)
 	 * 
-	 * @return A random variable which is 1.0 for all states that are NaN.
+	 * @return A random variable which is 1.0 for all states that are NaN, otherwise 0.0.
 	 */
 	RandomVariableInterface isNaN();
 
