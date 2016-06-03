@@ -244,8 +244,8 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public double getVariance() {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic() || size() == 1)	return 0.0;
+		if(size() == 0)							return Double.NaN;
 
 		double average = getAverage();
 
@@ -260,12 +260,12 @@ public class RandomVariable implements RandomVariableInterface {
 			errorOfSum		= (newSum - sum) - value;
 			sum				= newSum;
 		}
-		return sum/realizations.length;
+		return sum/(realizations.length-1);
 	}
 
 	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
-		if(isDeterministic())	return 0.0;
+		if(isDeterministic() || size() == 1)	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
 		double average = getAverage(probabilities);

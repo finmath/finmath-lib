@@ -28,6 +28,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class RandomVariable implements RandomVariableInterface {
 
+	private static final long serialVersionUID = -1352953450936857742L;
+
 	private final double      time;	                // Time (filtration)
 
 	// Data model for the stochastic case (otherwise null)
