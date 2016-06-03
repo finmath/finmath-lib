@@ -84,8 +84,8 @@ public class HullWhiteModelTest {
 	private final double correlationDecay = 0.0;	// For LMM Model. If 1 factor, parameter has no effect.
 
 	// Hull White parameters (example: sigma = 0.02, a = 0.1 or sigma = 0.05, a = 0.5)
-	private final double shortRateVolatility = 0.05;	// Investigating LIBOR in Arrears, use a high volatility here (e.g. 0.1)
-	private final double shortRateMeanreversion = 0.5;
+	private final double shortRateVolatility = 0.02;	// Investigating LIBOR in Arrears, use a high volatility here (e.g. 0.1)
+	private final double shortRateMeanreversion = 0.1;
 
 	private LIBORModelMonteCarloSimulationInterface hullWhiteModelSimulation;
 	private LIBORModelMonteCarloSimulationInterface liborMarketModelSimulation;
@@ -407,12 +407,12 @@ public class HullWhiteModelTest {
 
 			// Value with Hull-White Model Monte Carlo
 			double valueSimulationHW = caplet.getValue(hullWhiteModelSimulation);
-			//valueSimulationHW = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationHW);
+			valueSimulationHW = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationHW);
 			System.out.print(formatterValue.format(valueSimulationHW) + "          ");
 
 			// Value with LIBOR Market Model Monte Carlo
 			double valueSimulationLMM = caplet.getValue(liborMarketModelSimulation);
-			//valueSimulationLMM = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationLMM);
+			valueSimulationLMM = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueSimulationLMM);
 			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
 
 			// Value with analytic formula
@@ -433,7 +433,7 @@ public class HullWhiteModelTest {
 			double zeroBondPut = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
 
 			double valueAnalytic = zeroBondPut / bondStrike / periodLength;
-			//valueAnalytic = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
+			valueAnalytic = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
 			// Absolute deviation
@@ -461,7 +461,7 @@ public class HullWhiteModelTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(Math.abs(maxAbsDeviation) < 2.6E-4);
+		Assert.assertTrue(Math.abs(maxAbsDeviation) < 1E-3);
 	}
 
 	@Test
