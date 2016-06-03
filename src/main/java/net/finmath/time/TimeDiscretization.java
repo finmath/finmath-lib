@@ -182,9 +182,11 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	@Override
 	public TimeDiscretizationInterface getTimeShiftedTimeDiscretization(double timeShift) {
 		double[] newTimeDiscretization = new double[timeDiscretization.length];
-		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++)
+
+		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
 			newTimeDiscretization[timeIndex] = roundToTimeTickSize(timeDiscretization[timeIndex]+timeShift);
-		java.util.Arrays.sort(this.timeDiscretization);
+		}
+
 		return new TimeDiscretization(newTimeDiscretization);
 	}
 
