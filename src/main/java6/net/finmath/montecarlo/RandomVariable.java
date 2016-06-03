@@ -486,9 +486,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return ((RandomVariable)expand(numberOfPaths)).realizations;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#apply(org.apache.commons.math3.analysis.UnivariateFunction)
-	 */
 	@Override
 	public RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function) {
 		if(isDeterministic()) {
