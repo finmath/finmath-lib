@@ -19,7 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * The class RandomVariable represents a random variable being the evaluation of a stochastic process
  * at a certain time within a Monte-Carlo simulation.
- * It is thus essentially a vector of doubles - the realizations - together with a double - the time.
+ * It is thus essentially a vector of floating point numbers - the realizations - together with a double - the time.
  * The index of the vector represents path.
  * The class may also be used for non-stochastic quantities which may potentially be stochastic
  * (e.g. volatility). If only non-stochastic random variables are involved in an operation the class uses
@@ -28,10 +28,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Accesses performed exclusively through the interface
  * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
  *
+ * This implementation uses floats for the realizations (consuming less memory compared to using doubles). However,
+ * the calculation of the average is performed using double precision.
+ * 
  * @author Christian Fries
  * @version 1.8
  */
 public class RandomVariableLowMemory implements RandomVariableInterface {
+
+	private static final long serialVersionUID = 7620120320663270600L;
 
 	private final double      time;	                // Time (filtration)
 

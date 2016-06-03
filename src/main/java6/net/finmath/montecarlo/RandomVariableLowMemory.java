@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * The class RandomVariable represents a random variable being the evaluation of a stochastic process
  * at a certain time within a Monte-Carlo simulation.
- * It is thus essentially a vector of doubles - the realizations - together with a double - the time.
+ * It is thus essentially a vector of floating point numbers - the realizations - together with a double - the time.
  * The index of the vector represents path.
  * The class may also be used for non-stochastic quantities which may potentially be stochastic
  * (e.g. volatility). If only non-stochastic random variables are involved in an operation the class uses
@@ -23,10 +23,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Accesses performed exclusively through the interface
  * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
  *
+ * This implementation uses floats for the realizations (consuming less memory compared to using doubles). However,
+ * the calculation of the average is performed using double precision.
+ * 
  * @author Christian Fries
  * @version 1.8
  */
 public class RandomVariableLowMemory implements RandomVariableInterface {
+
+	private static final long serialVersionUID = 7620120320663270600L;
 
 	private final double      time;	                // Time (filtration)
 
@@ -46,18 +51,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : getFloatArray(value.getRealizations());
 		this.valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
-	}
-
-	private float[] getFloatArray(double[] arrayOfDouble) {
-		float[] arrayOfFloat = new float[arrayOfDouble.length];
-		for(int i=0; i<arrayOfDouble.length; i++) arrayOfFloat[i] = (float)arrayOfDouble[i];
-		return arrayOfFloat;
-	}
-
-	private double[] getDoubleArray(float[] arrayOfFloat) {
-		double[] arrayOfDouble = new double[arrayOfFloat.length];
-		for(int i=0; i<arrayOfFloat.length; i++) arrayOfDouble[i] = arrayOfFloat[i];
-		return arrayOfDouble;
 	}
 
 	/**
@@ -121,6 +114,18 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		this.time = time;
 		this.realizations = getFloatArray(realisations);
 		this.valueIfNonStochastic = Double.NaN;
+	}
+
+	private float[] getFloatArray(double[] arrayOfDouble) {
+		float[] arrayOfFloat = new float[arrayOfDouble.length];
+		for(int i=0; i<arrayOfDouble.length; i++) arrayOfFloat[i] = (float)arrayOfDouble[i];
+		return arrayOfFloat;
+	}
+
+	private double[] getDoubleArray(float[] arrayOfFloat) {
+		double[] arrayOfDouble = new double[arrayOfFloat.length];
+		for(int i=0; i<arrayOfFloat.length; i++) arrayOfDouble[i] = arrayOfFloat[i];
+		return arrayOfDouble;
 	}
 
 	/* (non-Javadoc)
@@ -299,9 +304,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return Math.sqrt(getVariance());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getStandardDeviation(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
@@ -310,9 +312,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return Math.sqrt(getVariance(probabilities));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
-	 */
 	@Override
 	public double getStandardError() {
 		if(isDeterministic())	return 0.0;
@@ -517,9 +516,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return getDoubleArray(((RandomVariableLowMemory)expand(numberOfPaths)).realizations);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#apply(org.apache.commons.math3.analysis.UnivariateFunction)
-	 */
 	@Override
 	public RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function) {
 		if(isDeterministic()) {
@@ -564,9 +560,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(double)
-	 */
 	@Override
 	public RandomVariableInterface add(double value) {
 		if(isDeterministic()) {
@@ -580,9 +573,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(double)
-	 */
 	@Override
 	public RandomVariableInterface sub(double value) {
 		if(isDeterministic()) {
@@ -596,9 +586,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(double)
-	 */
 	@Override
 	public RandomVariableInterface mult(double value) {
 		if(isDeterministic()) {
@@ -628,9 +615,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#pow(double)
-	 */
 	@Override
 	public RandomVariableInterface pow(double exponent) {
 		if(isDeterministic()) {
@@ -644,9 +628,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
-	 */
 	@Override
 	public RandomVariableInterface squared() {
 		if(isDeterministic()) {
@@ -660,9 +641,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
-	 */
 	@Override
 	public RandomVariableInterface sqrt() {
 		if(isDeterministic()) {
