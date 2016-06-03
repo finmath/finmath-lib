@@ -95,6 +95,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * 
 	 * @param numberOfPaths The number of paths.
 	 * @return The realization as double array.
+	 * @deprecated The method is intended for diagnostic purposes, deprecated because it makes to strong assumptions on the internal representation.
 	 */
 	double[] getRealizations(int numberOfPaths);
 
