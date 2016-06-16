@@ -178,8 +178,8 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println(" Strike \t Monte-Carlo \t Analytic \t Deviation");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		double riskFreeRate	= blackScholesModel.getRiskFreeRate();
-		double volatility	= blackScholesModel.getVolatility();
+		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate();
+		double volatility	= blackScholesModel.getModel().getVolatility();
 
 		double optionMaturity	= 1.0;
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.05) {
@@ -382,8 +382,8 @@ public class BlackScholesMonteCarloValuationTest {
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		double riskFreeRate	= blackScholesModel.getRiskFreeRate();
-		double volatility	= blackScholesModel.getVolatility();
+		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate();
+		double volatility	= blackScholesModel.getModel().getVolatility();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Delta (European options with maturity 1.0):");
@@ -454,8 +454,8 @@ public class BlackScholesMonteCarloValuationTest {
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		double riskFreeRate	= blackScholesModel.getRiskFreeRate();
-		double volatility	= blackScholesModel.getVolatility();
+		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate();
+		double volatility	= blackScholesModel.getModel().getVolatility();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Vega (European options with maturity 1.0):");
