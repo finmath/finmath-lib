@@ -268,9 +268,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return (sumOfSquared/realizations.length - sum/realizations.length*sum/realizations.length);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
-	 */
+	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
@@ -599,9 +597,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(double)
-	 */
 	@Override
 	public RandomVariableInterface div(double value) {
 		if(isDeterministic()) {

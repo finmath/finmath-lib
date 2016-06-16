@@ -95,10 +95,13 @@ public interface AbstractModelInterface {
 	 * in an <i>m</i>-factor model. Here <i>j</i> denotes index of the component of the resulting
 	 * process.
 	 * 
+	 * Since the model is provided only on a time discretization, the method may also (should try to) return the drift
+	 * as \( \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} \mu(\tau) \mathrm{d}\tau \).
+	 * 
 	 * @param timeIndex The time index (related to the model times discretization).
 	 * @param realizationAtTimeIndex The given realization at timeIndex
-	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
-	 * @return The (average) drift from timeIndex to timeIndex+1
+	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null if no predictor is available.
+	 * @return The drift or average drift from timeIndex to timeIndex+1, i.e. \( \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} \mu(\tau) \mathrm{d}\tau \) (or a suitable approximation).
 	 */
 	RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
 
