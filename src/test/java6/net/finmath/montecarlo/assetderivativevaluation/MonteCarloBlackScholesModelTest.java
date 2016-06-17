@@ -86,10 +86,12 @@ public class MonteCarloBlackScholesModelTest {
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
+		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
+		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloBlackScholesModel(initialValue, riskFreeRate, volatility, process);
+
 		/*
 		 * Value a call option (using the product implementation)
 		 */
-		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloBlackScholesModel(initialValue, riskFreeRate, volatility, process);
 		EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
 		double value = europeanOption.getValue(monteCarloBlackScholesModel);
 		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
