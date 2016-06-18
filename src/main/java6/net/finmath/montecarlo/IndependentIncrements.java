@@ -58,7 +58,7 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 	private final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions;
 
 	/**
-	 * Construct  the simulation of independet increments.
+	 * Construct  the simulation of independent increments.
 	 * 
 	 * Independent increments is a sequence of independent random variables index
 	 * by the time index associated with the time discretization. At each time step

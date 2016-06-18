@@ -170,8 +170,8 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 	private void doGenerateIncrements() {
 		if(increments != null) return;	// Nothing to do
 
-		// Create random number sequence generator (we use MersenneTwister64 from colt)
-		MersenneTwister64		mersenneTwister		= new MersenneTwister64(seed);
+		// Create random number sequence generator
+		MersenneTwister			mersenneTwister		= new MersenneTwister(seed);
 
 		// Allocate memory
 		double[][][] incrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];
