@@ -108,7 +108,7 @@ public class SwapLegTest {
 
 		System.out.println();
 
-		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 4E-3);
+		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 5E-3);
 	}
 
 	/**

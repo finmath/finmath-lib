@@ -9,7 +9,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntFunction;
 
 import java.io.Serializable;
-import cern.jet.random.engine.MersenneTwister64;
+import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 

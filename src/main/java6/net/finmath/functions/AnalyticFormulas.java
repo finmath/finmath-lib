@@ -462,10 +462,10 @@ public class AnalyticFormulas {
 	 * <p><i>max(S(T)-K,0)</i></p>, where <i>S</i> follows a log-normal process with constant log-volatility.
 	 * The admissible values for <code>optionValue</code> are between <code>forward * payoffUnit - optionStrike</code> (the inner value) and <code>forward * payoffUnit</code>.
 	 *
-	 * @param forward The forward of the underlying.
+	 * @param forward The forward of the underlying (which is equal to S(0) / payoffUnit, given the spot value S(0)).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param payoffUnit The payoff unit (e.g., the discount factor), (which is equal to exp(-maturity * r), given the interest rate r).
 	 * @param optionValue The option value. The admissible values for <code>optionValue</code> are between <code>forward * payoffUnit - optionStrike</code> (the inner value) and <code>forward * payoffUnit</code>.
 	 * @return Returns the implied volatility of a European call option under the Black-Scholes model.
 	 */
@@ -961,6 +961,24 @@ public class AnalyticFormulas {
 			return term1 * term2 * term3;
 		}		
 	}
+
+	/**
+	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
+	 * For details see Dimitroff, Fries, Lichtner and Rodi: Lognormal vs Normal Volatilities and Sensitivities in Practice {@link http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2687742}.
+	 * 
+	 * @param forward The forward
+	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
+	 * @param maturity The maturity
+	 * @param lognormalVolatiltiy The (implied) lognormal volatility.
+	 * @return The (implied) normal volatility.
+	 */
+	public static double volatilityConversionLognormalATMtoNormalATM(double forward, double displacement, double maturity, double lognormalVolatiltiy) {
+		double x = lognormalVolatiltiy * Math.sqrt(maturity / 8);
+		double y = org.apache.commons.math3.special.Erf.erf(x);
+		double normalVol = Math.sqrt(2*Math.PI / maturity) * (forward+displacement) * y;
+
+		return normalVol;
+	}		
 
 	/**
 	 * Re-implementation of the Excel PRICE function (a rather primitive bond price formula).

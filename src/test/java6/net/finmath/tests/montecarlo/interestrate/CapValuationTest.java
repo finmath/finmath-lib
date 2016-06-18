@@ -218,6 +218,6 @@ public class CapValuationTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 2E-3);
+		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 3E-3);
 	}
 }

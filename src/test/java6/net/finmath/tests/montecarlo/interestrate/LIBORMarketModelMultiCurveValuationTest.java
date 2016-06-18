@@ -281,8 +281,8 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 * jUnit assertion: condition under which we consider this test successful
 		 * The swap should be at par (close to zero)
 		 */
-		if(measure == Measure.SPOT)	Assert.assertTrue(maxAbsDeviation < 1E-3);
-		else						Assert.assertTrue(maxAbsDeviation < 1E-2);
+		if(measure == Measure.SPOT)	Assert.assertEquals(0, maxAbsDeviation, 2E-3);
+		else						Assert.assertEquals(0, maxAbsDeviation, 2E-2);
 	}
 
 	@Test

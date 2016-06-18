@@ -368,7 +368,7 @@ public class HullWhiteModelTest {
 		 * jUnit assertion: condition under which we consider this test successful
 		 * The swap should be at par (close to zero)
 		 */
-		Assert.assertTrue(maxAbsDeviation < 1E-3);
+		Assert.assertEquals(0.0, maxAbsDeviation, 1.5E-3);
 	}
 
 	@Test

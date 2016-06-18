@@ -7,7 +7,7 @@ package net.finmath.montecarlo;
 
 import java.io.Serializable;
 
-import cern.jet.random.engine.MersenneTwister64;
+import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -127,8 +127,8 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	private void doGenerateBrownianMotion() {
 		if(brownianIncrements != null) return;	// Nothing to do
 
-		// Create random number sequence generator (we use MersenneTwister64 from colt)
-		MersenneTwister64		mersenneTwister		= new MersenneTwister64(seed);
+		// Create random number sequence generator
+		MersenneTwister mersenneTwister = new MersenneTwister(seed);
 
 		// Allocate memory
 		double[][][] brownianIncrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];

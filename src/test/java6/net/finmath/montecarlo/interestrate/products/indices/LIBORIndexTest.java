@@ -186,7 +186,7 @@ public class LIBORIndexTest {
 			double value = period.getValue(liborMarketModel);
 			
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0);
+			double toleranceThisTest = oneBasisPoint/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/200000.0);
 
 			Assert.assertEquals(0.0, value / periodLength, toleranceThisTest);
 

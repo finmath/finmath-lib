@@ -1,7 +1,7 @@
 package net.finmath.integration;
 
-import cern.jet.random.engine.MersenneTwister64;
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
+import net.finmath.randomnumbers.MersenneTwister;
 
 
 /**
@@ -17,7 +17,6 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 
 	private int		numberOfEvaluationPoints;
 	private int		seed = 3141;
-
 
 	/**
 	 * Create an integrator using Simpson's rule.
@@ -53,8 +52,8 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		double	upperBound			= getUpperBound();
 		double	range				= upperBound-lowerBound;
 		
-		// Create random number sequence generator (we use MersenneTwister64 from colt)
-		MersenneTwister64		mersenneTwister		= new MersenneTwister64(seed);
+		// Create random number sequence generator (we use MersenneTwister)
+		MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
 
         double integral = 0.0;
         for(int i=0; i<numberOfEvaluationPoints; i++) {
