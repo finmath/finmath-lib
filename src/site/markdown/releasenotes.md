@@ -5,6 +5,23 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.2.0
+
+### Dependencies
+
+- Replaced colt-1.2.0 by apache commons-math-3.6.1.
+
+Since the implementation of MersenneTwister in commons-math differs from that in colt, this
+change will lead to small changes in Monte-Carlo valuations.
+Since the implementation of linear equation solver in commons-math differes from that in colt, this
+change will lead to (very) small changes in calibration parameters.
+
+The switch from colt-1.2.0 to commons-math was necessary to obtain OSGi compliant setup.
+
+### Analytic Formulas
+
+- Added analytic conversion from lognormal to normal (ATM) volatility.
+
 ## 2.1.1
 
 ### Monte-Carlo Simulation of Interest Rate Models
