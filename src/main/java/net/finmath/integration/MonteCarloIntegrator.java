@@ -4,7 +4,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import cern.jet.random.engine.MersenneTwister64;
+import net.finmath.randomnumbers.MersenneTwister;
 
 
 /**
@@ -20,7 +20,6 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 
 	private int		numberOfEvaluationPoints;
 	private int		seed = 3141;
-
 
 	/**
 	 * Create an integrator using Simpson's rule.
@@ -56,8 +55,8 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		double	upperBound			= getUpperBound();
 		double	range				= upperBound-lowerBound;
 		
-		// Create random number sequence generator (we use MersenneTwister64 from colt)
-		MersenneTwister64		mersenneTwister		= new MersenneTwister64(seed);
+		// Create random number sequence generator (we use MersenneTwister)
+		MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
 
 		DoubleStream randomNumberSequence = IntStream.range(0, numberOfEvaluationPoints).sequential().mapToDouble(i -> mersenneTwister.nextDouble());
 

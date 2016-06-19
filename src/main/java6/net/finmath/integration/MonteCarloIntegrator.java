@@ -51,14 +51,14 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		double	lowerBound			= getLowerBound();
 		double	upperBound			= getUpperBound();
 		double	range				= upperBound-lowerBound;
-		
+
 		// Create random number sequence generator (we use MersenneTwister)
 		MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
 
-        double integral = 0.0;
-        for(int i=0; i<numberOfEvaluationPoints; i++) {
-            integral += integrand.applyAsDouble(lowerBound + mersenneTwister.nextDouble() * range);
-        }
+		double integral = 0.0;
+		for(int i=0; i<numberOfEvaluationPoints; i++) {
+			integral += integrand.applyAsDouble(lowerBound + mersenneTwister.nextDouble() * range);
+		}
 
 		return integral * range / numberOfEvaluationPoints;
 	}
