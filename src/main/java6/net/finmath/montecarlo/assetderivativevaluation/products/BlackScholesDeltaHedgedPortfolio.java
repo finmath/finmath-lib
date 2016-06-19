@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * This class implements a delta hedged portfolio of an European option (a hedge simulator).
  * The hedge is done under the assumption of a Black Scholes Model (even if the pricing model is a different one).
  *
- * The {@link getValue}-method returns the random variable \( \Pi(t) \) representing the value
+ * The <code>getValue</code>-method returns the random variable \( \Pi(t) \) representing the value
  * of the replication portfolio \( \Pi(t) = \phi_0(t) N(t) +  \phi_1(t) S(t) \).
  *
  * @author Christian Fries
