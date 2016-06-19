@@ -346,9 +346,9 @@
 	</distributionManagement>
 
 	<scm>
-		<url>http://svn.finmath.net/finmath lib/trunk</url>
-		<connection>scm:svn:http://svn.finmath.net/finmath lib/trunk</connection>
-		<developerConnection>scm:svn:http://svn.finmath.net/finmath lib/trunk</developerConnection>
+		<url>https://github.com/finmath/finmath-lib</url>
+		<connection>scm:git:git://github.com/finmath/finmath-lib.git</connection>
+		<developerConnection>scm:git:git://github.com/finmath/finmath-lib.git</developerConnection>
 	</scm>
 
 	<ciManagement>
