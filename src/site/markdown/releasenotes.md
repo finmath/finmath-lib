@@ -5,6 +5,12 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.2.2
+
+### General
+
+- Added OSGi MANIFEST file
+
 ## 2.2.0
 
 ### Dependencies
