@@ -1,0 +1,5 @@
+-sources: false
+-dsannotations: *
+-metatype: *
+Bundle-SymbolicName: finmath-lib
+Export-Package: net.finmath.*
