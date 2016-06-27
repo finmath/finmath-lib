@@ -101,7 +101,6 @@ public abstract class AbstractModel implements AbstractModelInterface {
 		return process.getTime(timeIndex);
 	}
 
-
 	/**
 	 * Return the time index associated for the given simulation time.
 	 * @param time A given time.

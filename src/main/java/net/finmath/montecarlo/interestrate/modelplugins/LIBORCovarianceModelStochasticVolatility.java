@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.util.Map;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.BrownianMotionView;
@@ -172,6 +174,11 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 					@Override
 					public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
 						return randomVariable.exp();
+					}
+
+					@Override
+					public AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+						throw new UnsupportedOperationException("Method not implemented");
 					}
 				});
 

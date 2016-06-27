@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.model;
 
+import java.util.Map;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -145,4 +147,16 @@ public interface AbstractModelInterface {
 	 */
 	AbstractProcessInterface getProcess();
 
+	/**
+	 * Returns a clone of this model where the specified properties have been modified.
+	 * 
+	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
+	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
+	 * no exception may be thrown.
+	 * 
+	 * @param dataModified Key-value-map of parameters to modify.
+	 * @return A clone of this model (or this model if no parameter was modified).
+	 * @throws CalculationException Thrown when the model could not be created.
+	 */
+	AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

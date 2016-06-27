@@ -5,12 +5,14 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.util.Map;
+
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements a Black Scholes Model, that is, it provides the drift and volatility secification
- * and perform the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
+ * This class implements a Black Scholes Model, that is, it provides the drift and volatility specification
+ * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
  *
  * The model is
  * \[
@@ -104,6 +106,18 @@ public class BlackScholesModel extends AbstractModel {
 
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return getProcess().getBrownianMotion().getRandomVariableForConstant(value);
+	}
+
+	@Override
+	public BlackScholesModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
+		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : this.getRiskFreeRate();
+		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: this.getVolatility();
+
+		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility);
 	}
 
 	@Override

@@ -5,7 +5,11 @@
  */
 package net.finmath.montecarlo.process;
 
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.model.AbstractModelInterface;
 
 /**
  * The interface for a process (numerical scheme) of a stochastic process <i>X</i> where
@@ -29,7 +33,7 @@ import net.finmath.montecarlo.BrownianMotionInterface;
  */
 public interface AbstractProcessInterface extends ProcessInterface {
 
-    /**
+	/**
      * @return Returns the numberOfPaths.
      */
     int getNumberOfPaths();
@@ -39,10 +43,31 @@ public interface AbstractProcessInterface extends ProcessInterface {
      */
     int getNumberOfFactors();
 
-    /**
+
+	/**
      * @return Returns the brownian motion used to generate this process
      */
     BrownianMotionInterface getBrownianMotion();
+
+	/**
+	 * Sets the model to be used. Should be called only once (at construction).
+	 * 
+	 * @param model The model to be used.
+	 */
+	void setModel(AbstractModelInterface model);
+
+	/**
+	 * Returns a clone of this model where the specified properties have been modified.
+	 * 
+	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
+	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
+	 * no exception may be thrown.
+	 * 
+	 * @param dataModified Key-value-map of parameters to modify.
+	 * @return A clone of this model (or this model if no parameter was modified).
+	 * @throws CalculationException Thrown when the model could not be created.
+	 */
+	AbstractProcessInterface getCloneWithModifiedData(Map<String, Object> dataModified);
 
 	/**
 	 * Create and return a clone of this process. The clone is not tied to any model, but has the same
@@ -51,5 +76,4 @@ public interface AbstractProcessInterface extends ProcessInterface {
 	 * @return Clone of the process
 	 */
     AbstractProcessInterface clone();
-
 }

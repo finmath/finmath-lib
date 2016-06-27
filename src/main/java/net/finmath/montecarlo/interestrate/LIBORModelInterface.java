@@ -83,6 +83,6 @@ public interface LIBORModelInterface extends AbstractModelInterface {
 	 * @return A new object implementing LIBORMarketModelInterface, using the new data.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
+	@Override
 	LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
-
 }

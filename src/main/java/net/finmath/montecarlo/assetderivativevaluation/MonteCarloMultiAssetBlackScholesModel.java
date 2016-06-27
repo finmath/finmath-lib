@@ -234,7 +234,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+	public MonteCarloMultiAssetBlackScholesModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		
 		double[]	newInitialValues = initialValues;
 		double		newRiskFreeRate = riskFreeRate;
