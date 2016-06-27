@@ -83,6 +83,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 *
 	 * @param seed The seed of the underlying random number generator.
 	 * @return Returns a clone of this model except for a modified Monte-Carlo seed.
+	 * @throws CalculationException Thrown if cloning failed.
 	 */
 	AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed)  throws CalculationException;
 }

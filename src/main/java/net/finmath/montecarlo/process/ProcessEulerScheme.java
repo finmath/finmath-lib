@@ -75,7 +75,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	/**
 	 * Create an Euler discretization scheme.
 	 * 
-	 * @param brownianMotion The Brownian driver of the process
+	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
 	public ProcessEulerScheme(IndependentIncrementsInterface stochasticDriver) {
 		super(stochasticDriver.getTimeDiscretization());
