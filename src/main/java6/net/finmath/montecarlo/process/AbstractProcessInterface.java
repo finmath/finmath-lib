@@ -34,20 +34,20 @@ import net.finmath.montecarlo.model.AbstractModelInterface;
 public interface AbstractProcessInterface extends ProcessInterface {
 
 	/**
-     * @return Returns the numberOfPaths.
-     */
-    int getNumberOfPaths();
+	 * @return Returns the numberOfPaths.
+	 */
+	int getNumberOfPaths();
 
-    /**
-     * @return Returns the numberOfFactors.
-     */
-    int getNumberOfFactors();
+	/**
+	 * @return Returns the numberOfFactors.
+	 */
+	int getNumberOfFactors();
 
 
 	/**
-     * @return Returns the brownian motion used to generate this process
-     */
-    BrownianMotionInterface getBrownianMotion();
+	 * @return Returns the brownian motion used to generate this process
+	 */
+	BrownianMotionInterface getBrownianMotion();
 
 	/**
 	 * Sets the model to be used. Should be called only once (at construction).
@@ -75,5 +75,5 @@ public interface AbstractProcessInterface extends ProcessInterface {
 	 * 
 	 * @return Clone of the process
 	 */
-    AbstractProcessInterface clone();
+	AbstractProcessInterface clone();
 }
