@@ -29,7 +29,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * \]
 
  * 
- * Hence, using the <i>state space transform</i>, it is possible to create a log-Eurler scheme, i.e.,
+ * Hence, using the <i>state space transform</i>, it is possible to create a log-Euler scheme, i.e.,
  * \[
  * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (\mu(t_{i}) - \frac{1}{2} sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.} 
  * \]
@@ -63,7 +63,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	/**
 	 * Create an Euler discretization scheme.
 	 * 
-	 * @param brownianMotion The Brownian driver of the process
+	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 * @param scheme The scheme to use. See {@link Scheme}.
 	 */
 	public ProcessEulerScheme(IndependentIncrementsInterface stochasticDriver, Scheme scheme) {

@@ -31,8 +31,8 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
 	 * 
-	 * @param newModel
-	 * @param newProcess
+	 * @param model The model to be used.
+	 * @param process The numerical scheme to be used.
 	 */
 	public MonteCarloAssetModel(
 			AbstractModelInterface model,

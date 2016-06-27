@@ -5,8 +5,6 @@
  */
 package net.finmath.functions;
 
-import org.apache.commons.math3.util.FastMath;
-
 /**
  * @author Christian Fries
  */
@@ -22,7 +20,7 @@ public class NormalDistribution {
 	 * @return The value of the density at x.
 	 */
 	public static double density(double x) {
-		return FastMath.exp(-x*x/2.0) / FastMath.sqrt(FastMath.PI*2.0);
+		return normalDistribution.density(x); // FastMath.exp(-x*x/2.0) / FastMath.sqrt(FastMath.PI*2.0);
 	}
 
 	/**
