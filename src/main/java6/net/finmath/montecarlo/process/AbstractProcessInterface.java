@@ -7,7 +7,6 @@ package net.finmath.montecarlo.process;
 
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 
