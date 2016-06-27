@@ -77,7 +77,7 @@ public class MonteCarloBlackScholesModelTest {
 	}
 
 	@Test
-	public void testProductImpelmentation() throws CalculationException {
+	public void testProductImplementation() throws CalculationException {
 		// Create a time discretizeion
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
