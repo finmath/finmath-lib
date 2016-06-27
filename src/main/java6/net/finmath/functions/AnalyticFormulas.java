@@ -707,7 +707,7 @@ public class AnalyticFormulas {
 			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
 			double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
-					+ (volatility * Math.sqrt(optionMaturity)) * NormalDistribution.density(dPlus))  * payoffUnit;
+					+ (volatility * Math.sqrt(optionMaturity)) * NormalDistribution.density(dPlus)) * payoffUnit;
 
 			return valueAnalytic;
 		}

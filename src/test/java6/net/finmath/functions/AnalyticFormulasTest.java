@@ -32,10 +32,10 @@ public class AnalyticFormulasTest {
 
 		double valueCall = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 		double valuePut = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike, false);
-
+		
 		Assert.assertEquals(valueCall, valuePut, 1E-15);
 	}
-
+	
 
 	/**
 	 * This test shows the Bachelier risk neutral probabilities
