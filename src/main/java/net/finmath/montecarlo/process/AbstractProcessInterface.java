@@ -65,7 +65,6 @@ public interface AbstractProcessInterface extends ProcessInterface {
 	 * 
 	 * @param dataModified Key-value-map of parameters to modify.
 	 * @return A clone of this model (or this model if no parameter was modified).
-	 * @throws CalculationException Thrown when the model could not be created.
 	 */
 	AbstractProcessInterface getCloneWithModifiedData(Map<String, Object> dataModified);
 
