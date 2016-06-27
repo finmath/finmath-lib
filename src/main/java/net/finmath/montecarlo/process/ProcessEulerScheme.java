@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.process;
 
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -13,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -44,7 +46,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		EULER, PREDICTOR_CORRECTOR
 	};
 
-	private BrownianMotionInterface brownianMotion;
+	private IndependentIncrementsInterface stochasticDriver;
 
 	private Scheme		scheme = Scheme.EULER;
 
@@ -64,9 +66,9 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param brownianMotion The Brownian driver of the process
 	 * @param scheme The scheme to use. See {@link Scheme}.
 	 */
-	public ProcessEulerScheme(BrownianMotionInterface brownianMotion, Scheme scheme) {
-		super(brownianMotion.getTimeDiscretization());
-		this.brownianMotion = brownianMotion;
+	public ProcessEulerScheme(IndependentIncrementsInterface stochasticDriver, Scheme scheme) {
+		super(stochasticDriver.getTimeDiscretization());
+		this.stochasticDriver = stochasticDriver;
 		this.scheme = scheme;
 	}
 
@@ -75,9 +77,9 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * 
 	 * @param brownianMotion The Brownian driver of the process
 	 */
-	public ProcessEulerScheme(BrownianMotionInterface brownianMotion) {
-		super(brownianMotion.getTimeDiscretization());
-		this.brownianMotion = brownianMotion;
+	public ProcessEulerScheme(IndependentIncrementsInterface stochasticDriver) {
+		super(stochasticDriver.getTimeDiscretization());
+		this.stochasticDriver = stochasticDriver;
 	}
 
 	/**
@@ -137,7 +139,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		discreteProcessWeights	= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1];
 
 		// Set initial Monte-Carlo weights
-		discreteProcessWeights[0] = brownianMotion.getRandomVariableForConstant(1.0 / numberOfPaths);
+		discreteProcessWeights[0] = stochasticDriver.getRandomVariableForConstant(1.0 / numberOfPaths);
 
 		// Set initial value
 		RandomVariableInterface[] initialState = getInitialState();
@@ -185,12 +187,12 @@ public class ProcessEulerScheme extends AbstractProcess {
 						if (factorLoadings == null) return null;
 
 						// Temp storage for variance and diffusion
-						RandomVariableInterface diffusionOfComponent		= brownianMotion.getRandomVariableForConstant(0.0);
+						RandomVariableInterface diffusionOfComponent		= stochasticDriver.getRandomVariableForConstant(0.0);
 
 						// Generate values for diffusionOfComponent and varianceOfComponent 
 						for (int factor = 0; factor < numberOfFactors; factor++) {
 							RandomVariableInterface factorLoading		= factorLoadings[factor];
-							RandomVariableInterface brownianIncrement	= brownianMotion.getBrownianIncrement(timeIndex - 1, factor);
+							RandomVariableInterface brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1, factor);
 
 							diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
 						}
@@ -274,7 +276,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 */
 	@Override
 	public int getNumberOfPaths() {
-		return this.brownianMotion.getNumberOfPaths();
+		return this.stochasticDriver.getNumberOfPaths();
 	}
 
 	/**
@@ -282,22 +284,14 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 */
 	@Override
 	public int getNumberOfFactors() {
-		return this.brownianMotion.getNumberOfFactors();
+		return this.stochasticDriver.getNumberOfFactors();
 	}
 
 	/**
-	 * @param seed The seed to set.
-	 * @deprecated The class will soon be changed to be immutable
+	 * @return Returns the independent increments interface used in the generation of the process
 	 */
-	@Deprecated
-	public void setSeed(int seed) {
-		// Create a new Brownian motion
-		this.setBrownianMotion(new net.finmath.montecarlo.BrownianMotion(
-				brownianMotion.getTimeDiscretization(), brownianMotion
-				.getNumberOfFactors(), brownianMotion
-				.getNumberOfPaths(), seed));
-		// Force recalculation of the process
-		this.reset();
+	public IndependentIncrementsInterface getIndependentIncrements() {
+		return stochasticDriver;
 	}
 
 	/**
@@ -305,19 +299,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 */
 	@Override
 	public BrownianMotionInterface getBrownianMotion() {
-		return brownianMotion;
-	}
-
-	/**
-	 * @param brownianMotion The brownianMotion to set.
-	 * @deprecated Do not use anymore. Processes should be immutable.
-	 */
-	@Deprecated
-	public void setBrownianMotion(
-			net.finmath.montecarlo.BrownianMotion brownianMotion) {
-		this.brownianMotion = brownianMotion;
-		// Force recalculation of the process
-		this.reset();
+		return (BrownianMotionInterface)stochasticDriver;
 	}
 
 	/**
@@ -327,30 +309,20 @@ public class ProcessEulerScheme extends AbstractProcess {
 		return scheme;
 	}
 
-	/**
-	 * @param scheme The scheme to set.
-	 * @deprecated Do not use anymore. Processes should be immutable.
-	 */
-	@Deprecated
-	public void setScheme(Scheme scheme) {
-		this.scheme = scheme;
-		// Force recalculation of the process
-		this.reset();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.process.AbstractProcess#clone()
-	 */
 	@Override
 	public ProcessEulerScheme clone() {
-		return new ProcessEulerScheme(getBrownianMotion());
+		return new ProcessEulerScheme(getIndependentIncrements(), scheme);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.process.AbstractProcess#getCloneWithModifiedSeed(int)
-	 */
+	@Override
+	public AbstractProcessInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+		// @TODO Implement cloning with modified properties
+		throw new UnsupportedOperationException("Method not implemented");
+	}
+
 	@Override
 	public Object getCloneWithModifiedSeed(int seed) {
-		return new ProcessEulerScheme((BrownianMotionInterface)getBrownianMotion().getCloneWithModifiedSeed(seed));
+		return new ProcessEulerScheme(getBrownianMotion().getCloneWithModifiedSeed(seed));
 	}
+
 }
