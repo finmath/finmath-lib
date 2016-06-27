@@ -221,6 +221,11 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	}
 
 	@Override
+	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+		return getBrownianIncrement(timeIndex, factor);
+	}
+
+	@Override
 	public int hashCode() {
 		int result = timeDiscretization.hashCode();
 		result = 31 * result + numberOfFactors;

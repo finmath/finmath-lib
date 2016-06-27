@@ -114,4 +114,9 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
 		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factorLoadings);
 	}
+
+	@Override
+	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+		return getBrownianIncrement(timeIndex, factor);
+	}
 }

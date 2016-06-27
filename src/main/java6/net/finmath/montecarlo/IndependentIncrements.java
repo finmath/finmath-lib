@@ -6,9 +6,10 @@
 package net.finmath.montecarlo;
 
 import java.io.Serializable;
-import net.finmath.randomnumbers.MersenneTwister;
+
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 import net.finmath.compatibility.java.util.function.IntFunction;
+import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 

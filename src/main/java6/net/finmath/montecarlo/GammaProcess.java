@@ -7,9 +7,8 @@ package net.finmath.montecarlo;
 
 import java.io.Serializable;
 
-import net.finmath.randomnumbers.MersenneTwister;
-
 import net.finmath.functions.GammaDistribution;
+import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 

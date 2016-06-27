@@ -185,6 +185,11 @@ public class BrownianBridge implements BrownianMotionInterface {
 		return new BrownianBridge(newTimeDiscretization, getNumberOfFactors(), seed, start, end);
 	}
 
+	@Override
+	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+		return getBrownianIncrement(timeIndex, factor);
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -196,5 +201,4 @@ public class BrownianBridge implements BrownianMotionInterface {
 				+ Arrays.toString(start) + ", end=" + Arrays.toString(end)
 				+ "]";
 	}
-
 }

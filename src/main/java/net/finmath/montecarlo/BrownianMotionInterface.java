@@ -20,7 +20,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.3
  */
-public interface BrownianMotionInterface {
+public interface BrownianMotionInterface extends IndependentIncrementsInterface {
 
 	/**
 	 * Return the Brownian increment for a given timeIndex.

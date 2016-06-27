@@ -78,4 +78,9 @@ public class BrownianMotionView implements BrownianMotionInterface {
 	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
 		return new BrownianMotionView(brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factors);
 	}
+
+	@Override
+	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+		return getBrownianIncrement(timeIndex, factor);
+	}
 }
