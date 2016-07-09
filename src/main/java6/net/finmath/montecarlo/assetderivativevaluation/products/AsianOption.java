@@ -31,7 +31,26 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	private final double maturity;
 	private final double strike;
 	private final TimeDiscretizationInterface timesForAveraging;
+	private final Integer underlyingIndex;
 	
+
+	/**
+	 * Construct a product representing an Asian option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * A(T) = 1/n sum_{i=1,...,n} S(t_i), where t_i are given observation times.
+	 * 
+	 * @param strike The strike K in the option payoff max(A(T)-K,0).
+	 * @param maturity The maturity T in the option payoff maxAS(T)-K,0)
+	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
+	 * @param underlyingIndex The index of the asset S to be fetched from the model
+	 */
+	public AsianOption(double maturity, double strike, TimeDiscretizationInterface timesForAveraging, Integer underlyingIndex) {
+		super();
+		this.maturity = maturity;
+		this.strike = strike;
+		this.timesForAveraging = timesForAveraging;
+		this.underlyingIndex = underlyingIndex;
+	}
+
 	/**
 	 * Construct a product representing an Asian option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * A(T) = 1/n sum_{i=1,...,n} S(t_i), where t_i are given observation times.
@@ -41,10 +60,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
 	 */
 	public AsianOption(double maturity, double strike, TimeDiscretizationInterface timesForAveraging) {
-		super();
-		this.maturity				= maturity;
-		this.strike					= strike;
-		this.timesForAveraging		= timesForAveraging;
+		this(maturity, strike, timesForAveraging, 0);
 	}
 
 	/**
@@ -62,7 +78,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 		// Calculate average
 		RandomVariableInterface average = model.getRandomVariableForConstant(0.0);
 		for(double time : timesForAveraging) {
-			RandomVariableInterface underlying	= model.getAssetValue(time,0);
+			RandomVariableInterface underlying	= model.getAssetValue(time, underlyingIndex);
 			average = average.add(underlying);
 		}
 		average = average.div(timesForAveraging.getNumberOfTimes());
