@@ -43,7 +43,7 @@ public class CalibratedCurves {
 		// Default value is true
 		isUseForwardCurve = Boolean.parseBoolean(System.getProperty("net.finmath.marketdata.calibration.CalibratedCurves.isUseForwardCurve","true"));
 	}
-	
+
 	/**
 	 * Specification of calibration product.
 	 * 
@@ -231,7 +231,7 @@ public class CalibratedCurves {
 	private Vector<AnalyticProductInterface>	calibrationProducts	= new Vector<AnalyticProductInterface>();
 
 	private List<CalibrationSpec>				calibrationSpecs	= new ArrayList<CalibrationSpec>();
-	
+
 	private final double evaluationTime;
 	private final double calibrationAccuracy;
 
@@ -445,7 +445,7 @@ public class CalibratedCurves {
 				calibrationSpecsShifted.add(calibrationSpec);				
 			}
 		}
-		
+
 		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
 	}
 
@@ -476,7 +476,7 @@ public class CalibratedCurves {
 	private String add(CalibrationSpec calibrationSpec) throws CloneNotSupportedException
 	{
 		calibrationSpecs.add(calibrationSpec);
-		
+
 		/* 
 		 * Add one point to the calibration curve and one new objective function
 		 */
