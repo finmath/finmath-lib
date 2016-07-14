@@ -21,6 +21,8 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.products.Deposit;
+import net.finmath.marketdata.products.ForwardRateAgreement;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapLeg;
 import net.finmath.optimizer.SolverException;
@@ -389,6 +391,12 @@ public class CalibratedCurves {
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swapleg")) {
 			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
+		}
+		else if(calibrationSpec.type.toLowerCase().equals("deposit")){
+			product = new Deposit(tenorReceiver, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName);
+		}
+		else if(calibrationSpec.type.toLowerCase().equals("fra")){
+			product = new ForwardRateAgreement(tenorReceiver, calibrationSpec.spreadReceiver, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);
 		}
 		else {
 			throw new RuntimeException("Product of type " + calibrationSpec.type + " unknown.");
