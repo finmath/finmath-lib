@@ -78,14 +78,17 @@ public class MonteCarloBlackScholesModelTest {
 
 	@Test
 	public void testProductImplementation() throws CalculationException {
-		// Create a time discretizeion
+		// Create a model
+		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+
+		// Create a time discretization
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloBlackScholesModel(initialValue, riskFreeRate, volatility, process);
+		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 		/*
 		 * Value a call option (using the product implementation)

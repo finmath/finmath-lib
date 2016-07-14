@@ -192,6 +192,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 						// Generate values for diffusionOfComponent and varianceOfComponent 
 						for (int factor = 0; factor < numberOfFactors; factor++) {
 							RandomVariableInterface factorLoading		= factorLoadings[factor];
+							if(factorLoading == null) continue;
+							
 							RandomVariableInterface brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1, factor);
 
 							diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
@@ -290,7 +292,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	/**
 	 * @return Returns the independent increments interface used in the generation of the process
 	 */
-	public IndependentIncrementsInterface getIndependentIncrements() {
+	@Override
+	public IndependentIncrementsInterface getStochasticDriver() {
 		return stochasticDriver;
 	}
 
@@ -311,7 +314,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	@Override
 	public ProcessEulerScheme clone() {
-		return new ProcessEulerScheme(getIndependentIncrements(), scheme);
+		return new ProcessEulerScheme(getStochasticDriver(), scheme);
 	}
 
 	@Override
@@ -323,6 +326,12 @@ public class ProcessEulerScheme extends AbstractProcess {
 	@Override
 	public Object getCloneWithModifiedSeed(int seed) {
 		return new ProcessEulerScheme(getBrownianMotion().getCloneWithModifiedSeed(seed));
+	}
+
+	@Override
+	public String toString() {
+		return "ProcessEulerScheme [stochasticDriver=" + stochasticDriver + ", scheme=" + scheme + ", executor="
+				+ executor + "]";
 	}
 
 }

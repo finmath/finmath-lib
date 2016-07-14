@@ -91,5 +91,4 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 
 	@Override
     public abstract AbstractProcess clone();
-
 }

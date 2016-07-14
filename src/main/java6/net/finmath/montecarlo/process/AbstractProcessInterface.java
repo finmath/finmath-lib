@@ -8,6 +8,7 @@ package net.finmath.montecarlo.process;
 import java.util.Map;
 
 import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 
 /**
@@ -42,9 +43,14 @@ public interface AbstractProcessInterface extends ProcessInterface {
 	 */
 	int getNumberOfFactors();
 
+	/**
+	 * @return Returns the stochastic driver used to generate this process
+	 */
+	IndependentIncrementsInterface getStochasticDriver();
 
 	/**
-	 * @return Returns the brownian motion used to generate this process
+	 * @deprecated Please use getStochasticDriver() instead.
+	 * @return Returns the Brownian motion used to generate this process
 	 */
 	BrownianMotionInterface getBrownianMotion();
 
