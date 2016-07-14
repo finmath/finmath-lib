@@ -19,6 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	<li>the Black-Scholes formula,
  * 	<li>the inverse of the Back-Scholes formula with respect to (implied) volatility,
  * 	<li>the corresponding functions (versions) for caplets and swaptions,
+ * 	<li>analytic approximation for European options under the SABR model,
  * 	<li>some convexity adjustments.
  * </ul>
  * 
