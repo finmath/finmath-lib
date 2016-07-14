@@ -13,12 +13,13 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * Implements the valuation of a market forward rate agreement using curves
  * (discount curve, forward curve).
  * 
- * The value of the forward rate agreement at its maturity is
+ * The value of the forward rate agreement at its maturity time <i>t</i> is
  * <br>
  * <i>
- * F(t) / (1 + F(t) * paymentOffset)
+ * (F(t)-K) / (1 + F(t) * dcf(periodStart,periodEnd))
  * </i>
- * where <i>F(t)</i> is the forward evaluated at maturity.
+ * where <i>F(t)</i> is the forward evaluated at maturity and 
+ * dcf(periodStart,periodEnd) is a given paymentOffset.
  * 
  * The value of the forward rate agreement returned for an earlier time is
  * the above payoff multiplied with the corresponding discount factor curve.
@@ -56,9 +57,6 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	    this.discountCurveName = discountCurveName;
     }
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
-	 */
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
@@ -75,7 +73,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 			}
 		}
 		
-		double forward		= spread;
+		double forward		= -spread;
 		if(forwardCurve != null) {
 			forward			+= forwardCurve.getForward(model, maturity);
 		}
@@ -83,7 +81,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 			forward			+= (discountCurveForForward.getDiscountFactor(maturity) / discountCurveForForward.getDiscountFactor(maturity+paymentOffset) - 1.0) / paymentOffset;
 		}
 
-    	double payoff = forward / 1 + forward * paymentOffset;
+    	double payoff = forward / (1 + forward * paymentOffset);
 
     	double discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : 0.0;
 

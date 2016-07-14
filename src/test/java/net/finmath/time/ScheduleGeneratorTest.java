@@ -9,7 +9,6 @@ package net.finmath.time;
 import java.time.LocalDate;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
@@ -20,16 +19,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 
 /**
  * @author Christian Fries
- *
  */
 public class ScheduleGeneratorTest {
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
 
 	@Test
 	public void test() {
