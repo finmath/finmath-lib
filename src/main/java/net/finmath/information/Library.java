@@ -38,8 +38,9 @@ public class Library {
 	 * @return The version string of this instance of finmath-lib.
 	 */
 	public static String getVersionString() {
-		String versionString = getProperites().getProperty("finmath-lib.version");
-		if(versionString == null) versionString = "UNKNOWN";
+		String versionString = "UNKNOWN";
+		Properties propeties = getProperites();
+		if(propeties != null) versionString = propeties.getProperty("finmath-lib.version");
 		return versionString;
 	}
 }
