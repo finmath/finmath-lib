@@ -30,7 +30,7 @@ public class DisplacedLognomalModelTest {
 	// Model properties
 	private final double	initialValue	= 1.0;
 	private final double	riskFreeRate	= 0.05;
-	private final double	displacement	= 0.5;
+	private final double	displacement	= 0.75;
 	private final double	volatility		= 0.30;
 
 	// Process discretization properties
@@ -43,7 +43,7 @@ public class DisplacedLognomalModelTest {
 	// Product properties
 	private final int		assetIndex = 0;
 	private final double	optionMaturity = 5.0;
-	private final double	optionStrike = 1.05;
+	private final double	optionStrike = 1.25;
 
 	@Test
 	public void testProductImplementation() throws CalculationException {
@@ -63,69 +63,58 @@ public class DisplacedLognomalModelTest {
 
 			monteCarloDisplacedModel = new MonteCarloAssetModel(displacedModel2, process);
 		}
-		
-		double alpha = 1/(1+displacement);
+
 		/*
-		 * sigma (S+d) = sigma* (a S + (1-a))
-		 * sigma = sigma* a
-		 * sigma d = sigma* (1-a)
-		 * sigma* = sigma* (1-a)/a/d
-		 * d = (1-a)/a
+		 * Note: The inhomogenous displaced model is not the same as the corresponding interpolation
+		 * of Black and Bachelier. For a homogenous displaced model there is a relation between dispalcement
+		 * and interpolation:
+		 * 	sigma (S+d) = sigma* (a S + (1-a))
+		 * implies
+		 * 	sigma = sigma* a
+		 * 	sigma d = sigma* (1-a)
+		 * that is
+		 * 	d = (1-a)/a
+		 * 	a = 1/(1+d)
 		 */
+		double alpha = 1/(1+displacement);
 		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
 		{
 			// Create a corresponding MC process
 			AbstractProcess process = new ProcessEulerScheme(brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			AbstractModelInterface blackScholesModel = new BlackScholesModel(initialValue*alpha, riskFreeRate*alpha, volatility/alpha);
+			AbstractModelInterface blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(blackScholesModel, process);
 		}
-		
+
 		AssetModelMonteCarloSimulationInterface monteCarloBachelierModel;
 		{
 			// Create a corresponding MC process
 			AbstractProcess process = new ProcessEulerScheme(brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			AbstractModelInterface bachelierModel = new InhomogenousBachelierModel(initialValue*(1-alpha), riskFreeRate*(1-alpha), volatility*displacement);
+			AbstractModelInterface bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility*displacement);
 
 			monteCarloBachelierModel = new MonteCarloAssetModel(bachelierModel, process);
 		}
-		
-
 
 		/*
 		 * Value a call option (using the product implementation)
 		 */
 		EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
-		double valueX = europeanOption.getValue(monteCarloDisplacedModel);
-		double value1 = europeanOption.getValue(monteCarloBlackScholesModel);
-		double value2 = europeanOption.getValue(monteCarloBachelierModel);
+		double valueDisplaced = europeanOption.getValue(monteCarloDisplacedModel);
+		double valueBlack = europeanOption.getValue(monteCarloBlackScholesModel);
+		double valueBachelier = europeanOption.getValue(monteCarloBachelierModel);
 		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
-		System.out.println("value using Monte-Carlo Displaced Model.......: " + valueX);
-		System.out.println("value using Monte-Carlo Black Scholes Model...: " + value1);
-		System.out.println("value using Monte-Carlo Bachelier Model.......: " + value2);
-		System.out.println("value using Monte-Carlo Average of 2 and 3....: " + (alpha * value1 + (1-alpha) * value2));
-		System.out.println("value using analytic formula..: " + valueAnalytic);
+		System.out.println("value using Monte-Carlo Displaced Model.......: " + valueDisplaced);
+		System.out.println("value using Monte-Carlo Black Scholes Model...: " + valueBlack);
+		System.out.println("value using Monte-Carlo Bachelier Model.......: " + valueBachelier);
+		System.out.println("value using sum of Black and Bachelier........: " + (valueBlack + valueBachelier));
+		System.out.println("value using analytic formula for Black Model..: " + valueAnalytic);
 
-		/*
-		 * Value a call option - directly
-		 */
-		
-		RandomVariableInterface asset1 = monteCarloBlackScholesModel.getAssetValue(timeDiscretization.getTimeIndex(optionMaturity), assetIndex);
-		RandomVariableInterface asset2 = monteCarloBachelierModel.getAssetValue(timeDiscretization.getTimeIndex(optionMaturity), assetIndex);
-		RandomVariableInterface asset = asset1.mult(1).add(asset2.mult(1));
-		RandomVariableInterface numeraireAtPayment = monteCarloBlackScholesModel.getNumeraire(optionMaturity);
-		RandomVariableInterface numeraireAtEval = monteCarloBlackScholesModel.getNumeraire(0.0);
-		
-		RandomVariableInterface payoff = asset.sub(optionStrike).floor(0.0);
-		double value3 = payoff.div(numeraireAtPayment).mult(numeraireAtEval).getAverage();
-		System.out.println("value using Monte-Carlo.......: " + value3);
-
-		Assert.assertEquals(valueAnalytic, valueX, 0.005);
+		Assert.assertEquals(valueBlack, valueAnalytic, 0.005);
 	}
 
 }
