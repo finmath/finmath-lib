@@ -81,15 +81,15 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	 * @param volatility The log volatility.
 	 */
 	public MonteCarloMertonModel(
-			TimeDiscretizationInterface timeDiscretization,
-			int numberOfPaths,
-			int seed,
-			double initialValue,
-			double riskFreeRate,
-			double volatility,
-			double lambda,
-			double jumpSizeMean,
-			double jumpSizeStdDev			
+			final TimeDiscretizationInterface timeDiscretization,
+			final int numberOfPaths,
+			final int seed,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double lambda,
+			final double jumpSizeMean,
+			final double jumpSizeStdDev			
 			) {
 		super();
 
