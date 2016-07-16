@@ -5,25 +5,18 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntFunction;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.functions.AnalyticFormulas;
 import net.finmath.functions.NormalDistribution;
 import net.finmath.functions.PoissonDistribution;
-import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

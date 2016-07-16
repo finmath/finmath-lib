@@ -7,7 +7,6 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
 

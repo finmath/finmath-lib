@@ -5,10 +5,10 @@
  */
 package net.finmath.montecarlo;
 
+import java.io.Serializable;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntFunction;
 
-import java.io.Serializable;
 import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
