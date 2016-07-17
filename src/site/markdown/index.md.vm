@@ -7,7 +7,7 @@ About finmath lib
 **Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.**
 
 ****************************************
-	
+
 The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
 - General numerical algorithms like
@@ -18,6 +18,8 @@ The finmath lib libraries provides implementations of methodologies related to m
     - Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
     - Equity Hybrid LIBOR Market Model
     - Hull-White Short Rate Model (with time dependent parameters)
+    - Merton Model (as Monte-Carlo Simulation)
+    - Heston Model (as Monte-Carlo Simulation)
 - Estimation of conditional expectations in a Monte-Carlo framework
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
     - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
@@ -26,6 +28,7 @@ The finmath lib libraries provides implementations of methodologies related to m
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the LIBOR market model
 - Valuation of complex derivatives (e.g. Bermudan/multi-callables)
+- Hedge Simulation
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
 
@@ -33,17 +36,23 @@ The libraries have a focus on Monte-Carlo methods, interest rate products and mo
 
 *Note: for convenience the provided Eclipse project is configured for Java 6. The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e. the maven command line option "-P java-8"*
 
-
 Distribution
 --------------------------------------
 
 finmath lib is distributed through the central maven repository. It's coordinates are:
 
+For the Java 6 version:
+
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
 	<version>${project.version}</version>
+	<classifier>java6</classifier>
 
-The version there is currently the Java 6 version. You may build you own Java 8 version via mvn -P java-8.
+For the Java 8 version:
+
+	<groupId>net.finmath</groupId>
+	<artifactId>finmath-lib</artifactId>
+	<version>${project.version}</version>
 
 License
 -------

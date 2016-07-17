@@ -11,20 +11,24 @@ About finmath lib
 The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
 - General numerical algorithms like
-- Generation of random numbers
-- Optimization (a Levenberg–Marquardt algorithm is provided)
+    - Generation of random numbers
+    - Optimization (a Levenberg–Marquardt algorithm is provided)
 - Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
-- LIBOR Market Model
-- Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
-- Equity Hybrid LIBOR Market Model
+    - LIBOR Market Model
+    - Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
+    - Equity Hybrid LIBOR Market Model
+    - Hull-White Short Rate Model (with time dependent parameters)
+    - Merton Model (as Monte-Carlo Simulation)
+    - Heston Model (as Monte-Carlo Simulation)
 - Estimation of conditional expectations in a Monte-Carlo framework
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
-- Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
-- Various interpolation entities (value, log-value, rate, etc.).
-- Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
+    - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
+    - Various interpolation entities (value, log-value, rate, etc.).
+    - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the LIBOR market model
 - Valuation of complex derivatives (e.g. Bermudan/multi-callables)
+- Hedge Simulation
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
 
@@ -34,8 +38,6 @@ The libraries have a focus on Monte-Carlo methods, interest rate products and mo
 
 Distribution
 --------------------------------------
-
-finmath lib is distributed through the central maven repository. It's coordinates are:
 
 finmath lib is distributed through the central maven repository. It's coordinates are:
 
@@ -91,7 +93,7 @@ The maven pom defaults to the Java 8 build. To build finmath lib for Java 6 use 
 Repositories
 -------------------------------------
 
-Source code and demos are provided via Github and a subversion repository.
+Source code and demos are provided via Github repository.
 			<ul>
 				<li>
 					<i>Git</i> repositories with Java code:
@@ -102,16 +104,8 @@ Source code and demos are provided via Github and a subversion repository.
 						<li>
 							finmath experiments: [https://github.com/finmath/finmath-experiments](https://github.com/finmath/finmath-experiments)
 						</li>
-					</ul>
-				</li>
-				<li>
-					<i>Subversion</i> repositories with Java code:
-					<ul>
 						<li>
-							finmath lib: [http://svn.finmath.net/finmath lib](http://svn.finmath.net/finmath%20lib)
-						</li>
-						<li>
-							finmath experiments: [http://svn.finmath.net/finmath experiments](http://svn.finmath.net/finmath%20experiments)
+							finmath spreadsheets: [https://github.com/finmath/finmath-spreadsheets](https://github.com/finmath/finmath-spreadsheets)
 						</li>
 					</ul>
 				</li>
