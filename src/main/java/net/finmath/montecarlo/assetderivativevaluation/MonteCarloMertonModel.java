@@ -69,9 +69,13 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	 * 
 	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param seed The seed used for the random number generator.
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
 	 */
 	public MonteCarloMertonModel(
 			final TimeDiscretizationInterface timeDiscretization,
@@ -80,9 +84,9 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 			final double initialValue,
 			final double riskFreeRate,
 			final double volatility,
-			final double lambda,
+			final double jumpIntensity,
 			final double jumpSizeMean,
-			final double jumpSizeStdDev			
+			final double jumpSizeStDev			
 			) {
 		super();
 
@@ -90,7 +94,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		this.seed = seed;
 
 		// Create the model
-		model = new MertonModel(initialValue, riskFreeRate, volatility, lambda, jumpSizeMean, jumpSizeStdDev);
+		model = new MertonModel(initialValue, riskFreeRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStDev);
 
 		IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = i -> j -> {
 			if(j==0) {

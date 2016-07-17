@@ -13,7 +13,7 @@ import net.finmath.time.ScheduleInterface;
  *  <li>for deposit TN set spot offset = 1, start = 0D, maturity = 1D</li>
  *  <li>for deposit ST set spot offset = 2, start = 0D, maturity as given.</li>
  * </ul>
- * Date rolling convention: "following" for T < 1M, "modified following, eom" for T >= 1 
+ * Date rolling convention: "following" for T &lt; 1M, "modified following, eom" for T &ge; 1 
  * 
  * The getValue method returns the value df(T) * (1.0+rate*periodLength) - df(t),
  * where t = schedule.getFixing(0), T = schedule.getPayment(0) and df denotes discountCurve.getDiscountFactor.

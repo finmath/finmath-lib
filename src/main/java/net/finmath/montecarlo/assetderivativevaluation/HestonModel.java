@@ -82,7 +82,7 @@ public class HestonModel extends AbstractModel {
 	 * @param kappa The mean reversion speed.
 	 * @param xi The volatility of the volatility (of V).
 	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
-	 * @param scheme The truncation scheme, that is, either reflection (V -> abs(V)) or truncation (V -> max(V,0)).
+	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
 	 */
 	public HestonModel(
 			double initialValue,

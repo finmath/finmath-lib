@@ -40,7 +40,7 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double displacement;
 	private final double volatility;
-	
+
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
@@ -52,6 +52,7 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 	 * 
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
+	 * @param displacement The displacement parameter d.
 	 * @param volatility The volatility.
 	 */
 	public DisplacedLognomalModelExperimental(
@@ -70,7 +71,7 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 	@Override
 	public RandomVariableInterface[] getInitialState() {
 		if(initialValueVector[0] == null) 	initialValueVector[0] = getRandomVariableForConstant(Math.log(initialValue+displacement));
-		
+
 		return initialValueVector;
 	}
 

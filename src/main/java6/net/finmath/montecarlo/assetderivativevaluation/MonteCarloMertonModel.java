@@ -69,9 +69,13 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	 * 
 	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param seed The seed used for the random number generator.
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
 	 */
 	public MonteCarloMertonModel(
 			final TimeDiscretizationInterface timeDiscretization,
@@ -80,9 +84,9 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 			final double initialValue,
 			final double riskFreeRate,
 			final double volatility,
-			final double lambda,
+			final double jumpIntensity,
 			final double jumpSizeMean,
-			final double jumpSizeStdDev			
+			final double jumpSizeStDev			
 			) {
 		super();
 
@@ -90,7 +94,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		this.seed = seed;
 
 		// Create the model
-		model = new MertonModel(initialValue, riskFreeRate, volatility, lambda, jumpSizeMean, jumpSizeStdDev);
+		model = new MertonModel(initialValue, riskFreeRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStDev);
 
 		/*
 		 * Define the ICDFs based on index (i,j) = (time, factor) index.
@@ -120,7 +124,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 						else if(j==2) {
 							// The jump increment
 							final double timeStep = timeDiscretization.getTimeStep(i);
-							final PoissonDistribution poissonDistribution = new PoissonDistribution(lambda*timeStep);
+							final PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
 							return new DoubleUnaryOperator() {
 								public double applyAsDouble(double x) {
 									return poissonDistribution.inverseCumulativeDistribution(x);
