@@ -140,6 +140,8 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		};
 
 		IndependentIncrementsInterface icrements = new IndependentIncrements(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
+			private static final long serialVersionUID = -7858107751226404629L;
+
 			@Override
 			public RandomVariableInterface getIncrement(int timeIndex, int factor) {
 				if(factor == 1) {

@@ -109,7 +109,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 			else if(j==2) {
 				// The jump increment
 				double timeStep = timeDiscretization.getTimeStep(i);
-				PoissonDistribution poissonDistribution = new PoissonDistribution(lambda*timeStep);
+				PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
 				return x -> poissonDistribution.inverseCumulativeDistribution(x);
 			}
 			else {
@@ -118,6 +118,8 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		};
 
 		IndependentIncrementsInterface icrements = new IndependentIncrements(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
+			private static final long serialVersionUID = -7858107751226404629L;
+
 			@Override
 			public RandomVariableInterface getIncrement(int timeIndex, int factor) {
 				if(factor == 1) {
