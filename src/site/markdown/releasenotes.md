@@ -5,6 +5,28 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.2.5
+
+### Random Number Generators
+
+- Addes Poisson distribution for jump-diffusion processes.
+- Added class IndependentIncrements allowing to create mixed process increments (Brownian increments and jump process increments). See Merton model for a demo.
+
+### Market Data / Interest Rates Curve / Multi-Curve
+
+- Added Deposit (may be used as calibration product in multi-curve calibration)
+- Added FRA (may be used as calibration product in multi-curve calibration)
+
+### Equity / Single Asset Models
+
+- Added Merton model (Monte-Carlo simulation)
+- Added Heston model (Monte-Carlo simulation)
+- Added hedge simulation based on mean-variance hedging (using American Monte-Carlo / regression).
+
+### Other
+
+- Some demo spreadsheets have been added at finmath-spreadsheets.
+
 ## 2.2.2
 
 ### General
