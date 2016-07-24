@@ -66,7 +66,10 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
 
 		/*
-		 * Number of whole years between start and end. If start and end fall in the same year, this is -1 (there will be a double counting of 1 year below if start < end).
+		 * Number of whole years between start and end, excluding start's year and excluding end's year.
+		 * 
+		 * If start and end fall in the same year, this is -1 (there will be a double counting of 1 year below if start < end).
+		 * If start and end fall in separate but consecutive years, this is 0 (for start and end the fractional parts are counted individually below).
 		 */
 		double daycountFraction = endDate.getYear() - startDate.getYear() - 1.0; 
 
