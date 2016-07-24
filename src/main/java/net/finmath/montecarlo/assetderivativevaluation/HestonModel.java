@@ -50,8 +50,18 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class HestonModel extends AbstractModel {
 
+	/**
+	 * Truncation schemes to be used in the calculation of drift and diffusion coefficients.
+	 */
 	public enum Scheme {
+		/**
+		 * Reflection scheme, that is V is replaced by Math.abs(V), where V denotes the current realization of V(t).
+		 */
 		REFLECTION,
+		
+		/**
+		 * Full truncation scheme, that is V is replaced by Math.max(V,0), where V denotes the current realization of V(t).
+		 */
 		FULL_TRUNCATION
 	};
 
