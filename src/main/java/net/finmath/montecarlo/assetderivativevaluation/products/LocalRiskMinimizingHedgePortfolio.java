@@ -28,7 +28,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class MeanVarianceHedgedPortfolio extends AbstractAssetMonteCarloProduct {
+public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloProduct {
 
 	// Model assumptions for the hedge
 	private final AbstractAssetMonteCarloProduct productToHedge;
@@ -46,7 +46,7 @@ public class MeanVarianceHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	 * @param timeDiscretizationForRebalancing The times at which the portfolio is re-structured.
 	 * @param numberOfBins The number of bins to use in the estimation of the conditional expectation.
 	 */
-	public MeanVarianceHedgedPortfolio(AbstractAssetMonteCarloProduct productToHedge,
+	public LocalRiskMinimizingHedgePortfolio(AbstractAssetMonteCarloProduct productToHedge,
 			AssetModelMonteCarloSimulationInterface modelUsedForHedging,
 			TimeDiscretizationInterface timeDiscretizationForRebalancing,
 			int numberOfBins) {
