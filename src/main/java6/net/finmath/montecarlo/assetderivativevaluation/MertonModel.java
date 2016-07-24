@@ -13,40 +13,44 @@ import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements a Heston Model, that is, it provides the drift and volatility specification
+ * This class implements a <i>Merton Model</i>, that is, it provides the drift and volatility specification
  * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
  *
  * The model is
  * \[
- * 	dS(t) = r S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
+ * 	dS = \mu S dt + \sigma S dW + S dJ, \quad S(0) = S_{0},
  * \]
  * \[
- * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
+ * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
- * \[
- * 	dW_{1} dW_{1} = \rho dt
- * \]
- * \[
- * 	dN(t) = r N(t) dt, \quad N(0) = N_{0},
- * \]
+ * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
  * 
- * The class provides the model of (S,V) to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
- * \( f_{1} = exp , f_{2} = identity \), \( \mu_{1} = r - \frac{1}{2} V^{+}(t) , \mu_{2} = \kappa (\theta - V^{+}(t) \), \( \lambda_{1,1} = \sqrt{V^{+}(t)} , \lambda_{2,1} = \xi \sqrt{V^+(t)} \rho  , \lambda_{2,2} = \xi \sqrt{V^+(t)} \sqrt{1-\rho^{2}} \), i.e.,
+ * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
+ * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
+ * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
+ * 
+ *  The model can be rewritten as \( S = \exp(X) \), where
+ * \[
+ * 	dX = \mu dt + \sigma dW + dJ^{X}, \quad X(0) = \log(S_{0}),
+ * \]
+ * with
+ * \[
+ * 	J^{X}(t) = \sum_{i=1}^{N(t)} \log(Y_{i})
+ * \]
+ * with \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \).
+ * 
+ * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
+ * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \), \( \lambda_{1,1} = \sigma, \lambda_{1,2} = a - \frac{1}{2} b^2, \lambda_{1,3} = b \), i.e.,
  * of the SDE
  * \[
- * 	dX_{1} = \mu_{1} dt + \lambda_{1,1} dW_{1} + \lambda_{1,2} dW_{2}, \quad X_{1}(0) = \log(S_{0}),
+ * 	dX = \mu dt + \lambda_{1,1} dW + \lambda_{1,2} dN + \lambda_{1,3} Z dN, \quad X(0) = \log(S_{0}),
  * \]
- * \[
- * 	dX_{2} = \mu_{2} dt + \lambda_{2,1} dW_{1} + \lambda_{2,2} dW_{2}, \quad X_{2}(0) = V_{0} = \sigma^2,
- * \]
- * with \( S = f_{1}(X_{1}) , V = f_{2}(X_{2}) \).
- * See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
+ * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
  * 
- * Here \( V^{+} \) denotes a <i>truncated</i> value of V. Different truncation schemes are available:
- * <code>FULL_TRUNCATION</code>: \( V^{+} = max(V,0) \),
- * <code>REFLECTION</code>: \( V^{+} = abs(V) \).
+ * For an example on the construction of the three factors \( dW \), \( dN \), and \( Z dN \) see {@link net.finmath.montecarlo.assetderivativevaluation.MonteCarloMertonModel}.
  * 
  * @author Christian Fries
+ * @see net.finmath.montecarlo.assetderivativevaluation.MonteCarloMertonModel
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
