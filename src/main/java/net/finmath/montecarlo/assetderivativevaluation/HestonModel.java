@@ -29,7 +29,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * \]
  * 
  * The class provides the model of (S,V) to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
- * \( f_{1} = exp , f_{2} = identity \), \( \mu_{1} = r - \frac{1}{2} V^{+}(t) , \mu_{2} = \kappa (\theta - V^{+}(t) \), \( \lambda_{1,1} = \sqrt{V^{+}(t)} , \lambda_{2,1} = \xi \sqrt{V^+(t)} \rho  , \lambda_{2,2} = \xi \sqrt{V^+(t)} \sqrt{1-\rho^{2}} \), i.e.,
+ * \( f_{1} = exp , f_{2} = identity \), \( \mu_{1} = r - \frac{1}{2} V^{+}(t) , \mu_{2} = \kappa ( \theta - V^{+}(t) ) \), \( \lambda_{1,1} = \sqrt{V^{+}(t)} , \lambda_{1,2} = 0  ,\lambda_{2,1} = \xi \sqrt{V^+(t)} \rho  , \lambda_{2,2} = \xi \sqrt{V^+(t)} \sqrt{1-\rho^{2}} \), i.e.,
  * of the SDE
  * \[
  * 	dX_{1} = \mu_{1} dt + \lambda_{1,1} dW_{1} + \lambda_{1,2} dW_{2}, \quad X_{1}(0) = \log(S_{0}),
