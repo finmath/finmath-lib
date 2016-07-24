@@ -141,25 +141,16 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		model.setProcess(process);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(double, int)
-	 */
 	@Override
 	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
-	 */
 	@Override
 	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
 		return model.getProcess().getProcessValue(timeIndex, assetIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(int)
-	 */
 	@Override
 	public RandomVariableInterface getNumeraire(int timeIndex) throws CalculationException {
 		double time = getTime(timeIndex);
@@ -167,17 +158,11 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		return model.getNumeraire(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(double)
-	 */
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(double)
-	 */
 	@Override
 	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
@@ -191,9 +176,6 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		return 1;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
-	 */
 	@Override
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
 		/*
@@ -203,66 +185,47 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
 		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate();
 		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: model.getVolatility();
-		double	newJumpIntensity			= dataModified.get("jumpIntensity") != null	? ((Number)dataModified.get("jumpIntensity")).doubleValue()	: model.getJumpIntensity();
+		double	newJumpIntensity	= dataModified.get("jumpIntensity") != null	? ((Number)dataModified.get("jumpIntensity")).doubleValue()	: model.getJumpIntensity();
 		double	newJumpSizeMean		= dataModified.get("jumpSizeMean") != null	? ((Number)dataModified.get("jumpSizeMean")).doubleValue()	: model.getVolatility();
-		double	newJumpSizeStdDev	= 			dataModified.get("jumpSizeStdDev") != null	? ((Number)dataModified.get("jumpSizeStdDev")).doubleValue()	: model.getVolatility();
-		int		newSeed			= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
+		double	newJumpSizeStdDev	= dataModified.get("jumpSizeStdDev") != null	? ((Number)dataModified.get("jumpSizeStdDev")).doubleValue()	: model.getVolatility();
+		int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
 		
 		return new MonteCarloMertonModel(model.getProcess().getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), model.getProcess().getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newVolatility, newJumpIntensity, newJumpSizeMean, newJumpSizeStdDev);
 
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
-	 */
 	@Override
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
-		return null;
+		Map<String, Object> dataModified = new HashMap<String, Object>();
+		dataModified.put("seed", new Integer(seed));
+		return getCloneWithModifiedData(dataModified);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfPaths()
-	 */
 	@Override
 	public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeDiscretization()
-	 */
 	@Override
 	public TimeDiscretizationInterface getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTime(int)
-	 */
 	@Override
 	public double getTime(int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeIndex(double)
-	 */
 	@Override
 	public int getTimeIndex(double time) {
 		return model.getProcess().getTimeIndex(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getRandomVariableForConstant(double)
-	 */
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return model.getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(int)
-	 */
 	@Override
 	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
