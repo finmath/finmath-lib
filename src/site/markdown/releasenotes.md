@@ -5,6 +5,10 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.2.6
+
+- Cleanup
+
 ## 2.2.5
 
 ### Random Number Generators
