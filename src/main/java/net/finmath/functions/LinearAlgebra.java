@@ -18,10 +18,7 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
-import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
-import cern.colt.matrix.linalg.EigenvalueDecomposition;
 
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
