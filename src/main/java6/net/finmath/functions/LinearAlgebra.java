@@ -51,6 +51,8 @@ public class LinearAlgebra {
 		 * We still use Colt, because in some situation Colt appears to be faster by a factor
 		 * of 2 to 5. Sometimes even more.
 		 * SVD is very slow.
+		 * For jblas use:
+		 * return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(A), new org.jblas.DoubleMatrix(b)).data;
 		 */
 		boolean isSolveLinearEquationUseColt = true;
 		if(isSolveLinearEquationUseColt) {
