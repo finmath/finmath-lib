@@ -15,7 +15,13 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
+import cern.colt.matrix.linalg.EigenvalueDecomposition;
 
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
@@ -44,11 +50,37 @@ public class LinearAlgebra {
 	 */
 	public static double[] solveLinearEquation(double[][] A, double[] b) {
 
-		// Using SVD
-		SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(A));
-		double[] x = svd.getSolver().solve(new Array2DRowRealMatrix(b)).getColumn(0);
+		/*
+		 * We still use Colt, because in some situation Colt appears to be faster by a factor
+		 * of 2 to 5. Sometimes even more.
+		 * SVD is very slow.
+		 */
+		boolean isSolveLinearEquationUseColt = true;
+		if(isSolveLinearEquationUseColt) {
+			// We use the linear algebra package from cern.
+			cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
+			double[] x = linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
 
-		return x;
+			return x;
+		}
+		else {
+			Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(A);
+
+			DecompositionSolver solver;
+			if(matrix.getColumnDimension() == matrix.getRowDimension()) {
+				solver = new LUDecomposition(matrix).getSolver();			
+			}
+			else {
+				solver = new QRDecomposition(new Array2DRowRealMatrix(A)).getSolver();			
+			}
+
+			// Using SVD
+			//			solver = new SingularValueDecomposition(new Array2DRowRealMatrix(A)).getSolver();
+
+			double[] x = solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
+
+			return x;
+		}
 	}
 
 	/**
