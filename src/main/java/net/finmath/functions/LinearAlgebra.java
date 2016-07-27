@@ -18,8 +18,6 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
-
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
  * 
@@ -29,9 +27,15 @@ import cern.colt.matrix.impl.DenseDoubleMatrix2D;
  * to easily switch some parts to Apache commons math (this is the motivation for this class).
  * 
  * @author Christian Fries
- * @version 1.5
+ * @version 1.6
  */
 public class LinearAlgebra {
+
+	private final static boolean isSolverUseApacheCommonsMath;
+	static {
+		// Default value is false, in which case we will use jblas
+		isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","false"));
+	}
 
 	/**
 	 * Find a solution of the linear equation A x = b where
@@ -47,20 +51,7 @@ public class LinearAlgebra {
 	 */
 	public static double[] solveLinearEquation(double[][] A, double[] b) {
 
-		/*
-		 * We still use Colt, because in some situation Colt appears to be faster by a factor
-		 * of 2 to 5. Sometimes even more.
-		 * SVD is very slow.
-		 */
-		boolean isSolveLinearEquationUseColt = true;
-		if(isSolveLinearEquationUseColt) {
-			// We use the linear algebra package from cern.
-			cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
-			double[] x = linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
-
-			return x;
-		}
-		else {
+		if(isSolverUseApacheCommonsMath) {
 			Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(A);
 
 			DecompositionSolver solver;
@@ -71,12 +62,17 @@ public class LinearAlgebra {
 				solver = new QRDecomposition(new Array2DRowRealMatrix(A)).getSolver();			
 			}
 
-			// Using SVD
+			// Using SVD - very slow
 			//			solver = new SingularValueDecomposition(new Array2DRowRealMatrix(A)).getSolver();
 
-			double[] x = solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
+			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
+		}
+		else {
+			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(A), new org.jblas.DoubleMatrix(b)).data;
 
-			return x;
+			// For use of colt:
+			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
+			// return linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
 		}
 	}
 
@@ -88,11 +84,16 @@ public class LinearAlgebra {
 	 */
 	public static double[][] invert(double[][] matrix) {
 
+		if(isSolverUseApacheCommonsMath) {
 		// Use LU from common math
 		LUDecomposition lu = new LUDecomposition(new Array2DRowRealMatrix(matrix));
 		double[][] matrixInverse = lu.getSolver().getInverse().getData();
 
 		return matrixInverse;
+		}
+		else {
+			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix)).toArray2();
+		}
 	}
 
 	/**
@@ -108,11 +109,19 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationSymmetric(double[][] matrix, double[] vector) {
-		return solveLinearEquation(matrix, vector);
-		// We use the linear algebra package apache commons math
-		//		DecompositionSolver solver = new LUDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
-		//		DecompositionSolver solver = new CholeskyDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
-		//		return solver.solve(new ArrayRealVector(vector)).toArray();
+		if(isSolverUseApacheCommonsMath) {
+			DecompositionSolver solver = new LUDecomposition(new Array2DRowRealMatrix(matrix)).getSolver();			
+			return solver.solve(new Array2DRowRealMatrix(vector)).getColumn(0);
+		}
+		else {
+			return org.jblas.Solve.solveSymmetric(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(vector)).data;
+			/* To use the linear algebra package colt from cern.
+			cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
+			double[] x = linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
+
+			return x;
+			 */
+		}
 	}
 
 	/**
