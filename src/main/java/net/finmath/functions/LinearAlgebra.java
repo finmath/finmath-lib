@@ -31,10 +31,25 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
  */
 public class LinearAlgebra {
 
-	private final static boolean isSolverUseApacheCommonsMath;
+	private static boolean isSolverUseApacheCommonsMath;
 	static {
 		// Default value is false, in which case we will use jblas
-		isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","false"));
+		boolean isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","false"));
+		
+		/*
+		 * Check if jblas is available
+		 */
+		if(!isSolverUseApacheCommonsMath) {
+			try {
+				double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
+				// The following should not happen.
+				if(x[0] != 1.0 || x[1] != 0.0) isSolverUseApacheCommonsMath = true;
+			}
+			catch(java.lang.UnsatisfiedLinkError e) {
+				isSolverUseApacheCommonsMath = true;
+			}
+		}
+		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
 	}
 
 	/**
@@ -73,6 +88,9 @@ public class LinearAlgebra {
 			// For use of colt:
 			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
 			// return linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
+			
+			// For use of parallel colt:
+			// return new cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleLUDecomposition(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D(A)).solve(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D(b)).toArray();
 		}
 	}
 
