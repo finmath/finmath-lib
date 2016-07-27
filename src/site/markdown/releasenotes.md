@@ -5,6 +5,22 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.3.0
+
+### Dependencies
+
+- Adding jblas 1.2.4 for LinearAlgebra.
+
+Since the implementation of commons-math matrix solver is sometimes noticable slower,
+we switched to jblas. Note that jblas is used by default, but you may use
+commons-math instead by setting the property net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath
+to true.
+
+Note that jblas is currently not an OSGi bundle. I try to work on that.
+
+
+## 2.2.6
+
 ## 2.2.6
 
 - Cleanup
