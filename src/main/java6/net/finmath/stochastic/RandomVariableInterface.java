@@ -143,6 +143,14 @@ public interface RandomVariableInterface extends Serializable {
 	public double getVariance(RandomVariableInterface probabilities);
 
 	/**
+	 * Returns the sample variance of this random variable, i.e.,
+	 * V * size()/(size()-1) where V = getVariance().
+	 * 
+	 * @return The sample variance.
+	 */
+	public double getSampleVariance();
+	
+	/**
 	 * Returns the standard deviation of this random variable, i.e.,
 	 * sqrt(V) where V = ((X-m)^2).getAverage() and X = this and m = X.getAverage().
 	 * 

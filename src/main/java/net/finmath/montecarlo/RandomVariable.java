@@ -148,7 +148,6 @@ public class RandomVariable implements RandomVariableInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
 	 */
-	@Override
 	public RandomVariable getMutableCopy() {
 		return this;
 
@@ -262,12 +261,12 @@ public class RandomVariable implements RandomVariableInterface {
 			errorOfSum		= (newSum - sum) - value;
 			sum				= newSum;
 		}
-		return sum/(realizations.length-1);
+		return sum/realizations.length;
 	}
 
 	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
-		if(isDeterministic() || size() == 1)	return 0.0;
+		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
 
 		double average = getAverage(probabilities);
@@ -284,6 +283,14 @@ public class RandomVariable implements RandomVariableInterface {
 			sum				= newSum;
 		}
 		return sum;
+	}
+
+	@Override
+	public double getSampleVariance() {
+		if(isDeterministic() || size() == 1)	return 0.0;
+		if(size() == 0)							return Double.NaN;
+
+		return getVariance() * size()/(size()-1);
 	}
 
 	@Override

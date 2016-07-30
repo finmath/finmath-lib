@@ -322,6 +322,14 @@ public class RandomVariableMutableClone implements RandomVariableInterface {
 		return randomVariable.getVariance(probabilities);
 	}
 
+	@Override
+	public double getSampleVariance() {
+		if(isDeterministic() || size() == 1)	return 0.0;
+		if(size() == 0)							return Double.NaN;
+
+		return getVariance() * size()/(size()-1);
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#invert()
 	 */

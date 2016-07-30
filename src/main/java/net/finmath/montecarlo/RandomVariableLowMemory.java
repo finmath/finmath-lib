@@ -296,9 +296,14 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return (sumOfSquared - sum*sum)/realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
-	 */
+	@Override
+	public double getSampleVariance() {
+		if(isDeterministic() || size() == 1)	return 0.0;
+		if(size() == 0)							return Double.NaN;
+
+		return getVariance() * size()/(size()-1);
+	}
+
 	@Override
 	public double getStandardDeviation() {
 		if(isDeterministic())	return 0.0;

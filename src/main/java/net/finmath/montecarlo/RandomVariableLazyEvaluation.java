@@ -249,9 +249,6 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
         return sumOfSquared/size() - sum/size() * sum/size();
     }
 
-    /* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
-     */
     @Override
     public double getVariance(RandomVariableInterface probabilities) {
         if(isDeterministic())	return 0.0;
@@ -266,10 +263,15 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
         return secondMoment - mean*mean;
     }
 
-    /* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
-     */
-    @Override
+	@Override
+	public double getSampleVariance() {
+		if(isDeterministic() || size() == 1)	return 0.0;
+		if(size() == 0)							return Double.NaN;
+
+		return getVariance() * size()/(size()-1);
+	}
+
+	@Override
     public double getStandardDeviation() {
         if(isDeterministic())	return 0.0;
         if(size() == 0)			return Double.NaN;

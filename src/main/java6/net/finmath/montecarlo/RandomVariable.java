@@ -1,5 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
  * Created on 09.02.2006
  */
@@ -220,8 +221,8 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public double getVariance() {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic() || size() == 1)	return 0.0;
+		if(size() == 0)							return Double.NaN;
 
 		double average = getAverage();
 
@@ -261,6 +262,14 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
+	public double getSampleVariance() {
+		if(isDeterministic() || size() == 1)	return 0.0;
+		if(size() == 0)							return Double.NaN;
+
+		return getVariance() * size()/(size()-1);
+	}
+
+	@Override
 	public double getStandardDeviation() {
 		if(isDeterministic())	return 0.0;
 		if(size() == 0)			return Double.NaN;
@@ -268,9 +277,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return Math.sqrt(getVariance());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getStandardDeviation(RandomVariableInterface probabilities) {
 		if(isDeterministic())	return 0.0;
@@ -279,9 +285,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return Math.sqrt(getVariance(probabilities));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
-	 */
 	@Override
 	public double getStandardError() {
 		if(isDeterministic())	return 0.0;
