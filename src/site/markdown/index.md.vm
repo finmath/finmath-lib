@@ -70,6 +70,6 @@ For documentation please check out
 - the [finmath.net special topics]: where you also find spreadsheets which perform a step-by-step object creation and solve specific problems.
 
   [finmath lib Project documentation]: http://www.finmath.net/finmath-lib
-  [finmath lib API documentation]: http://www.finmath.net/java/finmath-lib/api-docs/
+  [finmath lib API documentation]: http://www.finmath.net/finmath-lib/api-docs/
   [finmath.net special topics]: http://www.finmath.net/topics
   [Apache License version 2.0]: http://www.apache.org/licenses/LICENSE-2.0.html
