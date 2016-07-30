@@ -14,4 +14,4 @@ The eclipse project file is pre-configured to Java 6.
 
 ## Maven build
 
-The maven pom defaults to the Java 6 build. To build finmath lib for Java 8 use the maven profile "java-8".
+The maven pom defaults to the Java 8 build. To build finmath lib for Java 6 use the maven profile "java-6".

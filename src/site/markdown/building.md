@@ -17,3 +17,22 @@ For that reason, the source code is duplicated:
 
 Although the two folder share some/many identical source files, we prefer this two folder layout over one with a third folder like java-common.
 
+## Repositories
+
+Source code and demos are provided via Github repositories:
+			<ul>
+				<li>
+					<i>Git</i> repositories with Java code:
+					<ul>
+						<li>
+							finmath lib: [https://github.com/finmath/finmath-lib](https://github.com/finmath/finmath-lib)
+						</li>
+						<li>
+							finmath experiments: [https://github.com/finmath/finmath-experiments](https://github.com/finmath/finmath-experiments)
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+
+

@@ -9,6 +9,10 @@ finmath lib Release Notes
 
 ### Dependencies
 
+## 2.3.0
+
+### Dependencies
+
 - Adding jblas 1.2.4 for LinearAlgebra.
 
 Since the implementation of commons-math matrix solver is sometimes noticable slower,
