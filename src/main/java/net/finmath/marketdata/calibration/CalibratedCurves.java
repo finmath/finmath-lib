@@ -486,8 +486,11 @@ public class CalibratedCurves {
 
 		// Create parameter to calibrate
 
-		// Remove old curve
+		// Fetch old curve
 		CurveInterface calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
+		if(calibrationCurveOld == null) throw new IllegalArgumentException("Calibration curve " + calibrationSpec.calibrationCurveName + " does not exist. This should not happen. Possible reason: The given calibration product does not depend on the given calibration curve.");
+
+		// Remove old curve
 		objectsToCalibrate.remove(calibrationCurveOld);
 
 		// Create and add new curve
