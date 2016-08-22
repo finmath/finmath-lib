@@ -5,9 +5,9 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 2.3.0
+## 2.3.4
 
-### Dependencies
+### Added valuation of Resettable Cross Currency Swap (aka Mark-to-Market Cross Currency Swap).
 
 ## 2.3.0
 
