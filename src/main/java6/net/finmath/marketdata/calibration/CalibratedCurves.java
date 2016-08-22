@@ -35,6 +35,45 @@ import net.finmath.time.TimeDiscretization;
  * Generate a collection of calibrated curves (discount curves, forward curves)
  * from a vector of calibration products.
  * 
+ * An object of this class provides a calibration of curves (using multi-curves, forward curve, discount curve).
+ * Sometimes this is referred as curve bootstrapping, however the algorithm used here is not a bootstrap.
+ * 
+ * The calibration products have to be provided via a vector of <code>CalibrationSpec</code>s.
+ * 
+ * The products provides are
+ * <table summary="List of calibration products types">
+ * 	<tr>
+ * 		<td>Value of Type String</td>
+ * 		<td>Classes</td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>swap</td>
+ * 		<td>{@link net.finmath.marketdata.products.Swap}</td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>swapleg</td>
+ * 		<td>{@link net.finmath.marketdata.products.SwapLeg}</td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>swapwithresetonreceiver</td>
+ * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>swapwithresetonpayer</td>
+ * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>deposit</td>
+ * 		<td>{@link net.finmath.marketdata.products.Deposit}</td>
+ * 	</tr>
+ * 	<tr>
+ * 		<td>fra</td>
+ * 		<td>{@link net.finmath.marketdata.products.ForwardRateAgreement}</td>
+ * 	</tr>
+ * </table>
+ * 
+ * For a demo spreadsheet using this class see <a href="http://finmath.net/topics/curvecalibration/">finmath.net/topics/curvecalibration/</a>.
+ * 
  * @author Christian Fries
  */
 public class CalibratedCurves {
