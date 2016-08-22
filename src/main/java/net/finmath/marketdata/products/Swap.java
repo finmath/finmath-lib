@@ -28,8 +28,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
-	private final SwapLeg legReceiver;
-	private final SwapLeg legPayer;
+	private final AnalyticProductInterface legReceiver;
+	private final AnalyticProductInterface legPayer;
 
 	/**
 	 * Create a swap which values as <code>legReceiver - legPayer</code>.
@@ -37,7 +37,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payler leg.
 	 */
-	public Swap(SwapLeg legReceiver, SwapLeg legPayer) {
+	public Swap(AnalyticProductInterface legReceiver, AnalyticProductInterface legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;
@@ -167,7 +167,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * 
 	 * @return The receiver leg of the swap.
 	 */
-	public SwapLeg getLegReceiver() {
+	public AnalyticProductInterface getLegReceiver() {
 		return legReceiver;
 	}
 
@@ -176,7 +176,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * 
 	 * @return The payer leg of the swap.
 	 */
-	public SwapLeg getLegPayer() {
+	public AnalyticProductInterface getLegPayer() {
 		return legPayer;
 	}
 

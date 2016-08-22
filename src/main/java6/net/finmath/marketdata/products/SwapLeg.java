@@ -12,9 +12,11 @@ import net.finmath.time.ScheduleInterface;
 
 /**
  * Implements the valuation of a swap leg using curves (discount curve, forward curve).
+ * 
  * The swap leg valuation supports distinct discounting and forward curves.
- * Support for day counting is limited to the capabilities of
- * <code>TimeDiscretizationInterface</code>.
+ * 
+ * Support for day counting is provided via the class implementing
+ * <code>ScheduleInterface</code>.
  * 
  * @author Christian Fries
  */

@@ -25,6 +25,7 @@ import net.finmath.marketdata.products.Deposit;
 import net.finmath.marketdata.products.ForwardRateAgreement;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapLeg;
+import net.finmath.marketdata.products.SwapLegWithResetting;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
@@ -392,6 +393,18 @@ public class CalibratedCurves {
 		else if(calibrationSpec.type.toLowerCase().equals("swapleg")) {
 			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
 		}
+		else if(calibrationSpec.type.toLowerCase().equals("swapwithresetonreceiver")) {
+			String discountCurveForNotionalResetName = calibrationSpec.discountCurvePayerName;
+			SwapLegWithResetting	legReceiver	= new SwapLegWithResetting(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, discountCurveForNotionalResetName, true);
+			SwapLeg					legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);
+			product = new Swap(legReceiver, legPayer);
+		}
+		else if(calibrationSpec.type.toLowerCase().equals("swapwithresetonpayer")) {
+			String discountCurveForNotionalResetName = calibrationSpec.discountCurveReceiverName;
+			SwapLeg					legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
+			SwapLegWithResetting	legPayer	= new SwapLegWithResetting(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, discountCurveForNotionalResetName, true);
+			product = new Swap(legReceiver, legPayer);
+		}
 		else if(calibrationSpec.type.toLowerCase().equals("deposit")){
 			product = new Deposit(tenorReceiver, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName);
 		}
@@ -485,7 +498,7 @@ public class CalibratedCurves {
 		calibrationProducts.add(getCalibrationProductForSpec(calibrationSpec));
 
 		// Create parameter to calibrate
-		
+
 		// Fetch old curve
 		CurveInterface calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
 		if(calibrationCurveOld == null) throw new IllegalArgumentException("Calibration curve " + calibrationSpec.calibrationCurveName + " does not exist. This should not happen. Possible reason: The given calibration product does not depend on the given calibration curve.");
