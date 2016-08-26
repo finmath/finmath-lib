@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -20,6 +23,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.products.AbstractAnalyticProduct;
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Deposit;
 import net.finmath.marketdata.products.ForwardRateAgreement;
@@ -246,7 +250,7 @@ public class CalibratedCurves {
 		}
 
 		public CalibrationSpec getCloneShifted(double shift) {
-			if(discountCurvePayerName == null || type.toLowerCase().equals("swapleg")) {
+			if(discountCurvePayerName == null || type.toLowerCase().equals("swapleg")  || type.toLowerCase().equals("deposit")  || type.toLowerCase().equals("fra")) {
 				return new CalibrationSpec(symbol, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver+shift, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer, discountCurvePayerName, calibrationCurveName, calibrationTime);
 			}
 			else {
@@ -268,7 +272,8 @@ public class CalibratedCurves {
 
 	private AnalyticModelInterface				model				= new AnalyticModel();
 	private Set<ParameterObjectInterface>		objectsToCalibrate	= new LinkedHashSet<ParameterObjectInterface>();
-	private Vector<AnalyticProductInterface>	calibrationProducts	= new Vector<AnalyticProductInterface>();
+	private Vector<AnalyticProductInterface>	calibrationProducts			= new Vector<AnalyticProductInterface>();
+	private Vector<String>						calibrationProductsSymbols	= new Vector<String>();
 
 	private List<CalibrationSpec>				calibrationSpecs	= new ArrayList<CalibrationSpec>();
 
@@ -501,6 +506,39 @@ public class CalibratedCurves {
 		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
 	}
 
+	public CalibratedCurves getCloneShifted(Map<String,Double> shifts) throws SolverException, CloneNotSupportedException {
+		// Clone calibration specs, shifting the desired symbol
+		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
+		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+			if(shifts.containsKey(calibrationSpec)) {
+				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shifts.get(calibrationSpec)));
+			}
+			else {
+				calibrationSpecsShifted.add(calibrationSpec);				
+			}
+		}
+
+		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
+	}
+
+	public CalibratedCurves getCloneShiftedForRegExp(String symbolRegExp, double shift) throws SolverException, CloneNotSupportedException {
+		// Clone calibration specs, shifting the desired symbol
+		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
+
+		Pattern pattern = Pattern.compile(symbolRegExp);
+		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+			Matcher matcher = pattern.matcher(calibrationSpec.symbol);
+			if(matcher.matches()) {
+				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
+			}
+			else {
+				calibrationSpecsShifted.add(calibrationSpec);				
+			}
+		}
+
+		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
+	}
+
 	/**
 	 * Return the accuracy achieved in the last calibration.
 	 * 
@@ -508,6 +546,29 @@ public class CalibratedCurves {
 	 */
 	public double getLastAccuracy() {
 		return lastAccuracy;
+	}
+	
+	/**
+	 * Returns the first product found in the vector of calibration products
+	 * which matches the given symbol, where symbol is the String set in
+	 * the calibrationSpecs.
+	 * 
+	 * @param symbol A given symbol string.
+	 * @return The product associated with that symbol.
+	 */
+	public AnalyticProductInterface getCalibrationProductForSymbol(String symbol) {
+		
+		/*
+		 * The internal data structure is not optimal here (a map would make more sense here),
+		 * if the user does not require access to the products, we would allow non-unique symbols.
+		 * Hence we store both in two side by side vectors.
+		 */
+		for(int i=0; i<calibrationProductsSymbols.size(); i++) {
+			String calibrationProductSymbol = calibrationProductsSymbols.get(i);
+			if(calibrationProductSymbol.equals(symbol)) return calibrationProducts.get(i);
+		}
+		
+		return null;
 	}
 
 	private int calibrate(double accuracy) throws SolverException {
@@ -535,6 +596,7 @@ public class CalibratedCurves {
 
 		// Create calibration product (will also create the curve if necessary)
 		calibrationProducts.add(getCalibrationProductForSpec(calibrationSpec));
+		calibrationProductsSymbols.add(calibrationSpec.symbol);
 
 		// Create parameter to calibrate
 
