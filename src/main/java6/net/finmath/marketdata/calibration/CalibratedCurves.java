@@ -491,6 +491,17 @@ public class CalibratedCurves {
 		return lastNumberOfInterations;
 	}
 
+	/**
+	 * Returns the set curves calibrated to "shifted" market data, that is,
+	 * the market date of <code>this</code> object, modified by the shifts
+	 * provided to this methods.
+	 * 
+	 * @param symbol The symbol to shift. All other symbols remain unshifted.
+	 * @param shift The shift to apply to the symbol.
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
 	public CalibratedCurves getCloneShifted(String symbol, double shift) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
 		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
@@ -506,6 +517,16 @@ public class CalibratedCurves {
 		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
 	}
 
+	/**
+	 * Returns the set curves calibrated to "shifted" market data, that is,
+	 * the market date of <code>this</code> object, modified by the shifts
+	 * provided to this methods.
+	 * 
+	 * @param shifts A map of shifts associating each symbol with a shifts. If symbols are not part of this map, they remain unshifted.
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
 	public CalibratedCurves getCloneShifted(Map<String,Double> shifts) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
 		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
@@ -521,13 +542,27 @@ public class CalibratedCurves {
 		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
 	}
 
-	public CalibratedCurves getCloneShiftedForRegExp(String symbolRegExp, double shift) throws SolverException, CloneNotSupportedException {
+	/**
+	 * Returns the set curves calibrated to "shifted" market data, that is,
+	 * the market date of <code>this</code> object, modified by the shifts
+	 * provided to this methods.
+	 * 
+	 * This method will shift all symbols matching a given regular expression <code>Pattern</code>.
+	 * 
+	 * @see java.util.regex.Pattern
+	 * 
+	 * @param symbolRegExp A pattern, identifying the symbols to shift.
+	 * @param shift The shift to apply to the symbol(s).
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
+	public CalibratedCurves getCloneShifted(Pattern symbolRegExp, double shift) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
 		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
 
-		Pattern pattern = Pattern.compile(symbolRegExp);
 		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
-			Matcher matcher = pattern.matcher(calibrationSpec.symbol);
+			Matcher matcher = symbolRegExp.matcher(calibrationSpec.symbol);
 			if(matcher.matches()) {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
 			}
@@ -537,6 +572,25 @@ public class CalibratedCurves {
 		}
 
 		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);
+	}
+
+	/**
+	 * Returns the set curves calibrated to "shifted" market data, that is,
+	 * the market date of <code>this</code> object, modified by the shifts
+	 * provided to this methods.
+	 * 
+	 * This method will shift all symbols matching a given regular expression.
+	 * 
+	 * @see java.util.regex.Pattern
+	 * 
+	 * @param symbolRegExp A string representing a regular expression, identifying the symbols to shift.
+	 * @param shift The shift to apply to the symbol(s).
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
+	public CalibratedCurves getCloneShiftedForRegExp(String symbolRegExp, double shift) throws SolverException, CloneNotSupportedException {
+		return getCloneShifted(Pattern.compile(symbolRegExp), shift);
 	}
 
 	/**
