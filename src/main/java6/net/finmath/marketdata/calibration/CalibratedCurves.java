@@ -49,30 +49,37 @@ import net.finmath.time.TimeDiscretization;
  * 	<tr>
  * 		<td>Value of Type String</td>
  * 		<td>Classes</td>
+ * 		<td>Note</td>
  * 	</tr>
  * 	<tr>
  * 		<td>swap</td>
  * 		<td>{@link net.finmath.marketdata.products.Swap}</td>
+ * 		<td></td>
  * 	</tr>
  * 	<tr>
  * 		<td>swapleg</td>
  * 		<td>{@link net.finmath.marketdata.products.SwapLeg}</td>
+ * 		<td>Only the receiver part of <code>CalibrationSpec</code> is used.</td>
  * 	</tr>
  * 	<tr>
  * 		<td>swapwithresetonreceiver</td>
  * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 		<td></td>
  * 	</tr>
  * 	<tr>
  * 		<td>swapwithresetonpayer</td>
  * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 		<td></td>
  * 	</tr>
  * 	<tr>
  * 		<td>deposit</td>
  * 		<td>{@link net.finmath.marketdata.products.Deposit}</td>
+ * 		<td>Only the receiver part of <code>CalibrationSpec</code> is used.</td>
  * 	</tr>
  * 	<tr>
  * 		<td>fra</td>
  * 		<td>{@link net.finmath.marketdata.products.ForwardRateAgreement}</td>
+ * 		<td>Only the receiver part of <code>CalibrationSpec</code> is used.</td>
  * 	</tr>
  * </table>
  * 
