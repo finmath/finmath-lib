@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import net.finmath.concurrency.FutureWrapper;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.optimizer.SolverException;
@@ -41,6 +42,13 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.4
  */
 public class ProcessEulerScheme extends AbstractProcess {
+	
+	private static boolean isUseMultiThreadding;
+	static {
+		// Default value is true
+		isUseMultiThreadding = Boolean.parseBoolean(System.getProperty("net.finmath.montecarlo.process.ProcessEulerScheme.isUseMultiThreadding","true"));
+		System.out.println(isUseMultiThreadding);
+	}
 
 	public enum Scheme {
 		EULER, PREDICTOR_CORRECTOR
@@ -210,9 +218,20 @@ public class ProcessEulerScheme extends AbstractProcess {
 					}
 				};
 
+
+				/*
+				 * Optional multi-threadding (asyncronous calculation of the components)
+				 */
+				Future<RandomVariableInterface> result = null;
+				if(isUseMultiThreadding) result = executor.submit(worker);
+				else {
+					try {
+						result = new FutureWrapper<RandomVariableInterface>(worker.call());
+					} catch (Exception e) {}
+				}
 				
 				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
-				discreteProcessAtCurrentTimeIndex.set(componentIndex, executor.submit(worker));
+				discreteProcessAtCurrentTimeIndex.set(componentIndex, result);
 			}
 
 			// Fetch results and move to discreteProcess[timeIndex]
