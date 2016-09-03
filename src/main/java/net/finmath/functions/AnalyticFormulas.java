@@ -696,7 +696,7 @@ public class AnalyticFormulas {
 			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
 			double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
-					+ (volatility * Math.sqrt(optionMaturity)) * NormalDistribution.density(dPlus))  * payoffUnit;
+					+ (volatility * Math.sqrt(optionMaturity)) * NormalDistribution.density(dPlus)) * payoffUnit;
 			
 			return valueAnalytic;
 		}
@@ -880,7 +880,7 @@ public class AnalyticFormulas {
 	 * Calculated the approximation to the lognormal Black volatility using the
 	 * standard SABR model and the standard Hagan approximation.
 	 * 
-	 * @param alpha ATM volatility parameter of the SABR model.
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
 	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
@@ -945,6 +945,110 @@ public class AnalyticFormulas {
 		}		
 	}
 
+
+	/**
+	 * Return the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Berestycki.
+	 * 
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return The implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrBerestyckiNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
+	{
+		double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here
+
+		double z;		
+		if(beta < 1.0)	z = nu / alpha * (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);
+		else			z = nu / alpha * Math.log(underlying/strike);
+
+		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
+
+		double term1;
+		if(Math.abs(underlying - strike) < 0.00001 * (1+Math.abs(underlying))) {
+			// ATM case - we assume underlying = strike
+			term1 = alpha * Math.pow(underlying, beta);
+		}
+		else {
+			term1 = nu * (underlying-strike) / x;
+		}			
+		double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
+
+		return Math.max(sigma, 0.0);
+	}
+
+	/**
+	 * Return the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Hagan.
+	 * 
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return The implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
+	{
+		double forwardStrikeAverage = (underlying+strike) / 2.0;
+
+		double z = nu / alpha * (underlying-strike) / Math.pow(forwardStrikeAverage, beta);
+		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
+
+		double term1;
+		if(Math.abs(underlying - strike) < 0.00001 * (1+Math.abs(underlying))) {
+			// ATM case - we assume underlying = strike
+			term1 = alpha * Math.pow(underlying, beta);
+		}
+		else {
+			double z2 = (1.0 - beta) / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta));
+			term1 = alpha * z2 * z * (underlying-strike) / x;
+		}
+		
+		double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
+
+		return Math.max(sigma, 0.0);
+	}
+
+	/**
+	 * Return the parameter alpha (initial value of the stochastic vol process) of a SABR model using the
+	 * to match the given at-the-money volatiltiy.
+	 * 
+	 * @param normalVolatility ATM volatility to match.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return The implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrAlphaApproximation(double normalVolatility, double beta, double rho, double nu, double underlying, double maturity)
+	{
+		double forwardStrikeAverage = underlying;
+
+		double guess = normalVolatility/Math.pow(underlying, beta);
+		NewtonsMethod search = new NewtonsMethod(guess);
+		while(!search.isDone() && search.getAccuracy() > 1E-16 && search.getNumberOfIterations() < 100) {
+			double alpha = search.getNextPoint();
+
+			double term1 = alpha * Math.pow(underlying, beta);
+			double term2 = (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
+			double sigma = term1 * term2;
+			double derivative = Math.pow(underlying, beta) * term2 + term1 * maturity * (2*(-beta*(2-beta)*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))));
+
+			search.setValueAndDerivative(sigma-normalVolatility, derivative);
+		}
+		return search.getBestPoint();
+	}
+	
 	/**
 	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
 	 * 
