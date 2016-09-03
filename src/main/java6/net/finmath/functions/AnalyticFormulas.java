@@ -909,6 +909,25 @@ public class AnalyticFormulas {
 	 */
 	public static double sabrHaganLognormalBlackVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
 	{
+		return sabrHaganLognormalBlackVolatilityApproximation(alpha, beta, rho, nu, 0.0, underlying, strike, maturity);
+	}
+
+	/**
+	 * Calculated the approximation to the lognormal Black volatility using the
+	 * standard SABR model and the standard Hagan approximation.
+	 * 
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return Implied lognormal Black volatility.
+	 */
+	public static double sabrHaganLognormalBlackVolatilityApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double strike, double maturity)
+	{
 
 		if(alpha <= 0) {
 			throw new IllegalArgumentException("&alpha; must be greater than 0.");
@@ -925,6 +944,10 @@ public class AnalyticFormulas {
 		if(underlying <= 0) {
 			throw new IllegalArgumentException("Approximation not definied for non-positive underlyings.");
 		}
+
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+		underlying += displacement;
+		strike += displacement;
 
 		if(Math.abs(underlying - strike) < 0.0001 * (1+Math.abs(underlying))) {
 			/*
@@ -972,13 +995,18 @@ public class AnalyticFormulas {
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
 	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
 	 * @param underlying Underlying (spot) value.
 	 * @param strike Strike.
 	 * @param maturity Maturity.
 	 * @return The implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrBerestyckiNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
+	public static double sabrBerestyckiNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double strike, double maturity)
 	{
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+		underlying += displacement;
+		strike += displacement;
+
 		double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here
 
 		double z;		
@@ -1008,13 +1036,18 @@ public class AnalyticFormulas {
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
 	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
 	 * @param underlying Underlying (spot) value.
 	 * @param strike Strike.
 	 * @param maturity Maturity.
 	 * @return The implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
+	public static double sabrNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double strike, double maturity)
 	{
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+		underlying += displacement;
+		strike += displacement;
+
 		double forwardStrikeAverage = (underlying+strike) / 2.0;
 
 		double z = nu / alpha * (underlying-strike) / Math.pow(forwardStrikeAverage, beta);
@@ -1029,7 +1062,7 @@ public class AnalyticFormulas {
 			double z2 = (1.0 - beta) / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta));
 			term1 = alpha * z2 * z * (underlying-strike) / x;
 		}
-		
+
 		double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
 
 		return Math.max(sigma, 0.0);
@@ -1037,19 +1070,23 @@ public class AnalyticFormulas {
 
 	/**
 	 * Return the parameter alpha (initial value of the stochastic vol process) of a SABR model using the
-	 * to match the given at-the-money volatiltiy.
+	 * to match the given at-the-money volatility.
 	 * 
 	 * @param normalVolatility ATM volatility to match.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
 	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
 	 * @param underlying Underlying (spot) value.
-	 * @param strike Strike.
 	 * @param maturity Maturity.
 	 * @return The implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrAlphaApproximation(double normalVolatility, double beta, double rho, double nu, double underlying, double maturity)
+	public static double sabrAlphaApproximation(double normalVolatility, double beta, double rho, double nu, double displacement, double underlying, double maturity)
 	{
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+		underlying += displacement;
+
+		// ATM case.
 		double forwardStrikeAverage = underlying;
 
 		double guess = normalVolatility/Math.pow(underlying, beta);
@@ -1059,14 +1096,18 @@ public class AnalyticFormulas {
 
 			double term1 = alpha * Math.pow(underlying, beta);
 			double term2 = (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
+
+			double derivativeTerm1 = Math.pow(underlying, beta);
+			double derivativeTerm2 = maturity * (2*(-beta*(2-beta)*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))));
+
 			double sigma = term1 * term2;
-			double derivative = Math.pow(underlying, beta) * term2 + term1 * maturity * (2*(-beta*(2-beta)*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))));
+			double derivative = derivativeTerm1 * term2 + term1 * derivativeTerm2;
 
 			search.setValueAndDerivative(sigma-normalVolatility, derivative);
 		}
 		return search.getBestPoint();
 	}
-	
+
 	/**
 	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
 	 * 
