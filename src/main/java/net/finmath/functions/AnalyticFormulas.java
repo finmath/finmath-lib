@@ -757,33 +757,25 @@ public class AnalyticFormulas {
 		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
 		int		maxIterations	= 100;
 		double	maxAccuracy		= 0.0;
-		
-		if(optionStrike <= 0.0)
-		{	
-			// Actually it is not an option
-			return 0.0;
+
+		// Calculate an lower and upper bound for the volatility
+		double volatilityLowerBound = 0.0;
+		double volatilityUpperBound = (optionValue + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity) / payoffUnit;
+		volatilityUpperBound /= Math.min(1.0, NormalDistribution.density((forward - optionStrike) / (volatilityUpperBound * Math.sqrt(optionMaturity))));
+
+		// Solve for implied volatility
+		GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
+		while(solver.getAccuracy() > maxAccuracy && !solver.isDone() && solver.getNumberOfIterations() < maxIterations) {
+			double volatility = solver.getNextPoint();
+
+			double valueAnalytic	= bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+
+			double error = valueAnalytic - optionValue;
+
+			solver.setValue(error*error);
 		}
-		else
-		{
-			// Calculate an lower and upper bound for the volatility
-			double volatilityLowerBound = 0.0;
-			double volatilityUpperBound = (optionValue + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity) / payoffUnit;
-			volatilityUpperBound /= Math.min(1.0, NormalDistribution.density((forward - optionStrike) / (volatilityUpperBound * Math.sqrt(optionMaturity))));
 
-			// Solve for implied volatility
-			GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
-			while(solver.getAccuracy() > maxAccuracy && !solver.isDone() && solver.getNumberOfIterations() < maxIterations) {
-				double volatility = solver.getNextPoint();
-
-				double valueAnalytic	= bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
-
-				double error = valueAnalytic - optionValue;
-
-				solver.setValue(error*error);
-			}
-
-			return solver.getBestPoint();
-		}
+		return solver.getBestPoint();
 	}
 
 	/**
@@ -998,7 +990,7 @@ public class AnalyticFormulas {
 		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
 
 		double term1;
-		if(Math.abs(underlying - strike) < 0.00001 * (1+Math.abs(underlying))) {
+		if(Math.abs(underlying - strike) < 1E-8 * (1+Math.abs(underlying))) {
 			// ATM case - we assume underlying = strike
 			term1 = alpha * Math.pow(underlying, beta);
 		}
@@ -1036,7 +1028,7 @@ public class AnalyticFormulas {
 		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
 
 		double term1;
-		if(Math.abs(underlying - strike) < 0.00001 * (1+Math.abs(underlying))) {
+		if(Math.abs(underlying - strike) < 1E-8 * (1+Math.abs(underlying))) {
 			// ATM case - we assume underlying = strike
 			term1 = alpha * Math.pow(underlying, beta);
 		}
@@ -1044,7 +1036,7 @@ public class AnalyticFormulas {
 			double z2 = (1.0 - beta) / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta));
 			term1 = alpha * z2 * z * (underlying-strike) / x;
 		}
-		
+
 		double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
 
 		return Math.max(sigma, 0.0);
@@ -1089,7 +1081,7 @@ public class AnalyticFormulas {
 		}
 		return search.getBestPoint();
 	}
-	
+
 	/**
 	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
 	 * 
