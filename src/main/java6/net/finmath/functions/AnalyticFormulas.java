@@ -1008,7 +1008,7 @@ public class AnalyticFormulas {
 		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
 
 		double term1;
-		if(Math.abs(underlying - strike) < 1E-8 * (1+Math.abs(underlying))) {
+		if(Math.abs(underlying - strike) < 1E-10 * (1+Math.abs(underlying))) {
 			// ATM case - we assume underlying = strike
 			term1 = alpha * Math.pow(underlying, beta);
 		}
@@ -1100,6 +1100,108 @@ public class AnalyticFormulas {
 		return search.getBestPoint();
 	}
 
+	/**
+	 * Return the skew of the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Berestycki. The skew is the first derivative of the implied vol w.r.t. the strike,
+	 * evaluated at the money.
+	 * 
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param maturity Maturity.
+	 * @return The skew of the implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrNormalVolatilitySkewApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double maturity)
+	{
+		double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
+
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+		underlying += displacement;
+
+		double term1 = alpha * Math.pow(underlying, beta);
+		double dterm21 = -alpha * alpha * alpha / 3 * Math.pow(4,-beta) * beta * (beta*beta-3*beta+2) * Math.pow(2,2*beta-3) * Math.pow(underlying*underlying, beta-1);
+		double dterm22 = alpha * alpha * Math.pow(2,-beta-1) * (beta-1) * beta * nu * 2 * Math.pow(underlying, beta-1);
+
+		dterm21 = (beta*(2-beta)*alpha*alpha)/24*Math.pow(underlying,-2.0*(1.0-beta)-1) * (1.0-beta);
+		dterm22 = beta*alpha*rho*nu / 4 * Math.pow(underlying,-(1.0-beta)-1) * -(1.0-beta) * 0.5;
+
+		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
+		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
+
+		double term2 = - 1.0/24.0 * beta*(2-beta)*alpha*alpha*Math.pow(underlying,-2.0*(1.0-beta)) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying,-(1.0-beta)) + 1.0/24.0*(2.0 -3.0*rho*rho)*nu*nu;
+		double dterm1 = + 1.0/2.0*(rho*nu+alpha*beta*Math.pow(underlying, -1+beta));
+
+		//		double riskReversal = dterm1 * (1+maturity * term2) + maturity * (term1dterm21+term1dterm22);
+		double skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
+
+		double a = alpha/Math.pow(underlying, 1-beta);		
+		double c = 1.0/24*Math.pow(a, 3)*beta*(1.0-beta);
+
+		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
+//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*3.0*c) + maturity*2.0*c*(1+beta);
+//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*c) - maturity*c*(2.0*rho*nu/a - 2.0);
+
+		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
+		double residual =  skew - approximation;
+		System.out.println(residual);
+		System.out.println(approximation);
+
+		return  skew;
+	}
+
+	/**
+	 * Return the curvature of the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Berestycki. The curvatures is the second derivative of the implied vol w.r.t. the strike,
+	 * evaluated at the money.
+	 * 
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param maturity Maturity.
+	 * @return The curvature of the implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrNormalVolatilityCurvatureApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double maturity)
+	{
+		double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
+
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+		underlying += displacement;
+
+		/*
+		double d1xdz1 = 1.0;
+		double d2xdz2 = rho;
+		double d3xdz3 = 3.0*rho*rho-1.0;
+		
+		double d1zdK1 = -nu/alpha * Math.pow(underlying, -beta);
+		double d2zdK2 = + nu/alpha * beta * Math.pow(underlying, -beta-1.0);
+		double d3zdK3 = - nu/alpha * beta * (1.0+beta) * Math.pow(underlying, -beta-2.0);
+		
+		double d1xdK1 = d1xdz1*d1zdK1;
+		double d2xdK2 = d2xdz2*d1zdK1*d1zdK1 + d1xdz1*d2zdK2;
+		double d3xdK3 = d3xdz3*d1zdK1*d1zdK1*d1zdK1 + 3.0*d2xdz2*d2zdK2*d1zdK1 + d1xdz1*d3zdK3;
+		
+		double term1 = alpha * Math.pow(underlying, beta) / nu;
+		*/
+
+		double d2Part1dK2 = nu * ((1.0/3.0 - 1.0/2.0 * rho * rho) * nu/alpha * Math.pow(underlying, -beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * alpha/nu*Math.pow(underlying, beta-2));
+		double d0BdK0 = (-1.0/24.0 *beta*(2-beta)*alpha*alpha*Math.pow(underlying, 2*beta-2) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying, beta-1.0) + (2.0 -3.0*rho*rho)*nu*nu/24);
+		double d1BdK1 = (-1.0/48.0 *beta*(2-beta)*(2*beta-2)*alpha*alpha*Math.pow(underlying, 2*beta-3) + 1.0/8.0 * beta*(beta-1.0)*alpha*rho*nu*Math.pow(underlying, beta-2));
+		double d2BdK2 = (-1.0/96.0 *beta*(2-beta)*(2*beta-2)*(2*beta-3)*alpha*alpha*Math.pow(underlying, 2*beta-4) + 1.0/16.0 * beta*(beta-1)*(beta-2)*alpha*rho*nu*Math.pow(underlying, beta-3));
+
+		double curvatureApproximation	= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta));
+		double curvaturePart1			= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * sigma*alpha/nu*Math.pow(underlying, -2));
+		double curvatureMaturityPart	= (rho*nu + alpha*beta*Math.pow(underlying, beta-1))*d1BdK1 + alpha*Math.pow(underlying, beta)*d2BdK2;
+
+		System.out.println(curvatureApproximation);
+		return  (curvaturePart1 + maturity * curvatureMaturityPart);
+	}
+	
 	/**
 	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
 	 * 
