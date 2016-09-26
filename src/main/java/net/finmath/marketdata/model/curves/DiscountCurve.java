@@ -7,6 +7,8 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -213,7 +215,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			double[] times, double[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		
-		return createDiscountCurveFromZeroRates(name, new LocalDate(referenceDate), times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
+		return createDiscountCurveFromZeroRates(name, referenceDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
 	/**
