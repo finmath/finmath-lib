@@ -190,6 +190,31 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 		return createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
+	
+	/**
+	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
+	 * The discount factor is determined by 
+	 * <code>
+	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
+	 * </code>
+	 *
+	 * @param name The name of this discount curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param times Array of times as doubles.
+	 * @param givenZeroRates Array of corresponding zero rates.
+	 * @param isParameter Array of booleans specifying whether this point is served "as as parameter", e.g., whether it is calibrates (e.g. using CalibratedCurves).
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @return A new discount factor object.
+	 */
+	public static DiscountCurve createDiscountCurveFromZeroRates(
+			String name, Date referenceDate,
+			double[] times, double[] givenZeroRates, boolean[] isParameter,
+			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+		
+		return createDiscountCurveFromZeroRates(name, new LocalDate(referenceDate), times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
+	}
 
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.

@@ -100,7 +100,17 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 	@Override
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
-		return null;
+		return new CurveBuilderInterface() {
+			@Override
+			public CurveInterface build() throws CloneNotSupportedException {
+				return ForwardCurveNelsonSiegelSvensson.this;
+			}
+
+			@Override
+			public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
+				return this;
+			}			
+		};
 	}
 
 	@Override
@@ -110,7 +120,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 	@Override
 	public ForwardCurveNelsonSiegelSvensson getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		throw new CloneNotSupportedException();
+		return new ForwardCurveNelsonSiegelSvensson(getName(), getReferenceDate(), paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, value, discountCurve.getTimeScaling(), periodOffset);
 	}
 
 	@Override
@@ -123,9 +133,22 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		return discountCurve.getParameter();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.calibration.ParameterObjectInterface#setParameter(double[])
+	/**
+	 * Returns the forwards for a given vector fixing times.
+	 * 
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTimes The given fixing times.
+	 * @return The forward rates.
 	 */
+	public double[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
+	{
+		double[] values = new double[fixingTimes.length];
+
+		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
+
+		return values;
+	}
+
 	@Override
 	public void setParameter(double[] parameter) {
 		discountCurve.setParameter(parameter);

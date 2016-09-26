@@ -96,9 +96,48 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 		return getDiscountFactor(model, time);
 	}
 
+	/**
+	 * Returns the zero rate for a given maturity, i.e., -ln(df(T)) / T where T is the given maturity and df(T) is
+	 * the discount factor at time $T$.
+	 * 
+	 * @param maturity The given maturity.
+	 * @return The zero rate.
+	 */
+	public double getZeroRate(double maturity)
+	{
+		if(maturity == 0) return this.getZeroRate(1.0E-14);
+
+		return -Math.log(getDiscountFactor(null, maturity))/maturity;
+	}
+
+	/**
+	 * Returns the zero rates for a given vector maturities.
+	 * 
+	 * @param maturities The given maturities.
+	 * @return The zero rates.
+	 */
+	public double[] getZeroRates(double[] maturities)
+	{
+		double[] values = new double[maturities.length];
+
+		for(int i=0; i<maturities.length; i++) values[i] = getZeroRate(maturities[i]);
+
+		return values;
+	}
+
 	@Override
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
-		return null;
+		return new CurveBuilderInterface() {
+			@Override
+			public CurveInterface build() throws CloneNotSupportedException {
+				return DiscountCurveNelsonSiegelSvensson.this;
+			}
+
+			@Override
+			public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
+				return this;
+			}			
+		};
 	}
 
 	@Override
