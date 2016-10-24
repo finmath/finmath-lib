@@ -74,43 +74,53 @@ public class AnalyticFormulasTest {
 
 	@Test
 	public void testSABRSkewApproximation() {
-		/*
- 		double alpha = 0.1122;
-		double beta = 0.9;
-		double rho = 0.2;
-		double nu = 0.4;
-		double displacement = 0.02;
-		double underlying = 0.015;
-		double maturity = 10;
-		 */
-		double alpha = 0.006;
-		double beta = 0.0001;
-		double rho = 0.95;
-		double nu = 0.075;
-		double displacement = 0.02;
-		double underlying = 0.0076;
-		double maturity = 20;
+		double alpha, beta, rho, nu, displacement, underlying, maturity;
+		for(int testCase = 1; testCase <= 3; testCase++) {
+			switch (testCase) {
+			case 1:
+			default:
+				alpha = 0.1122;
+				beta = 0.9;
+				rho = 0.2;
+				nu = 0.4;
+				displacement = 0.02;
+				underlying = 0.015;
+				maturity = 1;
+				break;
 
-		/*
-		alpha = 0.1122;
-		beta = 0.1;
-		rho = 0.9;
-		nu = 0.4;
-		displacement = 0.02;
-		underlying = 0.015;
-		maturity = 10;
-		 */
-		double riskReversal = AnalyticFormulas.sabrNormalVolatilitySkewApproximation(alpha, beta, rho, nu, displacement, underlying, maturity);
+			case 2:
+				alpha = 0.006;
+				beta = 0.0001;
+				rho = 0.95;
+				nu = 0.075;
+				displacement = 0.02;
+				underlying = 0.0076;
+				maturity = 20;
+				break;
 
-		double epsilon = 1E-4;
-		double valueUp = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying+epsilon, maturity);
-		double valueDn = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying-epsilon, maturity);
-		double riskReversalNumerical = (valueUp-valueDn) / 2 / epsilon;
+			case 3:
+				alpha = 0.1122;
+				beta = 0.2;
+				rho = 0.9;
+				nu = 0.4;
+				displacement = 0.02;
+				underlying = 0.015;
+				maturity = 10;
 
-		System.out.println(riskReversal);
-		System.out.println(riskReversalNumerical);
+				break;
+			}
+			double riskReversal = AnalyticFormulas.sabrNormalVolatilitySkewApproximation(alpha, beta, rho, nu, displacement, underlying, maturity);
 
-		Assert.assertEquals("RR", riskReversalNumerical, riskReversal, 5.0/100/100);
+			double epsilon = 1E-4;
+			double valueUp = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying+epsilon, maturity);
+			double valueDn = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying-epsilon, maturity);
+			double riskReversalNumerical = (valueUp-valueDn) / 2 / epsilon;
+
+			System.out.println(riskReversal);
+			System.out.println(riskReversalNumerical);
+
+			Assert.assertEquals("RR", riskReversalNumerical, riskReversal, 5.0/100/100);
+		}
 	}
 
 	@Test
@@ -180,10 +190,10 @@ public class AnalyticFormulasTest {
 
 		double valueCall = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 		double valuePut = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike, false);
-		
+
 		Assert.assertEquals(valueCall, valuePut, 1E-15);
 	}
-	
+
 
 	/**
 	 * This test shows the Bachelier risk neutral probabilities
@@ -210,10 +220,10 @@ public class AnalyticFormulasTest {
 		double eps = 1E-8;
 
 		System.out.println("Strike K" + "          \t" +
-						"Bachelier Value " + "     \t" + 
-						"Bachelier P(S<K) " + "    \t" +
-						"Black-Scholes Value " + " \t" +
-						"Black-Scholes P(S<K) " + "\t");
+				"Bachelier Value " + "     \t" + 
+				"Bachelier P(S<K) " + "    \t" +
+				"Black-Scholes Value " + " \t" +
+				"Black-Scholes P(S<K) " + "\t");
 		for(double optionStrike = 0.02; optionStrike > -0.10; optionStrike -= 0.005) {
 
 			double payoffUnit	= Math.exp(-riskFreeRate * optionMaturity);
@@ -233,14 +243,14 @@ public class AnalyticFormulasTest {
 							numberFormatProbability.format(probabilityBachelier) + "         \t" +
 							numberFormatValue.format(valuePutBS1) + "         \t" +
 							numberFormatProbability.format(probabilityBlackScholes));
-			
+
 			if(optionStrike > forward) {
 				Assert.assertTrue("For strike>forward: Bacherlier probability for high underlying value should be lower than Black Scholes:", probabilityBlackScholes > probabilityBachelier);
 			}
 			if(optionStrike < -eps) {
 				Assert.assertTrue("For strike<0: Bacherlier probability for low underlying value should be higher than Black Scholes:", probabilityBlackScholes < probabilityBachelier);
 				Assert.assertTrue("For strike<0: Black Scholes probability for underlying < 0 should be 0:", probabilityBlackScholes < 1E-8);
-				
+
 			}
 		}	
 	}
