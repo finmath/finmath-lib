@@ -88,6 +88,6 @@ public class AccruedInterest extends AbstractIndex {
 	}
 
 	private LocalDate getModelDate(double fixingTime) {
-		return referenceDate.plusDays((int)(fixingTime*365.0));
+		return referenceDate.plusDays(Math.round((float)(fixingTime*365.0)));
 	}
 }
