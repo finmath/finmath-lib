@@ -20,8 +20,18 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 	public enum ValueUnit {
 		VALUE,
+		/*
+		 * @deprecated Use INTEGRATEDLOGNORMALVARIANCE
+		 */
 		INTEGRATEDVARIANCE,
-		VOLATILITY
+		/*
+		 * @deprecated Use LOGNORMALVOLATILITY
+		 */
+		VOLATILITY,
+		INTEGRATEDLOGNORMALVARIANCE,
+		LOGNORMALVOLATILITY,
+		INTEGRATEDNORMALVARIANCE,
+		NORMALVOLATILITY
 	}
 
 	private final double	maturity;
@@ -109,7 +119,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		// Get random variables
 		RandomVariableInterface	libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
 		RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
+		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 	
 		/*
 		 * Calculate the payoff, which is
@@ -129,7 +139,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		if(valueUnit == ValueUnit.VALUE) {
 			return values;
 		}
-		else if(valueUnit == ValueUnit.VOLATILITY) {
+		else if(valueUnit == ValueUnit.LOGNORMALVOLATILITY || valueUnit == ValueUnit.VOLATILITY) {
 			/*
 			 * This calculation makes sense only if the value is an unconditional one.
 			 */
@@ -138,6 +148,16 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 			double optionStrike = strike;
 			double payoffUnit = daycountFraction;
 			return model.getRandomVariableForConstant(AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));
+		}
+		else if(valueUnit == ValueUnit.NORMALVOLATILITY) {
+			/*
+			 * This calculation makes sense only if the value is an unconditional one.
+			 */
+			double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
+			double optionMaturity = maturity-evaluationTime;
+			double optionStrike = strike;
+			double payoffUnit = daycountFraction;
+			return model.getRandomVariableForConstant(AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));
 		}
 		else {
 			throw new IllegalArgumentException("Value unit " + valueUnit + " unsupported.");
