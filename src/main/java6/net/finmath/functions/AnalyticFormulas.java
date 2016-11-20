@@ -20,6 +20,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <ul>
  * 	<li>the Black-Scholes formula,
  * 	<li>the inverse of the Back-Scholes formula with respect to (implied) volatility,
+ * 	<li>the Bachelier formula,
+ * 	<li>the inverse of the Bachelier formula with respect to (implied) volatility,
  * 	<li>the corresponding functions (versions) for caplets and swaptions,
  * 	<li>analytic approximation for European options under the SABR model,
  * 	<li>some convexity adjustments.
@@ -1121,33 +1123,21 @@ public class AnalyticFormulas {
 		// Apply displacement. Displaced model is just a shift on underlying and strike.
 		underlying += displacement;
 
-		double term1 = alpha * Math.pow(underlying, beta);
-		double dterm21 = -alpha * alpha * alpha / 3 * Math.pow(4,-beta) * beta * (beta*beta-3*beta+2) * Math.pow(2,2*beta-3) * Math.pow(underlying*underlying, beta-1);
-		double dterm22 = alpha * alpha * Math.pow(2,-beta-1) * (beta-1) * beta * nu * 2 * Math.pow(underlying, beta-1);
-
-		dterm21 = (beta*(2-beta)*alpha*alpha)/24*Math.pow(underlying,-2.0*(1.0-beta)-1) * (1.0-beta);
-		dterm22 = beta*alpha*rho*nu / 4 * Math.pow(underlying,-(1.0-beta)-1) * -(1.0-beta) * 0.5;
-
-		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
-		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
-
-		double term2 = - 1.0/24.0 * beta*(2-beta)*alpha*alpha*Math.pow(underlying,-2.0*(1.0-beta)) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying,-(1.0-beta)) + 1.0/24.0*(2.0 -3.0*rho*rho)*nu*nu;
-		double dterm1 = + 1.0/2.0*(rho*nu+alpha*beta*Math.pow(underlying, -1+beta));
-
-		//		double riskReversal = dterm1 * (1+maturity * term2) + maturity * (term1dterm21+term1dterm22);
-		double skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
-
 		double a = alpha/Math.pow(underlying, 1-beta);		
 		double c = 1.0/24*Math.pow(a, 3)*beta*(1.0-beta);
 
-		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
+		double skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
+
+		// Some alternative representations
+//		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
+//		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
+//		skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
 //		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*3.0*c) + maturity*2.0*c*(1+beta);
 //		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*c) - maturity*c*(2.0*rho*nu/a - 2.0);
 
-		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
-		double residual =  skew - approximation;
-		System.out.println(residual);
-		System.out.println(approximation);
+		// The follwoing may be used as approximations (for beta=0 the approximation is exact).
+//		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
+//		double residual =  skew - approximation;
 
 		return  skew;
 	}
