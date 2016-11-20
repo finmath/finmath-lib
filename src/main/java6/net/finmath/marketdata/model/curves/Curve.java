@@ -110,8 +110,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		public boolean isParameter;
 
 		/**
-		 * @param time
-		 * @param value
+		 * @param time The time (or x-value) of the point.
+		 * @param value The value (or y-value) of the point.
+		 * @param isParameter A boolean specifying if this point is considered a "degree of freedom", e.g., in a calibration.
 		 */
 		public Point(double time, double value, boolean isParameter) {
 			super();
@@ -122,6 +123,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 		@Override
 		public int compareTo(Point point) {
+			// Ordering of the curve points with respect to time.
 			if(this.time < point.time) return -1;
 			if(this.time > point.time) return +1;
 
