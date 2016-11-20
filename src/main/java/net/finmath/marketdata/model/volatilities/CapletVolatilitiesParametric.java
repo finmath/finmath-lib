@@ -42,6 +42,35 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param c The parameter c
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 * @param quotingConvention The quoting convention reflected by the parametetric form (e.g. lognormal or normal).
+	 */
+	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
+			ForwardCurveInterface forwardCurve,
+			DiscountCurveInterface discountCurve,
+			double a, double b, double c, double d, double timeScaling, QuotingConvention quotingConvention) {
+		super(name, referenceDate);
+		this.forwardCurve = forwardCurve;
+		this.discountCurve = discountCurve;
+		this.timeScaling = timeScaling;
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.quotingConvention = quotingConvention;
+	}
+
+	/**
+	 * Create a model with parameters a,b,c,d defining a lognormal volatility surface.
+	 * 
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param forwardCurve The underlying forward curve.
+	 * @param discountCurve The associated discount curve.
+	 * @param a The parameter a
+	 * @param b The parameter b
+	 * @param c The parameter c
+	 * @param d The parameter d
+	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
 	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
 			ForwardCurveInterface forwardCurve,
@@ -151,7 +180,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	@Override
 	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), forwardCurve, discountCurve, value[0], value[1], value[2], value[3], timeScaling);
+		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), forwardCurve, discountCurve, value[0], value[1], value[2], value[3], timeScaling, quotingConvention);
 	}
 
 }
