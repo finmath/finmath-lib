@@ -15,8 +15,11 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.QRDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.jblas.DoubleMatrix;
 
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
@@ -266,5 +269,31 @@ public class LinearAlgebra {
 		double[][] reducedCorrelationMatrix = (new Array2DRowRealMatrix(factorMatrix).multiply(new Array2DRowRealMatrix(factorMatrix).transpose())).getData();
 
 		return getFactorMatrix(reducedCorrelationMatrix, numberOfFactors);
+	}
+
+	/**
+	 * Calculate the "matrix exponential" (expm).
+	 * 
+	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
+	 * A future version of this function may implement a fall back.
+	 * 
+	 * @param matrix The given matrix.
+	 * @return The exp(matrix).
+	 */
+	public double[][] exp(double[][] matrix) {
+		return org.jblas.MatrixFunctions.expm(new org.jblas.DoubleMatrix(matrix)).toArray2();
+	}
+	
+	/**
+	 * Calculate the "matrix exponential" (expm).
+	 * 
+	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
+	 * A future version of this function may implement a fall back.
+	 * 
+	 * @param matrix The given matrix.
+	 * @return The exp(matrix).
+	 */
+	public RealMatrix exp(RealMatrix matrix) {
+		return new Array2DRowRealMatrix(exp(matrix.getData()));
 	}
 }
