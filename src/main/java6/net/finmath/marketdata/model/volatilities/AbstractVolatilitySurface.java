@@ -81,7 +81,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 		double periodStart = optionMaturity;
 		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);
 
-		double forward = forwardCurve.getForward(null, periodStart);
+		double forward = forwardCurve.getForward(model, periodStart);
 
 		double daycountFraction;
 		if(daycountConvention != null) {
