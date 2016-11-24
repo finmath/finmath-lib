@@ -6,7 +6,7 @@
 
 package net.finmath.marketdata.model.volatilities;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
