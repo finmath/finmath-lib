@@ -161,14 +161,15 @@ public class Solver {
 		java.util.Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
 		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
 			public void setValues(double[] parameters, double[] values) throws SolverException {
-				double[] solverParameters = parameters;
+				double[] modelParameters = parameters;
 				try {
 					if(parameterTransformation != null) {
-						solverParameters = parameterTransformation.getParameter(parameters);
-						System.arraycopy(parameterTransformation.getSolverParameter(solverParameters), 0, parameters, 0, parameters.length);
+						modelParameters = parameterTransformation.getParameter(parameters);
+						// Copy back the parameter constrain to inform the optimizer
+						System.arraycopy(parameterTransformation.getSolverParameter(modelParameters), 0, parameters, 0, parameters.length);
 					}
 
-					Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(solverParameters);
+					Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
 					AnalyticModelInterface modelClone = model.getCloneForParameter(curvesParameterPairs);
 					for(int i=0; i<calibrationProducts.size(); i++) {
 						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);
