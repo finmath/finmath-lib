@@ -39,7 +39,7 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInter
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, double[] initialParameters, double[] lowerBound,double[]  upperBound, double[] parameterStep, double[] targetValues) {
+	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, double[] initialParameters, double[] lowerBound,double[]  upperBound, double[] parameterSteps, double[] targetValues) {
 		return (new LevenbergMarquardt(
 				initialParameters,
 				targetValues,
@@ -52,6 +52,8 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInter
 			public void setValues(double[] parameters, double[] values) throws SolverException {
 				objectiveFunction.setValues(parameters, values);
 			}
-		}).setErrorTolerance(errorTolerance);
+		})
+				.setErrorTolerance(errorTolerance)
+				.setParameterSteps(parameterSteps);
 	}
 }
