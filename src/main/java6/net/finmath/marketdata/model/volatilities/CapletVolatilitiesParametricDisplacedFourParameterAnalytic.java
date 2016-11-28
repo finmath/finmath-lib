@@ -15,7 +15,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 
 /**
  * A parametric caplet volatility surface created form the four parameter model
- * for the instantaneous <i>displaced<i> forward rate lognormal volatility given by
+ * for the instantaneous <i>displaced</i> forward rate lognormal volatility given by
  * \( \sigma(t) = (a + b t) \exp(- c t) + d \).
  * 
  * In other words, the Black volatility of the <i>displaced</i> rate for maturity T is given by
@@ -42,12 +42,12 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	 * @param forwardCurve The underlying forward curve.
 	 * @param discountCurve The associated discount curve.
 	 * @param displacement The displacement for the forward rate.
+	 * @param isDisplacementCalibrateable Boolean specifying if the displacement parameter is considered a free parameter of the model.
 	 * @param a The parameter a
 	 * @param b The parameter b
 	 * @param c The parameter c
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
-	 * @param quotingConvention The quoting convention reflected by the parametetric form (e.g. lognormal or normal).
 	 */
 	public CapletVolatilitiesParametricDisplacedFourParameterAnalytic(String name, LocalDate referenceDate,
 			ForwardCurveInterface forwardCurve,
