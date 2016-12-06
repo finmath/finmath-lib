@@ -14,6 +14,12 @@ finmath lib Release Notes
 Note: This includes a small change in the schedule generation when schedules are
 generated as rolling up/down from a 29th, 30th or 31st.
 
+## 2.3.6
+
+### SABR Model
+
+- Added analytic formulas for SABR skew and SABR curvature.
+
 ## 2.3.4
 
 ### Market Data / Curve Calibration
