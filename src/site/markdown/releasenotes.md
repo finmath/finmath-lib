@@ -8,7 +8,7 @@ finmath lib Release Notes
 ## 2.4.0
 
 ### Added (optional) end-of-month schedule generation to the ScheduleGenerator.
-Note: This included a small change in the schedule generation when schedules are
+Note: This includes a small change in the schedule generation when schedules are
 generated as rolling up/down from a 29th, 30th or 31st.
 
 ## 2.3.4
