@@ -7,13 +7,18 @@ finmath lib Release Notes
 
 ## 2.4.0
 
-### Added (optional) end-of-month schedule generation to the ScheduleGenerator.
+### Market Data / Schedule Generation
+
+- Added (optional) end-of-month schedule generation to the ScheduleGenerator.
+
 Note: This includes a small change in the schedule generation when schedules are
 generated as rolling up/down from a 29th, 30th or 31st.
 
 ## 2.3.4
 
-### Added valuation of Resettable Cross Currency Swap (aka Mark-to-Market Cross Currency Swap).
+### Market Data / Curve Calibration
+
+- Added valuation of Resettable Cross Currency Swap (aka Mark-to-Market Cross Currency Swap).
 
 ## 2.3.0
 
@@ -28,8 +33,6 @@ to true.
 
 Note that jblas is currently not an OSGi bundle. I try to work on that.
 
-
-## 2.2.6
 
 ## 2.2.6
 
