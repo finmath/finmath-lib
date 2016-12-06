@@ -6,7 +6,9 @@
 
 package net.finmath.time;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -224,7 +226,7 @@ public class ScheduleGenerator {
 				periodIndex++;
 				// The following code only makes calculations on periodEndXxx while the periodStartXxx is only copied and used to check if we terminate
 				// Determine period end
-				if(isUseEndOfMonth && startDate.getDayOfMonth() == startDate.dayOfMonth().getMaximumValue()) {
+				if(isUseEndOfMonth && startDate.getDayOfMonth() == startDate.lengthOfMonth()) {
 					periodEndDateUnadjusted = startDate
 							.plusDays(1)
 							.plusDays(periodLengthDays*periodIndex)
@@ -274,7 +276,7 @@ public class ScheduleGenerator {
 				periodIndex++;
 				// The following code only makes calculations on periodStartXxx while the periodEndXxx is only copied and used to check if we terminate
 				// Determine period start
-				if(isUseEndOfMonth && maturity.getDayOfMonth() == maturity.dayOfMonth().getMaximumValue()) {
+				if(isUseEndOfMonth && maturity.getDayOfMonth() == maturity.lengthOfMonth()) {
 					periodStartDateUnadjusted = maturity
 							.plusDays(1)
 							.minusDays(periodLengthDays*periodIndex)
@@ -446,9 +448,9 @@ public class ScheduleGenerator {
 			)
 	{
 		return createScheduleFromConventions(
-				new LocalDate(frequency),
-				new LocalDate(startDate),
-				new LocalDate(maturityDate),
+				Instant.ofEpochMilli(referenceDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate(),
+				Instant.ofEpochMilli(startDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate(),
+				Instant.ofEpochMilli(maturityDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate(),
 				frequency,
 				daycountConvention,
 				shortPeriodConvention,

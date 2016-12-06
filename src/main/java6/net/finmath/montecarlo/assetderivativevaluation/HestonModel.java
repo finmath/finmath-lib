@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * The model is
  * \[
- * 	dS(t) = r S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
+ * 	dS(t) = r^{\text{c}} S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
  * \]
  * \[
  * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
@@ -25,11 +25,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	dW_{1} dW_{1} = \rho dt
  * \]
  * \[
- * 	dN(t) = r N(t) dt, \quad N(0) = N_{0},
+ * 	dN(t) = r^{\text{d}} N(t) dt, \quad N(0) = N_{0},
  * \]
  * 
  * The class provides the model of (S,V) to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
- * \( f_{1} = exp , f_{2} = identity \), \( \mu_{1} = r - \frac{1}{2} V^{+}(t) , \mu_{2} = \kappa ( \theta - V^{+}(t) ) \), \( \lambda_{1,1} = \sqrt{V^{+}(t)} , \lambda_{1,2} = 0  ,\lambda_{2,1} = \xi \sqrt{V^+(t)} \rho  , \lambda_{2,2} = \xi \sqrt{V^+(t)} \sqrt{1-\rho^{2}} \), i.e.,
+ * \( f_{1} = exp , f_{2} = identity \), \( \mu_{1} = r^{\text{c}} - \frac{1}{2} V^{+}(t) , \mu_{2} = \kappa ( \theta - V^{+}(t) ) \), \( \lambda_{1,1} = \sqrt{V^{+}(t)} , \lambda_{1,2} = 0  ,\lambda_{2,1} = \xi \sqrt{V^+(t)} \rho  , \lambda_{2,2} = \xi \sqrt{V^+(t)} \sqrt{1-\rho^{2}} \), i.e.,
  * of the SDE
  * \[
  * 	dX_{1} = \mu_{1} dt + \lambda_{1,1} dW_{1} + \lambda_{1,2} dW_{2}, \quad X_{1}(0) = \log(S_{0}),
@@ -43,6 +43,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Here \( V^{+} \) denotes a <i>truncated</i> value of V. Different truncation schemes are available:
  * <code>FULL_TRUNCATION</code>: \( V^{+} = max(V,0) \),
  * <code>REFLECTION</code>: \( V^{+} = abs(V) \).
+ * 
+ * The model allows to specify two independent rate for forwarding (\( r^{\text{c}} \)) and discounting (\( r^{\text{d}} \)).
+ * It thus allow for a simple modelling of a funding / collateral curve (via (\( r^{\text{d}} \)) and/or the specification of
+ * a dividend yield.
  * 
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
@@ -68,6 +72,7 @@ public class HestonModel extends AbstractModel {
 	private final double initialValue;
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double volatility;
+	private final double discountRate;		// The discount rate, can be differ
 
 	private final double theta;
 	private final double kappa;
@@ -81,6 +86,43 @@ public class HestonModel extends AbstractModel {
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
 	 */
 	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[2];
+
+	/**
+	 * Create a Heston model.
+	 * 
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param discountRate The discount rate used in the numeraire.
+	 * @param theta The longterm mean reversion level of V (a reasonable value is volatility*volatility).
+	 * @param kappa The mean reversion speed.
+	 * @param xi The volatility of the volatility (of V).
+	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
+	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
+	 */
+	public HestonModel(
+			double initialValue,
+			double riskFreeRate,
+			double volatility,
+			double discountRate,
+			double theta,
+			double kappa,
+			double xi,
+			double rho,
+			Scheme scheme
+			) {
+		super();
+
+		this.initialValue	= initialValue;
+		this.riskFreeRate	= riskFreeRate;
+		this.volatility		= volatility;
+		this.discountRate	= discountRate;
+		this.theta			= theta;
+		this.kappa			= kappa;
+		this.xi				= xi;
+		this.rho			= rho;
+		this.scheme			= scheme;
+	}
 
 	/**
 	 * Create a Heston model.
@@ -109,6 +151,7 @@ public class HestonModel extends AbstractModel {
 		this.initialValue	= initialValue;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatility		= volatility;
+		this.discountRate	= riskFreeRate;
 		this.theta			= theta;
 		this.kappa			= kappa;
 		this.xi				= xi;
@@ -182,7 +225,7 @@ public class HestonModel extends AbstractModel {
 
 	@Override
 	public RandomVariableInterface getNumeraire(double time) {
-		double numeraireValue = Math.exp(riskFreeRate * time);
+		double numeraireValue = Math.exp(discountRate * time);
 
 		return getRandomVariableForConstant(numeraireValue);
 	}

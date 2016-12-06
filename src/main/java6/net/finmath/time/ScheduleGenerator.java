@@ -447,7 +447,7 @@ public class ScheduleGenerator {
 			)
 	{
 		return createScheduleFromConventions(
-				new LocalDate(frequency),
+				new LocalDate(referenceDate),
 				new LocalDate(startDate),
 				new LocalDate(maturityDate),
 				frequency,
