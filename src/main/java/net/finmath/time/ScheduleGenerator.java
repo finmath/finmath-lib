@@ -8,6 +8,7 @@ package net.finmath.time;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
