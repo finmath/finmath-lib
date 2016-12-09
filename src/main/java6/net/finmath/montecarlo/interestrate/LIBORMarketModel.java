@@ -596,7 +596,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			 */
 
 			// Initialize to 1.0
-			numeraire = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
+			numeraire = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
 
 
 			// Get the start and end of the product
@@ -657,7 +657,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 		RandomVariableInterface[] initialStateRandomVariable = new RandomVariableInterface[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
-			initialStateRandomVariable[componentIndex] = getProcess().getBrownianMotion().getRandomVariableForConstant(liborInitialStates[componentIndex]);
+			initialStateRandomVariable[componentIndex] = getProcess().getStochasticDriver().getRandomVariableForConstant(liborInitialStates[componentIndex]);
 		}
 		return initialStateRandomVariable;
 	}
