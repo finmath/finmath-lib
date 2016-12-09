@@ -32,7 +32,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * Hence, using the <i>state space transform</i>, it is possible to create a log-Euler scheme, i.e.,
  * \[
- * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (\mu(t_{i}) - \frac{1}{2} sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.} 
+ * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (\mu(t_{i}) - \frac{1}{2} \sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.} 
  * \]
  * 
  * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
