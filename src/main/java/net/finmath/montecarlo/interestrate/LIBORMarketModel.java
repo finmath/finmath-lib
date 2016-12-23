@@ -696,7 +696,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		int		firstLiborIndex		= this.getLiborPeriodIndex(time)+1;
 		if(firstLiborIndex<0) firstLiborIndex = -firstLiborIndex-1 + 1;
 
-		RandomVariableInterface		zero	= getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		RandomVariableInterface		zero	= getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 
 		// Allocate drift vector and initialize to zero (will be used to sum up drift components)
 		RandomVariableInterface[]	drift = new RandomVariableInterface[getNumberOfComponents()];
@@ -714,7 +714,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
 				double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
 				RandomVariableInterface		libor			= realizationAtTimeIndex[componentIndex];
-				RandomVariableInterface		oneStepMeasureTransform = (getProcess().getBrownianMotion().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
+				RandomVariableInterface		oneStepMeasureTransform = (getProcess().getStochasticDriver().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
 
 				if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 
