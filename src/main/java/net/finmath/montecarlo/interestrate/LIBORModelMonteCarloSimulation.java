@@ -42,11 +42,11 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	/**
-	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel.
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORModelInterface.
 	 * 
-	 * @param model The LIBORMarketModel.
+	 * @param model The LIBORModelInterface.
 	 */
-	public LIBORModelMonteCarloSimulation(LIBORMarketModelInterface model) {
+	public LIBORModelMonteCarloSimulation(LIBORModelInterface model) {
 		super();
 		this.model		= model;
 	}
@@ -250,7 +250,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		LIBORMarketModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
+		LIBORModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {
 			// In this case we may re-use the underlying process
 			LIBORModelMonteCarloSimulation lmmSimClone = new LIBORModelMonteCarloSimulation(modelClone);
