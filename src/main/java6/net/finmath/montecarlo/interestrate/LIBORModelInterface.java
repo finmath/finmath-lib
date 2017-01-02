@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  *
  */
-public interface LIBORModelInterface extends SingleCurrencyInterestRateModelInterface {
+public interface LIBORModelInterface extends TermStructureModelInterface {
 
 	RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 

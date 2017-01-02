@@ -144,7 +144,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 		return model.getNumeraire(time);
 	}
 
-	public SingleCurrencyInterestRateModelInterface getModel() {
+	public TermStructureModelInterface getModel() {
 		return model;
 	}
 

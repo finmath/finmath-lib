@@ -277,6 +277,12 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	}
 
 	@Override
+	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	{
+		return getZeroCouponBond(time, periodStart).div(getZeroCouponBond(time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
+	}
+
+	@Override
 	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex)).div(getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex+1))).sub(1.0).div(getLiborPeriodDiscretization().getTimeStep(liborIndex));
 	}

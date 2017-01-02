@@ -85,7 +85,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends TermStructureMo
 	 * 
 	 * @return The underlying model
 	 */
-	SingleCurrencyInterestRateModelInterface getModel();
+	TermStructureModelInterface getModel();
 
 	/**
 	 * Return a clone of this model with a modified Brownian motion using a different seed.

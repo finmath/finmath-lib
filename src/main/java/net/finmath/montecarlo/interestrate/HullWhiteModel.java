@@ -15,6 +15,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -162,7 +163,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
 		if(time == getTime(0)) {
 			// Initial value of numeraire is one - BrownianMotionInterface serves as a factory here.
-			RandomVariableInterface one = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
+			RandomVariableInterface one = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
 			return one;
 		}
 
@@ -264,6 +265,12 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	}
 
 	@Override
+	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	{
+		return getZeroCouponBond(time, periodStart).div(getZeroCouponBond(time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
+	}
+
+	@Override
 	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex)).div(getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex+1))).sub(1.0).div(getLiborPeriodDiscretization().getTimeStep(liborIndex));
 	}
@@ -304,7 +311,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	}
 
 	@Override
-	public LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+	public LIBORModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -325,6 +332,11 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 
 	private RandomVariableInterface getZeroCouponBond(double time, double maturity) throws CalculationException {
 		int timeIndex = getProcess().getTimeIndex(time);
+		if(timeIndex < 0) {
+			int timeIndexLo = -timeIndex-1-1;
+			double timeLo = getProcess().getTime(timeIndexLo);
+			return getZeroCouponBond(timeLo, maturity).mult(getShortRate(timeIndexLo).mult(time-timeLo).exp());
+		}
 		RandomVariableInterface shortRate = getShortRate(timeIndex);
 		double A = getA(time, maturity);
 		double B = getB(time, maturity);
