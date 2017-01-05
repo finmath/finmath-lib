@@ -20,14 +20,18 @@ import net.finmath.time.TimeDiscretizationInterface;
  * LIBORModelMonteCarloSimulationInterface
  * 
  * @author Christian Fries
- * @version 1.1
+ * @version 1.2
  */
 public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 
 	public enum ValueUnit {
 		VALUE,
-		INTEGRATEDVARIANCE,
-		VOLATILITY
+		INTEGRATEDLOGNORMALVARIANCE,
+		INTEGRATEDNORMALVARIANCE,
+		INTEGRATEDVARIANCE,	/// Backward compatibility, same as INTEGRATEDLOGNORMALVARIANCE
+		VOLATILITYLOGNORMAL,
+		VOLATILITYNORMAL,
+		VOLATILITY	/// Backward compatibility, same as VOLATILITY_LOGNORMAL
 	}
 
 	private final TimeDiscretizationInterface	tenor;
@@ -82,15 +86,25 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 		double strikeSwaprate = swaprate;
 		double swapAnnuity = SwapAnnuity.getSwapAnnuity(tenor, discountCurve);
 
-		double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
-
-		if(valueUnit == ValueUnit.VOLATILITY) {
+		if(valueUnit == ValueUnit.VOLATILITY || valueUnit == ValueUnit.VOLATILITYLOGNORMAL) {
+			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility);
-		} else if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
+		}
+		else if(valueUnit == ValueUnit.VOLATILITYNORMAL) {
+			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			return model.getRandomVariableForConstant(volatility);
+		}
+		else if(valueUnit == ValueUnit.INTEGRATEDVARIANCE  || valueUnit == ValueUnit.INTEGRATEDLOGNORMALVARIANCE) {
+			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
 		}
-
+		else if(valueUnit == ValueUnit.INTEGRATEDNORMALVARIANCE) {
+			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
+		}
+		else {
 		throw new UnsupportedOperationException("Provided valueUnit not implemented.");
+	}
 	}
 
 	@Override
