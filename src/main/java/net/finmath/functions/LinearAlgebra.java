@@ -32,6 +32,7 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
  */
 public class LinearAlgebra {
 
+	private static boolean isEigenvalueDecompositionViaSVD = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isEigenvalueDecompositionViaSVD","false"));
 	private static boolean isSolverUseApacheCommonsMath;
 	static {
 		// Default value is false, in which case we will use jblas
@@ -197,10 +198,20 @@ public class LinearAlgebra {
 		 * Factor reduction
 		 */
 		// Create an eigen vector decomposition of the correlation matrix
-		EigenDecomposition eigenDecomp = new EigenDecomposition(new Array2DRowRealMatrix(correlationMatrix, false));
-		double[]	eigenValues			= eigenDecomp.getRealEigenvalues();
-		double[][]	eigenVectorMatrix	= eigenDecomp.getV().getData();
-
+		double[]	eigenValues;
+		double[][]	eigenVectorMatrix;
+		
+		if(isEigenvalueDecompositionViaSVD) {
+			SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(correlationMatrix));
+			eigenValues = svd.getSingularValues();
+			eigenVectorMatrix = svd.getV().getData();
+		}
+		else {
+			EigenDecomposition eigenDecomp = new EigenDecomposition(new Array2DRowRealMatrix(correlationMatrix, false));
+			eigenValues			= eigenDecomp.getRealEigenvalues();
+			eigenVectorMatrix	= eigenDecomp.getV().getData();
+		}
+		
 		class EigenValueIndex implements Comparable<EigenValueIndex> {
 			private int index;
 			Double value;
