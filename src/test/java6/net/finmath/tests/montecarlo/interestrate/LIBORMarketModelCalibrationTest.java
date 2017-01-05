@@ -201,7 +201,7 @@ public class LIBORMarketModelCalibrationTest {
 		 */
 		System.out.println("\nCalibrated parameters are:");
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
-		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
+//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
 		for (double p : param) System.out.println(formatterParam.format(p));
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotionView1);

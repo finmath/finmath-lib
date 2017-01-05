@@ -129,20 +129,26 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		return jointParameters;
 	}
 
-	@Override
-	public void setParameter(double[] parameter) {
+	private void setParameter(double[] parameter) {
 		if(parameter == null || parameter.length == 0) return;
 
 		if(!isCalibrateable) {
-			covarianceModel.setParameter(parameter);
+			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);
 			return;
 		}
 
 		double[] covarianceParameters = new double[parameter.length-1];
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
-		covarianceModel.setParameter(covarianceParameters);
+		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
 		displacement = parameter[covarianceParameters.length];
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+		BlendedLocalVolatilityModel model = (BlendedLocalVolatilityModel)this.clone();
+		model.setParameter(parameters);
+		return model;
 	}
 
 	@Override

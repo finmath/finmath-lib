@@ -27,8 +27,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLIBORCovarianceModelParametric {
 
-	private final LIBORVolatilityModel	volatilityModel;
-	private final LIBORCorrelationModel	correlationModel;
+	private LIBORVolatilityModel	volatilityModel;
+	private LIBORCorrelationModel	correlationModel;
 	
 	public LIBORCovarianceModelFromVolatilityAndCorrelation(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, LIBORVolatilityModel volatilityModel, LIBORCorrelationModel correlationModel) {
 		super(timeDiscretization, liborPeriodDiscretization, correlationModel.getNumberOfFactors());
@@ -106,33 +106,40 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public Object clone() {
+		return new LIBORCovarianceModelFromVolatilityAndCorrelation(
+				this.getTimeDiscretization(),
+				this.getLiborPeriodDiscretization(),
+				(LIBORVolatilityModel)volatilityModel.clone(), (LIBORCorrelationModel)correlationModel.clone());
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+		LIBORCovarianceModelFromVolatilityAndCorrelation model = (LIBORCovarianceModelFromVolatilityAndCorrelation)this.clone();
+
 		double[] volatilityParameter = volatilityModel.getParameter();
 		double[] correlationParameter = correlationModel.getParameter();
 
 		int parameterIndex = 0;
 		if(volatilityParameter != null) {
 			double[] newVolatilityParameter = new double[volatilityParameter.length];
-			System.arraycopy(parameter, parameterIndex, newVolatilityParameter, 0, newVolatilityParameter.length);
+			System.arraycopy(parameters, parameterIndex, newVolatilityParameter, 0, newVolatilityParameter.length);
 			parameterIndex += newVolatilityParameter.length;
-			if(!Arrays.equals(newVolatilityParameter, volatilityModel.getParameter()))
-				volatilityModel.setParameter(newVolatilityParameter);
+			if(!Arrays.equals(newVolatilityParameter, volatilityModel.getParameter())) {
+				model.volatilityModel = ((LIBORVolatilityModel) volatilityModel.clone());
+				model.volatilityModel.setParameter(newVolatilityParameter);
+				
+			}
 		}
 		if(correlationParameter != null) {
 			double[] newCorrelationParameter = new double[correlationParameter.length];
-			System.arraycopy(parameter, parameterIndex, newCorrelationParameter, 0, newCorrelationParameter.length);
+			System.arraycopy(parameters, parameterIndex, newCorrelationParameter, 0, newCorrelationParameter.length);
 			parameterIndex += newCorrelationParameter.length;
 			if(!Arrays.equals(newCorrelationParameter, correlationModel.getParameter()))
-				correlationModel.setParameter(newCorrelationParameter);
+				model.correlationModel = ((LIBORCorrelationModel) correlationModel.clone());
+				model.correlationModel.setParameter(newCorrelationParameter);
 		}
-	}
-
-	@Override
-	public Object clone() {
-		return new LIBORCovarianceModelFromVolatilityAndCorrelation(
-				this.getTimeDiscretization(),
-				this.getLiborPeriodDiscretization(),
-				(LIBORVolatilityModel)volatilityModel.clone(), (LIBORCorrelationModel)correlationModel.clone());
+		return model;
 	}
 
 	public LIBORVolatilityModel getVolatilityModel() {

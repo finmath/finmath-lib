@@ -96,7 +96,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		 */
 
 		// Negative values of a do not make sense. 
-		a = Math.max(a, 0);
+//		a = Math.max(a, 0);
 
 		correlationMatrix = new double[liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int row=0; row<correlationMatrix.length; row++) {

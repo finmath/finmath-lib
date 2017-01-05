@@ -73,18 +73,18 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 */
 	public abstract double[]	getParameter();
 
-	public abstract void		setParameter(double[] parameter);
-
 	@Override
 	public abstract Object clone();
 
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.clone();
-		calibrationCovarianceModel.setParameter(parameters);
-
-		return calibrationCovarianceModel;
-	}
-
+	/**
+	 * Return an instance of this model using a new set of parameters.
+	 * Note: To improve performance it is admissible to return the same instance of the object given that the parameters have not changed. Models should be immutable.
+	 * 
+	 * @param parameters The new set of parameters.
+	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
+	 */
+	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
+	
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
 	}
