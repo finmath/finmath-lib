@@ -47,7 +47,6 @@ public class ProcessEulerScheme extends AbstractProcess {
 	static {
 		// Default value is true
 		isUseMultiThreadding = Boolean.parseBoolean(System.getProperty("net.finmath.montecarlo.process.ProcessEulerScheme.isUseMultiThreadding","true"));
-		System.out.println(isUseMultiThreadding);
 	}
 
 	public enum Scheme {
