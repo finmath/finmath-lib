@@ -173,7 +173,13 @@ public class ProcessEulerScheme extends AbstractProcess {
 			final double deltaT = getTime(timeIndex) - getTime(timeIndex - 1);
 
 			// Fetch drift vector
-			RandomVariableInterface[] drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
+			RandomVariableInterface[] drift = null;
+			try {
+				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
+			}
+			catch(Exception e) {
+				throw new RuntimeException("Drift calculaton failed at time " + getTime(timeIndex - 1), e);
+			}
 
 			// Calculate new realization
 			Vector<Future<RandomVariableInterface>> discreteProcessAtCurrentTimeIndex = new Vector<Future<RandomVariableInterface>>(numberOfComponents);
