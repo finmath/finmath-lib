@@ -30,7 +30,7 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelExponentialForm7Param;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelExponentialForm5Param;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialForm;
@@ -40,6 +40,8 @@ import net.finmath.montecarlo.interestrate.products.DigitalCaplet;
 import net.finmath.montecarlo.interestrate.products.SimpleSwap;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
+import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -630,7 +632,6 @@ public class LIBORMarketModelValuationTest {
 		 */
 		System.out.println("Calibration to Swaptions:");
 
-
 		/*
 		 * Create a set of calibration products.
 		 */
@@ -675,9 +676,13 @@ public class LIBORMarketModelValuationTest {
 				}
 				else {
 					// You may also use full Monte-Carlo calibration - more accurate. Also possible for displaced diffusion.
-					Swaption swaptionMonteCarlo = new Swaption(exerciseDate, fixingDates, paymentDates, swaprates);
-					double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetValueVolatilty, fixingDates[0], swaprate, getSwapAnnuity(liborMarketModel,swapTenor));
-					calibrationItems.add(new CalibrationItem(swaptionMonteCarlo, targetValuePrice, 1.0));
+					SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, ValueUnit.VOLATILITY);
+					calibrationItems.add(new CalibrationItem(swaptionMonteCarlo, targetValueVolatilty, 1.0));
+					
+					// Alternative: Calibration to prices
+					//Swaption swaptionMonteCarlo = new Swaption(exerciseDate, fixingDates, paymentDates, swaprates);
+					//double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetValueVolatilty, fixingDates[0], swaprate, getSwapAnnuity(liborMarketModel,swapTenor));
+					//calibrationItems.add(new CalibrationItem(swaptionMonteCarlo, targetValuePrice, 1.0));
 				}
 			}
 		}
@@ -695,12 +700,20 @@ public class LIBORMarketModelValuationTest {
 		 */
 
 		// XXX2 Change covariance model here
-		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborMarketModel.getLiborPeriodDiscretization(), liborMarketModel.getNumberOfFactors());
+		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborMarketModel.getLiborPeriodDiscretization(), liborMarketModel.getNumberOfFactors());
+
+		// Set model properties
+		Map<String, Object> properties = new HashMap<String, Object>();
+
+		// Set calibration properties
+		Map<String, Object> calibrationParameters = new HashMap<String, Object>();
+		calibrationParameters.put("accuracy", new Double(1E-6));
+		calibrationParameters.put("numberOfPaths", new Integer(4000));
+		properties.put("calibrationParameters", calibrationParameters);
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
 				this.liborMarketModel.getLiborPeriodDiscretization(),
-				forwardCurve, null, covarianceModelParametric, calibrationItems.toArray(new CalibrationItem[0]), null);	
-
+				forwardCurve, null, covarianceModelParametric, calibrationItems.toArray(new CalibrationItem[0]), properties);
 
 		/*
 		 * Test our calibration
