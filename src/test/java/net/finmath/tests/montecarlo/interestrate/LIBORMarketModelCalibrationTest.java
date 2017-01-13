@@ -222,7 +222,6 @@ public class LIBORMarketModelCalibrationTest {
 				System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget) + "\t" + calibrationProduct.toString());
 			}
 			catch(Exception e) {
-				double x = 0;
 				//
 			}
 		}
