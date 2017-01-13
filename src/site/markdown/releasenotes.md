@@ -7,8 +7,19 @@ finmath lib Release Notes
 
 ## 2.4.1
 
+### Monte-Carlo Interest Rate Model: Term Structure Model with Time Dependent Tenor Discretization
+
+- Added sample implmentation of a term structure model with time dependent tenor discretization
+- Added calibration of term structure model
+
+### Monte-Carlo Interest Rate Model: LIBOR Market Model
+
 - Refactoring: The objects implementing AbstractLIBORCovarianceModelParametric have become immutable. The method setParameter has been removed and replaced by a method getCloneWithModifiedParameter. This allows a performance increase, since in a calibration it is now safe to reuse parts of the model, given that parts of a parameter (e.g. correlation) has not changed.
 - Refactoring: The method getLIBOR(double, double, double) performing the interpoation on the tenor structure has been moved from LIBORModelMonteCarloSimualtionInterface to LIBORModelInterface. This allows to have different models implement different interpolation methods (e.g. LMM versus Hull-White). This chance is also motivated by the introduction of LIBOR models with time dependent tenor discretizations.
+
+### Optimizer
+
+- Levenberg-Marquardt algorithm will stop if improvement is smaller than given accurarcy. Previously the solver was running more interations than required.
 
 ## 2.4.0
 
