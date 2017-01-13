@@ -5,6 +5,11 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.4.1
+
+- Refactoring: The objects implementing AbstractLIBORCovarianceModelParametric have become immutable. The method setParameter has been removed and replaced by a method getCloneWithModifiedParameter. This allows a performance increase, since in a calibration it is now safe to reuse parts of the model, given that parts of a parameter (e.g. correlation) has not changed.
+- Refactoring: The method getLIBOR(double, double, double) performing the interpoation on the tenor structure has been moved from LIBORModelMonteCarloSimualtionInterface to LIBORModelInterface. This allows to have different models implement different interpolation methods (e.g. LMM versus Hull-White). This chance is also motivated by the introduction of LIBOR models with time dependent tenor discretizations.
+
 ## 2.4.0
 
 ### Market Data / Schedule Generation
