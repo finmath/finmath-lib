@@ -5,8 +5,6 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import java.util.Arrays;
-
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -30,7 +28,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 		
 		this.parameter = parameters.clone();
-		volatilityModel	= new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3]);
+		volatilityModel		= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3], false);
 		correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4], false);
 	}
 
@@ -53,7 +51,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		
 		model.parameter = parameters;
 		if(parameters[0] != this.parameter[0] || parameters[1] != this.parameter[1] || parameters[2] != this.parameter[2] || parameters[3] != this.parameter[3]) {
-			model.volatilityModel	= new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameters[0], parameters[1], parameters[2], parameters[3]);
+			model.volatilityModel	= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameters[0], parameters[1], parameters[2], parameters[3], false);
 		}
 		if(parameters[4] != this.parameter[4]) {
 			model.correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameters[4], false);

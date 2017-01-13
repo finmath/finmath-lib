@@ -10,6 +10,10 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * Implements a piecewise constant volatility model, where
+ * \( \sigma(t,T) = sigma_{i} \) where \( i = \max \{ j : \tau_{j} \leq T-t \} \) and
+ * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
+ * 
  * @author Christian Fries
  */
 public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVolatilityModel {
@@ -18,16 +22,20 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	private double[] volatility;
 
 	/**
+	 * Create a piecewise constant volatility model, where
+	 * \( \sigma(t,T) = sigma_{i} \) where \( i = \max \{ j : \tau_{j} \leq T-t \} \) and
+	 * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
+	 * 
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
-	 * @param timeToMaturityDiscretization The discretization of the piecewise constant volatility function.
-	 * @param volatility The values of the piecewise constant volatility function.
+	 * @param timeToMaturityDiscretization The discretization \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \)  of the piecewise constant volatility function.
+	 * @param volatility The values \( \sigma_{0}, \sigma_{1}, \ldots, \sigma_{n-1} \) of the piecewise constant volatility function.
 	 */
 	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		if(timeToMaturityDiscretization.getTime(0) != 0) throw new IllegalArgumentException("timeToMaturityDiscretization should start with 0 as first time point.");
-		if(timeToMaturityDiscretization.getNumberOfTimeSteps() != volatility.length) throw new IllegalArgumentException("volatility.length should equal timeToMaturityDiscretization.getNumberOfTimeSteps() .");
+		if(timeToMaturityDiscretization.getNumberOfTimes() != volatility.length) throw new IllegalArgumentException("volatility.length should equal timeToMaturityDiscretization.getNumberOfTimes() .");
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.volatility = volatility;
 	}
@@ -56,9 +64,11 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 		}
 		else
 		{
-			timeIndex = timeToMaturityDiscretization.getTimeIndex(timeToMaturity);
-			if(timeIndex < 0) timeIndex = -timeIndex-1-1;
-			volatilityInstanteaneous = volatility[timeIndex];
+			int timeIndexTimeToMaturity = timeToMaturityDiscretization.getTimeIndex(timeToMaturity);
+			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
+			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = 0;
+			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) timeIndexTimeToMaturity--;
+			volatilityInstanteaneous = volatility[timeIndexTimeToMaturity];
 		}
 		if(volatilityInstanteaneous < 0.0) volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
 

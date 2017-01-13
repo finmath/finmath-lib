@@ -115,7 +115,8 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		LIBORCovarianceModelFromVolatilityAndCorrelation model = (LIBORCovarianceModelFromVolatilityAndCorrelation)this.clone();
+		LIBORVolatilityModel volatilityModel = this.volatilityModel;
+		LIBORCorrelationModel correlationModel = this.correlationModel;
 
 		double[] volatilityParameter = volatilityModel.getParameter();
 		double[] correlationParameter = correlationModel.getParameter();
@@ -126,20 +127,20 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 			System.arraycopy(parameters, parameterIndex, newVolatilityParameter, 0, newVolatilityParameter.length);
 			parameterIndex += newVolatilityParameter.length;
 			if(!Arrays.equals(newVolatilityParameter, volatilityModel.getParameter())) {
-				model.volatilityModel = ((LIBORVolatilityModel) volatilityModel.clone());
-				model.volatilityModel.setParameter(newVolatilityParameter);
-				
+				volatilityModel = ((LIBORVolatilityModel) volatilityModel.clone());
+				volatilityModel.setParameter(newVolatilityParameter);
 			}
 		}
+				
 		if(correlationParameter != null) {
 			double[] newCorrelationParameter = new double[correlationParameter.length];
 			System.arraycopy(parameters, parameterIndex, newCorrelationParameter, 0, newCorrelationParameter.length);
 			parameterIndex += newCorrelationParameter.length;
 			if(!Arrays.equals(newCorrelationParameter, correlationModel.getParameter()))
-				model.correlationModel = ((LIBORCorrelationModel) correlationModel.clone());
-				model.correlationModel.setParameter(newCorrelationParameter);
+				correlationModel = ((LIBORCorrelationModel) correlationModel.clone());
+				correlationModel.setParameter(newCorrelationParameter);
 		}
-		return model;
+		return new LIBORCovarianceModelFromVolatilityAndCorrelation(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), volatilityModel, correlationModel);
 	}
 
 	public LIBORVolatilityModel getVolatilityModel() {
