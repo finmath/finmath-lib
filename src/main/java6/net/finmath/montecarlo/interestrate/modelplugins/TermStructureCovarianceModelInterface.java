@@ -1,7 +1,7 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
- * Created on 20.05.2006
+ * Created on 24.12.2016
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
@@ -34,8 +34,11 @@ public interface TermStructureCovarianceModelInterface {
 	 * such that <i>T_<sub>j</sub> &le; T </i>.
 	 * 
 	 * @param time The time <i>t</i> at which factor loading is requested.
-	 * @param component The component time (as a double associated with the fixing of the forward rate)  <i>T<sub>i</sub></i>.
+	 * @param periodStart Period start of the component.
+	 * @param periodEnd Period end of the component.
+	 * @param periodDiscretization The period discretization associated with the realizationAtTimeIndex
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
+	 * @param model The term structure model.
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
 	RandomVariableInterface[] getFactorLoading(double time, double periodStart, double periodEnd,
@@ -46,6 +49,4 @@ public interface TermStructureCovarianceModelInterface {
 	 * @return the numberOfFactors
 	 */
 	public int getNumberOfFactors();
-
-
 }
