@@ -17,6 +17,15 @@ import net.finmath.time.TimeDiscretizationInterface;
 public interface ProcessInterface {
 
     /**
+     * This method returns the realization of the process for a given time index.
+     * 
+     * @param timeIndex Time index at which the process should be observed
+     * @return The process realizations (given as array of <code>RandomVariableInterface</code>)
+     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+     */
+//	RandomVariableInterface[] getProcessValue(int timeIndex);
+
+	/**
      * This method returns the realization of a component of the process for a given time index.
      * 
      * @param timeIndex Time index at which the process should be observed
