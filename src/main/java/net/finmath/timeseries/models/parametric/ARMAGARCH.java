@@ -4,23 +4,29 @@
  * Created on 15.07.2012
  */
 
-
 package net.finmath.timeseries.models.parametric;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optimization.GoalType;
-import org.apache.commons.math3.optimization.PointValuePair;
+import org.apache.commons.math3.optim.SimplePointChecker;
+import org.apache.commons.math3.random.MersenneTwister;
 
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
+import net.finmath.timeseries.TimeSeriesInterface;
+import net.finmath.timeseries.TimeSeriesModelParametric;
+import net.finmath.timeseries.TimeSeriesView;
 
 /**
- * Log-normal process with ARMAGARCH(1,1) volatility.
+ * Lognormal process with ARMAGARCH(1,1) volatility.
  * 
- * This class estimate the process
+ * This class estimates the process
  * \[
  *   \mathrm{d} \log(X) = \sigma(t) \mathrm{d}W(t)
  * \]
@@ -28,144 +34,175 @@ import net.finmath.timeseries.HistoricalSimulationModel;
  * 
  * @author Christian Fries
  */
-public class ARMAGARCH implements HistoricalSimulationModel {
+public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
 
-	private double[] values;	
-	private int windowIndexStart;
-	private int windowIndexEnd;
-	private int maxIterations = 1000000;
+	private TimeSeriesInterface timeSeries;	
 
-	public ARMAGARCH(double[] values) {
-		this.values = values;
-		this.windowIndexStart	= 0;
-		this.windowIndexEnd		= values.length-1;
-	}
+	private int maxIterations = 10000000;
 
-	public ARMAGARCH(double[] values, int windowIndexStart, int windowIndexEnd) {
-		this.values = values;
-		this.windowIndexStart	= windowIndexStart;
-		this.windowIndexEnd		= windowIndexEnd;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.timeseries.HistoricalSimulationModel#getCloneWithWindow(int, int)
+	/*
+	 * Model properties
 	 */
-	@Override
-	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
-		return new ARMAGARCH(this.values, windowIndexStart, windowIndexEnd);
+	private final String[] parameterNames	= new String[] { "omega", "alpha", "beta", "theta", "mu", "phi" };
+	private final double[] parameterGuess	= new double[] { 0.10, 0.3, 0.3, 0.0, 0.0, 0.0 };
+	private final double[] parameterStep	= new double[] { 0.001, 0.001, 0.001, 0.001, 0.0001, 0.001 }; 
+	private final double[] lowerBound;
+	private final double[] upperBound;
+
+	public ARMAGARCH(TimeSeriesInterface timeSeries) {
+		this.timeSeries = timeSeries;
+
+		lowerBound = new double[] { 0, 							0, 0, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
+		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY };
 	}
 
-	public double getLogLikelihoodForParameters(double theta, double mu, double omega, double alpha, double beta)
+	/**
+	 * @param parameters Given model parameters.
+	 * @return The log likelihood for the given model parameters.
+	 */
+	public double getLogLikelihoodForParameters(double[] parameters)
 	{
+		double omega		= parameters[0];
+		double alpha		= parameters[1];
+		double beta			= parameters[2];
+		double theta		= parameters[3];
+		double mu			= parameters[4];
+		double phi			= parameters[5];
+
 		double logLikelihood = 0.0;
 
-		double volScaling	= (1.0);
+		double volScaling	= 1;
 		double evalPrev		= 0.0;
-		double eval			= volScaling * (Math.log((values[windowIndexStart+1])/(values[windowIndexStart+1-1])));
+		double eval			= volScaling * (Math.log((timeSeries.getValue(1))/(timeSeries.getValue(0))));
+		if(Double.isInfinite(eval) || Double.isNaN(eval)) eval = 0;
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0; // xxx how to init?
-		for (int i = windowIndexStart+1; i <= windowIndexEnd-1; i++) {
-			//double eval			= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));
-			m = -theta * m + eval - mu * evalPrev;
+
+		logLikelihood += - Math.log(h) - 2 * Math.log((Math.abs(timeSeries.getValue(1)))/volScaling) - eval*eval / h;
+
+		int length = timeSeries.getNumberOfTimePoints();
+		for (int i = 1; i < length-1; i++) {
+			m = -mu -theta * m + eval - phi * evalPrev;
 			h = (omega + alpha * m * m) + beta * h;
 
-			double evalNext	= volScaling * (Math.log((values[i+1])/(values[i])));
-			double mNext =  -theta * m + evalNext - mu * eval;
-			logLikelihood += - Math.log(h) - 2 * Math.log((values[i+1])/volScaling) -  mNext* mNext / h;
+			double value1 = timeSeries.getValue(i);
+			double value2 = timeSeries.getValue(i+1);
+
+			double evalNext	= volScaling * (Math.log((value2)/(value1)));
+			if(Double.isInfinite(evalNext) || Double.isNaN(evalNext)) evalNext = 0;
+			double mNext = -mu - theta * m + evalNext - phi * eval;
+
+			// We need to take abs here, which corresponds to the assumption that -x is lognormal, given that we encounter a negative values.
+			logLikelihood += - Math.log(h) - 2 * Math.log((Math.abs(value2))/volScaling) -  mNext* mNext / h;
 
 			evalPrev = eval;
 			eval = evalNext;
 		}
-		logLikelihood += - Math.log(2 * Math.PI) * (double)(windowIndexEnd-windowIndexStart);
+		logLikelihood += - Math.log(2 * Math.PI) * (double)(length-1);
 		logLikelihood *= 0.5;
 
 		return logLikelihood;
 	}
 
-	public double getLastResidualForParameters(double mu, double theta, double omega, double alpha, double beta) {
-		double volScaling = (1.0);
-		double h = omega / (1.0 - alpha - beta);
-		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
-			double eval	= volScaling * (Math.log((values[i])/(values[i-1])));
-			//			double eval	= volScaling * (values[i]-values[i-1])/(values[i-1]+displacement);
-			h = omega + alpha * eval * eval + beta * h;
+	public double getLastResidualForParameters(double[] parameters) {
+		double omega		= parameters[0];
+		double alpha		= parameters[1];
+		double beta			= parameters[2];
+		double theta		= parameters[3];
+		double mu			= parameters[4];
+		double phi			= parameters[5];
+
+		double evalPrev		= 0.0;
+		double volScaling	= 1;
+		double h			= omega / (1.0 - alpha - beta);
+		double m			= 0.0; // xxx how to init?
+
+		int length = timeSeries.getNumberOfTimePoints();
+		for (int i = 1; i < length-1; i++) {
+			double eval	= volScaling * (Math.log((timeSeries.getValue(i))/(timeSeries.getValue(i-1))));
+			if(Double.isInfinite(eval) || Double.isNaN(eval)) eval = 0;
+
+			m = -mu -theta * m + eval - phi * evalPrev;
+			h = (omega + alpha * m * m) + beta * h;
+
+			evalPrev = eval;
 		}
 
 		return h;
 	}
 
-	public double[] getSzenarios(double theta, double mu, double omega, double alpha, double beta) {
-		double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
+	public double[] getSzenarios(double[] parameters) {
+		double omega		= parameters[0];
+		double alpha		= parameters[1];
+		double beta			= parameters[2];
+		double theta		= parameters[3];
+		double mu			= parameters[4];
+		double phi			= parameters[5];
 
-		double volScaling = (1.0);
-		double h = omega / (1.0 - alpha - beta);
-		double vol = Math.sqrt(h) / volScaling;
+		ArrayList<Double> szenarios = new ArrayList<Double>();
+
+		double volScaling	= 1;
 		double evalPrev		= 0.0;
+		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0;
-		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
-			double y = Math.log((values[i])/(values[i-1]));
-			//			double y = (values[i]-values[i-1])/(values[i-1]+displacement);
+		double vol = Math.sqrt(h) / volScaling;
+		for (int i = 1; i <= timeSeries.getNumberOfTimePoints()-1; i++) {
+			double y = Math.log((timeSeries.getValue(i))/(timeSeries.getValue(i-1)));
 
-			double eval		= volScaling * y;
-			m = eval - theta * m - mu * evalPrev;
+			if(Double.isInfinite(y) || Double.isNaN(y)) y = 0;
 
-			szenarios[i-windowIndexStart-1]	= m / vol / volScaling;
+			// y = sqrt(h) * eps + sqrt(h_prev) epsprev + mu yprev
+			// h = omega + alpha y^2 + beta h
+			double eval	= volScaling * y;
+			m = -mu -theta * m + eval - phi * evalPrev;
+
+			double value = (m / volScaling) / vol;
+			szenarios.add(value);
 
 			h = (omega + alpha * m * m) + beta * h;
 			vol = Math.sqrt(h) / volScaling;
+
 			evalPrev = eval;
 		}
-		java.util.Arrays.sort(szenarios);
-		
-		return szenarios;
+		Collections.sort(szenarios);
+
+		// Get szenarios on current vol
+		double[] szenariosArray = new double[szenarios.size()];
+		for(int i=0; i<szenarios.size(); i++) szenariosArray[i] = szenarios.get(i) * vol;
+
+		return szenariosArray;
 	}
-	public double[] getQuantilPredictionsForParameters(double theta, double mu, double omega, double alpha, double beta, double[] quantiles) {
-		double[] szenarios = this.getSzenarios(theta, mu, omega, alpha, beta);
 
-		double volScaling = (1.0);
-		double h = omega / (1.0 - alpha - beta);
-		double vol = Math.sqrt(h) / volScaling;
-		double evalPrev		= 0.0;
-		double m			= 0.0;
-		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
-			double y = Math.log((values[i])/(values[i-1]));
-			//			double y = (values[i]-values[i-1])/(values[i-1]+displacement);
-
-			double eval		= volScaling * y;
-			m = eval - theta * m - mu * evalPrev;
-
-			szenarios[i-windowIndexStart-1]	= m / vol / volScaling;
-
-			h = (omega + alpha * m * m) + beta * h;
-			vol = Math.sqrt(h) / volScaling;
-			evalPrev = eval;
-		}
-		java.util.Arrays.sort(szenarios);
+	public double[] getQuantilPredictionsForParameters(double[] parameters, double[] quantiles) {
+		double[] szenarios = getSzenarios(parameters);
 
 		double[] quantileValues = new double[quantiles.length];
 		for(int i=0; i<quantiles.length; i++) {
 			double quantile = quantiles[i];
-			double quantileIndex = szenarios.length * quantile  - 1;
+			double quantileIndex = (szenarios.length+1) * quantile - 1;
 			int quantileIndexLo = (int)quantileIndex;
 			int quantileIndexHi = quantileIndexLo+1;
 
-			double evalLo = szenarios[Math.max(quantileIndexLo,0               )] * vol * volScaling + theta * m + mu * evalPrev;
-			double evalHi = szenarios[Math.max(quantileIndexHi,0               )] * vol * volScaling + theta * m + mu * evalPrev;
-			double szenarioRelativeChange =
-					(quantileIndexHi-quantileIndex) * Math.exp(evalLo/volScaling)
-					+ (quantileIndex-quantileIndexLo) * Math.exp(evalHi/volScaling);
-			/*
-			double szenarioRelativeChange =
-					(quantileIndexHi-quantileIndex) * (1 + szenarios[Math.max(quantileIndexLo,0               )] * vol)
-					+ (quantileIndex-quantileIndexLo) * (1 + szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);
-			 */
+			double szenarioRelativeChange;
+			if(szenarios.length > 0) {
+				szenarioRelativeChange = Math.exp(
+						(
+								(quantileIndexHi-quantileIndex) * szenarios[Math.max(quantileIndexLo,0               )]
+										+ (quantileIndex-quantileIndexLo) * szenarios[Math.min(quantileIndexHi,szenarios.length-1)]
+								));
+			}
+			else {
+				szenarioRelativeChange = 1.0;
+			}
 
-			double quantileValue = (values[windowIndexEnd]) * szenarioRelativeChange;
+			double quantileValue = (timeSeries.getValue(timeSeries.getNumberOfTimePoints()-1)) * szenarioRelativeChange;
+
 			quantileValues[i] = quantileValue;
 		}
 
 		return quantileValues;
 	}
+
 
 	/* (non-Javadoc)
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters()
@@ -187,21 +224,15 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 			private static final long serialVersionUID = 7072187082052755854L;
 
 			public double value(double[] variables) {
-				/*
-				 * Transform variables: The solver variables are in (-\infty, \infty).
-				 * We transform the variable to the admissible domain for GARCH, that is
-				 * omega > 0, 0 < alpha < 1, 0 < beta < (1-alpha), displacement > lowerBoundDisplacement
-				 */
-				double omega	= Math.exp(variables[0]);
-				double mucorr	= Math.exp(-Math.exp(-variables[1]));
-				double muema	= Math.exp(-Math.exp(-variables[2]));
-				double beta		= mucorr * muema;
-				double alpha	= mucorr - beta;
-				//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
-				//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
+
+				double omega	= variables[0];
+				double alpha	= variables[1];
+				double beta		= variables[2];
 				double theta	= variables[3];
-				double mu		= variables[4];
-				double logLikelihood = getLogLikelihoodForParameters(theta,mu,omega,alpha,beta);
+				double mu			= variables[4];
+				double phi			= variables[5];
+
+				double logLikelihood = getLogLikelihoodForParameters(variables);
 
 				// Penalty to prevent solver from hitting the bounds
 				logLikelihood -= Math.max(1E-30-omega,0)/1E-30;
@@ -214,81 +245,127 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 			}
 
 		}
-		GARCHMaxLikelihoodFunction objectiveFunction = new GARCHMaxLikelihoodFunction();
+		final GARCHMaxLikelihoodFunction objectiveFunction = new GARCHMaxLikelihoodFunction();
 
 		// Create a guess for the solver
-		double guessOmega = 1.0;
-		double guessAlpha = 0.2;
-		double guessBeta = 0.2;
-		double guessTheta = 0.0;
-		double guessMu = 0.0;	
+		final double[] guessParameters = new double[parameterGuess.length];
+		System.arraycopy(parameterGuess, 0, guessParameters, 0, parameterGuess.length);
+
 		if(guess != null) {
 			// A guess was provided, use that one
-			guessOmega			= (Double)guess.get("Omega");
-			guessAlpha			= (Double)guess.get("Alpha");
-			guessBeta			= (Double)guess.get("Beta");
-			guessTheta			= (Double)guess.get("Theta");
-			guessMu				= (Double)guess.get("Mu");
+			guessParameters[0]	= (Double)guess.get("Omega");
+			guessParameters[1]	= (Double)guess.get("Alpha");
+			guessParameters[2]	= (Double)guess.get("Beta");
+			guessParameters[3]	= (Double)guess.get("Theta");
+			guessParameters[4]	= (Double)guess.get("Mu");
+			guessParameters[5]	= (Double)guess.get("Phi");
 		}
 
-		// Constrain guess to admissible range
-		guessOmega			= restrictToOpenSet(guessOmega, 0.0, Double.MAX_VALUE);
-		guessAlpha			= restrictToOpenSet(guessAlpha, 0.0, 1.0);
-		guessBeta			= restrictToOpenSet(guessBeta, 0.0, 1.0-guessAlpha);
-
-		double guessMucorr	= guessAlpha + guessBeta;
-		double guessMuema	= guessBeta / (guessAlpha+guessBeta);
-
-		// Transform guess to solver coordinates
-		double[] guessParameters = new double[5];
-		guessParameters[0] = Math.log(guessOmega);
-		guessParameters[1] = -Math.log(-Math.log(guessMucorr));
-		guessParameters[2] = -Math.log(-Math.log(guessMuema));
-		guessParameters[3] = guessTheta;
-		guessParameters[4] = guessMu;
 
 		// Seek optimal parameter configuration
-		//		org.apache.commons.math3.optimization.direct.BOBYQAOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.BOBYQAOptimizer(8);
-		org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();
+		LevenbergMarquardt lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, 100*maxIterations, 2) {
+			private static final long serialVersionUID = -8844232820888815090L;
+
+			@Override
+			public void setValues(double[] parameters, double[] values) throws SolverException {
+				values[0] = objectiveFunction.value(parameters);
+			}
+		};
 
 		double[] bestParameters = null;
-		try {
-			PointValuePair result = optimizer2.optimize(
-					maxIterations,
-					objectiveFunction,
-					GoalType.MAXIMIZE,
-					guessParameters /* start point */
-					);
-			bestParameters = result.getPoint();
-		} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
-			System.out.println("Solver failed");
-			bestParameters = guessParameters;
+
+		boolean isUseLM = false;
+
+		if(isUseLM) {
+			try {
+				lm.run();
+			} catch (SolverException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			bestParameters = lm.getBestFitParameters();
+		}
+		else {
+			org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer(maxIterations, Double.POSITIVE_INFINITY, true, 0, 0, new MersenneTwister(3141), false, new SimplePointChecker<org.apache.commons.math3.optim.PointValuePair>(0, 0))
+			{
+				@Override
+				public double computeObjectiveValue(double[] params) {
+					return objectiveFunction.value(params);
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer#getGoalType()
+				 */
+				@Override
+				public org.apache.commons.math3.optim.nonlinear.scalar.GoalType getGoalType() {
+					// TODO Auto-generated method stub
+					return org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getStartPoint()
+				 */
+				@Override
+				public double[] getStartPoint() {
+					return guessParameters;
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getLowerBound()
+				 */
+				@Override
+				public double[] getLowerBound() {
+					return lowerBound;
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getUpperBound()
+				 */
+				@Override
+				public double[] getUpperBound() {
+					return upperBound;
+				}
+			};
+
+			try {
+				org.apache.commons.math3.optim.PointValuePair result = optimizer2.optimize(
+						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log((double)guessParameters.length))),
+						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(parameterStep)
+						);
+				bestParameters = result.getPoint();
+			} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
+				System.out.println("Solver failed");
+				bestParameters = guessParameters;
+			}
 		}
 
 		// Transform parameters to GARCH parameters
-		double omega	= Math.exp(bestParameters[0]);
-		double mucorr	= Math.exp(-Math.exp(-bestParameters[1]));
-		double muema	= Math.exp(-Math.exp(-bestParameters[2]));
-		double beta		= mucorr * muema;
-		double alpha	= mucorr - beta;
-		double theta	= bestParameters[3];
-		double mu		= bestParameters[4];
+		double omega		= bestParameters[0];
+		double alpha		= bestParameters[1];
+		double beta			= bestParameters[2];
+		double theta		= bestParameters[3];
+		double mu			= bestParameters[4];
+		double phi			= bestParameters[5];
 
-		double[] quantiles = {0.01, 0.05, 0.5};
-		double[] quantileValues = this.getQuantilPredictionsForParameters(theta, mu, omega, alpha, beta, quantiles);
+		double[] quantiles		= {0.005, 0.01, 0.02, 0.05, 0.5};
+		double[] quantileValues	= getQuantilPredictionsForParameters(bestParameters, quantiles);
 
 		Map<String, Object> results = new HashMap<String, Object>();
+		results.put("parameters", bestParameters);
 		results.put("Omega", omega);
 		results.put("Alpha", alpha);
 		results.put("Beta", beta);
 		results.put("Theta", theta);
 		results.put("Mu", mu);
-		results.put("Szenarios", this.getSzenarios(theta, mu, omega, alpha, beta));
-		results.put("Likelihood", this.getLogLikelihoodForParameters(theta, mu, omega, alpha, beta));
-		results.put("Vol", Math.sqrt(this.getLastResidualForParameters(theta, mu, omega, alpha, beta)));
-		results.put("Quantile=1%", quantileValues[0]);
-		results.put("Quantile=5%", quantileValues[1]);
-		results.put("Quantile=50%", quantileValues[2]);
+		results.put("Phi", phi);
+		results.put("Szenarios", this.getSzenarios(bestParameters));
+		results.put("Likelihood", this.getLogLikelihoodForParameters(bestParameters));
+		results.put("Vol", Math.sqrt(this.getLastResidualForParameters(bestParameters)));
+		results.put("Quantile=05%", quantileValues[0]);
+		results.put("Quantile=1%", quantileValues[1]);
+		results.put("Quantile=2%", quantileValues[2]);
+		results.put("Quantile=5%", quantileValues[3]);
+		results.put("Quantile=50%", quantileValues[4]);
 		return results;
 	}
 
@@ -296,5 +373,25 @@ public class ARMAGARCH implements HistoricalSimulationModel {
 		value = Math.max(value, lowerBond  * (1.0+Math.signum(lowerBond)*1E-15) + 1E-15);
 		value = Math.min(value, upperBound * (1.0-Math.signum(upperBound)*1E-15) - 1E-15);
 		return value;
+	}
+
+	@Override
+	public TimeSeriesModelParametric getCloneCalibrated(TimeSeriesInterface timeSeries) {
+		return new ARMAGARCH(timeSeries);
+	}
+
+	@Override
+	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
+		return new ARMAGARCH(new TimeSeriesView(timeSeries, windowIndexStart, windowIndexEnd));
+	}
+
+	@Override
+	public double[] getParameters() {
+		return (double[])getBestParameters().get("parameters");
+	}
+
+	@Override
+	public String[] getParameterNames() {
+		return parameterNames;
 	}
 }
