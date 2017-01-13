@@ -68,7 +68,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 * @return
 	 * @throws CalculationException 
 	 */
-	public TermStructureCovarianceModelParametric getCloneCalibrated(TermStructureModelInterface calibrationModel, AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
+	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
 
 		double[] initialParameters = this.getParameter();
 
