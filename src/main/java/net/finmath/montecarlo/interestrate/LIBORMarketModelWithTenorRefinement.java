@@ -10,22 +10,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.marketdata.model.volatilities.AbstractSwaptionMarketData;
-import net.finmath.marketdata.products.Swap;
-import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelInterface;
+import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
-import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.time.RegularSchedule;
-import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -77,8 +69,6 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class LIBORMarketModelWithTenorRefinement extends AbstractModel implements TermStructureModelInterface {
 
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }
-	public enum Measure				{ SPOT, TERMINAL }
-	public enum StateSpace			{ NORMAL, LOGNORMAL }
 
 	private final TimeDiscretizationInterface[]		liborPeriodDiscretizations;
 	private final Integer[]							numberOfDiscretizationIntervalls;
@@ -90,17 +80,6 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	private DiscountCurveInterface			discountCurve;
 
 	private TermStructureCovarianceModelInterface	covarianceModel;
-
-	private AbstractSwaptionMarketData		swaptionMarketData;
-
-	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
-	private Measure				measure						= Measure.SPOT;
-	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
-	private double				liborCap					= 1E5;
-
-	// This is a cache of the integrated covariance.
-	private double[][][]	integratedLIBORCovariance;
-	private final Object	integratedLIBORCovarianceLazyInitLock = new Object();
 
 	private final ConcurrentHashMap<Integer, RandomVariableInterface> numeraires;
 
@@ -159,7 +138,8 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 *		</li>
 	 * </ul>
 	 * 
-	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
+	 * @param liborPeriodDiscretizations A vector of tenor discretizations of the interest rate curve into forward rates (tenor structure), finest first.
+	 * @param numberOfDiscretizationIntervalls A vector of number of periods to be taken from the liborPeriodDiscretizations.
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -179,11 +159,6 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			Map<String, ?>						properties
 			) throws CalculationException {
 
-		// Set some properties
-		if(properties != null && properties.containsKey("measure"))					measure		= Measure.valueOf(((String)properties.get("measure")).toUpperCase());
-		if(properties != null && properties.containsKey("stateSpace"))				stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
-		if(properties != null && properties.containsKey("liborCap"))				liborCap	= (Double)properties.get("liborCap");
-
 		Map<String,Object> calibrationParameters = null;
 		if(properties != null && properties.containsKey("calibrationParameters"))	calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
 
@@ -196,12 +171,12 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 		// Perform calibration, if data is given
 		if(calibrationItems != null && calibrationItems.length > 0) {
-			AbstractLIBORCovarianceModelParametric covarianceModelParametric = null;
+			TermStructureCovarianceModelParametric covarianceModelParametric = null;
 			try {
-				covarianceModelParametric = (AbstractLIBORCovarianceModelParametric)covarianceModel;
+				covarianceModelParametric = (TermStructureCovarianceModelParametric)covarianceModel;
 			}
 			catch(Exception e) {
-				throw new ClassCastException("Calibration is currently restricted to parametric covariance models (AbstractLIBORCovarianceModelParametric).");
+				throw new ClassCastException("Calibration is currently restricted to parametric covariance models (TermStructureCovarianceModelParametricInterface).");
 			}
 
 			// @TODO Should be more elegant. Convert array for constructor
@@ -214,76 +189,10 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 				calibrationWeights[i]		= calibrationItems[i].calibrationWeight;
 			}
 
-			throw new UnsupportedOperationException();
-			//			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
+			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
 		}
 
 		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
-	}
-
-	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData, boolean isUseAnalyticApproximation) {
-		if(swaptionMarketData == null) return null;
-
-		TimeDiscretizationInterface	optionMaturities		= swaptionMarketData.getOptionMaturities();
-		TimeDiscretizationInterface	tenor					= swaptionMarketData.getTenor();
-		double						swapPeriodLength		= swaptionMarketData.getSwapPeriodLength();
-
-		ArrayList<CalibrationItem> calibrationItems = new ArrayList<CalibrationItem>();
-		for(int exerciseIndex=0; exerciseIndex<=optionMaturities.getNumberOfTimeSteps(); exerciseIndex++) {
-			for(int tenorIndex=0; tenorIndex<=tenor.getNumberOfTimeSteps()-exerciseIndex; tenorIndex++) {
-
-				// Create a swaption
-				double exerciseDate	= optionMaturities.getTime(exerciseIndex);
-				double swapLength	= tenor.getTime(tenorIndex);
-
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate) < 0) continue;
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate+swapLength) <= liborPeriodDiscretization.getTimeIndex(exerciseDate)) continue;
-
-				int numberOfPeriods = (int)(swapLength / swapPeriodLength);
-
-				double[] fixingDates      = new double[numberOfPeriods];
-				double[] paymentDates     = new double[numberOfPeriods];
-				double[] swapTenorTimes   = new double[numberOfPeriods+1];
-
-				for(int periodStartIndex=0; periodStartIndex<numberOfPeriods; periodStartIndex++) {
-					fixingDates[periodStartIndex] = exerciseDate + periodStartIndex * swapPeriodLength;
-					paymentDates[periodStartIndex] = exerciseDate + (periodStartIndex+1) * swapPeriodLength;
-					swapTenorTimes[periodStartIndex] = exerciseDate + periodStartIndex * swapPeriodLength;
-				}
-				swapTenorTimes[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
-
-
-				// Swaptions swap rate
-				ScheduleInterface swapTenor = new RegularSchedule(new TimeDiscretization(swapTenorTimes));
-				double swaprate = Swap.getForwardSwapRate(swapTenor, swapTenor, forwardCurve, null);
-
-				// Set swap rates for each period
-				double[] swaprates        = new double[numberOfPeriods];
-				for(int periodStartIndex=0; periodStartIndex<numberOfPeriods; periodStartIndex++) {
-					swaprates[periodStartIndex] = swaprate;
-				}
-
-				if(isUseAnalyticApproximation) {
-					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
-					double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
-
-					calibrationItems.add(new CalibrationItem(swaption, impliedVolatility, 1.0));
-				}
-				else {
-					AbstractLIBORMonteCarloProduct swaption = new SwaptionSimple(swaprate, swapTenorTimes, SwaptionSimple.ValueUnit.VALUE);
-
-					double forwardSwaprate		= Swap.getForwardSwapRate(swapTenor, swapTenor, forwardCurve);
-					double swapAnnuity 			= SwapAnnuity.getSwapAnnuity(swapTenor, forwardCurve);
-					double impliedVolatility	= swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
-
-					double targetValue = AnalyticFormulas.blackModelSwaptionValue(forwardSwaprate, impliedVolatility, exerciseDate, swaprate, swapAnnuity);
-
-					calibrationItems.add(new CalibrationItem(swaption, targetValue, 1.0));
-				}
-			}
-		}
-
-		return calibrationItems.toArray(new CalibrationItem[calibrationItems.size()]);
 	}
 
 	/**
@@ -299,8 +208,6 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 */
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
-		if(time == 0) return getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
-
 		int timeIndex = liborPeriodDiscretizations[0].getTimeIndex(time);
 		TimeDiscretizationInterface liborPeriodDiscretization = liborPeriodDiscretizations[0];
 		if(timeIndex < 0) {
@@ -336,7 +243,10 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			/*
 			 * Calculate the numeraire for timeIndex
 			 */
-
+			if(timeIndex == 0) {
+				numeraire = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
+			}
+			else {
 			// Initialize to previous numeraire
 			numeraire = getNumeraire(liborPeriodDiscretizations[0].getTime(timeIndex-1));
 
@@ -345,20 +255,21 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			RandomVariableInterface libor = getLIBOR(periodStart, periodStart, periodEnd);
 
 			numeraire = numeraire.accrue(libor, periodEnd-periodStart);
+			}
 
+			// Cache the numeraire
 			numeraires.put(timeIndex, numeraire);
 		}
 
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
-		/*
 		if(discountCurve != null) {
 			// This includes a control for zero bonds
 			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
-		 */
+
 		return numeraire;
 	}
 
@@ -414,13 +325,18 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			drift[componentIndex] = null;
 		}
 
+		RandomVariableInterface[]	variances	= new RandomVariableInterface[getNumberOfComponents()];
+		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
+			variances[componentIndex] = zero;
+		}
+
 		RandomVariableInterface[]	covarianceFactorSums	= new RandomVariableInterface[getNumberOfFactors()];
 		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
 			covarianceFactorSums[factorIndex] = zero;
 		}
 
 		/*
-		 * Standard HJM drift part
+		 * Standard HJM drift part of log-forward-bond
 		 */
 		TimeDiscretizationInterface liborPeriodDiscretization = getLiborPeriodDiscretization(timeNext);		
 		// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
@@ -436,12 +352,13 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			double weight = getWeightForTenorRefinement(periodStart,periodStart,periodStart,periodEnd);
 			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
 				drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[factorIndex].addProduct(factorLoading[factorIndex], weight),factorLoading[factorIndex]);
+				variances[componentIndex] = variances[componentIndex].addProduct(factorLoading[factorIndex], factorLoading[factorIndex]);
 				covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].addProduct(factorLoading[factorIndex],periodLength);
 			}
 		}
 
 		/*
-		 * Change of tenor discretization
+		 * Change of tenor discretization - impact on log-forward-bond
 		 */
 		TimeDiscretizationInterface liborPeriodDiscretizationPrevious = getLiborPeriodDiscretization(time);
 		for(int componentIndex=0; componentIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
@@ -461,35 +378,21 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			if(Double.isNaN(stateVariable.getAverage()) || Double.isNaN(stateVariablePrevious.getAverage())) {
 				throw new IllegalArgumentException();
 			}
-			// Shift in indexing
+
+			// Shift in indexing and/or tenor refinement
 			drift[componentIndex] = drift[componentIndex].add(stateVariable.sub(stateVariablePrevious).div(timeStep));
-
-			// Tenor refinement
-			int						periodStartIndexPreviousTenor		= liborPeriodDiscretizationPrevious.getTimeIndex(periodStart);
-			int						periodEndIndexPreviousTenor			= liborPeriodDiscretizationPrevious.getTimeIndex(periodEnd);
-			if(periodStartIndexPreviousTenor < 0) periodStartIndexPreviousTenor = -periodStartIndexPreviousTenor-1-1;
-			if(periodEndIndexPreviousTenor < 0) periodEndIndexPreviousTenor = -periodEndIndexPreviousTenor-1;
-
-			double tenorRefinementWeight = getWeightForTenorRefinement(liborPeriodDiscretizationPrevious.getTime(periodStartIndexPreviousTenor), liborPeriodDiscretizationPrevious.getTime(periodEndIndexPreviousTenor), periodStart, periodEnd);
-			RandomVariableInterface integratedVariance = getIntegratedVariance(timeIndex, liborPeriodDiscretizationPrevious.getTime(periodStartIndexPreviousTenor), liborPeriodDiscretizationPrevious.getTime(periodEndIndexPreviousTenor));
-			//			RandomVariableInterface integratedVariance = getIntegratedVariance(timeIndex, periodStart, periodEnd);
-			//			drift[componentIndex] = drift[componentIndex].add(integratedVariance.mult(tenorRefinementWeight / timeStep));//*(periodEnd-periodStart)));
 		}
-
 
 		/*
-		 * Integrated variance drift part
+		 * Integrated variance - drift part
 		 */
 		for(int componentIndex=0; componentIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
-			// Drift
-			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
-			RandomVariableInterface variance = factorLoading[0].mult(factorLoading[0]);
-			for(int factorIndex=1; factorIndex<getNumberOfFactors(); factorIndex++) {
-				variance = variance.addProduct(factorLoading[factorIndex],factorLoading[factorIndex]);
-			}
-			drift[getNumberOfLibors()+componentIndex] = variance;
+			drift[getNumberOfLibors()+componentIndex] = variances[componentIndex];
 		}
 
+		/*
+		 * Change of tenor discretization - impact on integrated variance
+		 */
 		for(int componentIndex=0; componentIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
 			double						periodStart		= liborPeriodDiscretization.getTime(componentIndex);
 			double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
@@ -559,6 +462,10 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		int periodStartIndex = numeriareDiscretization.getTimeIndex(periodStart);
 		int periodEndIndex = numeriareDiscretization.getTimeIndex(periodEnd);
 
+		/// @TODO Need to improve LIBOR interpolation if required
+		if(periodStartIndex < 0) periodStartIndex = -periodStartIndex-1;
+		if(periodEndIndex < 0) periodEndIndex = -periodEndIndex-1-1;
+
 		double weight1 = 0.0;
 		for(int periodIndex = periodStartPreviousIndex; periodIndex<periodEndPreviousIndex; periodIndex++) {
 			weight1 += (numeriareDiscretization.getTime(periodIndex+1)-numeriareDiscretization.getTime(periodIndex)) * (numeriareDiscretization.getTime(periodIndex+1)-periodStartPrevious);
@@ -600,14 +507,6 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		RandomVariableInterface value = randomVariable;
 
 		return value;
-	}
-
-
-	/**
-	 * @return Returns the driftApproximationMethod.
-	 */
-	public Driftapproximation getDriftApproximationMethod() {
-		return driftApproximationMethod;
 	}
 
 	private TimeDiscretizationInterface getLiborPeriodDiscretization(double time) {
@@ -730,6 +629,8 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	@Override
 	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) {
 		int timeIndex = getProcess().getTimeIndex(time);
+		// @TODO Improve interpolation in simulation time here, if required.
+		if(timeIndex < 0) timeIndex = -timeIndex-1-1;
 
 		return getLIBOR(timeIndex, periodStart, periodEnd);
 	}
@@ -737,7 +638,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	public RandomVariableInterface getLIBOR(int timeIndex, double periodStart, double periodEnd)
 	{
 		RandomVariableInterface stateVariable = getStateVariable(timeIndex, periodStart, periodEnd);
-		double initialValue = Math.log(1+forwardRateCurve.getForward(null, periodStart)*(forwardRateCurve.getPaymentOffset(periodStart))) / forwardRateCurve.getPaymentOffset(periodStart);
+		double initialValue = Math.log(1+forwardRateCurve.getForward(curveModel, periodStart)*(forwardRateCurve.getPaymentOffset(periodStart))) / forwardRateCurve.getPaymentOffset(periodStart);
 		stateVariable = stateVariable.add(initialValue).mult(periodEnd-periodStart);
 		RandomVariableInterface libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
 
@@ -752,13 +653,6 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	public int getNumberOfLibors()
 	{
 		return this.getLiborPeriodDiscretization(0.0).getNumberOfTimeSteps();
-	}
-
-	/**
-	 * @return Returns the measure.
-	 */
-	public Measure getMeasure() {
-		return measure;
 	}
 
 	@Override
@@ -791,23 +685,24 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		return forwardRateCurve;
 	}
 
-	/**
-	 * Return the swaption market data used for calibration (if any, may be null).
-	 * 
-	 * @return The swaption market data used for calibration (if any, may be null).
-	 */
-	public AbstractSwaptionMarketData getSwaptionMarketData() {
-		return swaptionMarketData;
+	@Override
+	public TermStructureModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+		CalibrationItem[] calibrationItems = null;
+		Map<String, ?> properties = null;
+		
+		TermStructureCovarianceModelInterface covarianceModel = this.covarianceModel;
+		if(dataModified.containsKey("covarianceModel")) covarianceModel = (TermStructureCovarianceModelInterface)dataModified.get("covarianceModel");
+
+		return new LIBORMarketModelWithTenorRefinement(liborPeriodDiscretizations, numberOfDiscretizationIntervalls, curveModel, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.TermStructureModelInterface#getCloneWithModifiedData(java.util.Map)
+	/**
+	 * Returns the term structure covariance model.
+	 * 
+	 * @return the term structure covariance model.
 	 */
-	@Override
-	public TermStructureModelInterface getCloneWithModifiedData(Map<String, Object> dataModified)
-			throws CalculationException {
-		// TODO Auto-generated method stub
-		return null;
+	public TermStructureCovarianceModelInterface getCovarianceModel() {
+		return covarianceModel;
 	}
 }
 
