@@ -53,4 +53,5 @@ public interface TermStructureModelInterface extends AbstractModelInterface {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	TermStructureModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+
 }
