@@ -20,7 +20,10 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 	private final AbstractLIBORCovarianceModelParametric covarianceModel;
 	
 	/**
+	 * Create a term structure covariance model model implementing TermStructureCovarianceModelInterface
+	 * using a given model implementing AbstractLIBORCovarianceModelParametric.
 	 * 
+	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
 	 */
 	public TermStructCovarianceModelFromLIBORCovarianceModel(AbstractLIBORCovarianceModelParametric covarianceModel) {
 		this.covarianceModel = covarianceModel;
@@ -69,5 +72,4 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 	public int getNumberOfFactors() {
 		return covarianceModel.getNumberOfFactors();
 	}
-
 }

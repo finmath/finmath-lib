@@ -60,13 +60,15 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	public abstract TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
 
 	/**
-	 * @param termStructureModel
-	 * @param calibrationProducts
-	 * @param calibrationTargetValues
-	 * @param calibrationWeights
-	 * @param calibrationParameters
-	 * @return
-	 * @throws CalculationException 
+	 * Return a calibrated clone of the covariance model.
+	 * 
+	 * @param calibrationModel Model to be used for the calibration.
+	 * @param calibrationProducts Vector of calibration products.
+	 * @param calibrationTargetValues Vector of corresponding target values.
+	 * @param calibrationWeights Vector of corresponding weights.
+	 * @param calibrationParameters Property map of calibration parameters.
+	 * @return A clone of this model, using the calibrated parameters.
+	 * @throws CalculationException Exception indicating failure in calibration.
 	 */
 	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
 
