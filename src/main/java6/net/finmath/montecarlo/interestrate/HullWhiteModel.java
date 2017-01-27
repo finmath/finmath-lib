@@ -195,7 +195,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		 * Numeraire is not part of the cache, calculate it (populate the cache with intermediate numeraires too)
 		 */
 		RandomVariableInterface logNum = getProcessValue(timeIndex, 1).add(0.5*getV(0,time));
-		numeraire = logNum.exp().div(discountCurveFromForwardCurve.getDiscountFactor(time));
+		numeraire = logNum.exp().div(discountCurveFromForwardCurve.getDiscountFactor(curveModel, time));
 		numeraires.put(timeIndex, numeraire);
 
 		/*
@@ -319,7 +319,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		double timePrev = timeIndex > 0 ? getProcess().getTime(timeIndex-1) : time;
 		double timeNext = getProcess().getTime(timeIndex+1);
 
-		double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(timeNext)/discountCurveFromForwardCurve.getDiscountFactor(time)) / (timeNext-time);
+		double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(curveModel, timeNext)/discountCurveFromForwardCurve.getDiscountFactor(curveModel, time)) / (timeNext-time);
 
 		double alpha = zeroRate + getDV(0, time);
 
@@ -380,11 +380,11 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		double timeStep = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
 
 		double dt = timeStep;
-		double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(time+dt)/discountCurveFromForwardCurve.getDiscountFactor(time)) / dt;
+		double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(curveModel, time+dt)/discountCurveFromForwardCurve.getDiscountFactor(curveModel, time)) / dt;
 
 		double B = getB(time,maturity);
 
-		double lnA = Math.log(discountCurveFromForwardCurve.getDiscountFactor(maturity)/discountCurveFromForwardCurve.getDiscountFactor(time))
+		double lnA = Math.log(discountCurveFromForwardCurve.getDiscountFactor(curveModel, maturity)/discountCurveFromForwardCurve.getDiscountFactor(curveModel, time))
 				+ B * zeroRate - 0.5 * getShortRateConditionalVariance(0,time) * B * B;
 
 		return Math.exp(lnA);
