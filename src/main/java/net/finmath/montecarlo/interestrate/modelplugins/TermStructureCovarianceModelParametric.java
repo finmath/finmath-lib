@@ -25,7 +25,10 @@ import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.montecarlo.interestrate.TermStructureModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.OptimizerFactoryInterface;
+import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
+import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 import net.finmath.optimizer.SolverException;
 
 /**
@@ -70,25 +73,25 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 * @return A clone of this model, using the calibrated parameters.
 	 * @throws CalculationException Exception indicating failure in calibration.
 	 */
-	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
-
-		double[] initialParameters = this.getParameter();
+	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, final double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
 		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
 		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		BrownianMotionInterface brownianMotionParameter	= (BrownianMotionInterface)calibrationParameters.get("brownianMotion");
 
-		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
-		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
-		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-
-		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
-		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
-		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		double[] initialParameters = this.getParameter();
+		double[] lowerBound = new double[initialParameters.length];
+		double[] upperBound = new double[initialParameters.length];
+		double[] parameterStep = new double[initialParameters.length];
+		double[] zero = new double[calibrationTargetValues.length];
+		Arrays.fill(lowerBound, 0);
+		Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
+		Arrays.fill(parameterStep, parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4);
+		Arrays.fill(zero, 0);
 
 		/*
 		 * We allow for 2 simultaneous calibration models.
@@ -97,8 +100,19 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		 * memory requirement is not the limiting factor.
 		 */
 		int numberOfThreads = 2;
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
-		{
+		OptimizerFactoryInterface optimizerFactoryParameter = (OptimizerFactoryInterface)calibrationParameters.get("optimizerFactory");
+		
+		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
+		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
+		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
+		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
+		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+
+		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
+		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+
+		ObjectiveFunction calibrationError = new ObjectiveFunction() {			
 			// Calculate model values for given parameters
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
@@ -123,13 +137,13 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 					Callable<Double> worker = new  Callable<Double>() {
 						public Double call() throws SolverException {
 							try {
-								return calibrationProducts[workerCalibrationProductIndex].getValue(termStructureModelMonteCarloSimulation);
+								return calibrationWeights[workerCalibrationProductIndex] * (calibrationProducts[workerCalibrationProductIndex].getValue(termStructureModelMonteCarloSimulation) - calibrationTargetValues[workerCalibrationProductIndex]);
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return calibrationTargetValues[workerCalibrationProductIndex];
+								return new Double(0.0);
 							} catch (Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return calibrationTargetValues[workerCalibrationProductIndex];
+								return new Double(0.0);
 							}
 						}
 					};
@@ -154,14 +168,19 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 						throw new SolverException(e);
 					}
 				}
-				System.out.println(this.getIterations() + "\t" + this.getRootMeanSquaredError() + "\t" + Arrays.toString(values));
+
+				double error = 0.0;
+
+				for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
+					double deviation = values[valueIndex];
+					error += deviation * deviation;
+				}
+
+				System.out.println(Math.sqrt(error/values.length));
 			}
 		};
 
-		// Set solver parameters
-		optimizer.setWeights(calibrationWeights);
-		optimizer.setErrorTolerance(accuracy);
-
+		OptimizerInterface optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
 		try {
 			optimizer.run();
 		}

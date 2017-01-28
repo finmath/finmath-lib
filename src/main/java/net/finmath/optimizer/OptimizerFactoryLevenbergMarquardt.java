@@ -29,8 +29,8 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInter
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters) {
-		return getOptimizer(objectiveFunction, initialParameters, null, null, null, null);
+	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, double[] targetValues) {
+		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override

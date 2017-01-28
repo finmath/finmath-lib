@@ -46,6 +46,13 @@ public interface TermStructureModelInterface extends AbstractModelInterface {
 	ForwardCurveInterface getForwardRateCurve();
 
 	/**
+	 * Returns the term structure covariance model.
+	 * 
+	 * @return the term structure covariance model.
+	 */
+//	TermStructureCovarianceModelInterface getCovarianceModel();
+
+	/**
 	 * Create a new object implementing TermStructureModelInterface, using the new data.
 	 * 
 	 * @param dataModified A map with values to be used in constructions (keys are identical to parameter names of the constructors).

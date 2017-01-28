@@ -53,8 +53,8 @@ public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters) {
-		return getOptimizer(objectiveFunction, initialParameters, null, null, null, null);
+	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] targetValues) {
+		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override
@@ -69,6 +69,7 @@ public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 		final double[] effectiveParameterUpperBound			= parameterUppderBound != null ? this.parameterUppderBound : upperBound;
 		final double[] effectiveParameterStandardDeviation	= parameterStandardDeviation != null ? this.parameterStandardDeviation : parameterStep;
 
+		// Throw exception if std dev is non null, but lower bound / upper bound are null.
 		return new OptimizerInterface() {
 
 			private org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer optimizer;
