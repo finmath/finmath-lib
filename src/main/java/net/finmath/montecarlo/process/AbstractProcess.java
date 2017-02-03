@@ -42,7 +42,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
      */
 
     public void setModel(AbstractModelInterface model) {
-    	if(this.model != null) throw new RuntimeException("Attemp to reuse process with a different model. This process is already associated with a model.");
+    	if(this.model != null) throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
 
     	this.model = model;
     }
