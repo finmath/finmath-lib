@@ -25,6 +25,8 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.process.AbstractProcess;
+import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
@@ -157,7 +159,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private double[][][]	integratedLIBORCovariance;
 	private final Object	integratedLIBORCovarianceLazyInitLock = new Object();
 
-	private final ConcurrentHashMap<Integer, RandomVariableInterface> numeraires;
+	// Cache for the numeraires, needs to be invalidated if process changes
+	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
+	private AbstractProcessInterface									numerairesProcess = null;
 
 	public static class CalibrationItem {
 		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
@@ -585,6 +589,14 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		/*
 		 * Calculate the numeraire, when time is part of liborPeriodDiscretization
 		 */
+
+		/*
+		 * Check if numeraire cache is values (i.e. process did not change)
+		 */
+		if(getProcess() != numerairesProcess) {
+			numeraires.clear();
+			numerairesProcess = getProcess();
+		}
 
 		/*
 		 * Check if numeraire is part of the cache

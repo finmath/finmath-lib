@@ -15,6 +15,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -117,7 +118,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	private DiscountCurveInterface			discountCurve;
 	private DiscountCurveInterface			discountCurveFromForwardCurve;
 
-	private final ConcurrentHashMap<Integer, RandomVariableInterface> numeraires;
+	// Cache for the numeraires, needs to be invalidated if process changes
+	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
+	private AbstractProcessInterface									numerairesProcess = null;
 
 	private final ShortRateVolailityModelInterface volatilityModel;
 
@@ -198,6 +201,14 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 			RandomVariableInterface integratedRate = rate.mult(time-previousTime);
 
 			return getNumeraire(previousTime).mult(integratedRate.exp());
+		}
+
+		/*
+		 * Check if numeraire cache is values (i.e. process did not change)
+		 */
+		if(getProcess() != numerairesProcess) {
+			numeraires.clear();
+			numerairesProcess = getProcess();
 		}
 
 		/*
