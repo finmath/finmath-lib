@@ -126,7 +126,7 @@
 					</header>
 					<footer>
 			   			<![CDATA[
-						<i>Copyright &copy; 2015 Christian&nbsp;P.&nbsp;Fries.</i>
+						<i>Copyright &copy; 2017 Christian&nbsp;P.&nbsp;Fries.</i>
 			   			]]>
 					</footer>
 					<tags>
@@ -146,6 +146,7 @@
 						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.3</link>
 					</links>
 					<detectLinks>true</detectLinks>
+					<additionalparam>--allow-script-in-comments</additionalparam>
 				</configuration>
 			</plugin>
 			<plugin>
