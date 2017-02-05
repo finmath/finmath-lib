@@ -37,7 +37,7 @@ import net.finmath.optimizer.SolverException;
  * 
  * @author Christian Fries
  */
-public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModelInterface {
+public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModelInterface, TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelParametricInterface {
 
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
@@ -51,7 +51,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	public abstract double[]	getParameter();
 
 	@Override
-	public abstract Object clone();
+	public abstract TermStructureCovarianceModelParametric clone();
 
 	/**
 	 * Return an instance of this model using a new set of parameters.
@@ -101,7 +101,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		 */
 		int numberOfThreads = 2;
 		OptimizerFactoryInterface optimizerFactoryParameter = (OptimizerFactoryInterface)calibrationParameters.get("optimizerFactory");
-
+		
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
