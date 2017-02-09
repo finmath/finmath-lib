@@ -39,7 +39,7 @@ public interface CrossCurrencyTermStructureModelMonteCarloSimulationInterface ex
 	 * @param time		Simulation time
 	 * @return 			The (cross curve or currency) exchange rate for a given simulation time.
 	 */
-	RandomVariableInterface getExchangeRate(String fromCurve, String toCurve, double time);
+	RandomVariableInterface getExchangeRate(String fromCurve, String toCurve, double time) throws CalculationException;
 	
 	/**
 	 * Return the numeraire at a given time.
