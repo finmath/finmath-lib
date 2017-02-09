@@ -15,20 +15,24 @@ import java.util.Set;
  * This class represents a set of discrete points in time.
  * <br>
  * It handles the mapping from time indices to time points and back.
- * It uses a time tick size ("quantum") of 1.0 / (365.0 * 24.0) (which corresponds to one hour if 1.0 is a non-leap-year):
+ * It uses a time tick size ("quantum"). This is to make comparison of times safe.
+ * The default tick size is 1.0 / (365.0 * 24.0) (which corresponds to one hour if 1.0 is a non-leap-year):
  * Times are rounded to the nearest multiple of 1.0 / (365.0 * 24.0).
+ * 
+ * This property can be configured via a System.setProperty("net.finmath.functions.TimeDiscretization.timeTickSize").
  * 
  * Objects of this class are immutable.
  * 
  * @author Christian Fries
- * @version 1.5
+ * @version 1.6
  */
 public class TimeDiscretization implements Serializable, TimeDiscretizationInterface {
 
 	private static final long serialVersionUID = 6880668325019167781L;
+	private final static double	timeTickSizeDefault = Double.parseDouble(System.getProperty("net.finmath.functions.TimeDiscretization.timeTickSize", new Double(1.0 / (365.0 * 24.0)).toString()));;
 
 	private final double[]	timeDiscretization;
-	private final double	timeTickSize = 1.0 / (365.0 * 24.0);
+	private final double	timeTickSize = timeTickSizeDefault;
 
 	public enum ShortPeriodLocation {
 		SHORT_PERIOD_AT_START,

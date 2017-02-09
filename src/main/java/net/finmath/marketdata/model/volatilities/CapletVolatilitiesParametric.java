@@ -130,7 +130,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 */
 	@Override
 	public double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention) {
-		if(maturity == 0) return 0;
+		if(maturity <= 0) return 0;
 
 		double T = maturity * timeScaling;
 

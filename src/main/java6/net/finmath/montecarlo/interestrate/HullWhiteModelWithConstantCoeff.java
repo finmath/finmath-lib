@@ -15,6 +15,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -42,7 +43,9 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	private final double meanReversion;
 	private final double volatility;
 
-	private final ConcurrentHashMap<Integer, RandomVariableInterface> numeraires;
+	// Cache for the numeraires, needs to be invalidated if process changes
+	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
+	private AbstractProcessInterface									numerairesProcess = null;
 
 	
 	// Initialized lazily using process time discretization
@@ -128,6 +131,14 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 		}
 
 		/*
+		 * Check if numeraire cache is values (i.e. process did not change)
+		 */
+		if(getProcess() != numerairesProcess) {
+			numeraires.clear();
+			numerairesProcess = getProcess();
+		}
+
+		/*
 		 * Check if numeraire is part of the cache
 		 */
 		RandomVariableInterface numeraire = numeraires.get(timeIndex);
@@ -198,6 +209,12 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 		double volatilityEffective = scaling*volatility;
 
 		return new RandomVariableInterface[] { new RandomVariable(volatilityEffective) };
+	}
+
+	@Override
+	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	{
+		return getZeroCouponBond(time, periodStart).div(getZeroCouponBond(time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
 	}
 
 	@Override

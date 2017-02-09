@@ -9,6 +9,9 @@ import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
@@ -136,12 +139,19 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength);
 
 			// Calculated the adjustment for the discounting curve, assuming a deterministic basis
+			// @TODO: Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
 			double discountingDate = Math.max(fixingDate,exerciseDate);
-			RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
-			RandomVariableInterface	numeraireAtFixingDate	= model.getNumeraire(discountingDate);
-			RandomVariableInterface	monteCarloProbabilitiesAtFixingDate			= model.getMonteCarloWeights(discountingDate);
-			double discountingAdjustment = model.getLIBOR(discountingDate, discountingDate, paymentDate).mult(periodLength).add(1.0).div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtFixingDate).div(monteCarloProbabilitiesAtFixingDate).getAverage();
+			double discountingAdjustment = 1.0;
+			if(model.getModel().getDiscountCurve() != null) {
+				AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
+				DiscountCurveInterface discountCurve = model.getModel().getDiscountCurve();
+				ForwardCurveInterface forwardCurve = model.getModel().getForwardRateCurve();
+				DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+
+				double forwardBondOnForwardCurve = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurveFromForwardCurve.getDiscountFactor(analyticModel, paymentDate);
+				double forwardBondOnDiscountCurve = discountCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurve.getDiscountFactor(analyticModel, paymentDate);
+				discountingAdjustment = forwardBondOnForwardCurve / forwardBondOnDiscountCurve;
+			}
 
 			// Add payment received at end of period
 			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.add(payoff);

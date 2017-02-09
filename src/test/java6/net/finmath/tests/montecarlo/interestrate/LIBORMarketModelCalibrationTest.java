@@ -201,7 +201,7 @@ public class LIBORMarketModelCalibrationTest {
 		 */
 		System.out.println("\nCalibrated parameters are:");
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
-		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
+//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
 		for (double p : param) System.out.println(formatterParam.format(p));
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotionView1);
@@ -227,7 +227,7 @@ public class LIBORMarketModelCalibrationTest {
 		}
 		double averageDeviation = deviationSum/calibrationItems.size();
 		System.out.println("Mean Deviation:" + formatterValue.format(averageDeviation));
-		System.out.println("RMS Error.....:" + formatterValue.format(deviationSquaredSum/calibrationItems.size()));
+		System.out.println("RMS Error.....:" + formatterValue.format(Math.sqrt(deviationSquaredSum/calibrationItems.size())));
 		System.out.println("__________________________________________________________________________________________\n");
 		
 		Assert.assertTrue(Math.abs(averageDeviation) < 1E-2);

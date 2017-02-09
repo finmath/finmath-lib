@@ -73,18 +73,18 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 */
 	public abstract double[]	getParameter();
 
-	public abstract void		setParameter(double[] parameter);
-
 	@Override
 	public abstract Object clone();
 
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = (AbstractLIBORCovarianceModelParametric)AbstractLIBORCovarianceModelParametric.this.clone();
-		calibrationCovarianceModel.setParameter(parameters);
-
-		return calibrationCovarianceModel;
-	}
-
+	/**
+	 * Return an instance of this model using a new set of parameters.
+	 * Note: To improve performance it is admissible to return the same instance of the object given that the parameters have not changed. Models should be immutable.
+	 * 
+	 * @param parameters The new set of parameters.
+	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
+	 */
+	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
+	
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
 	}
@@ -124,10 +124,10 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
+		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
 		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
-		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		/*
 		 * We allow for 5 simultaneous calibration models.

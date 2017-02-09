@@ -1177,7 +1177,6 @@ public class AnalyticFormulas {
 		double curvaturePart1			= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * sigma*alpha/nu*Math.pow(underlying, -2));
 		double curvatureMaturityPart	= (rho*nu + alpha*beta*Math.pow(underlying, beta-1))*d1BdK1 + alpha*Math.pow(underlying, beta)*d2BdK2;
 
-		System.out.println(curvatureApproximation);
 		return  (curvaturePart1 + maturity * curvatureMaturityPart);
 	}
 

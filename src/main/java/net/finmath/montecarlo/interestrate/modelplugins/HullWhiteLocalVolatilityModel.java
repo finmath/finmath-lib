@@ -74,8 +74,8 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		covarianceModel.setParameter(parameter);
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+		return new HullWhiteLocalVolatilityModel((AbstractLIBORCovarianceModelParametric) covarianceModel.getCloneWithModifiedParameters(parameters), periodLength);
 	}
 
 	@Override

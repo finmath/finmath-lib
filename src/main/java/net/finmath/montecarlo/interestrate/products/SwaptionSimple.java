@@ -7,11 +7,13 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.RegularSchedule;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -20,14 +22,18 @@ import net.finmath.time.TimeDiscretizationInterface;
  * LIBORModelMonteCarloSimulationInterface
  * 
  * @author Christian Fries
- * @version 1.1
+ * @version 1.2
  */
 public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 
 	public enum ValueUnit {
 		VALUE,
-		INTEGRATEDVARIANCE,
-		VOLATILITY
+		INTEGRATEDLOGNORMALVARIANCE,
+		INTEGRATEDNORMALVARIANCE,
+		INTEGRATEDVARIANCE,	/// Backward compatibility, same as INTEGRATEDLOGNORMALVARIANCE
+		VOLATILITYLOGNORMAL,
+		VOLATILITYNORMAL,
+		VOLATILITY	/// Backward compatibility, same as VOLATILITY_LOGNORMAL
 	}
 
 	private final TimeDiscretizationInterface	tenor;
@@ -74,23 +80,33 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 
 		if(valueUnit == ValueUnit.VALUE) return value;
 
-    	ForwardCurveInterface forwardCurve	= model.getModel().getForwardRateCurve();
-		ForwardCurveInterface discountCurve	= forwardCurve;
+		ForwardCurveInterface forwardCurve	 = model.getModel().getForwardRateCurve();
+		DiscountCurveInterface discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
 
-		double parSwaprate = Swap.getForwardSwapRate(tenor, tenor, forwardCurve);
+		double parSwaprate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());
 		double optionMaturity = tenor.getTime(0);
 		double strikeSwaprate = swaprate;
-		double swapAnnuity = SwapAnnuity.getSwapAnnuity(tenor, discountCurve);
+		double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);
 
-		double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
-
-		if(valueUnit == ValueUnit.VOLATILITY) {
+		if(valueUnit == ValueUnit.VOLATILITY || valueUnit == ValueUnit.VOLATILITYLOGNORMAL) {
+			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility);
-		} else if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
+		}
+		else if(valueUnit == ValueUnit.VOLATILITYNORMAL) {
+			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			return model.getRandomVariableForConstant(volatility);
+		}
+		else if(valueUnit == ValueUnit.INTEGRATEDVARIANCE  || valueUnit == ValueUnit.INTEGRATEDLOGNORMALVARIANCE) {
+			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
 		}
-
-		throw new UnsupportedOperationException("Provided valueUnit not implemented.");
+		else if(valueUnit == ValueUnit.INTEGRATEDNORMALVARIANCE) {
+			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
+		}
+		else {
+			throw new UnsupportedOperationException("Provided valueUnit not implemented.");
+		}
 	}
 
 	@Override

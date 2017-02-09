@@ -9,10 +9,6 @@ package net.finmath.montecarlo.interestrate;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -20,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  *
  */
-public interface LIBORModelInterface extends AbstractModelInterface {
+public interface LIBORModelInterface extends TermStructureModelInterface {
 
 	RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
@@ -55,34 +51,12 @@ public interface LIBORModelInterface extends AbstractModelInterface {
 	int getLiborPeriodIndex(double time);
 
 	/**
-	 * Return the associated analytic model, a collection of market date object like discount curve, forward curve
-	 * and volatility surfaces.
-	 * 
-	 * @return The associated analytic model.
-	 */
-	AnalyticModelInterface getAnalyticModel();
-
-	/**
-	 * Return the discount curve associated the forwards.
-	 * 
-	 * @return the discount curve associated the forwards.
-	 */
-	DiscountCurveInterface getDiscountCurve();
-
-	/**
-	 * Return the initial forward rate curve.
-	 * 
-	 * @return the forward rate curve
-	 */
-	ForwardCurveInterface getForwardRateCurve();
-
-	/**
-	 * Create a new object implementing LIBORMarketModelInterface, using the new data.
+	 * Create a new object implementing LIBORModelInterface, using the new data.
 	 * 
 	 * @param dataModified A map with values to be used in constructions (keys are identical to parameter names of the constructors).
-	 * @return A new object implementing LIBORMarketModelInterface, using the new data.
+	 * @return A new object implementing LIBORModelInterface, using the new data.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+	LIBORModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

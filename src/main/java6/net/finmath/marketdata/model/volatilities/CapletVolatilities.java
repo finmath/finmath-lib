@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -23,8 +24,6 @@ import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * A very simple container for Caplet volatilities.
@@ -44,7 +43,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	private Map<Double, CurveInterface>	capletVolatilities = new HashMap<Double, CurveInterface>();
 	
-	private transient TimeDiscretizationInterface maturities;
+	private transient Double[] maturities;
 	private Object lazyInitLock = new Object();
 	
 	/**
@@ -123,16 +122,20 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		}
 		else {
 			synchronized (lazyInitLock) {
-				if(maturities == null) maturities = new TimeDiscretization(capletVolatilities.keySet().toArray(new Double[0]));
+				if(maturities == null) maturities = capletVolatilities.keySet().toArray(new Double[0]);
+				Arrays.sort(maturities);
 			}
 			
-			//		double maturityLowerOrEqual		= maturities.getTime(maturities.getTimeIndexNearestLessOrEqual(maturity));
-			double maturityGreaterOfEqual	= maturities.getTime(Math.min(maturities.getTimeIndexNearestGreaterOrEqual(maturity),maturities.getNumberOfTimes()-1));
+			int maturityGreaterEqualIndex = Arrays.binarySearch(maturities, maturity);
+			if(maturityGreaterEqualIndex < 0) maturityGreaterEqualIndex = -maturityGreaterEqualIndex-1;
+			if(maturityGreaterEqualIndex > maturities.length-1) maturityGreaterEqualIndex = maturities.length-1;
+
+			double maturityGreaterOfEqual	= maturities[maturityGreaterEqualIndex];
 
 			// @TODO: Below we should trigger an exception if no forwardCurve is supplied but needed.
 			// Interpolation / extrapolation is performed on iso-moneyness lines.
 			double adjustedStrike = forwardCurve.getValue(model, maturityGreaterOfEqual) + (strike - forwardCurve.getValue(model, maturity));
-
+			
 			value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
 		}
 

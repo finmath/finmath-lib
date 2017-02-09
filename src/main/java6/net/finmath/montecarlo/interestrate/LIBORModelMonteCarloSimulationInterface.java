@@ -7,8 +7,6 @@ package net.finmath.montecarlo.interestrate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -19,7 +17,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @version 1.0
  */
 
-public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimulationInterface {
+public interface LIBORModelMonteCarloSimulationInterface extends TermStructureModelMonteCarloSimulationInterface {
 
 	/**
 	 * @return Returns the numberOfFactors.
@@ -65,17 +63,6 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
 	/**
-	 * Return the forward rate for a given simulation time and a given period start and period end.
-	 * 
-	 * @param time          Simulation time
-	 * @param periodStart   Start time of period
-	 * @param periodEnd     End time of period
-	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 */
-	RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
-
-	/**
 	 * Return the forward rate curve for a given simulation time index.
 	 * 
 	 * @param timeIndex Simulation time index.
@@ -84,15 +71,6 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 */
 	RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException;
 
-	/**
-	 * Return the numeraire at a given time.
-	 * 
-	 * @param time Time at which the process should be observed
-	 * @return The numeraire at the specified time as <code>RandomVariable</code>
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 */
-	RandomVariableInterface getNumeraire(double time) throws CalculationException;
-	
 	/**
 	 * Returns the Brownian motion used to simulate the curve.
 	 * 
@@ -107,13 +85,8 @@ public interface LIBORModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * 
 	 * @return The underlying model
 	 */
-	LIBORModelInterface getModel();
+	TermStructureModelInterface getModel();
 
-	/**
-	 * @return The implementation of the process
-	 */
-	AbstractProcessInterface getProcess();
-	
 	/**
 	 * Return a clone of this model with a modified Brownian motion using a different seed.
 	 * 

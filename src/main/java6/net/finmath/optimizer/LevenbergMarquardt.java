@@ -119,7 +119,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	private double	lambdaDivisor		= 1.3;
 	private double	lambdaMultiplicator	= 2.0;
 
-	private double	errorMeanSquaredTolerance = 0.0;	// by default we solve upto machine presicion
+	private double	errorRootMeanSquaredTolerance = 0.0;	// by default we solve upto machine presicion
 
 	private int iteration = 0;
 
@@ -132,7 +132,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	private double[][] derivativeCurrent = null;
 
 	private double errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;
-	private double errorMeanSquaredChange	= Double.POSITIVE_INFINITY;
+	private double errorRootMeanSquaredChange	= Double.POSITIVE_INFINITY;
 
 	private boolean isParameterCurrentDerivativeValid = false;
 
@@ -355,12 +355,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 */
 	public LevenbergMarquardt setErrorTolerance(double errorTolerance) {
 		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
-		/*
-		 * The solver uses internally a mean squared error.
-		 * To avoid calculation of Math.sqrt we convert the tolarance
-		 * to its squared.
-		 */
-		this.errorMeanSquaredTolerance = errorTolerance * errorTolerance;
+		this.errorRootMeanSquaredTolerance = errorTolerance;
 		return this;
 	}
 
@@ -551,7 +546,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 				(iteration > maxIteration)	
 				||
 				// Error does not improve by more that the given error tolerance
-				(errorMeanSquaredChange <= errorMeanSquaredTolerance)
+				(errorRootMeanSquaredChange <= errorRootMeanSquaredTolerance)
 				||
 				/*
 				 * Lambda is infinite, i.e., no new point is acceptable.
@@ -605,7 +600,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 				 * That is: NaN is consider as a rejected point.
 				 */
 				if(errorMeanSquaredTest < errorMeanSquaredCurrent) {
-					errorMeanSquaredChange = errorMeanSquaredCurrent - errorMeanSquaredTest;
+					errorRootMeanSquaredChange = Math.sqrt(errorMeanSquaredCurrent) - Math.sqrt(errorMeanSquaredTest);
 
 					// Accept point
 					System.arraycopy(parameterTest, 0, parameterCurrent, 0, parameterCurrent.length);
@@ -618,7 +613,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 					// Decrease lambda (move faster)
 					lambda			/= lambdaDivisor;
 				} else {
-					errorMeanSquaredChange = errorMeanSquaredTest - errorMeanSquaredCurrent;
+					errorRootMeanSquaredChange = Math.sqrt(errorMeanSquaredTest) - Math.sqrt(errorMeanSquaredCurrent);
 
 					// Reject point, increase lambda (move slower)
 					lambda				*= lambdaMultiplicator;
@@ -635,7 +630,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 				{
 					String logString = "Iteration: " + iteration + "\tLambda="
 							+ lambda + "\tError Current:" + errorMeanSquaredCurrent
-							+ "\tError Change:" + errorMeanSquaredChange + "\t";
+							+ "\tError Change:" + errorRootMeanSquaredChange + "\t";
 					for (int i = 0; i < parameterCurrent.length; i++) {
 						logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
 					}
@@ -735,7 +730,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		clonedOptimizer.isParameterCurrentDerivativeValid = false;
 		clonedOptimizer.iteration = 0;
 		clonedOptimizer.errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;
-		clonedOptimizer.errorMeanSquaredChange	= Double.POSITIVE_INFINITY;
+		clonedOptimizer.errorRootMeanSquaredChange	= Double.POSITIVE_INFINITY;
 		return clonedOptimizer;
 	}
 

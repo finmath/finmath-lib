@@ -42,11 +42,11 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	/**
-	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel.
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORModelInterface.
 	 * 
-	 * @param model The LIBORMarketModel.
+	 * @param model The LIBORModelInterface.
 	 */
-	public LIBORModelMonteCarloSimulation(LIBORMarketModelInterface model) {
+	public LIBORModelMonteCarloSimulation(LIBORModelInterface model) {
 		super();
 		this.model		= model;
 	}
@@ -115,93 +115,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	@Override
 	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
 	{
-		int periodStartIndex    = getLiborPeriodIndex(periodStart);
-		int periodEndIndex      = getLiborPeriodIndex(periodEnd);
-
-		// The forward rates are provided on fractional tenor discretization points using linear interpolation. See ISBN 0470047224.
-
-		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate end date
-		if(periodEndIndex < 0) {
-			int		previousEndIndex	= (-periodEndIndex-1)-1;
-			double	previousEndTime		= getLiborPeriod(previousEndIndex);
-			double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
-			RandomVariableInterface liborLongPeriod		= getLIBOR(time, periodStart, nextEndTime);
-			RandomVariableInterface	liborShortPeriod	= getLIBOR(time, previousEndTime, nextEndTime);
-
-			// Interpolate libor from periodStart to periodEnd on periodEnd
-			RandomVariableInterface libor = liborLongPeriod.mult(nextEndTime-periodStart).add(1.0)
-					.div(
-							liborShortPeriod.mult(nextEndTime-previousEndTime).add(1.0).log().mult((nextEndTime-periodEnd)/(nextEndTime-previousEndTime)).exp()
-							).sub(1.0).div(periodEnd-periodStart);
-
-			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModel must not be null
-			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
-			double analyticLibor				= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousEndTime, periodEnd-previousEndTime);
-			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
-			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime));
-			double analyticOnePlusLiborDt					= (1 + analyticLibor * (periodEnd-previousEndTime));
-			double adjustment = analyticOnePlusLiborDt / analyticInterpolatedOnePlusLiborDt;
-			libor = libor.mult(periodEnd-periodStart).add(1.0).mult(adjustment).sub(1.0).div(periodEnd-periodStart);
-			return libor;
-		}
-
-		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate start date
-		if(periodStartIndex < 0) {
-			int		previousStartIndex	= (-periodStartIndex-1)-1;
-			double	previousStartTime	= getLiborPeriod(previousStartIndex);
-			double	nextStartTime		= getLiborPeriod(previousStartIndex+1);
-			RandomVariableInterface liborLongPeriod		= getLIBOR(time, previousStartTime, periodEnd);
-			RandomVariableInterface	liborShortPeriod	= getLIBOR(time, previousStartTime, nextStartTime);
-
-			RandomVariableInterface libor = liborLongPeriod.mult(periodEnd-previousStartTime).add(1.0)
-					.div(
-							liborShortPeriod.mult(nextStartTime-previousStartTime).add(1.0).log().mult((periodStart-previousStartTime)/(nextStartTime-previousStartTime)).exp()
-							).sub(1.0).div(periodEnd-periodStart);
-
-			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModel must not be null
-			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
-			double analyticLibor				= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousStartTime, nextStartTime-periodStart);
-			double analyticLiborShortPeriod		= model.getForwardRateCurve().getForward(model.getAnalyticModel(), previousStartTime, nextStartTime-previousStartTime);
-			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) * (nextStartTime-periodStart)/(nextStartTime-previousStartTime));
-			double analyticOnePlusLiborDt					= (1 + analyticLibor * (periodStart-previousStartTime));
-			double adjustment = analyticOnePlusLiborDt / analyticInterpolatedOnePlusLiborDt;
-			libor = libor.mult(periodEnd-periodStart).add(1.0).div(adjustment).sub(1.0).div(periodEnd-periodStart);
-			return libor;
-		}
-
-		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
-
-		// If time is beyond fixing, use the fixing time.
-		time = Math.min(time, periodStart);
-		int timeIndex           = getTimeIndex(time);
-
-		// If time is not part of the discretization, use the latest available point.
-		if(timeIndex < 0) {
-			timeIndex = -timeIndex-2;
-//			double timeStep = getTimeDiscretization().getTimeStep(timeIndex);
-//			return getLIBOR(getTime(timeIndex), periodStart, periodEnd).mult((getTime(timeIndex+1)-time)/timeStep).add(getLIBOR(getTime(timeIndex+1), periodStart, periodEnd).mult((time-getTime(timeIndex))/timeStep));
-		}
-
-		// If this is a model primitive then return it
-		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);
-
-		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		RandomVariableInterface accrualAccount = getRandomVariableForConstant(1.0);
-
-		// Calculate the value of the forward bond
-		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)
-		{
-			double subPeriodLength = getLiborPeriod(periodIndex+1) - getLiborPeriod(periodIndex);
-			RandomVariableInterface liborOverSubPeriod = getLIBOR(timeIndex, periodIndex);
-
-			accrualAccount = accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
-		}
-
-		RandomVariableInterface libor = accrualAccount.sub(1.0).div(periodEnd - periodStart);
-
-		return libor;
+		return model.getLIBOR(time, periodStart, periodEnd);
 	}
 
 	@Override
@@ -250,7 +164,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		LIBORMarketModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
+		LIBORModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {
 			// In this case we may re-use the underlying process
 			LIBORModelMonteCarloSimulation lmmSimClone = new LIBORModelMonteCarloSimulation(modelClone);
