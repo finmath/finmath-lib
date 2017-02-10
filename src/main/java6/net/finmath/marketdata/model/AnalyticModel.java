@@ -1,9 +1,10 @@
+package net.finmath.marketdata.model;
 /*
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
  * Created on 28.11.2012
  */
-package net.finmath.marketdata.model;
+
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.HazardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 
@@ -204,5 +206,15 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 		}
 		
 		return modelClone;
+	}
+
+	@Override
+	public HazardCurveInterface getHazardCurve(String hazardCurveName) {
+		HazardCurveInterface hazardCurve = null;
+		CurveInterface curveForPDCurve			= getCurve(hazardCurveName);
+		if(HazardCurveInterface.class.isInstance(curveForPDCurve)) {
+			hazardCurve	= (HazardCurveInterface)curveForPDCurve;
+		}
+		return hazardCurve;
 	}
 }
