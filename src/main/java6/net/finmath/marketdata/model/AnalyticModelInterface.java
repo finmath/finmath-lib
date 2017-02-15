@@ -1,9 +1,10 @@
+package net.finmath.marketdata.model;
 /*
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
  * Created on 28.11.2012
  */
-package net.finmath.marketdata.model;
+
 
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,8 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.ModelInterface;
+
+import net.finmath.marketdata.model.curves.HazardCurveInterface;
 
 /**
  * A collection of objects representing analytic valuations, i.e., curves and volatility surfaces.
@@ -63,6 +66,8 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	DiscountCurveInterface getDiscountCurve(String discountCurveName);
 
 	ForwardCurveInterface getForwardCurve(String forwardCurveName);
+	
+	HazardCurveInterface getHazardCurve(String hazardCurveName);
 
 	VolatilitySurfaceInterface getVolatilitySurface(String name);
 
