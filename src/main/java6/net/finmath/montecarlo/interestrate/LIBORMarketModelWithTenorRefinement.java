@@ -476,21 +476,25 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		int periodEndIndex = numeriareDiscretization.getTimeIndex(periodEnd);
 
 		/// @TODO Need to improve LIBOR interpolation if required
-		if(periodStartIndex < 0) periodStartIndex = -periodStartIndex-1;
-		if(periodEndIndex < 0) periodEndIndex = -periodEndIndex-1-1;
+		if(periodStartIndex < 0)	periodStartIndex = -periodStartIndex-1;
+		if(periodEndIndex < 0)		periodEndIndex = -periodEndIndex-1-1;
 
 		double weight1 = 0.0;
 		for(int periodIndex = periodStartPreviousIndex; periodIndex<periodEndPreviousIndex; periodIndex++) {
-			weight1 += (numeriareDiscretization.getTime(periodIndex+1)-numeriareDiscretization.getTime(periodIndex)) * (numeriareDiscretization.getTime(periodIndex+1)-periodStartPrevious);
+			double deltaT = covarianceModel.getScaledTenorTime(numeriareDiscretization.getTime(periodIndex), numeriareDiscretization.getTime(periodIndex+1));
+			double deltaTSum = covarianceModel.getScaledTenorTime(periodStartPrevious, numeriareDiscretization.getTime(periodIndex+1));
+			weight1 +=  deltaT * deltaTSum;
 		}
 
 		double weight2 = 0.0;
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++) {
-			weight2 += (numeriareDiscretization.getTime(periodIndex+1)-numeriareDiscretization.getTime(periodIndex)) * (numeriareDiscretization.getTime(periodIndex+1)-periodStartPrevious);
+			double deltaT = covarianceModel.getScaledTenorTime(numeriareDiscretization.getTime(periodIndex), numeriareDiscretization.getTime(periodIndex+1));
+			double deltaTSum = covarianceModel.getScaledTenorTime(periodStartPrevious, numeriareDiscretization.getTime(periodIndex+1));
+			weight2 +=  deltaT * deltaTSum;
 		}
 
-		if(weight1 > 0)	return weight2 / (periodEnd-periodStart) - weight1 / (periodEndPrevious-periodStartPrevious);
-		else			return weight2 / (periodEnd-periodStart);
+		if(weight1 > 0)	return weight2 / covarianceModel.getScaledTenorTime(periodStart, periodEnd) - weight1 / covarianceModel.getScaledTenorTime(periodStartPrevious, periodEndPrevious);
+		else			return weight2 / covarianceModel.getScaledTenorTime(periodStart, periodEnd);
 	}
 
 	@Override
@@ -558,7 +562,8 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			double tenorRefinementWeight = getWeightForTenorRefinement(liborPeriodDiscretization.getTime(periodStartIndex-1), shortPeriodEnd, periodStart, shortPeriodEnd);
 			RandomVariableInterface integratedVariance = stateVariables[getNumberOfLibors()+periodStartIndex-1];
 
-			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), shortPeriodEnd-periodStart);
+			double tenor = covarianceModel.getScaledTenorTime(periodStart, shortPeriodEnd);
+			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), tenor);
 		}
 
 		if(periodEndIndex < 0) {
@@ -567,16 +572,20 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			double shortPeriodStart = liborPeriodDiscretization.getTime(periodEndIndex-1);
 			double tenorRefinementWeight = getWeightForTenorRefinement(shortPeriodStart, liborPeriodDiscretization.getTime(periodEndIndex), shortPeriodStart, periodEnd);
 			RandomVariableInterface integratedVariance = stateVariables[getNumberOfLibors()+periodEndIndex-1];
-			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), periodEnd-shortPeriodStart);
+
+			double tenor = covarianceModel.getScaledTenorTime(shortPeriodStart, periodEnd);
+			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), tenor);
 			periodEndIndex--;
 		}
 
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++) {
 			RandomVariableInterface stateVariable = stateVariables[periodIndex];
 
-			stateVariableSum = stateVariableSum.addProduct(stateVariable, liborPeriodDiscretization.getTimeStep(periodIndex));
+			double tenor = covarianceModel.getScaledTenorTime(liborPeriodDiscretization.getTime(periodIndex), liborPeriodDiscretization.getTime(periodIndex+1));
+			stateVariableSum = stateVariableSum.addProduct(stateVariable, tenor);
 		}
-		stateVariableSum = stateVariableSum.div(periodEnd-periodStart);
+		double tenor = covarianceModel.getScaledTenorTime(periodStart, periodEnd);
+		stateVariableSum = stateVariableSum.div(tenor);
 
 		return stateVariableSum;
 	}
@@ -586,7 +595,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		stateVariable = stateVariable.mult(periodEnd-periodStart).add(Math.log(1+forwardRateCurve.getForward(null, periodStart)*(periodEnd-periodStart)));
 		RandomVariableInterface libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
 
-		return libor;
+		return null;//libor;
 	}
 
 	public RandomVariableInterface getStateVariable(int timeIndex, double periodStart, double periodEnd)
@@ -622,6 +631,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 				double shortPeriodStart = liborPeriodDiscretization.getTime(periodEndIndex-1);
 				double tenorRefinementWeight = getWeightForTenorRefinement(shortPeriodStart, liborPeriodDiscretization.getTime(periodEndIndex), shortPeriodStart, periodEnd);
 				RandomVariableInterface integratedVariance = getIntegratedVariance(timeIndex, liborPeriodDiscretization.getTime(periodEndIndex-1), liborPeriodDiscretization.getTime(periodEndIndex));
+
 				stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), covarianceModel.getScaledTenorTime(shortPeriodStart,periodEnd));
 				periodEndIndex--;
 			}
@@ -654,7 +664,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		double initialValue = Math.log(1+forwardRateCurve.getForward(curveModel, periodStart)*(forwardRateCurve.getPaymentOffset(periodStart))) / forwardRateCurve.getPaymentOffset(periodStart);
 		double tenorTime = covarianceModel.getScaledTenorTime(periodStart, periodEnd);
 
-		stateVariable = stateVariable.add(initialValue).mult(tenorTime);
+		stateVariable = stateVariable.mult(tenorTime).add(initialValue*(periodEnd-periodStart));
 		RandomVariableInterface libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
 
 		return libor;
