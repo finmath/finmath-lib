@@ -5,11 +5,18 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 2.4.2 (05.02.2017)
+
+### Bug fixes and improvements
+
+- Invalidating numeraire caches if model is used with a different (new) process.
+- Fixed a failure of date lookup in CapletVolatilityParametric (rare).
+
 ## 2.4.1
 
 ### Monte-Carlo Interest Rate Model: Term Structure Model with Time Dependent Tenor Discretization
 
-- Added sample implmentation of a term structure model with time dependent tenor discretization
+- Added sample implementation of a term structure model with time dependent tenor discretization (see http://ssrn.com/abstract=2884699 ).
 - Added calibration of term structure model
 
 ### Monte-Carlo Interest Rate Model: LIBOR Market Model
