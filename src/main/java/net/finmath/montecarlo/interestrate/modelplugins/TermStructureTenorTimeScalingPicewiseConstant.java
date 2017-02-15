@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.util.Arrays;
+
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -17,13 +19,15 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 	private final TimeDiscretizationInterface timeDiscretization;
 	private final double timesIntegrated[];
 
+	private final double floor = 0.01-1.0, cap = 100.0-1.0;
+
 
 	public TermStructureTenorTimeScalingPicewiseConstant(TimeDiscretizationInterface timeDiscretization, double[] parameters) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		timesIntegrated = new double[timeDiscretization.getNumberOfTimes()];
 		for(int timeIntervallIndex=0; timeIntervallIndex<timeDiscretization.getNumberOfTimeSteps(); timeIntervallIndex++) {
-			timesIntegrated[timeIntervallIndex+1] = timesIntegrated[timeIntervallIndex] + Math.exp(parameters[timeIntervallIndex]) * (timeDiscretization.getTimeStep(timeIntervallIndex));
+			timesIntegrated[timeIntervallIndex+1] = timesIntegrated[timeIntervallIndex] + (1.0+Math.min(Math.max(parameters[timeIntervallIndex],floor),cap)) * (timeDiscretization.getTimeStep(timeIntervallIndex));
 		}
 	}
 
@@ -33,6 +37,8 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 		int timeStartIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(periodStart);
 		int timeEndIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(periodEnd);
 
+		if(timeDiscretization.getTime(timeStartIndex) != periodStart) System.out.println("*****S" + (periodStart));
+		if(timeDiscretization.getTime(timeEndIndex) != periodEnd) System.out.println("*****E" + (periodStart));
 		double timeScaled = timesIntegrated[timeEndIndex] - timesIntegrated[timeStartIndex];
 
 		return timeScaled;
@@ -50,7 +56,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 	public double[] getParameter() {
 		double[] parameter = new double[timeDiscretization.getNumberOfTimeSteps()];
 		for(int timeIntervallIndex=0; timeIntervallIndex<timeDiscretization.getNumberOfTimeSteps(); timeIntervallIndex++) {
-			parameter[timeIntervallIndex] = Math.log((timesIntegrated[timeIntervallIndex+1] - timesIntegrated[timeIntervallIndex]) / timeDiscretization.getTimeStep(timeIntervallIndex));
+			parameter[timeIntervallIndex] =(timesIntegrated[timeIntervallIndex+1] - timesIntegrated[timeIntervallIndex]) / timeDiscretization.getTimeStep(timeIntervallIndex) - 1.0;
 		}
 
 		return parameter;
