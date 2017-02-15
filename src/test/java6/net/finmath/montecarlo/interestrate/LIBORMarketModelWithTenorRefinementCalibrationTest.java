@@ -63,7 +63,6 @@ import net.finmath.montecarlo.interestrate.modelplugins.TermStructureTenorTimeSc
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureTenorTimeScalingPicewiseConstant;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
-import net.finmath.montecarlo.interestrate.products.VolatilitySufaceRoughness;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerFactoryCMAES;
@@ -333,8 +332,8 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			calibrationItemNames.add(atmExpiries[i]+"\t"+atmTenors[i]);
 		}
 
-		calibrationItems.add(new CalibrationItem(new VolatilitySufaceRoughness(), 0.0, 1.0));
-		calibrationItemNames.add("Volatility surface roughness");
+//		calibrationItems.add(new CalibrationItem(new VolatilitySufaceRoughness(), 0.0, 1.0));
+//		calibrationItemNames.add("Volatility surface roughness");
 
 		/*
 		 * Create a simulation time discretization
