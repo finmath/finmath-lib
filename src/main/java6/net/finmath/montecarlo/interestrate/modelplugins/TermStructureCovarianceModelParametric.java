@@ -109,7 +109,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
+		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
 		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {			
