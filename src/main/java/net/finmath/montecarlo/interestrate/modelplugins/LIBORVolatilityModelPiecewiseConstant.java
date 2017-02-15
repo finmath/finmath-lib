@@ -22,8 +22,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 	private final TimeDiscretizationInterface	timeToMaturityDiscretization;
 	private Map<Integer, HashMap<Integer, Integer>> 	indexMap = new HashMap<Integer, HashMap<Integer, Integer>>();
 	private double[] volatility;
+	private final	boolean		isCalibrateable;
 
-	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility) {
+	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		/*
@@ -52,6 +53,15 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		if(volatilityIndex != this.volatility.length) throw new IllegalArgumentException("volatility.length should equal simulationTimeDiscretization.getNumberOfTimes()*timeToMaturityDiscretization.getNumberOfTimes().");
 		this.simulationTimeDiscretization = simulationTimeDiscretization;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
+		this.isCalibrateable = isCalibrateable;
+	}
+
+	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double volatility, boolean isCalibrateable) {
+		this(timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, new double[] { volatility }, isCalibrateable);
+	}
+
+	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility) {
+		this(timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, volatility, true);
 	}
 
 	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double volatility) {
@@ -60,12 +70,13 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 
 	@Override
 	public double[] getParameter() {
-		return volatility;
+		if(isCalibrateable)	return volatility;
+		else return null;
 	}
 
 	@Override
 	public void setParameter(double[] parameter) {
-		this.volatility = parameter;
+		if(isCalibrateable)	this.volatility = parameter;
 	}
 
 	@Override
@@ -107,7 +118,8 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 				super.getLiborPeriodDiscretization(),
 				this.simulationTimeDiscretization,
 				this.timeToMaturityDiscretization,
-				this.volatility.clone()
+				this.volatility.clone(),
+				this.isCalibrateable
 				);
 	}
 }
