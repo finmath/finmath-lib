@@ -110,7 +110,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
-		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {			
 			// Calculate model values for given parameters
