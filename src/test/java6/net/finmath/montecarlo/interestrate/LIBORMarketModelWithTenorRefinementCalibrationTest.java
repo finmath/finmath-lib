@@ -394,7 +394,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
 				Double accuracy = new Double(1E-9);
 				int maxIterations = 400;
-				int numberOfThreads = 5;
+				int numberOfThreads = 10;
 				OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 				double[] parameterStandardDeviation = new double[termStructureCovarianceModel.getParameter().length];
