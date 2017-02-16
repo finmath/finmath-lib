@@ -20,6 +20,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 	private final double timesIntegrated[];
 	
 	private final double floor = 0.01-1.0, cap = 100.0-1.0;
+	private final double parameterScaling = 100.0;
 
 
 	public TermStructureTenorTimeScalingPicewiseConstant(TimeDiscretizationInterface timeDiscretization, double[] parameters) {
@@ -27,7 +28,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 		this.timeDiscretization = timeDiscretization;
 		timesIntegrated = new double[timeDiscretization.getNumberOfTimes()];
 		for(int timeIntervallIndex=0; timeIntervallIndex<timeDiscretization.getNumberOfTimeSteps(); timeIntervallIndex++) {
-			timesIntegrated[timeIntervallIndex+1] = timesIntegrated[timeIntervallIndex] + (1.0+Math.min(Math.max(parameters[timeIntervallIndex],floor),cap)) * (timeDiscretization.getTimeStep(timeIntervallIndex));
+			timesIntegrated[timeIntervallIndex+1] = timesIntegrated[timeIntervallIndex] + (1.0+Math.min(Math.max(parameterScaling*parameters[timeIntervallIndex],floor),cap)) * (timeDiscretization.getTimeStep(timeIntervallIndex));
 		}
 	}
 
@@ -56,7 +57,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 	public double[] getParameter() {
 		double[] parameter = new double[timeDiscretization.getNumberOfTimeSteps()];
 		for(int timeIntervallIndex=0; timeIntervallIndex<timeDiscretization.getNumberOfTimeSteps(); timeIntervallIndex++) {
-			parameter[timeIntervallIndex] =(timesIntegrated[timeIntervallIndex+1] - timesIntegrated[timeIntervallIndex]) / timeDiscretization.getTimeStep(timeIntervallIndex) - 1.0;
+			parameter[timeIntervallIndex] = ((timesIntegrated[timeIntervallIndex+1] - timesIntegrated[timeIntervallIndex]) / timeDiscretization.getTimeStep(timeIntervallIndex) - 1.0) / parameterScaling;
 		}
 
 		return parameter;
