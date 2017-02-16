@@ -314,7 +314,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			tenor = Math.round(tenor/0.25)*0.25;
 
 			if(exercise < 0.25) continue;
-//			if(exercise < 1.0) continue;
+			if(exercise < 1.0) continue;
 
 			int numberOfPeriods = (int)Math.round(tenor / swapPeriodLength);
 
