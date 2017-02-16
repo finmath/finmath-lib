@@ -84,7 +84,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
-	private final int numberOfPaths		= 10000;
+	private final int numberOfPaths		= 7500;
 	private final int numberOfFactors	= 1;
 
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.0000%;-##0.0000%", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -410,7 +410,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				Map<String, Object> calibrationParameters = new HashMap<String, Object>();
 				calibrationParameters.put("accuracy", accuracy);
 				calibrationParameters.put("brownianMotion", brownianMotion);
-				calibrationParameters.put("parameterStep", i == 0 ? new Double(1E-5) : new Double(5E-5) );
+				calibrationParameters.put("parameterStep", i == 0 ? new Double(5E-5) : new Double(5E-5) );
 				calibrationParameters.put("optimizerFactory", optimizerFactory);
 				if(i==0) calibrationParameters.put("brownianMotion", new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 31415 /* seed */));
 				if(i==1) calibrationParameters.put("brownianMotion", new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 31415 /* seed */));
