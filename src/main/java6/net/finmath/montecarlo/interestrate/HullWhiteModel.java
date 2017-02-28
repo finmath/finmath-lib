@@ -108,10 +108,6 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	private DiscountCurveInterface			discountCurve;
 	private DiscountCurveInterface			discountCurveFromForwardCurve;
 
-	// Cache for the numeraires, needs to be invalidated if process changes
-	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
-	private AbstractProcessInterface									numerairesProcess = null;
-
 	private final ShortRateVolailityModelInterface volatilityModel;
 
 	/**
@@ -140,8 +136,6 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		this.volatilityModel	= volatilityModel;
 
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
-
-		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
 	}
 
 	@Override
@@ -188,26 +182,8 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 					.div(nextTime-previousTime).exp();
 		}
 
-		/*
-		 * Check if numeraire cache is values (i.e. process did not change)
-		 */
-		if(getProcess() != numerairesProcess) {
-			numeraires.clear();
-			numerairesProcess = getProcess();
-		}
-
-		/*
-		 * Check if numeraire is part of the cache
-		 */
-		RandomVariableInterface numeraire = numeraires.get(timeIndex);
-		if(numeraire != null) return numeraire;
-
-		/*
-		 * Numeraire is not part of the cache, calculate it (populate the cache with intermediate numeraires too)
-		 */
 		RandomVariableInterface logNum = getProcessValue(timeIndex, 1).add(0.5*getV(0,time));
-		numeraire = logNum.exp().div(discountCurveFromForwardCurve.getDiscountFactor(curveModel, time));
-		numeraires.put(timeIndex, numeraire);
+		RandomVariableInterface numeraire = logNum.exp().div(discountCurveFromForwardCurve.getDiscountFactor(curveModel, time));
 
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization

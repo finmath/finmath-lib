@@ -215,10 +215,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		 * Check if numeraire is part of the cache
 		 */
 		RandomVariableInterface numeraire = numeraires.get(timeIndex);
-		if(numeraire != null) return numeraire;
-
+		if(numeraire == null) {
 		/*
-		 * Numeraire is not part of the cache, calculate it (populate the cache with intermediate numeraires too)
+			 * Calculate the numeraire for timeIndex
 		 */
 		RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
 		RandomVariableInterface integratedRate = zero;
@@ -232,7 +231,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 			numeraire = integratedRate.exp();
 			numeraires.put(i+1, numeraire);
 		}
-
+		}
 
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization

@@ -142,20 +142,23 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 		 * Check if numeraire is part of the cache
 		 */
 		RandomVariableInterface numeraire = numeraires.get(timeIndex);
-		if(numeraire != null) return numeraire;
-
+		if(numeraire == null) {
 		/*
-		 * Numeraire is not part of the cache, calculate it (populate the cache with intermediate numeraires too)
+			 * Calculate the numeraire for timeIndex
 		 */
-		RandomVariableInterface integratedRate = new RandomVariable(0.0);
+			RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+			RandomVariableInterface integratedRate = zero;
 		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 		for(int i=0; i<timeIndex; i++) {
-			integratedRate = integratedRate.addProduct(getShortRate(i), getProcess().getTimeDiscretization().getTimeStep(i));
+				RandomVariableInterface rate = getShortRate(i);
+				double dt = getProcess().getTimeDiscretization().getTimeStep(i);
+				//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
+				integratedRate = integratedRate.addProduct(rate, dt);
 
 			numeraire = integratedRate.exp();
 			numeraires.put(i+1, numeraire);
 		}
-
+		}
 
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization
