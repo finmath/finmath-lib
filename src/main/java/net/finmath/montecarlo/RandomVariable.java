@@ -523,7 +523,6 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @return The realization as double array.
 	 */
 	@Override
-
 	public double[] getRealizations(int numberOfPaths) {
 
 		if(isDeterministic()) {

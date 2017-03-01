@@ -532,9 +532,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cap(double)
-	 */
 	public RandomVariableInterface cap(double cap) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);
@@ -547,9 +544,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(double)
-	 */
 	@Override
 	public RandomVariableInterface floor(double floor) {
 		if(isDeterministic()) {
@@ -654,9 +648,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#exp()
-	 */
 	public RandomVariableLowMemory exp() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.exp(valueIfNonStochastic);
@@ -669,9 +660,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#log()
-	 */
 	public RandomVariableLowMemory log() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.log(valueIfNonStochastic);
@@ -699,9 +687,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cos()
-	 */
 	public RandomVariableInterface cos() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.cos(valueIfNonStochastic);
@@ -714,9 +699,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
@@ -725,7 +707,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			double newValueIfNonStochastic = valueIfNonStochastic + randomVariable.get(0);
 			return new RandomVariableLowMemory(newTime, newValueIfNonStochastic);
 		}
-		else if(isDeterministic()) return randomVariable.add(this);
+		else if(isDeterministic()) return randomVariable.add(valueIfNonStochastic);
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + randomVariable.get(i);
@@ -756,9 +738,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
@@ -768,9 +747,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			return new RandomVariableLowMemory(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = (float) (valueIfNonStochastic * randomVariable.get(i));
-			return new RandomVariableLowMemory(newTime, newRealizations);
+			return randomVariable.mult(valueIfNonStochastic);
 		}
 		else {
 			float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
