@@ -13,11 +13,10 @@ import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.HazardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.ModelInterface;
-
-import net.finmath.marketdata.model.curves.HazardCurveInterface;
 
 /**
  * A collection of objects representing analytic valuations, i.e., curves and volatility surfaces.

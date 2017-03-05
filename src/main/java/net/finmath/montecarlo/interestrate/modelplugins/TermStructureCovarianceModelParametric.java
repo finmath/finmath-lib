@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
@@ -109,8 +108,8 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
-		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
+		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {			
 			// Calculate model values for given parameters

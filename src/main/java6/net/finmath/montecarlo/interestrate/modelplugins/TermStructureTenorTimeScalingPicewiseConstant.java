@@ -6,8 +6,6 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import java.util.Arrays;
-
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -18,7 +16,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 
 	private final TimeDiscretizationInterface timeDiscretization;
 	private final double timesIntegrated[];
-	
+
 	private final double floor = 0.1-1.0, cap = 10.0-1.0;
 	private final double parameterScaling = 100.0;
 

@@ -673,6 +673,7 @@ public class ScheduleGenerator {
 	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
 	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
+	 * @deprecated Will be removed in version 2.3
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			LocalDate referenceDate,
@@ -715,6 +716,7 @@ public class ScheduleGenerator {
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @return The corresponding schedule
+	 * @deprecated Will be removed in version 2.3
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			LocalDate referenceDate,

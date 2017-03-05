@@ -25,7 +25,6 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.RegularSchedule;
@@ -992,7 +991,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			Map<String, Object> properties = new HashMap<String, Object>();
 			properties.put("measure",		measure.name());
 			properties.put("stateSpace",	stateSpace.name());
-			return new LIBORMarketModel(getLiborPeriodDiscretization(), getForwardRateCurve(), getDiscountCurve(), covarianceModel, new CalibrationItem[0], properties);
+			return new LIBORMarketModel(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), covarianceModel, new CalibrationItem[0], properties);
 		} catch (CalculationException e) {
 			return null;
 		}
