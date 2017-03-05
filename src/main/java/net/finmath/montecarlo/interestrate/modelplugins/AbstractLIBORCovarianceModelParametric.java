@@ -26,7 +26,11 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.OptimizerFactoryInterface;
+import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
+import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
+import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -111,33 +115,44 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 */
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
-		double[] initialParameters = this.getParameter();
-
 		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
 		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
 		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		BrownianMotionInterface brownianMotionParameter	= (BrownianMotionInterface)calibrationParameters.get("brownianMotion");
+
+		double[] initialParameters = this.getParameter();
+		double[] lowerBound = new double[initialParameters.length];
+		double[] upperBound = new double[initialParameters.length];
+		double[] parameterStep = new double[initialParameters.length];
+		double[] zero = new double[calibrationTargetValues.length];
+		Arrays.fill(lowerBound, Double.NEGATIVE_INFINITY);
+		Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
+		Arrays.fill(parameterStep, parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4);
+		Arrays.fill(zero, 0);
+
+		/*
+		 * We allow for 2 simultaneous calibration models.
+		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
+		 * one model with 2 times the number of paths. In the case of an analytic calibration
+		 * memory requirement is not the limiting factor.
+		 */
+		int numberOfThreads = 2;
+		OptimizerFactoryInterface optimizerFactoryParameter = (OptimizerFactoryInterface)calibrationParameters.get("optimizerFactory");
 
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
-		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
+		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
-		/*
-		 * We allow for 5 simultaneous calibration models.
-		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
-		 * one model with 5 times the number of paths. In the case of an analytic calibration
-		 * memory requirement is not the limiting factor.
-		 */
-		int numberOfThreads = 5;			
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
-		{
+		ObjectiveFunction calibrationError = new ObjectiveFunction() {			
 			// Calculate model values for given parameters
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
@@ -189,10 +204,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			}
 		};
 
-		// Set solver parameters
-		optimizer.setWeights(calibrationWeights);
-		optimizer.setErrorTolerance(accuracy);
-
+		OptimizerInterface optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, calibrationTargetValues);
 		try {
 			optimizer.run();
 		}
