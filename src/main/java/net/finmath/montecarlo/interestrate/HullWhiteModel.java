@@ -6,7 +6,6 @@
 package net.finmath.montecarlo.interestrate;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -15,7 +14,6 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 

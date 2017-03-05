@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
@@ -25,12 +24,11 @@ import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerFactoryInterface;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.OptimizerInterface;
-import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.SolverException;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

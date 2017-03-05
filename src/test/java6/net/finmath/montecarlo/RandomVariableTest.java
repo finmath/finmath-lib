@@ -8,7 +8,6 @@ package net.finmath.montecarlo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -54,7 +53,7 @@ public class RandomVariableTest {
 		Assert.assertTrue(randomVariable2.getAverage() == 2.0);
 
 		// The random variable has variance value 2.0 = (4 + 1 + 0 + 1 + 4) / 5
-		Assert.assertTrue(randomVariable2.getVariance() == 2.0);
+		Assert.assertEquals(2.0, randomVariable2.getVariance(), 1E-12);
 		
 		// Multiply two random variables, this will expand the receiver to a stochastic one
 		RandomVariableInterface randomVariable = new RandomVariable(3.0);

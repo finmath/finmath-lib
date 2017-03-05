@@ -8,7 +8,6 @@ package net.finmath.montecarlo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**

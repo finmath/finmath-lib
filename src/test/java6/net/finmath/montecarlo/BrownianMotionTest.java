@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.functions.JarqueBeraTest;
-import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
