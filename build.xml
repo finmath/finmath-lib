@@ -5,13 +5,15 @@
 	<!-- edit the following lines to your needs            -->
 	<target name="init">
 		<property name="project_name"   value="finmath-lib"/>
-		<property name="srcDir"         value="./src/main/java6:./src/test/java6"/>
+		<property name="srcDir"         value="./src/main/java:./src/test/java"/>
 		<property name="resourceDir"    value="./src/main/resources"/>
-		<property name="testDir"		value="./src/test/java6"/>
+		<property name="testDir"		value="./src/test/java"/>
 		<property name="classDir"       value="./classes"/>
 		<property name="jar"            value="${project_name}.jar"/>
 		<property name="reports.tests"	value="./reports/tests" />
 		<property name="reports.html"	value="./reports/html" />
+		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+
 		<mkdir dir="${classDir}" />
 	</target>
 
@@ -19,8 +21,8 @@
 	<target name="compile" depends="init">
 		<javac srcdir="${srcDir}"
 		includes="net/finmath/**/**/*.java"
-		source="1.6"
-		target="1.6"
+		source="1.8"
+		target="1.8"
         destdir="${classDir}"
 		includeantruntime="fals">
 			<classpath>
