@@ -52,17 +52,26 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 			throw new IllegalArgumentException("No curve of the name " + discountCurveName + " and type DiscountCurveInterface was found in the model.");
 		}
 
-		double fixingDate	= schedule.getFixing(0);
+		double startDate	= schedule.getPeriodStart(0);
 		double maturity		= schedule.getPayment(0);
 
-		double periodLength = schedule.getPeriodLength(0);
+		double value = 0.;
+		
+		if (evaluationTime <= maturity) { // after maturity value is 0
+			double periodLength = schedule.getPeriodLength(0);
 
-		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		double discountFactorFixing = discountCurve.getDiscountFactor(model, fixingDate);
+			double discountFactor = discountCurve.getDiscountFactor(model, maturity);
+			double discountFactorStart = discountCurve.getDiscountFactor(model, startDate);
+			double discountFactorEval = discountCurve.getDiscountFactor(model, evaluationTime);
 
-		return discountFactor*(1.0 + rate*periodLength) - discountFactorFixing;
+			value =discountFactor*(1.0 + rate*periodLength);
+			if (startDate > evaluationTime) value -= discountFactorStart;
+			value /= discountFactorEval;
+		}
+
+		return value;
 	}
-
+	
 	/**
 	 * Return the deposit rate implied by the given model's curve.
 	 * 
