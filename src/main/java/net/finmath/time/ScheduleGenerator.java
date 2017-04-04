@@ -135,8 +135,8 @@ public class ScheduleGenerator {
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM. 
 	 * @return The corresponding schedule
 	 */
@@ -251,11 +251,13 @@ public class ScheduleGenerator {
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
 
-				// Adjust fixing date
-				LocalDate fixingDate = businessdayCalendar.getAdjustedDate(periodStartDate.plusDays(fixingOffsetDays), dateRollConvention);
+				// Roll fixing date
+				LocalDate fixingDate = businessdayCalendar.getRolledDate(periodStartDate, fixingOffsetDays);
+				// TODO: There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
 
-				// Adjust payment date
-				LocalDate paymentDate = businessdayCalendar.getAdjustedDate(periodEndDate.plusDays(paymentOffsetDays), dateRollConvention); 
+				// Roll payment date
+				LocalDate paymentDate = businessdayCalendar.getRolledDate(periodEndDate, paymentOffsetDays);
+				// TODO: There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
 	
 				// Create period
 				periods.add(new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
@@ -341,8 +343,8 @@ public class ScheduleGenerator {
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
@@ -380,8 +382,8 @@ public class ScheduleGenerator {
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
@@ -430,8 +432,8 @@ public class ScheduleGenerator {
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
@@ -671,9 +673,10 @@ public class ScheduleGenerator {
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
-	 * @param fixingOffsetDays Number of days to be added to period start to get the fixing date.
-	 * @param paymentOffsetDays Number of days to be added to period end to get the payment date.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
+	 * @deprecated Will be removed in version 2.3
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			LocalDate referenceDate,
@@ -716,6 +719,7 @@ public class ScheduleGenerator {
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @return The corresponding schedule
+	 * @deprecated Will be removed in version 2.3
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
 			LocalDate referenceDate,
