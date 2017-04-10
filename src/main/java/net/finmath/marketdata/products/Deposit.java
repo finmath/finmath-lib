@@ -52,11 +52,12 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 			throw new IllegalArgumentException("No curve of the name " + discountCurveName + " and type DiscountCurveInterface was found in the model.");
 		}
 
-		if (evaluationTime > schedule.getPeriodEnd(0))
+		double maturity		= schedule.getPayment(0);
+		
+		if (evaluationTime > maturity)
 			return 0; // after maturity the contract is worth nothing
 
 		double payoutDate	= schedule.getPeriodStart(0);
-		double maturity		= schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
 		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
 		double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
