@@ -22,6 +22,13 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 * @return The forward.
 	 */
     double getForward(AnalyticModelInterface model, double fixingTime);
+    
+	/**
+	 * Returns the forward for the corresponding fixing time. Note that this does not work for all interpolation methods as some of them require a model
+	 * @param fixingTime The fixing time of the index.
+	 * @return The forward
+	 */
+	double getForward(double fixingTime);
 
 	/**
 	 * Returns the forward for the corresponding fixing time.
@@ -34,11 +41,14 @@ public interface ForwardCurveInterface extends CurveInterface {
     double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset);
 
     /**
-	 * Returns the name of the discount curve associated with this forward curve.
-	 * 
-	 * @return The name of the discount curve associated with this forward curve.
-	 */
+     * @return The discountCurveName if forwardCurve is ForwardCurve, null otherwise
+     */
 	String getDiscountCurveName();
+	
+    /**
+     * @return The baseDiscountCurveName if forwardCurve is ForwardCurveFromDiscountCurve, null otherwise
+     */
+    String getBaseDiscountCurveName();
 	
 	/**
 	 * Returns the payment offset associated with this forward curve and a corresponding fixingTime.
