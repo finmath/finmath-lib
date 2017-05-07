@@ -11,6 +11,9 @@ import java.util.Date;
 import org.joda.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
+import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
@@ -25,6 +28,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 
 	private static final long serialVersionUID = -4126228588123963885L;
+	private final String discountCurveName; // The name of the discount curve naturally associated with this forward curve (e.g. EONIA for EUR3M)
+	private InterpolationEntityForward	interpolationEntityForward = InterpolationEntityForward.FORWARD;
 
 	/**
 	 * Additional choice of interpolation entities for forward curves.
@@ -40,10 +45,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		DISCOUNTFACTOR
 	}
 
-	private InterpolationEntityForward	interpolationEntityForward = InterpolationEntityForward.FORWARD;
-
 	/**
-	 * Generate a forward curve using a given discount curve and payment offset. The forward F(t) of an index is such that
+	 * Generate a forward curve. The forward F(t) of an index is such that
 	 * F(t) * D(t+p) equals the market price of the corresponding index fixed in t and paid in t+d, where t is the fixing time
 	 * of the index and t+p is the payment time of the index. F(t) is the corresponding forward and D is the associated discount
 	 * curve.
@@ -57,14 +60,15 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
-	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param discountCurveName The name of the discount curve naturally associated with this forward curve (e.g. EONIA for EUR3M).
 	 */
 	public ForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, 
 			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, 
 			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, 
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
 		super(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, 
-				extrapolationMethod, interpolationEntity, discountCurveName);
+				extrapolationMethod, interpolationEntity);
+		this.discountCurveName = discountCurveName;
 		this.interpolationEntityForward	= interpolationEntityForward;
 
 		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
@@ -73,36 +77,15 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	}
 
 	/**
-	 * Generate a forward curve using a given discount curve and payment offset. The forward F(t) of an index is such that
-	 * F(t) * D(t+p) equals the market price of the corresponding index fixed in t and paid in t+d, where t is the fixing time
-	 * of the index and t+p is the payment time of the index. F(t) is the corresponding forward and D is the associated discount
-	 * curve.
-	 * 
-	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
-	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
-	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
-	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * See main constructor
 	 */
 	public ForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
-		super(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName);
-		this.interpolationEntityForward	= interpolationEntityForward;
-
-		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
-			super.addPoint(0.0, 1.0, false);
-		}
+		this(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, InterpolationMethod.LINEAR, 
+				ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, interpolationEntityForward, discountCurveName);
 	}
 
 	/**
-	 * Generate a forward curve using a given discount curve and payment offset. The forward F(t) of an index is such that
-	 * F(t) * D(t+p) equals the market price of the corresponding index fixed in t and paid in t+d, where t is the fixing time
-	 * of the index and t+p is the payment time of the index. F(t) is the corresponding forward and D is the associated discount
-	 * curve.
-	 * 
-	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
-	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
-	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * See main constructor
 	 */
 	public ForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.FORWARD, discountCurveName);
@@ -120,7 +103,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public ForwardCurve(String name, double paymentOffset, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
-		super(name, null, paymentOffset, discountCurveName);
+		super(name, null, paymentOffset);
+		this.discountCurveName = discountCurveName;
 		this.interpolationEntityForward	= interpolationEntityForward;
 	}
 
@@ -356,6 +340,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		default:
 			return interpolationEntityForwardValue;
 		case FORWARD_TIMES_DISCOUNTFACTOR:
+			if(model==null)
+				throw new IllegalArgumentException("model==null. Not allowed for interpolationEntityForward " + interpolationEntityForward);
 			return interpolationEntityForwardValue / model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+paymentOffset);
 		case ZERO:
 		{
@@ -388,6 +374,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 			interpolationEntityForwardValue = forward;
 			break;
 		case FORWARD_TIMES_DISCOUNTFACTOR:
+			if(model==null)
+				throw new IllegalArgumentException("model==null. Not allowed for interpolationEntityForward " + interpolationEntityForward);
 			interpolationEntitiyTime = fixingTime;
 			interpolationEntityForwardValue = forward * model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+getPaymentOffset(fixingTime));
 			break;
@@ -423,11 +411,14 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	public InterpolationEntityForward getInterpolationEntityForward() {
 		return interpolationEntityForward;
 	}
+	
+	@Override
+	public String getDiscountCurveName() {
+		return discountCurveName;
+	}
 
 	@Override
 	public String toString() {
-		return "ForwardCurve [interpolationEntityForward="
-				+ interpolationEntityForward + ", toString()="
-				+ super.toString() + "]";
+		return "ForwardCurve [" + super.toString() + ", discountCurveName=" + discountCurveName + ", interpolationEntityForward=" + interpolationEntityForward + "]";
 	}
 }
