@@ -15,13 +15,6 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 public interface ForwardCurveInterface extends CurveInterface {
 
 	/**
-	 * Returns the forward for the corresponding fixing time without a given model. Note that this does not work for all interpolation methods as some of them require a model
-	 * @param fixingTime The fixing time of the index.
-	 * @return The forward
-	 */
-	double getForward(double fixingTime);
-
-	/**
 	 * Returns the forward for the corresponding fixing time.
 	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
 	 * @param fixingTime The fixing time of the index associated with this forward curve.

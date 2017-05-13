@@ -121,12 +121,6 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 		}
 	}
 
-	@Override
-	public double getForward(double fixingTime)
-	{
-		return this.getForward(null, fixingTime);
-	}
-	
 	/**
 	 * Returns the forwards for a given vector fixing times.
 	 * 

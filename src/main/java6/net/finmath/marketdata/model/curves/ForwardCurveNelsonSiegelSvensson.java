@@ -170,9 +170,4 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	private LocalDate getDateFromModelTime(double fixingTime) {
 		return getReferenceDate().plusDays((int)Math.round(fixingTime*365.0));
 	}
-	
-	@Override
-	public double getForward(double fixingTime) { // needs to be implemented here as this class directly inherits from an interface (without any intermediate abstract class)
-		return getForward(null, fixingTime);
-	}
 }
