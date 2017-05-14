@@ -107,14 +107,19 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	/**
 	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
 	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
-	 * referenceDiscountCurveName + "_asForwardCurve" is used as the name for this ForwardCurveFromDiscountCurve.
+	 * 
+	 * The name of the this forward curve will be
+	 * <code>
+	 * 	"ForwardCurveFromDiscountCurve(" +  referenceDiscountCurveName + "," + paymentOffsetCode + ")",
+	 * </code>
+	 * but code should not reply on this. Instead you should use getName() to get the name of the curve.
 	 * 
 	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
 	 */
 	public ForwardCurveFromDiscountCurve(String referenceDiscountCurveName, LocalDate referenceDate, String paymentOffsetCode) {
-		this(referenceDiscountCurveName + "_asForwardCurve", referenceDiscountCurveName, referenceDate, paymentOffsetCode);
+		this("ForwardCurveFromDiscountCurve(" +  referenceDiscountCurveName + "," + paymentOffsetCode + ")", referenceDiscountCurveName, referenceDate, paymentOffsetCode);
 	}
 
 	@Override
