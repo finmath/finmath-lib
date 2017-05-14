@@ -25,7 +25,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 
 	private static final long serialVersionUID = 3735595267579329042L;
 
-	protected final String discountCurveName;
+	protected final String discountCurveName; // The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards)
 	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<Double, Double>();
 
 	protected final String paymentOffsetCode;
@@ -43,13 +43,11 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
 	 * @param interpolationMethod The interpolation method used for the curve.
-	 * @param extrapolationMethod The extrapolation mehtod used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
-	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
-	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, 
-			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, 
-			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, String discountCurveName) {
+	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, String discountCurveName) {
 		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -68,27 +66,19 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
-	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
 	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, String discountCurveName) {
-		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
-		this.paymentOffsetCode = paymentOffsetCode;
-		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
-		this.paymentDateRollConvention = paymentDateRollConvention;
-
-		this.paymentOffset = Double.NaN;
-
-		this.discountCurveName = discountCurveName;
+		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, discountCurveName);
 	}
 
-	/**
 	/**
 	 * Construct a base forward curve with a reference date and a payment offset.
 	 * 
 	 * @param name The name of this curve.
-	 * @param referenceDate The reference date for this code, i.e., the date which defined t=0.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param paymentOffset The maturity of the index modeled by this curve.
-	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
 	public AbstractForwardCurve(String name, LocalDate referenceDate, double paymentOffset, String discountCurveName) {
 		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
@@ -143,5 +133,9 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
 
 		return values;
+	}
+	
+	public String toString() {
+		return "AbstractForwardCurve [" + super.toString() + ", discountCurveName=" + discountCurveName + ", paymentOffsetCode=" + paymentOffsetCode + ", paymentBusinessdayCalendar=" + paymentBusinessdayCalendar + ", paymentDateRollConvention=" + paymentDateRollConvention + "]";
 	}
 }

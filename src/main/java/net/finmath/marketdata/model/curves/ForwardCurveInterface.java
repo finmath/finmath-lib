@@ -22,9 +22,9 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 * @return The forward.
 	 */
     double getForward(AnalyticModelInterface model, double fixingTime);
-
+    
 	/**
-	 * Returns the forward for the corresponding fixing time.
+	 * Returns the forward for the corresponding fixing time and paymentOffset.
 	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
 	 * @param fixingTime The fixing time of the index associated with this forward curve.
      * @param paymentOffset The payment offset (as internal day count fraction) specifying the payment of this index. Used only as a fallback and/or consistency check.
@@ -34,9 +34,7 @@ public interface ForwardCurveInterface extends CurveInterface {
     double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset);
 
     /**
-	 * Returns the name of the discount curve associated with this forward curve.
-	 * 
-	 * @return The name of the discount curve associated with this forward curve.
+	 * @return The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards)
 	 */
 	String getDiscountCurveName();
 	
