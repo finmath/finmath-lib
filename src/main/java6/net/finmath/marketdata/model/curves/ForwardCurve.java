@@ -316,9 +316,25 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		}
 	}
 	
+	/**
+	 * Returns the forward for the corresponding fixing time.
+	 * 
+	 * <b>Note:</b> This implementation currently ignores the provided <code>paymentOffset<code>.
+	 * Instead it uses the payment offset calculate from the curve specification.
+	 * 
+	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
+	 * @param fixingTime The fixing time of the index associated with this forward curve.
+     * @param paymentOffset The payment offset (as internal day count fraction) specifying the payment of this index. Used only as a fallback and/or consistency check.
+	 * 
+	 * @return The forward.
+	 */
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
+		// @TODO: A warning should be issued that this implementation does not use 
+//		if(paymentOffset != this.getPaymentOffset(fixingTime)) {
+//			Logger.getLogger("net.finmath").warning("Requesting forward with paymentOffsets not agreeing with original calibration. Requested: " + paymentOffsets +". Calibrated: " + getPaymentOffset(fixingTime) + ".");
+//		}
 		return this.getForward(model, fixingTime);
 	}
 
