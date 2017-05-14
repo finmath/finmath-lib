@@ -61,7 +61,7 @@ public class ExposureTest {
 		ScheduleInterface legScheduleRec = ScheduleGenerator.createScheduleFromConventions(
 				new LocalDate(2015, DateTimeConstants.JANUARY, 03) /* referenceDate */, 
 				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* startDate */,
-				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* maturityDate */,
+				new LocalDate(2025, DateTimeConstants.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.ANNUAL /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
@@ -73,7 +73,7 @@ public class ExposureTest {
 		ScheduleInterface legSchedulePay = ScheduleGenerator.createScheduleFromConventions(
 				new LocalDate(2015, DateTimeConstants.JANUARY, 03) /* referenceDate */, 
 				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* startDate */,
-				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* maturityDate */,
+				new LocalDate(2025, DateTimeConstants.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.QUARTERLY /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
@@ -107,8 +107,9 @@ public class ExposureTest {
 
 			double exposureOnPath				= valuesEstimatedExposure.get(0);
 			double expectedPositiveExposure		= valuesPositiveExposure.getAverage();
+			double exposureQuantil				= valuesEstimatedExposure.getQuantile(0.95);
 
-			System.out.println(observationDate + "\t" + formatter6.format(exposureOnPath) + " \t " + formatter6.format(expectedPositiveExposure));
+			System.out.println(observationDate + "\t" + formatter6.format(exposureQuantil) + " \t " + formatter6.format(expectedPositiveExposure));
 
 			double basisPoint = 1E-4;
 			Assert.assertTrue("Expected positive exposure", expectedPositiveExposure >= 0-1*basisPoint);
