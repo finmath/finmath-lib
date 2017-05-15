@@ -29,7 +29,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class Schedule implements ScheduleInterface {
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
+	public static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365(); // static internal daycount convention to convert between doubles and date diffs
 	private			LocalDate					referenceDate;
 
 	private List<Period>			periods;
@@ -58,11 +58,11 @@ public class Schedule implements ScheduleInterface {
 		periodEndTimes = new double[periods.size()];
 		periodLength = new double[periods.size()];
 		for(int periodIndex=0; periodIndex < periods.size(); periodIndex++) {
-			fixingTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getFixing());
-			paymentTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPayment());
-			periodStartTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodStart());
-			periodEndTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodEnd());
-			periodLength[periodIndex] = daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
+			fixingTimes[periodIndex] = getInternalDaycountFraction(referenceDate, periods.get(periodIndex).getFixing());
+			paymentTimes[periodIndex] = getInternalDaycountFraction(referenceDate, periods.get(periodIndex).getPayment());
+			periodStartTimes[periodIndex] = getInternalDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodStart());
+			periodEndTimes[periodIndex] = getInternalDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodEnd());
+			periodLength[periodIndex] = getInternalDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
 		}
 	}
 
@@ -116,13 +116,6 @@ public class Schedule implements ScheduleInterface {
 		return periodLength[periodIndex];
 	}
 
-	@Override
-	public String toString() {
-		return "Schedule [referenceDate=" + referenceDate + ", periods="
-				+ periods + ", daycountconvention=" + daycountconvention + "]";
-	}
-
-
 	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
@@ -130,5 +123,43 @@ public class Schedule implements ScheduleInterface {
 	public Iterator<Period> iterator() {
 		return periods.iterator();
 	}
-
+	
+	/**
+	 * Creates a date by adding a double dateOffset (Act/365) to a reference date
+	 * 
+	 * @param referenceDate reference date to add dateOffset to
+	 * @param dateOffset dateOffset stored as a double with Act/365 convention
+	 * @return The date resulting from adding a double dateOffset (Act/365) to a reference date
+	 */
+	public static LocalDate getDateFromDouble(LocalDate referenceDate, double dateOffset) {
+		if(!(internalDayCounting instanceof DayCountConvention_ACT_365))
+			throw new IllegalArgumentException("Method expects ACT/365 as internalDayCounting, not " + internalDayCounting);
+		int numberOfDays = (int)(dateOffset*365);
+		double remainder = dateOffset - numberOfDays;
+		if(remainder > 1E-16)
+			throw new IllegalArgumentException("Cannot add double " + dateOffset + " to date " + referenceDate + " as this is not an Act/365 double (dateOffset-(int)(dateOffset*365)=" + remainder + ")");
+		
+		LocalDate returnDate = referenceDate.plusDays(numberOfDays);	
+		return returnDate;
+	}
+	
+	/**
+	 * @param startDate Start date to calculate daycount fraction from
+	 * @param endDate End date to calculate daycount fraction to
+	 * @return the daycount fraction corresponding to the period from startDate to endDate given the internalDayCounting convention.
+	 */
+	public static double getInternalDaycountFraction(LocalDate startDate, LocalDate endDate) {
+		return internalDayCounting.getDaycountFraction(startDate, endDate);
+	}
+	
+	@Override
+	public String toString() {
+		String periodOutputString = "Periods (fixing, periodStart, periodEnd, payment):";
+		for(int periodIndex=0; periodIndex<periods.size(); periodIndex++) 
+			periodOutputString += "\n" + periods.get(periodIndex).getFixing() + ", " +
+									periods.get(periodIndex).getPeriodStart() + ", " +
+									periods.get(periodIndex).getPeriodEnd() + ", " +
+									periods.get(periodIndex).getPayment();
+		return "Schedule [referenceDate=" + referenceDate + ", daycountconvention=" + daycountconvention + "\n" + periodOutputString + "]";
+	}
 }

@@ -156,7 +156,6 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		Vector<AnalyticProductInterface>	marketProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					marketTargetValues = new ArrayList<Double>();
 		LocalDate referenceDate = new LocalDate(2014, DateTimeConstants.JULY,  15);
-		DayCountConventionInterface modelDayCountConvention = new DayCountConvention_ACT_365();
 		DaycountConvention capDayCountConvention = DaycountConvention.ACT_360;
 		for(int i=0; i<maturities.length; i++) {
 			LocalDate	tradeDate		= referenceDate;

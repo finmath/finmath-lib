@@ -12,6 +12,7 @@ import org.joda.time.LocalDate;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.Schedule;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
@@ -50,7 +51,7 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 				.plusMonths(fixingOffsetMonths);
 
 		endDate = endDate.withDayOfMonth(endDate.dayOfMonth().getMaximumValue());
-		double time = (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, endDate);
+		double time = Schedule.getInternalDaycountFraction(referenceDate, endDate);
 		return baseIndex.getValue(time, model);
 	}
 
