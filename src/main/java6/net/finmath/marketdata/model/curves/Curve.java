@@ -18,6 +18,7 @@ import org.joda.time.LocalDate;
 
 import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.time.Schedule;
 
 /**
  * This class represents a curve build from a set of points in 2D.
@@ -429,14 +430,6 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		this.curveCacheReference = null;
 	}
 
-	public String toString() {
-		String objectAsString = super.toString() + "\n";
-		for (Point point : points) {
-			objectAsString = objectAsString + point.time + "\t" + valueFromInterpolationEntity(point.value, point.time) + "\n";
-		}
-		return objectAsString;
-	}
-
 	private double interpolationEntityFromValue(double value, double time) {
 		switch(interpolationEntity) {
 		case VALUE:
@@ -492,5 +485,13 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
 		CurveBuilder curveBuilder = new CurveBuilder(this);
 		return curveBuilder;
+	}
+	
+	@Override
+	public String toString() {
+		String pointsAsString = "";
+		for (Point point : points)
+			pointsAsString += "\n[" + Schedule.getDateFromDouble(getReferenceDate(),point.time) + ": " + valueFromInterpolationEntity(point.value, point.time) + "]";
+		return "Curve [" + super.toString() + ", interpolationMethod=" + interpolationMethod + ", interpolationEntity=" + interpolationEntity + ", extrapolationMethod=" + extrapolationMethod + ", " + (points.size()==0?"no points":"points: " + pointsAsString) + "]";
 	}
 }
