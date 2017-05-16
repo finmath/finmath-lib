@@ -317,7 +317,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Calibration of model volatilities
 		 */
-		System.out.println("Calibration of model volatilities:");
+		System.out.println("Brute force Monte-Carlo calibration of model volatilities:");
 
 		/*
 		 * Create a set of calibration products.
@@ -395,9 +395,9 @@ public class LIBORMarketModelCalibrationTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).		
-		Double accuracy = new Double(1E-5);
+		Double accuracy = new Double(1E-3);	// Lower accuracy to reduce runtime of the unit test
 		int maxIterations = 400;
-		int numberOfThreads = 2;
+		int numberOfThreads = 4;
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		double[] parameterStandardDeviation = new double[covarianceModelParametric.getParameter().length];
