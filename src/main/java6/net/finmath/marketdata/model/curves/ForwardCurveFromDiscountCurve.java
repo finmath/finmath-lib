@@ -55,8 +55,6 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		this.referenceDiscountCurveForForwardsName = referenceDiscountCurveName;
 		this.daycountScaling = daycountScaling;
 		this.periodOffset = periodOffset;
-		
-		System.out.println("ForwardCurveFromDiscountCurve(): Create forward curve " + name + " from referenceDiscountCurve " + referenceDiscountCurveName + " with discountCurveName=" + discountCurveName + ", referenceDate=" + referenceDate + ",  paymentOffsetCode=" + paymentOffsetCode + ", busDayCalendar=" + paymentOffsetBusinessdayCalendar + ", dateRollConvention=" + paymentOffsetDateRollConvention.name() + ", daycountScaling=" + daycountScaling + ", periodOffset=" + periodOffset); 
 	}
 	
 	/**
