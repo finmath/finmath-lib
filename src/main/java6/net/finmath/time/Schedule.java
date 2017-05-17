@@ -62,7 +62,7 @@ public class Schedule implements ScheduleInterface {
 			paymentTimes[periodIndex] = getInternalDaycountFraction(referenceDate, periods.get(periodIndex).getPayment());
 			periodStartTimes[periodIndex] = getInternalDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodStart());
 			periodEndTimes[periodIndex] = getInternalDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodEnd());
-			periodLength[periodIndex] = getInternalDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
+			periodLength[periodIndex] = daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
 		}
 	}
 
