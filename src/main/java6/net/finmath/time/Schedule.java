@@ -29,7 +29,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class Schedule implements ScheduleInterface {
 
-	public static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365(); // static internal daycount convention to convert between doubles and date diffs
+	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 	private			LocalDate					referenceDate;
 
 	private List<Period>			periods;
