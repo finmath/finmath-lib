@@ -60,7 +60,7 @@ You may build the Java 8 version via Maven using
 
 and the Java 6 version using
 
-	mvn -P java-8
+	mvn -P java-6
 	
 Source code
 -------------------------------------
