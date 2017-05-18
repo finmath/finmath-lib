@@ -15,6 +15,8 @@ import java.util.Map;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Schedule;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
@@ -137,7 +139,7 @@ public class CurveFactory {
 		 */
 		Double baseValue	= indexFixings.get(baseDate);
 		if(baseValue == null) throw new IllegalArgumentException("Curve " + name + " has missing index value for base date " + baseDate);
-		double baseTime		= (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, baseDate);
+		double baseTime		= FloatingpointDate.getFloatingPointDateFromDate(referenceDate, baseDate);
 
 		/*
 		 * Combine all three curves.
