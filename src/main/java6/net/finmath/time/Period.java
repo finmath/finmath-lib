@@ -104,8 +104,6 @@ public class Period implements Comparable<Period> {
 
 	@Override
 	public String toString() {
-		return "Period [fixing=" + fixing + ", payment=" + payment
-				+ ", periodStart=" + periodStart + ", periodEnd=" + periodEnd
-				+ "]";
+		return "Period [start=" + periodStart + ", end=" + periodEnd + ", fixing=" + fixing + ", payment=" + payment + "]";
 	}
 }
