@@ -11,6 +11,8 @@ import org.joda.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
@@ -163,7 +165,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	public double getPaymentOffset(double fixingTime) {
 		LocalDate fixingDate		= getDateFromModelTime(fixingTime);
 		LocalDate paymentDate		= paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
-		double paymentTime = (new DayCountConvention_ACT_365()).getDaycountFraction(getReferenceDate(), paymentDate);
+		double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), paymentDate);
 		return paymentTime-fixingTime;
 	}
 	
