@@ -28,6 +28,8 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * Return the reference date of this curve, i.e. the date
 	 * associated with t=0.
 	 * 
+	 * May be null in case the curve is not associated with a fixed date (e.g. a time homogenous model).
+	 * 
 	 * @return The date identified as t=0.
 	 */
 	LocalDate getReferenceDate();
