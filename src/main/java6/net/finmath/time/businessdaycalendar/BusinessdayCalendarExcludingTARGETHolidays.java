@@ -87,4 +87,8 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 
 	    return (easterSundayMonth == month) && (easterSundayDay == day);
 	}
+	
+	public String toString() {
+		return "BusinessdayCalendarExcludingTARGETHolidays";
+	}
 }
