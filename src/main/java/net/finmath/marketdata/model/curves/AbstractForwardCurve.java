@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * Abstract base class for a forward curve, extending a curve object
@@ -109,11 +109,15 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 			return paymentOffsets.get(fixingTime);
 		}
 		else {
-			LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(
-					getReferenceDate().plusDays((int)Math.round(fixingTime*365))
-					, paymentOffsetCode
-					, paymentDateRollConvention);
-			double paymentTime = (new DayCountConvention_ACT_365()).getDaycountFraction(getReferenceDate(), paymentDate);
+			/**
+			 *  @TODO In case paymentDate is relevant for the index modeling, it should be checked
+			 *  if the following derivation of paymentDate is accurate (e.g. wo we have a fixingOffset).
+			 *  In such a case, this method may be overridden.
+			 */
+			LocalDate referenceDate = getReferenceDate();
+			LocalDate fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
+			LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
+			double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, paymentDate);
 			paymentOffsets.put(fixingTime, paymentTime-fixingTime);
 			return paymentTime-fixingTime;
 		}

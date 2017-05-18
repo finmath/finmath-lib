@@ -82,7 +82,6 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
 	public AbstractForwardCurve(String name, LocalDate referenceDate, double paymentOffset, String discountCurveName) {
-		// What is the use case of this constructor? Can it be deleted?
 		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
 		this.paymentOffset = paymentOffset;
 		this.discountCurveName = discountCurveName;
