@@ -13,8 +13,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.Schedule;
-import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * An index which maps is evaluation point to a fixed discrete point, the end of the month,

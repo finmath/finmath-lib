@@ -13,7 +13,6 @@ import java.util.List;
 import org.joda.time.LocalDate;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * A schedule of interest rate periods with
