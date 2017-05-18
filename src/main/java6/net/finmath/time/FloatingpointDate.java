@@ -43,11 +43,14 @@ public class FloatingpointDate {
 	 * Note: This method currently performs a rounding to the next day.
 	 * In a future extension intra-day time offsets may be considered.
 	 * 
+	 * If referenceDate is null, the method returns null.
+	 * 
 	 * @param referenceDate The reference date associated with \( t=0 \).
 	 * @param floatingPointDate The value to the time offset \( t \).
 	 * @return The date resulting from adding Math.round(fixingTime*365.0) days to referenceDate.
 	 */
 	public static LocalDate getDateFromFloatingPointDate(LocalDate referenceDate, double floatingPointDate) {
+		if(referenceDate == null) return null;
 		return referenceDate.plusDays((int)Math.round(floatingPointDate*365.0));
 	}
 	
