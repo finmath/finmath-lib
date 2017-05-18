@@ -7,6 +7,7 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ import org.joda.time.LocalDate;
 
 import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.time.Schedule;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * This class represents a curve build from a set of points in 2D.
@@ -486,12 +487,23 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		CurveBuilder curveBuilder = new CurveBuilder(this);
 		return curveBuilder;
 	}
-	
+
 	@Override
 	public String toString() {
-		String pointsAsString = "";
-		for (Point point : points)
-			pointsAsString += "\n[" + Schedule.getDateFromDouble(getReferenceDate(),point.time) + ": " + valueFromInterpolationEntity(point.value, point.time) + "]";
-		return "Curve [" + super.toString() + ", interpolationMethod=" + interpolationMethod + ", interpolationEntity=" + interpolationEntity + ", extrapolationMethod=" + extrapolationMethod + ", " + (points.size()==0?"no points":"points: " + pointsAsString) + "]";
+		/*
+		 * Pretty print curve (appended to standard toString)
+		 */
+		StringBuilder curveTableString = new StringBuilder();
+		NumberFormat formatTime = new DecimalFormat("0.00000000E0");	// Floating point time is accurate to 3+5 digits.
+		for (Point point : points) {
+			curveTableString.append(formatTime.format(point.time) + "\t");
+			curveTableString.append(FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), point.time) + "\t");
+			curveTableString.append(valueFromInterpolationEntity(point.value, point.time) + "\n");
+		}
+		
+		return "Curve [points=" + points + ", pointsBeingParameters=" + pointsBeingParameters + ", interpolationMethod="
+				+ interpolationMethod + ", extrapolationMethod=" + extrapolationMethod + ", interpolationEntity="
+				+ interpolationEntity + ", rationalFunctionInterpolation=" + rationalFunctionInterpolation
+				+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
 	}
 }
