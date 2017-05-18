@@ -10,9 +10,9 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
+import net.finmath.time.ScheduleInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
-import net.finmath.time.ScheduleInterface;
 
 public class DepositTest {
 
