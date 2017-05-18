@@ -44,7 +44,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
 			timeDiscretization[timeIndex] =
-					Schedule.getInternalDaycountFraction(referenceDate, dates[timeIndex]);
+					FloatingpointDate.getFloatingPointDateFromDate(referenceDate, dates[timeIndex]);
 		}
 
 		return timeDiscretization;
