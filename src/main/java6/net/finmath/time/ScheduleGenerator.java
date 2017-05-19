@@ -127,7 +127,7 @@ public class ScheduleGenerator {
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the first period (this may/should be an unadjusted date).
+	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
 	 * @param frequency The frequency.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
@@ -335,7 +335,7 @@ public class ScheduleGenerator {
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the first period (this may/should be an unadjusted date).
+	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
 	 * @param frequency The frequency.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
@@ -374,7 +374,7 @@ public class ScheduleGenerator {
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the first period (this may/should be an unadjusted date).
+	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
 	 * @param frequency The frequency (as String).
 	 * @param daycountConvention The daycount convention (as String).
 	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
@@ -459,7 +459,7 @@ public class ScheduleGenerator {
 	 * @param tradeDate Base date for the schedule generation (used to build spot date).
 	 * @param spotOffsetDays Number of business days to be added to the trade date to obtain the spot date.
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
-	 * @param maturityString The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param maturityString The end date of the last period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param frequency The frequency (as String).
 	 * @param daycountConvention The daycount convention (as String).
 	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
@@ -499,7 +499,7 @@ public class ScheduleGenerator {
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotOffsetDays Number of business days to be added to the reference date to obtain the spot date.
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
-	 * @param maturityString The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param maturityString The end date of the last period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param frequency The frequency (as String).
 	 * @param daycountConvention The daycount convention (as String).
 	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
@@ -552,7 +552,7 @@ public class ScheduleGenerator {
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotOffsetDays Number of business days to be added to the trade date to obtain the spot date.
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
-	 * @param maturityString The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param maturityString The end date of the last period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param frequency The frequency (as String).
 	 * @param daycountConvention The daycount convention (as String).
 	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
@@ -587,7 +587,7 @@ public class ScheduleGenerator {
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
-	 * @param maturityString The end date of the first period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param maturityString The end date of the last period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param frequency The frequency (as String).
 	 * @param daycountConvention The daycount convention (as String).
 	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
@@ -621,7 +621,7 @@ public class ScheduleGenerator {
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period.
 	 * @param frequency The frequency.
-	 * @param maturity The end date of the first period.
+	 * @param maturity The end date of the last period.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
@@ -668,7 +668,7 @@ public class ScheduleGenerator {
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period.
 	 * @param frequency The frequency.
-	 * @param maturity The end date of the first period.
+	 * @param maturity The end date of the last period.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @return The corresponding schedule
