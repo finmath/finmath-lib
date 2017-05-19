@@ -29,4 +29,7 @@ public class BusinessdayCalendarAny extends BusinessdayCalendar {
 		return true;
 	}
 
+	public String toString() {
+		return "BusinessdayCalendarAny";
+	}
 }
