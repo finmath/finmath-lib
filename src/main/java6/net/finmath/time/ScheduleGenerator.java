@@ -126,8 +126,8 @@ public class ScheduleGenerator {
 	 * t = 0 corresponds to the reference date.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
 	 * @param frequency The frequency.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
@@ -334,8 +334,8 @@ public class ScheduleGenerator {
 	 * t = 0 corresponds to the reference date.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
 	 * @param frequency The frequency.
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
@@ -373,8 +373,8 @@ public class ScheduleGenerator {
 	 * The reference date is used internally to represent all dates as doubles.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
 	 * @param frequency The frequency (as String).
 	 * @param daycountConvention The daycount convention (as String).
 	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
@@ -423,8 +423,8 @@ public class ScheduleGenerator {
 	 * The reference date is used internally to represent all dates as doubles.
 	 * 
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
-	 * @param startDate The start date of the first period (this may/should be an unadjusted date).
-	 * @param maturityDate The end date of the last period (this may/should be an unadjusted date).
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
 	 * @param frequency The frequency (as String).
 	 * @param daycountConvention The daycount convention (as String).
 	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
