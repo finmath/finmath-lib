@@ -88,7 +88,8 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	    return (easterSundayMonth == month) && (easterSundayDay == day);
 	}
 	
+	@Override
 	public String toString() {
-		return "BusinessdayCalendarExcludingTARGETHolidays";
+		return "BusinessdayCalendarExcludingTARGETHolidays [baseCalendar=" + baseCalendar + "]";
 	}
 }
