@@ -115,9 +115,21 @@ public interface BusinessdayCalendarInterface {
 	 * 
 	 * <p>
 	 * The date offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
-	 * 1Y, 2Y, etc., where the letters denote the units as follows: D denotes days, W denotes weeks, M denotes month
-	 * Y denotes years. If the date offset does not carry a letter code at the end, it will
+	 * 1Y, 2Y, etc., where the letters denote the units of the corresponding offset.
+	 * 
+	 * If the date offset does not carry a letter code at the end, it will
 	 * be interpreted as ACT/365 year fraction.
+	 * </p>
+	 * 
+	 * <p>
+	 * Date offsets can be given as (mapping to the corresponding <code>DateOffsetUnit</code>):
+	 * <dl>
+	 * 	<dt>days</dt>				<dd>"D", "DAYS"</dd>
+	 * 	<dt>business days</dt>		<dd>"B", "BD", "BUSINESS_DAYS"</dd>
+	 * 	<dt>weeks</dt>				<dd>"W", "WEEKS"</dd>
+	 * 	<dt>months</dt>				<dd>"M", "MONTHS"</dd>
+	 * 	<dt>years</dt>				<dd>"Y", "YEARS"</dd>
+	 * </dl>
 	 * </p>
 	 * 
 	 * <p>
