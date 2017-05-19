@@ -88,51 +88,53 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		LocalDate maturityDate = baseDate;
 		while(tokenizer.hasMoreTokens()) {
 			String maturityCodeSingle = tokenizer.nextToken();
-			// get unit identifier (usually last char but may be last two chars)
-			char unitChar;
-			int maturityValue;
-			if(maturityCodeSingle.toLowerCase().substring(maturityCodeSingle.length()-2).equals("bd")) {
-				unitChar = 'b';
-				maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-2));
-			} else {
-				unitChar = maturityCodeSingle.toLowerCase().charAt(maturityCodeSingle.length()-1);
-				maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
-			}
-			
-			// note that switch(string) would only work for java >=6
-			switch(unitChar) {
-			case 'd':
-			{
-				maturityDate = maturityDate.plusDays(maturityValue);
-				break;
-			}
-			case 'b':
-			{
-				maturityDate = getRolledDate(maturityDate,maturityValue);
-				break;
-			}
-			case 'w':
-			{
-				maturityDate = maturityDate.plusWeeks(maturityValue);
-				break;
-			}
-			case 'm':
-			{
-				maturityDate = maturityDate.plusMonths(maturityValue);
-				break;
-			}
-			case 'y':
-			{
-				maturityDate = maturityDate.plusYears(maturityValue);
-				break;
-			}
-			default:
-				throw new IllegalArgumentException("Cannot handle dateOffsetCode '" + dateOffsetCode + "'.");
-				/**
+			String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
+
+			/*
+			 * If no unit is given, the number is interpreted as ACT/365.
+			 * Otherwise we switch according to dateOffsetUnit.
+			 */
+			if(maturityCodeSingleParts.length == 1) {
 				// Try to parse a double as ACT/365
 				double maturityValue	= Double.valueOf(maturityCodeSingle);
-				maturity = maturity.plusDays((int)Math.round(maturityValue * 365));
-				*/
+				maturityDate = maturityDate.plusDays((int)Math.round(maturityValue * 365));
+			}
+			else if(maturityCodeSingleParts.length == 2) {
+				int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);
+				DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
+
+				switch(dateOffsetUnit) {
+				case DAYS:
+				{
+					maturityDate = maturityDate.plusDays(maturityValue);
+					break;
+				}
+				case BUSINESS_DAYS:
+				{
+					maturityDate = getRolledDate(maturityDate,maturityValue);
+					break;
+				}
+				case WEEKS:
+				{
+					maturityDate = maturityDate.plusWeeks(maturityValue);
+					break;
+				}
+				case MONTHS:
+				{
+					maturityDate = maturityDate.plusMonths(maturityValue);
+					break;
+				}
+				case YEARS:
+				{
+					maturityDate = maturityDate.plusYears(maturityValue);
+					break;
+				}
+				default:
+					throw new IllegalArgumentException("Cannot handle dateOffsetCode '" + dateOffsetCode + "'.");
+				}
+			}
+			else {
+				throw new IllegalArgumentException("Cannot handle dateOffsetCode '" + dateOffsetCode + "'.");
 			}
 		}
 
