@@ -319,7 +319,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	/**
 	 * Returns the forward for the corresponding fixing time.
 	 * 
-	 * <b>Note:</b> This implementation currently ignores the provided <code>paymentOffset<code>.
+	 * <b>Note:</b> This implementation currently ignores the provided <code>paymentOffset</code>.
 	 * Instead it uses the payment offset calculate from the curve specification.
 	 * 
 	 * @param model An analytic model providing a context. Some curves do not need this (can be null).

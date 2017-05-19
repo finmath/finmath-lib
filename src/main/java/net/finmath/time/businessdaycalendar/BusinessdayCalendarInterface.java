@@ -121,7 +121,6 @@ public interface BusinessdayCalendarInterface {
 	 * be interpreted as ACT/365 year fraction.
 	 * </p>
 	 * 
-	 * <p>
 	 * Date offsets can be given as (mapping to the corresponding <code>DateOffsetUnit</code>):
 	 * <dl>
 	 * 	<dt>days</dt>				<dd>"D", "DAYS"</dd>
@@ -130,7 +129,6 @@ public interface BusinessdayCalendarInterface {
 	 * 	<dt>months</dt>				<dd>"M", "MONTHS"</dd>
 	 * 	<dt>years</dt>				<dd>"Y", "YEARS"</dd>
 	 * </dl>
-	 * </p>
 	 * 
 	 * <p>
 	 * The function may be used to ease the creation of maturities in spreadsheets.
