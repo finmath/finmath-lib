@@ -60,7 +60,7 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	 * Test a given date for being easter sunday.
 	 * 
 	 * The method uses the algorithms sometimes cited as Meeus,Jones, Butcher Gregorian algorithm.
-	 * Take from http://en.wikipedia.org/wiki/Computus
+	 * Taken from http://en.wikipedia.org/wiki/Computus
 	 * 
 	 * @param date The date to check.
 	 * @return True, if date is easter sunday.
