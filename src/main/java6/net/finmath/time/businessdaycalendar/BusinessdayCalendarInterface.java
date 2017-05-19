@@ -141,6 +141,4 @@ public interface BusinessdayCalendarInterface {
 	 * @return A date corresponding the date adding the offset to the start date.
 	 */
 	LocalDate createDateFromDateAndOffsetCode(LocalDate baseDate, String dateOffsetCode);
-
-	public String toString();
 }
