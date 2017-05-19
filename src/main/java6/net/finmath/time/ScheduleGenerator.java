@@ -485,10 +485,10 @@ public class ScheduleGenerator {
 			)
 	{
 		LocalDate spotDate = businessdayCalendar.getRolledDate(tradeDate, spotOffsetDays);
-		LocalDate unadjustedStartDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
-		LocalDate unadjustedMaturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(unadjustedStartDate, maturityString);
+		LocalDate startDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
+		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(startDate, maturityString);
 	
-		return createScheduleFromConventions(referenceDate, unadjustedStartDate, unadjustedMaturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+		return createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 	}
 
 	/**
