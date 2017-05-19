@@ -13,6 +13,32 @@ import org.joda.time.LocalDate;
  */
 public interface BusinessdayCalendarInterface {
 	
+	public enum DateOffsetUnit {
+		DAYS,
+		BUSINESS_DAYS,
+		WEEKS,
+		MONTHS,
+		YEARS;
+
+		/**
+		 * Get the date offset unit enum for a string (using common synonyms like "d", "b", "bd", "w").
+		 * 
+		 * @param string The date roll convention name.
+		 * @return The date roll convention enum.
+		 */
+		public static DateOffsetUnit getEnum(String string) {
+	        if(string == null) throw new IllegalArgumentException();
+	        if(string.equalsIgnoreCase("d"))	return DAYS;
+	        if(string.equalsIgnoreCase("b"))	return BUSINESS_DAYS;
+	        if(string.equalsIgnoreCase("bd"))	return BUSINESS_DAYS;
+	        if(string.equalsIgnoreCase("w"))	return WEEKS;
+	        if(string.equalsIgnoreCase("m"))	return MONTHS;
+	        if(string.equalsIgnoreCase("y"))	return YEARS;
+
+	        return DateOffsetUnit.valueOf(string.toUpperCase());
+		}
+	}
+	
 	public enum DateRollConvention {
 		UNADJUSTED,
 		FOLLOWING,
