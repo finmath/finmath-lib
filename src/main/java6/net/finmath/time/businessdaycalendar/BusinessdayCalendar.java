@@ -70,86 +70,78 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		return rolledDate;
 	}
 
-	/**
-	 * Get an adjusted date for a given date and offset code.
-	 * 
-	 * First we create a new date by "adding" an offset to the base date.
-	 * The offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
-	 * 1Y, 2Y, etc., where the letters denote the units as follows: D denotes days, W denotes weeks, M denotes month
-	 * Y denotes years.
-	 * 
-	 * Next the result is adjusted according to the given dateRollConvention.
-	 * 
-	 * @param baseDate The start date.
-	 * @param dateOffsetCode String containing date offset codes (like 2D, 1W, 3M, etc.) or combination of them separated by spaces.
-	 * @param dateRollConvention The date roll convention to be used for the adjustment.
-	 * @return The adjusted date applying dateRollConvention to the given date.
+	/* (non-Javadoc)
+	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#getAdjustedDate(LocalDate, String, DateRollConvention)
 	 */
 	public LocalDate getAdjustedDate(LocalDate baseDate, String dateOffsetCode, DateRollConvention dateRollConvention) {
-		return this.getAdjustedDate(createDateFromDateAndOffsetCode(baseDate, dateOffsetCode), dateRollConvention);
+		return getAdjustedDate(createDateFromDateAndOffsetCode(baseDate, dateOffsetCode), dateRollConvention);
 	}
 
-	/**
-	 * Create a new date by "adding" a year fraction to a given base date.
-	 * 
-	 * <p>
-	 * The date offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
-	 * 1Y, 2Y, etc., where the letters denote the units as follows: D denotes days, W denotes weeks, M denotes month
-	 * Y denotes years. If the date offset does not carry a letter code at the end, it will
-	 * be interpreted as ACT/365 year fraction.
-	 * </p>
-	 * 
-	 * <p>
-	 * The function may be used to ease the creation of maturities in spreadsheets.
-	 * </p>
-	 * 
-	 * @param baseDate The start date.
-	 * @param dateOffsetCode String containing date offset codes (like 2D, 1W, 3M, etc.) or combination of them separated by spaces.
-	 * @return A date corresponding the date adding the offset to the start date.
+	/* (non-Javadoc)
+	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#createDateFromDateAndOffsetCode(LocalDate, createDateFromDateAndOffsetCode)
 	 */
-	public static LocalDate createDateFromDateAndOffsetCode(LocalDate baseDate, String dateOffsetCode) {
+	public LocalDate createDateFromDateAndOffsetCode(LocalDate baseDate, String dateOffsetCode) {
 		dateOffsetCode = dateOffsetCode.trim();
 
 		StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
 		
-		LocalDate maturity = baseDate;
+		LocalDate maturityDate = baseDate;
 		while(tokenizer.hasMoreTokens()) {
 			String maturityCodeSingle = tokenizer.nextToken();
+			String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
 
-			char unitChar = maturityCodeSingle.toLowerCase().charAt(maturityCodeSingle.length()-1);
-
-			switch(unitChar) {
-			case 'd':
-			{
-				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
-				maturity = maturity.plusDays(maturityValue);
-				break;
-			}
-			case 'w':
-			{
-				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
-				maturity = maturity.plusWeeks(maturityValue);
-				break;
-			}
-			case 'm':
-			{
-				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
-				maturity = maturity.plusMonths(maturityValue);
-				break;
-			}
-			case 'y':
-			{
-				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
-				maturity = maturity.plusYears(maturityValue);
-				break;
-			}
-			default:
+			/*
+			 * If no unit is given, the number is interpreted as ACT/365.
+			 * Otherwise we switch according to dateOffsetUnit.
+			 */
+			if(maturityCodeSingleParts.length == 1) {
 				// Try to parse a double as ACT/365
 				double maturityValue	= Double.valueOf(maturityCodeSingle);
-				maturity = maturity.plusDays((int)Math.round(maturityValue * 365));
+				maturityDate = maturityDate.plusDays((int)Math.round(maturityValue * 365));
+			}
+			else if(maturityCodeSingleParts.length == 2) {
+				int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);
+				DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
+
+				switch(dateOffsetUnit) {
+				case DAYS:
+				{
+					maturityDate = maturityDate.plusDays(maturityValue);
+					break;
+				}
+				case BUSINESS_DAYS:
+				{
+					maturityDate = getRolledDate(maturityDate,maturityValue);
+					break;
+				}
+				case WEEKS:
+				{
+					maturityDate = maturityDate.plusWeeks(maturityValue);
+					break;
+				}
+				case MONTHS:
+				{
+					maturityDate = maturityDate.plusMonths(maturityValue);
+					break;
+				}
+				case YEARS:
+				{
+					maturityDate = maturityDate.plusYears(maturityValue);
+					break;
+				}
+				default:
+					throw new IllegalArgumentException("Cannot handle dateOffsetCode '" + dateOffsetCode + "'.");
+				}
+			}
+			else {
+				throw new IllegalArgumentException("Cannot handle dateOffsetCode '" + dateOffsetCode + "'.");
 			}
 		}
 
-		return maturity;
+		return maturityDate;
+	}
+	
+	public String toString() {
+		return "BusinessdayCalendar";
 	}
 }
