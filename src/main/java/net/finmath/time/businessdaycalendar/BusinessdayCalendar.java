@@ -7,7 +7,6 @@
 package net.finmath.time.businessdaycalendar;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.StringTokenizer;
 
 /**
@@ -53,8 +52,8 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 
 		throw new IllegalArgumentException("Unknown date roll convention.");
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#getRolledDate(java.time.LocalDate, int)
 	 */
@@ -84,7 +83,7 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		dateOffsetCode = dateOffsetCode.trim();
 
 		StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
-		
+
 		LocalDate maturityDate = baseDate;
 		while(tokenizer.hasMoreTokens()) {
 			String maturityCodeSingle = tokenizer.nextToken();
@@ -102,30 +101,6 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 			else if(maturityCodeSingleParts.length == 2) {
 				int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);
 				DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
-
-			char			unitChar		= maturityCodeSingle.toLowerCase().charAt(maturityCodeSingle.length()-1);
-			ChronoUnit		unit;
-			switch(unitChar) {
-			case 'd':
-				unit = ChronoUnit.DAYS;
-				break;
-			case 'w':
-				unit = ChronoUnit.WEEKS;
-				break;
-			case 'm':
-				unit = ChronoUnit.MONTHS;
-				break;
-			case 'y':
-				unit = ChronoUnit.YEARS;
-				break;
-			default:
-				unit = null;
-			}
-
-			if(unit != null) {
-				int maturityValue = Integer.valueOf(maturityCodeSingle.substring(0, maturityCodeSingle.length()-1));
-				maturity = maturity.plus(maturityValue, unit);
-			}
 
 				switch(dateOffsetUnit) {
 				case DAYS:
@@ -163,7 +138,7 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		}
 
 		return maturityDate;
-		}
+	}
 
 	public String toString() {
 		return "BusinessdayCalendar";
