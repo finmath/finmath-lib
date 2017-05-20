@@ -104,7 +104,7 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractModel {
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult((Math.exp(riskFreeRate * dt)-1)/dt);
 			if(isUseMilsteinCorrection) {
-				drift[componentIndex] = drift[componentIndex].add(realizationAtTimeIndex[componentIndex].add(displacement).mult(0.5*volatility*volatility * Math.exp(riskFreeRate * dt)).mult(getProcess().getBrownianMotion().getBrownianIncrement(timeIndex, 0).squared().sub(dt)));
+				drift[componentIndex] = drift[componentIndex].add(realizationAtTimeIndex[componentIndex].add(displacement).mult(0.5*volatility*volatility * Math.exp(riskFreeRate * dt)).mult(getProcess().getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
 			}
 		}
 		return drift;
@@ -138,7 +138,7 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractModel {
 	}
 
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return getProcess().getBrownianMotion().getRandomVariableForConstant(value);
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override

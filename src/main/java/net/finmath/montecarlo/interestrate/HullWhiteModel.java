@@ -149,7 +149,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	@Override
 	public RandomVariableInterface[] getInitialState() {
 		// Initial value is zero - BrownianMotionInterface serves as a factory here.
-		RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 		return new RandomVariableInterface[] { zero, zero };
 	}
 
@@ -242,8 +242,8 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 			throw new IllegalArgumentException();
 		}
 
-		RandomVariableInterface factorLoading1RV = getProcess().getBrownianMotion().getRandomVariableForConstant(factorLoading1);
-		RandomVariableInterface factorLoading2RV = getProcess().getBrownianMotion().getRandomVariableForConstant(factorLoading2);
+		RandomVariableInterface factorLoading1RV = getProcess().getStochasticDriver().getRandomVariableForConstant(factorLoading1);
+		RandomVariableInterface factorLoading2RV = getProcess().getStochasticDriver().getRandomVariableForConstant(factorLoading2);
 
 		return new RandomVariableInterface[] { factorLoading1RV, factorLoading2RV };
 	}

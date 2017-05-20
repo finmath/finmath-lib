@@ -170,7 +170,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	@Override
 	public RandomVariableInterface[] getInitialState() {
 		// Initial value is zero - BrownianMotionInterface serves as a factory here.
-		RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 		return new RandomVariableInterface[] { zero };
 	}
 
@@ -178,7 +178,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
 		if(time == getTime(0)) {
 			// Initial value of numeraire is one - BrownianMotionInterface serves as a factory here.
-			RandomVariableInterface one = getProcess().getBrownianMotion().getRandomVariableForConstant(1.0);
+			RandomVariableInterface one = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
 			return one;
 		}
 
@@ -219,7 +219,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		/*
 			 * Calculate the numeraire for timeIndex
 		 */
-		RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+		RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 		RandomVariableInterface integratedRate = zero;
 		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 		for(int i=0; i<timeIndex; i++) {
@@ -271,7 +271,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
 		double volatilityEffective = scaling*volatilityModel.getVolatility(timeIndexVolatility);
 
-		RandomVariableInterface factorLoading = getProcess().getBrownianMotion().getRandomVariableForConstant(volatilityEffective);
+		RandomVariableInterface factorLoading = getProcess().getStochasticDriver().getRandomVariableForConstant(volatilityEffective);
 		return new RandomVariableInterface[] { factorLoading };
 	}
 
