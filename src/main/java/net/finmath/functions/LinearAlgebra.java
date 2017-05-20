@@ -37,7 +37,7 @@ public class LinearAlgebra {
 	static {
 		// Default value is false, in which case we will use jblas
 		boolean isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","false"));
-		
+
 		/*
 		 * Check if jblas is available
 		 */
@@ -90,7 +90,7 @@ public class LinearAlgebra {
 			// For use of colt:
 			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
 			// return linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
-			
+
 			// For use of parallel colt:
 			// return new cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleLUDecomposition(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D(A)).solve(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D(b)).toArray();
 		}
@@ -105,11 +105,11 @@ public class LinearAlgebra {
 	public static double[][] invert(double[][] matrix) {
 
 		if(isSolverUseApacheCommonsMath) {
-		// Use LU from common math
-		LUDecomposition lu = new LUDecomposition(new Array2DRowRealMatrix(matrix));
-		double[][] matrixInverse = lu.getSolver().getInverse().getData();
+			// Use LU from common math
+			LUDecomposition lu = new LUDecomposition(new Array2DRowRealMatrix(matrix));
+			double[][] matrixInverse = lu.getSolver().getInverse().getData();
 
-		return matrixInverse;
+			return matrixInverse;
 		}
 		else {
 			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix)).toArray2();
@@ -200,7 +200,7 @@ public class LinearAlgebra {
 		// Create an eigen vector decomposition of the correlation matrix
 		double[]	eigenValues;
 		double[][]	eigenVectorMatrix;
-		
+
 		if(isEigenvalueDecompositionViaSVD) {
 			SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(correlationMatrix));
 			eigenValues = svd.getSingularValues();
@@ -211,7 +211,7 @@ public class LinearAlgebra {
 			eigenValues			= eigenDecomp.getRealEigenvalues();
 			eigenVectorMatrix	= eigenDecomp.getV().getData();
 		}
-		
+
 		class EigenValueIndex implements Comparable<EigenValueIndex> {
 			private int index;
 			Double value;
@@ -292,7 +292,7 @@ public class LinearAlgebra {
 	public double[][] exp(double[][] matrix) {
 		return org.jblas.MatrixFunctions.expm(new org.jblas.DoubleMatrix(matrix)).toArray2();
 	}
-	
+
 	/**
 	 * Calculate the "matrix exponential" (expm).
 	 * 
