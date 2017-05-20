@@ -24,6 +24,7 @@ public class LevenbergMarquardtTest {
 	@Test
 	public void testSmallLinearSystem() throws CloneNotSupportedException, SolverException {
 		LevenbergMarquardt optimizer = new LevenbergMarquardt() {
+			private static final long serialVersionUID = -6582160713209444489L;
 
 			// Override your objective function here
 			@Override

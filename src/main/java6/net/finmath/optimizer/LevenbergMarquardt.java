@@ -156,6 +156,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	public static void main(String[] args) throws SolverException, CloneNotSupportedException {
 
 		LevenbergMarquardt optimizer = new LevenbergMarquardt() {
+			private static final long serialVersionUID = -282626938650139518L;
 
 			// Override your objective function here
 			@Override
