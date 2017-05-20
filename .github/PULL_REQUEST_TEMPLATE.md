@@ -19,11 +19,14 @@
 
 ### Questions:
 
- * Does the licenses files need update?
- *Replace this line by either YES or NO. Add details if required.*
- 
-* Are there breaking changes for older versions?
- *Replace this line by either YES or NO. Add details if required.*
+**Does the licenses files need update?**
 
-* Does the change require additional documentation?
- *Replace this line by either YES or NO. Add details if required.*
+*Replace this line by either YES or NO. Add details if required.*
+ 
+**Are there breaking changes for older versions?**
+
+*Replace this line by either YES or NO. Add details if required.*
+
+**Does the change require additional documentation?**
+
+*Replace this line by either YES or NO. Add details if required.*
