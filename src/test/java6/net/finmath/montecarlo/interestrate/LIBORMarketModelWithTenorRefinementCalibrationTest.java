@@ -538,6 +538,8 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			int numberOfThreads = 5;			
 			LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
 			{
+				private static final long serialVersionUID = 7213979669076698360L;
+
 				// Calculate model values for given parameters
 				@Override
 				public void setValues(double[] parameters, double[] values) throws SolverException {
@@ -672,6 +674,8 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			int numberOfThreads = 5;			
 			LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, calibrationTargetValues, maxIterations, numberOfThreads)
 			{
+				private static final long serialVersionUID = 4823173102012628165L;
+
 				// Calculate model values for given parameters
 				@Override
 				public void setValues(double[] parameters, double[] values) throws SolverException {
