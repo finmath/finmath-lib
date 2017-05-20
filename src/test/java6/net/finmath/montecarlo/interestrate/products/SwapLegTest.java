@@ -221,7 +221,7 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("CMS   leg (analytic, zero vol)...: " + valueAnalytic);
-		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
 
 		System.out.println();
 
@@ -290,7 +290,7 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("CMS leg (analytic, zero vol): " + valueAnalytic);
-		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
 
 		System.out.println();
 
@@ -350,7 +350,7 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("Arrears leg (analytic, zero vol): " + valueAnalytic);
-		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
 
 		System.out.println();
 
