@@ -69,7 +69,7 @@ import net.finmath.functions.LinearAlgebra;
  * </center>
  * 
  * <pre>
- * {@code
+ * <code>
  * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
  * 		// Override your objective function here
  * 		public void setValues(double[] parameters, double[] values) {
@@ -87,7 +87,7 @@ import net.finmath.functions.LinearAlgebra;
  * 	optimizer.run();
  * 
  * 	double[] bestParameters = optimizer.getBestFitParameters();
- * }
+ * </code>
  * </pre>
  * 
  * See the example in the main method below.
