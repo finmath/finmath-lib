@@ -27,7 +27,7 @@ public interface CrossCurrencyTermStructureModelMonteCarloSimulationInterface ex
 	 * @param periodStart   Start time of period
 	 * @param periodEnd     End time of period
 	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	RandomVariableInterface getForwardRate(String curve, double time, double periodStart, double periodEnd) throws CalculationException;
 
@@ -38,8 +38,9 @@ public interface CrossCurrencyTermStructureModelMonteCarloSimulationInterface ex
 	 * @param toCurve	The identifier specifying the curve or currency for the numerator.
 	 * @param time		Simulation time
 	 * @return 			The (cross curve or currency) exchange rate for a given simulation time.
+	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface getExchangeRate(String fromCurve, String toCurve, double time) throws CalculationException;
+	RandomVariableInterface getExchangeRate(String fromCurve, String toCurve, double time);
 	
 	/**
 	 * Return the numeraire at a given time.
