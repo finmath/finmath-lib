@@ -1,6 +1,7 @@
 package net.finmath.marketdata.products;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class DepositTest {
 		model = new AnalyticModel(new CurveInterface[] { dc });
 
 		// set up deposit
-		LocalDate refDate = new LocalDate(2017, 1, 1);
+		LocalDate refDate = LocalDate.of(2017, 1, 1);
 		LocalDate startDate = refDate.plusDays(2);
 		LocalDate maturity = startDate.plusDays(180);
 		sched = ScheduleGenerator.createScheduleFromConventions(refDate, startDate, maturity,

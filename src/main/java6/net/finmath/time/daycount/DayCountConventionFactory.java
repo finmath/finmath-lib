@@ -6,9 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import java.util.Date;
-
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Factory methods for day count conventions.
@@ -70,8 +68,8 @@ public class DayCountConventionFactory {
 	 * Return the number of days between startDate and endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.time.LocalDate}.
-	 * @param endDate The end date given as a {@link java.time.LocalDate}.
+	 * @param startDate The start date given as a {@link org.threeten.bp.LocalDate}.
+	 * @param endDate The end date given as a {@link org.threeten.bp.LocalDate}.
 	 * @param convention A convention string.
 	 * @return The number of days within the given period.
 	 */
@@ -84,8 +82,8 @@ public class DayCountConventionFactory {
 	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
 	 * specific daycount convention.
 	 * 
-	 * @param startDate The start date given as a {@link java.time.LocalDate}.
-	 * @param endDate The end date given as a {@link java.time.LocalDate}.
+	 * @param startDate The start date given as a {@link org.threeten.bp.LocalDate}.
+	 * @param endDate The end date given as a {@link org.threeten.bp.LocalDate}.
 	 * @param convention A convention string.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
@@ -94,18 +92,4 @@ public class DayCountConventionFactory {
 		return daycountConvention.getDaycountFraction(startDate, endDate);
 	}	
 	
-	/**
-	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
-	 * specific daycount convention.
-	 * 
-	 * Method using <code>java.util.Date</code> instead of <code>LocalDate</code> for backward compatibility.
-	 * 
-	 * @param startDate The start date given as a {@link java.time.LocalDate}.
-	 * @param endDate The end date given as a {@link java.time.LocalDate}.
-	 * @param convention A convention string.
-	 * @return The daycount fraction corresponding to the given period.
-	 */
-	public static double getDaycountFraction(Date startDate, Date endDate, String convention) {
-		return getDaycountFraction(new LocalDate(startDate), new LocalDate(endDate), convention);
-	}	
 }

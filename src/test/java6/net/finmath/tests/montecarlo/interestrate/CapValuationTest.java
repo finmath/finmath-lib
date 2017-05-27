@@ -7,13 +7,13 @@ package net.finmath.tests.montecarlo.interestrate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ import net.finmath.time.TimeDiscretization;
  */
 public class CapValuationTest {
 
-	LocalDate referenceDate = new LocalDate(2014, DateTimeConstants.JUNE, 15);
+	LocalDate referenceDate = LocalDate.of(2014, Month.JUNE, 15);
 
 	private ForwardCurveInterface					forwardCurve;
 	private DiscountCurveInterface					discountCurve;

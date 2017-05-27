@@ -6,7 +6,8 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,53 +19,53 @@ import org.junit.Test;
 public class DayCountConvention_30E_360_ISDATest {
 
 	private static LocalDate[] startDates = {
-		new LocalDate(2007,1,15),
-		new LocalDate(2007,1,15),
-		new LocalDate(2007,1,15),
-		new LocalDate(2007,9,30),
-		new LocalDate(2007,9,30),
-		new LocalDate(2007,9,30),
-		new LocalDate(2007,1,15),
-		new LocalDate(2007,1,31),
-		new LocalDate(2007,2,28),
-		new LocalDate(2006,8,31),
-		new LocalDate(2007,2,28),
-		new LocalDate(2007,2,14),
-		new LocalDate(2007,2,26),
-		new LocalDate(2008,2,29),
-		new LocalDate(2008,2,29),
-		new LocalDate(2008,2,29),
-		new LocalDate(2007,2,28),
-		new LocalDate(2007,10,31),
-		new LocalDate(2007,8,31),
-		new LocalDate(2008,2,29),
-		new LocalDate(2008,8,31),
-		new LocalDate(2009,2,28)
+		LocalDate.of(2007,1,15),
+		LocalDate.of(2007,1,15),
+		LocalDate.of(2007,1,15),
+		LocalDate.of(2007,9,30),
+		LocalDate.of(2007,9,30),
+		LocalDate.of(2007,9,30),
+		LocalDate.of(2007,1,15),
+		LocalDate.of(2007,1,31),
+		LocalDate.of(2007,2,28),
+		LocalDate.of(2006,8,31),
+		LocalDate.of(2007,2,28),
+		LocalDate.of(2007,2,14),
+		LocalDate.of(2007,2,26),
+		LocalDate.of(2008,2,29),
+		LocalDate.of(2008,2,29),
+		LocalDate.of(2008,2,29),
+		LocalDate.of(2007,2,28),
+		LocalDate.of(2007,10,31),
+		LocalDate.of(2007,8,31),
+		LocalDate.of(2008,2,29),
+		LocalDate.of(2008,8,31),
+		LocalDate.of(2009,2,28)
 	};
 
 	private static LocalDate[] endDates = {
-		new LocalDate(2007,1,30),
-		new LocalDate(2007,2,15),
-		new LocalDate(2007,7,15),
-		new LocalDate(2008,3,31),
-		new LocalDate(2007,10,31),
-		new LocalDate(2008,9,30),
-		new LocalDate(2007,1,31),
-		new LocalDate(2007,2,28),
-		new LocalDate(2007,3,31),
-		new LocalDate(2007,2,28),
-		new LocalDate(2007,8,31),
-		new LocalDate(2007,2,28),
-		new LocalDate(2008,2,29),
-		new LocalDate(2009,2,28),
-		new LocalDate(2008,3,30),
-		new LocalDate(2008,3,31),
-		new LocalDate(2007,3,05),
-		new LocalDate(2007,11,28),
-		new LocalDate(2008,2,29),
-		new LocalDate(2008,8,31),
-		new LocalDate(2009,2,28),
-		new LocalDate(2009,8,31)
+		LocalDate.of(2007,1,30),
+		LocalDate.of(2007,2,15),
+		LocalDate.of(2007,7,15),
+		LocalDate.of(2008,3,31),
+		LocalDate.of(2007,10,31),
+		LocalDate.of(2008,9,30),
+		LocalDate.of(2007,1,31),
+		LocalDate.of(2007,2,28),
+		LocalDate.of(2007,3,31),
+		LocalDate.of(2007,2,28),
+		LocalDate.of(2007,8,31),
+		LocalDate.of(2007,2,28),
+		LocalDate.of(2008,2,29),
+		LocalDate.of(2009,2,28),
+		LocalDate.of(2008,3,30),
+		LocalDate.of(2008,3,31),
+		LocalDate.of(2007,3,05),
+		LocalDate.of(2007,11,28),
+		LocalDate.of(2008,2,29),
+		LocalDate.of(2008,8,31),
+		LocalDate.of(2009,2,28),
+		LocalDate.of(2009,8,31)
 	};
 
 	double[] daycountFractionsIfEndDateIsNotTerminationDate = new double[] {

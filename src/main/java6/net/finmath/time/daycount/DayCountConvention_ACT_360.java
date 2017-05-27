@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Implementation of ACT/360.
@@ -38,7 +38,7 @@ public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implement
 	
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * A period, i.e. a time interval suitable for securities with regular payment schedules.

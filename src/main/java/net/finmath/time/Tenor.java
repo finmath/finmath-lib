@@ -8,9 +8,6 @@ package net.finmath.time;
 
 import java.time.LocalDate;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_365;
-
 /**
  * Implements a time discretization based on dates using a reference
  * date and an daycount convention / year fraction.
@@ -23,9 +20,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 	private static final long serialVersionUID = 4027884423439197483L;
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 	private			LocalDate					referenceDate;
-
 	private 		LocalDate[]					dates;
 
 	/**
@@ -49,7 +44,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
 			timeDiscretization[timeIndex] =
-					internalDayCounting.getDaycountFraction(referenceDate, dates[timeIndex]);
+					FloatingpointDate.getFloatingPointDateFromDate(referenceDate, dates[timeIndex]);
 		}
 
 		return timeDiscretization;
@@ -122,5 +117,15 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	@Override
 	public double getDaycountFraction(int timeIndex) {
 		return this.getTimeStep(timeIndex);
+	}
+	
+	@Override
+	public String toString() {
+		String datesOutputString = "[";
+		for(int iDate=0; iDate<dates.length; iDate++)
+			datesOutputString += dates[iDate].toString() + (iDate==dates.length-1 ? "" : ", ");
+		datesOutputString += "]";
+		
+		return "Tenor [referenceDate=" + referenceDate + ", dates=" + datesOutputString + "]";
 	}
 }

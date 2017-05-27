@@ -6,8 +6,8 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 /**
  * Implementation of ACT/ACT ISDA.
@@ -59,7 +59,7 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
@@ -76,20 +76,20 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 		/*
 		 * Fraction from start to the end of start's year
 		 */
-		LocalDate startDateNextYear = new LocalDate(startDate.getYear()+1,DateTimeConstants.JANUARY,1);
+		LocalDate startDateNextYear = LocalDate.of(startDate.getYear()+1,Month.JANUARY,1);
 		
 		if(isCountLastDayNotFirst) startDateNextYear = startDateNextYear.minusDays(1);
 
-		daycountFraction += getDaycount(startDate, startDateNextYear) / startDate.dayOfYear().getMaximumValue();
+		daycountFraction += getDaycount(startDate, startDateNextYear) / startDate.lengthOfYear();
 
 		/*
 		 * Fraction from beginning of end's year to end
 		 */
-		LocalDate endDateStartYear = new LocalDate(endDate.getYear(), DateTimeConstants.JANUARY, 1);
+		LocalDate endDateStartYear = LocalDate.of(endDate.getYear(), Month.JANUARY, 1);
 		if (isCountLastDayNotFirst) endDateStartYear = endDateStartYear.minusDays(1);
 		
 
-		daycountFraction += getDaycount(endDateStartYear, endDate) / endDate.dayOfYear().getMaximumValue();
+		daycountFraction += getDaycount(endDateStartYear, endDate) / endDate.lengthOfYear();
 		
 		return Math.max(daycountFraction,0.0);
 	}

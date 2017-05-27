@@ -6,10 +6,9 @@
 
 package net.finmath.time.daycount;
 
+import org.threeten.bp.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import org.joda.time.LocalDate;
 
 import net.finmath.time.Period;
 
@@ -65,7 +64,7 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

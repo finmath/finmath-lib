@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Implementation of 30E/360 and 30E+/360.
@@ -53,18 +53,18 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
 
 		int startDateDay 	= startDate.getDayOfMonth();
-		int startDateMonth 	= startDate.getMonthOfYear();
+		int startDateMonth 	= startDate.getMonthValue();
 		int startDateYear 	= startDate.getYear();
 		
 		int endDateDay 		= endDate.getDayOfMonth();
-		int endDateMonth 	= endDate.getMonthOfYear();
+		int endDateMonth 	= endDate.getMonthValue();
 		int endDateYear 	= endDate.getYear();
 
 		double daycount = (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0));
@@ -75,7 +75,7 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

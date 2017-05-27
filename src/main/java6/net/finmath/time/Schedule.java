@@ -6,11 +6,10 @@
 
 package net.finmath.time;
 
+import org.threeten.bp.LocalDate;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import org.joda.time.LocalDate;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 
@@ -19,7 +18,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * a fixing and payment.
  * 
  * The periods have two representations: one a {@link net.finmath.time.Period}
- * which contains {@link java.time.LocalDate} dates and
+ * which contains {@link org.threeten.bp.LocalDate} dates and
  * an alternative representation using doubles.
  * 
  * Within a schedule, the mapping from doubles to dates is one to one.
@@ -114,9 +113,6 @@ public class Schedule implements ScheduleInterface {
 		return periodLength[periodIndex];
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Iterable#iterator()
-	 */
 	@Override
 	public Iterator<Period> iterator() {
 		return periods.iterator();

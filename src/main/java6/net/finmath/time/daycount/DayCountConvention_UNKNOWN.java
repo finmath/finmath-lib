@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Implements a placeholder object for an unknown day count convention, throwing an exception,

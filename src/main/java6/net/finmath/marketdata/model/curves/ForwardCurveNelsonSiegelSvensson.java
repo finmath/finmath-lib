@@ -6,8 +6,7 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
