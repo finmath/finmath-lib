@@ -39,7 +39,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	 *  @param parentVariables List of {@link RandomVariableUniqueVariable} that are the parents of the new instance
 	 *  @return new instance of {@link RandomVariableUniqueVariable}
 	 * */
-	public RandomVariableInterface createRandomVariable(RandomVariableInterface randomvariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables) {
+	public RandomVariableInterface createRandomVariable(RandomVariableInterface randomvariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, RandomVariableUniqueVariable.OperatorType parentOperatorType) {
 		
 		int factoryID = currentFactoryID++;
 		
@@ -48,7 +48,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 				randomvariable
 				);
 		
-		return new RandomVariableUniqueVariable(factoryID, isConstant, parentVariables);
+		return new RandomVariableUniqueVariable(factoryID, isConstant, parentVariables, parentOperatorType);
 	}
 	
 	public RandomVariableInterface createRandomVariable(double time, double value, boolean isConstant) {
@@ -56,7 +56,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 		RandomVariableFactory randomvariablefactory = new RandomVariableFactory();
 		RandomVariableInterface newrandomvariable = randomvariablefactory.createRandomVariable(time, value);
 
-		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null);
+		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
 	public RandomVariableInterface createRandomVariable(double time, double[] values, boolean isConstant) {
@@ -64,11 +64,11 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 		RandomVariableFactory randomvariablefactory = new RandomVariableFactory();
 		RandomVariableInterface newrandomvariable = randomvariablefactory.createRandomVariable(time, values);
 	
-		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null);
+		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
 	public RandomVariableInterface createRandomVariable(RandomVariableInterface randomvariable) {
-		return createRandomVariable(randomvariable, /*isConstant*/ false, /*parentVariables*/ null);
+		return createRandomVariable(randomvariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 	
 	/* (non-Javadoc)
@@ -96,35 +96,6 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	 * */
 	public ArrayList<RandomVariableInterface> getListOfAllVariables(){
 		return listOfAllVariables;
-	}
-	
-	/**
-	 * Number of Variables not constant and without parents is the number of Variables in the Session
-	 * @return Number of Variables in the internal ArrayList
-	 * */
-	public int getNumberOfVariablesInList(){
-		
-		int numberOfVariablesInList = 0;
-		
-		for(RandomVariableInterface entry:listOfAllVariables){
-			if(((RandomVariableUniqueVariable) entry).isVariable()) numberOfVariablesInList++;
-		}
-		
-		return numberOfVariablesInList;
-	}
-	
-	public int[] getIDsOfVariablesInList(){
-		/*TODO: nicer implementation needed! */
-		int[] variableIDs = new int[getNumberOfVariablesInList()];
-		
-		int i = 0;
-		
-		for(RandomVariableInterface entry:listOfAllVariables){
-			if(((RandomVariableUniqueVariable) entry).isVariable())	variableIDs[i++] = ((RandomVariableUniqueVariable) entry).getVariableID();
-		}
-		
-		return variableIDs;
-		
 	}
 	
 	/**

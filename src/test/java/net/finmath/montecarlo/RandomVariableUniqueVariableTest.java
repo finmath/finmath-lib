@@ -4,6 +4,7 @@
 package net.finmath.montecarlo;
 
 import net.finmath.montecarlo.RandomVariableUniqueVariable;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Stefan Sedlmair
@@ -34,6 +35,12 @@ public class RandomVariableUniqueVariableTest {
 		
 		RandomVariableUniqueVariable f = (RandomVariableUniqueVariable) e.exp();
 		System.out.println(f);
+		
+		RandomVariableInterface[] g =  f.getGradient();
+		for(int i = 0; i < g.length; i++){
+			System.out.println((RandomVariable)g[i]);
+		}
+		
 	}
 	
 
