@@ -85,9 +85,6 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 				forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
 
-			// Check for discount curve
-			if(discountCurve == null) throw new IllegalArgumentException("No curve of the name " + discountCurveName + " was found in the model.");
-
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += forward * periodLength * discountFactor;
 
