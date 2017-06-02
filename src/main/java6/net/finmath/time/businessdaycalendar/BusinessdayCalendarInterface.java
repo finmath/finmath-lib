@@ -6,13 +6,13 @@
 
 package net.finmath.time.businessdaycalendar;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * @author Christian Fries
  */
 public interface BusinessdayCalendarInterface {
-
+	
 	public enum DateOffsetUnit {
 		DAYS,
 		BUSINESS_DAYS,
@@ -53,18 +53,18 @@ public interface BusinessdayCalendarInterface {
 		 * @return The date roll convention enum.
 		 */
 		public static DateRollConvention getEnum(String string) {
-			if(string == null) throw new IllegalArgumentException();
-			if(string.equalsIgnoreCase("actual"))		return UNADJUSTED;
-			if(string.equalsIgnoreCase("modfollow"))	return MODIFIED_FOLLOWING;
-			if(string.equalsIgnoreCase("modpreced"))	return MODIFIED_PRECEDING;
-			if(string.equalsIgnoreCase("follow"))		return 	FOLLOWING;
-			if(string.equalsIgnoreCase("preced"))		return 	PRECEDING;
+	        if(string == null) throw new IllegalArgumentException();
+	        if(string.equalsIgnoreCase("actual"))		return UNADJUSTED;
+	        if(string.equalsIgnoreCase("modfollow"))	return MODIFIED_FOLLOWING;
+	        if(string.equalsIgnoreCase("modpreced"))	return MODIFIED_PRECEDING;
+	        if(string.equalsIgnoreCase("follow"))		return 	FOLLOWING;
+	        if(string.equalsIgnoreCase("preced"))		return 	PRECEDING;
 
-			return DateRollConvention.valueOf(string.toUpperCase());
-		}
+	        return DateRollConvention.valueOf(string.toUpperCase());
+	    }
 	}
 
-
+	
 	/**
 	 * Test if a given date is a businessday.
 	 * 
@@ -72,7 +72,7 @@ public interface BusinessdayCalendarInterface {
 	 * @return True, if the given date is a businessday, otherwise false.
 	 */
 	boolean isBusinessday(LocalDate date);
-
+	
 	/**
 	 * Get an adjusted date for a given date.
 	 * 
@@ -121,7 +121,6 @@ public interface BusinessdayCalendarInterface {
 	 * be interpreted as ACT/365 year fraction.
 	 * </p>
 	 * 
-	 * <p>
 	 * Date offsets can be given as (mapping to the corresponding <code>DateOffsetUnit</code>):
 	 * <dl>
 	 * 	<dt>days</dt>				<dd>"D", "DAYS"</dd>
@@ -130,7 +129,6 @@ public interface BusinessdayCalendarInterface {
 	 * 	<dt>months</dt>				<dd>"M", "MONTHS"</dd>
 	 * 	<dt>years</dt>				<dd>"Y", "YEARS"</dd>
 	 * </dl>
-	 * </p>
 	 * 
 	 * <p>
 	 * The function may be used to ease the creation of maturities in spreadsheets.
@@ -141,6 +139,4 @@ public interface BusinessdayCalendarInterface {
 	 * @return A date corresponding the date adding the offset to the start date.
 	 */
 	LocalDate createDateFromDateAndOffsetCode(LocalDate baseDate, String dateOffsetCode);
-
-	public String toString();
 }

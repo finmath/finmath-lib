@@ -15,18 +15,20 @@ public interface TermStructureTenorTimeScalingInterface {
 	double getScaledTenorTime(double periodStart, double periodEnd);
 
 	/**
-	 * @param parameters
-	 * @return
+	 * Create a new object constructed from a clone of this time scaling, where some parameters have been modified.
+	 * 
+	 * @param parameters The set of new parameters.
+	 * @return A new object constructed from a clone of this time scaling, where some parameters have been modified.
 	 */
 	TermStructureTenorTimeScalingInterface getCloneWithModifiedParameters(double[] parameters);
 
 	/**
-	 * @return
+	 * @return The parameter set representing the state of this object.
 	 */
 	double[] getParameter();
 
 	/**
-	 * @return
+	 * @return A clone of this object.
 	 */
 	TermStructureTenorTimeScalingInterface clone();
 }

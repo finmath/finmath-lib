@@ -1,10 +1,9 @@
-package net.finmath.marketdata.model;
 /*
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
  * Created on 28.11.2012
  */
-
+package net.finmath.marketdata.model;
 
 import java.util.Map;
 import java.util.Set;

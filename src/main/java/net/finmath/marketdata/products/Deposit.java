@@ -16,7 +16,7 @@ import net.finmath.time.ScheduleInterface;
  * Date rolling convention: "following" for T &lt; 1M, "modified following, eom" for T &ge; 1 
  * 
  * The getValue method returns the value df(T) * (1.0+rate*periodLength) - df(t),
- * where t = schedule.getFixing(0), T = schedule.getPayment(0) and df denotes discountCurve.getDiscountFactor.
+ * where t = schedule.getPeriodStart(0), T = schedule.getPayment(0) and df denotes discountCurve.getDiscountFactor.
  * 
  * This corresponds to the valuation of an investment of 1 in t, paid back as (1.0+rate*periodLength) in time T.
  * 
@@ -30,7 +30,7 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 	private String				discountCurveName;
 
 	/**
-	 * @param schedule The schedule of the deposit consisting of one period, providing fixing, payment and periodLength.
+	 * @param schedule The schedule of the deposit consisting of one period, providing start, payment and periodLength.
 	 * @param rate The deposit rate.
 	 * @param discountCurveName The discount curve name.
 	 */
@@ -52,21 +52,27 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 			throw new IllegalArgumentException("No curve of the name " + discountCurveName + " and type DiscountCurveInterface was found in the model.");
 		}
 
-		double fixingDate	= schedule.getFixing(0);
 		double maturity		= schedule.getPayment(0);
+		
+		if (evaluationTime > maturity)
+			return 0; // after maturity the contract is worth nothing
 
+		double payoutDate	= schedule.getPeriodStart(0);
 		double periodLength = schedule.getPeriodLength(0);
-
 		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		double discountFactorFixing = discountCurve.getDiscountFactor(model, fixingDate);
+		double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
-		return discountFactor*(1.0 + rate*periodLength) - discountFactorFixing;
+		if (evaluationTime > payoutDate)
+			return discountFactor * (1.0 + rate * periodLength);
+		else
+			return discountFactor * (1.0 + rate * periodLength) - discountFactorPayout;
+		
 	}
 
 	/**
 	 * Return the deposit rate implied by the given model's curve.
 	 * 
-	 * @param model The given model containing the curve of name <code>forwardCurveName</code>.
+	 * @param model The given model containing the curve of name <code>discountCurveName</code>.
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
 	public double getRate(AnalyticModelInterface model) {
@@ -77,14 +83,14 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 			throw new IllegalArgumentException("No curve of the name " + discountCurveName + " and type DiscountCurveInterface was found in the model.");
 		}
 
-		double fixingDate = schedule.getFixing(0);
+		double payoutDate = schedule.getPeriodStart(0);
 		double maturity = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
 
 		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		double discountFactorFixing = discountCurve.getDiscountFactor(model, fixingDate);
+		double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
-		return (discountFactorFixing - discountFactor)/periodLength;
+		return (discountFactorPayout/discountFactor - 1.)/periodLength;
 	}
 
 	public ScheduleInterface getSchedule() {

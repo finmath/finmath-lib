@@ -6,8 +6,7 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
@@ -18,12 +17,12 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
  * 
  * The forward with fixing in \( t \) is calculated as
  * \(
- * 		(\frac{1}{d} ( \frac{df(t)}{df(t+d)}-1 )
+ * 		(\frac{1}{dcf(t,t+d)} ( \frac{df(t)}{df(t+d)}-1 )
  * \)
- * where \( d \) is a given the payment offset and \( t \mapsto df(t) \)
- * is the given discount curve.
+ * where \( dcf(t,t+d) \) is the daycount-fraction between t and t+d and \( t \mapsto df(t) \) is the given referenceDiscountCurveNameForForwardCurve.
+ * The payment offset \( t+d \) is either generated from the paymentOffsetCode or directly specified if paymentOffsetCode=NaN.
  * 
- * The discount curve is reference by names and evaluated late (which allows use of
+ * The referenceDiscountCurveNameForForwardCurve is referenced by name and evaluated late (which allows use of
  * this construct in a calibration process referencing changing discount curves.
  * 
  * @author Christian Fries
@@ -31,21 +30,17 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implements Serializable {
 
 	private static final long serialVersionUID = -4126228588123963885L;
-
+	private final String referenceDiscountCurveForForwardsName; // The (pseudo-)discount curve that the forwards are calculated from. Note that this is in general different from the discount curve associated with the forwards
+	
 	private final double daycountScaling;
 	private final double periodOffset;
 
 	/**
-	 * Create a forward curve using a given discount curve.
-	 * 
-	 * The forward with fixing in t is calculated as ( df(t)/df(t+p)-1 ) / p
-	 * where df denotes the discount factor as a function of maturity and
-	 * p is a given the payment offset.
-	 * 
-	 * The date t + p is generated from the paymentOffsetCode using the provided paymentOffsetBusinessdayCalendar and paymentOffsetDateRollConvention.
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
 	 * 
 	 * @param name The name under which the forward curve can be referenced.
-	 * @param discountCurveName The discount curve used for calculation of the forward.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (usually OIS).
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
 	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
@@ -53,84 +48,82 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @param daycountScaling The scaling factor applied to the paymentOffset measured in ACT/365.
 	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
 	 */
-	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling, double periodOffset) {
+	public ForwardCurveFromDiscountCurve(String name, String referenceDiscountCurveName, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling, double periodOffset) {
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 
+		this.referenceDiscountCurveForForwardsName = referenceDiscountCurveName;
 		this.daycountScaling = daycountScaling;
 		this.periodOffset = periodOffset;
 	}
-
+	
 	/**
-	 * Create a forward curve using a given discount curve.
-	 * 
-	 * The forward with fixing in t is calculated as ( df(t)/df(t+p)-1 ) / p
-	 * where df denotes the discount factor as a function of maturity and
-	 * p is a given the payment offset.
-	 * 
-	 * The date t + p is generated from the paymentOffsetCode using the provided paymentOffsetBusinessdayCalendar and paymentOffsetDateRollConvention.
+	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
 	 * 
 	 * @param name The name under which the forward curve can be referenced.
-	 * @param discountCurveName The discount curve used for calculation of the forward.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
+	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
+	 * @param daycountScaling The scaling factor applied to the paymentOffset measured in ACT/365.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
+	 */
+	public ForwardCurveFromDiscountCurve(String name, String referenceDiscountCurveName, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling, double periodOffset) {
+		this(name, referenceDiscountCurveName, referenceDiscountCurveName, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, daycountScaling, periodOffset);
+	}
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
+	 * 
+	 * @param name The name under which the forward curve can be referenced.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
 	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
 	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
 	 */
-	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention) {
-		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
-		daycountScaling = 1.0;
-		periodOffset = 0;
+	public ForwardCurveFromDiscountCurve(String name, String referenceDiscountCurveName, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentOffsetBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentOffsetDateRollConvention) {
+		this(name, referenceDiscountCurveName, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, 1.0, 0.0);
 	}
 
 	/**
-	 * Create a forward curve using a given discount curve.
-	 * 
-	 * The forward with fixing in t is calculated as ( df(t)/df(t+p)-1 ) / p
-	 * where df denotes the discount factor as a function of maturity and
-	 * p is a given the payment offset.
-	 * 
-	 * The date t + p is generated from the paymentOffsetCode using a following date roll convention on a calendar excluding weekends.
+	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
 	 * 
 	 * @param name The name under which the forward curve can be referenced.
-	 * @param discountCurveName The discount curve used for calculation of the forward.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
 	 */
-	public ForwardCurveFromDiscountCurve(String name, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode) {
-		super(name, referenceDate,
-				paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName
-				);
-		daycountScaling = 1.0;
-		periodOffset = 0;
+	public ForwardCurveFromDiscountCurve(String name, String referenceDiscountCurveName, LocalDate referenceDate, String paymentOffsetCode) {
+		this(name, referenceDiscountCurveName, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING);
 	}
 
 	/**
-	 * Create a forward curve using a given discount curve.
-	 * The forward with fixing in t is calculated as ( df(t)/df(t+p)-1 ) / p
-	 * where df denotes the discount factor as a function of maturity and
-	 * p is a given the payment offset.
+	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
 	 * 
-	 * @param discountCurveName The discount curve used for calculation of the forward.
+	 * The name of the this forward curve will be
+	 * <code>
+	 * 	"ForwardCurveFromDiscountCurve(" +  referenceDiscountCurveName + "," + paymentOffsetCode + ")",
+	 * </code>
+	 * but code should not reply on this. Instead you should use getName() to get the name of the curve.
+	 * 
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
 	 */
-	public ForwardCurveFromDiscountCurve(String discountCurveName, LocalDate referenceDate, String paymentOffsetCode) {
-		super("ForwardCurveFromDiscountCurve(" +  discountCurveName + "," + paymentOffsetCode + ")", referenceDate,
-				paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, discountCurveName
-				);
-		daycountScaling = 1.0;
-		periodOffset = 0;
+	public ForwardCurveFromDiscountCurve(String referenceDiscountCurveName, LocalDate referenceDate, String paymentOffsetCode) {
+		this("ForwardCurveFromDiscountCurve(" +  referenceDiscountCurveName + "," + paymentOffsetCode + ")", referenceDiscountCurveName, referenceDate, paymentOffsetCode);
 	}
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime)
 	{
 		double paymentOffset = getPaymentOffset(fixingTime+periodOffset);
-
-		double daycount = paymentOffset * daycountScaling;
-
-		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+periodOffset) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;
+		return getForward(model, fixingTime, paymentOffset);
 	}
 
 	/* (non-Javadoc)
@@ -139,15 +132,16 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
-		double paymentOffsetOfCurve = getPaymentOffset(fixingTime+periodOffset);
-		if(Double.isNaN(paymentOffsetOfCurve)) {
-			if(paymentOffset <= 0) throw new IllegalArgumentException("Requesting forward for period of length " + paymentOffset + ".");
-			paymentOffsetOfCurve = paymentOffset;
-		}
+		if(model==null)
+			throw new IllegalArgumentException(this.getName() + ": model==null");
+		DiscountCurveInterface referenceDiscountCurveForForwards = model.getDiscountCurve(referenceDiscountCurveForForwardsName); // do not use discountCurveName here (usually this is an OIS curve)
+		if(referenceDiscountCurveForForwards==null)
+			throw new IllegalArgumentException(this.getName() + ": referenceDiscountCurveForForwards " + referenceDiscountCurveForForwardsName + " not found in the model:\n" + model.toString());
+		if(Double.isNaN(paymentOffset) || paymentOffset<=0.0)
+			throw new IllegalArgumentException(this.getName() + ": Requesting forward with paymentOffset " + paymentOffset + " not allowed.");
 
-		double daycount = paymentOffsetOfCurve * daycountScaling;
-		
-		return (model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+periodOffset) / model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixingTime+paymentOffsetOfCurve+periodOffset) - 1.0) / daycount;
+		double daycount = paymentOffset * daycountScaling;
+		return (referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+periodOffset) / referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;
 	}
 
 	/* (non-Javadoc)
@@ -170,5 +164,10 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	public double[] getParameter() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return "ForwardCurveFromDiscountCurve [" + super.toString() + ", referenceDiscountCurveForForwardsName=" + referenceDiscountCurveForForwardsName + ", daycountScaling=" + daycountScaling + ", periodOffset=" + periodOffset + "]";
 	}
 }

@@ -6,7 +6,7 @@
 
 package net.finmath.time.businessdaycalendar;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day, expect
@@ -35,12 +35,12 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.time.LocalDate)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		int day = date.getDayOfMonth();
-		int month = date.getMonthOfYear();
+		int month = date.getMonthValue();
 
 		LocalDate datePlus2 = date.plusDays(2);
 		LocalDate dateBefore = date.minusDays(1);
@@ -60,7 +60,7 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	 * Test a given date for being easter sunday.
 	 * 
 	 * The method uses the algorithms sometimes cited as Meeus,Jones, Butcher Gregorian algorithm.
-	 * Take from http://en.wikipedia.org/wiki/Computus
+	 * Taken from http://en.wikipedia.org/wiki/Computus
 	 * 
 	 * @param date The date to check.
 	 * @return True, if date is easter sunday.
@@ -82,13 +82,14 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	    int easterSundayMonth	= (h + L - 7 * m + 114) / 31;
 	    int easterSundayDay		= ((h + L - 7 * m + 114) % 31) + 1;
 
-		int month = date.getMonthOfYear();
+		int month = date.getMonthValue();
 		int day = date.getDayOfMonth();
 
 	    return (easterSundayMonth == month) && (easterSundayDay == day);
 	}
 	
+	@Override
 	public String toString() {
-		return "BusinessdayCalendarExcludingTARGETHolidays";
+		return "BusinessdayCalendarExcludingTARGETHolidays [baseCalendar=" + baseCalendar + "]";
 	}
 }

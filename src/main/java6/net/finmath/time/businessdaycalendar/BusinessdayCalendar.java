@@ -6,9 +6,8 @@
 
 package net.finmath.time.businessdaycalendar;
 
+import org.threeten.bp.LocalDate;
 import java.util.StringTokenizer;
-
-import org.joda.time.LocalDate;
 
 /**
  * Base class for all business day calendars.
@@ -21,7 +20,7 @@ import org.joda.time.LocalDate;
 public abstract class BusinessdayCalendar implements BusinessdayCalendarInterface {
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#getAdjustedDate(java.time.LocalDate, net.finmath.time.BusinessdayCalendarInterface.DateRollConvention)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#getAdjustedDate(org.threeten.bp.LocalDate, net.finmath.time.BusinessdayCalendarInterface.DateRollConvention)
 	 */
 	@Override
 	public LocalDate getAdjustedDate(LocalDate date, DateRollConvention dateRollConvention) {
@@ -30,14 +29,14 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_FOLLOWING) {
 			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);
-			if (adjustedDate.getMonthOfYear() != date.getMonthOfYear()){
+			if (adjustedDate.getMonth() != date.getMonth()){
 				return getAdjustedDate(date, DateRollConvention.PRECEDING);
 			}
 			else return adjustedDate;
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_PRECEDING) {
 			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.PRECEDING);
-			if (adjustedDate.getMonthOfYear() != date.getMonthOfYear()) {
+			if (adjustedDate.getMonth() != date.getMonth()) {
 				return getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			}
 			else return adjustedDate;
@@ -53,10 +52,10 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 
 		throw new IllegalArgumentException("Unknown date roll convention.");
 	}
-	
-	
+
+
 	/* (non-Javadoc)
-	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#getRolledDate(java.time.LocalDate, int)
+	 * @see net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface#getRolledDate(org.threeten.bp.LocalDate, int)
 	 */
 	public LocalDate getRolledDate(LocalDate baseDate, int businessDays) {
 		LocalDate			rolledDate			= baseDate;
@@ -84,7 +83,7 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		dateOffsetCode = dateOffsetCode.trim();
 
 		StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
-		
+
 		LocalDate maturityDate = baseDate;
 		while(tokenizer.hasMoreTokens()) {
 			String maturityCodeSingle = tokenizer.nextToken();
@@ -140,7 +139,7 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 
 		return maturityDate;
 	}
-	
+
 	public String toString() {
 		return "BusinessdayCalendar";
 	}

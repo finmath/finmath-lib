@@ -6,6 +6,7 @@
 
 package net.finmath.marketdata.model.volatilities;
 
+import org.threeten.bp.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,8 +15,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.joda.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObjectInterface;

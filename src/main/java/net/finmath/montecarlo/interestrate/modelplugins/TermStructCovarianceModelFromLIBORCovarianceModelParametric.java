@@ -20,7 +20,8 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 	private final AbstractLIBORCovarianceModelParametric covarianceModel;
 	
 	/**
-	 * 
+	 * @param tenorTimeScalingModel The model used for the tenor time re-scaling (providing the scaling coefficients).
+	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
 	 */
 	public TermStructCovarianceModelFromLIBORCovarianceModelParametric(TermStructureTenorTimeScalingInterface tenorTimeScalingModel, AbstractLIBORCovarianceModelParametric covarianceModel) {
 		this.tenorTimeScalingModel = tenorTimeScalingModel;

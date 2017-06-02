@@ -105,7 +105,7 @@ public class BlackScholesModel extends AbstractModel {
 	}
 
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return getProcess().getBrownianMotion().getRandomVariableForConstant(value);
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override

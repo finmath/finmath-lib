@@ -42,4 +42,9 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 			&& date.getDayOfWeek() != DayOfWeek.SATURDAY 
 			&& date.getDayOfWeek() != DayOfWeek.SUNDAY;  
 	}
+
+	@Override
+	public String toString() {
+		return "BusinessdayCalendarExcludingWeekends [baseCalendar=" + baseCalendar + "]";
+	}
 }

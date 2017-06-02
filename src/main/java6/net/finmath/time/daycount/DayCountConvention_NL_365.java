@@ -6,8 +6,9 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.chrono.IsoChronology;
 
 /**
  * Implementation of NL/365.
@@ -40,8 +41,8 @@ public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 		 * Remove leap days, if any.
 		 */
 		for(int year = startDate.getYear() ; year <= endDate.getYear(); year++) {
-			if (new LocalDate(year,1,1).year().isLeap()) {
-				LocalDate leapDay = new LocalDate(year, DateTimeConstants.FEBRUARY, 29);
+			if (IsoChronology.INSTANCE.isLeapYear(year)) {
+				LocalDate leapDay = LocalDate.of(year,Month.FEBRUARY, 29);
 				if(startDate.isBefore(leapDay) && !endDate.isBefore(leapDay)) daycount -= 1.0;
 			}
 		}

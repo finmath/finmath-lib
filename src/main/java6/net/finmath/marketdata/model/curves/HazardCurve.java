@@ -4,14 +4,16 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
+ * Hazard Curve
  * 
  * @author Alessandro Gnoatto
- *
  */
 public class HazardCurve extends Curve implements Serializable, HazardCurveInterface{
 
@@ -30,7 +32,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	/**
 	 * Create an empty hazard curve using given interpolation and extrapolation methods.
 	 *
-	 * @param name The name of this discount curve.
+	 * @param name The name of this hazard curve.
 	 * @param interpolationMethod The interpolation method used for the curve.
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
@@ -60,7 +62,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	/**
 	 * Create a hazard curve from given times and given survival probabilities using given interpolation and extrapolation methods.
 	 *
-	 * @param name The name of this discount curve.
+	 * @param name The name of this hazard curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param times Array of times as doubles.
 	 * @param givenSurvivalProbabilities Array of corresponding survival probabilities.
@@ -93,7 +95,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	/**
 	 * Create a hazard curve from given times and given survival probabilities using given interpolation and extrapolation methods.
 	 *
-	 * @param name The name of this discount curve.
+	 * @param name The name of this hazard curve.
 	 * @param times Array of times as doubles.
 	 * @param givenSurvivalProbabilities Array of corresponding survival probabilities.
 	 * @param isParameter Array of booleans specifying whether this point is served "as as parameter", e.g., whether it is calibrates (e.g. using CalibratedCurves).
@@ -114,7 +116,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	/**
 	 * Create a hazard curve from given times and given survival probabilities using given interpolation and extrapolation methods.
 	 *
-	 * @param name The name of this discount curve.
+	 * @param name The name of this hazard curve.
 	 * @param times Array of times as doubles.
 	 * @param givenSurvivalProbabilities Array of corresponding survival probabilities.
 	 * @param interpolationMethod The interpolation method used for the curve.
@@ -140,7 +142,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	/**
 	 * Create a hazard curve from given times and given discount factors using default interpolation and extrapolation methods.
 	 * 
-	 * @param name The name of this discount curve.
+	 * @param name The name of this hazard curve.
 	 * @param times Array of times as doubles.
 	 * @param givenSurvivalProbabilities Array of corresponding survival probabilities.
 	 * @return A new discount factor object.
@@ -162,10 +164,10 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	 * 		givenSurvivalProbabilities[timeIndex] = givenSurvivalProbabilities[timeIndex-1] * Math.exp(- givenHazardRates[timeIndex] * (times[timeIndex]-times[timeIndex-1]));
 	 * </code>
 	 *
-	 * @param name The name of this discount curve.
+	 * @param name The name of this hazard curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param times Array of times as doubles.
-	 * @param givenSurvivalProbabilities Array of corresponding hazard rates.
+	 * @param givenHazardRates Array of corresponding hazard rates.
 	 * @param isParameter Array of booleans specifying whether this point is served "as as parameter", e.g., whether it is calibrates (e.g. using CalibratedCurves).
 	 * @param interpolationMethod The interpolation method used for the curve.
 	 * @param extrapolationMethod The extrapolation method used for the curve.
@@ -222,7 +224,8 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 			double[] times, double[] givenHazardRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		
-		return createHazardCurveFromHazardRate(name, new LocalDate(referenceDate), times, givenHazardRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
+		LocalDate referenceDataAsLocalDate = Instant.ofEpochMilli(referenceDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+		return createHazardCurveFromHazardRate(name, referenceDataAsLocalDate, times, givenHazardRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 		
 	/**
@@ -235,7 +238,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	 * @param name The name of this discount curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param times Array of times as doubles.
-	 * @param givenZeroRates Array of corresponding zero rates.
+	 * @param givenHazardRates Array of corresponding zero rates.
 	 * @param interpolationMethod The interpolation method used for the curve.
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
@@ -281,7 +284,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	 * 
 	 * @param name The name of this discount curve.
 	 * @param times Array of times as doubles.
-	 * @param givenZeroRates Array of corresponding zero rates.
+	 * @param givenHazardRates Array of corresponding zero rates.
 	 * @return A new discount factor object.
 	 */
 	public static HazardCurve createHazardCurveFromHazardRate(String name, double[] times, double[] givenHazardRates){

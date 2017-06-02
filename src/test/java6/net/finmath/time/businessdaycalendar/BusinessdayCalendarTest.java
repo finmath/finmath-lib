@@ -1,6 +1,7 @@
 package net.finmath.time.businessdaycalendar;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ public class BusinessdayCalendarTest {
 	public void testCreateDateFromDateAndOffsetCode() {
 		BusinessdayCalendarInterface bdCalendarAny = new BusinessdayCalendarAny();
 
-		LocalDate baseDate = new LocalDate(2016, 4, 27);
+		LocalDate baseDate = LocalDate.of(2016, 4, 27);
 
 		// Test ACT/365 offsets
 		for(float offset : new float[] { 1/365.0f, 2/365.0f, 0.25f, 0.5f, 1.0f }) {

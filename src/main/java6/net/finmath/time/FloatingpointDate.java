@@ -6,7 +6,7 @@
 package net.finmath.time;
 
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;

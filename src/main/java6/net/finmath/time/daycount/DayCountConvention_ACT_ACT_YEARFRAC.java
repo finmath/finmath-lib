@@ -6,8 +6,8 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 /**
  * Implementation of ACT/ACT as in Excel (2013).
@@ -48,7 +48,7 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
@@ -68,14 +68,14 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 			 */
 
 			LocalDate startDateYearStart = startDate.withDayOfYear(1);
-			LocalDate endDateYearEnd = endDate.withDayOfYear(endDate.dayOfYear().getMaximumValue()).plusDays(1);
+			LocalDate endDateYearEnd = endDate.withDayOfYear(endDate.lengthOfYear()).plusDays(1);
 
 			double spannedYears = endDate.getYear() - startDate.getYear() + 1; 
 			denominator = getDaycount(startDateYearStart, endDateYearEnd) / spannedYears;
 		}
 		else {
-			boolean isStartLeapYear	= startDate.year().isLeap();
-			boolean isEndLeapYear	= endDate.year().isLeap();
+			boolean isStartLeapYear	= startDate.isLeapYear();
+			boolean isEndLeapYear	= endDate.isLeapYear();
 			/*
 			 * If the start and end span less or equal one year:
 			 * If start and end fall in a leap year, use ACT/366.
@@ -93,8 +93,8 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 				{
 					// Get February 29th of the respective leap year
 					LocalDate leapYearsFeb29th = isStartLeapYear ? 
-								new LocalDate(startDate.getYear(), DateTimeConstants.FEBRUARY, 29) : 
-								new LocalDate(endDate.getYear(), DateTimeConstants.FEBRUARY, 29); 
+								LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29) : 
+								LocalDate.of(endDate.getYear(), Month.FEBRUARY, 29); 
 					
 
 					// Check position of February 29th

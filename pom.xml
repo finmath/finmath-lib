@@ -11,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>2.4.3-SNAPSHOT</version>
+	<version>3.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -47,6 +47,11 @@
 
 	<contributors>
 		<contributor>
+			<name>Boris Breidenbach</name>
+			<email>bo@chrbo.net</email>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
 			<name>Oliver Dauben</name>
 			<email>oliver.dauben@gmail.com</email>
 			<timezone>1</timezone>
@@ -59,6 +64,11 @@
 		<contributor>
 			<name>Alessandro Gnoatto</name>
 			<email>alessandro.gnoatto@math.lmu.de</email>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
+			<name>Niklas Rodi</name>
+			<email>nrodi@web.de</email>
 			<timezone>1</timezone>
 		</contributor>
 		<contributor>
@@ -91,9 +101,9 @@
 			<version>3.4</version>
 		</dependency>
 		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.9.1</version>
+			<groupId>org.threeten</groupId>
+			<artifactId>threetenbp</artifactId>
+			<version>1.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jblas</groupId>

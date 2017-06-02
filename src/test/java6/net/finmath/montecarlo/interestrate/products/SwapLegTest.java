@@ -8,11 +8,11 @@ package net.finmath.montecarlo.interestrate.products;
 
 import static org.junit.Assert.assertEquals;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -61,7 +61,7 @@ public class SwapLegTest {
 	@Test
 	public void testFloatLeg() throws CalculationException {
 
-		LocalDate	referenceDate = new LocalDate(2014,  DateTimeConstants.AUGUST,  12);
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -119,7 +119,7 @@ public class SwapLegTest {
 	@Test
 	public void testFixLeg() throws CalculationException {
 
-		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12); 
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -175,7 +175,7 @@ public class SwapLegTest {
 		/*
 		 * Create a payment schedule from conventions
 		 */
-		LocalDate	referenceDate = new LocalDate(2014,  DateTimeConstants.AUGUST,  12);
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "20Y";
@@ -221,7 +221,7 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("CMS   leg (analytic, zero vol)...: " + valueAnalytic);
-		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
 
 		System.out.println();
 
@@ -239,7 +239,7 @@ public class SwapLegTest {
 		/*
 		 * Create a payment schedule from conventions
 		 */
-		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12); 
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "20Y";
@@ -290,7 +290,7 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("CMS leg (analytic, zero vol): " + valueAnalytic);
-		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
 
 		System.out.println();
 
@@ -303,7 +303,7 @@ public class SwapLegTest {
 		/*
 		 * Create a payment schedule from conventions
 		 */
-		LocalDate	referenceDate = new LocalDate(2014,  DateTimeConstants.AUGUST,  12);
+		LocalDate	referenceDate = LocalDate.of(2014,  Month.AUGUST,  12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -350,7 +350,7 @@ public class SwapLegTest {
 		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("Arrears leg (analytic, zero vol): " + valueAnalytic);
-		System.out.println("Note: Analytic value doe not consider the convexity adjustment.");
+		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
 
 		System.out.println();
 
@@ -359,7 +359,7 @@ public class SwapLegTest {
 
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
-		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12); 
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
 
 
 		// Create the forward curve (initial value of the LIBOR market model)

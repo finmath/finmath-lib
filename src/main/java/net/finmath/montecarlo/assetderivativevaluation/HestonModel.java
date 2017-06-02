@@ -22,7 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
  * \]
  * \[
- * 	dW_{1} dW_{1} = \rho dt
+ * 	dW_{1} dW_{2} = \rho dt
  * \]
  * \[
  * 	dN(t) = r^{\text{d}} N(t) dt, \quad N(0) = N_{0},
@@ -236,7 +236,7 @@ public class HestonModel extends AbstractModel {
 	}
 
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return getProcess().getBrownianMotion().getRandomVariableForConstant(value);
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override

@@ -146,7 +146,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 		/*
 			 * Calculate the numeraire for timeIndex
 		 */
-			RandomVariableInterface zero = getProcess().getBrownianMotion().getRandomVariableForConstant(0.0);
+			RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 			RandomVariableInterface integratedRate = zero;
 		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 		for(int i=0; i<timeIndex; i++) {

@@ -6,10 +6,11 @@
 
 package net.finmath.time;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-
-import org.joda.time.LocalDate;
 
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -224,7 +225,7 @@ public class ScheduleGenerator {
 				periodIndex++;
 				// The following code only makes calculations on periodEndXxx while the periodStartXxx is only copied and used to check if we terminate
 				// Determine period end
-				if(isUseEndOfMonth && startDate.getDayOfMonth() == startDate.dayOfMonth().getMaximumValue()) {
+				if(isUseEndOfMonth && startDate.getDayOfMonth() == startDate.lengthOfMonth()) {
 					periodEndDateUnadjusted = startDate
 							.plusDays(1)
 							.plusDays(periodLengthDays*periodIndex)
@@ -276,7 +277,7 @@ public class ScheduleGenerator {
 				periodIndex++;
 				// The following code only makes calculations on periodStartXxx while the periodEndXxx is only copied and used to check if we terminate
 				// Determine period start
-				if(isUseEndOfMonth && maturityDate.getDayOfMonth() == maturityDate.dayOfMonth().getMaximumValue()) {
+				if(isUseEndOfMonth && maturityDate.getDayOfMonth() == maturityDate.lengthOfMonth()) {
 					periodStartDateUnadjusted = maturityDate
 							.plusDays(1)
 							.minusDays(periodLengthDays*periodIndex)
@@ -447,7 +448,18 @@ public class ScheduleGenerator {
 			int	paymentOffsetDays
 			)
 	{
-		return createScheduleFromConventions(new LocalDate(referenceDate), new LocalDate(startDate), new LocalDate(maturityDate), frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+		return createScheduleFromConventions(
+				Instant.ofEpochMilli(referenceDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate(),
+				Instant.ofEpochMilli(startDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate(),
+				Instant.ofEpochMilli(maturityDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate(),
+				frequency,
+				daycountConvention,
+				shortPeriodConvention,
+				dateRollConvention,
+				businessdayCalendar,
+				fixingOffsetDays,
+				paymentOffsetDays
+				);
 	}
 
 	/**
@@ -485,10 +497,10 @@ public class ScheduleGenerator {
 			)
 	{
 		LocalDate spotDate = businessdayCalendar.getRolledDate(tradeDate, spotOffsetDays);
-		LocalDate unadjustedStartDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
-		LocalDate unadjustedMaturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(unadjustedStartDate, maturityString);
+		LocalDate startDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
+		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(startDate, maturityString);
 	
-		return createScheduleFromConventions(referenceDate, unadjustedStartDate, unadjustedMaturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+		return createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 	}
 
 	/**

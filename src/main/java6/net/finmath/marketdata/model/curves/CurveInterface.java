@@ -5,7 +5,7 @@
  */
 package net.finmath.marketdata.model.curves;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -27,6 +27,8 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	/**
 	 * Return the reference date of this curve, i.e. the date
 	 * associated with t=0.
+	 * 
+	 * May be null in case the curve is not associated with a fixed date (e.g. a time homogenous model).
 	 * 
 	 * @return The date identified as t=0.
 	 */

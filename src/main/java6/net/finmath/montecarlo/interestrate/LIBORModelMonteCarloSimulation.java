@@ -95,7 +95,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 	@Override
 	public BrownianMotionInterface getBrownianMotion() {
-		return model.getProcess().getBrownianMotion();
+		return (BrownianMotionInterface)model.getProcess().getStochasticDriver();
 	}
 
 	@Override

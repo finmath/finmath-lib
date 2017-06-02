@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
@@ -118,9 +118,9 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	public double getValue(AnalyticModelInterface model, double time) {
 		LocalDate calendar = getReferenceDate().plusDays((int) Math.round(time*365));
 
-		int month = calendar.getMonthOfYear();				// Note: month = 1,2,3,...,12
+		int month = calendar.getMonthValue();				// Note: month = 1,2,3,...,12
 		int day   = calendar.getDayOfMonth(); 				// Note: day = 1,2,3,...,numberOfDays
-		int numberOfDays = calendar.dayOfMonth().getMaximumValue();
+		int numberOfDays = calendar.lengthOfMonth();
 		double season = (month-1) / 12.0 + (day-1) / (double)numberOfDays / 12.0;
 
 		return baseCurve.getValue(model, season);
@@ -160,7 +160,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 
 		LocalDate lastMonth = fixingDates.get(fixingDates.size()-1);
 
-		return computeSeasonalAdjustments(realizedCPIValues, lastMonth.getMonthOfYear(), numberOfYearsToAverage);
+		return computeSeasonalAdjustments(realizedCPIValues, lastMonth.getMonthValue(), numberOfYearsToAverage);
 	}
 
 	/**

@@ -6,8 +6,8 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 /**
  * Implementation of 30E/360 ISDA.
@@ -44,24 +44,24 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
 
 		int startDateDay 	= startDate.getDayOfMonth();
-		int startDateMonth 	= startDate.getMonthOfYear();
+		int startDateMonth 	= startDate.getMonthValue();
 		int startDateYear 	= startDate.getYear();
 
 		int endDateDay 		= endDate.getDayOfMonth();
-		int endDateMonth 	= endDate.getMonthOfYear();
+		int endDateMonth 	= endDate.getMonthValue();
 		int endDateYear 	= endDate.getYear();
 
 
 		// Check if we have last day of February
-		boolean isStartDateLastDayOfFebruary = (startDateMonth == DateTimeConstants.FEBRUARY && startDateDay == startDate.dayOfMonth().getMaximumValue()); 
-		boolean isEndDateLastDayOfFebruary = (endDateMonth == DateTimeConstants.FEBRUARY && endDateDay == endDate.dayOfMonth().getMaximumValue());
+		boolean isStartDateLastDayOfFebruary = (startDateMonth == Month.FEBRUARY.getValue() && startDateDay == startDate.lengthOfMonth()); 
+		boolean isEndDateLastDayOfFebruary = (endDateMonth == Month.FEBRUARY.getValue() && endDateDay == endDate.lengthOfMonth());
 
 		// Last day of February and 31st of a month are both treated as "30".
 		if(isStartDateLastDayOfFebruary || startDateDay == 31) startDateDay = 30;
@@ -71,7 +71,7 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

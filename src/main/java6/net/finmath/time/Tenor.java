@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Implements a time discretization based on dates using a reference

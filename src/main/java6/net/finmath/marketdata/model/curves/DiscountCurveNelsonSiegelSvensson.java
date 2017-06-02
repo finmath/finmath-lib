@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import org.apache.commons.math3.util.FastMath;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
