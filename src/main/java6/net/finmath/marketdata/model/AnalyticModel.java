@@ -116,25 +116,20 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	@Override
 	public DiscountCurveInterface getDiscountCurve(String discountCurveName) {
 		DiscountCurveInterface discountCurve = null;
-		CurveInterface curveForDiscountingCurve			= getCurve(discountCurveName);
-		if(DiscountCurveInterface.class.isInstance(curveForDiscountingCurve)) {
-			discountCurve	= (DiscountCurveInterface)curveForDiscountingCurve;
-		}
-		else if(ForwardCurveInterface.class.isInstance(curveForDiscountingCurve)) {
-			// Check if the discount curve is a forward curve
-			ForwardCurveInterface	forwardCurveForDiscounting	= (ForwardCurveInterface) curveForDiscountingCurve;
-			discountCurve = new DiscountCurveFromForwardCurve(forwardCurveForDiscounting.getName());
-		}
+		CurveInterface curve = getCurve(discountCurveName);
+		if(DiscountCurveInterface.class.isInstance(curve))
+			discountCurve = (DiscountCurveInterface)curve;
+
 		return discountCurve;
 	}
 
 	@Override
 	public ForwardCurveInterface getForwardCurve(String forwardCurveName) {
 		ForwardCurveInterface forwardCurve = null;
-		CurveInterface curveForForwards			= getCurve(forwardCurveName);
-		if(ForwardCurveInterface.class.isInstance(curveForForwards)) {
-			forwardCurve	= (ForwardCurveInterface)curveForForwards;
-		}
+		CurveInterface curve = getCurve(forwardCurveName);
+		if(ForwardCurveInterface.class.isInstance(curve))
+			forwardCurve = (ForwardCurveInterface)curve;
+
 		return forwardCurve;
 	}
 
