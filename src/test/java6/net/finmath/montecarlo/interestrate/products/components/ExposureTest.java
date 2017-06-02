@@ -9,12 +9,12 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,9 +59,9 @@ public class ExposureTest {
 		 * Create a receiver swap (receive fix, pay float)
 		 */
 		ScheduleInterface legScheduleRec = ScheduleGenerator.createScheduleFromConventions(
-				new LocalDate(2015, DateTimeConstants.JANUARY, 03) /* referenceDate */, 
-				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* startDate */,
-				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* maturityDate */,
+				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */, 
+				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
+				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.ANNUAL /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
@@ -71,9 +71,9 @@ public class ExposureTest {
 				0 /* paymentOffsetDays */);
 
 		ScheduleInterface legSchedulePay = ScheduleGenerator.createScheduleFromConventions(
-				new LocalDate(2015, DateTimeConstants.JANUARY, 03) /* referenceDate */, 
-				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* startDate */,
-				new LocalDate(2015, DateTimeConstants.JANUARY, 06) /* maturityDate */,
+				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */, 
+				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
+				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.QUARTERLY /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
@@ -107,8 +107,9 @@ public class ExposureTest {
 
 			double exposureOnPath				= valuesEstimatedExposure.get(0);
 			double expectedPositiveExposure		= valuesPositiveExposure.getAverage();
+			double exposureQuantil				= valuesEstimatedExposure.getQuantile(0.95);
 
-			System.out.println(observationDate + "\t" + formatter6.format(exposureOnPath) + " \t " + formatter6.format(expectedPositiveExposure));
+			System.out.println(observationDate + "\t" + formatter6.format(exposureQuantil) + " \t " + formatter6.format(expectedPositiveExposure));
 
 			double basisPoint = 1E-4;
 			Assert.assertTrue("Expected positive exposure", expectedPositiveExposure >= 0-1*basisPoint);

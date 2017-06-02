@@ -53,6 +53,8 @@ public class AnalyticFormulasTest {
 			givenVolatilities[0] = givenVolatilities[0] + 0.00001;
 			final double displacement3 = displacement2;
 			LevenbergMarquardt lm = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, numberOfThreads) {			
+				private static final long serialVersionUID = -4799790311777696204L;
+
 				@Override
 				public void setValues(double[] parameters, double[] values) throws SolverException {
 					for(int strikeIndex = 0; strikeIndex < givenStrikes.length; strikeIndex++) {

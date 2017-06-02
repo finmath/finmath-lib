@@ -7,13 +7,13 @@ package net.finmath.tests.montecarlo.interestrate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -112,7 +112,7 @@ public class HullWhiteModelTest {
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
-				new LocalDate(2014,  DateTimeConstants.AUGUST,  12),
+				LocalDate.of(2014, Month.AUGUST, 12),
 				"6M",
 				ForwardCurve.InterpolationEntityForward.FORWARD,
 				null,
@@ -793,7 +793,7 @@ public class HullWhiteModelTest {
 		/*
 		 * Create a payment schedule from conventions
 		 */
-		LocalDate	referenceDate = new LocalDate(2014,  DateTimeConstants.AUGUST,  12);
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "6M";
 		String		maturity = "6M";

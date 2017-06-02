@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * @author Christian Fries

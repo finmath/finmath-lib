@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.util.Set;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -67,13 +67,13 @@ public class DateIndex extends AbstractIndex {
 			value = referenceDate.getDayOfMonth();
 			break;
 		case MONTH:
-			value = referenceDate.getMonthOfYear();
+			value = referenceDate.getMonthValue();
 			break;
 		case YEAR:
 			value = referenceDate.getYear();
 			break;
 		case NUMBER_OF_DAYS_IN_MONTH:
-			value = referenceDate.dayOfMonth().getMaximumValue();
+			value = referenceDate.lengthOfMonth();
 			break;
 		}
 

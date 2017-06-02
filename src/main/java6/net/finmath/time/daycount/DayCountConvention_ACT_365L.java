@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Implementation of ACT/365L.
@@ -38,7 +38,7 @@ public class DayCountConvention_ACT_365L extends DayCountConvention_ACT {
 		double daysPerYear = 365.0;
 		
 		// Check endDate for leap year
-		if (endDate.year().isLeap()) daysPerYear = 366.0;
+		if (endDate.isLeapYear()) daysPerYear = 366.0;
 		
 		double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
 

@@ -6,7 +6,7 @@
 
 package net.finmath.time;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * A period, i.e. a time interval suitable for securities with regular payment schedules.
@@ -104,8 +104,6 @@ public class Period implements Comparable<Period> {
 
 	@Override
 	public String toString() {
-		return "Period [fixing=" + fixing + ", payment=" + payment
-				+ ", periodStart=" + periodStart + ", periodEnd=" + periodEnd
-				+ "]";
+		return "Period [start=" + periodStart + ", end=" + periodEnd + ", fixing=" + fixing + ", payment=" + payment + "]";
 	}
 }

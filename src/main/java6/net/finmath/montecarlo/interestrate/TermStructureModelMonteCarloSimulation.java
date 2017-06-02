@@ -95,7 +95,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 
 	@Override
 	public BrownianMotionInterface getBrownianMotion() {
-		return model.getProcess().getBrownianMotion();
+		return (BrownianMotionInterface)model.getProcess().getStochasticDriver();
 	}
 
 	@Override

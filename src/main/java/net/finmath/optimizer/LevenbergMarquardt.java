@@ -69,7 +69,7 @@ import net.finmath.functions.LinearAlgebra;
  * </center>
  * 
  * <pre>
- * {@code
+ * <code>
  * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
  * 		// Override your objective function here
  * 		public void setValues(double[] parameters, double[] values) {
@@ -87,7 +87,7 @@ import net.finmath.functions.LinearAlgebra;
  * 	optimizer.run();
  * 
  * 	double[] bestParameters = optimizer.getBestFitParameters();
- * }
+ * </code>
  * </pre>
  * 
  * See the example in the main method below.
@@ -156,6 +156,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	public static void main(String[] args) throws SolverException, CloneNotSupportedException {
 
 		LevenbergMarquardt optimizer = new LevenbergMarquardt() {
+			private static final long serialVersionUID = -282626938650139518L;
 
 			// Override your objective function here
 			@Override

@@ -6,21 +6,19 @@
 
 package net.finmath.time;
 
+import org.threeten.bp.LocalDate;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.joda.time.LocalDate;
-
 import net.finmath.time.daycount.DayCountConventionInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * A schedule of interest rate periods with
  * a fixing and payment.
  * 
  * The periods have two representations: one a {@link net.finmath.time.Period}
- * which contains {@link java.time.LocalDate} dates and
+ * which contains {@link org.threeten.bp.LocalDate} dates and
  * an alternative representation using doubles.
  * 
  * Within a schedule, the mapping from doubles to dates is one to one.
@@ -29,7 +27,6 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class Schedule implements ScheduleInterface {
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 	private			LocalDate					referenceDate;
 
 	private List<Period>			periods;
@@ -58,10 +55,10 @@ public class Schedule implements ScheduleInterface {
 		periodEndTimes = new double[periods.size()];
 		periodLength = new double[periods.size()];
 		for(int periodIndex=0; periodIndex < periods.size(); periodIndex++) {
-			fixingTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getFixing());
-			paymentTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPayment());
-			periodStartTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodStart());
-			periodEndTimes[periodIndex] = internalDayCounting.getDaycountFraction(referenceDate, periods.get(periodIndex).getPeriodEnd());
+			fixingTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getFixing());
+			paymentTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPayment());
+			periodStartTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPeriodStart());
+			periodEndTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPeriodEnd());
 			periodLength[periodIndex] = daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
 		}
 	}
@@ -117,18 +114,18 @@ public class Schedule implements ScheduleInterface {
 	}
 
 	@Override
-	public String toString() {
-		return "Schedule [referenceDate=" + referenceDate + ", periods="
-				+ periods + ", daycountconvention=" + daycountconvention + "]";
-	}
-
-
-	/* (non-Javadoc)
-	 * @see java.lang.Iterable#iterator()
-	 */
-	@Override
 	public Iterator<Period> iterator() {
 		return periods.iterator();
 	}
-
+	
+	@Override
+	public String toString() {
+		String periodOutputString = "Periods (fixing, periodStart, periodEnd, payment):";
+		for(int periodIndex=0; periodIndex<periods.size(); periodIndex++) 
+			periodOutputString += "\n" + periods.get(periodIndex).getFixing() + ", " +
+									periods.get(periodIndex).getPeriodStart() + ", " +
+									periods.get(periodIndex).getPeriodEnd() + ", " +
+									periods.get(periodIndex).getPayment();
+		return "Schedule [referenceDate=" + referenceDate + ", daycountconvention=" + daycountconvention + "\n" + periodOutputString + "]";
+	}
 }

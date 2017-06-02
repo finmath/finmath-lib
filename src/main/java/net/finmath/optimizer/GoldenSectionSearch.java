@@ -12,16 +12,16 @@ package net.finmath.optimizer;
  * 
  * Example:
  * <pre>
- * {@code
+ * <code>
  * 		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);		
- * 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
+ * 		while(search.getAccuracy() &gt; 1E-11 &amp;&amp; !search.isDone()) {
  * 			double x = search.getNextPoint();
  * 			
  * 			double y = (x - 0.656) * (x - 0.656);
  * 			
  * 			search.setValue(y);
  * 		}
- * }
+ * </code>
  * </pre>
  * 
  * For an example on how to use this class see also its main method.

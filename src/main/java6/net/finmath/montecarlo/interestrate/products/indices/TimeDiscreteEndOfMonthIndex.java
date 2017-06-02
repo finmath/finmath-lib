@@ -5,14 +5,13 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import org.threeten.bp.LocalDate;
 import java.util.Set;
-
-import org.joda.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.time.daycount.DayCountConvention_ACT_365;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * An index which maps is evaluation point to a fixed discrete point, the end of the month,
@@ -44,13 +43,15 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 
 		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate();
 
-		LocalDate endDate = referenceDate
-				.plusDays((int)Math.round(evaluationTime * 365))
-				.withDayOfMonth(1)
-				.plusMonths(fixingOffsetMonths);
+		LocalDate evaluationDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, evaluationTime);
 
-		endDate = endDate.withDayOfMonth(endDate.dayOfMonth().getMaximumValue());
-		double time = (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, endDate);
+		// Roll to start of month (to prevent "overflow)
+		LocalDate endDate = evaluationDate.withDayOfMonth(1).plusMonths(fixingOffsetMonths);
+
+		// Roll to end of month.
+		endDate = endDate.withDayOfMonth(endDate.lengthOfMonth());
+		
+		double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, endDate);
 		return baseIndex.getValue(time, model);
 	}
 

@@ -6,8 +6,9 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.chrono.IsoChronology;
 
 /**
  * Implementation of ACT/365A.
@@ -35,7 +36,7 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT {
 	
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
@@ -44,19 +45,19 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT {
 		double daysPerYear = 365.0;
 		
 		// Check startDate for leap year
-		if (startDate.year().isLeap()) {
-			LocalDate leapDayStart = new LocalDate(startDate.getYear(), DateTimeConstants.FEBRUARY, 29);
+		if (startDate.isLeapYear()) {
+			LocalDate leapDayStart = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);
 			if(startDate.isBefore(leapDayStart) && !endDate.isBefore(leapDayStart)) daysPerYear = 366.0;
 		}
 
 		// Check endDate for leap year
-		if (endDate.year().isLeap()){
-			LocalDate leapDayEnd = new LocalDate(endDate.getYear(),  DateTimeConstants.FEBRUARY,  29);
+		if (endDate.isLeapYear()){
+			LocalDate leapDayEnd = LocalDate.of(endDate.getYear(),  Month.FEBRUARY,  29);
 			if(startDate.isBefore(leapDayEnd) && !endDate.isBefore(leapDayEnd)) daysPerYear = 366.0;
 		}
 
 		// Check in-between years for leap year
-		for(int year = startDate.getYear()+1; year < endDate.getYear(); year++) if((new LocalDate().withYear(year)).year().isLeap()) daysPerYear = 366.0;
+		for(int year = startDate.getYear()+1; year < endDate.getYear(); year++) if(IsoChronology.INSTANCE.isLeapYear(year)) daysPerYear = 366.0;
 		
 		double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
 

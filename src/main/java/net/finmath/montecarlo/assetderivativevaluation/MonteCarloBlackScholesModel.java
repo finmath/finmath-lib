@@ -178,14 +178,14 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		else
 		{
 			// The seed has not changed. We may reuse the random numbers (Brownian motion) of the original model
-			brownianMotion = model.getProcess().getBrownianMotion();
+			brownianMotion = (BrownianMotionInterface)model.getProcess().getStochasticDriver();
 		}
 
 		double timeShift = newInitialTime - getTime(0);
 		if(timeShift != 0) {
 			ArrayList<Double> newTimes = new ArrayList<Double>();
 			newTimes.add(newInitialTime);
-			for(Double time : model.getProcess().getBrownianMotion().getTimeDiscretization()) if(time > newInitialTime) newTimes.add(time);
+			for(Double time : model.getProcess().getStochasticDriver().getTimeDiscretization()) if(time > newInitialTime) newTimes.add(time);
 			TimeDiscretizationInterface newTimeDiscretization = new TimeDiscretization(newTimes);
 			brownianMotion = brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
 		}

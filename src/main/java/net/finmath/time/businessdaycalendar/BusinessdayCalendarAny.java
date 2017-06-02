@@ -16,17 +16,17 @@ import java.time.LocalDate;
 public class BusinessdayCalendarAny extends BusinessdayCalendar {
 
 	/**
-	 * 
+	 * Create a business day calendar, where every day is a business day.
 	 */
 	public BusinessdayCalendarAny() {
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.time.LocalDate)
-	 */
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		return true;
 	}
 
+	public String toString() {
+		return "BusinessdayCalendarAny";
+	}
 }

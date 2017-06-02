@@ -11,11 +11,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.time.FloatingpointDate;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
@@ -110,7 +111,7 @@ public class CurveFactory {
 					else if(forwardsFixingLag.equals("-3M")) cpiDate = cpiDate.minusMonths(3);
 					else if(forwardsFixingLag.equals("-4M")) cpiDate = cpiDate.minusMonths(4);
 					else throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
-					cpiDate = cpiDate.withDayOfMonth(cpiDate.dayOfMonth().getMaximumValue());
+					cpiDate = cpiDate.withDayOfMonth(cpiDate.lengthOfMonth());
 				}
 				else {
 					throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
@@ -130,7 +131,7 @@ public class CurveFactory {
 			else if(forwardsFixingLag.equals("-3M")) baseDate = baseDate.minusMonths(3);
 			else if(forwardsFixingLag.equals("-4M")) baseDate = baseDate.minusMonths(4);
 			else throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
-			baseDate = baseDate.withDayOfMonth(baseDate.dayOfMonth().getMaximumValue());
+			baseDate = baseDate.withDayOfMonth(baseDate.lengthOfMonth());
 		}
 
 		/*
@@ -138,7 +139,7 @@ public class CurveFactory {
 		 */
 		Double baseValue	= indexFixings.get(baseDate);
 		if(baseValue == null) throw new IllegalArgumentException("Curve " + name + " has missing index value for base date " + baseDate);
-		double baseTime		= (new DayCountConvention_ACT_365()).getDaycountFraction(referenceDate, baseDate);
+		double baseTime		= FloatingpointDate.getFloatingPointDateFromDate(referenceDate, baseDate);
 
 		/*
 		 * Combine all three curves.

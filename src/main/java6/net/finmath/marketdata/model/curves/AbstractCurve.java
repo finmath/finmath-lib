@@ -5,7 +5,7 @@
  */
 package net.finmath.marketdata.model.curves;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Abstract base class for a curve. It stores the name of the curve and
@@ -61,10 +61,6 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 		return values;
 	}
 
-	public String toString() {
-		return super.toString() + "\n\"" + this.getName() + "\"";
-	}
-
 	@Override
 	public AbstractCurve clone() throws CloneNotSupportedException {
 		return (AbstractCurve)super.clone();
@@ -73,5 +69,10 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	@Override
 	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
+	}
+	
+	@Override
+	public String toString() {
+		return "AbstractCurve [name=" + name + ", referenceDate=" + referenceDate + "]";
 	}
 }

@@ -6,9 +6,11 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Date;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+import java.util.Date;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -215,7 +217,8 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			double[] times, double[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		
-		return createDiscountCurveFromZeroRates(name, new LocalDate(referenceDate), times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
+		LocalDate referenceDataAsLocalDate = Instant.ofEpochMilli(referenceDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+		return createDiscountCurveFromZeroRates(name, referenceDataAsLocalDate, times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
 	/**
@@ -436,6 +439,6 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	@Override
 	public String toString() {
-		return super.toString();
+		return "DiscountCurve [" + super.toString() + "]";
 	}
 }

@@ -25,7 +25,7 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 	 * 
 	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
 	 */
-	public TermStructCovarianceModelFromLIBORCovarianceModel(TermStructureTenorTimeScalingInterface tenorScalingModel, AbstractLIBORCovarianceModelParametric covarianceModel) {
+	public TermStructCovarianceModelFromLIBORCovarianceModel(AbstractLIBORCovarianceModelParametric covarianceModel) {
 		this.covarianceModel = covarianceModel;
 	}
 

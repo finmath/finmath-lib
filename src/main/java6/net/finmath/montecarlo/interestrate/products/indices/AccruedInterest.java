@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.util.Set;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
