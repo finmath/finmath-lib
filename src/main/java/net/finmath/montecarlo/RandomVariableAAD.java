@@ -84,10 +84,14 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariableInterface randomVariable) {
 		return constructNewAADRandomVariable(randomVariable, /* no parents*/ null,
 				/*no parent operator*/ null, /*not constant*/ false);
-				
 	}
 
-	public RandomVariableInterface getRandomVariable() {
+	public static RandomVariableAAD constructNewAADRandomVariable(double time, double[] realisations) {
+		return constructNewAADRandomVariable(new RandomVariable(time, realisations), /* no parents*/ null,
+				/*no parent operator*/ null, /*not constant*/ false);
+	}
+	
+	private RandomVariableInterface getRandomVariable() {
 		return arrayListOfRandomVariables.get(indexOfRandomVariable);
 	}
 	
@@ -207,6 +211,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	
 	private int[] getParentIDs() {
 		
+		if(parentRandomVariables == null) return null;
+		
 		int[] parentIDs = new int[parentRandomVariables.length];
 		for(int parentVariableIndex = 0; parentVariableIndex < parentRandomVariables.length; parentVariableIndex++){
 			parentIDs[parentVariableIndex] = parentRandomVariables[parentVariableIndex].indexOfRandomVariable;
@@ -223,7 +229,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 				"time: " + getFiltrationTime() + "\n" + 
 				"realizations: " + Arrays.toString(getRealizations()) + "\n" + 
 				"variableID: " + indexOfRandomVariable + "\n" +
-				"parentIDs: " + Arrays.toString(getParentIDs()) + "\n" +
+				"parentIDs: " + Arrays.toString(getParentIDs()) + ((getParentIDs() == null) ? "" : (" type: " + parentOperator.name())) + "\n" +
 				"isTrueVariable: " + isVariable() + "\n";
 	}
 
