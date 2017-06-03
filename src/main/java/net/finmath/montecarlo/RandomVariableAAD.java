@@ -27,7 +27,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	private static ArrayList<RandomVariableInterface> arrayListOfRandomVariables = new ArrayList<>();
 	private static int indexOfNextRandomVariable = 0;
 	private static enum OperatorType {
-		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP
+		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCURUE, POW
 	}
 	
 	/* index of corresponding random variable in the static array list*/
@@ -75,6 +75,11 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		/* return a new random variable */
 		return new RandomVariableAAD(indexOfThisRandomVariable, parentRandomVariables, parentOperator, isConstant);
 	}
+	
+	public static RandomVariableAAD constructNewAADRandomVariable(double value){
+		return constructNewAADRandomVariable(new RandomVariable(value), /*parentRandomVariables*/ null, /*parentOperator*/ null, /*isConstant*/ true);
+	}
+	
 	
 	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariableInterface randomVariable) {
 		return constructNewAADRandomVariable(randomVariable, /* no parents*/ null,
@@ -124,6 +129,14 @@ public class RandomVariableAAD implements RandomVariableInterface {
 				if(randomVariableInterfaces.length != 1) throw new IllegalArgumentException();
 				resultrandomvariable = aadRandomVariables[0].getRandomVariable().cos();
 				break;
+			case ABS:
+				if(randomVariableInterfaces.length != 1) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().abs();
+				break;
+			case INVERT:
+				if(randomVariableInterfaces.length != 1) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().invert();
+				break;
 				
 			/* functions with two arguments */
 			case ADD:
@@ -141,6 +154,46 @@ public class RandomVariableAAD implements RandomVariableInterface {
 			case DIV:
 				if(randomVariableInterfaces.length != 2) throw new IllegalArgumentException();
 				resultrandomvariable = aadRandomVariables[0].getRandomVariable().div(aadRandomVariables[1].getRandomVariable());
+				break;
+			case CAP:
+				if(randomVariableInterfaces.length != 2) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().cap(aadRandomVariables[1].getRandomVariable());
+				break;
+			case FLOOR:
+				if(randomVariableInterfaces.length != 2) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().floor(aadRandomVariables[1].getRandomVariable());
+				break;			
+			case POW:
+				if(randomVariableInterfaces.length != 2) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().pow(
+						/* argument is deterministic anyway */ aadRandomVariables[1].getRandomVariable().getAverage());
+				break;
+				
+			/* functions with three arguments */	
+			case ADDPRODUCT:
+				if(randomVariableInterfaces.length != 3) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().addProduct(aadRandomVariables[1].getRandomVariable(), 
+						aadRandomVariables[2].getRandomVariable());
+				break;
+			case ADDRATIO:
+				if(randomVariableInterfaces.length != 3) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().addRatio(aadRandomVariables[1].getRandomVariable(), 
+						aadRandomVariables[2].getRandomVariable());
+				break;
+			case SUBRATIO:
+				if(randomVariableInterfaces.length != 3) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().subRatio(aadRandomVariables[1].getRandomVariable(), 
+						aadRandomVariables[2].getRandomVariable());
+				break;
+			case ACCURUE:
+				if(randomVariableInterfaces.length != 3) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().accrue(aadRandomVariables[1].getRandomVariable(), 
+						/* second argument is deterministic anyway */ aadRandomVariables[2].getRandomVariable().getAverage());
+				break;
+			case DISCOUNT:
+				if(randomVariableInterfaces.length != 3) throw new IllegalArgumentException();
+				resultrandomvariable = aadRandomVariables[0].getRandomVariable().discount(aadRandomVariables[1].getRandomVariable(), 
+						/* second argument is deterministic anyway */ aadRandomVariables[2].getRandomVariable().getAverage());
 				break;
 				
 			/* if non of the above throw exception */
@@ -269,8 +322,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double get(int pathOrState) {
-		// TODO Auto-generated method stub
-		return 0;
+		return getRandomVariable().get(pathOrState);
 	}
 
 	/* (non-Javadoc)
@@ -294,8 +346,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double[] getRealizations() {
-		// TODO Auto-generated method stub
-		return null;
+		return getRandomVariable().getRealizations();
 	}
 
 	/* (non-Javadoc)
@@ -303,8 +354,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double[] getRealizations(int numberOfPaths) {
-		// TODO Auto-generated method stub
-		return null;
+		return getRandomVariable().getRealizations(numberOfPaths);
 	}
 
 	/* (non-Javadoc)
@@ -456,8 +506,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double[] getHistogram(double[] intervalPoints) {
-		// TODO Auto-generated method stub
-		return null;
+		return getRandomVariable().getHistogram(intervalPoints);
 	}
 
 	/* (non-Javadoc)
@@ -465,8 +514,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
-		// TODO Auto-generated method stub
-		return null;
+		return getRandomVariable().getHistogram(numberOfPoints, standardDeviations);
 	}
 
 	/* (non-Javadoc)
@@ -511,8 +559,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface floor(double floor) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.FLOOR, new RandomVariableInterface[]{this, constructNewAADRandomVariable(floor)});
 	}
 
 	/* (non-Javadoc)
@@ -520,8 +567,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface add(double value) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.ADD, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -529,8 +575,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface sub(double value) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.SUB, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -538,8 +583,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface mult(double value) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.MULT, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -547,8 +591,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface div(double value) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.DIV, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -556,8 +599,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface pow(double exponent) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.POW, new RandomVariableInterface[]{this, constructNewAADRandomVariable(exponent)});
 	}
 
 	/* (non-Javadoc)
@@ -565,8 +607,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface squared() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.SQUARED, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
@@ -574,8 +615,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface sqrt() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.SQRT, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
@@ -583,8 +623,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface exp() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.EXP, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
@@ -592,8 +631,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface log() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.LOG, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
@@ -601,8 +639,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface sin() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.SIN, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
@@ -610,17 +647,15 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface cos() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.COS, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.RandomVariableInterface)
 	 */
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
-		// TODO Auto-generated method stub
-		return null;
+	public RandomVariableInterface add(RandomVariableInterface randomVariable) {	
+		return apply(OperatorType.ADD, new RandomVariableInterface[]{this, randomVariable});
 	}
 
 	/* (non-Javadoc)
@@ -628,8 +663,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.SUB, new RandomVariableInterface[]{this, randomVariable});
 	}
 
 	/* (non-Javadoc)
@@ -637,8 +671,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.MULT, new RandomVariableInterface[]{this, randomVariable});
 	}
 
 	/* (non-Javadoc)
@@ -646,8 +679,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.DIV, new RandomVariableInterface[]{this, randomVariable});
 	}
 
 	/* (non-Javadoc)
@@ -655,8 +687,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface cap(RandomVariableInterface cap) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.CAP, new RandomVariableInterface[]{this, cap});
 	}
 
 	/* (non-Javadoc)
@@ -664,8 +695,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface floor(RandomVariableInterface floor) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.FLOOR, new RandomVariableInterface[]{this, floor});
 	}
 
 	/* (non-Javadoc)
@@ -673,8 +703,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.ACCURUE, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
 	}
 
 	/* (non-Javadoc)
@@ -682,8 +711,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.DISCOUNT, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
 	}
 
 	/* (non-Javadoc)
@@ -692,9 +720,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger,
 			RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, valueIfTriggerNegative});
+		}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, double)
@@ -702,8 +729,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger,
 			RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, constructNewAADRandomVariable(valueIfTriggerNegative)});
 	}
 
 	/* (non-Javadoc)
@@ -711,8 +737,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface invert() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.INVERT, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
@@ -720,8 +745,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface abs() {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.ABS, new RandomVariableInterface[]{this});
 	}
 
 	/* (non-Javadoc)
@@ -729,8 +753,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, constructNewAADRandomVariable(factor2)});
 	}
 
 	/* (non-Javadoc)
@@ -738,8 +761,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, factor2});
 	}
 
 	/* (non-Javadoc)
@@ -747,8 +769,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.ADDRATIO, new RandomVariableInterface[]{this, numerator, denominator});
 	}
 
 	/* (non-Javadoc)
@@ -756,8 +777,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
-		// TODO Auto-generated method stub
-		return null;
+		return apply(OperatorType.SUBRATIO, new RandomVariableInterface[]{this, numerator, denominator});
 	}
 
 	/* (non-Javadoc)
@@ -765,8 +785,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface isNaN() {
-		// TODO Auto-generated method stub
-		return null;
+		return getRandomVariable().isNaN();
 	}
 
 	/* (non-Javadoc)
