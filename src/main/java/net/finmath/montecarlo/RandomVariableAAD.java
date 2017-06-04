@@ -27,7 +27,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	private static ArrayList<RandomVariableInterface> arrayListOfRandomVariables = new ArrayList<>();
 	private static int indexOfNextRandomVariable = 0;
 	private static enum OperatorType {
-		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCURUE, POW
+		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
+		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCURUE, POW, AVERAGE, VARIANCE, STDEV
 	}
 	
 	/* index of corresponding random variable in the static array list*/
@@ -140,6 +141,21 @@ public class RandomVariableAAD implements RandomVariableInterface {
 			case INVERT:
 				if(randomVariableInterfaces.length != 1) throw new IllegalArgumentException();
 				resultrandomvariable = aadRandomVariables[0].getRandomVariable().invert();
+				break;
+			case AVERAGE:
+				if(randomVariableInterfaces.length != 1) throw new IllegalArgumentException();
+				/* return a new deterministic random variable  */
+				resultrandomvariable = new RandomVariable(aadRandomVariables[0].getRandomVariable().getAverage());
+				break;
+			case VARIANCE:
+				if(randomVariableInterfaces.length != 1) throw new IllegalArgumentException();
+				/* return a new deterministic random variable  */
+				resultrandomvariable = new RandomVariable(aadRandomVariables[0].getRandomVariable().getVariance());
+				break;
+			case STDEV:
+				if(randomVariableInterfaces.length != 1) throw new IllegalArgumentException();
+				/* return a new deterministic random variable  */
+				resultrandomvariable = new RandomVariable(aadRandomVariables[0].getRandomVariable().getStandardDeviation());
 				break;
 				
 			/* functions with two arguments */
@@ -404,8 +420,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double getAverage() {
-		// TODO Auto-generated method stub
-		return 0;
+		/* for AVERAGE apply returns a deterministic value anyway! Hence take .getAverage to access this value */
+		return ((RandomVariableAAD)apply(OperatorType.AVERAGE, new RandomVariableInterface[]{this})).getRandomVariable().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -422,8 +438,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double getVariance() {
-		// TODO Auto-generated method stub
-		return 0;
+		/* for AVERAGE apply returns a deterministic value anyway! Hence take .getAverage to access this value */
+		return apply(OperatorType.VARIANCE, new RandomVariableInterface[]{this}).getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -449,8 +465,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public double getStandardDeviation() {
-		// TODO Auto-generated method stub
-		return 0;
+		/* for AVERAGE apply returns a deterministic value anyway! Hence take .getAverage to access this value */
+		return apply(OperatorType.STDEV, new RandomVariableInterface[]{this}).getAverage();
 	}
 
 	/* (non-Javadoc)
