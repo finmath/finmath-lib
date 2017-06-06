@@ -61,19 +61,14 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
-		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
-
-		DiscountCurveInterface	discountCurveForForward = null;
-		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
-			// User might like to get forward from discount curve.
-			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
-
-			if(discountCurveForForward == null) {
-				// User specified a name for the forward curve, but no curve was found.
-				throw new IllegalArgumentException("No curve of the name " + forwardCurveName + " was found in the model.");
-			}
-		}
+		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		// Check for discount curve
+		if(discountCurve == null)
+			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
+		
+		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0)
+			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
@@ -89,21 +84,10 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			 */
 			if(periodLength == 0) continue;
 
-			double forward		= spread;
+			double forward = spread;
 			if(forwardCurve != null) {
-				forward			+= forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
+				forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
-			else if(discountCurveForForward != null) {
-				/*
-				 * Classical single curve case: using a discount curve as a forward curve.
-				 * This is only implemented for demonstration purposes (an exception would also be appropriate :-)
-				 */
-				if(fixingDate != paymentDate)
-					forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate-fixingDate);
-			}
-
-			// Check for discount curve
-			if(discountCurve == null) throw new IllegalArgumentException("No curve of the name " + discountCurveName + " was found in the model.");
 
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += forward * periodLength * discountFactor;
