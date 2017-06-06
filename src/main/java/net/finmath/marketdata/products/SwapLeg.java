@@ -76,14 +76,6 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 
-			/*
-			 * We do not count empty periods.
-			 * Since empty periods are an indication for a ill-specified
-			 * product, it might be reasonable to throw an
-			 * illegal argument exception instead.
-			 */
-			if(periodLength == 0) continue;
-
 			double forward = spread;
 			if(forwardCurve != null) {
 				forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
@@ -92,6 +84,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += forward * periodLength * discountFactor;
 
+			// Consider notional payments if required
 			if(isNotionalExchanged) {
 				double periodEnd	= legSchedule.getPeriodEnd(periodIndex);
 				value += periodEnd > evaluationTime ? discountCurve.getDiscountFactor(model, periodEnd) : 0.0;
