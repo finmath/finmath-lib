@@ -76,16 +76,13 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 
-			// Consider coupon payment if periodLength is non-zero
-			if(periodLength != 0) {
-				double forward = spread;
-				if(forwardCurve != null) {
-					forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
-				}
-	
-				double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
-				value += forward * periodLength * discountFactor;
+			double forward = spread;
+			if(forwardCurve != null) {
+				forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
+	
+			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
+			value += forward * periodLength * discountFactor;
 
 			// Consider notional payments if required
 			if(isNotionalExchanged) {
