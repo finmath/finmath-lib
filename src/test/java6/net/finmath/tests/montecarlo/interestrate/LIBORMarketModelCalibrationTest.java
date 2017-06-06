@@ -479,7 +479,7 @@ public class LIBORMarketModelCalibrationTest {
 
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 
-		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30)); 
+		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30));
 		parameters.put("currency", "EUR");
 		parameters.put("forwardCurveTenor", "6M");
 		parameters.put("maturities", maturity);
