@@ -76,9 +76,10 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 
-			// empty period is interpreted as misspecification
-			if(periodLength == 0)
-				throw new IllegalArgumentException(periodIndex + "th period of swapLeg is empty which is not allowed.");
+			// as a special use-case one may have periodLength(i)=0 even though periodEnd(i)>periodStart(i)
+			// note that the continue switches off any potential notional exchange cashflows. It would also be an option to remove these lines alltogether
+			if(periodLength == 0) 
+				continue;
 
 			double forward = spread;
 			if(forwardCurve != null) {
