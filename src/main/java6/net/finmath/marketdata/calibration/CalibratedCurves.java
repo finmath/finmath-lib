@@ -20,7 +20,6 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
@@ -87,12 +86,6 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  */
 public class CalibratedCurves {
-
-	private static final boolean isUseForwardCurve;
-	static {
-		// Default value is true
-		isUseForwardCurve = Boolean.parseBoolean(System.getProperty("net.finmath.marketdata.calibration.CalibratedCurves.isUseForwardCurve","true"));
-	}
 
 	/**
 	 * Specification of calibration product.
@@ -733,25 +726,13 @@ public class CalibratedCurves {
 		if(forwardCurveName.contains("_6M")	|| forwardCurveName.contains("-6M")	|| forwardCurveName.contains(" 6M"))	indexMaturityCode = "6M";
 		if(forwardCurveName.contains("_3M") || forwardCurveName.contains("-3M") || forwardCurveName.contains(" 3M"))	indexMaturityCode = "3M";
 
-		if(forwardCurveName == null || forwardCurveName.isEmpty()) return null;
-
-		// Check if the curves exists, if not create it
-		CurveInterface	curve = model.getCurve(forwardCurveName);
-
-		CurveInterface	forwardCurve = null;
-		if(curve == null) {
-			// Create a new forward curve
-			if(isUseForwardCurve) {
-				curve = new ForwardCurve(forwardCurveName, swapTenorDefinition.getReferenceDate(), indexMaturityCode, ForwardCurve.InterpolationEntityForward.FORWARD, null);
-			}
-			else {
-				// Alternative: Model the forward curve through an underlying discount curve.
-				curve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { 0.0 }, new double[] { 1.0 });
-				model = model.addCurves(curve);
-			}
-		}
-
+		// Check if the curves exists, throw exception otherwise
+		CurveInterface	curve = model.getCurve(forwardCurveName); // note that this may be a discount curve
+		if(curve == null) 
+			throw new IllegalArgumentException("Cannot create forwardCurve " + forwardCurveName + " as no such curve was found in the model (not even as a discount curve):\n" + model.toString());
+		
 		// Check if the curve is a discount curve, if yes - create a forward curve wrapper.
+		CurveInterface	forwardCurve = null;
 		if(DiscountCurveInterface.class.isInstance(curve)) {
 			/*
 			 *  If the specified forward curve exits as a discount curve, we generate a forward curve
