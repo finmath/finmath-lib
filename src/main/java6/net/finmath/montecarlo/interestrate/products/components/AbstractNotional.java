@@ -6,8 +6,8 @@
 package net.finmath.montecarlo.interestrate.products.components;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Base class for notional classes.

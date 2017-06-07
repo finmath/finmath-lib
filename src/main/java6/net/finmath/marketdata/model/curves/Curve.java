@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.threeten.bp.LocalDate;
 
+import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.math.interpolation.RationalFunctionInterpolation;
 import net.finmath.time.FloatingpointDate;
 
 /**

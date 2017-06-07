@@ -7,10 +7,10 @@ package net.finmath.marketdata.model.volatilities;
 
 import org.threeten.bp.LocalDate;
 
+import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.math.functions.AnalyticFormulas;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**

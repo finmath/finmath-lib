@@ -8,9 +8,9 @@ package net.finmath.montecarlo.assetderivativevaluation;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements a <i>Merton Model</i>, that is, it provides the drift and volatility specification

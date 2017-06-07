@@ -7,9 +7,9 @@ import java.util.Arrays;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A minumum index.

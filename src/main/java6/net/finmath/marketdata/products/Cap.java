@@ -9,14 +9,14 @@ package net.finmath.marketdata.products;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
+import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.CapletVolatilities;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
-import net.finmath.math.functions.AnalyticFormulas;
-import net.finmath.math.optimizer.GoldenSectionSearch;
+import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.time.Period;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleInterface;

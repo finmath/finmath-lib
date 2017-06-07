@@ -6,8 +6,8 @@
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

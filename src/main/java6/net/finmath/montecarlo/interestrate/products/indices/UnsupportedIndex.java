@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * An index throwing an exception if his <code>getValue</code> method is called.

@@ -10,8 +10,8 @@ import java.text.DecimalFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.math.functions.JarqueBeraTest;
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.functions.JarqueBeraTest;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 

@@ -13,9 +13,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.finmath.math.functions.AnalyticFormulas;
-import net.finmath.math.optimizer.LevenbergMarquardt;
-import net.finmath.math.optimizer.SolverException;
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
 
 /**
  * @author Christian Fries

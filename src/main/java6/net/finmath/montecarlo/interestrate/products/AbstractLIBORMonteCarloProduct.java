@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.process.component.factordrift.FactorDriftInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Base calls for product that need an AbstractLIBORMarketModel as base class

@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A forward rate index for a given period start offset (offset from fixing) and period length.

@@ -11,12 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
-import net.finmath.math.integration.AbstractRealIntegral;
-import net.finmath.math.integration.SimpsonRealIntegrator;
-import net.finmath.math.integration.TrapezoidalRealIntegrator;
-import net.finmath.math.interpolation.RationalFunctionInterpolation;
-import net.finmath.math.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
-import net.finmath.math.interpolation.RationalFunctionInterpolation.InterpolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
 
 /**
  * @author Christian Fries

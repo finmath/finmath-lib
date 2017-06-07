@@ -8,8 +8,8 @@ package net.finmath.montecarlo.interestrate.products;
 import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements the valuation of a swap under a LIBORModelMonteCarloSimulationInterface

@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * An indexed value. Implements the function J(t) V(t), where J(t) = E(I(t)|F_t) for the given I(t).

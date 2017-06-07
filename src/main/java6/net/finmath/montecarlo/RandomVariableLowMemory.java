@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.math3.util.FastMath;
 
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * The class RandomVariable represents a random variable being the evaluation of a stochastic process

@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo;
 
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A factory (helper class) to create random variables.

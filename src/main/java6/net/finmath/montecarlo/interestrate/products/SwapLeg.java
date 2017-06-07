@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
@@ -20,6 +19,7 @@ import net.finmath.montecarlo.interestrate.products.components.ProductCollection
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.FixedCoupon;
 import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.ScheduleInterface;
 
 /**

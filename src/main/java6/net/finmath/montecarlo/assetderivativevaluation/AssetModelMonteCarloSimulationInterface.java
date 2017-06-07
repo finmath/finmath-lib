@@ -8,8 +8,8 @@ package net.finmath.montecarlo.assetderivativevaluation;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Basic interface which has to be implemented by Monte Carlo models for asset processes.

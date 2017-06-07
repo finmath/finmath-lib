@@ -6,12 +6,12 @@
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.optimizer.GoldenSectionSearch;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.optimizer.GoldenSectionSearch;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements the valuation of a Bermudan option paying

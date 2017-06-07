@@ -15,9 +15,9 @@ import java.util.concurrent.RejectedExecutionException;
 
 import net.finmath.concurrency.FutureWrapper;
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A collection of product components (like periods, options, etc.) paying the sum of their payouts.

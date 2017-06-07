@@ -11,8 +11,8 @@ import org.apache.commons.math3.complex.Complex;
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.math.integration.RealIntegralInterface;
-import net.finmath.math.integration.SimpsonRealIntegrator;
+import net.finmath.integration.RealIntegralInterface;
+import net.finmath.integration.SimpsonRealIntegrator;
 
 /**
  * @author Christian Fries

@@ -21,11 +21,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.math.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
@@ -319,7 +319,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			int optionMaturityIndex = liborMarketModel.getTimeIndex(optionMaturity);
 			int liborIndex = liborMarketModel.getLiborPeriodIndex(periodStart);
 			double volatility = Math.sqrt(((LIBORMarketModelInterface)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
-			double valueAnalytic = net.finmath.math.functions.AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, strike, periodLength, discountFactor);
+			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, strike, periodLength, discountFactor);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 	
 			// Absolute deviation
@@ -372,7 +372,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			int optionMaturityIndex = liborMarketModel.getTimeIndex(optionMaturity);
 			int liborIndex = liborMarketModel.getLiborPeriodIndex(periodStart);
 			double volatility = Math.sqrt(((LIBORMarketModelInterface)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
-			double valueAnalytic = net.finmath.math.functions.AnalyticFormulas.blackModelDgitialCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
+			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelDgitialCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 	
 			// Absolute deviation

@@ -5,17 +5,17 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.math.functions.LinearAlgebra;
+import net.finmath.functions.LinearAlgebra;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Simple correlation model given by R, where R is a factor reduced matrix
- * (see {@link net.finmath.math.functions.LinearAlgebra#factorReduction(double[][], int)}) created from the
+ * (see {@link net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)}) created from the
  * \( n \) Eigenvectors of \( \tilde{R} \) belonging to the \( n \) largest non-negative Eigenvalues,
  * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and
  * \[ \tilde{\rho}_{i,j} = b + (1-b) * \exp(-a |T_{i} - T_{j}| - c \max(T_{i},T_{j}))
  * 
- * @see net.finmath.math.functions.LinearAlgebra#factorReduction(double[][], int)
+ * @see net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)
  * 
  * @author Christian Fries
  */

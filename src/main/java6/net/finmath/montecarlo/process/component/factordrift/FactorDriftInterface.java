@@ -1,7 +1,7 @@
 package net.finmath.montecarlo.process.component.factordrift;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 public interface FactorDriftInterface {
 

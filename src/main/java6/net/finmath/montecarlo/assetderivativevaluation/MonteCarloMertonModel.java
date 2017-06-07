@@ -11,13 +11,13 @@ import java.util.Map;
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 import net.finmath.compatibility.java.util.function.IntFunction;
 import net.finmath.exception.CalculationException;
-import net.finmath.math.functions.NormalDistribution;
-import net.finmath.math.functions.PoissonDistribution;
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.functions.NormalDistribution;
+import net.finmath.functions.PoissonDistribution;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

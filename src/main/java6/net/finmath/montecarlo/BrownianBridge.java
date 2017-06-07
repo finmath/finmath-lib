@@ -8,7 +8,7 @@ package net.finmath.montecarlo;
 
 import java.util.Arrays;
 
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

@@ -8,7 +8,7 @@ package net.finmath.montecarlo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Test cases for the class net.finmath.montecarlo.RandomVariable.

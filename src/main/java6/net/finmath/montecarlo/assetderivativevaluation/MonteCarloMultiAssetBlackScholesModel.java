@@ -9,13 +9,13 @@ import java.util.Arrays;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.functions.LinearAlgebra;
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

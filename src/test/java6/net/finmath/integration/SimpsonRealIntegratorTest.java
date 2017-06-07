@@ -11,8 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
-import net.finmath.math.integration.AbstractRealIntegral;
-import net.finmath.math.integration.SimpsonRealIntegrator;
 
 /**
  * Unit test for the SimpsonRealIntegrator.

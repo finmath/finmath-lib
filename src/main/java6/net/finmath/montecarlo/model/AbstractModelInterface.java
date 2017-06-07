@@ -8,8 +8,8 @@ package net.finmath.montecarlo.model;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

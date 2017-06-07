@@ -8,10 +8,10 @@ package net.finmath.montecarlo.interestrate.products;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements the pricing of a portfolio of AbstractLIBORMonteCarloProduct products

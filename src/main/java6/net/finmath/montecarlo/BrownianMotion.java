@@ -7,8 +7,8 @@ package net.finmath.montecarlo;
 
 import java.io.Serializable;
 
-import net.finmath.math.randomnumbers.MersenneTwister;
-import net.finmath.math.stochastic.RandomVariableInterface;
+import net.finmath.randomnumbers.MersenneTwister;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -152,7 +152,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 				// Generate uncorrelated Brownian increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
 					double uniformIncrement = mersenneTwister.nextDouble();
-					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.math.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
+					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
 				}				
 			}
 		}

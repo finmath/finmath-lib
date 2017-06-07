@@ -9,12 +9,6 @@ package net.finmath.optimizer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.math.optimizer.OptimizerFactoryCMAES;
-import net.finmath.math.optimizer.OptimizerFactoryInterface;
-import net.finmath.math.optimizer.OptimizerFactoryLevenbergMarquardt;
-import net.finmath.math.optimizer.OptimizerInterface;
-import net.finmath.math.optimizer.SolverException;
-
 /**
  * @author Christian Fries
  *
