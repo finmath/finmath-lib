@@ -709,7 +709,8 @@ public class CalibratedCurves {
 	}
 
 	/**
-	 * Get a forward curve from the model, if not existing create a forward curve.
+	 * Get a forwardCurve from the model (by name) or throw exception of no such forwardCurve exists in the model. 
+	 * Note that if given curve corresponds to a discountCurve then a ForwardCurveFromDiscountCurve is created from the discountCurve.
 	 * 
 	 * @param swapTenorDefinition The swap tenor associated with the forward curve.
 	 * @param forwardCurveName The name of the forward curve to create.
