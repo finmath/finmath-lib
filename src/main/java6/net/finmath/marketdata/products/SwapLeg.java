@@ -22,14 +22,35 @@ import net.finmath.time.ScheduleInterface;
  */
 public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
-	private final ScheduleInterface				legSchedule;
-	private final String						forwardCurveName;
-	private final double						spread;
-	private final String						discountCurveName;
-	private boolean								isNotionalExchanged = false;
+	private final ScheduleInterface	legSchedule;
+	private final String			forwardCurveName;
+	private final double			spread;
+	private final String			discountCurveName;
+	private final String			discountCurveForNotionalResetName;
+	private boolean					isNotionalExchanged = false;
 
 	/**
-	 * Creates a swap leg. The swap leg has a unit notional of 1.
+	 * Creates a swap leg. 
+	 * 
+	 * @param legSchedule Schedule of the leg.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param spread Fixed spread on the forward or fix rate.
+	 * @param discountCurveName Name of the discount curve for the leg.
+	 * @param discountCurveForNotionalResetName Name of the discount curve used for notional reset. If this is equal to discountCurveName then there is no notional reset.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
+	 */
+	public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName, String discountCurveForNotionalResetName, boolean isNotionalExchanged) {
+		super();
+		this.legSchedule = legSchedule;
+		this.forwardCurveName = forwardCurveName;
+		this.spread = spread;
+		this.discountCurveName = discountCurveName;
+		this.discountCurveForNotionalResetName = discountCurveForNotionalResetName;
+		this.isNotionalExchanged = isNotionalExchanged;
+	}
+	
+	/**
+	 * Creates a swap leg (without notional reset).
 	 * 
 	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
@@ -38,16 +59,11 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
 	public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double spread, String discountCurveName, boolean isNotionalExchanged) {
-		super();
-		this.legSchedule = legSchedule;
-		this.forwardCurveName = forwardCurveName;
-		this.spread = spread;
-		this.discountCurveName = discountCurveName;
-		this.isNotionalExchanged = isNotionalExchanged;
+		this(legSchedule, forwardCurveName, spread, discountCurveName, discountCurveName, isNotionalExchanged);
 	}
 
 	/**
-	 * Creates a swap leg (without notional exchange). The swap leg has a unit notional of 1.
+	 * Creates a swap leg (without notional reset, without notional exchange).
 	 * 
 	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
@@ -62,17 +78,24 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
-		// Check for discount curve
+		DiscountCurveInterface discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
+		// Check for discount curves
 		if(discountCurve == null)
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
+		if(discountCurveForNotionalReset == null)
+			throw new IllegalArgumentException("No discount curve (for notional reset) with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
+		
 		
 		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0)
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 
 		double value = 0.0;
+		double firstPeriodStartDate	= legSchedule.getPeriodStart(0);
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixingDate	= legSchedule.getFixing(periodIndex);
+			double periodStart	= legSchedule.getPeriodStart(periodIndex);
+			double periodEnd	= legSchedule.getPeriodEnd(periodIndex);
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 
@@ -81,16 +104,15 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 				forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
 	
+			// note that notional=1 if discountCurveForNotionalReset=discountCurve
+			double notional = (discountCurveForNotionalReset.getDiscountFactor(model,periodStart)/discountCurveForNotionalReset.getDiscountFactor(model,firstPeriodStartDate)) / (discountCurve.getDiscountFactor(model,periodStart)/discountCurve.getDiscountFactor(model,firstPeriodStartDate));
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
-			value += forward * periodLength * discountFactor;
+			value += notional * forward * periodLength * discountFactor;
 
 			// Consider notional payments if required
 			if(isNotionalExchanged) {
-				double periodEnd	= legSchedule.getPeriodEnd(periodIndex);
-				value += periodEnd > evaluationTime ? discountCurve.getDiscountFactor(model, periodEnd) : 0.0;
-
-				double periodStart	= legSchedule.getPeriodStart(periodIndex);
-				value -= periodStart > evaluationTime ? discountCurve.getDiscountFactor(model, periodStart) : 0.0;
+				value += periodEnd > evaluationTime ? notional * discountCurve.getDiscountFactor(model, periodEnd) : 0.0;
+				value -= periodStart > evaluationTime ? notional * discountCurve.getDiscountFactor(model, periodStart) : 0.0;
 			}
 		}
 
