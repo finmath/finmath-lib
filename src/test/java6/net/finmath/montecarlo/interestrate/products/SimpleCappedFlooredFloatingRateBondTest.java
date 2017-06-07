@@ -6,13 +6,13 @@
 
 package net.finmath.montecarlo.interestrate.products;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,7 +94,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(int numberOfPaths, Measure measure) throws CalculationException {
 
-		LocalDate	referenceDate = new LocalDate(2014, DateTimeConstants.AUGUST, 12);
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(

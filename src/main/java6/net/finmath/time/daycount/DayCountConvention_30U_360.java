@@ -6,8 +6,8 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 /**
  * Calculates the day count using the US 30/360 adjusted method. The daycount is calculated via
@@ -50,33 +50,34 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.joda.time.LocalDate, org.joda.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
 
 		int startDateDay 	= startDate.getDayOfMonth();
-		int startDateMonth 	= startDate.getMonthOfYear();
+		int startDateMonth 	= startDate.getMonthValue();
 		int startDateYear 	= startDate.getYear();
 
 		int endDateDay 		= endDate.getDayOfMonth();
-		int endDateMonth 	= endDate.getMonthOfYear();
+		int endDateMonth 	= endDate.getMonthValue();
 		int endDateYear 	= endDate.getYear();
 
 		if(
 				isEndOfMonth &&
-				startDate.getMonthOfYear() == DateTimeConstants.FEBRUARY &&
-				startDate.getDayOfMonth() == startDate.dayOfMonth().getMaximumValue() && 
-				endDate.getMonthOfYear() == DateTimeConstants.FEBRUARY &&
-				endDate.getDayOfMonth() == endDate.dayOfMonth().getMaximumValue()
+				startDate.getMonth() == Month.FEBRUARY &&
+				startDate.getDayOfMonth() == startDate.lengthOfMonth() && 
+				endDate.getMonth() == Month.FEBRUARY &&
+				endDate.getDayOfMonth() == endDate.lengthOfMonth()
 			) endDateDay = 30;
 
 		if(
 				isEndOfMonth &&
-				startDate.getMonthOfYear() == DateTimeConstants.FEBRUARY &&
-				startDate.getDayOfMonth() == startDate.dayOfMonth().getMaximumValue()
+				startDate.getMonth() == Month.FEBRUARY &&
+				startDate.getDayOfMonth() == startDate.lengthOfMonth()
 			) startDateDay = 30;
+			
 		if(endDateDay > 30 && startDateDay >= 30) endDateDay = 30;
 		startDateDay = Math.min(startDateDay,30);
 		
@@ -84,7 +85,7 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.joda.time.LocalDate, org.joda.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

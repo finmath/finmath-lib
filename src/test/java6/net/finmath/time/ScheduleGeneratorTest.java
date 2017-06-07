@@ -6,7 +6,8 @@
 
 package net.finmath.time;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,9 +26,9 @@ public class ScheduleGeneratorTest {
 	@Test
 	public void testScheduleGeneratorMetaData() {
 		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(
-				new LocalDate(2012, 1, 10) /* referenceDate */,
-				new LocalDate(2012, 10, 12) /* startDate */,
-				new LocalDate(2013, 1, 12) /* maturity */,
+				LocalDate.of(2012, 1, 10) /* referenceDate */,
+				LocalDate.of(2012, 10, 12) /* startDate */,
+				LocalDate.of(2013, 1, 12) /* maturity */,
 				Frequency.QUARTERLY,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.FIRST,
@@ -39,7 +40,7 @@ public class ScheduleGeneratorTest {
 		System.out.println(schedule);
 
 		ScheduleInterface schedule2 = ScheduleGenerator.createScheduleFromConventions(
-				new LocalDate(2012, 1, 10) /* referenceDate */,
+				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				"9M 2D" /* startOffset */,
 				"3M" /* maturity */,
 				"quarterly" /* frequency */,
@@ -54,21 +55,21 @@ public class ScheduleGeneratorTest {
 			Assert.assertTrue(schedule2.getPeriods().contains(period));
 		}
 
-		Assert.assertTrue("Period start.", schedule2.getPeriod(0).getPeriodStart().equals(new LocalDate(2012, 1+9, 10+2)));
+		Assert.assertTrue("Period start.", schedule2.getPeriod(0).getPeriodStart().equals(LocalDate.of(2012, 1+9, 10+2)));
 		
 		/*
 		 * 12.01.2013 is a saturday. End date rolls to 14.01.2013
 		 */
-		Assert.assertTrue("Period end.", schedule2.getPeriod(0).getPeriodEnd().equals(new LocalDate(2013, 01, 14)));
+		Assert.assertTrue("Period end.", schedule2.getPeriod(0).getPeriodEnd().equals(LocalDate.of(2013, 01, 14)));
 		System.out.println(schedule2);
 	}
 	
 	@Test
 	public void testPeriodStartPeriodEnd() {
 		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(
-				new LocalDate(2012, 1, 10) /* referenceDate */,
-				new LocalDate(2012, 1, 12) /* startDate */,
-				new LocalDate(2022, 1, 12) /* maturity */,
+				LocalDate.of(2012, 1, 10) /* referenceDate */,
+				LocalDate.of(2012, 1, 12) /* startDate */,
+				LocalDate.of(2022, 1, 12) /* maturity */,
 				Frequency.QUARTERLY,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.FIRST,
@@ -91,9 +92,9 @@ public class ScheduleGeneratorTest {
 	@Test
 	public void testPeriodLength() {
 		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(
-				new LocalDate(2012, 1, 10) /* referenceDate */,
-				new LocalDate(2012, 1, 12) /* startDate */,
-				new LocalDate(2022, 1, 12) /* maturity */,
+				LocalDate.of(2012, 1, 10) /* referenceDate */,
+				LocalDate.of(2012, 1, 12) /* startDate */,
+				LocalDate.of(2022, 1, 12) /* maturity */,
 				Frequency.QUARTERLY,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.FIRST,

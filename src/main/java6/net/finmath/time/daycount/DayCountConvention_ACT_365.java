@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Implementation of ACT/365.

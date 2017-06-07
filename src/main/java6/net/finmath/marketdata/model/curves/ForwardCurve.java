@@ -6,9 +6,11 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
-import java.util.Date;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+import java.util.Date;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
@@ -166,7 +168,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, double[] givenForwards) {
 
-		return createForwardCurveFromForwards(name, new LocalDate(referenceDate), paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);
+		LocalDate referenceDataAsLocalDate = Instant.ofEpochMilli(referenceDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+		return createForwardCurveFromForwards(name, referenceDataAsLocalDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);
 	}
 
 	/**

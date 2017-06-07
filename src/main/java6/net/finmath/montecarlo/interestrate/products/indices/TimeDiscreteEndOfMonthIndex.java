@@ -5,9 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import org.threeten.bp.LocalDate;
 import java.util.Set;
-
-import org.joda.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.math.stochastic.RandomVariableInterface;
@@ -50,7 +49,7 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 		LocalDate endDate = evaluationDate.withDayOfMonth(1).plusMonths(fixingOffsetMonths);
 
 		// Roll to end of month.
-		endDate = endDate.withDayOfMonth(endDate.dayOfMonth().getMaximumValue());
+		endDate = endDate.withDayOfMonth(endDate.lengthOfMonth());
 		
 		double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, endDate);
 		return baseIndex.getValue(time, model);

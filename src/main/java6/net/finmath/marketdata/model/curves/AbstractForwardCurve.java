@@ -9,7 +9,7 @@ package net.finmath.marketdata.model.curves;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.FloatingpointDate;

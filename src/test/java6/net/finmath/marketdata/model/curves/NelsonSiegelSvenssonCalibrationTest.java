@@ -1,5 +1,7 @@
 package net.finmath.marketdata.model.curves;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -139,7 +139,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		final double[] rates					= {0.0042, 0.0032, 0.0038, 0.0052, 0.0069, 0.00855, 0.0102, 0.0119, 0.0134, 0.0150, 0.0165, 0.0178, 0.0189, 0.0200, 0.0224, 0.0250, 0.0264, 0.0271, 0.0275, 0.0276, 0.0276 };
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 
-		parameters.put("referenceDate", new LocalDate(2014, DateTimeConstants.AUGUST, 12)); 
+		parameters.put("referenceDate", LocalDate.of(2014, Month.AUGUST, 12)); 
 		parameters.put("currency", "EUR");
 		parameters.put("forwardCurveTenor", "3M");
 		parameters.put("maturities", maturity);

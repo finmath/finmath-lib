@@ -4,7 +4,9 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 
@@ -222,7 +224,8 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 			double[] times, double[] givenHazardRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		
-		return createHazardCurveFromHazardRate(name, new LocalDate(referenceDate), times, givenHazardRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
+		LocalDate referenceDataAsLocalDate = Instant.ofEpochMilli(referenceDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+		return createHazardCurveFromHazardRate(name, referenceDataAsLocalDate, times, givenHazardRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 		
 	/**

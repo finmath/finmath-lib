@@ -6,8 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.Days;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Base class which calculates the day count by calculating the actual number of days between startDate and endDate.
@@ -25,7 +24,7 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
@@ -41,15 +40,15 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	 * 
 	 * The formula implemented is
 	 * <code>
-	 * 	Days.daysBetween(startDate, endDate).getDays();
+	 * 
+	 * (endDate.toEpochDay() - startDate.toEpochDay());
 	 * </code>
-	 * using joda-time.
 	 * 
 	 * @param startDate The start date of the interval.
 	 * @param endDate The end date of the interval.
 	 * @return Number of days between startDate and endDate.
 	 */
 	public static double daysBetween(LocalDate startDate, LocalDate endDate) {
-		return Days.daysBetween(startDate, endDate).getDays();
+		return (endDate.toEpochDay() - startDate.toEpochDay()); 
 	}
 }

@@ -6,7 +6,7 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * This is a special day count convention, where the day count between two dates is always 0.0

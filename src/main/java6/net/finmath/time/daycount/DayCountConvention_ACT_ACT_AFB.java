@@ -6,8 +6,8 @@
 
 package net.finmath.time.daycount;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 /**
  * Implementation of ACT/ACT AFB.
@@ -53,7 +53,7 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(org.threeten.bp.LocalDate, org.threeten.bp.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
@@ -65,27 +65,27 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 		LocalDate fractionalPeriodEnd = endDate.plusYears(startDate.getYear() - endDate.getYear());
 		
 		// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year.
-		if (endDate.getDayOfMonth() == endDate.dayOfMonth().getMaximumValue()) 
-			fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.dayOfMonth().getMaximumValue());
+		if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) 
+			fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());
 		
 		if (fractionalPeriodEnd.isBefore(startDate)) {
 			fractionalPeriodEnd.plusYears(1);
 			// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year, again after changing the years. 
-			if (endDate.getDayOfMonth() == endDate.dayOfMonth().getMaximumValue()) 
-				fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.dayOfMonth().getMaximumValue());
+			if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) 
+				fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());
 		}
 		
 		double daycountFraction = endDate.getYear() - fractionalPeriodEnd.getYear(); 
 				
 		double fractionPeriodDenominator = 365.0;
-		if(fractionalPeriodEnd.year().isLeap()) {
-			LocalDate feb29th = new LocalDate(fractionalPeriodEnd.getYear(), DateTimeConstants.FEBRUARY, 29);
+		if(fractionalPeriodEnd.isLeapYear()) {
+			LocalDate feb29th = LocalDate.of(fractionalPeriodEnd.getYear(), Month.FEBRUARY, 29);
 			if(startDate.compareTo(feb29th) <= 0 && fractionalPeriodEnd.compareTo(feb29th) > 0) {
 				fractionPeriodDenominator = 366.0;
 			}
 		}
-		else if(startDate.year().isLeap()) {
-			LocalDate feb29th = new LocalDate(startDate.getYear(), DateTimeConstants.FEBRUARY, 29);				
+		else if(startDate.isLeapYear()) {
+			LocalDate feb29th = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);				
 			if(startDate.compareTo(feb29th) <= 0 && fractionalPeriodEnd.compareTo(feb29th) > 0) {
 				fractionPeriodDenominator = 366.0;
 			}

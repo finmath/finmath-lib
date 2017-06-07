@@ -6,8 +6,8 @@
 
 package net.finmath.time.businessdaycalendar;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day, expect SATURDAY and SUNDAY.
@@ -39,10 +39,10 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
-			&& date.getDayOfWeek() != DateTimeConstants.SATURDAY 
-			&& date.getDayOfWeek() != DateTimeConstants.SUNDAY;  
+			&& date.getDayOfWeek() != DayOfWeek.SATURDAY 
+			&& date.getDayOfWeek() != DayOfWeek.SUNDAY;  
 	}
-	
+
 	@Override
 	public String toString() {
 		return "BusinessdayCalendarExcludingWeekends [baseCalendar=" + baseCalendar + "]";

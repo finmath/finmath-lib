@@ -1,10 +1,9 @@
-package net.finmath.marketdata.model;
 /*
  * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
  *
  * Created on 28.11.2012
  */
-
+package net.finmath.marketdata.model;
 
 import java.util.Map;
 import java.util.Set;
@@ -62,8 +61,14 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	@Deprecated
 	void setCurve(CurveInterface curve);
 
+	/**
+	 * @return dicountCurve corresponding to discountCurveName or null if no discountCurve with this name exists in the model
+	 */
 	DiscountCurveInterface getDiscountCurve(String discountCurveName);
 
+	/**
+	 * @return forwardCurve corresponding to forwardCurveName or null if no forwardCurve with this name exists in the model
+	 */
 	ForwardCurveInterface getForwardCurve(String forwardCurveName);
 	
 	HazardCurveInterface getHazardCurve(String hazardCurveName);

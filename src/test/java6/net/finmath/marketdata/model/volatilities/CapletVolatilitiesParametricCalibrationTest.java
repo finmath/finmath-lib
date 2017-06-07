@@ -5,13 +5,13 @@
  */
 package net.finmath.marketdata.model.volatilities;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,7 +100,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		// Create a discount curve
 		DiscountCurveInterface		discountCurve					= new DiscountCurveNelsonSiegelSvensson(
 				"EUR",
-				new LocalDate(2014, DateTimeConstants.JULY, 15),
+				LocalDate.of(2014, Month.JULY, 15),
 				new double[]
 						{
 								0.02,
@@ -112,7 +112,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 						}
 				, 365.0/365.0);
 
-		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD", new LocalDate(2014, DateTimeConstants.JULY, 17), 
+		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD", LocalDate.of(2014, Month.JULY, 17), 
 				"3M", new BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendarInterface.DateRollConvention.MODIFIED_FOLLOWING, new DayCountConvention_ACT_360(),
 				discountCurve.getParameter(), 365.0/365.0, 0.0);
 
@@ -152,7 +152,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		 */
 		Vector<AnalyticProductInterface>	marketProducts = new Vector<AnalyticProductInterface>();
 		ArrayList<Double>					marketTargetValues = new ArrayList<Double>();
-		LocalDate referenceDate = new LocalDate(2014, DateTimeConstants.JULY,  15);
+		LocalDate referenceDate = LocalDate.of(2014,  Month.JULY,  15);
 		DaycountConvention capDayCountConvention = DaycountConvention.ACT_360;
 		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays(new BusinessdayCalendarExcludingWeekends());
 		for(int i=0; i<maturities.length; i++) {

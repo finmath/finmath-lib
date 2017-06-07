@@ -6,7 +6,7 @@
 
 package net.finmath.time.businessdaycalendar;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day.

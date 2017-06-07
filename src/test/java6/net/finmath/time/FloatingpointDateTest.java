@@ -5,9 +5,8 @@
  */
 package net.finmath.time;
 
+import org.threeten.bp.LocalDate;
 
-
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,7 +17,7 @@ public class FloatingpointDateTest {
 	 */
 	@Test
 	public void test() {
-		LocalDate referenceDate = new LocalDate(2016, 01, 01);
+		LocalDate referenceDate = LocalDate.of(2016, 01, 01);
 		for(int i=0; i<1000; i++) {
 			LocalDate date = referenceDate.plusDays(i);
 			
