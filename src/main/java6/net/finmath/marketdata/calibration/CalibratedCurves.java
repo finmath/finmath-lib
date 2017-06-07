@@ -716,6 +716,9 @@ public class CalibratedCurves {
 	 * @return The forward curve associated with the given name.
 	 */
 	private String createForwardCurve(ScheduleInterface swapTenorDefinition, String forwardCurveName) {
+		if(forwardCurveName == null || forwardCurveName.isEmpty()) 
+			return null;
+		
 		// Check if the curves exists, throw exception otherwise
 		CurveInterface	curve = model.getCurve(forwardCurveName); // note that this may be a discount curve
 		if(curve == null) 
