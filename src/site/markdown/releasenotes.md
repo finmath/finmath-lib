@@ -5,6 +5,28 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.0.0 (27.05.2017)
+
+### Java 6 version of finmath-lib switched from joda-time to threeten-backport
+
+- The Java 6 version of finmath-lib switches from jado-time to threeten-backport for the implementaton of LocalDate. This reduces the difference between the Java 6 code base and the Java 8 code base.
+- The Java 8 version is not affected.
+- The 2.4.x version using the joda-time version of LocalDate is maintained on the branch named "2.4.x"
+
+### Introducing a dedicated class for the conversion between LocalDate and Double.
+
+- Finmath lib allows to use Double to specify dates/times and date/time-intervals. The motivation of this is to allow a simplified "textbook-like" definition of models, which is often sufficient for research purposes.. With respect to industry/practical applications it is often necessary to consider exact date-based measurment of time, e.g. using date-rolling and daycount conventions. To achive a clear 1:1 mapping, the library fixes a conversion given by a) a reference date and b) a daycount convention (ACT/365).
+- The conversion from LocalDate to Double is centralized in the class FloatingpointDate.
+- The motivation for ACT/365 is performance (easy conversion). Apart from this there is no specific reason except the need to make some choice.
+
+## 2.4.4 (20.05.2017)
+
+### Introducing a dedicated class for the conversion between LocalDate and Double.
+
+- Finmath lib allows to use Double to specify dates/times and date/time-intervals. The motivation of this is to allow a simplified "textbook-like" definition of models, which is often sufficient for research purposes.. With respect to industry/practical applications it is often necessary to consider exact date-based measurment of time, e.g. using date-rolling and daycount conventions. To achive a clear 1:1 mapping, the library fixes a conversion given by a) a reference date and b) a daycount convention (ACT/365).
+- The conversion from LocalDate to Double is centralized in the class FloatingpointDate.
+- The motivation for ACT/365 is performance (easy conversion). Apart from this there is no specific reason except the need to make some choice.
+
 ## 2.4.2 (05.02.2017)
 
 ### Bug fixes and improvements
