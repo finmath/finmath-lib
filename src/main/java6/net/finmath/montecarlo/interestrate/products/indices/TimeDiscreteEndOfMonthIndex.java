@@ -10,8 +10,8 @@ import java.util.Set;
 import org.joda.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.FloatingpointDate;
 
 /**

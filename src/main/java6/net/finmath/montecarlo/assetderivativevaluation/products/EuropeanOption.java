@@ -6,8 +6,8 @@
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements the valuation of a European option on a single asset.

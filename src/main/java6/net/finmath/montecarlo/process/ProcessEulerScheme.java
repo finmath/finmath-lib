@@ -14,9 +14,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import net.finmath.concurrency.FutureWrapper;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements some numerical schemes for multi-dimensional multi-factor Ito process.

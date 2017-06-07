@@ -29,7 +29,7 @@ import net.finmath.marketdata.products.ForwardRateAgreement;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapLeg;
 import net.finmath.marketdata.products.SwapLegWithResetting;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
@@ -307,7 +307,7 @@ public class CalibratedCurves {
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.math.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(List<CalibrationSpec> calibrationSpecs, AnalyticModelInterface calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
@@ -340,7 +340,7 @@ public class CalibratedCurves {
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.math.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
@@ -372,7 +372,7 @@ public class CalibratedCurves {
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.math.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
@@ -395,7 +395,7 @@ public class CalibratedCurves {
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.math.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException, CloneNotSupportedException {
@@ -407,7 +407,7 @@ public class CalibratedCurves {
 	 * from a vector of calibration products.
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.math.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(Collection<CalibrationSpec> calibrationSpecs) throws SolverException, CloneNotSupportedException {
@@ -419,7 +419,7 @@ public class CalibratedCurves {
 	 * from a vector of calibration products.
 	 * 
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.math.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs) throws SolverException, CloneNotSupportedException {

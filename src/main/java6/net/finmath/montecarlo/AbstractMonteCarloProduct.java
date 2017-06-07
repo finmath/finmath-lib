@@ -10,9 +10,9 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Base class for products requiring an MonteCarloSimulationInterface for valuation.

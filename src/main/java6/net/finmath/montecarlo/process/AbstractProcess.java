@@ -5,8 +5,8 @@
  */
 package net.finmath.montecarlo.process;
 
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

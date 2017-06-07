@@ -9,6 +9,7 @@ package net.finmath.functions;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.finmath.math.functions.JarqueBeraTest;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.time.TimeDiscretization;
 

@@ -15,9 +15,9 @@ import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.PointValuePair;
 
-import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.LevenbergMarquardt;
+import net.finmath.math.optimizer.OptimizerInterface;
+import net.finmath.math.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
 
 /**

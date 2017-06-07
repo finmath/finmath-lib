@@ -14,7 +14,7 @@ import net.finmath.fouriermethod.models.BlackScholesModel;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
 import net.finmath.fouriermethod.products.EuropeanOption;
-import net.finmath.functions.AnalyticFormulas;
+import net.finmath.math.functions.AnalyticFormulas;
 
 /**
  * Test class for the valuation of a call option under Black Scholes

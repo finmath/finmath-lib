@@ -5,9 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.products.components;
 
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A constant (non-stochastic) notional.

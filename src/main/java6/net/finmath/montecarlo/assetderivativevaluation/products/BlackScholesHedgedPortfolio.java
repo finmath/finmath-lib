@@ -8,10 +8,10 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.functions.AnalyticFormulas;
+import net.finmath.math.functions.AnalyticFormulas;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements a delta and delta-gamma hedged portfolio of an European option (a hedge simulator).

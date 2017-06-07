@@ -5,10 +5,10 @@ package net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation;
 
 import java.util.Map;
 
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
-import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

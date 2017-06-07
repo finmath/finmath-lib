@@ -29,7 +29,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveNelsonSiegelSvensson;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Cap;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;

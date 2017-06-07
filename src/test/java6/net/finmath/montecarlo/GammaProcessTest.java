@@ -10,7 +10,7 @@ import java.text.DecimalFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 

@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.LevenbergMarquardt;
+import net.finmath.math.optimizer.OptimizerInterface;
+import net.finmath.math.optimizer.SolverException;
 
 /**
  * @author Christian Fries

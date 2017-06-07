@@ -8,8 +8,8 @@ package net.finmath.montecarlo.interestrate.products.indices;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * An capped and floored index paying min(max(index(t),floor(t)),cap(t)), where index, floor and cap are indices,

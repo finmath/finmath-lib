@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.math.stochastic.RandomVariableInterface;
 
 /**
  * Blended model (or displaced diffusion model) build on top of a standard covariance model.

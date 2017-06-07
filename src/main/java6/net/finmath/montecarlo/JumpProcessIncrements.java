@@ -8,9 +8,9 @@ package net.finmath.montecarlo;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import net.finmath.functions.PoissonDistribution;
-import net.finmath.randomnumbers.MersenneTwister;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.math.functions.PoissonDistribution;
+import net.finmath.math.randomnumbers.MersenneTwister;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**

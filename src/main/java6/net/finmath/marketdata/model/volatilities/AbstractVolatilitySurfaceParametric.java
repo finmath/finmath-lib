@@ -23,8 +23,8 @@ import net.finmath.marketdata.calibration.ParameterTransformation;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
-import net.finmath.optimizer.OptimizerFactoryInterface;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.OptimizerFactoryInterface;
+import net.finmath.math.optimizer.SolverException;
 
 /**
  * Base class for parametric volatility surfaces, implementing a generic calibration algorithm.

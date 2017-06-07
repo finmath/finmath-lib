@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.conditionalexpectation;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.math.stochastic.RandomVariableInterface;
 
 /**
  * The interface which has to be implemented by a fixed conditional expectation operator,

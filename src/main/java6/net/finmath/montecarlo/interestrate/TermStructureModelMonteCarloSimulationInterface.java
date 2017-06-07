@@ -7,10 +7,10 @@
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Christian Fries

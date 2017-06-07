@@ -18,12 +18,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.math.functions.AnalyticFormulas;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.HullWhiteModelWithDirectSimulation;
@@ -60,7 +61,6 @@ import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LaggedIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
@@ -430,7 +430,7 @@ public class HullWhiteModelTest {
 			double bondForward = (1.0+forward*periodLength);
 			double bondStrike = (1.0+strike*periodLength);
 
-			double zeroBondPut = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
+			double zeroBondPut = net.finmath.math.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
 
 			double valueAnalytic = zeroBondPut / bondStrike / periodLength;
 			valueAnalytic = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
@@ -680,7 +680,7 @@ public class HullWhiteModelTest {
 			double bondForward = (1.0+forward*periodLength);
 			double bondStrike = (1.0+strike*periodLength);
 
-			double zeroBondPut = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
+			double zeroBondPut = net.finmath.math.functions.AnalyticFormulas.blackModelCapletValue(bondForward, forwardBondVolatility, optionMaturity, bondStrike, periodLength, discountFactor);
 			double valueAnalytic = zeroBondPut / bondStrike / periodLength;
 			valueAnalytic = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, strike, discountFactor * periodLength /* payoffUnit */, valueAnalytic);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");

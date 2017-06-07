@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.math.stochastic.RandomVariableInterface;
 
 /**
  * Special variant of a blended model (or displaced diffusion model)

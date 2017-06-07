@@ -7,10 +7,10 @@
 package net.finmath.montecarlo.hybridassetinterestrate.products;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
 import net.finmath.montecarlo.hybridassetinterestrate.HybridAssetLIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Christian Fries

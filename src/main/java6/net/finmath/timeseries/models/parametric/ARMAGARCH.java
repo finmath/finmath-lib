@@ -16,8 +16,8 @@ import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.SimplePointChecker;
 import org.apache.commons.math3.random.MersenneTwister;
 
-import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.LevenbergMarquardt;
+import net.finmath.math.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
 import net.finmath.timeseries.TimeSeriesInterface;
 import net.finmath.timeseries.TimeSeriesModelParametric;

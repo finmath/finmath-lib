@@ -12,10 +12,10 @@ import java.util.Vector;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
-import net.finmath.optimizer.OptimizerFactoryInterface;
-import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.OptimizerFactoryInterface;
+import net.finmath.math.optimizer.OptimizerFactoryLevenbergMarquardt;
+import net.finmath.math.optimizer.OptimizerInterface;
+import net.finmath.math.optimizer.SolverException;
 
 /**
  * Generates a calibrated model for a given set
@@ -139,7 +139,7 @@ public class Solver {
 	 * 
 	 * @param objectsToCalibrate The set of parameterized objects to calibrate.
 	 * @return A reference to a calibrated clone of the given model.
-	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
+	 * @throws net.finmath.math.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
 	 */
 	public AnalyticModelInterface getCalibratedModel(Set<ParameterObjectInterface> objectsToCalibrate) throws SolverException {
 		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<ParameterObjectInterface>(objectsToCalibrate);

@@ -7,16 +7,16 @@
 package net.finmath.montecarlo.hybridassetinterestrate;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.math.functions.AnalyticFormulas;
+import net.finmath.math.optimizer.LevenbergMarquardt;
+import net.finmath.math.optimizer.OptimizerInterface;
+import net.finmath.math.optimizer.SolverException;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
-import net.finmath.optimizer.SolverException;
 
 /**
  * Helper factory to create a simple equity hybrid LIBOR market model.

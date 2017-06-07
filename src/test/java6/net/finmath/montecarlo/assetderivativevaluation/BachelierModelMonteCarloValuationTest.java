@@ -16,12 +16,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -188,7 +188,7 @@ public class BachelierModelMonteCarloValuationTest {
 			double valueMonteCarlo	= callOption.getValue(model);
 
 			// Calculate the analytic value
-			double valueAnalytic	= net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelier, optionMaturity, optionStrike, payoffUnit);
+			double valueAnalytic	= net.finmath.math.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelier, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) + 
@@ -413,8 +413,8 @@ public class BachelierModelMonteCarloValuationTest {
 			// Calculate the finite difference of the analytic value
 			double deltaFiniteDiffAnalytic	=
 					(
-							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward+shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
-							- net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward-shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
+							net.finmath.math.functions.AnalyticFormulas.bachelierOptionValue(forward+shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
+							- net.finmath.math.functions.AnalyticFormulas.bachelierOptionValue(forward-shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
 							)/(2*shift);
 
 			// Calculate the analytic value
@@ -484,9 +484,9 @@ public class BachelierModelMonteCarloValuationTest {
 			// Calculate the finite difference of the analytic value
 			double vegaFiniteDiffAnalytic	=
 					(
-							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelierUp, optionMaturity, optionStrike, payoffUnit)
+							net.finmath.math.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelierUp, optionMaturity, optionStrike, payoffUnit)
 							-
-							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelierDown, optionMaturity, optionStrike, payoffUnit)
+							net.finmath.math.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelierDown, optionMaturity, optionStrike, payoffUnit)
 							)/(2*shift);
 
 			// Calculate the analytic value

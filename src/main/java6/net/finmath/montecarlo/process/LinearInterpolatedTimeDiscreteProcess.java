@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 

@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
-import net.finmath.optimizer.SolverException;
+import net.finmath.math.optimizer.LevenbergMarquardt;
+import net.finmath.math.optimizer.OptimizerInterface;
+import net.finmath.math.optimizer.SolverException;
 
 /**
  * A short demo on how to use {@link net.finmath.marketdata.model.curves.Curve}.

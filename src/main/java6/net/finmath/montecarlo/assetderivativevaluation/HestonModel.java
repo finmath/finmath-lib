@@ -7,8 +7,8 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Map;
 
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements a Heston Model, that is, it provides the drift and volatility specification

@@ -5,8 +5,8 @@
  */
 package net.finmath.montecarlo.conditionalexpectation;
 
-import net.finmath.functions.LinearAlgebra;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.math.functions.LinearAlgebra;
+import net.finmath.math.stochastic.RandomVariableInterface;
 
 /**
  * A service that allows to estimate conditional expectation via regression.

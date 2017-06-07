@@ -7,9 +7,9 @@ package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.util.Set;
 
+import net.finmath.math.stochastic.RandomVariableInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A fixed coupon index paying constant coupon..
