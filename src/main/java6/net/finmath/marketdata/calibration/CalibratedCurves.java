@@ -716,40 +716,35 @@ public class CalibratedCurves {
 	 * @return The forward curve associated with the given name.
 	 */
 	private String createForwardCurve(ScheduleInterface swapTenorDefinition, String forwardCurveName) {
-
-		/*
-		 * Temporary "hack" - we try to infer index maturity codes from curve name.
-		 */
-		String indexMaturityCode = null;
-		if(forwardCurveName.contains("_12M") || forwardCurveName.contains("-12M") || forwardCurveName.contains(" 12M"))	indexMaturityCode = "12M";
-		if(forwardCurveName.contains("_1M")	|| forwardCurveName.contains("-1M")	|| forwardCurveName.contains(" 1M"))	indexMaturityCode = "1M";
-		if(forwardCurveName.contains("_6M")	|| forwardCurveName.contains("-6M")	|| forwardCurveName.contains(" 6M"))	indexMaturityCode = "6M";
-		if(forwardCurveName.contains("_3M") || forwardCurveName.contains("-3M") || forwardCurveName.contains(" 3M"))	indexMaturityCode = "3M";
-
 		// Check if the curves exists, throw exception otherwise
 		CurveInterface	curve = model.getCurve(forwardCurveName); // note that this may be a discount curve
 		if(curve == null) 
 			throw new IllegalArgumentException("Cannot create forwardCurve " + forwardCurveName + " as no such curve was found in the model (not even as a discount curve):\n" + model.toString());
 		
-		// Check if the curve is a discount curve, if yes - create a forward curve wrapper.
-		CurveInterface	forwardCurve = null;
-		if(DiscountCurveInterface.class.isInstance(curve)) {
-			/*
-			 *  If the specified forward curve exits as a discount curve, we generate a forward curve
-			 *  by wrapping the discount curve and calculating the
-			 *  forward from discount factors using the formula (df(T)/df(T+Delta T) - 1) / Delta T).
-			 *  
-			 *  If no index maturity is used, the forward curve is interpreted "single curve", i.e.
-			 *  T+Delta T is always the payment.
-			 */
-			forwardCurve = new ForwardCurveFromDiscountCurve(curve.getName(), swapTenorDefinition.getReferenceDate(), indexMaturityCode);
-		}
-		else {
-			// Use a given forward curve
+		CurveInterface forwardCurve = null;
+		if(ForwardCurveInterface.class.isInstance(curve)) {
+			// they way it should be: given curve is forward curve
 			forwardCurve = curve;
-		}
+		} else if(DiscountCurveInterface.class.isInstance(curve)) {
+			// Temporary "hack" - we try to infer index maturity codes from curve name.
+			// Note that this does not work for OIS curves
+			String indexMaturityCode = null;
+			if(forwardCurveName.contains("_12M") || forwardCurveName.contains("-12M") || forwardCurveName.contains(" 12M"))	indexMaturityCode = "12M";
+			if(forwardCurveName.contains("_1M")	|| forwardCurveName.contains("-1M")	|| forwardCurveName.contains(" 1M"))	indexMaturityCode = "1M";
+			if(forwardCurveName.contains("_6M")	|| forwardCurveName.contains("-6M")	|| forwardCurveName.contains(" 6M"))	indexMaturityCode = "6M";
+			if(forwardCurveName.contains("_3M") || forwardCurveName.contains("-3M") || forwardCurveName.contains(" 3M"))	indexMaturityCode = "3M";
 
-		model = model.addCurves(forwardCurve);
+			// check whether I have already created a discountCurveFromForwardCurve wrapper for the discount curve
+			String forwardCurveFromDiscountCurveName = "ForwardCurveFromDiscountCurve(" +  forwardCurveName + "," + indexMaturityCode + ")";
+			forwardCurve = model.getForwardCurve(forwardCurveFromDiscountCurveName);
+			if(forwardCurve==null) {
+				// If the specified forward curve exits as a discount curve, we generate a forward curve by wrapping the discount curve, i.e. calculate the forwards from discount factors using the formula (df(T)/df(T+Delta T)-1) / dcf
+				forwardCurve = new ForwardCurveFromDiscountCurve(curve.getName(), swapTenorDefinition.getReferenceDate(), indexMaturityCode);
+				model = model.addCurves(forwardCurve);
+			}
+		} else {
+			throw new IllegalArgumentException("Unhandled type. Curve " + curve.getName() + " is neither discount nor forward curve");
+		}
 
 		return forwardCurve.getName();
 	}
