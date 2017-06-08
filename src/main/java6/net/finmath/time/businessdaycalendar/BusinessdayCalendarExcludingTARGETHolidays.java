@@ -17,6 +17,7 @@ import org.threeten.bp.LocalDate;
 public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalendar {
 
 	private BusinessdayCalendarInterface baseCalendar;
+	private final BusinessdayCalendarInterface weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
 	
 	/**
 	 * Create business day calendar.
@@ -41,7 +42,6 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 		int day = date.getDayOfMonth();
 		int month = date.getMonthValue();
 
-		BusinessdayCalendarInterface weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
 		return	weekdayCalendar.isBusinessday(date)
 				&& (baseCalendar == null || baseCalendar.isBusinessday(date))
 				&&	!(day ==  1 && month ==  1)			// date is New Year
