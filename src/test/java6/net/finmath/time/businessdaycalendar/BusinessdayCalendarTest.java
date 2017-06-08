@@ -73,4 +73,36 @@ public class BusinessdayCalendarTest {
 			Assert.assertTrue(baseDate.plusDays((int) Math.round(days / 5.0 * 7.0)).isEqual(targetDate));
 		}
 	}
+	
+	/**
+	 * Simple tests for TARGET calendar.
+	 */
+	@Test
+	public void testTargetHolidays() {
+		BusinessdayCalendarInterface targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		
+		LocalDate weekend = LocalDate.of(2017, 6, 10);
+		Assert.assertTrue(!targetCalendar.isBusinessday(weekend));
+		
+		LocalDate weekendAndHoliday = LocalDate.of(2017, 1, 1);
+		Assert.assertTrue(!targetCalendar.isBusinessday(weekendAndHoliday));
+		
+		LocalDate newYear = LocalDate.of(2018, 1, 1);
+		Assert.assertTrue(!targetCalendar.isBusinessday(newYear));
+		
+		LocalDate goodFriday = LocalDate.of(2017, 4, 14);
+		Assert.assertTrue(!targetCalendar.isBusinessday(goodFriday));
+		
+		LocalDate easterMonday = LocalDate.of(2017, 4, 17);
+		Assert.assertTrue(!targetCalendar.isBusinessday(easterMonday));
+		
+		LocalDate labourDay = LocalDate.of(2017, 5, 1);
+		Assert.assertTrue(!targetCalendar.isBusinessday(labourDay));
+		
+		LocalDate christmasDay = LocalDate.of(2017, 12, 25);
+		Assert.assertTrue(!targetCalendar.isBusinessday(christmasDay));
+		
+		LocalDate boxingDay = LocalDate.of(2017, 12, 26);
+		Assert.assertTrue(!targetCalendar.isBusinessday(boxingDay));
+	}
 }
