@@ -22,7 +22,6 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	 * Create business day calendar.
 	 */
 	public BusinessdayCalendarExcludingTARGETHolidays() {
-		this.baseCalendar = new BusinessdayCalendarExcludingWeekends();
 	}
 
 	/**
@@ -31,7 +30,7 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	 * @param baseCalendar Calendar of business days.
 	 */
 	public BusinessdayCalendarExcludingTARGETHolidays(BusinessdayCalendarInterface baseCalendar) {
-		this.baseCalendar = new BusinessdayCalendarExcludingWeekends(baseCalendar);
+		this.baseCalendar = baseCalendar;
 	}
 	
 	/* (non-Javadoc)
@@ -45,7 +44,9 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 		LocalDate datePlus2 = date.plusDays(2);
 		LocalDate dateBefore = date.minusDays(1);
 
-		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
+		BusinessdayCalendarInterface weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
+		return	weekdayCalendar.isBusinessday(date)
+				&& (baseCalendar == null || baseCalendar.isBusinessday(date))
 				&&	!(day ==  1 && month ==  1)		// date is New Year
 				&&	!(day == 25 && month == 12)		// date is Christmas
 				&&	!(day == 26 && month == 12)		// date is Boxing Day
