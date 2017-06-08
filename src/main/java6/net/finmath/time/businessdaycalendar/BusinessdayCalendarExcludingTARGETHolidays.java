@@ -41,19 +41,15 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 		int day = date.getDayOfMonth();
 		int month = date.getMonthValue();
 
-		LocalDate datePlus2 = date.plusDays(2);
-		LocalDate dateBefore = date.minusDays(1);
-
 		BusinessdayCalendarInterface weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
 		return	weekdayCalendar.isBusinessday(date)
 				&& (baseCalendar == null || baseCalendar.isBusinessday(date))
-				&&	!(day ==  1 && month ==  1)		// date is New Year
-				&&	!(day == 25 && month == 12)		// date is Christmas
-				&&	!(day == 26 && month == 12)		// date is Boxing Day
-				&&	!(day == 31 && month == 12)
-				&&	!(day ==  1 && month ==  5)		// date is Labour Day
-				&&	!isEasterSunday(datePlus2)		// date is Good Friday
-				&&	!isEasterSunday(dateBefore)		// date is Easter Monday
+				&&	!(day ==  1 && month ==  1)			// date is New Year
+				&&	!isEasterSunday(date.plusDays(2))	// date is Good Friday
+				&&	!isEasterSunday(date.minusDays(1))	// date is Easter Monday
+				&&	!(day ==  1 && month ==  5)			// date is Labour Day
+				&&	!(day == 25 && month == 12)			// date is Christmas
+				&&	!(day == 26 && month == 12)			// date is Boxing Day
 				;
 	}
 
