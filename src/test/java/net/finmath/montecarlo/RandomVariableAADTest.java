@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo;
 
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,6 +24,9 @@ public class RandomVariableAADTest {
 	@Test
 	public void testRandomVariableDeterministc() {
 
+		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
+
+		
 		// Create a random variable with a constant
 		RandomVariableInterface randomVariable = RandomVariableAAD.constructNewAADRandomVariable(2.0);
 		
@@ -38,11 +43,12 @@ public class RandomVariableAADTest {
 		// Since the random variable is deterministic, it has zero variance
 		Assert.assertTrue(randomVariable.getVariance() == 0.0);
 		
-		System.out.println((RandomVariableAAD)randomVariable);
 	}
 
 	@Test
 	public void testRandomVariableStochastic() {
+
+		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
 
 		// Create a stochastic random variable
 		RandomVariableInterface randomVariable2 = RandomVariableAAD.constructNewAADRandomVariable(0.0,
@@ -67,15 +73,13 @@ public class RandomVariableAADTest {
 
 		// The random variable has variance value 2 * 9
 		Assert.assertTrue(randomVariable.getVariance() == 2.0 * 9.0);
-		
-		System.out.println((RandomVariableAAD)randomVariable);
-		System.out.println((RandomVariableAAD)randomVariable2);
-
 	}
 
 	@Test
 	public void testRandomVariableArithmeticSqrtPow() {
 
+		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
+		
 		// Create a stochastic random variable
 		RandomVariableInterface randomVariable = RandomVariableAAD.constructNewAADRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
@@ -86,11 +90,12 @@ public class RandomVariableAADTest {
 		Assert.assertTrue(check.getAverage() == 0.0);
 		Assert.assertTrue(check.getVariance() == 0.0);
 		
-		System.out.println((RandomVariableAAD)randomVariable);
 	}
 
 	@Test
 	public void testRandomVariableArithmeticSquaredPow() {
+
+		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
 
 		// Create a stochastic random variable
 		RandomVariableInterface randomVariable = RandomVariableAAD.constructNewAADRandomVariable(0.0,
@@ -102,19 +107,94 @@ public class RandomVariableAADTest {
 		Assert.assertTrue(check.getAverage() == 0.0);
 		Assert.assertTrue(check.getVariance() == 0.0);
 		
-		System.out.println((RandomVariableAAD)check);
 	}
 
 	@Test
 	public void testRandomVariableStandardDeviation() {
 
+		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
+		
 		// Create a stochastic random variable
 		RandomVariableInterface randomVariable = RandomVariableAAD.constructNewAADRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
 		Assert.assertTrue(check == 0.0);
+	}
+	
+	@Test
+	public void testRandomVariableGradient01(){
 		
-		System.out.println((RandomVariableAAD)randomVariable);
+		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
+		
+		RandomVariable randomVariable01 = new RandomVariable(0.0,
+				new double[] {3.0, 1.0, 0.0, 2.0, 4.0});
+		RandomVariable randomVariable02 = new RandomVariable(0.0,
+				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+		
+		/*x_1*/
+		RandomVariableAAD aadRandomVariable01 = RandomVariableAAD.constructNewAADRandomVariable(randomVariable01);
+		
+		/*x_2*/
+		RandomVariableAAD aadRandomVariable02 = RandomVariableAAD.constructNewAADRandomVariable(randomVariable02);
+		
+		/* x_3 = x_1 + x_2 */
+		RandomVariableInterface aadRandomVariable03 = aadRandomVariable01.add(aadRandomVariable02);
+		/* x_4 = x_3 * x_1 */
+		RandomVariableInterface aadRandomVariable04 = aadRandomVariable03.mult(aadRandomVariable01);
+		/* x_5 = x_4 + x_1 = ((x_1 + x_2) * x_1) + x_1 = x_1^2 + x_2x_1 + x_1*/
+		RandomVariableInterface aadRandomVariable05 = aadRandomVariable04.add(aadRandomVariable01);
+		
+		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableAAD)aadRandomVariable05).getGradient();
+		
+		/* dy/dx_1 = x_1 * 2 + x_2 + 1
+		 * dy/dx_2 = x_1 */
+		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{
+				randomVariable01.mult(2.0).add(randomVariable02).add(1.0),
+				randomVariable01
+		};
+		
+		for(int i=0; i<analyticGradient.length;i++){
+			System.out.println(analyticGradient[i]);
+			System.out.println(aadGradient.get(i));
+			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
+		}
+		
+		
+		
+	}
+	@Test
+	public void testRandomVariableGradient02(){
+
+		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
+		
+		int lengthOfVectors = (int)Math.pow(10, 5);
+		
+		double[] x = new double[lengthOfVectors];
+		
+		for(int i=0; i < lengthOfVectors; i++){
+			x[i] = Math.random();
+		}
+		
+		
+		RandomVariable randomVariable01 = new RandomVariable(0.0, x);
+		
+		/*x_1*/
+		RandomVariableAAD aadRandomVariable01 = RandomVariableAAD.constructNewAADRandomVariable(randomVariable01);
+
+		int numberOfIterations = (int)Math.pow(10, 4);
+		
+		RandomVariableAAD sum = RandomVariableAAD.constructNewAADRandomVariable(0.0);
+		for(int i = 0; i < numberOfIterations; i++){
+			sum = (RandomVariableAAD) sum.add(aadRandomVariable01);
+		}
+		
+		Map<Integer, RandomVariableInterface> aadGradient = sum.getGradient();
+		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
+		
+		for(int i=0; i<analyticGradient.length;i++){
+			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
+		}
+		
 	}
 }
