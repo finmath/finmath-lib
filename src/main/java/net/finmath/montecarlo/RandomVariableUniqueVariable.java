@@ -3,15 +3,11 @@
  */
 package net.finmath.montecarlo;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntToDoubleFunction;
-import java.util.stream.DoubleStream;
 
-import net.finmath.functions.DoubleTernaryOperator;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -213,24 +209,6 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getOperator()
-	 */
-	@Override
-	public IntToDoubleFunction getOperator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizationsStream()
-	 */
-	@Override
-	public DoubleStream getRealizationsStream() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */
 	@Override
@@ -383,30 +361,6 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#apply(java.util.function.DoubleUnaryOperator)
 	 */
-	@Override
-	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#apply(java.util.function.DoubleBinaryOperator, net.finmath.stochastic.RandomVariableInterface)
-	 */
-	@Override
-	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#apply(net.finmath.functions.DoubleTernaryOperator, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
-	@Override
-	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1,
-			RandomVariableInterface argument2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#floor(double)
@@ -907,5 +861,17 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 				"variableID: " + variableID + "\n" +
 				"parentIDs: " + Arrays.toString(getParentIDs()) + ((getParentIDs() == null) ? "" : (" type: " + parentOperatorType.name())) + "\n" +
 				"isTrueVariable: " + isVariable() + "";
+	}
+
+	@Override
+	public RandomVariableInterface apply(UnivariateFunction function) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RandomVariableInterface cap(double cap) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
