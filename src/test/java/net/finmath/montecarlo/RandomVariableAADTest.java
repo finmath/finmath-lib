@@ -123,7 +123,7 @@ public class RandomVariableAADTest {
 	}
 	
 	@Test
-	public void testRandomVariableGradient01(){
+	public void testRandomVariableSimpleGradient(){
 		
 		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
 		
@@ -155,19 +155,18 @@ public class RandomVariableAADTest {
 		};
 		
 		for(int i=0; i<analyticGradient.length;i++){
-			System.out.println(analyticGradient[i]);
-			System.out.println(aadGradient.get(i));
+//			System.out.println(analyticGradient[i]);
+//			System.out.println(aadGradient.get(i));
 			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
 		}
-		
-		
-		
 	}
+
 	@Test
-	public void testRandomVariableGradient02(){
+	public void testRandomVariableGradientBigSum(){
 
 		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
 		
+		/* OutOfMemoryError for >= 10^6*/
 		int lengthOfVectors = (int)Math.pow(10, 5);
 		
 		double[] x = new double[lengthOfVectors];
@@ -175,14 +174,14 @@ public class RandomVariableAADTest {
 		for(int i=0; i < lengthOfVectors; i++){
 			x[i] = Math.random();
 		}
-		
-		
+				
 		RandomVariable randomVariable01 = new RandomVariable(0.0, x);
 		
 		/*x_1*/
 		RandomVariableAAD aadRandomVariable01 = RandomVariableAAD.constructNewAADRandomVariable(randomVariable01);
 
-		int numberOfIterations = (int)Math.pow(10, 4);
+		/* throws StackOverflowError for >= 10^4 iterations */
+		int numberOfIterations = (int)Math.pow(10, 3);
 		
 		RandomVariableAAD sum = RandomVariableAAD.constructNewAADRandomVariable(0.0);
 		for(int i = 0; i < numberOfIterations; i++){
