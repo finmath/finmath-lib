@@ -20,13 +20,13 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	private final BusinessdayCalendarInterface weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
 	
 	/**
-	 * Create business day calendar.
+	 * Create TARGET business day calendar.
 	 */
 	public BusinessdayCalendarExcludingTARGETHolidays() {
 	}
 
 	/**
-	 * Create business day calendar using a given business day calendar as basis.
+	 * Create TARGET business day calendar using a given business day calendar as basis.
 	 * 
 	 * @param baseCalendar Calendar of business days.
 	 */
