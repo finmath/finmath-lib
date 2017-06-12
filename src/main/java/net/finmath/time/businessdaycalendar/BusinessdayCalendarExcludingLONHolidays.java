@@ -1,6 +1,5 @@
 package net.finmath.time.businessdaycalendar;
 
-import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import java.time.LocalDate;
