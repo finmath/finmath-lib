@@ -34,9 +34,6 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 		this.baseCalendar = baseCalendar;
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(org.threeten.bp.LocalDate)
-	 */
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		int day = date.getDayOfMonth();
