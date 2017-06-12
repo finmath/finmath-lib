@@ -48,8 +48,9 @@ public class BusinessdayCalendarExcludingNYCHolidays extends BusinessdayCalendar
 				&& (baseCalendar == null || baseCalendar.isBusinessday(date))
 				&& !holidays.contains(date);
 	}
-	
-	public String name() {
+
+	@Override
+	public String toString() {
 		return "BusinessdayCalendarExcludingNYCHolidays [baseCalendar=" + baseCalendar + "]";
 	}
 }
