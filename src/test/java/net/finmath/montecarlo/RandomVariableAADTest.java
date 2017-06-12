@@ -167,7 +167,7 @@ public class RandomVariableAADTest {
 		RandomVariableAAD.resetArrayListOfAllAADRandomVariables();
 		
 		/* OutOfMemoryError for >= 10^6*/
-		int lengthOfVectors = (int)Math.pow(10, 5);
+		int lengthOfVectors = 4 * (int) Math.pow(10, 5);
 		
 		double[] x = new double[lengthOfVectors];
 		
@@ -180,8 +180,8 @@ public class RandomVariableAADTest {
 		/*x_1*/
 		RandomVariableAAD aadRandomVariable01 = RandomVariableAAD.constructNewAADRandomVariable(randomVariable01);
 
-		/* throws StackOverflowError for >= 10^4 iterations */
-		int numberOfIterations = (int)Math.pow(10, 3);
+		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
+		int numberOfIterations =  (int) Math.pow(10, 3);
 		
 		RandomVariableAAD sum = RandomVariableAAD.constructNewAADRandomVariable(0.0);
 		for(int i = 0; i < numberOfIterations; i++){
