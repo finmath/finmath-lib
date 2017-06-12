@@ -221,13 +221,13 @@ public class RandomVariableAAD implements RandomVariableInterface {
 				resultrandomvariable = X.div(Y);
 				break;
 			case CAP:
-				resultrandomvariable = X.cap(Y);
+				resultrandomvariable = X.cap( /* argument is deterministic random variable */ Y.getAverage());
 				break;
 			case FLOOR:
-				resultrandomvariable = X.floor(Y);
+				resultrandomvariable = X.floor( /* argument is deterministic random variable */ Y.getAverage());
 				break;			
 			case POW:
-				resultrandomvariable = X.pow( /* argument is deterministic anyway */ Y.getAverage());
+				resultrandomvariable = X.pow( /* argument is deterministic random variable */ Y.getAverage());
 				break;
 			case AVERAGE:
 				resultrandomvariable = new RandomVariable(X.getAverage(Y));
@@ -309,10 +309,11 @@ public class RandomVariableAAD implements RandomVariableInterface {
 
 		RandomVariableInterface resultrandomvariable = null;
 		RandomVariableInterface X,Y,Z;
-
+		double[] resultRandomVariableRealizations;
+		
 		if(getParentIDs().length == 1){
 			
-			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);
+			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]).getMutableCopy();
 		
 			switch(parentOperator){
 			/* functions with one argument  */
@@ -344,50 +345,80 @@ public class RandomVariableAAD implements RandomVariableInterface {
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));
 				break;
 			case MIN:
+				resultrandomvariable = X.apply(x -> (x == X.getMin()) ? 1.0 : 0.0);
+//				resultRandomVariableRealizations = new double[X.size()];
+//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] == X.getMin()) ? 1.0 : 0.0;
+//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
+				break;
 			case MAX:
+				resultrandomvariable = X.apply(x -> (x == X.getMax()) ? 1.0 : 0.0);
+//				resultRandomVariableRealizations = new double[X.size()];
+//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] == X.getMax()) ? 1.0 : 0.0;
+//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
+				break;
 			case ABS:
+				resultrandomvariable = X.apply(x -> (x > 0.0) ? 1.0 : (x < 0) ? -1.0 : 0.0);
+//				resultRandomVariableRealizations = new double[X.size()];
+//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > 0) ? 1.0 : (X.getRealizations()[i] < 0) ? -1.0 : 0.0;
+//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
+				break;
 			case STDERROR:
+				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
+				break;
 			case SVARIANCE:
+				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/(X.size()-1));
+				break;
 			default:
 				break;
 			}
 		} else if(getParentIDs().length == 2){
 			
-			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);
-			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]);
+			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]).getMutableCopy();
+			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]).getMutableCopy();
 
 			switch(parentOperator){
 			case ADD:
 				resultrandomvariable = new RandomVariable(1.0);
 				break;
 			case SUB:
-				resultrandomvariable = new RandomVariable(1.0);
-				if(variableIndex == getParentIDs()[1]){
-					resultrandomvariable = resultrandomvariable.mult(-1.0);
-				}
+				resultrandomvariable = new RandomVariable((variableIndex == getParentIDs()[0]) ? 1.0 : -1.0);
 				break;
 			case MULT:
-				if(variableIndex == getParentIDs()[0]){
-					resultrandomvariable = Y;
-				} else {
-					resultrandomvariable = X;
-				}
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y : X;
 				break;
 			case DIV:
-				if(variableIndex == getParentIDs()[0]){
-					resultrandomvariable = Y.invert();
-				} else {
-					resultrandomvariable = X.div(Y.squared());
-				}
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.invert() : X.div(Y.squared());
 				break;
 			case CAP:
+				resultrandomvariable = X.apply(x -> (x > Y.getAverage()) ? 0.0 : 1.0);
+//				resultRandomVariableRealizations = new double[X.size()];
+//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 0.0 : 1.0;
+//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
+				break;
 			case FLOOR:
+				resultrandomvariable = X.apply(x -> (x > Y.getAverage()) ? 1.0 : 0.0);
+//				resultRandomVariableRealizations = new double[X.size()];
+//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 1.0 : 0.0;
+//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
+				break;
 			case AVERAGE:
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y : X;
+				break;
 			case VARIANCE:
-			case STDEV:
-			case STDERROR:
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
+					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));
+				break;
+			case STDEV:				
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
+				X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));
+				break;
+			case STDERROR:				
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
+				X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
+				break;
 			case POW:
-			case BARRIER:
+				/* second argument will always be deterministic and constant! */
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
 			default:
 				break;
 			}
@@ -442,6 +473,14 @@ public class RandomVariableAAD implements RandomVariableInterface {
 					resultrandomvariable = X.mult(Y).div(Y.mult(Z).add(1.0).squared());
 				}
 				break;
+			case BARRIER:
+				if(variableIndex == getParentIDs()[0]){
+					resultrandomvariable = X.apply(x -> (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0);
+				} else if(variableIndex == getParentIDs()[1]){
+					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
+				} else {
+					resultrandomvariable = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
+				}
 			default:
 				break;
 			}
