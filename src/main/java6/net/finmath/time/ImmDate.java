@@ -1,6 +1,7 @@
 package net.finmath.time;
 
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.threeten.bp.LocalDate;
 /**
  * 
@@ -21,7 +22,7 @@ public class ImmDate {
 	private static final int[] IMM_MONTHS = new int[] {3, 6, 9, 12};
 
 	public static boolean isImmDate(LocalDate date){
-		return date.getDayOfMonth() == IMM_DAY && (date.getMonthValue() % 3) == 0;
+		return date.getDayOfMonth() == IMM_DAY && ArrayUtils.contains( IMM_MONTHS, date.getMonthValue());
 	}
 
 	/**
@@ -67,7 +68,7 @@ public class ImmDate {
 		int month = date.getMonthValue();
 		int year = date.getYear();
 
-		if(month % 3 == 0){
+		if(ArrayUtils.contains( IMM_MONTHS, date.getMonthValue())){
 			if(day < IMM_DAY){
 				return LocalDate.of(year,month,IMM_DAY); 
 			}else{
@@ -93,7 +94,7 @@ public class ImmDate {
 		int month = date.getMonthValue();
 		int year = date.getYear();
 
-		if(month % 3 == 0){
+		if(ArrayUtils.contains( IMM_MONTHS, date.getMonthValue())){
 			if(day > IMM_DAY){
 				return LocalDate.of(year,month,IMM_DAY);
 			}else{
