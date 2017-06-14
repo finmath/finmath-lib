@@ -9,13 +9,13 @@ import org.threeten.bp.LocalDate;
  * 
  * @author Christian Fries
  */
-public abstract class BusinessdayCalendarGivenHolidays extends BusinessdayCalendar {
+public abstract class BusinessdayCalendarExcludingGivenHolidays extends BusinessdayCalendar {
 
 	private final String name;
 	private final BusinessdayCalendarInterface baseCalendar;
 	private final boolean isExcludeWeekends;
 	
-	public BusinessdayCalendarGivenHolidays(String name, BusinessdayCalendarInterface baseCalendar, boolean isExcludeWeekends) {
+	public BusinessdayCalendarExcludingGivenHolidays(String name, BusinessdayCalendarInterface baseCalendar, boolean isExcludeWeekends) {
 		super();
 		this.name = name;
 		this.baseCalendar = baseCalendar;
@@ -58,7 +58,6 @@ public abstract class BusinessdayCalendarGivenHolidays extends BusinessdayCalend
 
 	@Override
 	public String toString() {
-		return "BusinessdayCalendarGivenHolidays [getName()=" + getName() + ", getBaseCalendar()=" + getBaseCalendar()
-				+ ", isExcludingWeekends()=" + isExcludingWeekends() + "]";
+		return getClass().getSimpleName() + " [baseCalendar=" + getBaseCalendar() + "]";
 	}
 }

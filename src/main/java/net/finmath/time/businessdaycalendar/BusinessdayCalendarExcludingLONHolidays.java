@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
  * 
  * @author Niklas Rodi
  */
-public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendarGivenHolidays {
+public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 
 	/*
 	 * Details of this calendar.
