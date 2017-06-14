@@ -448,7 +448,9 @@ public class CalibratedCurves {
 			String forwardCurvePayerName = createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
 			ScheduleInterface tenorPayer = calibrationSpec.swapTenorDefinitionPayer;
 			if(calibrationSpec.type.toLowerCase().equals("swap")) {
-				product = new Swap(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName);
+				SwapLeg legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
+				SwapLeg legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);
+				product = new Swap(legReceiver, legPayer);
 			}
 			else if(calibrationSpec.type.toLowerCase().equals("swapwithresetonreceiver")) {
 				String discountCurveForNotionalResetName = calibrationSpec.discountCurvePayerName;
