@@ -29,8 +29,8 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
  */
 public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 
-	private final Map<String, CurveInterface>				curvesMap			= new HashMap<String, CurveInterface>();
-	private final Map<String, VolatilitySurfaceInterface>	volatilitySufaceMap	= new HashMap<String, VolatilitySurfaceInterface>();
+	private final Map<String, CurveInterface>				curvesMap				= new HashMap<String, CurveInterface>();
+	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap	= new HashMap<String, VolatilitySurfaceInterface>();
 
 	/**
 	 * Create an empty analytic model.
@@ -115,37 +115,32 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	@Override
 	public DiscountCurveInterface getDiscountCurve(String discountCurveName) {
 		DiscountCurveInterface discountCurve = null;
-		CurveInterface curveForDiscountingCurve			= getCurve(discountCurveName);
-		if(DiscountCurveInterface.class.isInstance(curveForDiscountingCurve)) {
-			discountCurve	= (DiscountCurveInterface)curveForDiscountingCurve;
-		}
-		else if(ForwardCurveInterface.class.isInstance(curveForDiscountingCurve)) {
-			// Check if the discount curve is a forward curve
-			ForwardCurveInterface	forwardCurveForDiscounting	= (ForwardCurveInterface) curveForDiscountingCurve;
-			discountCurve = new DiscountCurveFromForwardCurve(forwardCurveForDiscounting.getName());
-		}
+		CurveInterface curve = getCurve(discountCurveName);
+		if(DiscountCurveInterface.class.isInstance(curve))
+			discountCurve = (DiscountCurveInterface)curve;
+
 		return discountCurve;
 	}
 
 	@Override
 	public ForwardCurveInterface getForwardCurve(String forwardCurveName) {
 		ForwardCurveInterface forwardCurve = null;
-		CurveInterface curveForForwards			= getCurve(forwardCurveName);
-		if(ForwardCurveInterface.class.isInstance(curveForForwards)) {
-			forwardCurve	= (ForwardCurveInterface)curveForForwards;
-		}
+		CurveInterface curve = getCurve(forwardCurveName);
+		if(ForwardCurveInterface.class.isInstance(curve))
+			forwardCurve = (ForwardCurveInterface)curve;
+
 		return forwardCurve;
 	}
 
 	@Override
 	public VolatilitySurfaceInterface getVolatilitySurface(String name) {
-		return volatilitySufaceMap.get(name);
+		return volatilitySurfaceMap.get(name);
 	}
 	
 	public AnalyticModelInterface addVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
 	{
 		AnalyticModel newModel = clone();
-		newModel.volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 		return newModel;
 	}
 
@@ -153,14 +148,14 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	public AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces)
 	{
 		AnalyticModel newModel = clone();
-		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 		return newModel;
 	}
 
 	@Override
 	public AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces) {
 		AnalyticModel newModel = clone();
-		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 		return newModel;
 	}
 
@@ -171,7 +166,7 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	@Deprecated
     public void setVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
 	{
-		volatilitySufaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 	}
 	
 	private void set(Object marketDataObject) {
@@ -185,7 +180,7 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	{
 		AnalyticModel newModel = new AnalyticModel();
 		newModel.curvesMap.putAll(curvesMap);
-		newModel.volatilitySufaceMap.putAll(volatilitySufaceMap);
+		newModel.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
 		return newModel;
 	}
 
@@ -204,5 +199,10 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 		}
 		
 		return modelClone;
+	}
+
+	@Override
+	public String toString() {
+		return "AnalyticModel: curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
 	}
 }
