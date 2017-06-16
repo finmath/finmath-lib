@@ -13,13 +13,10 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * {@link RandomVariableInterface} having the feature to calculate the backward algorithmic differentiation.
+ * Implementation of <code>RandomVariableInterface</code> having the additional feature to calculate the backward algorithmic differentiation.
  * 
- * For this class has a static {@link ArrayList} saving all instances of the class that are produced over time.
- * Hence the class does not have a {@link public} constructor! 
- * 
- * In order to initialize a instance of this class, please use the {@link static} method {@link RandomVariableAAD.constructNewAADRandomVariable}!
- * 
+ * For construction use the factory method <code>constructNewAADRandomVariable</code>.
+ *
  * @author Stefan Sedlmair
  * @version 1.0
  */
@@ -70,7 +67,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 * @param parentIndices
 	 * @param parentOperator
 	 * @param isConstant
-	 * @return
+	 * @return A new RandomVariableAAD.
 	 */
 	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariableInterface randomVariable, int[] parentIndices,
 			OperatorType parentOperator, ArrayList<Integer> childrenIndices, boolean isConstant){
