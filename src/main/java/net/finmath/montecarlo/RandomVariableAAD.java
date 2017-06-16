@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
@@ -26,7 +28,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 
 	/* static elements of the class are shared between all members */
 	private static ArrayList<RandomVariableAAD> arrayListOfAllAADRandomVariables = new ArrayList<>();
-	private static int indexOfNextRandomVariable = 0;
+	private static AtomicInteger indexOfNextRandomVariable = new AtomicInteger(0);
 	private static enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
 		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCURUE, POW, AVERAGE, VARIANCE, 
@@ -80,7 +82,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		}
 
 		/* get index of this random variable */
-		int indexOfThisAADRandomVariable = indexOfNextRandomVariable++;
+		int indexOfThisAADRandomVariable = indexOfNextRandomVariable.getAndIncrement();
 
 		RandomVariableAAD newAADRandomVariable = new RandomVariableAAD(indexOfThisAADRandomVariable, randomVariable, 
 				parentIndices, parentOperator, childrenIndices, isConstant);
@@ -622,8 +624,10 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	}
 	
 	public static void resetArrayListOfAllAADRandomVariables(){
-		arrayListOfAllAADRandomVariables = new ArrayList<>();
-		indexOfNextRandomVariable = 0;
+		synchronized (arrayListOfAllAADRandomVariables) {
+			arrayListOfAllAADRandomVariables = new ArrayList<>();
+			indexOfNextRandomVariable = new AtomicInteger(0);
+		}
 	}
 
 	public void setIsConstantTo(boolean isConstant){
