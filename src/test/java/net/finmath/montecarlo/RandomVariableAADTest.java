@@ -10,6 +10,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.finmath.montecarlo.RandomVariableAADFactory.RandomVariableWithAAD;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -155,8 +156,47 @@ public class RandomVariableAADTest {
 		};
 		
 		for(int i=0; i<analyticGradient.length;i++){
-//			System.out.println(analyticGradient[i]);
-//			System.out.println(aadGradient.get(i));
+			System.out.println(analyticGradient[i]);
+			System.out.println(aadGradient.get(i));
+			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
+		}
+	}
+
+	@Test
+	public void testRandomVariableSimpleGradient2(){
+		
+		RandomVariableAADFactory randomVariableFactory = new RandomVariableAADFactory();
+		
+		RandomVariable randomVariable01 = new RandomVariable(0.0,
+				new double[] {3.0, 1.0, 0.0, 2.0, 4.0});
+		RandomVariable randomVariable02 = new RandomVariable(0.0,
+				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+		
+		/*x_1*/
+		RandomVariableWithAAD aadRandomVariable01 = randomVariableFactory.constructNewAADRandomVariable(randomVariable01);
+		
+		/*x_2*/
+		RandomVariableWithAAD aadRandomVariable02 = randomVariableFactory.constructNewAADRandomVariable(randomVariable02);
+		
+		/* x_3 = x_1 + x_2 */
+		RandomVariableInterface aadRandomVariable03 = aadRandomVariable01.add(aadRandomVariable02);
+		/* x_4 = x_3 * x_1 */
+		RandomVariableInterface aadRandomVariable04 = aadRandomVariable03.mult(aadRandomVariable01);
+		/* x_5 = x_4 + x_1 = ((x_1 + x_2) * x_1) + x_1 = x_1^2 + x_2x_1 + x_1*/
+		RandomVariableInterface aadRandomVariable05 = aadRandomVariable04.add(aadRandomVariable01);
+		
+		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableWithAAD)aadRandomVariable05).getGradient();
+		
+		/* dy/dx_1 = x_1 * 2 + x_2 + 1
+		 * dy/dx_2 = x_1 */
+		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{
+				randomVariable01.mult(2.0).add(randomVariable02).add(1.0),
+				randomVariable01
+		};
+		
+		for(int i=0; i<analyticGradient.length;i++){
+			System.out.println(analyticGradient[i]);
+			System.out.println(aadGradient.get(i));
 			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
 		}
 	}
@@ -192,6 +232,7 @@ public class RandomVariableAADTest {
 		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
 		
 		for(int i=0; i<analyticGradient.length;i++){
+			System.out.println(i + "\t" + aadGradient.get(i));
 			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
 		}
 		
