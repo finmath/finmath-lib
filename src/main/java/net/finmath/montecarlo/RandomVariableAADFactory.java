@@ -28,10 +28,28 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 		STDEV, MIN, MAX, STDERROR, SVARIANCE
 	}
 
-	private ArrayList<RandomVariableWithAAD> arrayListOfAllAADRandomVariables = new ArrayList<>();
-	private AtomicInteger indexOfNextRandomVariable = new AtomicInteger(0);
+	private ArrayList<RandomVariableWithAAD> randomVariables = new ArrayList<>();
+	private AtomicInteger randomVariableNextID = new AtomicInteger(0);
 
+	/**
+	 * 
+	 */
+	public RandomVariableAADFactory() {
+		// TODO Auto-generated constructor stub
+	}
 
+	@Override
+	public RandomVariableInterface createRandomVariable(double time, double value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RandomVariableInterface createRandomVariable(double time, double[] values) {
+		return constructNewAADRandomVariable(new RandomVariable(time, values), /* no parents*/ null,
+				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
+	}
+	
 	/**
 	 * @param randomVariable
 	 * @param parentIndices
@@ -43,20 +61,20 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 			OperatorType parentOperator, ArrayList<Integer> childrenIndices, boolean isConstant){
 
 		/* TODO: how to handle cases with different realization lengths? */
-		if(!arrayListOfAllAADRandomVariables.isEmpty()){
-			if(arrayListOfAllAADRandomVariables.get(0).size() != randomVariable.size() && !randomVariable.isDeterministic()){
+		if(!randomVariables.isEmpty()){
+			if(randomVariables.get(0).size() != randomVariable.size() && !randomVariable.isDeterministic()){
 				throw new IllegalArgumentException("RandomVariables with different sizes are not supported at the moment!");
 			}
 		}
 
 		/* get index of this random variable */
-		int indexOfThisAADRandomVariable = indexOfNextRandomVariable.getAndIncrement();
+		int indexOfThisAADRandomVariable = randomVariableNextID.getAndIncrement();
 
 		RandomVariableWithAAD newAADRandomVariable = new RandomVariableWithAAD(indexOfThisAADRandomVariable, randomVariable, 
 				parentIndices, parentOperator, childrenIndices, isConstant);
 
 		/* add random variable to static list for book keeping */
-		arrayListOfAllAADRandomVariables.add(indexOfThisAADRandomVariable, newAADRandomVariable);
+		randomVariables.add(indexOfThisAADRandomVariable, newAADRandomVariable);
 
 		/* return a new random variable */
 		return newAADRandomVariable;
@@ -630,7 +648,7 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 		}	
 
 		private ArrayList<RandomVariableWithAAD> getFunctionList(){
-			return arrayListOfAllAADRandomVariables;
+			return randomVariables;
 		}
 
 		public void setIsConstantTo(boolean isConstant){
@@ -1121,31 +1139,4 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 			throw new UnsupportedOperationException("Applying functions is not supported.");
 		}
 	}
-
-
-	/**
-	 * 
-	 */
-	public RandomVariableAADFactory() {
-		// TODO Auto-generated constructor stub
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double)
-	 */
-	@Override
-	public RandomVariableInterface createRandomVariable(double time, double value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double[])
-	 */
-	@Override
-	public RandomVariableInterface createRandomVariable(double time, double[] values) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
