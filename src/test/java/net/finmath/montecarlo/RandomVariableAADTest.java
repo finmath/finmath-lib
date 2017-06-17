@@ -228,9 +228,6 @@ public class RandomVariableAADTest {
 			sum = (RandomVariableAAD) sum.add(aadRandomVariable01);
 		}
 		
-		// The following line should have no effect on the gradient, but it will lead to an exception
-//		sum = (RandomVariableAAD) sum.add(randomVariable01);
-		
 		Map<Integer, RandomVariableInterface> aadGradient = sum.getGradient();
 		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
 		
@@ -278,4 +275,44 @@ public class RandomVariableAADTest {
 		}
 		
 	}
-}
+
+	@Test
+	public void testRandomVariableGradientBigSumWithConstants(){
+
+		/* OutOfMemoryError for >= 10^6*/
+		int lengthOfVectors = 4 * (int) Math.pow(10, 4);
+
+		// Generate some random Vector
+		double[] x = new double[lengthOfVectors];
+		for(int i=0; i < lengthOfVectors; i++) x[i] = Math.random();
+				
+		RandomVariable randomVariable01 = new RandomVariable(0.0, x);
+		RandomVariable randomVariable02 = new RandomVariable(0.0, x);
+
+		RandomVariableAADFactory randomVariableFactory = new RandomVariableAADFactory();
+
+		/*x_1*/
+		RandomVariableWithAAD aadRandomVariable01 = randomVariableFactory.constructNewAADRandomVariable(randomVariable01);
+
+		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
+		int numberOfIterations =  (int) Math.pow(10, 3);
+
+		/*
+		 * sum = \Sigma_{i=0}^{n-1} (x_1 + a)
+		 * Note: we like to differentiate with respect to x_1, that is, a should have no effect!
+		 */
+		RandomVariableInterface sum = randomVariableFactory.constructNewAADRandomVariable(0.0);
+		for(int i = 0; i < numberOfIterations; i++){
+			sum = sum.add(aadRandomVariable01);
+			sum = sum.add(randomVariable02);
+		}
+		
+		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableWithAAD)sum).getGradient();
+		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
+		
+		for(int i=0; i<analyticGradient.length;i++){
+			System.out.println(i + "\t" + aadGradient.get(i));
+			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
+		}
+		
+	}}
