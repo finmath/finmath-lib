@@ -1112,14 +1112,9 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	public RandomVariableInterface getMutableCopy() {
 		return this;
 	}
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getOperator()
-	 */
-
 
 	@Override
 	public RandomVariableInterface apply(UnivariateFunction function) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 }
