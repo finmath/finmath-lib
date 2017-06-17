@@ -35,8 +35,10 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	 * <b>Do not use this constructor on its own.</b> It is thought only to be use by the {@link RandomVariableUniqueVariableFactory}!
 	 * 
 	 * @param variableID is the index of the corresponding {@link RandomVariableInterface} in the ArrayList of the {@link RandomVariableUniqueVariableFactory}
-	 * @param 
-	 * */
+	 * @param isConstant If true, this is a constant.
+	 * @param parentVariables Indices of parents
+	 * @param parentOperatorType Operator
+	 */
 	public RandomVariableUniqueVariable(int variableID, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType) {
 		this.variableID = variableID;		
 		this.isConstant = isConstant;
