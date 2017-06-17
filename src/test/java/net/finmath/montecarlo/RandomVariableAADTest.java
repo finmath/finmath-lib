@@ -228,6 +228,9 @@ public class RandomVariableAADTest {
 			sum = (RandomVariableAAD) sum.add(aadRandomVariable01);
 		}
 		
+		// The following line should have no effect on the gradient, but it will lead to an exception
+//		sum = (RandomVariableAAD) sum.add(randomVariable01);
+		
 		Map<Integer, RandomVariableInterface> aadGradient = sum.getGradient();
 		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
 		
@@ -242,7 +245,7 @@ public class RandomVariableAADTest {
 	public void testRandomVariableGradientBigSum2(){
 
 		/* OutOfMemoryError for >= 10^6*/
-		int lengthOfVectors = 4 * (int) Math.pow(10, 5);
+		int lengthOfVectors = 4 * (int) Math.pow(10, 4);
 		
 		double[] x = new double[lengthOfVectors];
 		
