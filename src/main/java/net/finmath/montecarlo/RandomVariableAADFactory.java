@@ -18,6 +18,8 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Christian Fries
+ * @author Stefan Sedlmair
+ * @version 1.0
  *
  */
 public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
@@ -49,7 +51,7 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 		return constructNewAADRandomVariable(new RandomVariable(time, values), /* no parents*/ null,
 				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
 	}
-	
+
 	/**
 	 * @param randomVariable
 	 * @param parentIndices
