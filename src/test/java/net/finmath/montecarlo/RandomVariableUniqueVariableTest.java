@@ -3,7 +3,6 @@
  */
 package net.finmath.montecarlo;
 
-import net.finmath.montecarlo.RandomVariableUniqueVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**

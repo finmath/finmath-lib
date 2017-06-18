@@ -8,10 +8,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-
+import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -1114,7 +1116,27 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface apply(UnivariateFunction function) {
+	public IntToDoubleFunction getOperator() {
+		throw new UnsupportedOperationException("Not supported.");
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+		throw new UnsupportedOperationException("Not supported.");
+	}
+
+	@Override
+	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+		throw new UnsupportedOperationException("Applying functions is not supported.");
+	}
+
+	@Override
+	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+		throw new UnsupportedOperationException("Applying functions is not supported.");
+	}
+
+	@Override
+	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 }

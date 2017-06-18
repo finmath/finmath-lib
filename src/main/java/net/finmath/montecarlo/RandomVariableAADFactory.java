@@ -8,12 +8,17 @@ package net.finmath.montecarlo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-
+import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -30,14 +35,13 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 		STDEV, MIN, MAX, STDERROR, SVARIANCE
 	}
 
-	private ArrayList<RandomVariableWithAAD> randomVariables = new ArrayList<>();
+	private List<RandomVariableWithAAD> randomVariables = Collections.synchronizedList(new ArrayList<RandomVariableWithAAD>());
 	private AtomicInteger randomVariableNextID = new AtomicInteger(0);
 
 	/**
 	 * 
 	 */
 	public RandomVariableAADFactory() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -649,7 +653,7 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 			return (isConstant() == false && getParentIDs() == null);
 		}	
 
-		private ArrayList<RandomVariableWithAAD> getFunctionList(){
+		private List<RandomVariableWithAAD> getFunctionList(){
 			return randomVariables;
 		}
 
@@ -1137,7 +1141,27 @@ public class RandomVariableAADFactory extends AbstractRandomVariableFactory {
 		}
 
 		@Override
-		public RandomVariableInterface apply(UnivariateFunction function) {
+		public IntToDoubleFunction getOperator() {
+			throw new UnsupportedOperationException("Not supported.");
+		}
+
+		@Override
+		public DoubleStream getRealizationsStream() {
+			throw new UnsupportedOperationException("Not supported.");
+		}
+
+		@Override
+		public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+			throw new UnsupportedOperationException("Applying functions is not supported.");
+		}
+
+		@Override
+		public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+			throw new UnsupportedOperationException("Applying functions is not supported.");
+		}
+
+		@Override
+		public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
 			throw new UnsupportedOperationException("Applying functions is not supported.");
 		}
 	}
