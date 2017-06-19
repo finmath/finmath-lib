@@ -180,11 +180,13 @@ public class RandomVariableAADv2Test {
 		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
 		int numberOfIterations =  (int) Math.pow(10, 3);
 
+		RandomVariableInterface sum = new RandomVariableAADv2(0.0);
+		((RandomVariableAADv2) sum).setIsConstantTo(true);
 		for(int i = 0; i < numberOfIterations; i++){
-			aadRandomVariable01 = aadRandomVariable01.add(aadRandomVariable01);
+			sum = sum.add(aadRandomVariable01);
 		}
 		
-		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableAADv2) aadRandomVariable01).getGradient();
+		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableAADv2) sum).getGradient();
 		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
 		
 		System.out.println("testRandomVariableGradientBigSum");
@@ -224,6 +226,8 @@ public class RandomVariableAADv2Test {
 		 * Note: we like to differentiate with respect to x_1, that is, a should have no effect!
 		 */
 		RandomVariableInterface sum =  new RandomVariableAADv2(0.0);
+		((RandomVariableAADv2) sum).setIsConstantTo(true);
+
 		for(int i = 0; i < numberOfIterations; i++){
 			sum = sum.add(aadRandomVariable01);
 			sum = sum.add(randomVariable02);
