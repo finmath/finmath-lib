@@ -50,15 +50,13 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 	private final Long id;
 
 	/**
-	 * @param indexOfRandomVariable
 	 * @param parentRandomVariables
 	 * @param parentOperator
 	 * @param isConstant
 	 */
-	private RandomVariableAAD2(Long id, RandomVariableInterface values, 
-			ArrayList<RandomVariableInterface> arguments, OperatorType parentOperator) {
+	private RandomVariableAAD2(RandomVariableInterface values, ArrayList<RandomVariableInterface> arguments, OperatorType parentOperator) {
 		super();
-		this.id = id;
+		this.id = indexOfNextRandomVariable.getAndIncrement();
 		this.values = values;
 		this.arguments = arguments;
 		this.operator = parentOperator;
@@ -75,10 +73,7 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 	public static RandomVariableAAD2 constructNewAADRandomVariable(RandomVariableInterface randomVariable, ArrayList<RandomVariableInterface> arguments,
 			OperatorType operator){
 
-		/* get index of this random variable */
-		Long indexOfThisAADRandomVariable = indexOfNextRandomVariable.getAndIncrement();
-
-		RandomVariableAAD2 newAADRandomVariable = new RandomVariableAAD2(indexOfThisAADRandomVariable, randomVariable, 
+		RandomVariableAAD2 newAADRandomVariable = new RandomVariableAAD2(randomVariable, 
 				arguments, operator);
 
 		/* return a new random variable */
@@ -103,6 +98,10 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 		return values;
 	}
 
+	private static RandomVariableInterface valuesOf(RandomVariableInterface randomVariable) {
+		if(randomVariable instanceof RandomVariableAAD2) return ((RandomVariableAAD2) randomVariable).getRandomVariable();
+		else return randomVariable;
+	}
 	private RandomVariableInterface apply(OperatorType operator, RandomVariableInterface[] randomVariableInterfaces){
 
 		ArrayList<RandomVariableInterface> arguments = new ArrayList<RandomVariableInterface>();
@@ -115,8 +114,7 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 
 		if(randomVariableInterfaces.length == 1){
 
-			X = arguments.get(0);
-			if(X instanceof RandomVariableAAD2) X = ((RandomVariableAAD2)X).getRandomVariable();
+			X = valuesOf(arguments.get(0));
 
 			switch(operator){
 			case SQUARED:
@@ -163,10 +161,8 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 			}
 		} else if (randomVariableInterfaces.length == 2){
 
-			X = arguments.get(0);
-			if(X instanceof RandomVariableAAD2) X = ((RandomVariableAAD2)X).getRandomVariable();
-			Y = arguments.get(1);
-			if(Y instanceof RandomVariableAAD2) Y = ((RandomVariableAAD2)Y).getRandomVariable();
+			X = valuesOf(arguments.get(0));
+			Y = valuesOf(arguments.get(1));
 
 			switch(operator){
 			case ADD:
@@ -207,12 +203,9 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 			}
 		} else if(randomVariableInterfaces.length == 3){
 
-			X = arguments.get(0);
-			if(X instanceof RandomVariableAAD2) X = ((RandomVariableAAD2)X).getRandomVariable();
-			Y = arguments.get(1);
-			if(Y instanceof RandomVariableAAD2) Y = ((RandomVariableAAD2)Y).getRandomVariable();
-			Z = arguments.get(2);
-			if(Z instanceof RandomVariableAAD2) Z = ((RandomVariableAAD2)Z).getRandomVariable();
+			X = valuesOf(arguments.get(0));
+			Y = valuesOf(arguments.get(1));
+			Z = valuesOf(arguments.get(2));
 
 			switch(operator){
 			case ADDPRODUCT:
@@ -504,9 +497,9 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 				RandomVariableInterface partialDerivative = getPartialDerivative(argumentAAD);
 				RandomVariableInterface derivative			= derivatives.get(this.getID());
 				RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
-				
+
 				argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
-				
+
 				derivatives.put(argumentID, argumentDerivative);
 			}
 		}
