@@ -61,7 +61,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		this(randomVariable, null, null);
 	}
 
-	
+
 	private RandomVariableDifferentiableAAD(RandomVariableInterface values, ArrayList<RandomVariableInterface> arguments, OperatorType parentOperator) {
 		super();
 		this.id = indexOfNextRandomVariable.getAndIncrement();
@@ -235,15 +235,15 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		if(!arguments.contains(argumentAAD)) return new RandomVariable(0.0);
 
+		int differentialIndex = getArguments().indexOf(argumentAAD);
+		RandomVariableInterface X = getArguments().size() > 0 ? valuesOf(arguments.get(0)) : null;
+		RandomVariableInterface Y = getArguments().size() > 1 ? valuesOf(arguments.get(1)) : null;
+		RandomVariableInterface Z = getArguments().size() > 2 ? valuesOf(arguments.get(2)) : null;
+
 		RandomVariableInterface resultrandomvariable = null;
-		RandomVariableInterface X,Y,Z;
 
-		if(getArguments().size() == 1){
-
-			X = getArguments().get(0);
-			if(X instanceof RandomVariableDifferentiableAAD) X = ((RandomVariableDifferentiableAAD)X).getRandomVariable();
-
-			switch(operator){
+		if(getArguments().size() == 1) {
+			switch(operator) {
 			/* functions with one argument  */
 			case SQUARED:
 				resultrandomvariable = X.mult(2.0);
@@ -302,24 +302,18 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			}
 		} else if(getArguments().size() == 2){
-
-			X = getArguments().get(0);
-			if(X instanceof RandomVariableDifferentiableAAD) X = ((RandomVariableDifferentiableAAD)X).getRandomVariable();
-			Y = getArguments().get(1);
-			if(Y instanceof RandomVariableDifferentiableAAD) Y = ((RandomVariableDifferentiableAAD)Y).getRandomVariable();
-
 			switch(operator){
 			case ADD:
 				resultrandomvariable = new RandomVariable(1.0);
 				break;
 			case SUB:
-				resultrandomvariable = new RandomVariable((argumentAAD.equals(X)) ? 1.0 : -1.0);
+				resultrandomvariable = new RandomVariable(differentialIndex == 0 ? 1.0 : -1.0);
 				break;
 			case MULT:
-				resultrandomvariable = (argumentAAD.equals(X)) ? Y : X;
+				resultrandomvariable = differentialIndex == 0 ? Y : X;
 				break;
 			case DIV:
-				resultrandomvariable = (argumentAAD.equals(X)) ? Y.invert() : X.div(Y.squared());
+				resultrandomvariable = differentialIndex == 0 ? Y.invert() : X.div(Y.squared());
 				break;
 			case CAP:
 				// @TODO: Dummy implementation - wrong for stochastic arguments? Fix me!
@@ -338,84 +332,77 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
 				break;
 			case AVERAGE:
-				resultrandomvariable = (argumentAAD.equals(X)) ? Y : X;
+				resultrandomvariable = differentialIndex == 0 ? Y : X;
 				break;
 			case VARIANCE:
-				resultrandomvariable = (argumentAAD.equals(X)) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
+				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));
 				break;
 			case STDEV:				
-				resultrandomvariable = (argumentAAD.equals(X)) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
+				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));
 				break;
 			case STDERROR:				
-				resultrandomvariable = (argumentAAD.equals(X)) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
+				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
 			case POW:
 				/* second argument will always be deterministic and constant! */
-				resultrandomvariable = (argumentAAD.equals(X)) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
+				resultrandomvariable = (differentialIndex == 0) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
 			default:
 				break;
 			}
-		} else if(getArguments().size() == 3){ 
-			X = getArguments().get(0);
-			if(X instanceof RandomVariableDifferentiableAAD) X = ((RandomVariableDifferentiableAAD)X).getRandomVariable();
-			Y = getArguments().get(1);
-			if(Y instanceof RandomVariableDifferentiableAAD) Y = ((RandomVariableDifferentiableAAD)Y).getRandomVariable();
-			Z = getArguments().get(2);
-			if(Z instanceof RandomVariableDifferentiableAAD) Z = ((RandomVariableDifferentiableAAD)Z).getRandomVariable();
-
+		} else if(getArguments().size() == 3) { 
 			switch(operator){
 			case ADDPRODUCT:
-				if(argumentAAD.equals(X)){
+				if(differentialIndex == 0) {
 					resultrandomvariable = new RandomVariable(1.0);
-				} else if(argumentAAD.equals(Y)){
+				} else if(differentialIndex == 1) {
 					resultrandomvariable = Z;
 				} else {
 					resultrandomvariable = Y;
 				}
 				break;
 			case ADDRATIO:
-				if(argumentAAD.equals(X)){
+				if(differentialIndex == 0) {
 					resultrandomvariable = new RandomVariable(1.0);
-				} else if(argumentAAD.equals(Y)){
+				} else if(differentialIndex == 1) {
 					resultrandomvariable = Z.invert();
 				} else {
 					resultrandomvariable = Y.div(Z.squared());
 				}
 				break;
 			case SUBRATIO:
-				if(argumentAAD.equals(X)){
+				if(differentialIndex == 0) {
 					resultrandomvariable = new RandomVariable(1.0);
-				} else if(argumentAAD.equals(Y)){
+				} else if(differentialIndex == 1) {
 					resultrandomvariable = Z.invert().mult(-1.0);
 				} else {
 					resultrandomvariable = Y.div(Z.squared()).mult(-1.0);
 				}
 				break;
 			case ACCURUE:
-				if(argumentAAD.equals(X)){
+				if(differentialIndex == 0) {
 					resultrandomvariable = Y.mult(Z).add(1.0);
-				} else if(argumentAAD.equals(Y)){
+				} else if(differentialIndex == 1) {
 					resultrandomvariable = X.mult(Z);
 				} else {
 					resultrandomvariable = X.mult(Y);
 				}
 				break;
 			case DISCOUNT:
-				if(argumentAAD.equals(X)){
+				if(differentialIndex == 0) {
 					resultrandomvariable = Y.mult(Z).add(1.0).invert();
-				} else if(argumentAAD.equals(Y)){
+				} else if(differentialIndex == 1) {
 					resultrandomvariable = X.mult(Z).div(Y.mult(Z).add(1.0).squared());
 				} else {
 					resultrandomvariable = X.mult(Y).div(Y.mult(Z).add(1.0).squared());
 				}
 				break;
 			case BARRIER:
-				if(argumentAAD.equals(X)){
+				if(differentialIndex == 0) {
 					resultrandomvariable = X.apply(x -> (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0);
-				} else if(argumentAAD.equals(Y)){
+				} else if(differentialIndex == 1) {
 					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
 				} else {
 					resultrandomvariable = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
@@ -456,7 +443,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			Map.Entry<Long, RandomVariableDifferentiableAAD> independentEntry = independents.lastEntry();
 			Long id = independentEntry.getKey();
 			RandomVariableDifferentiableAAD independent = independentEntry.getValue();
-			
+
 			// Get arguments of this node and propagede derivative to arguments
 			ArrayList<RandomVariableInterface> arguments = independent.getArguments();
 			if(arguments != null && arguments.size() > 0) {
@@ -469,11 +456,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 						independents.put(argumentId, (RandomVariableDifferentiableAAD) argument);
 					}
 				}
-				
+
 				// Remove id from derivatives - keep only leaf nodes.
 				derivatives.remove(id);
 			}
-			
+
 			// Done with processing. Remove from map.
 			independents.remove(id);
 		}
