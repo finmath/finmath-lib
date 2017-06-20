@@ -62,8 +62,6 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 		this.operator = parentOperator;
 	}
 
-
-
 	/**
 	 * @param randomVariable
 	 * @param arguments
@@ -469,6 +467,9 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 						independents.put(argumentId, (RandomVariableAAD2) argument);
 					}
 				}
+				
+				// Remove id from derivatives - keep only leaf nodes.
+				derivatives.remove(id);
 			}
 			independents.remove(id);
 
