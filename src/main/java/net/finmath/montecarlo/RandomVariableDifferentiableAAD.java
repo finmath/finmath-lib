@@ -17,7 +17,8 @@ import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Implementation of <code>RandomVariableInterface</code> having the additional feature to calculate the backward algorithmic differentiation.
+ * Implementation of <code>RandomVariableDifferentiableInterface</code> using
+ * the backward algorithmic differentiation (adjoint algorithmic differentiation, AAD).
  * 
  * @author Christian Fries
  * @author Stefan Sedlmair
@@ -27,7 +28,6 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	private static final long serialVersionUID = 2459373647785530657L;
 
-	/* static elements of the class are shared between all members */
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
 	private static enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
@@ -36,10 +36,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	private final OperatorType operator;
-	private ArrayList<RandomVariableInterface> arguments = new ArrayList<>();
+	private final ArrayList<RandomVariableInterface> arguments;
 	private final RandomVariableInterface values;
 	private final Long id;
-
 
 	public static RandomVariableDifferentiableAAD of(double value) {
 		return new RandomVariableDifferentiableAAD(value);
@@ -61,7 +60,6 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		this(randomVariable, null, null);
 	}
 
-
 	private RandomVariableDifferentiableAAD(RandomVariableInterface values, ArrayList<RandomVariableInterface> arguments, OperatorType parentOperator) {
 		super();
 		this.id = indexOfNextRandomVariable.getAndIncrement();
@@ -69,23 +67,6 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		this.arguments = arguments;
 		this.operator = parentOperator;
 	}
-
-	/**
-	 * @param randomVariable
-	 * @param arguments
-	 * @param operator
-	 * @return A new RandomVariableAAD.
-	 */
-	public static RandomVariableDifferentiableAAD constructNewAADRandomVariable(RandomVariableInterface randomVariable, ArrayList<RandomVariableInterface> arguments,
-			OperatorType operator){
-
-		RandomVariableDifferentiableAAD newAADRandomVariable = new RandomVariableDifferentiableAAD(randomVariable, 
-				arguments, operator);
-
-		/* return a new random variable */
-		return newAADRandomVariable;
-	}
-
 
 	public RandomVariableInterface getRandomVariable() {
 		return values;
@@ -95,14 +76,17 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		if(randomVariable instanceof RandomVariableDifferentiableAAD) return ((RandomVariableDifferentiableAAD) randomVariable).getRandomVariable();
 		else return randomVariable;
 	}
+
 	private RandomVariableInterface apply(OperatorType operator, RandomVariableInterface[] randomVariableInterfaces){
 
+		// Construct argument list
 		ArrayList<RandomVariableInterface> arguments = new ArrayList<RandomVariableInterface>();
 		for(RandomVariableInterface randomVariable : randomVariableInterfaces) {
 			arguments.add(randomVariable);
 		}
 
-		RandomVariableInterface resultrandomvariable;
+		// Calculate values
+		RandomVariableInterface result;
 		RandomVariableInterface X,Y,Z;
 
 		if(randomVariableInterfaces.length == 1){
@@ -111,43 +95,43 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 			switch(operator){
 			case SQUARED:
-				resultrandomvariable = X.squared();
+				result = X.squared();
 				break;
 			case SQRT:
-				resultrandomvariable = X.sqrt();
+				result = X.sqrt();
 				break;
 			case EXP:
-				resultrandomvariable = X.exp();
+				result = X.exp();
 				break;
 			case LOG:
-				resultrandomvariable = X.log();
+				result = X.log();
 				break;
 			case SIN:
-				resultrandomvariable = X.sin();
+				result = X.sin();
 				break;
 			case COS:
-				resultrandomvariable = X.cos();
+				result = X.cos();
 				break;
 			case ABS:
-				resultrandomvariable = X.abs();
+				result = X.abs();
 				break;
 			case INVERT:
-				resultrandomvariable = X.invert();
+				result = X.invert();
 				break;
 			case AVERAGE:
-				resultrandomvariable = new RandomVariable(X.getAverage());
+				result = new RandomVariable(X.getAverage());
 				break;
 			case STDERROR:
-				resultrandomvariable = new RandomVariable(X.getStandardError());
+				result = new RandomVariable(X.getStandardError());
 				break;
 			case STDEV:
-				resultrandomvariable = new RandomVariable(X.getStandardDeviation());
+				result = new RandomVariable(X.getStandardDeviation());
 				break;
 			case VARIANCE:
-				resultrandomvariable = new RandomVariable(X.getVariance());
+				result = new RandomVariable(X.getVariance());
 				break;
 			case SVARIANCE:
-				resultrandomvariable = new RandomVariable(X.getSampleVariance());
+				result = new RandomVariable(X.getSampleVariance());
 				break;
 			default:
 				throw new IllegalArgumentException();	
@@ -159,37 +143,37 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 			switch(operator){
 			case ADD:
-				resultrandomvariable = X.add(Y);
+				result = X.add(Y);
 				break;
 			case SUB:
-				resultrandomvariable = X.sub(Y);
+				result = X.sub(Y);
 				break;
 			case MULT:
-				resultrandomvariable = X.mult(Y);
+				result = X.mult(Y);
 				break;
 			case DIV:
-				resultrandomvariable = X.div(Y);
+				result = X.div(Y);
 				break;
 			case CAP:
-				resultrandomvariable = X.cap( /* argument is deterministic random variable */ Y.getAverage());
+				result = X.cap( /* argument is deterministic random variable */ Y.getAverage());
 				break;
 			case FLOOR:
-				resultrandomvariable = X.floor( /* argument is deterministic random variable */ Y.getAverage());
+				result = X.floor( /* argument is deterministic random variable */ Y.getAverage());
 				break;			
 			case POW:
-				resultrandomvariable = X.pow( /* argument is deterministic random variable */ Y.getAverage());
+				result = X.pow( /* argument is deterministic random variable */ Y.getAverage());
 				break;
 			case AVERAGE:
-				resultrandomvariable = new RandomVariable(X.getAverage(Y));
+				result = new RandomVariable(X.getAverage(Y));
 				break;
 			case STDERROR:
-				resultrandomvariable = new RandomVariable(X.getStandardError(Y));
+				result = new RandomVariable(X.getStandardError(Y));
 				break;
 			case STDEV:
-				resultrandomvariable = new RandomVariable(X.getStandardDeviation(Y));
+				result = new RandomVariable(X.getStandardDeviation(Y));
 				break;
 			case VARIANCE:
-				resultrandomvariable = new RandomVariable(X.getVariance(Y));
+				result = new RandomVariable(X.getVariance(Y));
 				break;
 			default:
 				throw new IllegalArgumentException();	
@@ -202,19 +186,19 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 			switch(operator){
 			case ADDPRODUCT:
-				resultrandomvariable = X.addProduct(Y,Z);
+				result = X.addProduct(Y,Z);
 				break;
 			case ADDRATIO:
-				resultrandomvariable = X.addRatio(Y, Z);
+				result = X.addRatio(Y, Z);
 				break;
 			case SUBRATIO:
-				resultrandomvariable = X.subRatio(Y, Z);
+				result = X.subRatio(Y, Z);
 				break;
 			case ACCURUE:
-				resultrandomvariable = X.accrue(Y, /* second argument is deterministic anyway */ Z.getAverage());
+				result = X.accrue(Y, /* second argument is deterministic anyway */ Z.getAverage());
 				break;
 			case DISCOUNT:
-				resultrandomvariable = X.discount(Y, /* second argument is deterministic anyway */ Z.getAverage());
+				result = X.discount(Y, /* second argument is deterministic anyway */ Z.getAverage());
 				break;
 			default:
 				throw new IllegalArgumentException();
@@ -225,7 +209,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		}
 
 		/* create new RandomVariableUniqueVariable which is definitely NOT Constant */
-		RandomVariableDifferentiableAAD newRandomVariableAAD =  constructNewAADRandomVariable(resultrandomvariable, arguments, operator);
+		RandomVariableDifferentiableAAD newRandomVariableAAD = new RandomVariableDifferentiableAAD(result, arguments, operator);
 
 		/* return new RandomVariable */
 		return newRandomVariableAAD;
@@ -422,11 +406,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return id;
 	}
 
-	/**
-	 * Implements the AAD Algorithm
-	 * @return HashMap where the key is the internal index of the random variable with respect to which the partial derivative was computed. This key then gives access to the actual derivative.
-	 * */
-	public Map<Long, RandomVariableInterface> getGradient(){
+	public Map<Long, RandomVariableInterface> getGradient() {
 
 		// The map maintaining the derivatives id -> derivative
 		Map<Long, RandomVariableInterface> derivatives = new HashMap<Long, RandomVariableInterface>();
@@ -468,14 +448,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return derivatives;
 	}
 
-	/**
-	 * @return
-	 */
 	private ArrayList<RandomVariableInterface> getArguments() {
 		return arguments;
 	}
-
-
 
 	private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
 
