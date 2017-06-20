@@ -301,7 +301,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			default:
 				break;
 			}
-		} else if(getArguments().size() == 2){
+		} else if(getArguments().size() == 2) {
 			switch(operator){
 			case ADD:
 				resultrandomvariable = new RandomVariable(1.0);
@@ -316,20 +316,20 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				resultrandomvariable = differentialIndex == 0 ? Y.invert() : X.div(Y.squared());
 				break;
 			case CAP:
-				// @TODO: Dummy implementation - wrong for stochastic arguments? Fix me!
-				double cap = Y.getAverage();
-				resultrandomvariable = X.apply(x -> (x > cap) ? 0.0 : 1.0);
-				//				resultRandomVariableRealizations = new double[X.size()];
-				//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 0.0 : 1.0;
-				//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
+				if(differentialIndex == 0) {
+					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+				}
+				else {
+					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+				}
 				break;
 			case FLOOR:
-				// @TODO: Dummy implementation - wrong for stochastic arguments? Fix me!
-				double floor = Y.getAverage();
-				resultrandomvariable = X.apply(x -> (x > floor) ? 1.0 : 0.0);
-				//				resultRandomVariableRealizations = new double[X.size()];
-				//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 1.0 : 0.0;
-				//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
+				if(differentialIndex == 0) {
+					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+				}
+				else {
+					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+				}
 				break;
 			case AVERAGE:
 				resultrandomvariable = differentialIndex == 0 ? Y : X;
