@@ -19,13 +19,13 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Stefan Sedlmair
  * @see net.finmath.montecarlo.RandomVariable
  */
-public class RandomVariableAADTest2 {
+public class RandomVariableDifferentiableAADTest {
 
 	@Test
 	public void testRandomVariableDeterministc() {
 
 		// Create a random variable with a constant
-		RandomVariableInterface randomVariable = RandomVariableAAD2.of(2.0);
+		RandomVariableInterface randomVariable = RandomVariableDifferentiableAAD.of(2.0);
 
 		// Perform some calculations
 		randomVariable = randomVariable.mult(2.0);
@@ -46,7 +46,7 @@ public class RandomVariableAADTest2 {
 	public void testRandomVariableStochastic() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable2 = new RandomVariableAAD2(0.0, new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+		RandomVariableInterface randomVariable2 = new RandomVariableDifferentiableAAD(0.0, new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
 		// Perform some calculations
 		randomVariable2 = randomVariable2.add(4.0);
@@ -59,7 +59,7 @@ public class RandomVariableAADTest2 {
 		Assert.assertEquals(2.0, randomVariable2.getVariance(), 1E-12);
 
 		// Multiply two random variables, this will expand the receiver to a stochastic one
-		RandomVariableInterface randomVariable = RandomVariableAAD2.of(3.0);
+		RandomVariableInterface randomVariable = RandomVariableDifferentiableAAD.of(3.0);
 		randomVariable = randomVariable.mult(randomVariable2);
 
 		// The random variable has average value 6.0
@@ -73,7 +73,7 @@ public class RandomVariableAADTest2 {
 	public void testRandomVariableArithmeticSqrtPow() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = new RandomVariableAAD2(0.0, new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
+		RandomVariableInterface randomVariable = new RandomVariableDifferentiableAAD(0.0, new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		RandomVariableInterface check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
 
@@ -87,7 +87,7 @@ public class RandomVariableAADTest2 {
 	public void testRandomVariableArithmeticSquaredPow() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = new RandomVariableAAD2(0.0, new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
+		RandomVariableInterface randomVariable = new RandomVariableDifferentiableAAD(0.0, new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		RandomVariableInterface check = randomVariable.squared().sub(randomVariable.pow(2.0));
 
@@ -101,7 +101,7 @@ public class RandomVariableAADTest2 {
 	public void testRandomVariableStandardDeviation() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = new RandomVariableAAD2(0.0, new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
+		RandomVariableInterface randomVariable = new RandomVariableDifferentiableAAD(0.0, new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
 		Assert.assertTrue(check == 0.0);
@@ -116,10 +116,10 @@ public class RandomVariableAADTest2 {
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
 		/*x_1*/
-		RandomVariableAAD2 aadRandomVariable01 = RandomVariableAAD2.of(randomVariable01);
+		RandomVariableDifferentiableAAD aadRandomVariable01 = RandomVariableDifferentiableAAD.of(randomVariable01);
 
 		/*x_2*/
-		RandomVariableAAD2 aadRandomVariable02 = RandomVariableAAD2.of(randomVariable02);
+		RandomVariableDifferentiableAAD aadRandomVariable02 = RandomVariableDifferentiableAAD.of(randomVariable02);
 
 		/* x_3 = x_1 + x_2 */
 		RandomVariableInterface aadRandomVariable03 = aadRandomVariable01.add(aadRandomVariable02);
@@ -128,7 +128,7 @@ public class RandomVariableAADTest2 {
 		/* x_5 = x_4 + x_1 = ((x_1 + x_2) * x_1) + x_1 = x_1^2 + x_2x_1 + x_1*/
 		RandomVariableInterface aadRandomVariable05 = aadRandomVariable04.add(aadRandomVariable01);
 
-		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableAAD2)aadRandomVariable05).getGradient();
+		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableDifferentiableAAD)aadRandomVariable05).getGradient();
 
 		/* dy/dx_1 = x_1 * 2 + x_2 + 1
 		 * dy/dx_2 = x_1 */
@@ -159,14 +159,14 @@ public class RandomVariableAADTest2 {
 		RandomVariable randomVariable01 = new RandomVariable(0.0, x);
 
 		/*x_1*/
-		RandomVariableAAD2 aadRandomVariable01 = RandomVariableAAD2.of(randomVariable01);
+		RandomVariableDifferentiableAAD aadRandomVariable01 = RandomVariableDifferentiableAAD.of(randomVariable01);
 
 		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
 		int numberOfIterations =  (int) Math.pow(10, 2);
 
-		RandomVariableAAD2 sum = RandomVariableAAD2.of(0.0);
+		RandomVariableDifferentiableAAD sum = RandomVariableDifferentiableAAD.of(0.0);
 		for(int i = 0; i < numberOfIterations; i++){
-			sum = (RandomVariableAAD2) sum.add(aadRandomVariable01);
+			sum = (RandomVariableDifferentiableAAD) sum.add(aadRandomVariable01);
 		}
 
 		Map<Long, RandomVariableInterface> aadGradient = sum.getGradient();
@@ -194,7 +194,7 @@ public class RandomVariableAADTest2 {
 		RandomVariable randomVariable02 = new RandomVariable(0.0, x);
 
 		/*x_1*/
-		RandomVariableAAD2 aadRandomVariable01 = RandomVariableAAD2.of(randomVariable01);
+		RandomVariableDifferentiableAAD aadRandomVariable01 = RandomVariableDifferentiableAAD.of(randomVariable01);
 
 		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
 		int numberOfIterations =  (int) Math.pow(10, 2);
@@ -203,13 +203,13 @@ public class RandomVariableAADTest2 {
 		 * sum = \Sigma_{i=0}^{n-1} (x_1 + a)
 		 * Note: we like to differentiate with respect to x_1, that is, a should have no effect!
 		 */
-		RandomVariableInterface sum = RandomVariableAAD2.of(0.0);
+		RandomVariableInterface sum = RandomVariableDifferentiableAAD.of(0.0);
 		for(int i = 0; i < numberOfIterations; i++){
 			sum = sum.add(aadRandomVariable01);
 			sum = sum.add(1.0);
 		}
 
-		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableAAD2)sum).getGradient();
+		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableDifferentiableAAD)sum).getGradient();
 		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
 
 		for(Long id : aadGradient.keySet()) {
