@@ -137,7 +137,7 @@ public class RandomVariableAADv2Test {
 		/* x_5 = x_4 + x_1 = ((x_1 + x_2) * x_1) + x_1 = x_1^2 + x_2x_1 + x_1*/
 		RandomVariableInterface aadRandomVariable05 = aadRandomVariable04.add(aadRandomVariable01);
 		
-		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableAADv2)aadRandomVariable05).getGradient();
+		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableAADv2)aadRandomVariable05).getGradient();
 		
 		/* dy/dx_1 = x_1 * 2 + x_2 + 1
 		 * dy/dx_2 = x_1 */
@@ -148,7 +148,7 @@ public class RandomVariableAADv2Test {
 
 		System.out.println("testRandomVariableSimpleGradient");
 		System.out.println("AAD Gradient: ");
-		for(Integer variableUID:aadGradient.keySet())
+		for(Long variableUID:aadGradient.keySet())
 			System.out.println(aadGradient.get(variableUID));
 		System.out.println();
 		
@@ -185,13 +185,14 @@ public class RandomVariableAADv2Test {
 			sum = sum.add(aadRandomVariable01);
 		}
 		
-		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableAADv2) sum).getGradient();
+		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableAADv2) sum).getGradient();
 		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
 		
 		System.out.println("testRandomVariableGradientBigSum");
 		System.out.println("AAD Gradient: ");
-		for(Integer variableUID:aadGradient.keySet())
-			System.out.println(aadGradient.get(variableUID));
+		for(Long variableUID:aadGradient.keySet()){
+			System.out.println(variableUID);
+			System.out.println(aadGradient.get(variableUID));}
 		System.out.println();
 		
 		System.out.println("Analytic Gradient: ");
@@ -232,12 +233,12 @@ public class RandomVariableAADv2Test {
 			sum = sum.add(randomVariable02);
 		}
 		
-		Map<Integer, RandomVariableInterface> aadGradient = ((RandomVariableAADv2) sum).getGradient();
+		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableAADv2) sum).getGradient();
 		RandomVariableInterface[] analyticGradient = new RandomVariableInterface[]{new RandomVariable(numberOfIterations)};
 		
 		System.out.println("testRandomVariableGradientBigSumWithConstants");
 		System.out.println("AAD Gradient: ");
-		for(Integer variableUID:aadGradient.keySet()){
+		for(long variableUID:aadGradient.keySet()){
 			System.out.println(variableUID);
 			System.out.println(aadGradient.get(variableUID));
 		}
