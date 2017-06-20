@@ -48,12 +48,6 @@ public class RandomVariableAADv2 implements RandomVariableInterface {
 	private ArrayList<RandomVariableAADv2> childRandomVariables;
 	private boolean isConstant;
 
-	/**
-	 * @param indexOfRandomVariable
-	 * @param parentRandomVariables
-	 * @param parentOperator
-	 * @param isConstant
-	 */
 	public RandomVariableAADv2(RandomVariableInterface ownRandomVariable, RandomVariableAADv2[] parentRandomVariables, OperatorType parentOperator, 
 			ArrayList<RandomVariableAADv2> childRandomVariables ,boolean isConstant) {
 		super();
