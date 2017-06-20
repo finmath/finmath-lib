@@ -40,11 +40,28 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	private final RandomVariableInterface values;
 	private final Long id;
 
-	/**
-	 * @param parentRandomVariables
-	 * @param parentOperator
-	 * @param isConstant
-	 */
+
+	public static RandomVariableAAD2 of(double value) {
+		return new RandomVariableAAD2(value);
+	}
+
+	public static RandomVariableAAD2 of(RandomVariableInterface randomVariable) {
+		return new RandomVariableAAD2(randomVariable);
+	}
+
+	public RandomVariableAAD2(double value) {
+		this(new RandomVariable(value), null, null);
+	}
+
+	public RandomVariableAAD2(double time, double[] realisations) {
+		this(new RandomVariable(time, realisations), null, null);
+	}
+
+	public RandomVariableAAD2(RandomVariableInterface randomVariable) {
+		this(randomVariable, null, null);
+	}
+
+	
 	private RandomVariableAAD2(RandomVariableInterface values, ArrayList<RandomVariableInterface> arguments, OperatorType parentOperator) {
 		super();
 		this.id = indexOfNextRandomVariable.getAndIncrement();
@@ -69,19 +86,6 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 		return newAADRandomVariable;
 	}
 
-	public static RandomVariableAAD2 constructNewAADRandomVariable(double value){
-		return constructNewAADRandomVariable(new RandomVariable(value), /*parentRandomVariables*/ null, /*parentOperator*/ null);
-	}
-
-	public static RandomVariableAAD2 constructNewAADRandomVariable(RandomVariableInterface randomVariable) {
-		return constructNewAADRandomVariable(randomVariable, /* no parents*/ null,
-				/*no parent operator*/ null);
-	}
-
-	public static RandomVariableAAD2 constructNewAADRandomVariable(double time, double[] realisations) {
-		return constructNewAADRandomVariable(new RandomVariable(time, realisations), /* no parents*/ null,
-				/*no parent operator*/ null);
-	}
 
 	public RandomVariableInterface getRandomVariable() {
 		return values;
@@ -770,7 +774,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 
 	@Override
 	public RandomVariableInterface cap(double cap) {
-		return apply(OperatorType.CAP, new RandomVariableInterface[]{this, constructNewAADRandomVariable(cap)});
+		return apply(OperatorType.CAP, new RandomVariableInterface[]{ this, new RandomVariable(cap) });
 	}
 
 	/* (non-Javadoc)
@@ -778,7 +782,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface floor(double floor) {
-		return apply(OperatorType.FLOOR, new RandomVariableInterface[]{this, constructNewAADRandomVariable(floor)});
+		return apply(OperatorType.FLOOR, new RandomVariableInterface[]{this, new RandomVariable(floor)});
 	}
 
 	/* (non-Javadoc)
@@ -786,7 +790,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface add(double value) {
-		return apply(OperatorType.ADD, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
+		return apply(OperatorType.ADD, new RandomVariableInterface[]{this, new RandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -794,7 +798,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface sub(double value) {
-		return apply(OperatorType.SUB, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
+		return apply(OperatorType.SUB, new RandomVariableInterface[]{this, new RandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -802,7 +806,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface mult(double value) {
-		return apply(OperatorType.MULT, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
+		return apply(OperatorType.MULT, new RandomVariableInterface[]{this, new RandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -810,7 +814,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface div(double value) {
-		return apply(OperatorType.DIV, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
+		return apply(OperatorType.DIV, new RandomVariableInterface[]{this, new RandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -818,7 +822,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface pow(double exponent) {
-		return apply(OperatorType.POW, new RandomVariableInterface[]{this, constructNewAADRandomVariable(exponent)});
+		return apply(OperatorType.POW, new RandomVariableInterface[]{this, new RandomVariable(exponent)});
 	}
 
 	/* (non-Javadoc)
@@ -922,7 +926,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
-		return apply(OperatorType.ACCURUE, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
+		return apply(OperatorType.ACCURUE, new RandomVariableInterface[]{this, rate, new RandomVariable(periodLength)});
 	}
 
 	/* (non-Javadoc)
@@ -930,7 +934,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
-		return apply(OperatorType.DISCOUNT, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
+		return apply(OperatorType.DISCOUNT, new RandomVariableInterface[]{this, rate, new RandomVariable(periodLength)});
 	}
 
 	/* (non-Javadoc)
@@ -948,7 +952,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger,
 			RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, constructNewAADRandomVariable(valueIfTriggerNegative)});
+		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative)});
 	}
 
 	/* (non-Javadoc)
@@ -972,7 +976,7 @@ public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface
 	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
-		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, constructNewAADRandomVariable(factor2)});
+		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, new RandomVariable(factor2)});
 	}
 
 	/* (non-Javadoc)
