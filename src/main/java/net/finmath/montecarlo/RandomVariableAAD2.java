@@ -32,7 +32,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Stefan Sedlmair
  * @version 1.0
  */
-public class RandomVariableAAD2 implements RandomVariableInterface {
+public class RandomVariableAAD2 implements RandomVariableDifferentiableInterface {
 
 	private static final long serialVersionUID = 2459373647785530657L;
 
@@ -436,6 +436,10 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 		return resultrandomvariable;
 	}
 
+	public Long getID(){
+		return id;
+	}
+
 	/**
 	 * Implements the AAD Algorithm
 	 * @return HashMap where the key is the internal index of the random variable with respect to which the partial derivative was computed. This key then gives access to the actual derivative.
@@ -448,19 +452,22 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 		// Put derivative of this node w.r.t. itself
 		derivatives.put(getID(), new RandomVariable(1.0));
 
-		// The set maintaining the independets. This needs to be sorted
+		// The set maintaining the independents. Note: TreeMap is maintaining a sort on the keys.
 		TreeMap<Long, RandomVariableAAD2> independents = new TreeMap<Long, RandomVariableAAD2>();
 		independents.put(getID(), this);
 
 		while(independents.size() > 0) {
+			// Process node with the highest id in independents
 			Map.Entry<Long, RandomVariableAAD2> independentEntry = independents.lastEntry();
 			Long id = independentEntry.getKey();
 			RandomVariableAAD2 independent = independentEntry.getValue();
+			
+			// Get arguments of this node and propagede derivative to arguments
 			ArrayList<RandomVariableInterface> arguments = independent.getArguments();
-
 			if(arguments != null && arguments.size() > 0) {
 				independent.propagateDerivativesFromResultToArgument(derivatives);
 
+				// Add all non constant arguments to the list of independets
 				for(RandomVariableInterface argument : arguments) {
 					if(argument instanceof RandomVariableAAD2) {
 						Long argumentId = (long) ((RandomVariableAAD2) argument).getID();
@@ -471,8 +478,9 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 				// Remove id from derivatives - keep only leaf nodes.
 				derivatives.remove(id);
 			}
+			
+			// Done with processing. Remove from map.
 			independents.remove(id);
-
 		}
 
 		return derivatives;
@@ -569,10 +577,6 @@ public class RandomVariableAAD2 implements RandomVariableInterface {
 
 	private RandomVariableInterface getRandomVariableInterface(){
 		return values;
-	}
-
-	private Long getID(){
-		return id;
 	}
 
 	/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
