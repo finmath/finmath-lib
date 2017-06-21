@@ -214,7 +214,8 @@ public class RandomVariableDifferentiableAADTest {
 
 		for(Long id : aadGradient.keySet()) {
 			System.out.println(id + "\t" + aadGradient.get(id));
-			//			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(i)));
 		}
+
+		Assert.assertTrue(analyticGradient[0].equals(aadGradient.get(aadRandomVariable01.getID())));
 	}
 }
