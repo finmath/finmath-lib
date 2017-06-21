@@ -12,12 +12,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  *
  */
-public class RandomVariableDifferentiableFactory extends AbstractRandomVariableFactory {
+public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariableFactory {
 
 	/**
 	 * 
 	 */
-	public RandomVariableDifferentiableFactory() {
+	public RandomVariableDifferentiableAADFactory() {
 	}
 
 	@Override

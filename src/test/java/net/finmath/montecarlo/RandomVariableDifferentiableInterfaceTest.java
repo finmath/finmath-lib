@@ -29,7 +29,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 	@Parameters
     public static Collection<Object[]> data(){
         return Arrays.asList(new Object[][] {
-        	{new RandomVariableDifferentiableFactory()},
+        	{new RandomVariableDifferentiableAADFactory()},
         	{new RandomVariableAADv2Factory()}
         });
     }
