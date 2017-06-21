@@ -26,7 +26,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 	@Parameters
     public static Collection<Object[]> data(){
         return Arrays.asList(new Object[][] {
-//        	{new RandomVariableAADFactory()},
+        	{new RandomVariableDifferentiableFactory()},
         	{new RandomVariableAADv2Factory()}
         });
     }
@@ -385,6 +385,8 @@ public class RandomVariableDifferentiableInterfaceTest {
 
 		for(int i=0; i<numericGradient.length;i++){
 			/* if the average of the absolute error is not too big give okay*/
+			double numeric = numericGradient[i].getAverage();
+			double analytic = aadGradient.get(keys[i]).getAverage();
 			Assert.assertEquals(0.0 , numericGradient[i].sub(aadGradient.get(keys[i])).abs().getAverage(), delta);
 		}
 	}
