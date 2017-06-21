@@ -155,10 +155,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				result = X.div(Y);
 				break;
 			case CAP:
-				result = X.cap( /* argument is deterministic random variable */ Y.getAverage());
+				result = X.cap(Y);
 				break;
 			case FLOOR:
-				result = X.floor( /* argument is deterministic random variable */ Y.getAverage());
+				result = X.floor(Y);
 				break;			
 			case POW:
 				result = X.pow( /* argument is deterministic random variable */ Y.getAverage());
