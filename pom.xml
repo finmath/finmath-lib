@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.finmath</groupId>
+	<artifactId>finmath-lib-automaticdifferentiation-extensions</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>finmath lib automatic differentiation extensions</name>
+	<description>Enabling finmath-lib to perform automatic differentiation (e.g. backward automatic differentiation, aka AAD).</description>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>fries</id>
+			<name>Christian Fries</name>
+			<email>email@christian-fries.de</email>
+			<url>http://www.christian-fries.de</url>
+			<timezone>1</timezone>
+		</developer>
+		<developer>
+			<id>sedlmair</id>
+			<name>Stefan Sedlmair</name>
+			<timezone>1</timezone>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.6.1</version>
+				<configuration>
+					<compilerVersion>1.8</compilerVersion>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.finmath</groupId>
+			<artifactId>finmath-lib</artifactId>
+			<version>2.4.2</version>
+			<classifier></classifier>
+		</dependency>
+	</dependencies>
+</project>
