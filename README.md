@@ -14,7 +14,7 @@ two additional methods:
 	Long getID();	
 	Map<Long, RandomVariableInterface> getGradient();
 
-The method getGradient will return a map providing the first order
+The method <code>getGradient</code> will return a map providing the first order
 differentiation of the given random variable (this) with respect to
 *all* its input <code>RandomVariableDifferentiableInterface</code>s (leave nodes). To get the differentiation with respect to a specific object use
 
