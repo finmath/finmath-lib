@@ -1,5 +1,7 @@
 # finmath-lib automatic differentiation extentions
-
+- - - -
+**Enabling finmath lib to utilize automatic differentiation algorithms (e.g. AAD).**
+- - - -
 This project provides an interface (<code>RandomVariableDifferentiableInterface</code>)
 for random variables which provide automatic differentiation. The interfaces
 extends RandomVariableInterface and hence allows to use auto-diff in all
@@ -20,5 +22,6 @@ differentiation of the given random variable (this) with respect to
 
 	Map gradient = X.getGradient();
 	RandomVariableInterface derivative = X.get(Y.getID());
-	
+
+
 	
