@@ -1,12 +1,12 @@
 # finmath-lib automatic differentiation extentions
 
-This project provides and interface (<code>RandomVariableDifferentiableInterface</code>)
+This project provides an interface (<code>RandomVariableDifferentiableInterface</code>)
 for random variables which provide automatic differentiation. The interfaces
 extends RandomVariableInterface and hence allows to use auto-diff in all
 Monte-Carlo contexts (via a replacement of the corresponding parameters / factories).
 
-The project provides an implementation of the backward (a.k.a. adjoint)
-method via RandomVariableDifferentiableAADFactory.
+The project also provides implementations of this interface, e.g. utilizing
+the backward (a.k.a. adjoint) method via <code>RandomVariableDifferentiableAADFactory</code>.
 
 The interface RandomVariableDifferentiableInterface will introduce
 two additional methods:
