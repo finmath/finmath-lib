@@ -1,20 +1,20 @@
 /**
  * 
  */
-package net.finmath.montecarlo;
+package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 
 import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -25,13 +25,13 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Stefan Sedlmair
  * @version 1.0
  */
-public class RandomVariableAADv2 implements RandomVariableDifferentiableInterface {
+public class RandomVariableAAD implements RandomVariableInterface {
 
 	private static final long serialVersionUID = 2459373647785530657L;
-	
-	private static AtomicLong randomVariableUID = new AtomicLong(0);
 
 	/* static elements of the class are shared between all members */
+	private static ArrayList<RandomVariableAAD> arrayListOfAllAADRandomVariables = new ArrayList<>();
+	private static AtomicInteger indexOfNextRandomVariable = new AtomicInteger(0);
 	private static enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
 		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCURUE, POW, AVERAGE, VARIANCE, 
@@ -40,51 +40,118 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 
 	/* index of corresponding random variable in the static array list*/
 	private final RandomVariableInterface ownRandomVariable;
-	private final long ownRandomVariableUID;
+	private final int ownIndexInList;
 
 	/* this could maybe be outsourced to own class ParentElement */
-	private final RandomVariableAADv2[] parentRandomVariables;
+	private final int[] parentIndices;
 	private final OperatorType parentOperator;
-	private ArrayList<Long> childUIDs;
+	private ArrayList<Integer> childrenIndices;
 	private boolean isConstant;
 
-	private RandomVariableAADv2(RandomVariableInterface ownRandomVariable, RandomVariableAADv2[] parentRandomVariables, OperatorType parentOperator, 
-			ArrayList<Long> childUIDs ,boolean isConstant) {
+	/**
+	 * @param indexOfRandomVariable
+	 * @param parentRandomVariables
+	 * @param parentOperator
+	 * @param isConstant
+	 */
+	private RandomVariableAAD(int ownIndexInList, RandomVariableInterface ownRandomVariable, 
+			int[] parentIndices, OperatorType parentOperator, ArrayList<Integer> childrenIndices ,boolean isConstant) {
 		super();
-		this.ownRandomVariable 		= ownRandomVariable;
-		this.parentRandomVariables 	= parentRandomVariables;
-		this.parentOperator 		= parentOperator;
-		this.childUIDs 				= childUIDs;
-		this.isConstant 			= isConstant;
-		
-		this.ownRandomVariableUID 	= randomVariableUID.getAndIncrement();
+		this.ownIndexInList = ownIndexInList;
+		this.ownRandomVariable = ownRandomVariable;
+		this.parentIndices = parentIndices;
+		this.parentOperator = parentOperator;
+		this.childrenIndices = childrenIndices;
+		this.isConstant = isConstant;
 	}
 
-	public RandomVariableAADv2(RandomVariableInterface ownRandomVariable) {
-		this(ownRandomVariable, null, null, new ArrayList<Long>(), false);
-	}
 	
-	public RandomVariableAADv2(double time, double[] values) {
-		this(new RandomVariable(time, values), null, null, new ArrayList<Long>(), false);
-	}
-	
-	public RandomVariableAADv2(double time, double value) {
-		this(new RandomVariable(time, value), null, null, new ArrayList<Long>(), false);
-	}
-	
-	public RandomVariableAADv2(double value) {
-		this(new RandomVariable(value), null, null, new ArrayList<Long>(), false);
+
+	/**
+	 * @param randomVariable
+	 * @param parentIndices
+	 * @param parentOperator
+	 * @param isConstant
+	 * @return A new RandomVariableAAD.
+	 */
+	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariableInterface randomVariable, int[] parentIndices,
+			OperatorType parentOperator, ArrayList<Integer> childrenIndices, boolean isConstant){
+
+		/* TODO: how to handle cases with different realization lengths? */
+		if(!arrayListOfAllAADRandomVariables.isEmpty()){
+			if(arrayListOfAllAADRandomVariables.get(0).size() != randomVariable.size() && !randomVariable.isDeterministic()){
+				throw new IllegalArgumentException("RandomVariables with different sizes are not supported at the moment!");
+			}
+		}
+
+		/* get index of this random variable */
+		int indexOfThisAADRandomVariable = indexOfNextRandomVariable.getAndIncrement();
+
+		RandomVariableAAD newAADRandomVariable = new RandomVariableAAD(indexOfThisAADRandomVariable, randomVariable, 
+				parentIndices, parentOperator, childrenIndices, isConstant);
+
+		/* add random variable to static list for book keeping */
+		arrayListOfAllAADRandomVariables.add(indexOfThisAADRandomVariable, newAADRandomVariable);
+
+		/* return a new random variable */
+		return newAADRandomVariable;
 	}
 
+	public static RandomVariableAAD constructNewAADRandomVariable(double value){
+		return constructNewAADRandomVariable(new RandomVariable(value), /*parentRandomVariables*/ null, /*parentOperator*/ null, /*childrenIndices*/ null ,/*isConstant*/ true);
+	}
+
+
+	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariableInterface randomVariable) {
+		return constructNewAADRandomVariable(randomVariable, /* no parents*/ null,
+				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
+	}
+
+	public static RandomVariableAAD constructNewAADRandomVariable(double time, double[] realisations) {
+		return constructNewAADRandomVariable(new RandomVariable(time, realisations), /* no parents*/ null,
+				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
+	}
+
+	private RandomVariableAAD[] getParentAADRandomVariables(){
+
+		if(getParentIDs() == null) return null;
+
+		int[] parentIndices = getParentIDs();
+		RandomVariableAAD[] parentAADRandomVariables = new RandomVariableAAD[getNumberOfParentVariables()];
+
+		for(int i=0; i < parentAADRandomVariables.length; i++){
+			parentAADRandomVariables[i] = getAADRandomVariableFromList(parentIndices[i]);
+		}
+
+		return parentAADRandomVariables;
+	}
+
+	/**
+	 * @return
+	 */
+	private RandomVariableInterface[] getParentRandomVariableInderfaces(){
+
+		RandomVariableAAD[] parentAADRandomVariables = getParentAADRandomVariables();
+		RandomVariableInterface[] parentRandomVariableInderfaces = new RandomVariableInterface[parentAADRandomVariables.length];
+
+		for(int i=0;i<parentAADRandomVariables.length;i++){
+			parentRandomVariableInderfaces[i] = parentAADRandomVariables[i].getRandomVariableInterface();
+		}
+
+		return parentRandomVariableInderfaces;
+	}
+	
 	private RandomVariableInterface apply(OperatorType operator, RandomVariableInterface[] randomVariableInterfaces){
 
-		RandomVariableAADv2[] aadRandomVariables = new RandomVariableAADv2[randomVariableInterfaces.length];
-		
-		/* convert all non-AAD arguments to instances of this class (non-AAD arguments will be considered constant!)*/
+		RandomVariableAAD[] aadRandomVariables = new RandomVariableAAD[randomVariableInterfaces.length];
+		int[] futureParentIndices = new int[aadRandomVariables.length];
+
 		for(int randomVariableIndex = 0; randomVariableIndex < randomVariableInterfaces.length; randomVariableIndex++){
-			aadRandomVariables[randomVariableIndex] = (randomVariableInterfaces[randomVariableIndex] instanceof RandomVariableAADv2) ?
-					(RandomVariableAADv2)randomVariableInterfaces[randomVariableIndex] : 
-						new RandomVariableAADv2(randomVariableInterfaces[randomVariableIndex]){{setIsConstantTo(true);}};
+
+			aadRandomVariables[randomVariableIndex] = (randomVariableInterfaces[randomVariableIndex] instanceof RandomVariableAAD) ?
+					(RandomVariableAAD)randomVariableInterfaces[randomVariableIndex] : constructNewAADRandomVariable(randomVariableInterfaces[randomVariableIndex]);
+
+			futureParentIndices[randomVariableIndex] = aadRandomVariables[randomVariableIndex].getFunctionIndex();
 		}
 
 		RandomVariableInterface resultrandomvariable;
@@ -156,10 +223,10 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 				resultrandomvariable = X.div(Y);
 				break;
 			case CAP:
-				resultrandomvariable = Y.isDeterministic() ? X.cap(Y.getAverage()) : X.cap(Y);
+				resultrandomvariable = X.cap( /* argument is deterministic random variable */ Y.getAverage());
 				break;
 			case FLOOR:
-				resultrandomvariable = Y.isDeterministic() ? X.floor(Y.getAverage()) : X.floor(Y);
+				resultrandomvariable = X.floor( /* argument is deterministic random variable */ Y.getAverage());
 				break;			
 			case POW:
 				resultrandomvariable = X.pow( /* argument is deterministic random variable */ Y.getAverage());
@@ -209,13 +276,12 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 			throw new IllegalArgumentException("Operation not supported!\n");
 		}
 		
-		/* create new RandomVariableAADv2 which is definitely NOT Constant */
-		RandomVariableAADv2 newRandomVariableAAD = new RandomVariableAADv2(resultrandomvariable, aadRandomVariables, operator,
-				/*no children*/ new ArrayList<Long>() ,/*not constant*/ false);
+		/* create new RandomVariableUniqueVariable which is definitely NOT Constant */
+		RandomVariableAAD newRandomVariableAAD =  constructNewAADRandomVariable(resultrandomvariable, futureParentIndices, operator, /*no children*/ null ,/*not constant*/ false);
 	
-		/* add new variable as child to its parents */
-		for(RandomVariableAADv2 parentRandomVariable:aadRandomVariables) 
-			parentRandomVariable.addChildToRandomVariableAADv2s(newRandomVariableAAD.getID());
+		/* add new variable (or at least its index) as child to its parents */
+		for(RandomVariableAAD parentRandomVariable:aadRandomVariables) 
+			parentRandomVariable.addToChildrenIndices(newRandomVariableAAD.getFunctionIndex());
 		
 		/* return new RandomVariable */
 		return newRandomVariableAAD;
@@ -223,33 +289,33 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 
 	public String toString(){
 		return  super.toString() + "\n" + 
-				"time:              " + getFiltrationTime() + "\n" + 
-				"realizations:      " + Arrays.toString(getRealizations()) + "\n" + 
-				"randomVariableUID: " + getID() + "\n" +
-				"parentIDs:         " + Arrays.toString(getParentRandomVariableUIDs()) + ((getParentRandomVariableAADv2s() == null) ? "" : (" type: " + parentOperator.name())) + "\n" +
-				"isTrueVariable:    " + isVariable() + "\n";
+				"time: " + getFiltrationTime() + "\n" + 
+				"realizations: " + Arrays.toString(getRealizations()) + "\n" + 
+				"variableID: " + getFunctionIndex() + "\n" +
+				"parentIDs: " + Arrays.toString(getParentIDs()) + ((getParentIDs() == null) ? "" : (" type: " + parentOperator.name())) + "\n" +
+				"isTrueVariable: " + isVariable() + "\n";
 	}
 
-	private RandomVariableInterface partialDerivativeWithRespectTo(long variableIndex){
+	private RandomVariableInterface getPartialDerivative(int functionIndex, int variableIndex){
+		return getFunctionList().get(functionIndex).partialDerivativeWithRespectTo(variableIndex);		
+	}
 
-		boolean parentsContainVariable = false;
-		for(RandomVariableAADv2 parentRandomVariableAADv2:getParentRandomVariableAADv2s()){
-			if(parentRandomVariableAADv2.getID() == variableIndex){
-				parentsContainVariable = true;
-				break;
-			}
-		}
-		
+	private RandomVariableInterface partialDerivativeWithRespectTo(int variableIndex){
+
+		/* parentIDsSorted needs to be sorted for binarySearch! */
+		int[] parentIDsSorted = (getParentIDs() == null) ? new int[]{} : getParentIDs().clone();
+		Arrays.sort(parentIDsSorted);
+
 		/* if random variable not dependent on variable or it is constant anyway return 0.0 */
-		if(!parentsContainVariable || isConstant) return new RandomVariable(0.0);
+		if((Arrays.binarySearch(parentIDsSorted, variableIndex) < 0) || isConstant) return new RandomVariable(0.0);
 
 		RandomVariableInterface resultrandomvariable = null;
 		RandomVariableInterface X,Y,Z;
 		double[] resultRandomVariableRealizations;
 		
-		if(getParentRandomVariableAADv2s().length == 1){
+		if(getParentIDs().length == 1){
 			
-			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface().getMutableCopy();
+			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]).getMutableCopy();
 		
 			switch(parentOperator){
 			/* functions with one argument  */
@@ -307,117 +373,112 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 			default:
 				break;
 			}
-		} else if(getParentRandomVariableAADv2s().length == 2){
+		} else if(getParentIDs().length == 2){
 			
-			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface().getMutableCopy();
-			Y = getParentRandomVariableAADv2s()[1].getRandomVariableInterface().getMutableCopy();
-			boolean isFirstArgument = (getParentRandomVariableUIDs()[0] == variableIndex);
-			
+			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]).getMutableCopy();
+			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]).getMutableCopy();
+
 			switch(parentOperator){
 			case ADD:
 				resultrandomvariable = new RandomVariable(1.0);
 				break;
 			case SUB:
-				resultrandomvariable = new RandomVariable(isFirstArgument ? 1.0 : -1.0);
+				resultrandomvariable = new RandomVariable((variableIndex == getParentIDs()[0]) ? 1.0 : -1.0);
 				break;
 			case MULT:
-				resultrandomvariable = isFirstArgument ? Y : X;
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y : X;
 				break;
 			case DIV:
-				resultrandomvariable = isFirstArgument ? Y.invert() : X.div(Y.squared());
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.invert() : X.div(Y.squared());
 				break;
 			case CAP:
-				if(isFirstArgument)
-					resultrandomvariable = Y.isDeterministic() ? X.apply(x -> (x > Y.getAverage()) ? 0.0 : 1.0) : X.apply((x,y) -> (x > y) ? 0.0 : 1.0, Y);
-				else
-					resultrandomvariable = X.isDeterministic() ? Y.apply(y -> (y < X.getAverage()) ? 1.0 : 0.0) : Y.apply((y,x) -> (y < x) ? 1.0 : 0.0, X);
+				resultrandomvariable = X.apply(x -> (x > Y.getAverage()) ? 0.0 : 1.0);
+//				resultRandomVariableRealizations = new double[X.size()];
+//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 0.0 : 1.0;
+//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
 				break;
 			case FLOOR:
-				if(isFirstArgument)
-					resultrandomvariable = Y.isDeterministic() ? X.apply(x -> (x > Y.getAverage()) ? 1.0 : 0.0) : X.apply((x,y) -> (x > y) ? 1.0 : 0.0, Y);
-				else
-					resultrandomvariable = X.isDeterministic() ? Y.apply(y -> (y < X.getAverage()) ? 0.0 : 1.0) : Y.apply((y,x) -> (y < x) ? 0.0 : 1.0, X);
+				resultrandomvariable = X.apply(x -> (x > Y.getAverage()) ? 1.0 : 0.0);
+//				resultRandomVariableRealizations = new double[X.size()];
+//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 1.0 : 0.0;
+//				resultrandomvariable = new RandomVariable(X.getFiltrationTime(), resultRandomVariableRealizations);
 				break;
 			case AVERAGE:
-				resultrandomvariable = isFirstArgument ? Y : X;
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y : X;
 				break;
 			case VARIANCE:
-				resultrandomvariable = isFirstArgument ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));
 				break;
 			case STDEV:				
-				resultrandomvariable = isFirstArgument ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
 				X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));
 				break;
 			case STDERROR:				
-				resultrandomvariable = isFirstArgument ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
 				X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
 			case POW:
 				/* second argument will always be deterministic and constant! */
-				resultrandomvariable = isFirstArgument ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
 			default:
 				break;
 			}
-		} else if(getParentRandomVariableAADv2s().length == 3){ 
-			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface().getMutableCopy();
-			Y = getParentRandomVariableAADv2s()[1].getRandomVariableInterface().getMutableCopy();
-			Z = getParentRandomVariableAADv2s()[2].getRandomVariableInterface().getMutableCopy();
+		} else if(getParentIDs().length == 3){ 
+			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);
+			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]);
+			Z = getRandomVariableInterfaceOfIndex(getParentIDs()[2]);
 
-			boolean isFirstArgument = (getParentRandomVariableUIDs()[0] == variableIndex);
-			boolean isSecondArgument = (getParentRandomVariableUIDs()[1] == variableIndex);
-
-			
 			switch(parentOperator){
 			case ADDPRODUCT:
-				if(isFirstArgument){
+				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = new RandomVariable(1.0);
-				} else if(isSecondArgument){
+				} else if(variableIndex == getParentIDs()[1]){
 					resultrandomvariable = Z;
 				} else {
 					resultrandomvariable = Y;
 				}
 				break;
 			case ADDRATIO:
-				if(isFirstArgument){
+				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = new RandomVariable(1.0);
-				} else if(isSecondArgument){
+				} else if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = Z.invert();
 				} else {
 					resultrandomvariable = Y.div(Z.squared());
 				}
 				break;
 			case SUBRATIO:
-				if(isFirstArgument){
+				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = new RandomVariable(1.0);
-				} else if(isSecondArgument){
+				} else if(variableIndex == getParentIDs()[1]){
 					resultrandomvariable = Z.invert().mult(-1.0);
 				} else {
 					resultrandomvariable = Y.div(Z.squared()).mult(-1.0);
 				}
 				break;
 			case ACCURUE:
-				if(isFirstArgument){
+				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = Y.mult(Z).add(1.0);
-				} else if(isSecondArgument){
+				} else if(variableIndex == getParentIDs()[1]){
 					resultrandomvariable = X.mult(Z);
 				} else {
 					resultrandomvariable = X.mult(Y);
 				}
 				break;
 			case DISCOUNT:
-				if(isFirstArgument){
+				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = Y.mult(Z).add(1.0).invert();
-				} else if(isSecondArgument){
+				} else if(variableIndex == getParentIDs()[1]){
 					resultrandomvariable = X.mult(Z).div(Y.mult(Z).add(1.0).squared());
 				} else {
 					resultrandomvariable = X.mult(Y).div(Y.mult(Z).add(1.0).squared());
 				}
 				break;
 			case BARRIER:
-				if(isFirstArgument){
+				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = X.apply(x -> (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0);
-				} else if(isSecondArgument){
+				} else if(variableIndex == getParentIDs()[1]){
 					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
 				} else {
 					resultrandomvariable = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
@@ -437,58 +498,56 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 * Implements the AAD Algorithm
 	 * @return HashMap where the key is the internal index of the random variable with respect to which the partial derivative was computed. This key then gives access to the actual derivative.
 	 * */
-	public Map<Long, RandomVariableInterface> getGradient(){
+	public Map<Integer, RandomVariableInterface> getGradient(){
 
-		/* get dependence tree */
-		Map<Long, RandomVariableAADv2> getMapOfDependentRandomVariables = mapAllDependentRandomVariableAADv2s();
-		
-		/* key set is indicating in which order random variables were generated */
-		Set<Long> keySet = getMapOfDependentRandomVariables.keySet();
-		
-		int numberOfDependentRandomVariables = keySet.size();
+		int numberOfCalculationSteps = getFunctionList().size();
 
-		/* catch trivial case here */
-		if(numberOfDependentRandomVariables == 1) 
-			return new HashMap<Long, RandomVariableInterface>()
-				{{put(getID(), new RandomVariable(getFiltrationTime(), isConstant() ? 0.0 : 1.0));}};
-		
-		
-		Long[] idsOfDependentRandomVariables = new Long[numberOfDependentRandomVariables];
-		idsOfDependentRandomVariables = keySet.toArray(idsOfDependentRandomVariables);
-		
-		/*sorts array in ascending ordering */
-		Arrays.sort(idsOfDependentRandomVariables);
-		
-		/*_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_*/
-		
-		Map<Long, RandomVariableInterface> gradient = new HashMap<Long, RandomVariableInterface>();
-		Map<Long, RandomVariableInterface> omegaHat = new HashMap<Long, RandomVariableInterface>();
+		RandomVariableInterface[] omegaHat = new RandomVariableInterface[numberOfCalculationSteps];
 
-		/* first entry (with highest variable UID) of omegaHat is set to 1.0 */
-		long variableIndex = idsOfDependentRandomVariables[numberOfDependentRandomVariables-1];
-		
-		omegaHat.put(variableIndex, new RandomVariable(1.0));
-		
-		if(getMapOfDependentRandomVariables.get(variableIndex).isVariable())
-			gradient.put(variableIndex, omegaHat.get(variableIndex));
-		
-		/* now  */
-		for(int i = numberOfDependentRandomVariables-2; i >= 0; i--){
-			variableIndex = idsOfDependentRandomVariables[i];
-			RandomVariableInterface newOmegaHatEntry = new RandomVariable(0.0);
+		omegaHat[numberOfCalculationSteps-1] = new RandomVariable(1.0);
+
+		for(int variableIndex = numberOfCalculationSteps-2; variableIndex >= 0; variableIndex--){
+
+			omegaHat[variableIndex] = new RandomVariable(0.0);
 			
-			for(long functionIndex : getMapOfDependentRandomVariables.get(variableIndex).getChildrenUIDs()){
-				RandomVariableInterface D_i_j = getMapOfDependentRandomVariables.get(functionIndex).partialDerivativeWithRespectTo(variableIndex);
-				newOmegaHatEntry = newOmegaHatEntry.addProduct(D_i_j, omegaHat.get(functionIndex));
+			ArrayList<Integer> childrenList = getAADRandomVariableFromList(variableIndex).getChildrenIndices();
+			
+			for(int functionIndex:childrenList){
+				RandomVariableInterface D_i_j = getPartialDerivative(functionIndex, variableIndex);
+				omegaHat[variableIndex] = omegaHat[variableIndex].addProduct(D_i_j, omegaHat[functionIndex]);
 			}
-			
-			if(getMapOfDependentRandomVariables.get(variableIndex).isVariable())
-				gradient.put(variableIndex, newOmegaHatEntry);
-			
-			omegaHat.put(variableIndex, newOmegaHatEntry);
 		}
 
+		ArrayList<Integer> arrayListOfAllIndicesOfDependentRandomVariables = getArrayListOfAllIndicesOfDependentRandomVariables();
+
+		Map<Integer, RandomVariableInterface> gradient = new HashMap<Integer, RandomVariableInterface>();
+
+		for(Integer indexOfDependentRandomVariable: arrayListOfAllIndicesOfDependentRandomVariables){
+			gradient.put(indexOfDependentRandomVariable, omegaHat[arrayListOfAllIndicesOfDependentRandomVariables.get(indexOfDependentRandomVariable)]);
+		};
+
 		return gradient;
+	}
+
+	private ArrayList<Integer> getArrayListOfAllIndicesOfDependentRandomVariables(){
+
+		ArrayList<Integer> arrayListOfAllIndicesOfDependentRandomVariables = new ArrayList<>();
+
+		for(int index = 0; index < getNumberOfParentVariables(); index++){
+
+			int currentParentIndex = getParentIDs()[index];
+
+			/* if current index belongs to a true variable and is not yet in the list: add it*/
+			if(getAADRandomVariableFromList(currentParentIndex).isVariable() && 
+					!arrayListOfAllIndicesOfDependentRandomVariables.contains((Integer)currentParentIndex)){
+				arrayListOfAllIndicesOfDependentRandomVariables.add((Integer)currentParentIndex);
+			} else {
+				arrayListOfAllIndicesOfDependentRandomVariables.addAll(
+						getAADRandomVariableFromList(currentParentIndex).getArrayListOfAllIndicesOfDependentRandomVariables());
+			}
+		}
+
+		return arrayListOfAllIndicesOfDependentRandomVariables;
 	}
 
 	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD 
@@ -560,8 +619,19 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	}
 
 	private boolean isVariable() {
-		return (isConstant() == false && getParentRandomVariableAADv2s() == null);
+		return (isConstant() == false && getParentIDs() == null);
 	}	
+
+	private ArrayList<RandomVariableAAD> getFunctionList(){
+		return arrayListOfAllAADRandomVariables;
+	}
+	
+	public static void resetArrayListOfAllAADRandomVariables(){
+		synchronized (arrayListOfAllAADRandomVariables) {
+			arrayListOfAllAADRandomVariables = new ArrayList<>();
+			indexOfNextRandomVariable = new AtomicInteger(0);
+		}
+	}
 
 	public void setIsConstantTo(boolean isConstant){
 		this.isConstant = isConstant;
@@ -571,49 +641,36 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 		return ownRandomVariable;
 	}
 
-	private RandomVariableAADv2[] getParentRandomVariableAADv2s(){
-		return parentRandomVariables;
+	private RandomVariableInterface getRandomVariableInterfaceOfIndex(int index){
+		return getFunctionList().get(index).getRandomVariableInterface();
+	}
+
+	private int getFunctionIndex(){
+		return ownIndexInList;
+	}
+
+	private int[] getParentIDs(){
+		return parentIndices;
 	}
 	
-	private void addChildToRandomVariableAADv2s(long childUID){
-		getChildrenUIDs().add(childUID);
+	private ArrayList<Integer> getChildrenIndices(){
+		if(childrenIndices == null) childrenIndices = new ArrayList<>();
+		return childrenIndices;
+	}
+
+	private int getNumberOfParentVariables(){
+		if(getParentIDs() == null) return 0;
+		return getParentIDs().length;
+	}
+
+	private RandomVariableAAD getAADRandomVariableFromList(int index){
+		return getFunctionList().get(index);
 	}
 	
-	@Override
-	public Long getID() {
-		return ownRandomVariableUID;
+	private void addToChildrenIndices(int index){
+		getChildrenIndices().add(index);
 	}
 	
-	
-	private long[] getParentRandomVariableUIDs(){
-		long[] parentUIDs = new long[getParentRandomVariableAADv2s().length];
-		
-		for(int i = 0; i < parentUIDs.length; i++)
-			parentUIDs[i] = getParentRandomVariableAADv2s()[i].getID();
-		
-		return parentUIDs;
-	}
-	
-	private ArrayList<Long> getChildrenUIDs(){
-		return childUIDs;
-	}
-	
-	
-	/* get the dependence tree for a instance of RandomVariableAADv2 */
-	private Map<Long, RandomVariableAADv2> mapAllDependentRandomVariableAADv2s(){
-		Map<Long, RandomVariableAADv2> mapOfDependenRandomVariableAADv2s = new HashMap<Long, RandomVariableAADv2>();
-		
-		/* add the variable it self */
-		if(!mapOfDependenRandomVariableAADv2s.containsKey(getID())) mapOfDependenRandomVariableAADv2s.put(getID(), this);
-		
-		if(getParentRandomVariableAADv2s() != null){
-			for(RandomVariableAADv2 parentRandomVariableAADv2:getParentRandomVariableAADv2s())
-				mapOfDependenRandomVariableAADv2s.putAll(parentRandomVariableAADv2.mapAllDependentRandomVariableAADv2s());
-		}
-		
-		return mapOfDependenRandomVariableAADv2s;
-	}
-		
 	/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 
@@ -681,7 +738,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getMin() {
-		return ((RandomVariableAADv2) getMinAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getMinAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -689,7 +746,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getMax() {
-		return ((RandomVariableAADv2) getMaxAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getMaxAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -697,7 +754,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getAverage() {		
-		return ((RandomVariableAADv2) getAverageAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getAverageAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -705,7 +762,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
-		return ((RandomVariableAADv2) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -713,7 +770,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getVariance() {
-		return ((RandomVariableAADv2) getVarianceAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getVarianceAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -721,7 +778,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
-		return ((RandomVariableAADv2) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -729,7 +786,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getSampleVariance() {
-		return ((RandomVariableAADv2) getSampleVarianceAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getSampleVarianceAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -737,7 +794,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getStandardDeviation() {
-		return ((RandomVariableAADv2) getStandardDeviationAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getStandardDeviationAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -745,7 +802,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getStandardDeviation(RandomVariableInterface probabilities) {
-		return ((RandomVariableAADv2) getStandardDeviationAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getStandardDeviationAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -753,7 +810,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getStandardError() {
-		return ((RandomVariableAADv2) getStandardErrorAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getStandardErrorAsRandomVariableAAD()).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -761,7 +818,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getStandardError(RandomVariableInterface probabilities) {
-		return ((RandomVariableAADv2) getStandardErrorAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
+		return ((RandomVariableAAD) getStandardErrorAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -769,7 +826,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getQuantile(double quantile) {
-		return ((RandomVariableAADv2) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile);
+		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile);
 	}
 
 	/* (non-Javadoc)
@@ -777,7 +834,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
-		return ((RandomVariableAADv2) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile, probabilities);
+		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile, probabilities);
 	}
 
 	/* (non-Javadoc)
@@ -785,7 +842,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
-		return ((RandomVariableAADv2) getRandomVariableInterface()).getRandomVariableInterface().getQuantileExpectation(quantileStart, quantileEnd);
+		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantileExpectation(quantileStart, quantileEnd);
 	}
 
 	/* (non-Javadoc)
@@ -814,7 +871,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 
 	@Override
 	public RandomVariableInterface cap(double cap) {
-		return apply(OperatorType.CAP, new RandomVariableInterface[]{this, new RandomVariableAADv2(cap)});
+		return apply(OperatorType.CAP, new RandomVariableInterface[]{this, constructNewAADRandomVariable(cap)});
 	}
 
 	/* (non-Javadoc)
@@ -822,7 +879,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface floor(double floor) {
-		return apply(OperatorType.FLOOR, new RandomVariableInterface[]{this, new RandomVariableAADv2(floor)});
+		return apply(OperatorType.FLOOR, new RandomVariableInterface[]{this, constructNewAADRandomVariable(floor)});
 	}
 
 	/* (non-Javadoc)
@@ -830,7 +887,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface add(double value) {
-		return apply(OperatorType.ADD, new RandomVariableInterface[]{this, new RandomVariableAADv2(value)});
+		return apply(OperatorType.ADD, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -838,7 +895,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface sub(double value) {
-		return apply(OperatorType.SUB, new RandomVariableInterface[]{this, new RandomVariableAADv2(value)});
+		return apply(OperatorType.SUB, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -846,7 +903,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface mult(double value) {
-		return apply(OperatorType.MULT, new RandomVariableInterface[]{this, new RandomVariableAADv2(value)});
+		return apply(OperatorType.MULT, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -854,7 +911,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface div(double value) {
-		return apply(OperatorType.DIV, new RandomVariableInterface[]{this, new RandomVariableAADv2(value)});
+		return apply(OperatorType.DIV, new RandomVariableInterface[]{this, constructNewAADRandomVariable(value)});
 	}
 
 	/* (non-Javadoc)
@@ -862,7 +919,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface pow(double exponent) {
-		return apply(OperatorType.POW, new RandomVariableInterface[]{this, new RandomVariableAADv2(exponent)});
+		return apply(OperatorType.POW, new RandomVariableInterface[]{this, constructNewAADRandomVariable(exponent)});
 	}
 
 	/* (non-Javadoc)
@@ -966,7 +1023,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
-		return apply(OperatorType.ACCURUE, new RandomVariableInterface[]{this, rate, new RandomVariableAADv2(periodLength)});
+		return apply(OperatorType.ACCURUE, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
 	}
 
 	/* (non-Javadoc)
@@ -974,7 +1031,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
-		return apply(OperatorType.DISCOUNT, new RandomVariableInterface[]{this, rate, new RandomVariableAADv2(periodLength)});
+		return apply(OperatorType.DISCOUNT, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
 	}
 
 	/* (non-Javadoc)
@@ -992,7 +1049,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger,
 			RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, new RandomVariableAADv2(valueIfTriggerNegative)});
+		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, constructNewAADRandomVariable(valueIfTriggerNegative)});
 	}
 
 	/* (non-Javadoc)
@@ -1016,7 +1073,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
-		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, new RandomVariableAADv2(factor2)});
+		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, constructNewAADRandomVariable(factor2)});
 	}
 
 	/* (non-Javadoc)

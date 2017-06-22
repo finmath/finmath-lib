@@ -4,7 +4,7 @@
  * Created on 20.06.2017
  */
 
-package net.finmath.montecarlo;
+package net.finmath.montecarlo.automaticdifferentiation;
 
 import java.util.Map;
 

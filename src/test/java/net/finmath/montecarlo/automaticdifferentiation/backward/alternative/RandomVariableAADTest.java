@@ -3,14 +3,17 @@
  *
  * Created on 03.06.2017
  */
-package net.finmath.montecarlo;
+package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.RandomVariableAADFactory.RandomVariableWithAAD;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAAD;
+import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADFactory;
+import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADFactory.RandomVariableWithAAD;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
