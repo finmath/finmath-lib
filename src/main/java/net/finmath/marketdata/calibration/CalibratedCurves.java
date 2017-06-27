@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,14 +85,19 @@ import net.finmath.time.TimeDiscretization;
  * 
  * For a demo spreadsheet using this class see <a href="http://finmath.net/topics/curvecalibration/">finmath.net/topics/curvecalibration/</a>.
  * 
+ *
+ * 
  * @author Christian Fries
  */
 public class CalibratedCurves {
 
 	private static final boolean isUseForwardCurve;
+	private static final boolean isCreateDefaultCurvesForMissingCurves;
 	static {
 		// Default value is true
 		isUseForwardCurve = Boolean.parseBoolean(System.getProperty("net.finmath.marketdata.calibration.CalibratedCurves.isUseForwardCurve","true"));
+		// Default value is false
+		isCreateDefaultCurvesForMissingCurves = Boolean.parseBoolean(System.getProperty("net.finmath.marketdata.calibration.CalibratedCurves.isCreateDefaultCurvesForMissingCurves","false"));
 	}
 
 	/**
@@ -427,12 +433,28 @@ public class CalibratedCurves {
 	}
 
 	public AnalyticProductInterface getCalibrationProductForSpec(CalibrationSpec calibrationSpec) {
-		createDiscountCurve(calibrationSpec.discountCurveReceiverName);
-		createDiscountCurve(calibrationSpec.discountCurvePayerName);
+		String forwardCurveReceiverName = calibrationSpec.forwardCurveReceiverName;
+		String forwardCurvePayerName	= calibrationSpec.forwardCurvePayerName;
 
-		String forwardCurveReceiverName = createForwardCurve(calibrationSpec.swapTenorDefinitionReceiver, calibrationSpec.forwardCurveReceiverName);
-		String forwardCurvePayerName	= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
-
+		/*
+		 * If required, default curves are created if missing.
+		 */
+		if(isCreateDefaultCurvesForMissingCurves) {
+			createDiscountCurve(calibrationSpec.discountCurveReceiverName);
+			createDiscountCurve(calibrationSpec.discountCurvePayerName);
+	
+			forwardCurveReceiverName	= createForwardCurve(calibrationSpec.swapTenorDefinitionReceiver, calibrationSpec.forwardCurveReceiverName);
+			forwardCurvePayerName		= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
+		}
+		else {
+			Predicate<String> discountCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getDiscountCurve(curveName) == null;
+			Predicate<String> forwardCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getForwardCurve(curveName) == null;
+			if(discountCurveMissing.test(calibrationSpec.discountCurveReceiverName)) throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurveReceiverName + " missing. Needs to be part of model " + model + ".");
+			if(discountCurveMissing.test(calibrationSpec.discountCurvePayerName)) throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurvePayerName + " missing. Needs to be part of model " + model + ".");
+			if(forwardCurveMissing.test(calibrationSpec.forwardCurveReceiverName)) throw new IllegalArgumentException("Forward curve " + calibrationSpec.forwardCurveReceiverName + " missing. Needs to be part of model " + model + ".");
+			if(forwardCurveMissing.test(calibrationSpec.forwardCurvePayerName)) throw new IllegalArgumentException("Forward curve " + calibrationSpec.forwardCurvePayerName + " missing. Needs to be part of model " + model + ".");
+		}
+		
 		ScheduleInterface tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
 		ScheduleInterface tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
 
