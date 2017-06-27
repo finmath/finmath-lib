@@ -6,11 +6,15 @@
 
 package net.finmath.time;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -625,6 +629,55 @@ public class ScheduleGenerator {
 		// spotOffsetDays=0
 		return createScheduleFromConventions(referenceDate, 0, startOffsetString, maturityString, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 	}
+	
+	/**
+	 * Schedule generation with futureCodes. Futures are assumed to expire on the third wednesday in the respective month.
+	 * See other constructor for parameter description.
+	 * 
+	 * 
+	 * 
+	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
+	 * @param futureCode Future code, e.g. DEC2017
+	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param maturityString The end date of the last period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
+	 * @param frequency The frequency (as String).
+	 * @param daycountConvention The daycount convention (as String).
+	 * @param shortPeriodConvention If short period exists, have it first or last (as String).
+	 * @param dateRollConvention Adjustment to be applied to the all dates (as String).
+	 * @param businessdayCalendar Business day calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @return The corresponding schedule
+	 */
+	public static ScheduleInterface createScheduleFromConventions(
+			LocalDate referenceDate,
+			String futureCode,
+			String startOffsetString,
+			String maturityString,
+			String frequency,
+			String daycountConvention,
+			String shortPeriodConvention,
+			String dateRollConvention,
+			BusinessdayCalendarInterface businessdayCalendar,
+			int	fixingOffsetDays,
+			int	paymentOffsetDays
+			)
+	{
+		int futureExpiryYears = 2000 + Integer.parseInt(futureCode.substring(futureCode.length()-2));
+		String futureExpiryMonthsString = futureCode.substring(0,futureCode.length()-2);
+		DateTimeFormatter formatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("dd/MMM/yyyy").toFormatter(Locale.ENGLISH);
+		String futureExpiryString = "01/" + futureExpiryMonthsString + "/" + futureExpiryYears;
+		LocalDate futureExpiryDate = LocalDate.parse(futureExpiryString, formatter);
+		// get third wednesday in month, adjust with following if no busday
+		while(!futureExpiryDate.getDayOfWeek().equals(DayOfWeek.WEDNESDAY))
+			futureExpiryDate = futureExpiryDate.plusDays(1);
+		futureExpiryDate = futureExpiryDate.plusWeeks(2);
+		futureExpiryDate = businessdayCalendar.getAdjustedDate(futureExpiryDate, startOffsetString, DateRollConvention.FOLLOWING); // adjust to the next good busday
+
+		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(futureExpiryDate, maturityString);
+		return createScheduleFromConventions(referenceDate, futureExpiryDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+	}
+
 
 	/**
 	 * Generates a schedule based on some meta data. The schedule generation
