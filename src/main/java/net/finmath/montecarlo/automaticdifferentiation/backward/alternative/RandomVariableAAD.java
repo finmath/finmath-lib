@@ -421,6 +421,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 			case POW:
 				/* second argument will always be deterministic and constant! */
 				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
+				break;
 			default:
 				break;
 			}
