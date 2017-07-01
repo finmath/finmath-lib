@@ -34,7 +34,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	private static AtomicInteger indexOfNextRandomVariable = new AtomicInteger(0);
 	private static enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
-		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCURUE, POW, AVERAGE, VARIANCE, 
+		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, AVERAGE, VARIANCE, 
 		STDEV, MIN, MAX, STDERROR, SVARIANCE
 	}
 
@@ -262,7 +262,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 			case SUBRATIO:
 				resultrandomvariable = X.subRatio(Y, Z);
 				break;
-			case ACCURUE:
+			case ACCRUE:
 				resultrandomvariable = X.accrue(Y, /* second argument is deterministic anyway */ Z.getAverage());
 				break;
 			case DISCOUNT:
@@ -457,7 +457,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 					resultrandomvariable = Y.div(Z.squared()).mult(-1.0);
 				}
 				break;
-			case ACCURUE:
+			case ACCRUE:
 				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = Y.mult(Z).add(1.0);
 				} else if(variableIndex == getParentIDs()[1]){
@@ -1023,7 +1023,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	 */
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
-		return apply(OperatorType.ACCURUE, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
+		return apply(OperatorType.ACCRUE, new RandomVariableInterface[]{this, rate, constructNewAADRandomVariable(periodLength)});
 	}
 
 	/* (non-Javadoc)

@@ -36,7 +36,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	/* static elements of the class are shared between all members */
 	private static enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
-		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCURUE, POW, AVERAGE, VARIANCE, 
+		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, AVERAGE, VARIANCE, 
 		STDEV, MIN, MAX, STDERROR, SVARIANCE
 	}
 
@@ -197,7 +197,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 			case SUBRATIO:
 				resultrandomvariable = X.subRatio(Y, Z);
 				break;
-			case ACCURUE:
+			case ACCRUE:
 				resultrandomvariable = X.accrue(Y, /* second argument is deterministic anyway */ Z.getAverage());
 				break;
 			case DISCOUNT:
@@ -398,7 +398,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 					resultrandomvariable = Y.div(Z.squared()).mult(-1.0);
 				}
 				break;
-			case ACCURUE:
+			case ACCRUE:
 				if(isFirstArgument){
 					resultrandomvariable = Y.mult(Z).add(1.0);
 				} else if(isSecondArgument){
@@ -968,7 +968,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	 */
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
-		return apply(OperatorType.ACCURUE, new RandomVariableInterface[]{this, rate, new RandomVariableAADv2(periodLength)});
+		return apply(OperatorType.ACCRUE, new RandomVariableInterface[]{this, rate, new RandomVariableAADv2(periodLength)});
 	}
 
 	/* (non-Javadoc)
