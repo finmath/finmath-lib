@@ -43,11 +43,11 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		return testParameters;
 	}
 
-	private static DecimalFormat formatReal2 = new DecimalFormat("####0.00", new DecimalFormatSymbols(Locale.ENGLISH));
+	private static DecimalFormat formatReal2 = new DecimalFormat("####0", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	private interface TestFunction {
 		RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
-		RandomVariableInterface[] analytic(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
+		RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
 	}
 
 	private static class TestFunctionBigSum implements TestFunction {
@@ -62,9 +62,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return sum;
 		}
 
-		public RandomVariableInterface[] analytic(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return new RandomVariableInterface[] {
-					arguments[0].mult(0.0).add(numberOfIterations)
+					(new RandomVariableFactory()).createRandomVariable(numberOfIterations)
 			};
 		}
 	}
@@ -81,9 +81,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return sum;
 		}
 
-		public RandomVariableInterface[] analytic(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface x = arguments[0];
-			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
+			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = sum.add(x.pow(i-1).mult(i));
 			}
@@ -105,8 +105,14 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] analytic(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			return null;
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+			for(int i = 0; i < numberOfIterations; i++){
+				for(int j = 0; j < arguments.length; j++){
+					sum = sum.add(parameters[j]);
+				}
+			}
+			return new RandomVariableInterface[] { sum };
 		}
 	}
 
@@ -123,8 +129,14 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] analytic(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			return null;
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+			for(int i = 0; i < numberOfIterations; i++){
+				for(int j = 0; j < arguments.length; j++){
+					sum = sum.add(parameters[j]);
+				}
+			}
+			return new RandomVariableInterface[] { sum };
 		}
 	}
 
@@ -141,7 +153,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] analytic(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
 	}
@@ -160,7 +172,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] analytic(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
 	}
@@ -305,7 +317,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		if(y.isNaN().getAverage() > 0) System.out.println("error");
 		if(dydx[0].isNaN().getAverage() > 0) System.out.println("error");
 
-		RandomVariableInterface[] dydxAnalytic = function.analytic(randomVariableFactory, x, c);
+		RandomVariableInterface[] dydxAnalytic = function.derivative(x, c);
 
 		System.out.print(function.getClass().getSimpleName() + " - ");
 		System.out.println(randomVariableFactory.getClass().getSimpleName() + ":");
