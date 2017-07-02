@@ -82,6 +82,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 			else if(operator != null && operator.equals(OperatorType.ACCRUE)) {
 				// Addition of product only needs to retain factors on differentiables
+				if(arguments.get(1) == null && arguments.get(2) == null) argumentValues.set(0, null);
 				if(arguments.get(0) == null && arguments.get(1) == null) argumentValues.set(1, null);
 				if(arguments.get(0) == null && arguments.get(2) == null) argumentValues.set(2, null);
 			}
