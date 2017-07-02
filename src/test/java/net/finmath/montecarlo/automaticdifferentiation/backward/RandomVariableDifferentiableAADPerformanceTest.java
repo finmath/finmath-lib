@@ -43,7 +43,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		return testParameters;
 	}
 
-	private static DecimalFormat formatReal2 = new DecimalFormat("####0", new DecimalFormatSymbols(Locale.ENGLISH));
+	private static DecimalFormat formatReal1 = new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	private interface TestFunction {
 		RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
@@ -96,8 +96,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
-			for(int i = 0; i < numberOfIterations; i++){
-				for(int j = 0; j < arguments.length; j++){
+			for(int i = 0; i < numberOfIterations; i++) {
+				for(int j = 0; j < arguments.length; j++) {
 					sum = sum.addProduct(arguments[j],parameters[j]);
 				}
 			}
@@ -108,7 +108,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
-				for(int j = 0; j < arguments.length; j++){
+				{
+					int j = 0;
 					sum = sum.add(parameters[j]);
 				}
 			}
@@ -120,8 +121,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 5;
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
-			for(int i = 0; i < numberOfIterations; i++){
-				for(int j = 0; j < arguments.length; j++){
+			for(int i = 0; i < numberOfIterations; i++) {
+				for(int j = 0; j < arguments.length; j++) {
 					sum = sum.add(arguments[j].mult(parameters[j]));
 				}
 			}
@@ -131,8 +132,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		@Override
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
-			for(int i = 0; i < numberOfIterations; i++){
-				for(int j = 0; j < arguments.length; j++){
+			for(int i = 0; i < numberOfIterations; i++) {
+				{
+					int j = 0;
 					sum = sum.add(parameters[j]);
 				}
 			}
@@ -184,7 +186,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			new RandomVariableDifferentiableAADFactory()
 	};
 
-	private static int numberOfPaths = 20000;		/* In the paper we use 100000 */
+	private static int numberOfPaths = 10000;		/* In the paper we use 100000 */
 	private static Object[][] testCases = {
 			{ new TestFunctionBigSum(),
 				new Integer(numberOfPaths)	/* number of paths for the arguments */,
@@ -321,12 +323,12 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		System.out.print(function.getClass().getSimpleName() + " - ");
 		System.out.println(randomVariableFactory.getClass().getSimpleName() + ":");
-		System.out.println("evaluation..........: " + formatReal2.format((endCalculation-startCalculation)/1000.0) + " s");
-		System.out.println("derivative..........: " + formatReal2.format((endAutoDiff-startAutoDiff)/1000.0) + " s");
-		System.out.println("memory requirements.: " + formatReal2.format((endMemAutoDiff-startMemCalculation)/1024.0/1024.0) + " MB");
+		System.out.println("evaluation..........: " + formatReal1.format((endCalculation-startCalculation)/1000.0) + " s");
+		System.out.println("derivative..........: " + formatReal1.format((endAutoDiff-startAutoDiff)/1000.0) + " s");
+		System.out.println("memory requirements.: " + formatReal1.format((endMemAutoDiff-startMemCalculation)/1024.0/1024.0) + " MB");
 
 		System.out.print("dy/dx = (");
-		for(RandomVariableInterface partialDerivative : dydx) System.out.print(formatReal2.format(partialDerivative.getAverage()) + ",");
+		for(RandomVariableInterface partialDerivative : dydx) System.out.print(formatReal1.format(partialDerivative.getAverage()) + ",");
 		System.out.println(")");
 		System.out.println("");
 
