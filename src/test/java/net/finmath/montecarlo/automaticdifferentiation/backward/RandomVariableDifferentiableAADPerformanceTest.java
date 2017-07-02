@@ -21,6 +21,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableDifferentiableAADStochasticNonOptimizedFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 
 @RunWith(Parameterized.class)

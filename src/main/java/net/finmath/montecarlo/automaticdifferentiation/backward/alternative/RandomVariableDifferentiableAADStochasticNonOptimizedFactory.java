@@ -4,7 +4,7 @@
  * Created on 21.06.2017
  */
 
-package net.finmath.montecarlo.automaticdifferentiation.backward;
+package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariable;
