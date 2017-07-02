@@ -17,7 +17,6 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADv2Factory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.trash.RandomVariableDifferentiableAAD2Factory;
 import net.finmath.stochastic.RandomVariableInterface;

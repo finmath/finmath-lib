@@ -4,7 +4,6 @@
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableUniqueVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**

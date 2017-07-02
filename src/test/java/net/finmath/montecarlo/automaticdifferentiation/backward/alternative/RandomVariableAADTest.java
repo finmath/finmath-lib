@@ -11,8 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAAD;
-import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADFactory.RandomVariableWithAAD;
 import net.finmath.stochastic.RandomVariableInterface;
 

@@ -6,20 +6,9 @@
 
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-/**
- * @author Christian Fries
- *
- */
-import static org.junit.Assert.assertEquals;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -31,11 +20,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
-import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADPathwiseFactory;
-import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADStochasticNonOptimizedFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 
 @RunWith(Parameterized.class)
