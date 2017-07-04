@@ -395,6 +395,14 @@ public interface RandomVariableInterface extends Serializable {
 	RandomVariableInterface pow(double exponent);
 
 	/**
+	 * Returns a random variable which is deterministic and corresponds
+	 * the expectation of this random variable.
+	 * 
+	 * @return New random variable being the expectation of this random variable.
+	 */
+	RandomVariableInterface average();
+	
+	/**
 	 * Applies x &rarr; x * x to this random variable.
 	 * @return New random variable with the result of the function.
 	 */

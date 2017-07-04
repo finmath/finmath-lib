@@ -638,6 +638,14 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#average()
+	 */
+	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariable(getAverage());
+	}
+
+	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
 	 */
 	@Override

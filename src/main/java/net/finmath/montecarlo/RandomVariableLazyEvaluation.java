@@ -765,7 +765,15 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
         return apply(x -> FastMath.pow(x, exponent));
     }
 
-    /* (non-Javadoc)
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#average()
+	 */
+	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariableLazyEvaluation(getAverage());
+	}
+
+	/* (non-Javadoc)
      * @see net.finmath.stochastic.RandomVariableInterface#squared()
      */
     @Override

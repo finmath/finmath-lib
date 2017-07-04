@@ -681,6 +681,14 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#average()
+	 */
+	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariableLowMemory(getAverage());
+	}
+
 	@Override
 	public RandomVariableInterface squared() {
 		if(isDeterministic()) {
