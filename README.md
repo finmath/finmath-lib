@@ -2,9 +2,11 @@
 - - - -
 **Enabling finmath lib to utilize automatic differentiation algorithms (e.g. AAD).**
 - - - -
-This project provides an interface (<code>RandomVariableDifferentiableInterface</code>)
+This project implements a [stochastic automatic differentiation](http://ssrn.com/abstract=2995695).
+
+The project provides an interface (<code>RandomVariableDifferentiableInterface</code>)
 for random variables which provide automatic differentiation.
-The interfaces extends <code>RandomVariableInterface</code> and
+The interface extends <code>RandomVariableInterface</code> and
 hence allows to use auto-diff in all Monte-Carlo contexts
 (via a replacement of the corresponding parameters / factories).
 
