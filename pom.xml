@@ -1,11 +1,30 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<!-- For publishing to sonatype / central maven repo -->
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib-automaticdifferentiation-extensions</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
 	<name>finmath lib automatic differentiation extensions</name>
-	<description>Enabling finmath-lib to perform automatic differentiation (e.g. backward automatic differentiation, aka AAD).</description>
+	<description>
+		Enabling finmath-lib to perform automatic differentiation (e.g. backward automatic differentiation, aka AAD).
+	</description>
+	<url>http://www.finmath.net/finmath-lib</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<src.main.dir>src/main/java</src.main.dir>
+		<src.test.dir>src/test/java</src.test.dir>
+	</properties>
 
 	<licenses>
 		<license>
@@ -30,7 +49,26 @@
 		</developer>
 	</developers>
 
+	<dependencies>
+		<dependency>
+			<groupId>net.finmath</groupId>
+			<artifactId>finmath-lib</artifactId>
+			<version>3.0.0</version>
+			<classifier></classifier>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
 	<build>
+		<defaultGoal>clean install javadoc:javadoc</defaultGoal>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+		<sourceDirectory>${src.main.dir}</sourceDirectory>
+		<testSourceDirectory>${src.test.dir}</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -49,21 +87,44 @@
 					<argLine>-mx2G</argLine>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<releaseProfiles>java-8</releaseProfiles>
+				</configuration>
+				<executions>
+					<execution>
+						<id>java-6</id>
+						<configuration>
+							<releaseProfiles>java-6</releaseProfiles>
+						</configuration>
+					</execution>
+					<execution>
+						<id>java-8</id>
+						<configuration>
+							<releaseProfiles>java-8</releaseProfiles>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
 		</plugins>
 	</build>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions/issues</url>
+	</issueManagement>
 
-	<dependencies>
-		<dependency>
-			<groupId>net.finmath</groupId>
-			<artifactId>finmath-lib</artifactId>
-			<version>3.0.0</version>
-			<classifier></classifier>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+	<scm>
+		<url>https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions</url>
+		<connection>scm:git:https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions.git</connection>
+		<developerConnection>scm:git:https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
 </project>
