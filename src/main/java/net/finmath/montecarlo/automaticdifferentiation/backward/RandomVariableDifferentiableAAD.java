@@ -172,7 +172,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				resultrandomvariable = differentialIndex == 0 ? Y : X;
 				break;
 			case DIV:
-				resultrandomvariable = differentialIndex == 0 ? Y.invert() : X.div(Y.squared());
+				resultrandomvariable = differentialIndex == 0 ? Y.invert() : X.div(Y.squared()).mult(-1);
 				break;
 			case CAP:
 				if(differentialIndex == 0) {

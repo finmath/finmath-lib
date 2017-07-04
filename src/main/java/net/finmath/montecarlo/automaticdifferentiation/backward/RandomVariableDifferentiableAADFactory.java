@@ -8,6 +8,7 @@ package net.finmath.montecarlo.automaticdifferentiation.backward;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -23,12 +24,17 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	}
 
 	@Override
-	public RandomVariableInterface createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiableInterface createRandomVariable(double value) {
+		return new RandomVariableDifferentiableAAD(new RandomVariable(0.0, value));
+	}
+
+	@Override
+	public RandomVariableDifferentiableInterface createRandomVariable(double time, double value) {
 		return new RandomVariableDifferentiableAAD(new RandomVariable(time, value));
 	}
 
 	@Override
-	public RandomVariableInterface createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiableInterface createRandomVariable(double time, double[] values) {
 		return new RandomVariableDifferentiableAAD(new RandomVariable(time, values));
 	}
 }

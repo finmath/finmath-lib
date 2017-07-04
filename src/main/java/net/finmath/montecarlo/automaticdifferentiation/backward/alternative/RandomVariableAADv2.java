@@ -326,7 +326,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 				resultrandomvariable = isFirstArgument ? Y : X;
 				break;
 			case DIV:
-				resultrandomvariable = isFirstArgument ? Y.invert() : X.div(Y.squared());
+				resultrandomvariable = isFirstArgument ? Y.invert() : X.div(Y.squared()).mult(-1);
 				break;
 			case CAP:
 				if(isFirstArgument)

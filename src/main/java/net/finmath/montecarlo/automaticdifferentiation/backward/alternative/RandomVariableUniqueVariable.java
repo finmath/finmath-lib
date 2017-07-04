@@ -848,7 +848,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 			if(variableIndex == currentRandomVariable.getParentIDs()[0]){
 				resultrandomvariable = currentParentRandomVaribles.get(1).invert();
 			} else {
-				resultrandomvariable = currentParentRandomVaribles.get(0).div(currentParentRandomVaribles.get(1).squared());
+				resultrandomvariable = currentParentRandomVaribles.get(0).div(currentParentRandomVaribles.get(1).squared()).mult(-1);
 			}
 			break;
 			
