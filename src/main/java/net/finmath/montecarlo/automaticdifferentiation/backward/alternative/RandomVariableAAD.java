@@ -389,7 +389,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y : X;
 				break;
 			case DIV:
-				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.invert() : X.div(Y.squared());
+				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.invert() : X.div(Y.squared()).mult(-1);
 				break;
 			case CAP:
 				resultrandomvariable = X.apply(x -> (x > Y.getAverage()) ? 0.0 : 1.0);
