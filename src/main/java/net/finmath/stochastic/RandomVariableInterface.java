@@ -7,6 +7,7 @@
 package net.finmath.stochastic;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
@@ -553,6 +554,22 @@ public interface RandomVariableInterface extends Serializable {
 
 	 */
 	RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator);
+
+	/**
+	 * Applies \( x \mapsto x + \sum_{i=0}^{n-1} factor1_{i} * factor2_{i}
+	 * @param factor1 The factor 1. A list of random variables (compatible with this random variable).
+	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
+	 * @return New random variable with the result of the function.
+
+	 */
+	default RandomVariableInterface addSumProduct(List<RandomVariableInterface> factor1, List<RandomVariableInterface> factor2)
+	{
+		RandomVariableInterface result = this;
+		for(int i=0; i<factor1.size(); i++) {
+			result = result.addProduct(factor1.get(i), factor2.get(i));
+		}
+		return result;
+	}
 
 	/**
 	 * Applies x &rarr; (Double.isNaN(x) ? 1.0 : 0.0)
