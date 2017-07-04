@@ -15,17 +15,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  * allowing automatic differentiation.
  * 
  * The interface will introduce two additional methods: <code>Long getID()</code> and
- * <long>Map<Long, RandomVariableInterface> getGradient()</code>.
+ * <code>Map&lt;Long, RandomVariableInterface&gt; getGradient()</code>.
  * The method <code>getGradient</code> will return a map providing the first order
  * differentiation of the given random variable (this) with respect to
  * <i>all</i> its input <code>RandomVariableDifferentiableInterface</code>s (leave nodes).
  * 
  * To get the differentiation with respect to a specific object use
  * <code>
- * <pre>
  * 		Map gradient = X.getGradient();
  * 		RandomVariableInterface derivative = X.get(Y.getID());
- * </pre>
  * </code>
  * 
  * @author Christian Fries

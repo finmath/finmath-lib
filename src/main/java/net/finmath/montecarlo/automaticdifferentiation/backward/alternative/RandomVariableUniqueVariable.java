@@ -16,7 +16,6 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Stefan Sedlmair
- * @date 29.05.2017
  */
 public class RandomVariableUniqueVariable implements RandomVariableInterface {
 

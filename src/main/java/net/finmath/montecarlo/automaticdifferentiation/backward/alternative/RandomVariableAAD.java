@@ -65,15 +65,6 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		this.isConstant = isConstant;
 	}
 
-	
-
-	/**
-	 * @param randomVariable
-	 * @param parentIndices
-	 * @param parentOperator
-	 * @param isConstant
-	 * @return A new RandomVariableAAD.
-	 */
 	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariableInterface randomVariable, int[] parentIndices,
 			OperatorType parentOperator, ArrayList<Integer> childrenIndices, boolean isConstant){
 

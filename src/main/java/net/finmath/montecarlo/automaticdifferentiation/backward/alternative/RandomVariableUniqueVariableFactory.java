@@ -11,8 +11,6 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Stefan Sedlmair
- * @date 29.05.2017
- *
  */
 public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableFactory {
 
@@ -36,11 +34,12 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	/**
 	 * Add an object of {@link RandomVariableInterface} to variable list at the index of the current ID
 	 * and rises the current ID to the next one.
-	 *  @param randomvariable object of {@link RandomVariableInterface} to add to ArrayList and return as {@link RandomVariableUniqueVariable}
-	 *  @param isConstant boolean such that if true the derivative will be set to zero
-	 *  @param parentVariables List of {@link RandomVariableUniqueVariable} that are the parents of the new instance
-	 *  @return new instance of {@link RandomVariableUniqueVariable}
-	 * */
+	 * @param randomvariable object of {@link RandomVariableInterface} to add to ArrayList and return as {@link RandomVariableUniqueVariable}
+	 * @param isConstant boolean such that if true the derivative will be set to zero
+	 * @param parentVariables List of {@link RandomVariableUniqueVariable} that are the parents of the new instance
+	 * @param parentOperatorType Operator type
+	 * @return new instance of {@link RandomVariableUniqueVariable}
+	 **/
 	public RandomVariableInterface createRandomVariable(RandomVariableInterface randomvariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, RandomVariableUniqueVariable.OperatorType parentOperatorType) {
 		
 		int factoryID = currentFactoryID++;
