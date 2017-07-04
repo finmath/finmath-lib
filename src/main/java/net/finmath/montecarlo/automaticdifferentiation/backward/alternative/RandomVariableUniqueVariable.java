@@ -421,6 +421,11 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return null;
 	}
 
+	@Override
+	public RandomVariableInterface average() {
+		return null;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
 	 */

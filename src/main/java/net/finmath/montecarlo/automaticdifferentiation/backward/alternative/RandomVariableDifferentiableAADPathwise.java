@@ -677,6 +677,14 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	}
 
 	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariableDifferentiableAADPathwise(
+				getValues().average(),
+				Arrays.asList(new RandomVariableInterface[]{ this }),
+				OperatorType.AVERAGE);
+	}
+
+	@Override
 	public RandomVariableInterface squared() {
 		return new RandomVariableDifferentiableAADPathwise(
 				getValues().squared(),

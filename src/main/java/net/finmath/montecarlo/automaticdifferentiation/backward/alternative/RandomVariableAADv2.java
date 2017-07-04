@@ -868,6 +868,11 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 		return apply(OperatorType.POW, new RandomVariableInterface[]{this, new RandomVariableAADv2(exponent)});
 	}
 
+	@Override
+	public RandomVariableInterface average() {
+		return apply(OperatorType.AVERAGE, new RandomVariableInterface[]{this});
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
 	 */

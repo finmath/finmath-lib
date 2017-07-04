@@ -3,7 +3,6 @@
  *
  * Created on 17.06.2017
  */
-
 package net.finmath.montecarlo.automaticdifferentiation;
 
 import java.util.Map;

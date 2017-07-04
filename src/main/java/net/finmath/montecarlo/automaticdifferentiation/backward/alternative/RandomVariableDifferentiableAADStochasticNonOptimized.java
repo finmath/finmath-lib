@@ -676,6 +676,14 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariableDifferentiableAADStochasticNonOptimized(
+				getValues().average(),
+				Arrays.asList(new RandomVariableInterface[]{ this }),
+				OperatorType.AVERAGE);
+	}
+
+	@Override
 	public RandomVariableInterface squared() {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().squared(),

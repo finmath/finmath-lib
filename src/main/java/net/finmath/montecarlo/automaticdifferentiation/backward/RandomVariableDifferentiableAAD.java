@@ -1,5 +1,7 @@
-/**
- * 
+/*
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christianfries.com.
+ *
+ * Created on 17.06.2017
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
@@ -694,6 +696,14 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				getValues().pow(exponent),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(exponent) }),
 				OperatorType.POW);
+	}
+
+	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariableDifferentiableAAD(
+				getValues().average(),
+				Arrays.asList(new RandomVariableInterface[]{ this }),
+				OperatorType.AVERAGE);
 	}
 
 	@Override
