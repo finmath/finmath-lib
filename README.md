@@ -31,7 +31,7 @@ with respect to *all* its input <code>RandomVariableDifferentiableInterface</cod
 
 ### Example
 
-The following sample code calculate delta, vega and rho for an
+The following sample code calculates valuation, delta, vega and rho for an
 almost arbitrary product (here an EuropeanOption) using
 AAD on the Monte-Carlo valuation
 
