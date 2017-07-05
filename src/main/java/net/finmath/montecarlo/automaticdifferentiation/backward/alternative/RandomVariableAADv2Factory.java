@@ -4,26 +4,28 @@
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Stefan Sedlmair
  *
  */
-public class RandomVariableAADv2Factory extends AbstractRandomVariableFactory {
+public class RandomVariableAADv2Factory extends AbstractRandomVariableDifferentiableFactory {
 
 	/**
-	 * 
+	 * @param randomVariableFactoryForNonDifferentiable
 	 */
-	public RandomVariableAADv2Factory() {
-		// TODO Auto-generated constructor stub
+	public RandomVariableAADv2Factory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+		super(randomVariableFactoryForNonDifferentiable);
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double)
 	 */
 	@Override
-	public RandomVariableInterface createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiableInterface createRandomVariable(double time, double value) {
 		return new RandomVariableAADv2(time, value);
 	}
 
@@ -31,7 +33,7 @@ public class RandomVariableAADv2Factory extends AbstractRandomVariableFactory {
 	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double[])
 	 */
 	@Override
-	public RandomVariableInterface createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiableInterface createRandomVariable(double time, double[] values) {
 		return new RandomVariableAADv2(time, values);
 	}
 

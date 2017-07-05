@@ -14,18 +14,30 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import org.junit.Assert;
+import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
+import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableDifferentiableAADPathwiseFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableDifferentiableAADStochasticNonOptimizedFactory;
+import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.process.AbstractProcess;
+import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationInterface;
 
 @RunWith(Parameterized.class)
 public class RandomVariableDifferentiableAADPerformanceTest {
@@ -179,6 +191,68 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 	}
 
+	private static class TestFunctionMonteCarloAsianOption implements TestFunction {
+
+		// Model properties
+		private final double	modelInitialValue   = 1.0;
+		private final double	modelRiskFreeRate   = 0.05;
+		private final double	modelVolatility     = 0.30;
+
+		// Process discretization properties
+		private final int		numberOfPaths		= 500000;
+		private final int		numberOfTimeSteps	= 100;
+		private final double	deltaT				= 0.02;
+
+		private final int		seed				= 31415;
+
+		// Product properties
+		private final int		assetIndex = 0;
+		private final double	optionMaturity = 2.0;
+		private final double	optionStrike = 1.05;
+
+		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+			long startMem = getAllocatedMemory();
+
+			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
+			RandomVariableInterface initialValue	= arguments[0];
+			RandomVariableInterface riskFreeRate	= arguments[1];
+			RandomVariableInterface volatility	= arguments[2];
+
+			// Create a model
+			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+
+			// Create a time discretization
+			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+			// Create a corresponding MC process
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+
+			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
+			AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+
+			/*
+			 * Value a call option (using the product implementation)
+			 */
+			AsianOption option = new AsianOption(optionMaturity, optionStrike, new TimeDiscretization(0.0, (int)(optionMaturity/deltaT), deltaT));
+			RandomVariableInterface value = null;
+			try {
+				value = option.getValue(0.0, monteCarloBlackScholesModel);
+			} catch (CalculationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			long endMem = getAllocatedMemory();
+			System.out.println("memory requirements.: " + formatReal1.format((endMem-startMem)/1024.0/1024.0) + " MB");
+			return value;
+		}
+
+		@Override
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+			return null;
+		}
+	}
+
+
 	private static AbstractRandomVariableFactory[] testMethods = {
 			new RandomVariableFactory(),
 			new RandomVariableDifferentiableAADPathwiseFactory(),
@@ -223,6 +297,12 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(100),
 				new Integer(1),
 				new Integer(100)
+			},
+			{ new TestFunctionMonteCarloAsianOption(),
+				new Integer(1),
+				new Integer(3),
+				new Integer(1),
+				new Integer(1)
 			}
 	};
 

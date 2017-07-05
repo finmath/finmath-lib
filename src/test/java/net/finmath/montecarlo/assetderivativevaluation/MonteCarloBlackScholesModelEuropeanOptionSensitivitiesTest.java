@@ -52,7 +52,7 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 
 	@Test
 	public void testProductAADSensitivities() throws CalculationException {
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);

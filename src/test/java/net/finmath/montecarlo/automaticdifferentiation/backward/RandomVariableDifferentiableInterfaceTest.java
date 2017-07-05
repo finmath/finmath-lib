@@ -16,6 +16,8 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADv2Factory;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -33,14 +35,14 @@ public class RandomVariableDifferentiableInterfaceTest {
 	@Parameters
 	public static Collection<Object[]> data(){
 		return Arrays.asList(new Object[][] {
-			{new RandomVariableDifferentiableAADFactory()},
-			{new RandomVariableAADv2Factory()}
+			{new RandomVariableDifferentiableAADFactory(new RandomVariableFactory()) },
+			{new RandomVariableAADv2Factory(new RandomVariableFactory())}
 		});
 	}
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final AbstractRandomVariableDifferentiableFactory randomVariableFactory;
 
-	public RandomVariableDifferentiableInterfaceTest(AbstractRandomVariableFactory factory) {
+	public RandomVariableDifferentiableInterfaceTest(AbstractRandomVariableDifferentiableFactory factory) {
 		this.randomVariableFactory = factory;
 	}
 

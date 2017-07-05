@@ -24,6 +24,7 @@ import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
@@ -46,6 +47,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		return (Collection<Object[]>) Arrays.asList(
 				new Object[][] { 
 					{ new EuropeanOption(2.0 /* optionMaturity */, 1.05 /* optionStrike */) },
+					{ new AsianOption(2.0 /* optionMaturity */, 1.05 /* optionStrike */, new TimeDiscretization(0.0, 0.5, 1.0, 1.5, 2.0)) },					
 				}
 				);
 	}
@@ -58,7 +60,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 	// Process discretization properties
 	private final int		numberOfPaths		= 20000;
 	private final int		numberOfTimeSteps	= 10;
-	private final double	deltaT				= 2.0;
+	private final double	deltaT				= 0.25;
 
 	private final int		seed				= 31415;
 
@@ -71,7 +73,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 
 	@Test
 	public void testProductAADSensitivities() throws CalculationException {
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
