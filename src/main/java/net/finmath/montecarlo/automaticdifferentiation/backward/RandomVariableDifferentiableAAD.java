@@ -535,7 +535,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
-		return ((RandomVariableDifferentiableAAD) getAverageAsRandomVariableAAD(probabilities)).getValues().getAverage();
+		return getValues().getAverage(probabilities);
 	}
 
 	/* (non-Javadoc)
@@ -836,7 +836,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		return new RandomVariableDifferentiableAAD(
-				getValues().barrier(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				getValues().barrier(trigger instanceof RandomVariableDifferentiableAAD ? ((RandomVariableDifferentiableAAD)trigger).getValues() : trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(new RandomVariableInterface[]{ trigger, valueIfTriggerNonNegative, valueIfTriggerNegative }),
 				OperatorType.BARRIER);
 	}
