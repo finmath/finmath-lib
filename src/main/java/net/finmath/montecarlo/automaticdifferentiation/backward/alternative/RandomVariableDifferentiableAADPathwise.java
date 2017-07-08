@@ -513,7 +513,7 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
-		return ((RandomVariableDifferentiableAADPathwise) getAverageAsRandomVariableAAD(probabilities)).getValues().getAverage();
+		return getValues().getAverage();
 	}
 
 	/* (non-Javadoc)
@@ -813,16 +813,18 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADPathwise ? ((RandomVariableDifferentiableAADPathwise)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAADPathwise(
-				getValues().barrier(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(new RandomVariableInterface[]{ trigger, valueIfTriggerNonNegative, valueIfTriggerNegative }),
 				OperatorType.BARRIER);
 	}
 
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
+		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADPathwise ? ((RandomVariableDifferentiableAADPathwise)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAADPathwise(
-				getValues().barrier(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(new RandomVariableInterface[]{ trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative) }),
 				OperatorType.BARRIER);
 	}

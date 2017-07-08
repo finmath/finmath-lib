@@ -512,7 +512,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
-		return ((RandomVariableDifferentiableAADStochasticNonOptimized) getAverageAsRandomVariableAAD(probabilities)).getValues().getAverage();
+		return getValues().getAverage(probabilities);
 	}
 
 	/* (non-Javadoc)
@@ -812,16 +812,18 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADStochasticNonOptimized ? ((RandomVariableDifferentiableAADStochasticNonOptimized)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
-				getValues().barrier(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(new RandomVariableInterface[]{ trigger, valueIfTriggerNonNegative, valueIfTriggerNegative }),
 				OperatorType.BARRIER);
 	}
 
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
+		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADStochasticNonOptimized ? ((RandomVariableDifferentiableAADStochasticNonOptimized)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
-				getValues().barrier(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(new RandomVariableInterface[]{ trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative) }),
 				OperatorType.BARRIER);
 	}
