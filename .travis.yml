@@ -1,2 +1,2 @@
 language: java
-install: travis_wait mvn test
+install: travis_wait 30 mvn test
