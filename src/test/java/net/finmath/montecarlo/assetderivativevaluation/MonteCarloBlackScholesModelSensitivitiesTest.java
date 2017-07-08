@@ -81,7 +81,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		RandomVariableDifferentiableInterface volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
-		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 		// Create a time discretization
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
