@@ -6,6 +6,9 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +45,7 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 	private final int		numberOfPaths		= 20000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
-	
+
 	private final int		seed				= 31415;
 
 	// Product properties
@@ -52,6 +55,9 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 
 	@Test
 	public void testProductAADSensitivities() throws CalculationException {
+
+		memoryUsageReset();
+
 		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
@@ -60,7 +66,7 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 		RandomVariableDifferentiableInterface volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
-		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 		// Create a time discretization
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
@@ -81,16 +87,16 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 		 * Calculate sensitivities using AAD
 		 */
 		Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
-		
+
 		double valueMonteCarlo = value.getAverage();
 		double deltaAAD = derivative.get(initialValue.getID()).getAverage();
 		double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
 		double vegaAAD = derivative.get(volatility.getID()).getAverage();
-		
+
 		/*
 		 * Calculate sensitivities using finite differences
 		 */
-		
+
 		double eps = 1E-6;
 
 		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
@@ -116,7 +122,7 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
 		System.out.println("");
-		
+
 		System.out.println("delta using adj. auto diff....: " + deltaAAD);
 		System.out.println("delta using finite differences: " + deltaFiniteDifference);
 		System.out.println("delta using analytic formula..: " + deltaAnalytic);
@@ -132,6 +138,22 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 		System.out.println("vega using analytic formula..: " + vegaAnalytic);
 		System.out.println("");
 
-//		Assert.assertEquals(valueAnalytic, value, 0.005);
+		System.out.println(memoryUsagePeak());
+		//		Assert.assertEquals(valueAnalytic, value, 0.005);
+	}
+
+	private void memoryUsageReset() {
+		for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+			pool.resetPeakUsage();
+		}
+	}
+
+	private long memoryUsagePeak() {
+		long sumOfPeak = 0;
+		for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+			MemoryUsage peak = pool.getPeakUsage();
+			sumOfPeak += peak.getUsed();
+		}		
+		return sumOfPeak;
 	}
 }
