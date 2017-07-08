@@ -526,6 +526,14 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		return value;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 */
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+	}
+
 	private TimeDiscretizationInterface getLiborPeriodDiscretization(double time) {
 		ArrayList<Double> tenorTimes = new ArrayList<Double>();
 		double firstTime	= liborPeriodDiscretizations[0].getTime(liborPeriodDiscretizations[0].getTimeIndexNearestLessOrEqual(time));

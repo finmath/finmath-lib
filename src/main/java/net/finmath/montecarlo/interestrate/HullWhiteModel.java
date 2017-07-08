@@ -248,6 +248,14 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		return new RandomVariableInterface[] { factorLoading1RV, factorLoading2RV };
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 */
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+	}
+
 	@Override
 	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
 	{

@@ -127,6 +127,14 @@ public class MertonModel extends AbstractModel {
 		return factors;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 */
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+	}
+
 	@Override
 	public AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		// TODO Auto-generated method stub
