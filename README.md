@@ -70,3 +70,17 @@ AAD on the Monte-Carlo valuation
 	double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
 	double vegaAAD = derivative.get(volatility.getID()).getAverage();
 
+### AAD on Cuda GPUs
+
+It is possible to combine the automatic-differentiation-extensions with the cuda-extensions.
+
+Using
+
+	AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
+
+will create a standard (CPU) random variable with automatic differentiation. Instead, using
+
+	AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableCudaFactory());
+
+will create a Cuda GPU random variable with automatic differentiation.
+
