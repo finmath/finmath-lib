@@ -340,7 +340,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(numberOfPaths)	/* number of paths for the parameters */,
 				new Integer(0)				/* number of parameters */
 			},
-	/*		{ new TestFunctionGeometricSum(),
+			{ new TestFunctionGeometricSum(),
 				new Integer(numberOfPaths),
 				new Integer(1),
 				new Integer(numberOfPaths),
@@ -375,7 +375,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(3),
 				new Integer(1),
 				new Integer(1)
-			},*/
+			},
 			{ new TestFunctionMonteCarloBermudanOption(),
 				new Integer(1),
 				new Integer(3),
