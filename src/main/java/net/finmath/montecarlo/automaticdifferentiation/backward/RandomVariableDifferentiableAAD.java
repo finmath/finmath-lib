@@ -100,6 +100,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					RandomVariableInterface derivative			= derivatives.get(id);
 					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
 
+					// Implementation of AVERAGE (see paper for details).
+					if(operator == OperatorType.AVERAGE) derivative = derivative.average();
+
 					argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
 
 					derivatives.put(argumentID, argumentDerivative);
@@ -139,7 +142,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				resultrandomvariable = X.sin().mult(-1.0);
 				break;
 			case AVERAGE:
-				resultrandomvariable = new RandomVariable(X.size()).invert();
+				resultrandomvariable = new RandomVariable(1.0);
 				break;
 			case VARIANCE:
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size());
