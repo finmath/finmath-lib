@@ -14,13 +14,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADv2Factory;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Unit test for random variables implementing <code>RandomVariableDifferentiableInterface</code>.
@@ -344,6 +346,33 @@ public class RandomVariableDifferentiableInterfaceTest {
 			Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(keys[i])));
 		}
 
+	}
+
+	@Test
+	public void testRandomVariableExpectation(){
+
+		int numberOfPaths = 100000;
+		int seed = 3141;
+		BrownianMotionInterface brownianMotion = new BrownianMotion(new TimeDiscretization(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
+		RandomVariableInterface brownianIncrement = brownianMotion.getIncrement(0, 0);
+		
+		RandomVariableDifferentiableInterface x = randomVariableFactory.createRandomVariable(1.0);
+		
+		RandomVariableInterface y = x.mult(brownianIncrement.sub(brownianIncrement.average())).average().mult(brownianIncrement);
+
+		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableDifferentiableInterface) y).getGradient();
+
+		RandomVariableInterface derivative = aadGradient.get(x.getID());
+		
+		System.out.println(randomVariableFactory.toString());
+		System.out.println(y.getAverage());
+		System.out.println(brownianIncrement.squared().getAverage());
+		System.out.println((aadGradient.get(x.getID())).getAverage());
+
+		Assert.assertEquals(0.0, y.getAverage(), 1E-8);
+
+		// Test RandomVariableDifferentiableAADFactory (the others currently fail)
+		if(randomVariableFactory instanceof RandomVariableDifferentiableAADFactory) Assert.assertEquals(0.0, derivative.getAverage(), 1E-8);
 	}
 
 	@Test
