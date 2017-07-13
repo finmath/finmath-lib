@@ -8,9 +8,9 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.optimizer.GoldenSectionSearch;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -149,7 +149,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			RandomVariableInterface valueOfPaymentsIfExercised = underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
-			MonteCarloConditionalExpectation condExpEstimator;
+			ConditionalExpectationEstimatorInterface condExpEstimator;
 			if(intrinsicValueAsBasisFunction)	condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0)));
 			else								condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
 

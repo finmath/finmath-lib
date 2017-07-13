@@ -5,8 +5,6 @@
  */
 package net.finmath.stochastic;
 
-import net.finmath.stochastic.RandomVariableInterface;
-
 /**
  * The interface which has to be implemented by a fixed conditional expectation operator,
  *  i.e., E( &middot; | Z ) for a fixed Z.
