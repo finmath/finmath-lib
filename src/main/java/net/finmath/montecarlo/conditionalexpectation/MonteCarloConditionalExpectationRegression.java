@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.conditionalexpectation;
 
 import net.finmath.functions.LinearAlgebra;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -23,7 +24,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *  
  * @author Christian Fries
  */
-public class MonteCarloConditionalExpectationRegression implements MonteCarloConditionalExpectation {
+public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimatorInterface {
 
 	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
 	private RandomVariableInterface[]    basisFunctionsPredictor		= null;
@@ -80,20 +81,20 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
 		double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
 			for(int j=i; j<basisFunctions.length; j++) {
-				XTX[i][j] = basisFunctions[i].getAverage(basisFunctions[j]);	// Scalar product
-				XTX[j][i] = XTX[i][j];											// Symmetric matrix
+				XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
+				XTX[j][i] = XTX[i][j];												// Symmetric matrix
 			}
 		}
 
 		// Build XTy - the projection of the dependents random variable on the basis functions.
 		double[] XTy = new double[basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
-			XTy[i] = dependents.getAverage(basisFunctions[i]);					// Scalar product
+			XTy[i] = dependents.mult(basisFunctions[i]).getAverage();				// Scalar product
 		}
 
 		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
 		// @TODO A performance improvement is possible here by caching the SVD decomposition of the basis functions
-		double[] linearRegressionParameters = LinearAlgebra.solveLinearEquationLeastSquare(XTX, XTy);
+		double[] linearRegressionParameters = LinearAlgebra.solveLinearEquation(XTX, XTy); //.solveLinearEquationLeastSquare(XTX, XTy);
 
 		return linearRegressionParameters;
 	}
@@ -112,7 +113,7 @@ public class MonteCarloConditionalExpectationRegression implements MonteCarloCon
 		int indexOfNonZeroBasisFunctions = 0;
 		for (RandomVariableInterface basisFunction : basisFunctions) {
 			if (basisFunction != null) {
-				nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
+				nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction.div(basisFunction.getAverage()*basisFunction.size());
 				indexOfNonZeroBasisFunctions++;
 			}
 		}

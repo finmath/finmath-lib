@@ -14,6 +14,7 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 
 import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 
 
 
@@ -402,6 +403,17 @@ public interface RandomVariableInterface extends Serializable {
 	 */
 	RandomVariableInterface average();
 	
+	/**
+	 * Returns the conditional expectation using a given conditional expectation estimator.
+	 * 
+	 * @param conditionalExpectationOperator A given conditional expectation estimator.
+	 * @return The conditional expectation of this random variable (as a random variable)
+	 */
+	default RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	{
+		return conditionalExpectationOperator.getConditionalExpectation(this);
+	}
+
 	/**
 	 * Applies x &rarr; x * x to this random variable.
 	 * @return New random variable with the result of the function.
