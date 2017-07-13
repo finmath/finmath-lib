@@ -113,7 +113,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		int indexOfNonZeroBasisFunctions = 0;
 		for (RandomVariableInterface basisFunction : basisFunctions) {
 			if (basisFunction != null) {
-				nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction.div(basisFunction.getAverage()*basisFunction.size());
+				nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
 				indexOfNonZeroBasisFunctions++;
 			}
 		}
