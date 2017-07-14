@@ -40,7 +40,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 	private final double	modelVolatility     = 0.30;
 
 	// Process discretization properties
-	private final int		numberOfPaths		= 20000;
+	private final int		numberOfPaths		= 1000000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 	
@@ -94,25 +94,28 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		
 		double eps = 1E-3;
 
+		double epsDelta = eps;
 		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
-		double deltaFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/eps ;
+		double deltaFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/epsDelta;
 
+		double epsRho = eps/100;
 		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<String, Object>();
-		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+eps);
-		double rhoFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
+		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+epsRho);
+		double rhoFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/epsRho ;
 
+		double epsVega = eps/10;
 		Map<String, Object> dataModifiedVolatility = new HashMap<String, Object>();
-		dataModifiedVolatility.put("volatility", modelVolatility+eps);
-		double vegaFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
+		dataModifiedVolatility.put("volatility", modelVolatility+epsVega);
+		double vegaFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/epsVega ;
 
 		/*
 		 * Calculate sensitivities using analytic formulas
 		 */
 		double valueAnalytic = AnalyticFormulas.blackScholesDigitalOptionValue(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
 		double deltaAnalytic = AnalyticFormulas.blackScholesDigitalOptionDelta(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		double rhoAnalytic = Double.NaN;//AnalyticFormulas.blackScholesDigitalOptionRho(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		double vegaAnalytic = Double.NaN;//AnalyticFormulas.blackScholesDigitalOptionVega(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		double rhoAnalytic	= AnalyticFormulas.blackScholesDigitalOptionRho(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		double vegaAnalytic	= AnalyticFormulas.blackScholesDigitalOptionVega(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
