@@ -49,7 +49,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	private int			orderOfRegressionPolynomial		= 4;
 	private boolean		intrinsicValueAsBasisFunction	= true;
 
-	private ExerciseMethod exerciseMethod = ExerciseMethod.UPPER_BOUND_METHOD;
+	private ExerciseMethod exerciseMethod = ExerciseMethod.ESTIMATE_COND_EXPECTATION;
 
 	/**
 	 * Create a Bermudan option paying
@@ -160,7 +160,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			switch(exerciseMethod) {
 			case ESTIMATE_COND_EXPECTATION:
 				// Calculate conditional expectation on numeraire relative quantity.
-				RandomVariableInterface valueIfNotExcercisedEstimated = condExpEstimator.getConditionalExpectation(value);
+				RandomVariableInterface valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);
 
 				underlying	= valueOfPaymentsIfExercised;
 				trigger		= valueIfNotExcercisedEstimated.sub(underlying);
