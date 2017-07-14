@@ -138,8 +138,8 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 		System.out.println("vega using analytic formula..: " + vegaAnalytic);
 		System.out.println("");
 
-		System.out.println(memoryUsagePeak());
-		//		Assert.assertEquals(valueAnalytic, value, 0.005);
+		System.out.println(memoryUsagePeak()/1024/1024);
+		Assert.assertEquals(deltaFiniteDifference, deltaAAD, 0.005);
 	}
 
 	private void memoryUsageReset() {
