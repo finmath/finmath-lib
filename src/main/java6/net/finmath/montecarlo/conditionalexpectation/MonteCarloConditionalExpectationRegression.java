@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.conditionalexpectation;
 
 import net.finmath.functions.LinearAlgebra;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -23,7 +24,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *  
  * @author Christian Fries
  */
-public class MonteCarloConditionalExpectationRegression implements MonteCarloConditionalExpectation {
+public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimatorInterface {
 
 	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
 	private RandomVariableInterface[]    basisFunctionsPredictor		= null;

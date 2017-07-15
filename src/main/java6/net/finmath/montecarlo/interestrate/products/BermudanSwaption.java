@@ -10,9 +10,9 @@ import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectation;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -93,7 +93,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 				RandomVariableInterface triggerValuesDiscounted = values.sub(valuesUnderlying);
 
 				// Remove foresight through condition expectation
-				MonteCarloConditionalExpectation condExpEstimator = getConditionalExpectationEstimator(fixingDate, model);
+				ConditionalExpectationEstimatorInterface condExpEstimator = getConditionalExpectationEstimator(fixingDate, model);
 
 				// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
 				RandomVariableInterface triggerValues         = condExpEstimator.getConditionalExpectation(triggerValuesDiscounted);
@@ -122,7 +122,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 	 * @return The conditional expectation estimator suitable for this product
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public MonteCarloConditionalExpectation getConditionalExpectationEstimator(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public ConditionalExpectationEstimatorInterface getConditionalExpectationEstimator(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(
 				getRegressionBasisFunctions(fixingDate, model)
 				);

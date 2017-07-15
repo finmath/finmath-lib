@@ -6,9 +6,11 @@
 package net.finmath.montecarlo;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.math3.util.FastMath;
 
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -622,6 +624,23 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#average()
+	 */
+	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariableLowMemory(getAverage());
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getConditionalExpectation(net.finmath.stochastic.ConditionalExpectationEstimatorInterface)
+	 */
+	@Override
+	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	{
+		return conditionalExpectationOperator.getConditionalExpectation(this);
+	}
+
 	@Override
 	public RandomVariableInterface squared() {
 		if(isDeterministic()) {
@@ -999,6 +1018,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
+	@Override
+	public RandomVariableInterface addSumProduct(List<RandomVariableInterface> factor1, List<RandomVariableInterface> factor2)
+	{
+		RandomVariableInterface result = this;
+		for(int i=0; i<factor1.size(); i++) {
+			result = result.addProduct(factor1.get(i), factor2.get(i));
+		}
+		return result;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -1050,9 +1079,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "time: " + time
