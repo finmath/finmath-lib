@@ -24,7 +24,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
  *
  * @author Christian Fries
- * @version 1.8
+ * @version 2.0
  */
 public class RandomVariable implements RandomVariableInterface {
 

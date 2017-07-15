@@ -231,7 +231,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return model.getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return model.getRandomVariableForConstant(value);
 	}
 
 	@Override

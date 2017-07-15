@@ -429,7 +429,6 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		return drift;
 	}
 
-
 	@Override
 	public	RandomVariableInterface[]	getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex)
 	{
@@ -441,6 +440,13 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		return randomVariable.exp();
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 */
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+	}
 
 	/**
 	 * @return Returns the driftApproximationMethod.

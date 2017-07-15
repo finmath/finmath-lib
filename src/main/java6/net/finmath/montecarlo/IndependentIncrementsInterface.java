@@ -26,6 +26,18 @@ public interface IndependentIncrementsInterface {
 	/**
 	 * Return the increment for a given timeIndex.
 	 * 
+	 * The method returns the random variablevector
+	 *	 <i>&Delta; X(t<sub>i</sub>) := X(t<sub>i+1</sub>)-X(t<sub>i</sub>)</i>
+	 * for the given time index <i>i</i>.
+	 * 
+	 * @param timeIndex The time index (corresponding to the this class's time discretization)
+	 * @return The factor (component) of the increments (a random variable)
+	 */
+	RandomVariableInterface[] getIncrement(int timeIndex);
+
+	/**
+	 * Return the increment for a given timeIndex and given factor.
+	 * 
 	 * The method returns the random variable
 	 *	 <i>&Delta; X<sub>j</sub>(t<sub>i</sub>) := X<sub>j</sub>(t<sub>i+1</sub>)-X(t<sub>i</sub>)</i>
 	 * for the given time index <i>i</i> and a given factor (index) <i>j</i>
