@@ -101,7 +101,6 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				if(arguments.get(0) == null && arguments.get(2) == null) argumentValues.set(2, null);
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.BARRIER)) {
-				if(arguments.get(1) == null && arguments.get(2) == null) argumentValues.set(0, null);
 				if(arguments.get(0) == null) {
 					argumentValues.set(1, null);
 					argumentValues.set(2, null);
@@ -120,11 +119,14 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					RandomVariableInterface derivative			= derivatives.get(id);
 					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
 
-					// Implementation of AVERAGE (see <a href="https://ssrn.com/abstract=2995695">ssrn.com/abstract=2995695</a> for details).
-					if(operatorType == OperatorType.AVERAGE) derivative = derivative.average();
+					// Implementation of AVERAGE (see <a href="https://ssrn.com/abstract=3000822">ssrn.com/abstract=3000822</a> for details).
+					if(operatorType == OperatorType.AVERAGE) {
+						derivative = derivative.average();
+					}
+					// Implementation of CONDITIONAL_EXPECTATION (see <a href="https://ssrn.com/abstract=3000822">ssrn.com/abstract=2995695</a> for details).
 					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
 						ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
-						derivative = estimator.getConditionalExpectation(derivative);
+//						derivative = estimator.getConditionalExpectation(derivative);
 					}
 
 					argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
@@ -288,7 +290,14 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case BARRIER:
 				if(differentialIndex == 0) {
+					/*
+					 * Experimental version - This should be specified as a parameter.
+					 */
 					resultrandomvariable = Y.sub(Z);
+					double epsilon = 0.2*X.getStandardDeviation();
+					resultrandomvariable = resultrandomvariable.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
+					resultrandomvariable = resultrandomvariable.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
+					resultrandomvariable = resultrandomvariable.div(epsilon);
 				} else if(differentialIndex == 1) {
 					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
 				} else {
