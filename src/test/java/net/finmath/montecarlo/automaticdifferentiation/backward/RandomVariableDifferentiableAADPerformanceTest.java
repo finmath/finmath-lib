@@ -64,6 +64,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	private interface TestFunction {
 		RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
 		RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
+
+		long getPeakMemory();
 	}
 
 	private static class TestFunctionBigSum implements TestFunction {
@@ -83,6 +85,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 					(new RandomVariableFactory()).createRandomVariable(numberOfIterations)
 			};
 		}
+		
+		public long getPeakMemory() { return 0; }
 	}
 
 	private static class TestFunctionGeometricSum implements TestFunction {
@@ -105,7 +109,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			}
 			return new RandomVariableInterface[] { sum };
 		}
-	}
+
+		public long getPeakMemory() { return 0; }
+}
 
 	private static class TestFunctionSumOfProducts implements TestFunction {
 		private static final int numberOfIterations = 5;
@@ -131,7 +137,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			}
 			return new RandomVariableInterface[] { sum };
 		}
-	}
+
+		public long getPeakMemory() { return 0; }
+}
 
 	private static class TestFunctionSumOfProductsWithAddAndMult implements TestFunction {
 		private static final int numberOfIterations = 5;
@@ -156,7 +164,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			}
 			return new RandomVariableInterface[] { sum };
 		}
-	}
+
+		public long getPeakMemory() { return 0; }
+}
 
 	private static class TestFunctionAccrue implements TestFunction {
 		private static final int numberOfIterations = 1;
@@ -174,6 +184,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
+		
+		public long getPeakMemory() { return 0; }
 	}
 
 	private static class TestFunctionAccrueWithAddAndMult implements TestFunction {
@@ -193,7 +205,78 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
+		
+		public long getPeakMemory() { return 0; }
 	}
+
+	private static class TestFunctionMonteCarloEuropeanOption implements TestFunction {
+
+		// Model properties
+		private final double	modelInitialValue   = 1.0;
+		private final double	modelRiskFreeRate   = 0.05;
+		private final double	modelVolatility     = 0.30;
+
+		// Process discretization properties
+		private final int		numberOfPaths		= 250000;
+		private final int		numberOfTimeSteps	= 201;
+		private final double	deltaT				= 0.25;	//  quaterly, 50 year
+
+		private final int		seed				= 31415;
+
+		// Product properties
+		private final int		assetIndex = 0;
+		private final double	optionMaturity = 50.0;
+		private final double	optionStrike = 1.10;
+
+		private AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
+
+		private long peakMemory;
+
+		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+			long startMem = getAllocatedMemory();
+
+			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
+			RandomVariableInterface initialValue	= arguments[0].mult(0).add(modelInitialValue);
+			RandomVariableInterface riskFreeRate	= arguments[1].mult(0).add(modelRiskFreeRate);
+			RandomVariableInterface volatility		= arguments[2].mult(0).add(modelVolatility);
+
+			// Create a model
+			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+
+			// Create a time discretization
+			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+			// Create a corresponding MC process
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+
+			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
+			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+
+			/*
+			 * Value a call option (using the product implementation)
+			 */
+			EuropeanOption option = new EuropeanOption(optionMaturity, optionStrike);
+			RandomVariableInterface value = null;
+			try {
+				value = option.getValue(0.0, monteCarloBlackScholesModel);
+			} catch (CalculationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			long endMem = getAllocatedMemory();
+			peakMemory = Math.max(peakMemory, endMem-startMem);
+
+			return value;
+		}
+
+		@Override
+		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+			return null;
+		}
+
+		public long getPeakMemory() { return peakMemory; }
+}
 
 	private static class TestFunctionMonteCarloAsianOption implements TestFunction {
 
@@ -203,16 +286,20 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private final double	modelVolatility     = 0.30;
 
 		// Process discretization properties
-		private final int		numberOfPaths		= 100000;
-		private final int		numberOfTimeSteps	= 100;
-		private final double	deltaT				= 0.02;
+		private final int		numberOfPaths		= 250000;
+		private final int		numberOfTimeSteps	= 201;
+		private final double	deltaT				= 0.25;	//  quaterly, 50 year
 
 		private final int		seed				= 31415;
 
 		// Product properties
 		private final int		assetIndex = 0;
-		private final double	optionMaturity = 2.0;
+		private final double	optionMaturity = 50.0;
 		private final double	optionStrike = 1.05;
+
+		private AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
+
+		private long peakMemory;
 
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			long startMem = getAllocatedMemory();
@@ -232,7 +319,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-			AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 			/*
 			 * Value a call option (using the product implementation)
@@ -245,8 +332,10 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+
 			long endMem = getAllocatedMemory();
-			System.out.println("memory requirements.: " + formatReal1.format((endMem-startMem)/1024.0/1024.0) + " MB");
+			peakMemory = Math.max(peakMemory, endMem-startMem);
+
 			return value;
 		}
 
@@ -254,7 +343,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
-	}
+
+		public long getPeakMemory() { return peakMemory; }
+}
 
 	private static class TestFunctionMonteCarloBermudanOption implements TestFunction {
 
@@ -264,16 +355,15 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private final double	modelVolatility     = 0.30;
 
 		// Process discretization properties
-		private final int		numberOfPaths		= 100000;
+		private final int		numberOfPaths		= 250000;
 		private final int		numberOfTimeSteps	= 201;
 		private final double	deltaT				= 0.25;	//  quaterly, 50 year
 
 		private final int		seed				= 31415;
 
-		// Product properties
-		private final int		assetIndex = 0;
-		private final double	optionMaturity = 2.0;
-		private final double	optionStrike = 1.05;
+		private AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
+
+		private long peakMemory;
 
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			long startMem = getAllocatedMemory();
@@ -293,7 +383,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-			AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 			/*
 			 * Value a call option (using the product implementation)
@@ -315,7 +405,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				e.printStackTrace();
 			}
 			long endMem = getAllocatedMemory();
-			System.out.println("memory requirements.: " + formatReal1.format((endMem-startMem)/1024.0/1024.0) + " MB");
+			peakMemory = Math.max(peakMemory, endMem-startMem);
 			return value;
 		}
 
@@ -323,22 +413,24 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
+		
+		public long getPeakMemory() { return peakMemory; }
 	}
 
 	private static AbstractRandomVariableFactory[] testMethods = {
-			new RandomVariableFactory(),
-			new RandomVariableDifferentiableAADPathwiseFactory(),
-			new RandomVariableDifferentiableAADStochasticNonOptimizedFactory(),
+//			new RandomVariableFactory(),
+//			new RandomVariableDifferentiableAADPathwiseFactory(),
+//			new RandomVariableDifferentiableAADStochasticNonOptimizedFactory(),
 			new RandomVariableDifferentiableAADFactory()
 	};
 
 	private static int numberOfPaths = 10000;		/* In the paper we use 100000 */
 	private static Object[][] testCases = {
-			{ new TestFunctionBigSum(),
-				new Integer(numberOfPaths)	/* number of paths for the arguments */,
-				new Integer(1)				/* number of arguments */,
-				new Integer(numberOfPaths)	/* number of paths for the parameters */,
-				new Integer(0)				/* number of parameters */
+			/*			{ new TestFunctionBigSum(),
+				new Integer(numberOfPaths),	// number of paths for the arguments
+				new Integer(1),				// number of arguments
+				new Integer(numberOfPaths),	// number of paths for the parameters
+				new Integer(0)				// number of parameters
 			},
 			{ new TestFunctionGeometricSum(),
 				new Integer(numberOfPaths),
@@ -370,19 +462,24 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(1),
 				new Integer(100)
 			},
-			{ new TestFunctionMonteCarloAsianOption(),
+			{ new TestFunctionMonteCarloEuropeanOption(),
 				new Integer(1),
 				new Integer(3),
 				new Integer(1),
 				new Integer(1)
 			},
+			{ new TestFunctionMonteCarloAsianOption(),
+				new Integer(1),
+				new Integer(3),
+				new Integer(1),
+				new Integer(1)
+			},*/
 			{ new TestFunctionMonteCarloBermudanOption(),
 				new Integer(1),
 				new Integer(3),
 				new Integer(1),
 				new Integer(1)
 			}
-
 	};
 
 
@@ -435,6 +532,14 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			}
 		}
 
+		System.gc();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		/*
 		 * Test valuation
 		 */
@@ -486,6 +591,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		System.out.println("evaluation..........: " + formatReal1.format((endCalculation-startCalculation)/1000.0) + " s");
 		System.out.println("derivative..........: " + formatReal1.format((endAutoDiff-startAutoDiff)/1000.0) + " s");
 		System.out.println("memory requirements.: " + formatReal1.format((endMemAutoDiff-startMemCalculation)/1024.0/1024.0) + " MB");
+		System.out.println("memory requirements.: " + formatReal1.format((function.getPeakMemory())/1024.0/1024.0) + " MB");
 
 		System.out.print("dy/dx = (");
 		for(RandomVariableInterface partialDerivative : dydx) System.out.print(formatReal1.format(partialDerivative.getAverage()) + ",");
@@ -496,6 +602,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	}
 
 	static long getAllocatedMemory() {
+		System.gc();
+		System.gc();
 		System.gc();
 		long allocatedMemory = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
 		return allocatedMemory;
