@@ -85,8 +85,6 @@ import net.finmath.time.TimeDiscretization;
  * 
  * For a demo spreadsheet using this class see <a href="http://finmath.net/topics/curvecalibration/">finmath.net/topics/curvecalibration/</a>.
  * 
- *
- * 
  * @author Christian Fries
  */
 public class CalibratedCurves {

@@ -37,7 +37,7 @@ public class LinearAlgebra {
 	static {
 		// Default value is false, in which case we will use jblas
 		boolean isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","false"));
-		
+
 		/*
 		 * Check if jblas is available
 		 */
@@ -90,7 +90,7 @@ public class LinearAlgebra {
 			// For use of colt:
 			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
 			// return linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
-			
+
 			// For use of parallel colt:
 			// return new cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleLUDecomposition(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D(A)).solve(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D(b)).toArray();
 		}
@@ -200,14 +200,14 @@ public class LinearAlgebra {
 		// Create an eigen vector decomposition of the correlation matrix
 		double[]	eigenValues;
 		double[][]	eigenVectorMatrix;
-		
+
 		if(isEigenvalueDecompositionViaSVD) {
 			SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(correlationMatrix));
 			eigenValues = svd.getSingularValues();
 			eigenVectorMatrix = svd.getV().getData();
 		}
 		else {
-		EigenDecomposition eigenDecomp = new EigenDecomposition(new Array2DRowRealMatrix(correlationMatrix, false));
+			EigenDecomposition eigenDecomp = new EigenDecomposition(new Array2DRowRealMatrix(correlationMatrix, false));
 			eigenValues			= eigenDecomp.getRealEigenvalues();
 			eigenVectorMatrix	= eigenDecomp.getV().getData();
 		}
@@ -292,7 +292,7 @@ public class LinearAlgebra {
 	public double[][] exp(double[][] matrix) {
 		return org.jblas.MatrixFunctions.expm(new org.jblas.DoubleMatrix(matrix)).toArray2();
 	}
-	
+
 	/**
 	 * Calculate the "matrix exponential" (expm).
 	 * 
