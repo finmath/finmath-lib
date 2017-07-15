@@ -243,7 +243,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 		// Seek optimal parameter configuration
 		OptimizerInterface lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations*100, 2) {
 			private static final long serialVersionUID = -8844232820888815090L;
-			
+
 			@Override
 			public void setValues(double[] arg0, double[] arg1) throws SolverException {
 				arg1[0] = objectiveFunction.value(arg0);
