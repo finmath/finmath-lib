@@ -585,7 +585,7 @@ public class AnalyticFormulas {
 	 * @param volatility The Black-Scholes volatility.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
-	 * @return The rho of the digital option
+	 * @return The vega of the digital option
 	 */
 	public static double blackScholesDigitalOptionVega(
 			double initialStockValue,
