@@ -126,7 +126,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					// Implementation of CONDITIONAL_EXPECTATION (see <a href="https://ssrn.com/abstract=3000822">ssrn.com/abstract=2995695</a> for details).
 					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
 						ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
-//						derivative = estimator.getConditionalExpectation(derivative);
+						derivative = estimator.getConditionalExpectation(derivative);
 					}
 
 					argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
