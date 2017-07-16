@@ -121,9 +121,8 @@ public class LIBORMarketModelCalibrationTest {
 		System.out.println("Calibration to Swaption Smile Products.");
 
 		/*
-		 * Calibration of curves
+		 * Definition of curves
 		 */
-		System.out.println("Calibration of rate curves:");
 		double[] fixingTimes = new double[] {
 				0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, 25.0, 25.5, 26.0, 26.5, 27.0, 27.5, 28.0, 28.5, 29.0, 29.5, 30.0, 30.5, 31.0, 31.5, 32.0, 32.5, 33.0, 33.5, 34.0, 34.5, 35.0, 35.5, 36.0, 36.5, 37.0, 37.5, 38.0, 38.5, 39.0, 39.5, 40.0, 40.5, 41.0, 41.5, 42.0, 42.5, 43.0, 43.5, 44.0, 44.5, 45.0, 45.5, 46.0, 46.5, 47.0, 47.5, 48.0, 48.5, 49.0, 49.5, 50.0
 		};
@@ -222,7 +221,7 @@ public class LIBORMarketModelCalibrationTest {
 		// The brownianMotion to be used - if a full Monte-Carlo valuation is necessary.
 		calibrationParameters.put("brownianMotion", brownianMotionView1);
 		// The step size vector used to calculate first derivatives via finite differences
-		calibrationParameters.put("parameterStep", new Double(1E-5));
+		calibrationParameters.put("parameterStep", new Double(1E-4));
 
 		/*
 		 * The optimizer to use and some of its parameters
@@ -231,7 +230,7 @@ public class LIBORMarketModelCalibrationTest {
 		// The accuracy of the slower. The solver steps if the value does not improve more thatn the given parameter.
 		Double accuracy = new Double(1E-5);
 		int maxIterations = 100;
-		int numberOfThreads = 2;		// two concurrent models
+		int numberOfThreads = 4;		// two concurrent models
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 		calibrationParameters.put("optimizerFactory", optimizerFactory);
 
