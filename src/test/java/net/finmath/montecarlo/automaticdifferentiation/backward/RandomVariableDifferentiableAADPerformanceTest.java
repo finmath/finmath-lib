@@ -355,7 +355,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private final double	modelVolatility     = 0.30;
 
 		// Process discretization properties
-		private final int		numberOfPaths		= 250000;
+		private final int		numberOfPaths		= 100000; // you may try: 250000;
 		private final int		numberOfTimeSteps	= 201;
 		private final double	deltaT				= 0.25;	//  quaterly, 50 year
 
