@@ -139,12 +139,6 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
         this.valueIfNonStochastic = Double.NaN;
     }
 
-    @Override
-    @Deprecated
-    public RandomVariableInterface getMutableCopy() {
-        return this;
-    }
-
     /* (non-Javadoc)
      * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.montecarlo.RandomVariable)
      */
@@ -483,25 +477,6 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
             return realizationsArray;
 	    }
     }
-
-    /* (non-Javadoc)
-     * @see net.finmath.stochastic.RandomVariableInterface#getOperator(int)
-     */
-    @Override
-    public double[] getRealizations(int numberOfPaths) {
-
-        if(isDeterministic()) {
-            // Expand random variable to a vector of path values
-            double[] v = new double[numberOfPaths];
-            Arrays.fill(v,valueIfNonStochastic);
-            return v;
-        }
-
-        if(!isDeterministic() && size() != numberOfPaths) throw new RuntimeException("Inconsistent number of paths.");
-
-        return getRealizations();
-    }
-
 
     /* (non-Javadoc)
      * @see net.finmath.stochastic.RandomVariableInterface#getOperator()

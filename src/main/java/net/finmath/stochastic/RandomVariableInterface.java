@@ -91,16 +91,6 @@ public interface RandomVariableInterface extends Serializable {
 	double[] getRealizations();
 
 	/**
-	 * Returns the realizations as double array. If the random variable is deterministic, then it is expanded
-	 * to the given number of paths.
-	 * 
-	 * @param numberOfPaths The number of paths.
-	 * @return The realization as double array.
-	 * @deprecated The method is intended for diagnostic purposes, deprecated because it makes to strong assumptions on the internal representation.
-	 */
-	double[] getRealizations(int numberOfPaths);
-
-	/**
 	 * Returns the operator path &rarr; this.get(path) corresponding to this random variable.
 	 * 
 	 * @return The operator path &rarr; this.get(path) corresponding to this random variable.
@@ -596,7 +586,4 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return A random variable which is 1.0 for all states that are NaN, otherwise 0.0.
 	 */
 	RandomVariableInterface isNaN();
-
-	@Deprecated
-	RandomVariableInterface getMutableCopy();
 }

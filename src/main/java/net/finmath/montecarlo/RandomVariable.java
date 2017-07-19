@@ -515,28 +515,6 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 	}
 
-	/**
-	 * Returns the realizations as double array. If the random variable is deterministic, then it is expanded
-	 * to the given number of paths.
-	 *
-	 * @param numberOfPaths Number of paths.
-	 * @return The realization as double array.
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-
-		if(isDeterministic()) {
-			// Expand random variable to a vector of path values
-			double[] v = new double[numberOfPaths];
-			java.util.Arrays.fill(v,valueIfNonStochastic);
-			return v;
-		}
-
-		if(!isDeterministic() && realizations.length != numberOfPaths) throw new RuntimeException("Inconsistent number of paths.");
-
-		return realizations.clone();
-	}
-
 	@Override
 	public RandomVariableInterface cache() {
 		return this;

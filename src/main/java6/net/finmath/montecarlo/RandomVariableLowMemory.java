@@ -130,19 +130,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return arrayOfDouble;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
-	 */
-	public RandomVariableLowMemory getMutableCopy() {
-		return this;
-
-		//if(isDeterministic())	return new RandomVariable(time, valueIfNonStochastic);
-		//else					return new RandomVariable(time, realizations.clone());
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.montecarlo.RandomVariable)
-	 */
 	@Override
 	public boolean equals(RandomVariableInterface randomVariable) {
 		if(this.time != randomVariable.getFiltrationTime()) return false;
@@ -505,20 +492,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		else {
 			return getDoubleArray(realizations);
 		}
-	}
-
-	/**
-	 * Returns the realizations as double array. If the random variable is deterministic, then it is expanded
-	 * to the given number of paths.
-	 *
-	 * @param numberOfPaths Number of paths.
-	 * @return The realization as double array.
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-
-		if(!isDeterministic() && realizations.length != numberOfPaths) throw new RuntimeException("Inconsistent number of paths.");
-		return getDoubleArray(((RandomVariableLowMemory)expand(numberOfPaths)).realizations);
 	}
 
 	@Override
