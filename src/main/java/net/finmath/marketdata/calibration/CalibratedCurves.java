@@ -451,6 +451,10 @@ public class CalibratedCurves {
 		else if(calibrationSpec.type.toLowerCase().equals("fra")){
 			product = new ForwardRateAgreement(calibrationSpec.swapTenorDefinitionReceiver, calibrationSpec.spreadReceiver, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);
 		}
+		else if(calibrationSpec.type.toLowerCase().equals("future")){  
+			  // like a fra but future price needs to be translated into rate  
+			  product = new ForwardRateAgreement(calibrationSpec.swapTenorDefinitionReceiver, 1.0-calibrationSpec.spreadReceiver/100.0, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);  
+		}  
 		else if(calibrationSpec.type.toLowerCase().equals("swapleg")) {
 			product = new SwapLeg(calibrationSpec.swapTenorDefinitionReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
 		}
