@@ -240,7 +240,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	 */
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return model.getProcess().getBrownianMotion().getRandomVariableForConstant(value);
+		return model.getRandomVariableForConstant(value);
 	}
 
 	/* (non-Javadoc)

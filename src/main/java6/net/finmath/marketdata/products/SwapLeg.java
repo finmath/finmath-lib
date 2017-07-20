@@ -80,7 +80,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			if(forwardCurve != null) {
 				forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
-	
+
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += forward * periodLength * discountFactor;
 

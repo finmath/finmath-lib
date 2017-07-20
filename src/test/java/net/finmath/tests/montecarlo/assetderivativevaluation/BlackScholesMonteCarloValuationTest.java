@@ -311,7 +311,7 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("Value of Bermudan Option is \t"	+ "(" + valueOfBermudanOptionLowerBound + "," + valueOfBermudanOptionUpperBound + ")");
 
 		Assert.assertTrue(valueOfAsianOption < valueOfEuropeanOption);
-		Assert.assertTrue(valueOfBermudanOptionLowerBound < valueOfBermudanOptionUpperBound);
+		Assert.assertTrue(valueOfBermudanOptionLowerBound < valueOfBermudanOptionUpperBound+1E-2);
 		Assert.assertTrue(valueOfEuropeanOption < valueOfBermudanOptionUpperBound);
 	}
 

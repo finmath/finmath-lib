@@ -289,7 +289,7 @@ public abstract class LogNormalProcess {
 			}
 
 			if(scheme == Scheme.PREDICTOR_USING_EULERSTEP) {   
-				RandomVariable[] newRealization = new RandomVariable[numberOfComponents];
+				RandomVariableInterface[] newRealization = new RandomVariable[numberOfComponents];
 
 				// Note: This is actually more than a predictor corrector: The drift of componentIndex already uses the corrected predictor from the previous components
 				drift = getDrift(timeIndex-1, discreteProcess[timeIndex-1], discreteProcess[timeIndex]);
@@ -301,28 +301,14 @@ public abstract class LogNormalProcess {
 					RandomVariableInterface varianceOfComponent			= variance[componentIndex];
 					RandomVariableInterface diffusionOfComponent		= diffusion[componentIndex];
 
-					// Get reference to newRealization (note, we force mutability of an immutable object, but we know what we are doing)
-					double[] newRealizationValues = ((RandomVariable)(discreteProcess[timeIndex][componentIndex])).getRealizations(numberOfPaths);
-
 					// Euler Scheme with corrected drift
 					RandomVariableInterface previouseRealization 	= discreteProcess[timeIndex-1][componentIndex];
 
-					// Generate values 
-					for (int pathIndex = 0; pathIndex < numberOfPaths; pathIndex++ )
-					{
-						double previousValue	= previouseRealization.get(pathIndex);
-						double driftValue		= driftOfComponent.get(pathIndex);					
-						double varianceOnPath	= varianceOfComponent.get(pathIndex);
-						double diffusionOnPath	= diffusionOfComponent.get(pathIndex);
-
-						// The scheme
-						newRealizationValues[pathIndex] = previousValue * Math.exp(driftValue * deltaT - 0.5 * varianceOnPath * deltaT + diffusionOnPath);
-					} // End for(pathIndex)
-
-					// Store values
-					newRealization[componentIndex] = new RandomVariable(getTime(timeIndex), newRealizationValues);
+					// The scheme
+					// newValue = previousValue * Math.exp(driftValue * deltaT - 0.5 * varianceOnPath * deltaT + diffusionOnPath);
+					newRealization[componentIndex] = previouseRealization.mult((driftOfComponent.mult(deltaT).sub(varianceOfComponent.mult(0.5 * deltaT)).add(diffusionOfComponent)).exp());
 				} // End for(componentIndex)
-				
+
 				// Store predictor-corrector corrected process.
 				discreteProcess[timeIndex] = newRealization;
 			} // End if(scheme == LogNormalProcess.SCHEME_PREDICTOR_USES_EULER)

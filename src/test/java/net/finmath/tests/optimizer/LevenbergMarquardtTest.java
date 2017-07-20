@@ -76,6 +76,7 @@ public class LevenbergMarquardtTest {
 				100,						// Max iterations
 				10							// Number of threads
 				) {
+			private static final long serialVersionUID = -4656732051928259036L;
 
 			// Override your objective function here
 			@Override
@@ -109,6 +110,7 @@ public class LevenbergMarquardtTest {
 				100,							// Max iterations
 				10								// Number of threads
 				) {
+			private static final long serialVersionUID = 1636120150299382088L;
 
 			// Override your objective function here
 			@Override
@@ -150,6 +152,7 @@ public class LevenbergMarquardtTest {
 				100,							// Max iterations
 				10								// Number of threads
 				) {
+			private static final long serialVersionUID = 5999706680609011046L;
 
 			// Override your objective function here
 			@Override

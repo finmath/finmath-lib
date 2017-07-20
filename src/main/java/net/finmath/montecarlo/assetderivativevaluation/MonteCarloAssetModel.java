@@ -166,7 +166,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	 */
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return model.getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return model.getRandomVariableForConstant(value);
 	}
 
 	/* (non-Javadoc)

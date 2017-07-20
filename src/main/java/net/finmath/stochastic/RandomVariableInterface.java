@@ -7,6 +7,7 @@
 package net.finmath.stochastic;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
@@ -88,16 +89,6 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return Vector of realizations of this random variable.
 	 */
 	double[] getRealizations();
-
-	/**
-	 * Returns the realizations as double array. If the random variable is deterministic, then it is expanded
-	 * to the given number of paths.
-	 * 
-	 * @param numberOfPaths The number of paths.
-	 * @return The realization as double array.
-	 * @deprecated The method is intended for diagnostic purposes, deprecated because it makes to strong assumptions on the internal representation.
-	 */
-	double[] getRealizations(int numberOfPaths);
 
 	/**
 	 * Returns the operator path &rarr; this.get(path) corresponding to this random variable.
@@ -394,6 +385,25 @@ public interface RandomVariableInterface extends Serializable {
 	RandomVariableInterface pow(double exponent);
 
 	/**
+	 * Returns a random variable which is deterministic and corresponds
+	 * the expectation of this random variable.
+	 * 
+	 * @return New random variable being the expectation of this random variable.
+	 */
+	RandomVariableInterface average();
+	
+	/**
+	 * Returns the conditional expectation using a given conditional expectation estimator.
+	 * 
+	 * @param conditionalExpectationOperator A given conditional expectation estimator.
+	 * @return The conditional expectation of this random variable (as a random variable)
+	 */
+	default RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	{
+		return conditionalExpectationOperator.getConditionalExpectation(this);
+	}
+
+	/**
 	 * Applies x &rarr; x * x to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
@@ -555,12 +565,25 @@ public interface RandomVariableInterface extends Serializable {
 	RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator);
 
 	/**
+	 * Applies \( x \mapsto x + \sum_{i=0}^{n-1} factor1_{i} * factor2_{i}
+	 * @param factor1 The factor 1. A list of random variables (compatible with this random variable).
+	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
+	 * @return New random variable with the result of the function.
+
+	 */
+	default RandomVariableInterface addSumProduct(List<RandomVariableInterface> factor1, List<RandomVariableInterface> factor2)
+	{
+		RandomVariableInterface result = this;
+		for(int i=0; i<factor1.size(); i++) {
+			result = result.addProduct(factor1.get(i), factor2.get(i));
+		}
+		return result;
+	}
+
+	/**
 	 * Applies x &rarr; (Double.isNaN(x) ? 1.0 : 0.0)
 	 * 
 	 * @return A random variable which is 1.0 for all states that are NaN, otherwise 0.0.
 	 */
 	RandomVariableInterface isNaN();
-
-	@Deprecated
-	RandomVariableInterface getMutableCopy();
 }

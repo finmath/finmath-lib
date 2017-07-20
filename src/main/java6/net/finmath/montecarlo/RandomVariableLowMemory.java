@@ -6,9 +6,11 @@
 package net.finmath.montecarlo;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.math3.util.FastMath;
 
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -128,19 +130,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return arrayOfDouble;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
-	 */
-	public RandomVariableLowMemory getMutableCopy() {
-		return this;
-
-		//if(isDeterministic())	return new RandomVariable(time, valueIfNonStochastic);
-		//else					return new RandomVariable(time, realizations.clone());
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.montecarlo.RandomVariable)
-	 */
 	@Override
 	public boolean equals(RandomVariableInterface randomVariable) {
 		if(this.time != randomVariable.getFiltrationTime()) return false;
@@ -505,20 +494,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/**
-	 * Returns the realizations as double array. If the random variable is deterministic, then it is expanded
-	 * to the given number of paths.
-	 *
-	 * @param numberOfPaths Number of paths.
-	 * @return The realization as double array.
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-
-		if(!isDeterministic() && realizations.length != numberOfPaths) throw new RuntimeException("Inconsistent number of paths.");
-		return getDoubleArray(((RandomVariableLowMemory)expand(numberOfPaths)).realizations);
-	}
-
 	@Override
 	public RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function) {
 		if(isDeterministic()) {
@@ -620,6 +595,23 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.pow(realizations[i],exponent);
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#average()
+	 */
+	@Override
+	public RandomVariableInterface average() {
+		return new RandomVariableLowMemory(getAverage());
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariableInterface#getConditionalExpectation(net.finmath.stochastic.ConditionalExpectationEstimatorInterface)
+	 */
+	@Override
+	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	{
+		return conditionalExpectationOperator.getConditionalExpectation(this);
 	}
 
 	@Override
@@ -999,6 +991,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
+	@Override
+	public RandomVariableInterface addSumProduct(List<RandomVariableInterface> factor1, List<RandomVariableInterface> factor2)
+	{
+		RandomVariableInterface result = this;
+		for(int i=0; i<factor1.size(); i++) {
+			result = result.addProduct(factor1.get(i), factor2.get(i));
+		}
+		return result;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -1050,9 +1052,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "time: " + time

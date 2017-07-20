@@ -10,13 +10,14 @@ import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimul
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Implements the valuation of a European option on a single asset.
+ * Implements the valuation of a digital option on a single asset.
  * 
- * Given a model for an asset <i>S</i>, the European option with strike <i>K</i>, maturity <i>T</i>
+ * Given a model for an asset <i>S</i>, the digital option with strike <i>K</i>, maturity <i>T</i>
  * pays
  * <br>
- * 	<i>V(T) = max(S(T) - K , 0)</i> in <i>T</i>.
+ * 	<i>V(T) = indicator(S(T) - K)</i> in <i>T</i>.
  * <br>
+ * That is 1 if <i>S(T) &gt; 0</i> otherwise 0.
  * 
  * The <code>getValue</code> method of this class will return the random variable <i>N(t) * V(T) / N(T)</i>,
  * where <i>N</i> is the numeraire provided by the model. If <i>N(t)</i> is deterministic,
@@ -26,7 +27,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.3
  */
-public class EuropeanOption extends AbstractAssetMonteCarloProduct {
+public class DigitalOption extends AbstractAssetMonteCarloProduct {
 
 	private final double maturity;
 	private final double strike;
@@ -34,12 +35,12 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	private final String nameOfUnderliyng;
 
 	/**
-	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
-	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
-	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * Construct a product representing an digital option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff indicator(S(T)-K)
+	 * @param strike The strike K in the option payoff indicator(S(T)-K).
 	 * @param underlyingIndex The index of the underlying to be fetched from the model.
 	 */
-	public EuropeanOption(double maturity, double strike, int underlyingIndex) {
+	public DigitalOption(double maturity, double strike, int underlyingIndex) {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
@@ -48,11 +49,11 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	/**
-	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
-	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
-	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * Construct a product representing an digital option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff indicator(S(T)-K)
+	 * @param strike The strike K in the option payoff indicator(S(T)-K).
 	 */
-	public EuropeanOption(double maturity, double strike) {
+	public DigitalOption(double maturity, double strike) {
 		this(maturity, strike, 0);
 	}
 
@@ -73,8 +74,8 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		// Get S(T)
 		RandomVariableInterface underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 
-		// The payoff: values = max(underlying - strike, 0) = V(T) = max(S(T)-K,0)
-		RandomVariableInterface values = underlyingAtMaturity.sub(strike).floor(0.0);
+		// The payoff: values = indicator(underlying - strike, 0) = V(T) = max(S(T)-K,0)
+		RandomVariableInterface values = underlyingAtMaturity.barrier(underlyingAtMaturity.sub(strike), underlyingAtMaturity.mult(0.0).add(1.0), 0.0);
 
 		// Discounting...
 		RandomVariableInterface numeraireAtMaturity		= model.getNumeraire(maturity);

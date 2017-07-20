@@ -184,6 +184,11 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 					}
 
 					@Override
+					public RandomVariableInterface getRandomVariableForConstant(double value) {
+						return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+					}
+
+					@Override
 					public AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 						throw new UnsupportedOperationException("Method not implemented");
 					}

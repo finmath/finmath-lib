@@ -3,9 +3,7 @@
  *
  * Created on 13.08.2004
  */
-package net.finmath.montecarlo.conditionalexpectation;
-
-import net.finmath.stochastic.RandomVariableInterface;
+package net.finmath.stochastic;
 
 /**
  * The interface which has to be implemented by a fixed conditional expectation operator,
@@ -13,7 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * @author Christian Fries
  */
-public interface MonteCarloConditionalExpectation {
+public interface ConditionalExpectationEstimatorInterface {
 	
     /**
      * Return the conditional expectation of a given random variable.
