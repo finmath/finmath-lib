@@ -678,7 +678,19 @@ public class ScheduleGenerator {
 		futureExpiryDate = businessdayCalendar.getAdjustedDate(futureExpiryDate, startOffsetString, DateRollConvention.FOLLOWING); // adjust to the next good busday
 
 		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(futureExpiryDate, maturityString);
-		return createScheduleFromConventions(referenceDate, futureExpiryDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+		
+		return createScheduleFromConventions(
+				referenceDate,
+				futureExpiryDate,
+				maturityDate,
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
+				DaycountConvention.getEnum(daycountConvention),
+				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
+				DateRollConvention.getEnum(dateRollConvention),
+				businessdayCalendar,
+				fixingOffsetDays,
+				paymentOffsetDays
+				);
 	}
 
 
