@@ -18,7 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <code>Map&lt;Long, RandomVariableInterface&gt; getGradient()</code>.
  * The method <code>getGradient</code> will return a map providing the first order
  * differentiation of the given random variable (this) with respect to
- * <i>all</i> its input <code>RandomVariableDifferentiableInterface</code>s (leave nodes).
+ * <i>all</i> its input <code>RandomVariableDifferentiableInterface</code>s (leaf nodes).
  * 
  * To get the differentiation with respect to a specific object use
  * <code>
