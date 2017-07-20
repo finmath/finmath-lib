@@ -50,7 +50,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 	private final double[]	notionals;
 	private final double[]	strikes;
 
-	private int			orderOfRegressionPolynomial		= 4;
+	private Integer		orderOfRegressionPolynomial		= 4;
 	private boolean		intrinsicValueAsBasisFunction	= true;
 
 	private ExerciseMethod exerciseMethod = ExerciseMethod.ESTIMATE_COND_EXPECTATION;
@@ -77,7 +77,8 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		this.notionals = notionals;
 		this.strikes = strikes;
 		this.exerciseMethod = exerciseMethod;
-		orderOfRegressionPolynomial = (Integer)properties.getOrDefault("orderOfRegressionPolynomial", 4);
+		orderOfRegressionPolynomial = (Integer)properties.get("orderOfRegressionPolynomial");
+		if(orderOfRegressionPolynomial == null) orderOfRegressionPolynomial = 4;
 	}
 
 	/**
