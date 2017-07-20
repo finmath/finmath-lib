@@ -4,7 +4,7 @@
 - - - -
 This project implements a [stochastic automatic differentiation](http://ssrn.com/abstract=2995695).
 
-The project provides an interface (<code>RandomVariableDifferentiableInterface</code>)
+The project provides an interface <code>RandomVariableDifferentiableInterface</code>
 for random variables which provide automatic differentiation.
 The interface extends <code>RandomVariableInterface</code> and
 hence allows to use auto-diff in all Monte-Carlo contexts
@@ -12,6 +12,21 @@ hence allows to use auto-diff in all Monte-Carlo contexts
 
 The project also provides implementations of this interface, e.g. utilizing
 the backward (a.k.a. adjoint) method via <code>RandomVariableDifferentiableAADFactory</code>.
+This factory creates a random variable <code>RandomVariableDifferentiableAAD</code> which implements <code>RandomVariableDifferentiableInterface</code>.
+
+All the backward automatic diffentiation code is contained in
+<code>RandomVariableDifferentiableAAD</code>.
+
+The interface <code>RandomVariableInterface</code> is provided by [finmath-lib](http://finmath.net/finmath-lib) and specifies the arithmetic operations which may be performed on random variables, e.g.,
+
+	RandomVariableDifferentiableInterface add(RandomVariableDifferentiableInterface randomVariable);	
+	RandomVariableDifferentiableInterface mult(RandomVariableDifferentiableInterface randomVariable);
+	
+	// ...
+	
+	RandomVariableDifferentiableInterface exp();
+	
+	// ...	
 
 The interface <code>RandomVariableDifferentiableInterface</code> will introduce
 two additional methods:
@@ -28,6 +43,20 @@ with respect to *all* its input <code>RandomVariableDifferentiableInterface</cod
 
 	/* Get the derivative of X with respect to Y: */
 	RandomVariableInterface derivative = gradientOfX.get(Y.getID());
+
+### AAD on Cuda GPUs
+
+It is possible to combine the automatic-differentiation-extensions with the cuda-extensions.
+
+Using
+
+	AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
+
+will create a standard (CPU) random variable with automatic differentiation. Instead, using
+
+	AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableCudaFactory());
+
+will create a Cuda GPU random variable with automatic differentiation.
 
 ### Example
 
@@ -69,18 +98,4 @@ AAD on the Monte-Carlo valuation
 	double deltaAAD = derivative.get(initialValue.getID()).getAverage();
 	double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
 	double vegaAAD = derivative.get(volatility.getID()).getAverage();
-
-### AAD on Cuda GPUs
-
-It is possible to combine the automatic-differentiation-extensions with the cuda-extensions.
-
-Using
-
-	AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
-
-will create a standard (CPU) random variable with automatic differentiation. Instead, using
-
-	AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableCudaFactory());
-
-will create a Cuda GPU random variable with automatic differentiation.
 
