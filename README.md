@@ -21,9 +21,6 @@ The interface <code>RandomVariableInterface</code> is provided by [finmath-lib](
 
 	RandomVariableDifferentiableInterface add(RandomVariableDifferentiableInterface randomVariable);	
 	RandomVariableDifferentiableInterface mult(RandomVariableDifferentiableInterface randomVariable);
-	
-	// ...
-	
 	RandomVariableDifferentiableInterface exp();
 	
 	// ...	
