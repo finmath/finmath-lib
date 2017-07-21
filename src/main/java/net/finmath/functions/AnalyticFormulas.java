@@ -439,7 +439,7 @@ public class AnalyticFormulas {
 		}
 		else
 		{
-			// Calculate delta
+			// Calculate rho
 			double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			
 			double rho = optionStrike * optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
@@ -574,6 +574,79 @@ public class AnalyticFormulas {
 			double delta = Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
 			
 			return delta;
+		}
+	}
+
+	/**
+	 * Calculates the vega of a digital option under a Black-Scholes model
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the digital option
+	 */
+	public static double blackScholesDigitalOptionVega(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		{	
+			// The Black-Scholes model does not consider it being an option
+			return 0.0;
+		}
+		else
+		{	
+			// Calculate vega
+			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+
+			double vega = - Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI) * dPlus / volatility;
+			
+			return vega;
+		}
+	}
+
+	/**
+	 * Calculates the rho of a digital option under a Black-Scholes model
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The rho of the digital option
+	 */
+	public static double blackScholesDigitalOptionRho(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionMaturity <= 0.0)
+		{	
+			// The Black-Scholes model does not consider it being an option
+			return 0.0;
+		}
+		else if(optionStrike <= 0.0) {
+			double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity);
+
+			return rho;
+		}
+		else
+		{	
+			// Calculate rho
+			double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+
+			double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus)
+					+ Math.sqrt(optionMaturity)/volatility * Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI);
+			
+			return rho;
 		}
 	}
 

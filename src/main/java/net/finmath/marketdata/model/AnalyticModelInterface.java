@@ -60,8 +60,20 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	@Deprecated
 	void setCurve(CurveInterface curve);
 
+	/**
+	 * Returns a discount curve for a given name.
+	 * 
+	 * @param discountCurveName The name of the requested curve.
+	 * @return discount curve corresponding to discountCurveName or null if no discountCurve with this name exists in the model
+	 */
 	DiscountCurveInterface getDiscountCurve(String discountCurveName);
 
+	/**
+	 * Returns a forward curve for a given name.
+	 * 
+	 * @param forwardCurveName The name of the requested curve.
+	 * @return forward curve corresponding to forwardCurveName or null if no forwardCurve with this name exists in the model
+	 */
 	ForwardCurveInterface getForwardCurve(String forwardCurveName);
 
 	VolatilitySurfaceInterface getVolatilitySurface(String name);

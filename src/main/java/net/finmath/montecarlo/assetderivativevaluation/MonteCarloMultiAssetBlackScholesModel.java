@@ -97,11 +97,11 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 		drift = new RandomVariableInterface[getNumberOfComponents()];
 		factorLoadingOnPaths = new RandomVariableInterface[getNumberOfComponents()][];
 		for(int underlyingIndex = 0; underlyingIndex<initialValues.length; underlyingIndex++) {
-			this.initialStates[underlyingIndex]				= process.getBrownianMotion().getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
-			this.drift[underlyingIndex]						= process.getBrownianMotion().getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
+			this.initialStates[underlyingIndex]				= process.getStochasticDriver().getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
+			this.drift[underlyingIndex]						= process.getStochasticDriver().getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
 			this.factorLoadingOnPaths[underlyingIndex]		= new RandomVariableInterface[process.getNumberOfFactors()];
 			for(int factorIndex = 0; factorIndex<process.getNumberOfFactors(); factorIndex++) {
-				this.factorLoadingOnPaths[underlyingIndex][factorIndex]	= process.getBrownianMotion().getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
+				this.factorLoadingOnPaths[underlyingIndex][factorIndex]	= process.getStochasticDriver().getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
 			}
 		}
 

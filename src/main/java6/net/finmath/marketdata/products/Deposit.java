@@ -53,7 +53,7 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 		}
 
 		double maturity		= schedule.getPayment(0);
-
+		
 		if (evaluationTime > maturity)
 			return 0; // after maturity the contract is worth nothing
 

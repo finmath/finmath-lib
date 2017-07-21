@@ -73,4 +73,102 @@ public class BusinessdayCalendarTest {
 			Assert.assertTrue(baseDate.plusDays((int) Math.round(days / 5.0 * 7.0)).isEqual(targetDate));
 		}
 	}
+	
+	/**
+	 * Simple tests for combined calendar.
+	 */
+	@Test
+	public void testCombinedCalendar() {
+		BusinessdayCalendarInterface targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		BusinessdayCalendarInterface targetNewYorkCalendar = new BusinessdayCalendarExcludingNYCHolidays(targetCalendar);
+		BusinessdayCalendarInterface combinedCalendar = new BusinessdayCalendarExcludingLONHolidays(targetNewYorkCalendar);
+		
+		// busDay
+		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
+		Assert.assertTrue(combinedCalendar.isBusinessday(dateToTest));
+		// weekend
+		dateToTest = LocalDate.of(2017, 6, 10);
+		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		// weekendAndHoliday
+		dateToTest = LocalDate.of(2017, 1, 1);
+		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		// labourDay
+		dateToTest = LocalDate.of(2017, 5, 1);
+		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		// independence day
+		dateToTest = LocalDate.of(2017, 7, 4);
+		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		// summer bank holiday 
+		dateToTest = LocalDate.of(2017, 8, 28);
+		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));		
+	}
+	
+	/**
+	 * Simple tests for TARGET calendar.
+	 */
+	@Test
+	public void testTargetCalendar() {
+		BusinessdayCalendarInterface targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		// busDay
+		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
+		Assert.assertTrue(targetCalendar.isBusinessday(dateToTest));
+		// weekend
+		dateToTest = LocalDate.of(2017, 6, 10);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		// weekendAndHoliday
+		dateToTest = LocalDate.of(2017, 1, 1);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		// newYear
+		dateToTest = LocalDate.of(2018, 1, 1);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		// goodFriday
+		dateToTest = LocalDate.of(2017, 4, 14);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		// easterMonday
+		dateToTest = LocalDate.of(2017, 4, 17);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		// labourDay
+		dateToTest = LocalDate.of(2017, 5, 1);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		// christmasDay
+		dateToTest = LocalDate.of(2017, 12, 25);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		// boxingDay
+		dateToTest = LocalDate.of(2017, 12, 26);
+		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+	}
+	
+	/**
+	 * Simple tests for NYC calendar.
+	 */
+	@Test
+	public void testNycCalendar() {
+		BusinessdayCalendarInterface newYorkCalendar = new BusinessdayCalendarExcludingNYCHolidays();
+		// busDay
+		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
+		Assert.assertTrue(newYorkCalendar.isBusinessday(dateToTest));
+		// weekend
+		dateToTest = LocalDate.of(2017, 6, 10);
+		Assert.assertTrue(!newYorkCalendar.isBusinessday(dateToTest));
+		// independence day
+		dateToTest = LocalDate.of(2017, 7, 4);
+		Assert.assertTrue(!newYorkCalendar.isBusinessday(dateToTest));
+	}
+	
+	/**
+	 * Simple tests for LON calendar.
+	 */
+	@Test
+	public void testLondonCalendar() {
+		BusinessdayCalendarInterface londonCalendar = new BusinessdayCalendarExcludingLONHolidays();
+		// busDay
+		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
+		Assert.assertTrue(londonCalendar.isBusinessday(dateToTest));
+		// weekend
+		dateToTest = LocalDate.of(2017, 6, 10);
+		Assert.assertTrue(!londonCalendar.isBusinessday(dateToTest));
+		// summer bank holiday 
+		dateToTest = LocalDate.of(2017, 8, 28);
+		Assert.assertTrue(!londonCalendar.isBusinessday(dateToTest));
+	}
 }

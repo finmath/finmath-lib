@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.process;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -16,6 +17,7 @@ import java.util.concurrent.Future;
 import net.finmath.concurrency.FutureWrapper;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
+import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -192,35 +194,23 @@ public class ProcessEulerScheme extends AbstractProcess {
 				if (driftOfComponent == null) continue;
 
 				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
-					public RandomVariableInterface call() {
-						try {
+					public RandomVariableInterface call() throws SolverException {
 						RandomVariableInterface[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
 						if (factorLoadings == null) return null;
 
-						// Temp storage for variance and diffusion
-						RandomVariableInterface diffusionOfComponent		= stochasticDriver.getRandomVariableForConstant(0.0);
-
-						// Generate values for diffusionOfComponent and varianceOfComponent 
-						for (int factor = 0; factor < numberOfFactors; factor++) {
-							RandomVariableInterface factorLoading		= factorLoadings[factor];
-							if(factorLoading == null) continue;
-							
-							RandomVariableInterface brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1, factor);
-
-							diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
+						// Apply drift
+						if(driftOfComponent != null) {
+							currentState[componentIndex] = currentState[componentIndex].addProduct(driftOfComponent, deltaT);
 						}
 
-						RandomVariableInterface increment = diffusionOfComponent;
-						if(driftOfComponent != null) increment = increment.addProduct(driftOfComponent, deltaT);
+						// Apply diffusion
+						RandomVariableInterface[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);
+						currentState[componentIndex] = currentState[componentIndex].addSumProduct(Arrays.asList(factorLoadings), Arrays.asList(brownianIncrement));
 
-						// Add increment to state and applyStateSpaceTransform
-						currentState[componentIndex] = currentState[componentIndex].add(increment);
-						}
-						catch(Exception e) { e.printStackTrace(); System.exit(0);}
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
+						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
 					}
 				};
 
@@ -244,7 +234,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
 					Future<RandomVariableInterface> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
-					if(discreteProcessAtCurrentTimeIndexAndComponent != null)	discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get();
+					if(discreteProcessAtCurrentTimeIndexAndComponent != null)	discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();
 					else														discreteProcess[timeIndex][componentIndex] = null;
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -273,7 +263,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
 
 					// Re-apply state space transform
-					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
+					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
 

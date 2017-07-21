@@ -115,6 +115,16 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 	}
 
 	@Override
+	public RandomVariableInterface[] getIncrement(int timeIndex)
+	{
+		RandomVariableInterface[] increment = new RandomVariableInterface[getNumberOfFactors()];
+		for(int factorIndex = 0; factorIndex<getNumberOfFactors(); factorIndex++) {
+			increment[factorIndex] = getIncrement(timeIndex, factorIndex);
+		}
+		return increment;
+	}
+
+	@Override
 	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {

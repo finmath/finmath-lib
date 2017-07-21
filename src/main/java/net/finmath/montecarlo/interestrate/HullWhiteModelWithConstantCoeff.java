@@ -203,6 +203,14 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 		return new RandomVariableInterface[] { realizationAtTimeIndex[0].mult(-meanReversionEffective).add(theta) };
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 */
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+	}
+
 	@Override
 	public RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex) {
 		double time = getProcess().getTime(timeIndex);

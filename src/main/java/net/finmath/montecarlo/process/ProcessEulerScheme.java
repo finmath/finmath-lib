@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.process;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -199,27 +200,17 @@ public class ProcessEulerScheme extends AbstractProcess {
 						// Check if the component process has stopped to evolve
 						if (factorLoadings == null) return null;
 
-						// Temp storage for variance and diffusion
-						RandomVariableInterface diffusionOfComponent		= stochasticDriver.getRandomVariableForConstant(0.0);
-
-						// Generate values for diffusionOfComponent and varianceOfComponent 
-						for (int factor = 0; factor < numberOfFactors; factor++) {
-							RandomVariableInterface factorLoading		= factorLoadings[factor];
-							if(factorLoading == null) continue;
-							
-							RandomVariableInterface brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1, factor);
-
-							diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
+						// Apply drift
+						if(driftOfComponent != null) {
+							currentState[componentIndex] = currentState[componentIndex].addProduct(driftOfComponent, deltaT);
 						}
 
-						RandomVariableInterface increment = diffusionOfComponent;
-						if(driftOfComponent != null) increment = increment.addProduct(driftOfComponent, deltaT);
-
-						// Add increment to state and applyStateSpaceTransform
-						currentState[componentIndex] = currentState[componentIndex].add(increment).cache();
+						// Apply diffusion
+						RandomVariableInterface[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);
+						currentState[componentIndex] = currentState[componentIndex].addSumProduct(Arrays.asList(factorLoadings), Arrays.asList(brownianIncrement));
 
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
+						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
 					}
 				};
 

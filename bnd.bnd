@@ -3,3 +3,4 @@
 -metatype: *
 Bundle-SymbolicName: finmath-lib
 Export-Package: net.finmath.*
+Import-Package: org.jblas.*;resolution:=optional, *

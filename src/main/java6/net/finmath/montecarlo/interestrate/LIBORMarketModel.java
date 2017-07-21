@@ -19,6 +19,8 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractSwaptionMarketData;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
@@ -145,6 +147,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private ForwardCurveInterface			forwardRateCurve;
 	private DiscountCurveInterface			discountCurve;
 
+	private final AbstractRandomVariableFactory	randomVariableFactory;
 	private AbstractLIBORCovarianceModel	covarianceModel;
 
 	private AbstractSwaptionMarketData		swaptionMarketData;
@@ -240,6 +243,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
+	 * @param randomVariableFactory The random variable factory used to create the inital values of the model.
 	 * @param covarianceModel The covariance model to use.
 	 * @param calibrationItems The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
@@ -250,6 +254,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			AnalyticModelInterface				analyticModel,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
+			AbstractRandomVariableFactory		randomVariableFactory,
 			AbstractLIBORCovarianceModel		covarianceModel,
 			CalibrationItem[]					calibrationItems,
 			Map<String, ?>						properties
@@ -265,9 +270,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
 		this.curveModel					= analyticModel;
-		this.forwardRateCurve	= forwardRateCurve;
-		this.discountCurve		= discountCurve;
-		this.covarianceModel	= covarianceModel;
+		this.forwardRateCurve		= forwardRateCurve;
+		this.discountCurve			= discountCurve;
+		this.randomVariableFactory	= randomVariableFactory;
+		this.covarianceModel		= covarianceModel;
 
 		double[] times = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int i=0; i<times.length; i++) times[i] = liborPeriodDiscretization.getTime(i);
@@ -296,6 +302,81 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 
 		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
+	}
+
+	/**
+	 * Creates a LIBOR Market Model for given covariance.
+	 * <br>
+	 * If calibrationItems in non-empty and the covariance model is a parametric model,
+	 * the covariance will be replaced by a calibrate version of the same model, i.e.,
+	 * the LIBOR Market Model will be calibrated.
+	 * <br>
+	 * The map <code>properties</code> allows to configure the model. The following keys may be used:
+	 * <ul>
+	 * 		<li>
+	 * 			<code>measure</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>SPOT</code> (<code>String</code>): Simulate under spot measure.
+	 * 				</li>
+	 * 				<li>
+	 * 					<code>TERMINAL</code> (<code>String</code>): Simulate under terminal measure.
+	 * 				</li>
+	 *			</ul>
+	 *		</li>
+	 * 		<li>
+	 * 			<code>stateSpace</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>LOGNORMAL</code> (<code>String</code>): Simulate <i>L = exp(Y)</i>.
+	 * 				</li>
+	 * 				<li>
+	 * 					<code>NORMAL</code> (<code>String</code>): Simulate <i>L = Y</i>.
+	 * 				</li>
+	 *			</ul>
+	 *		</li>
+	 * 		<li>
+	 * 			<code>liborCap</code>: An optional <code>Double</code> value applied as a cap to the LIBOR rates.
+	 * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
+	 * 			numerical problems. To disable the cap, set <code>liborCap</code> to <code>Double.POSITIVE_INFINITY</code>.
+	 *		</li>
+	 * 		<li>
+	 * 			<code>calibrationParameters</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>Map&lt;String,Object&gt;</code> a parameter map with the following key/value pairs:
+	 * 					<ul>
+	 *				 		<li>
+	 * 							<code>accuracy</code>: <code>Double</code> specifying the required solver accuracy.
+	 * 						</li>
+	 *				 		<li>
+	 * 							<code>maxIterations</code>: <code>Integer</code> specifying the maximum iterations for the solver.
+	 * 						</li>
+	 *					</ul>
+	 *				</li>
+	 *			</ul>
+	 *		</li>
+	 * </ul>
+	 * 
+	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
+	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
+	 * @param forwardRateCurve The initial values for the forward rates.
+	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
+	 * @param covarianceModel The covariance model to use.
+	 * @param calibrationItems The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
+	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	public LIBORMarketModel(
+			TimeDiscretizationInterface			liborPeriodDiscretization,
+			AnalyticModelInterface				analyticModel,
+			ForwardCurveInterface				forwardRateCurve,
+			DiscountCurveInterface				discountCurve,
+			AbstractLIBORCovarianceModel		covarianceModel,
+			CalibrationItem[]					calibrationItems,
+			Map<String, ?>						properties
+			) throws CalculationException {
+		this(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, new RandomVariableFactory(), covarianceModel, calibrationItems, properties);
 	}
 
 	/**
@@ -607,7 +688,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			 */
 
 			// Initialize to 1.0
-			numeraire = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
+			numeraire = getRandomVariableForConstant(1.0);
 
 
 			// Get the start and end of the product
@@ -668,7 +749,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 		RandomVariableInterface[] initialStateRandomVariable = new RandomVariableInterface[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
-			initialStateRandomVariable[componentIndex] = getProcess().getStochasticDriver().getRandomVariableForConstant(liborInitialStates[componentIndex]);
+			initialStateRandomVariable[componentIndex] = getRandomVariableForConstant(liborInitialStates[componentIndex]);
 		}
 		return initialStateRandomVariable;
 	}
@@ -707,7 +788,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		int		firstLiborIndex		= this.getLiborPeriodIndex(time)+1;
 		if(firstLiborIndex<0) firstLiborIndex = -firstLiborIndex-1 + 1;
 
-		RandomVariableInterface		zero	= getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+		RandomVariableInterface		zero	= getRandomVariableForConstant(0.0);
 
 		// Allocate drift vector and initialize to zero (will be used to sum up drift components)
 		RandomVariableInterface[]	drift = new RandomVariableInterface[getNumberOfComponents()];
@@ -725,7 +806,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
 				double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
 				RandomVariableInterface		libor			= realizationAtTimeIndex[componentIndex];
-				RandomVariableInterface		oneStepMeasureTransform = (getProcess().getStochasticDriver().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
+				RandomVariableInterface		oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(libor, periodLength);
 
 				if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 
@@ -741,7 +822,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			for(int componentIndex=getNumberOfComponents()-1; componentIndex>=firstLiborIndex; componentIndex--) {
 				double					periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
 				RandomVariableInterface libor			= realizationAtTimeIndex[componentIndex];
-				RandomVariableInterface oneStepMeasureTransform = (getProcess().getStochasticDriver().getRandomVariableForConstant(periodLength)).discount(libor, periodLength);
+				RandomVariableInterface oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(libor, periodLength);
 
 				if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 
@@ -781,6 +862,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return value;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 */
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return randomVariableFactory.createRandomVariable(value);
+	}
 
 	/**
 	 * @return Returns the driftApproximationMethod.
