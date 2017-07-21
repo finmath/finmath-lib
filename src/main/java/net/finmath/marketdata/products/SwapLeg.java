@@ -61,8 +61,10 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+		if(model==null) 
+			throw new IllegalArgumentException("model==null");
+		
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
-		// Check for discount curve
 		if(discountCurve == null)
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		

@@ -59,9 +59,17 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
-		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
+		if(model==null) 
+			throw new IllegalArgumentException("model==null");
+		
+		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		if(discountCurve==null)
+			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 
+		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		if(forwardCurve==null && forwardCurveName!=null && forwardCurveName.length()>0)
+			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
+		
 		double fixingDate = schedule.getFixing(0);
 		double periodLength = schedule.getPeriodLength(0);
 		double paymentDate = schedule.getPeriodEnd(0);
@@ -87,12 +95,14 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @return The par FRA rate.
 	 */
 	public double getRate(AnalyticModelInterface model) {	
-		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		if(forwardCurve == null) throw new IllegalArgumentException("No forward curve of name '" + forwardCurveName + "' found in given model.");
+		if(model==null) 
+			throw new IllegalArgumentException("model==null");
+		
+		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		if(forwardCurve==null) 
+			throw new IllegalArgumentException("No forward curve of name '" + forwardCurveName + "' found in given model:\n" + model.toString());
 
 		double fixingDate = schedule.getFixing(0);
 		return forwardCurve.getForward(model,fixingDate);
 	}
 }
-
-
