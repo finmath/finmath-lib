@@ -65,7 +65,7 @@ public class ScheduleGenerator {
 		/** A single period, i.e., the period is as long as from start to maturity. **/
 		TENOR
 	}
-	
+
 	/**
 	 * Possible day count conventions supported by {@link DaycountConvention}.
 	 * 
@@ -87,23 +87,23 @@ public class ScheduleGenerator {
 		ACT_ACT;
 
 		public static DaycountConvention getEnum(String string) {
-	        if(string == null) throw new IllegalArgumentException();
-	        if(string.equalsIgnoreCase("30e/360 isda"))	return E30_360_ISDA;
-	        if(string.equalsIgnoreCase("e30/360 isda"))	return E30_360_ISDA;
-	        if(string.equalsIgnoreCase("30e/360"))		return E30_360;
-	        if(string.equalsIgnoreCase("e30/360"))		return E30_360;
-	        if(string.equalsIgnoreCase("30/360"))		return E30_360;
-	        if(string.equalsIgnoreCase("30u/360"))		return U30_360;
-	        if(string.equalsIgnoreCase("u30/360"))		return U30_360;
-	        if(string.equalsIgnoreCase("act/360"))		return ACT_360;
-	        if(string.equalsIgnoreCase("act/365"))		return ACT_365;
-	        if(string.equalsIgnoreCase("act/act isda"))	return ACT_ACT_ISDA;
-	        if(string.equalsIgnoreCase("act/act"))		return ACT_ACT;
+			if(string == null) throw new IllegalArgumentException();
+			if(string.equalsIgnoreCase("30e/360 isda"))	return E30_360_ISDA;
+			if(string.equalsIgnoreCase("e30/360 isda"))	return E30_360_ISDA;
+			if(string.equalsIgnoreCase("30e/360"))		return E30_360;
+			if(string.equalsIgnoreCase("e30/360"))		return E30_360;
+			if(string.equalsIgnoreCase("30/360"))		return E30_360;
+			if(string.equalsIgnoreCase("30u/360"))		return U30_360;
+			if(string.equalsIgnoreCase("u30/360"))		return U30_360;
+			if(string.equalsIgnoreCase("act/360"))		return ACT_360;
+			if(string.equalsIgnoreCase("act/365"))		return ACT_365;
+			if(string.equalsIgnoreCase("act/act isda"))	return ACT_ACT_ISDA;
+			if(string.equalsIgnoreCase("act/act"))		return ACT_ACT;
 
-	        return DaycountConvention.valueOf(string.toUpperCase());
-	    }
+			return DaycountConvention.valueOf(string.toUpperCase());
+		}
 	}
-	
+
 	/**
 	 * Possible stub period conventions supported.
 	 * 
@@ -162,7 +162,7 @@ public class ScheduleGenerator {
 		 * Generate periods - note: we do not use any date roll convention
 		 */
 		ArrayList<Period> periods = new ArrayList<Period>();
-	
+
 		DayCountConventionInterface daycountConventionObject = null;
 		switch (daycountConvention) {
 		case E30_360_ISDA:
@@ -186,7 +186,7 @@ public class ScheduleGenerator {
 			daycountConventionObject = new DayCountConvention_ACT_ACT_ISDA();
 			break;
 		}
-	
+
 		int periodLengthDays	= 0;
 		int periodLengthWeeks	= 0;
 		int periodLengthMonth	= 0;
@@ -214,7 +214,7 @@ public class ScheduleGenerator {
 			periodLengthMonth	= 100000;
 			break;
 		}
-		
+
 		// This should not happen.
 		if(periodLengthDays == 0 && periodLengthWeeks == 0 && periodLengthMonth == 0) throw new IllegalArgumentException("Schedule generation requires positive period length.");
 		if(shortPeriodConvention == ShortPeriodConvention.LAST) {
@@ -251,7 +251,7 @@ public class ScheduleGenerator {
 
 				// Adjust period
 				LocalDate periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
-	
+
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
 
@@ -262,10 +262,10 @@ public class ScheduleGenerator {
 				// Roll payment date
 				LocalDate paymentDate = businessdayCalendar.getRolledDate(periodEndDate, paymentOffsetDays);
 				// TODO: There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
-	
+
 				// Create period
 				periods.add(new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
-	
+
 				periodStartDate				= periodEndDate;
 				periodStartDateUnadjusted	= periodEndDateUnadjusted;
 			}
@@ -276,7 +276,7 @@ public class ScheduleGenerator {
 			LocalDate periodStartDateUnadjusted	= maturityDate;
 			LocalDate periodEndDateUnadjusted	= maturityDate;
 			LocalDate periodEndDate				= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
-			
+
 			int periodIndex = 0;
 			while(periodEndDateUnadjusted.isAfter(startDate)) {
 				periodIndex++;
@@ -296,7 +296,7 @@ public class ScheduleGenerator {
 							.minusWeeks(periodLengthWeeks*periodIndex)
 							.minusMonths(periodLengthMonth*periodIndex);
 				}
-				
+
 				if(periodStartDateUnadjusted.isBefore(startDate))	{
 					periodStartDateUnadjusted	= startDate;
 					periodEndDateUnadjusted 	= startDate;	// Terminate loop (next periodEndDateUnadjusted)
@@ -307,18 +307,18 @@ public class ScheduleGenerator {
 
 				// Skip empty periods
 				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
-				
+
 				// Roll fixing date
 				LocalDate fixingDate = businessdayCalendar.getRolledDate(periodStartDate, fixingOffsetDays);
 				// TODO: There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
-	
+
 				// Roll payment date
 				LocalDate paymentDate = businessdayCalendar.getRolledDate(periodEndDate, paymentOffsetDays);
 				// TODO: There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
-	
+
 				// Create period
 				periods.add(0, new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
-				
+
 				periodEndDate			= periodStartDate;
 				periodEndDateUnadjusted	= periodStartDateUnadjusted;
 			}
@@ -504,7 +504,7 @@ public class ScheduleGenerator {
 		LocalDate spotDate = businessdayCalendar.getRolledDate(tradeDate, spotOffsetDays);
 		LocalDate startDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
 		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(startDate, maturityString);
-	
+
 		return createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 	}
 
@@ -545,7 +545,7 @@ public class ScheduleGenerator {
 		LocalDate spotDate = businessdayCalendar.getRolledDate(referenceDate, spotOffsetDays);
 		LocalDate startDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
 		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(startDate, maturityString);
-	
+
 		return createScheduleFromConventions(
 				referenceDate,
 				startDate,
@@ -630,7 +630,7 @@ public class ScheduleGenerator {
 		// spotOffsetDays=0
 		return createScheduleFromConventions(referenceDate, 0, startOffsetString, maturityString, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 	}
-	
+
 	/**
 	 * Schedule generation with futureCodes (in the format DEC17). Futures are assumed to expire on the third wednesday in the respective month.
 	 * 
@@ -678,7 +678,7 @@ public class ScheduleGenerator {
 		futureExpiryDate = businessdayCalendar.getAdjustedDate(futureExpiryDate, startOffsetString, DateRollConvention.FOLLOWING); // adjust to the next good busday
 
 		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(futureExpiryDate, maturityString);
-		
+
 		return createScheduleFromConventions(
 				referenceDate,
 				futureExpiryDate,
@@ -692,7 +692,6 @@ public class ScheduleGenerator {
 				paymentOffsetDays
 				);
 	}
-
 
 	/**
 	 * Generates a schedule based on some meta data. The schedule generation
@@ -725,7 +724,7 @@ public class ScheduleGenerator {
 			)
 	{
 		LocalDate maturityDate = createDateFromDateAndOffset(startDate, maturity);
-	
+
 		return createScheduleFromConventions(
 				referenceDate,
 				startDate,
@@ -738,7 +737,7 @@ public class ScheduleGenerator {
 				fixingOffsetDays,
 				paymentOffsetDays
 				);
-		
+
 	}
 
 	/**
@@ -791,11 +790,11 @@ public class ScheduleGenerator {
 
 		// Years
 		LocalDate maturity = baseDate.plusYears((int)offsetYearFrac);
-		
+
 		// Months
 		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 12;
 		maturity = maturity.plusMonths((int)offsetYearFrac);
-		
+
 		// Days
 		offsetYearFrac = (offsetYearFrac - (int)offsetYearFrac) * 30;
 		maturity = maturity.plusDays((int)Math.round(offsetYearFrac));
