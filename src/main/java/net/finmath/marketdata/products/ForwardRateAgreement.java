@@ -71,11 +71,12 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		
 		double fixingDate = schedule.getFixing(0);
+		double paymentDate = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
-
+		
 		double forward = 0.0;		
 		if(forwardCurve != null) {
-			forward = forwardCurve.getForward(model,fixingDate);
+			forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 		}
 
 		// Valuation of the market FRA for payer and receiver direction, neglecting convexity adjustment
