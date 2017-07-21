@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.time.Period;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
