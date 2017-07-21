@@ -19,7 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <br>
  * 
  * The <code>getValue</code> method of this class will return the random variable <i>N(t) * V(T) / N(T)</i>,
- * where <i>N</i> is the numerarie provided by the model. If <i>N(t)</i> is deterministic,
+ * where <i>N</i> is the numeraire provided by the model. If <i>N(t)</i> is deterministic,
  * calling <code>getAverage</code> on this random variable will result in the value. Otherwise a
  * conditional expectation has to be applied.
  * 

@@ -186,6 +186,16 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	@Override
+	public RandomVariableInterface[] getIncrement(int timeIndex)
+	{
+		RandomVariableInterface[] increment = new RandomVariableInterface[getNumberOfFactors()];
+		for(int factorIndex = 0; factorIndex<getNumberOfFactors(); factorIndex++) {
+			increment[factorIndex] = getIncrement(timeIndex, factorIndex);
+		}
+		return increment;
+	}
+
+	@Override
 	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
 		return getBrownianIncrement(timeIndex, factor);
 	}

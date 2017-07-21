@@ -130,6 +130,16 @@ public interface AbstractModelInterface {
 	RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex);
 
 	/**
+	 * Return a random variable initialized with a constant using the models random variable factory.
+	 * 
+	 * @param value The constant value.
+	 * @return A new random variable initialized with a constant value.
+	 */
+	default RandomVariableInterface getRandomVariableForConstant(double value) {
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+	}
+
+	/**
 	 * Set the numerical scheme used to generate the stochastic process.
 	 * 
 	 * The model needs the numerical scheme to calculate, e.g., the numeraire.
