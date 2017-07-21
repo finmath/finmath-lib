@@ -468,10 +468,15 @@ public class CalibratedCurves {
 			product = new ForwardRateAgreement(calibrationSpec.swapTenorDefinitionReceiver, 1.0-calibrationSpec.spreadReceiver/100.0, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);    
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swapleg")) {
+			// note that a swapLeg is always assumed to have a notional reset 
 			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swap")) {
-			product = new Swap(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName);
+			// note that a swap is always assumed to have a notional reset
+			// this does not have an effect on a "normal" swap where both legs have the same start and endDate and for both legs periodEnd(i)=periodStart(i+1) holds
+			SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
+			SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);
+			product = new Swap(legReceiver, legPayer);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swapwithresetonreceiver")) {
 			String discountCurveForNotionalResetName = calibrationSpec.discountCurvePayerName;
