@@ -43,6 +43,9 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		this.spread = spread;
 		this.discountCurveName = discountCurveName;
 		this.isPayer = isPayer;
+		
+		// Check schedule
+		if(schedule.getNumberOfPeriods() > 1) throw new IllegalArgumentException("Number of periods has to be 1: Change frequency to 'tenor'!");
 	}
 
 	/**
