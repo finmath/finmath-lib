@@ -62,16 +62,19 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
-		if(model==null) 
+		if(model==null) {
 			throw new IllegalArgumentException("model==null");
+		}
 		
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
-		if(discountCurve==null)
+		if(discountCurve==null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
-
+		}
+		
 		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
-		if(forwardCurve==null && forwardCurveName!=null && forwardCurveName.length()>0)
+		if(forwardCurve==null && forwardCurveName!=null && forwardCurveName.length()>0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
+		}
 		
 		double fixingDate = schedule.getFixing(0);
 		double paymentDate = schedule.getPayment(0);

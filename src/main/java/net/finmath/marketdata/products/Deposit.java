@@ -77,13 +77,15 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
 	public double getRate(AnalyticModelInterface model) {
-		if(model==null) 
+		if(model==null) {
 			throw new IllegalArgumentException("model==null");
+		}
 		
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
-		if(discountCurve == null)
+		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
-
+		}
+		
 		double payoutDate = schedule.getPeriodStart(0);
 		double maturity = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);

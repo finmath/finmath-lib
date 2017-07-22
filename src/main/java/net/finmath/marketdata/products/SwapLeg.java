@@ -61,17 +61,20 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
-		if(model==null) 
+		if(model==null) {
 			throw new IllegalArgumentException("model==null");
+		}
 		
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
-		if(discountCurve == null)
+		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
+		}
 		
 		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
-		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0)
+		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
-
+		}
+		
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixingDate	= legSchedule.getFixing(periodIndex);
