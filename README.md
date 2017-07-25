@@ -4,6 +4,8 @@
 - - - -
 This project implements a [stochastic automatic differentiation](http://ssrn.com/abstract=2995695).
 
+The implementation is fast, memory efficient and thread safe. It handles automatic differentiation of the condition expectation (American Monte-Carlo), see http://ssrn.com/abstract=3000822.
+
 The project provides an interface <code>RandomVariableDifferentiableInterface</code>
 for random variables which provide automatic differentiation.
 The interface extends <code>RandomVariableInterface</code> and
