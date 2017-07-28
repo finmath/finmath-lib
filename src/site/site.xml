@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/DECORATION/1.6.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 http://maven.apache.org/xsd/decoration-1.6.0.xsd">
+
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.4</version>
+	</skin>
+	<!-- <skin> <groupId>lt.velykis.maven.skins</groupId> <artifactId>reflow-maven-skin</artifactId> 
+		<version>1.1.1</version> </skin> -->
+
+	<bannerLeft>
+		<name>finmath lib</name>
+		<href>http://www.finmath.net/finmath-lib</href>
+	</bannerLeft>
+	<bannerRight>
+		<name>finmath.net</name>
+		<href>http://www.finmath.net</href>
+		<src>http://www.finmath.net/artwork/logo.png</src>
+		<width>60</width>
+	</bannerRight>
+	<body>
+		<links>
+			<item name="finmath.net" href="http://www.finmath.net/" />
+		</links>
+
+		<menu name="finmath-lib automatic differentiation extentions">
+			<item name="Introduction" href="index.html" />
+			<item name="API Documentation" href="apidocs" />
+		</menu>
+
+		<menu ref="reports" />
+	</body>
+	<custom>
+		<fluidoSkin>
+			<topBarEnabled>true</topBarEnabled>
+			<sideBarEnabled>true</sideBarEnabled>
+			<twitter>
+				<user>finmathnet</user>
+				<showUser>true</showUser>
+				<showFollowers>false</showFollowers>
+			</twitter>
+			<googleSearch />
+		</fluidoSkin>
+	</custom>
+</project>
