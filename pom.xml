@@ -18,7 +18,7 @@
 	<description>
 		Enabling finmath-lib to perform automatic differentiation (e.g. backward automatic differentiation, aka AAD).
 	</description>
-	<url>http://www.finmath.net/finmath-lib</url>
+	<url>http://www.finmath.net/finmath-lib-automaticdifferentiation-extensions</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
