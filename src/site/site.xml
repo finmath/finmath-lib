@@ -9,12 +9,10 @@
 		<artifactId>maven-fluido-skin</artifactId>
 		<version>1.4</version>
 	</skin>
-	<!-- <skin> <groupId>lt.velykis.maven.skins</groupId> <artifactId>reflow-maven-skin</artifactId> 
-		<version>1.1.1</version> </skin> -->
 
 	<bannerLeft>
-		<name>finmath lib</name>
-		<href>http://www.finmath.net/finmath-lib</href>
+		<name>finmath-lib automatic differentiation extensions</name>
+		<href>http://www.finmath.net/finmath-lib-automaticdifferentiation-extensions</href>
 	</bannerLeft>
 	<bannerRight>
 		<name>finmath.net</name>
@@ -27,7 +25,7 @@
 			<item name="finmath.net" href="http://www.finmath.net/" />
 		</links>
 
-		<menu name="finmath-lib automatic differentiation extentions">
+		<menu name="finmath-lib automatic differentiation extensions">
 			<item name="Introduction" href="index.html" />
 			<item name="API Documentation" href="apidocs" />
 		</menu>

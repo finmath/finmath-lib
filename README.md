@@ -1,4 +1,4 @@
-# finmath-lib automatic differentiation extentions
+# finmath-lib automatic differentiation extensions
 - - - -
 **Enabling finmath lib to utilize automatic differentiation algorithms (e.g. AAD).**
 - - - -
@@ -13,7 +13,7 @@ hence allows to use auto-diff in all Monte-Carlo contexts
 (via a replacement of the corresponding parameters / factories).
 
 The project also provides implementations of this interface, e.g. utilizing
-the backward (a.k.a. adjoint) method via <code>RandomVariableDifferentiableAADFactory</code>.
+the backward (a.k.a. ajoint) method via <code>RandomVariableDifferentiableAADFactory</code>.
 This factory creates a random variable <code>RandomVariableDifferentiableAAD</code> which implements <code>RandomVariableDifferentiableInterface</code>.
 
 All the backward automatic diffentiation code is contained in

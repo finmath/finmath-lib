@@ -22,7 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implementation of <code>RandomVariableDifferentiableInterface</code> using
- * the backward algorithmic differentiation (adjoint algorithmic differentiation, AAD).
+ * the backward algorithmic differentiation (ajoint algorithmic differentiation, AAD).
  * 
  * @author Christian Fries
  * @author Stefan Sedlmair
