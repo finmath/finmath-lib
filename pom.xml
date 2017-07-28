@@ -121,6 +121,95 @@
 		<url>https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions/issues</url>
 	</issueManagement>
 
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.4</version>
+				<configuration>
+					<doctitle>${project.name} (${project.version}) documentation</doctitle>
+					<stylesheetfile>stylesheet.css</stylesheetfile>
+					<docfilessubdirs>true</docfilessubdirs>
+					<header>
+			   			<![CDATA[
+						<span class="logo-white">finMath</span><span class="logo-red"> lib</span>
+		    			documentation
+						<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+						</script>
+			   			]]>
+					</header>
+					<footer>
+			   			<![CDATA[
+						<i>Copyright &copy; 2017 Christian&nbsp;P.&nbsp;Fries.</i>
+			   			]]>
+					</footer>
+					<tags>
+						<tag>
+							<name>TODO</name>
+							<placement>a</placement>
+							<head>To dos:</head>
+						</tag>
+						<tag>
+							<name>date</name>
+							<placement>a</placement>
+							<head>Date:</head>
+						</tag>
+					</tags>
+					<links>
+						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
+					</links>
+					<detectLinks>true</detectLinks>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.7</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<!-- <report>index</report> -->
+							<report>summary</report>
+							<report>scm</report>
+							<!-- <report>distribution-management</report> -->
+							<report>dependency-info</report>
+							<report>dependencies</report>
+							<report>issue-tracking</report>
+							<report>cim</report>
+							<report>license</report>
+							<report>project-team</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.17</version>
+			</plugin>
+			<plugin>
+				<groupId>com.atlassian.maven.plugins</groupId>
+				<artifactId>clover-maven-plugin</artifactId>
+				<version>4.1.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<distributionManagement>
+
+		<!-- maven repositories inherited from parent pom -->
+
+		<site>
+			<id>finmath-site</id>
+			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/finmath-lib/</url>
+		</site>
+	</distributionManagement>
+
 	<scm>
 		<url>https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions</url>
 		<connection>scm:git:https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions.git</connection>
