@@ -477,14 +477,6 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations(int)
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-		return getValues().getRealizations(numberOfPaths);
-	}
-
-	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */
 	@Override
@@ -883,11 +875,6 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	@Override
 	public RandomVariableInterface isNaN() {
 		return getValues().isNaN();
-	}
-
-	@Override
-	public RandomVariableInterface getMutableCopy() {
-		return this;
 	}
 
 	@Override

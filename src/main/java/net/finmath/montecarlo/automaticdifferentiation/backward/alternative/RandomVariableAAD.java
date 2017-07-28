@@ -306,7 +306,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		
 		if(getParentIDs().length == 1){
 			
-			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]).getMutableCopy();
+			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);
 		
 			switch(parentOperator){
 			/* functions with one argument  */
@@ -366,8 +366,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 			}
 		} else if(getParentIDs().length == 2){
 			
-			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]).getMutableCopy();
-			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]).getMutableCopy();
+			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);
+			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]);
 
 			switch(parentOperator){
 			case ADD:
@@ -715,14 +715,6 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	@Override
 	public double[] getRealizations() {
 		return getRandomVariableInterface().getRealizations();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations(int)
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-		return getRandomVariableInterface().getRealizations(numberOfPaths);
 	}
 
 	/* (non-Javadoc)
@@ -1103,14 +1095,6 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	@Override
 	public RandomVariableInterface isNaN() {
 		return getRandomVariableInterface().isNaN();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
-	 */
-	@Override
-	public RandomVariableInterface getMutableCopy() {
-		return this;
 	}
 
 	@Override

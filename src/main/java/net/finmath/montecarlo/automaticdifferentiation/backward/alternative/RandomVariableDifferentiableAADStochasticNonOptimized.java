@@ -476,14 +476,6 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations(int)
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-		return getValues().getRealizations(numberOfPaths);
-	}
-
-	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */
 	@Override
@@ -882,11 +874,6 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	@Override
 	public RandomVariableInterface isNaN() {
 		return getValues().isNaN();
-	}
-
-	@Override
-	public RandomVariableInterface getMutableCopy() {
-		return this;
 	}
 
 	@Override

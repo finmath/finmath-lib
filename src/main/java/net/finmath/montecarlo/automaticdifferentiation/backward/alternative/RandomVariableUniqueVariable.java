@@ -206,14 +206,6 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations(int)
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-		return getRandomVariable().getRealizations(numberOfPaths);
-	}
-
-	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */
 	@Override
@@ -623,14 +615,6 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return getRandomVariable().isNaN();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
-	 */
-	@Override
-	public RandomVariableInterface getMutableCopy() {
-		return null;
-	}
-	
 	/**
 	 * Check if an object can be up-casted to {@link RandomVariableUniqueVariable}.
 	 * <b>If not treat the object as an constant</b> with respect to the AAD components.

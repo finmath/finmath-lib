@@ -251,7 +251,7 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 		
 		if(getParentRandomVariableAADv2s().length == 1){
 			
-			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface().getMutableCopy();
+			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface();
 		
 			switch(parentOperator){
 			/* functions with one argument  */
@@ -311,8 +311,8 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 			}
 		} else if(getParentRandomVariableAADv2s().length == 2){
 			
-			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface().getMutableCopy();
-			Y = getParentRandomVariableAADv2s()[1].getRandomVariableInterface().getMutableCopy();
+			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface();
+			Y = getParentRandomVariableAADv2s()[1].getRandomVariableInterface();
 			boolean isFirstArgument = (getParentRandomVariableUIDs()[0] == variableIndex);
 			
 			switch(parentOperator){
@@ -363,9 +363,9 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 				break;
 			}
 		} else if(getParentRandomVariableAADv2s().length == 3){ 
-			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface().getMutableCopy();
-			Y = getParentRandomVariableAADv2s()[1].getRandomVariableInterface().getMutableCopy();
-			Z = getParentRandomVariableAADv2s()[2].getRandomVariableInterface().getMutableCopy();
+			X = getParentRandomVariableAADv2s()[0].getRandomVariableInterface();
+			Y = getParentRandomVariableAADv2s()[1].getRandomVariableInterface();
+			Z = getParentRandomVariableAADv2s()[2].getRandomVariableInterface();
 
 			boolean isFirstArgument = (getParentRandomVariableUIDs()[0] == variableIndex);
 			boolean isSecondArgument = (getParentRandomVariableUIDs()[1] == variableIndex);
@@ -669,14 +669,6 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	@Override
 	public double[] getRealizations() {
 		return getRandomVariableInterface().getRealizations();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations(int)
-	 */
-	@Override
-	public double[] getRealizations(int numberOfPaths) {
-		return getRandomVariableInterface().getRealizations(numberOfPaths);
 	}
 
 	/* (non-Javadoc)
@@ -1057,14 +1049,6 @@ public class RandomVariableAADv2 implements RandomVariableDifferentiableInterfac
 	@Override
 	public RandomVariableInterface isNaN() {
 		return getRandomVariableInterface().isNaN();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
-	 */
-	@Override
-	public RandomVariableInterface getMutableCopy() {
-		return this;
 	}
 
 	@Override
