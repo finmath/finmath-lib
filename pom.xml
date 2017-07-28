@@ -190,7 +190,7 @@
 
 		<site>
 			<id>finmath-site</id>
-			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/finmath-lib/</url>
+			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/finmath-lib-automaticdifferentiation-extensions/</url>
 		</site>
 	</distributionManagement>
 
