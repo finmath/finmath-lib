@@ -67,8 +67,8 @@ and the Java 6 version using
 Source code
 -------------------------------------
 
-The finmath lib Java library comes in two flavors which have a slightly different code base: a Java 8 version and a Java 6 version.
-We will use Java 8 concepts in the future and try to provide Java 6 compatibility where possible.
+The finmath lib Java library comes in two flavors which have a slightly different code base: a Java 8/9 version and a Java 6 version.
+We will use Java 8 and Java 9 concepts in the future and try to provide Java 6 compatibility where possible.
 
 For that reason, the source code is duplicated:
 -    src/main/java				contains the Java 8 compatible source files
@@ -141,3 +141,27 @@ The code of "finmath lib" and "finmath experiments" (packages
   [finmath lib API documentation]: http://finmath.net/finmath-lib/apidocs/
   [finmath.net special topics]: http://www.finmath.net/topics
   [Apache License version 2.0]: http://www.apache.org/licenses/LICENSE-2.0.html
+
+
+Extensions
+-------------------------------------
+
+The finmath-lib-cuda-extensions implement the RandomVariableInterface via Cuda GPU code. This allows to perofrm Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
+
+The finmath-lib-automaticdifferentiation-extentions implmenet the RandomVariableInterface via an AAD enabled version. This allows to access automatic differentiations with a minial change: a replacement of the random variable factory.
+
+
+Coding Conventions
+-------------------------------------
+
+We follow losely the Eclipse coding conventions, which are a minmal modification of the original Java coding conventions. See https://wiki.eclipse.org/Coding_Conventions
+
+We deviate in some places:
+
+-   We allow for long code lines. Some coding conventions limit the length of a line to something like 80 characters (like FORTRAN did in the 70'ies). Given widescreen monitors we believe that line wrapping makes code much harder to read than code with long(er) lines.
+
+-	We usually do not make a space after statements like `íf`, `for`. We interpred `íf` and `for` as functions and for functions and methods we do not have a space between the name and the argument list either. That is, we write
+
+    if(condition) {
+      // code
+    }
