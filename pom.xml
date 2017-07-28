@@ -143,6 +143,7 @@
 						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
 					</links>
 					<detectLinks>true</detectLinks>
+					<additionalparam>--allow-script-in-comments</additionalparam>
 				</configuration>
 			</plugin>
 			<plugin>
