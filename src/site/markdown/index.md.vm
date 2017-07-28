@@ -19,10 +19,10 @@ hence allows to use auto-diff in all Monte-Carlo contexts
 (via a replacement of the corresponding parameters / factories).
 
 The project also provides implementations of this interface, e.g. utilizing
-the backward (a.k.a. ajoint) method via <code>RandomVariableDifferentiableAADFactory</code>.
+the backward (a.k.a. adjoint) method via <code>RandomVariableDifferentiableAADFactory</code>.
 This factory creates a random variable <code>RandomVariableDifferentiableAAD</code> which implements <code>RandomVariableDifferentiableInterface</code>.
 
-All the backward automatic diffentiation code is contained in
+All the backward automatic differentiation code is contained in
 <code>RandomVariableDifferentiableAAD</code>.
 
 The interface <code>RandomVariableInterface</code> is provided by [finmath-lib](http://finmath.net/finmath-lib) and specifies the arithmetic operations which may be performed on random variables, e.g.,
