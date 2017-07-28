@@ -11,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib-automaticdifferentiation-extensions</artifactId>
-	<version>0.6.5</version>
+	<version>0.6.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib automatic differentiation extensions</name>
@@ -216,6 +216,6 @@
 		<url>https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions</url>
 		<connection>scm:git:https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions.git</connection>
 		<developerConnection>scm:git:https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions.git</developerConnection>
-		<tag>finmath-lib-automaticdifferentiation-extensions-0.6.5</tag>
+		<tag>HEAD</tag>
 	</scm>
 </project>
