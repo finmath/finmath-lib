@@ -27,7 +27,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Implementation of <code>RandomVariableDifferentiableInterface</code> using
  * the backward algorithmic differentiation (adjoint algorithmic differentiation, AAD).
  * 
- * This class implements the optimized stochastic ADD at it is decripbed in
+ * This class implements the optimized stochastic ADD as it is described in
  * <a href="https://ssrn.com/abstract=2995695">ssrn.com/abstract=2995695</a>.
  * 
  * @author Christian Fries
