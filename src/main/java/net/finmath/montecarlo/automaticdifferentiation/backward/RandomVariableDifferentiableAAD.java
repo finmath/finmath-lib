@@ -62,17 +62,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		private final Object operator;
 
 		public OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator) {
-			this(operatorType,
-					arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
-						return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getOperatorTreeNode(): null;
-					}).collect(Collectors.toList()) : null,
-							arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
-								return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getValues() : x;
-							}).collect(Collectors.toList()) : null,
-									operator
-					);
-
+			this(operatorType, extractOperatorTreeNodes(arguments), extractOperatorValues(arguments), operator);
 		}
+
 		public OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator) {
 			super();
 			this.id = indexOfNextRandomVariable.getAndIncrement();
@@ -116,7 +108,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		}
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
-
+			if(arguments == null) return;
 			for(OperatorTreeNode argument : arguments) {
 				if(argument != null) {
 					Long argumentID = argument.id;
@@ -126,11 +118,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					RandomVariableInterface derivative			= derivatives.get(id);
 					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
 
-					// Implementation of AVERAGE (see <a href="https://ssrn.com/abstract=3000822">ssrn.com/abstract=3000822</a> for details).
+					// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
 					if(operatorType == OperatorType.AVERAGE) {
 						derivative = derivative.average();
 					}
-					// Implementation of CONDITIONAL_EXPECTATION (see <a href="https://ssrn.com/abstract=3000822">ssrn.com/abstract=2995695</a> for details).
+					// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
 					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
 						ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
 						derivative = estimator.getConditionalExpectation(derivative);
@@ -298,6 +290,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			case BARRIER:
 				if(differentialIndex == 0) {
 					/*
+					 * Approximation via local finite difference
+					 * (see https://ssrn.com/abstract=2995695 for details).
 					 * Experimental version - This should be specified as a parameter.
 					 */
 					resultrandomvariable = Y.sub(Z);
@@ -316,6 +310,20 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 			return resultrandomvariable;
 		}
+		
+		private static List<OperatorTreeNode> extractOperatorTreeNodes(List<RandomVariableInterface> arguments) {
+			return arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
+				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getOperatorTreeNode(): null;
+				}
+			).collect(Collectors.toList()) : null;
+		};
+
+		private static List<RandomVariableInterface> extractOperatorValues(List<RandomVariableInterface> arguments) {
+			return arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
+				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getValues() : x;
+				}
+			).collect(Collectors.toList()) : null;
+		};
 	}
 
 	/*
@@ -357,12 +365,17 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator);
 	}
 
-	public RandomVariableInterface getRandomVariable() {
-		return values;
-	}
-
 	public OperatorTreeNode getOperatorTreeNode() {
 		return operatorTreeNode;
+	}
+
+	/**
+	 * Returns the underlying values.
+	 * 
+	 * @return The underling values.
+	 */
+	private RandomVariableInterface getValues(){
+		return values;
 	}
 
 	public Long getID(){
@@ -380,53 +393,40 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	public Map<Long, RandomVariableInterface> getGradient() {
 
 		// The map maintaining the derivatives id -> derivative
-		Map<Long, RandomVariableInterface> derivatives = new HashMap<Long, RandomVariableInterface>();
-
+		Map<Long, RandomVariableInterface> derivatives = new HashMap<>();
 		// Put derivative of this node w.r.t. itself
 		derivatives.put(getID(), new RandomVariable(1.0));
 
-		// The set maintaining the independents. Note: TreeMap is maintaining a sort on the keys.
-		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<Long, OperatorTreeNode>();
-		independents.put(getID(), getOperatorTreeNode());
+		// The set maintaining the independents. Note: TreeMap is maintaining a sorting on the keys.
+		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
+		// Initialize with root node
+		independents.put(getID(), this.getOperatorTreeNode());
 
 		while(independents.size() > 0) {
-			// Process node with the highest id in independents
-			Map.Entry<Long, OperatorTreeNode> independentEntry = independents.lastEntry();
+			// Get and remove node with the highest id in independents
+			Map.Entry<Long, OperatorTreeNode> independentEntry = independents.pollLastEntry();
 			Long id = independentEntry.getKey();
 			OperatorTreeNode independent = independentEntry.getValue();
 
-			// Get arguments of this node and propagate derivative to arguments
+			// Process this node (node with highest id in independents)
 			List<OperatorTreeNode> arguments = independent.arguments;
 			if(arguments != null && arguments.size() > 0) {
+				// Node has arguments: Propagate derivative to arguments.
 				independent.propagateDerivativesFromResultToArgument(derivatives);
-
-				// Add all non constant arguments to the list of independents
-				for(OperatorTreeNode argument : arguments) {
-					if(argument != null) {
-						Long argumentId = argument.id;
-						independents.put(argumentId, argument);
-					}
-				}
-
-				// Remove id from derivatives - keep only leaf nodes.
+				// Remove id of this node from derivatives - keep only leaf nodes.
 				derivatives.remove(id);
-			}
 
-			// Done with processing. Remove from map.
-			independents.remove(id);
+				// Add all non leaf node arguments to the list of independents
+				for(OperatorTreeNode argument : arguments) {
+					// If in argument is null, it is a (non-differentiable) constant.
+					if(argument != null) independents.put(argument.id, argument);
+				}
+			}
 		}
 
 		return derivatives;
 	}
 
-	/**
-	 * Returns the underlying values.
-	 * 
-	 * @return The underling values.
-	 */
-	private RandomVariableInterface getValues(){
-		return values;
-	}
 
 	/*
 	 * The following methods are end points since they return <code>double</double> values.
@@ -907,7 +907,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	/*
 	 * The following methods are experimental - will be removed
 	 */
-	
+
 	private RandomVariableInterface getAverageAsRandomVariableAAD(RandomVariableInterface probabilities) {
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAAD(
