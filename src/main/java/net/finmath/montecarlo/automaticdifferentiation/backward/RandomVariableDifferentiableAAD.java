@@ -685,7 +685,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface estimator) {
 		return new RandomVariableDifferentiableAAD(
-				getValues(),
+				getValues().getConditionalExpectation(estimator),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
 				estimator,
 				OperatorType.CONDITIONAL_EXPECTATION);
