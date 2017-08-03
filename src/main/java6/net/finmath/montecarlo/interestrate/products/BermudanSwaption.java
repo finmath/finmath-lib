@@ -63,8 +63,8 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
-		RandomVariableInterface values				= new RandomVariable(fixingDates[fixingDates.length-1], 0.0);
-		RandomVariableInterface valuesUnderlying	= new RandomVariable(fixingDates[fixingDates.length-1], 0.0);
+		RandomVariableInterface values				= model.getRandomVariableForConstant(0.0);
+		RandomVariableInterface valuesUnderlying	= model.getRandomVariableForConstant(0.0);
 
 		// Loop backward over the swap periods
 		for(int period=fixingDates.length-1; period>=0; period--)
@@ -93,10 +93,10 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 				RandomVariableInterface triggerValuesDiscounted = values.sub(valuesUnderlying);
 
 				// Remove foresight through condition expectation
-				ConditionalExpectationEstimatorInterface condExpEstimator = getConditionalExpectationEstimator(fixingDate, model);
+				ConditionalExpectationEstimatorInterface conditionalExpectationOperator = getConditionalExpectationEstimator(fixingDate, model);
 
 				// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
-				RandomVariableInterface triggerValues         = condExpEstimator.getConditionalExpectation(triggerValuesDiscounted);
+				RandomVariableInterface triggerValues         = triggerValuesDiscounted.getConditionalExpectation(conditionalExpectationOperator);
 
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
@@ -142,7 +142,8 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
 
 		// Constant
-		RandomVariableInterface basisFunction = new RandomVariable(fixingDate, 1.0);
+		// @TODO Use non differentiable
+		RandomVariableInterface basisFunction = new RandomVariable(1.0);//.getRandomVariableForConstant(1.0);
 		basisFunctions.add(basisFunction);
 
 		int fixingDateIndex = Arrays.binarySearch(fixingDates, fixingDate);

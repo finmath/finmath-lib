@@ -237,6 +237,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getRandomVariableForConstant(double)
+	 * @TODO Move this to base class
 	 */
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
