@@ -146,9 +146,9 @@ The code of "finmath lib" and "finmath experiments" (packages
 Extensions
 -------------------------------------
 
-The finmath-lib-cuda-extensions implement the RandomVariableInterface via Cuda GPU code. This allows to perofrm Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
+The finmath-lib-cuda-extensions implement the RandomVariableInterface via Cuda GPU code. This allows to perform Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
 
-The finmath-lib-automaticdifferentiation-extentions implmenet the RandomVariableInterface via an AAD enabled version. This allows to access automatic differentiations with a minial change: a replacement of the random variable factory.
+The finmath-lib-automaticdifferentiation-extensions implement the RandomVariableInterface via an AAD enabled version. This allows to access automatic differentiations with a minimal change: a replacement of the random variable factory.
 
 
 Coding Conventions
