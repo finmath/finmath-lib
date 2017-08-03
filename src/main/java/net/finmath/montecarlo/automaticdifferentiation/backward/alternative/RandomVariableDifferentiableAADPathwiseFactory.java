@@ -26,7 +26,7 @@ public class RandomVariableDifferentiableAADPathwiseFactory extends AbstractRand
 	}
 
 	/**
-	 * @param randomVariableFactoryForNonDifferentiable
+	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
 	public RandomVariableDifferentiableAADPathwiseFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);

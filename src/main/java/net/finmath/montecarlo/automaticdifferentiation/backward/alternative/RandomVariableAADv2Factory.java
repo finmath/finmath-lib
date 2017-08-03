@@ -14,7 +14,7 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
 public class RandomVariableAADv2Factory extends AbstractRandomVariableDifferentiableFactory {
 
 	/**
-	 * @param randomVariableFactoryForNonDifferentiable
+	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
 	public RandomVariableAADv2Factory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);

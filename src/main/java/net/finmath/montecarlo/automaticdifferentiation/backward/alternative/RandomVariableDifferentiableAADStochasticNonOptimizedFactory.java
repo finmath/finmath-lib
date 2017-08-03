@@ -25,7 +25,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimizedFactory extend
 	}
 
 	/**
-	 * @param randomVariableFactoryForNonDifferentiable
+	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
 	public RandomVariableDifferentiableAADStochasticNonOptimizedFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
