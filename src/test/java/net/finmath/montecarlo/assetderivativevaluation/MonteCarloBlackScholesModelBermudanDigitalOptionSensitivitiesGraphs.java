@@ -12,10 +12,12 @@ import java.util.Map;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanDigitalOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanDigitalOption.ExerciseMethod;
+import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.model.AbstractModel;
@@ -53,7 +55,7 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 
 	@Test
 	public void testProductAADSensitivities() throws CalculationException {
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
+		AbstractRandomVariableDifferentiableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
