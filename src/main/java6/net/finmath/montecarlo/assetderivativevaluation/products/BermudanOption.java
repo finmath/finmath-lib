@@ -49,27 +49,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	private int			orderOfRegressionPolynomial		= 4;
 	private boolean		intrinsicValueAsBasisFunction	= true;
 
-	private ExerciseMethod exerciseMethod = ExerciseMethod.ESTIMATE_COND_EXPECTATION;
-
-	/**
-	 * Create a Bermudan option paying
-	 * N(i) * (S(T(i)) - K(i)) at T(i),
-	 * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
-	 * and T(i) the exercise date.
-	 * 
-	 * @param exerciseDates The exercise dates (T(i)), given as doubles.
-	 * @param notionals The notionals (N(i)) for each exercise date.
-	 * @param strikes The strikes (K(i)) for each exercise date.
-	 */
-	public BermudanOption(
-			double[] exerciseDates,
-			double[] notionals,
-			double[] strikes) {
-		super();
-		this.exerciseDates = exerciseDates;
-		this.notionals = notionals;
-		this.strikes = strikes;
-	}
+	private ExerciseMethod exerciseMethod;
 
 	/**
 	 * Create a Bermudan option paying
@@ -92,6 +72,25 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		this.notionals = notionals;
 		this.strikes = strikes;
 		this.exerciseMethod = exerciseMethod;
+	}
+
+	/**
+	 * Create a Bermudan option paying
+	 * N(i) * (S(T(i)) - K(i)) at T(i),
+	 * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
+	 * and T(i) the exercise date.
+	 * 
+	 * The product will use ExerciseMethod.ESTIMATE_COND_EXPECTATION.
+	 * 
+	 * @param exerciseDates The exercise dates (T(i)), given as doubles.
+	 * @param notionals The notionals (N(i)) for each exercise date.
+	 * @param strikes The strikes (K(i)) for each exercise date.
+	 */
+	public BermudanOption(
+			double[] exerciseDates,
+			double[] notionals,
+			double[] strikes) {
+		this(exerciseDates, notionals, strikes, ExerciseMethod.ESTIMATE_COND_EXPECTATION);
 	}
 
 	/**
