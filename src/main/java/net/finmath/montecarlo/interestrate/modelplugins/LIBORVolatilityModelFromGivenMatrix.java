@@ -7,7 +7,8 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.util.ArrayList;
 
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -18,13 +19,40 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
-	private final double[][]		volatility;
+
+	private final AbstractRandomVariableFactory	randomVariableFactory;
+	private final double[][]		volatilityMatrix;
 	
 	/**
 	 * A cache for the parameter associated with this model, it is only used when getParameter is
 	 * called repeatedly.
 	 */
 	private transient double[]		parameter = null;
+
+	// A lazy init cache
+	private transient RandomVariableInterface[][] volatility;
+	
+	/**
+	 * Creates a simple volatility model using given piece-wise constant values on
+ 	 * a given discretization grid.
+ 	 * 
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters. 
+	 * @param timeDiscretization Discretization of simulation time.
+	 * @param liborPeriodDiscretization Discretization of tenor times.
+	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
+	 */
+	public LIBORVolatilityModelFromGivenMatrix(
+			AbstractRandomVariableFactory randomVariableFactory,
+			TimeDiscretizationInterface	timeDiscretization,
+			TimeDiscretizationInterface	liborPeriodDiscretization,
+			double[][]	volatility) {
+		super(timeDiscretization, liborPeriodDiscretization);
+
+		this.randomVariableFactory = randomVariableFactory;
+		this.volatilityMatrix = volatility;
+
+		this.volatility = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+	}
 
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
@@ -38,9 +66,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 			TimeDiscretizationInterface	timeDiscretization,
 			TimeDiscretizationInterface	liborPeriodDiscretization,
 			double[][]	volatility) {
-		super(timeDiscretization, liborPeriodDiscretization);
-
-		this.volatility = volatility;
+		this(new RandomVariableFactory(), timeDiscretization, liborPeriodDiscretization, volatility);
 	}
 
 	/* (non-Javadoc)
@@ -48,7 +74,13 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 */
 	@Override
     public RandomVariableInterface getVolatility(int timeIndex, int component) {
-		return new RandomVariable(getTimeDiscretization().getTime(timeIndex),volatility[timeIndex][component]);
+		synchronized (volatility) {
+			if(volatility[timeIndex][component] == null) {
+				volatility[timeIndex][component] = randomVariableFactory.createRandomVariable(getTimeDiscretization().getTime(timeIndex), volatilityMatrix[timeIndex][component]);
+			}
+		}
+
+		return volatility[timeIndex][component];
 	}
 
 	@Override
@@ -59,7 +91,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 				for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 					for(int liborPeriodIndex = 0; liborPeriodIndex< getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborPeriodIndex++) {
 						if(getTimeDiscretization().getTime(timeIndex) < getLiborPeriodDiscretization().getTime(liborPeriodIndex) ) {
-							parameterArray.add(volatility[timeIndex][liborPeriodIndex]);
+							parameterArray.add(volatilityMatrix[timeIndex][liborPeriodIndex]);
 						}
 					}
 				}
@@ -78,7 +110,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 		for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 			for(int liborPeriodIndex = 0; liborPeriodIndex< getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborPeriodIndex++) {
 				if(getTimeDiscretization().getTime(timeIndex) < getLiborPeriodDiscretization().getTime(liborPeriodIndex) ) {
-					volatility[timeIndex][liborPeriodIndex] = Math.max(parameter[parameterIndex++],0.0);
+					volatilityMatrix[timeIndex][liborPeriodIndex] = Math.max(parameter[parameterIndex++],0.0);
 				}
 			}
 		}
@@ -88,7 +120,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	@Override
 	public Object clone() {
 	    // Clone the outer array.
-	    double[][] newVolatilityArray = (double[][]) volatility.clone();
+	    double[][] newVolatilityArray = (double[][]) volatilityMatrix.clone();
 
 	    // Clone the contents of the array
 	    int rows = newVolatilityArray.length;
