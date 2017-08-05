@@ -65,6 +65,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 	 * @param notionals The notionals (N(i)) for each exercise date.
 	 * @param strikes The strikes (K(i)) for each exercise date.
 	 * @param exerciseMethod The exercise method to be used for the estimation of the exercise boundary.
+	 * @param properties Use this map to specify special product parameters, e.g. "orderOfRegressionPolynomial" (Integer).
 	 */
 	public BermudanDigitalOption(
 			double[] exerciseDates,
