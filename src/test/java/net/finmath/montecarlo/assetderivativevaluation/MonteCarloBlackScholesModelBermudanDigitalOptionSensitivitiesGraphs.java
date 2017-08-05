@@ -43,7 +43,7 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 	
-	private final int		seed				= 31415;
+	private final int		seed				= 31415; //501; //101; //21781; //31415;
 
 	// Product properties
 	private final int		assetIndex = 0;
