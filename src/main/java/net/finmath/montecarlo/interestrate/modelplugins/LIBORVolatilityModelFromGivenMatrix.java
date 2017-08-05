@@ -114,6 +114,10 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 				}
 			}
 		}
+
+		// Invalidate cache
+		volatility = new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
+
 		return;
 	}
 

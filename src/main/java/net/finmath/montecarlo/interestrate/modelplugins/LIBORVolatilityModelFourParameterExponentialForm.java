@@ -111,6 +111,9 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		this.b = parameter[1];
 		this.c = parameter[2];
 		this.d = parameter[3];
+
+		// Invalidate cache
+		volatility = new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 	}
 
 	/* (non-Javadoc)
