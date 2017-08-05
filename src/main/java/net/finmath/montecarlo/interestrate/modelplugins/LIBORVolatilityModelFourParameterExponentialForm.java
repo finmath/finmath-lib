@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -71,8 +71,6 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		this.c = c;
 		this.d = d;
 		this.isCalibrateable = isCalibrateable;
-		
-		volatility = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 	}
 
 	/**
@@ -87,7 +85,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
 	public LIBORVolatilityModelFourParameterExponentialForm(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
-		this(new RandomVariableFactory(), timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
+		this(null, timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
 	}
 
 	@Override
@@ -113,41 +111,48 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		this.d = parameter[3];
 
 		// Invalidate cache
-		volatility = new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
+		volatility = null;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
-	 */
 	@Override
 	public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
 
-		synchronized (volatility) {
-			if(volatility[timeIndex][liborIndex] == null) {
+		if(randomVariableFactory != null) {
+			synchronized (randomVariableFactory) {
+				if(volatility == null) volatility = new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 
-				// Create a very simple volatility model here
-				double time             = getTimeDiscretization().getTime(timeIndex);
-				double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
-				double timeToMaturity   = maturity-time;
-
-				double volatilityInstanteaneous; 
-				if(timeToMaturity <= 0)
-				{
-					volatilityInstanteaneous = 0.0;   // This forward rate is already fixed, no volatility
+				if(volatility[timeIndex][liborIndex] == null) {
+					volatility[timeIndex][liborIndex] = randomVariableFactory.createRandomVariable(getVolatilityAsDouble(timeIndex, liborIndex));
 				}
-				else
-				{
-					volatilityInstanteaneous = (a + b * timeToMaturity) * Math.exp(-c * timeToMaturity) + d;
-				}
-				if(volatilityInstanteaneous < 0.0) volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
-
-				volatility[timeIndex][liborIndex] = randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);
 			}
-		}
 
-		return volatility[timeIndex][liborIndex];
+			return volatility[timeIndex][liborIndex];
+		}
+		else {
+			return new RandomVariable(getVolatilityAsDouble(timeIndex, liborIndex));
+		}
 	}
 
+	private double getVolatilityAsDouble(int timeIndex, int liborIndex) {
+		// Create a very simple volatility model here
+		double time             = getTimeDiscretization().getTime(timeIndex);
+		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
+		double timeToMaturity   = maturity-time;
+
+		double volatilityInstanteaneous; 
+		if(timeToMaturity <= 0)
+		{
+			volatilityInstanteaneous = 0.0;   // This forward rate is already fixed, no volatility
+		}
+		else
+		{
+			volatilityInstanteaneous = (a + b * timeToMaturity) * Math.exp(-c * timeToMaturity) + d;
+		}
+		if(volatilityInstanteaneous < 0.0) volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
+		
+		return volatilityInstanteaneous;
+	}
+	
 	@Override
 	public Object clone() {
 		return new LIBORVolatilityModelFourParameterExponentialForm(
