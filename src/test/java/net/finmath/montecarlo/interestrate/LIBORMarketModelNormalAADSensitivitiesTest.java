@@ -113,6 +113,28 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		boolean[] isPeriodStartDateExerciseDate = new boolean[numberOfPeriods];
 		Arrays.fill(isPeriodStartDateExerciseDate, true);
 
+		/*
+		 * The first three are just for the JVM warm up
+		 * (following timings will be a little more accurate).
+		 */
+		testParameters.add(new Object[] {
+				"Caplet maturity " + exerciseDate,
+				new Caplet(exerciseDate, swapPeriodLength, swaprate)
+		});
+
+		testParameters.add(new Object[] {
+				"Caplet maturity " + 5.0,
+				new Caplet(5.0, swapPeriodLength, swaprate)
+		});
+
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+
+		/*
+		 * Test cases
+		 */
 
 		testParameters.add(new Object[] {
 				"Caplet maturity " + 5.0,
@@ -232,7 +254,6 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
-		System.out.println("Number of Components: " + liborMarketModel.getNumberOfComponents());
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 
@@ -240,11 +261,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	public void testVega() throws CalculationException {
 
 		// Create a libor market model
-		//		AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
-		AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		AbstractRandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
 		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactory,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */);
-
-
 
 		/*
 		 * Test valuation
@@ -252,7 +270,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		long timingCalculationStart = System.currentTimeMillis();
 
 		RandomVariableInterface value = product.getValue(0.0, liborMarketModel);
-		double valueSimulation = product.getValue(liborMarketModel);
+		double valueSimulation = value.getAverage();
 
 		long timingCalculationEnd = System.currentTimeMillis();
 
@@ -292,14 +310,34 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		}
 		//		RandomVariableInterface modelDelta = gradient.get(liborMarketModel.getLIBOR(0, 0));
 
+
+		/*
+		 * Test results against alternative implementation
+		 */
+		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */);
+	
+		/*
+		 * Test valuation
+		 */
+		long timingCalculation2Start = System.currentTimeMillis();
+
+		double valueSimulation2 = product.getValue(liborMarketModelPlain);
+
+		long timingCalculation2End = System.currentTimeMillis();
+
+
 		System.out.println(product.getClass().getSimpleName() + ": " + productName);
 		System.out.println("_______________________________________________________________________");
 		System.out.println("value...........................: " + formatterValue.format(valueSimulation));
+		System.out.println("value (plain)...................: " + formatterValue.format(valueSimulation2));
+		System.out.println("evaluation (plain)..............: " + formatReal1.format((timingCalculation2End-timingCalculation2Start)/1000.0) + " s");
 		System.out.println("evaluation......................: " + formatReal1.format((timingCalculationEnd-timingCalculationStart)/1000.0) + " s");
 		System.out.println("derivative......................: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
 		System.out.println("number of vegas (theoretical)...: " + numberOfVegasTheoretical);
 		System.out.println("number of vegas (effective).....: " + numberOfVegasEffective);
 		System.out.println("\n");
+		
+		Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
