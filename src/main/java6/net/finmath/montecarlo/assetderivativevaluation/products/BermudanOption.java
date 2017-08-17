@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
@@ -47,9 +50,11 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	private final double[]	strikes;
 
 	private int			orderOfRegressionPolynomial		= 4;
-	private boolean		intrinsicValueAsBasisFunction	= true;
+	private boolean		intrinsicValueAsBasisFunction	= false;
 
 	private ExerciseMethod exerciseMethod;
+	
+	private RandomVariableInterface lastValuationExerciseTime;
 
 	/**
 	 * Create a Bermudan option paying
@@ -148,9 +153,10 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			RandomVariableInterface valueOfPaymentsIfExercised = underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
-			ConditionalExpectationEstimatorInterface condExpEstimator;
-			if(intrinsicValueAsBasisFunction)	condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0)));
-			else								condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
+            ArrayList<RandomVariableInterface> basisFunctions;
+			if(intrinsicValueAsBasisFunction)	basisFunctions = getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0));
+			else								basisFunctions = getRegressionBasisFunctions(underlyingAtExercise);
+			ConditionalExpectationEstimatorInterface condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariableInterface[0]));
 
 			RandomVariableInterface underlying	= null;
 			RandomVariableInterface trigger		= null;
@@ -181,18 +187,8 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			value			= value.barrier(trigger, value, underlying);
 			exerciseTime	= exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
 		}
-
-		// Uncomment the following if you like to check exercise probabilities
-		/*
-    	double[] probabilities = exerciseTime.getHistogram(exerciseDates);
-        for(int exerciseDateIndex=0; exerciseDateIndex<exerciseDates.length; exerciseDateIndex++)
-        {
-        	double time = exerciseDates[exerciseDateIndex];
-        	System.out.println(time + "\t" + probabilities[exerciseDateIndex]);
-        }
-    	System.out.println("NEVER" + "\t" + probabilities[exerciseDates.length]);
-		 */
-
+		lastValuationExerciseTime = exerciseTime;
+		
 		// Note that values is a relative price - no numeraire division is required
 		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
@@ -201,18 +197,47 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		return value;
 	}
 
+	public RandomVariableInterface getLastValuationExerciseTime() {
+		return lastValuationExerciseTime;
+	}
 
-	private RandomVariableInterface[] getRegressionBasisFunctions(RandomVariableInterface underlying) {
-		RandomVariableInterface[] basisFunctions;
+	public double[] getExerciseDates() {
+		return exerciseDates;
+	}
+
+	public double[] getNotionals() {
+		return notionals;
+	}
+
+	public double[] getStrikes() {
+		return strikes;
+	}
+
+	private ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface underlying) {
+		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+		underlying = new RandomVariable(0.0, underlying.getRealizations());
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
-		basisFunctions = new RandomVariableInterface[orderOfRegressionPolynomial+1];
-		basisFunctions[0] = new RandomVariable(1.0);	// Random variable = 1
-		basisFunctions[1] = underlying;					// Random variable = S
-		for(int powerOfRegressionMonomial=2; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
-			basisFunctions[powerOfRegressionMonomial] = underlying.pow(powerOfRegressionMonomial);
+		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
+			basisFunctions.add(underlying.pow(powerOfRegressionMonomial));
 		}
 
+		return basisFunctions;
+	}
+
+	private ArrayList<RandomVariableInterface> getRegressionBasisFunctionsBinning(RandomVariableInterface underlying) {
+		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+
+		underlying = new RandomVariable(0.0, underlying.getRealizations());
+		int numberOfBins = 20;
+		double[] values = underlying.getRealizations();
+		Arrays.sort(values);
+		for(int i = 0; i<numberOfBins; i++) {
+			double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
+			RandomVariableInterface basisFunction = underlying.barrier(underlying.sub(binLeft), new RandomVariable(1.0), 0.0);
+			basisFunctions.add(basisFunction);
+		}
+		
 		return basisFunctions;
 	}
 }

@@ -197,9 +197,20 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		return value;
 	}
 
-
 	public RandomVariableInterface getLastValuationExerciseTime() {
 		return lastValuationExerciseTime;
+	}
+
+	public double[] getExerciseDates() {
+		return exerciseDates;
+	}
+
+	public double[] getNotionals() {
+		return notionals;
+	}
+
+	public double[] getStrikes() {
+		return strikes;
 	}
 
 	private ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface underlying) {
