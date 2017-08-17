@@ -69,7 +69,7 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 		/*
-		 * Value a call option (using the product implementation)
+		 * Value a bermudan option (using the product implementation)
 		 */
 		double[] exerciseDates = new double[] { 0.5, 1.0, 1.5, 2.0 };
 		double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
