@@ -20,55 +20,87 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class BlackScholesDeltaHedgedPortfolioTest {
 
-    // Model properties
-    private final double	initialValue   = 1.0;
-    private final double	riskFreeRate   = 0.05;
-    private final double	volatility     = 0.30;
+	private static boolean isPrintStatistics = true;
+	private static boolean isPrintHedgeErrorDistribution = true;
+	private static boolean isPrintHedgeFinalValues = false;
 
-    // Process discretization properties
-    private final int		numberOfPaths		= 100000;
-    private final int		numberOfTimeSteps	= 1000;
-    private final double	timeHorizon 		= 5;
+	// Model properties
+	private final double	initialValue   = 1.0;
+	private final double	riskFreeRate   = 0.05;
+	private final double	volatility     = 0.30;
 
-    private AssetModelMonteCarloSimulationInterface model = null;
+	// Process discretization properties
+	private final int		numberOfPaths		= 100000;
+	private final int		numberOfTimeSteps	= 100;
+	private final double	timeHorizon 		= 5;
 
-    public BlackScholesDeltaHedgedPortfolioTest() {
-        super();
+	private AssetModelMonteCarloSimulationInterface model = null;
 
-        // Create a Model (see method getModel)
-        model = getModel();
-    }
+	public BlackScholesDeltaHedgedPortfolioTest() {
+		super();
 
-    public AssetModelMonteCarloSimulationInterface getModel()
-    {
-        // Create the time discretization
-        TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
+		// Create a Model (see method getModel)
+		model = getModel();
+	}
 
-        // Create an instance of a black scholes monte carlo model
-        AssetModelMonteCarloSimulationInterface model = new MonteCarloBlackScholesModel(
-                timeDiscretization,
-                numberOfPaths,
-                initialValue,
-                riskFreeRate,
-                volatility);
+	public AssetModelMonteCarloSimulationInterface getModel()
+	{
+		// Create the time discretization
+		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
-        return model;
-    }
+		// Create an instance of a black scholes monte carlo model
+		AssetModelMonteCarloSimulationInterface model = new MonteCarloBlackScholesModel(
+				timeDiscretization,
+				numberOfPaths,
+				initialValue,
+				riskFreeRate,
+				volatility);
 
-    @Test
-    public void testHedgePerformance() throws CalculationException {
-        double maturity = timeHorizon;
-        double strike = initialValue*Math.exp(riskFreeRate * maturity);
+		return model;
+	}
 
-        EuropeanOption option = new EuropeanOption(maturity,strike);
-        BlackScholesDeltaHedgedPortfolio hedge = new BlackScholesDeltaHedgedPortfolio(maturity, strike, riskFreeRate, volatility);
+	@Test
+	public void testHedgePerformance() throws CalculationException {
+		double maturity = timeHorizon;
+		double strike = initialValue*Math.exp(riskFreeRate * maturity);
 
-        RandomVariableInterface hedgeError = option.getValue(maturity, model).sub(hedge.getValue(maturity, model));
+		long timingCalculationStart = System.currentTimeMillis();
 
-        double hedgeErrorRMS = hedgeError.getStandardDeviation();
+		EuropeanOption option = new EuropeanOption(maturity,strike);
+		BlackScholesDeltaHedgedPortfolio hedge = new BlackScholesDeltaHedgedPortfolio(maturity, strike, riskFreeRate, volatility);
 
-        System.out.println("Hedge error (RMS): " + hedgeErrorRMS);
+		RandomVariableInterface hedgeValue = hedge.getValue(maturity, model);
 
-        Assert.assertTrue(hedgeErrorRMS < 0.01);
-    }
+		long timingCalculationEnd = System.currentTimeMillis();
+
+		RandomVariableInterface underlyingAtMaturity = model.getAssetValue(maturity, 0);
+		RandomVariableInterface optionValue = option.getValue(maturity, model);
+		RandomVariableInterface hedgeError = optionValue.sub(hedgeValue);
+
+		double hedgeErrorRMS = hedgeError.getStandardDeviation();
+
+		TimeDiscretizationInterface td = new TimeDiscretization(-1.0-0.01, 101, 0.02);
+		double[] hedgeErrorHist = hedgeError.getHistogram(td.getAsDoubleArray());
+
+		if(isPrintHedgeErrorDistribution) {
+			System.out.println(td.getTime(0) + "\t" + hedgeErrorHist[0]);
+			for(int i=0; i<hedgeErrorHist.length-2; i++) {
+				System.out.println((td.getTime(i)+td.getTime(i+1))/2 + "\t" + hedgeErrorHist[i+1]);
+			}
+			System.out.println(td.getTime(hedgeErrorHist.length-2) + "\t" + hedgeErrorHist[hedgeErrorHist.length-1]);
+		}
+
+		if(isPrintHedgeFinalValues) {
+			for(int i=0; i<hedgeError.size(); i++) {
+				System.out.println(underlyingAtMaturity.get(i) + "\t" + hedgeValue.get(i) + "\t" + optionValue.get(i));
+			}
+		}
+
+		if(isPrintStatistics) {
+			System.out.println("Calculation time: " + (timingCalculationEnd-timingCalculationStart) / 1000.0 + " s.");
+			System.out.println("Hedge error (RMS): " + hedgeErrorRMS);
+		}
+
+		Assert.assertTrue(hedgeErrorRMS < 0.035);
+	}
 }
