@@ -48,6 +48,13 @@ import net.finmath.time.TimeDiscretization;
  */
 @RunWith(Parameterized.class)
 public class LIBORMarketModelNormalAADSensitivitiesTest {
+
+	private final static int numberOfPaths		= 5000;
+	private final static int numberOfFactors	= 1;
+
+	private static DecimalFormat formatReal1		= new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
+	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
+
 	@Parameters
 	public static Collection<Object[]> data() {
 		Collection<Object[]> testParameters = new ArrayList<>();
@@ -145,16 +152,6 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		return testParameters;
 	}
-
-	private final static int numberOfPaths		= 5000;
-	private final int numberOfFactors	= 1;
-
-	private static DecimalFormat formatReal1 = new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
-
-	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
-	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
-	private static DecimalFormat formatterMoneyness	= new DecimalFormat(" 000.0%;-000.0%", new DecimalFormatSymbols(Locale.ENGLISH));
-	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	String productName;
 	AbstractLIBORMonteCarloProduct product;
