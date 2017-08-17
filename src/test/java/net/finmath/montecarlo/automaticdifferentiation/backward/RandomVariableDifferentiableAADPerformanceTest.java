@@ -421,7 +421,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 	private static int numberOfPaths = 10000;		/* In the paper we use 100000 */
 	private static Object[][] testCases = {
-			/*			{ new TestFunctionBigSum(),
+			{ new TestFunctionBigSum(),
 				new Integer(numberOfPaths),	// number of paths for the arguments
 				new Integer(1),				// number of arguments
 				new Integer(numberOfPaths),	// number of paths for the parameters
@@ -468,7 +468,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(3),
 				new Integer(1),
 				new Integer(1)
-			},*/
+			},
 			{ new TestFunctionMonteCarloBermudanOption(),
 				new Integer(1),
 				new Integer(3),
