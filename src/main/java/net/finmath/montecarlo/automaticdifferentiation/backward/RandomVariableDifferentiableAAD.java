@@ -36,6 +36,22 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class RandomVariableDifferentiableAAD implements RandomVariableDifferentiableInterface {
 
+	/*
+	 * barrierDiracWidth defines the width of the discrete approximation of the dirac peak
+	 * from differentiation of a jump (barrier). It corresponds to the finite difference shift
+	 * when the derivative is calculated via finite differences.
+	 * It is a multiplicator to the standard deviation of the random variable.
+	 */
+	private static final double barrierDiracWidth;
+	static {
+		barrierDiracWidth = Double.parseDouble(System.getProperty("net.finmath.functions.RandomVariableDifferentiableInterface.barrierDiracWidth","0.5"));
+	}
+
+	private static final boolean isGradientRetainsLeafNodesOnly;
+	static {
+		isGradientRetainsLeafNodesOnly = Boolean.parseBoolean(System.getProperty("net.finmath.functions.RandomVariableDifferentiableInterface.isGradientRetainsLeafNodesOnly","true"));
+	}
+	
 	private static final long serialVersionUID = 2459373647785530657L;
 
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
@@ -292,13 +308,17 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					/*
 					 * Approximation via local finite difference
 					 * (see https://ssrn.com/abstract=2995695 for details).
-					 * Experimental version - This should be specified as a parameter.
 					 */
 					resultrandomvariable = Y.sub(Z);
-					double epsilon = 0.2*X.getStandardDeviation();
-					resultrandomvariable = resultrandomvariable.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
-					resultrandomvariable = resultrandomvariable.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
-					resultrandomvariable = resultrandomvariable.div(epsilon);
+					double epsilon = barrierDiracWidth*X.getStandardDeviation();
+					if(epsilon > 0) {
+						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
+						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
+						resultrandomvariable = resultrandomvariable.div(epsilon);
+					}
+					else {
+						resultrandomvariable.mult(0.0);
+					}
 				} else if(differentialIndex == 1) {
 					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
 				} else {
@@ -414,7 +434,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				// Node has arguments: Propagate derivative to arguments.
 				independent.propagateDerivativesFromResultToArgument(derivatives);
 				// Remove id of this node from derivatives - keep only leaf nodes.
-				derivatives.remove(id);
+				if(isGradientRetainsLeafNodesOnly) derivatives.remove(id);
 
 				// Add all non leaf node arguments to the list of independents
 				for(OperatorTreeNode argument : arguments) {
