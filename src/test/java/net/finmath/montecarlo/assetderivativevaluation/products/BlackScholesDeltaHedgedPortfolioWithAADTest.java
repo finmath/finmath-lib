@@ -6,8 +6,9 @@
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,20 +17,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
-import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
-import net.finmath.montecarlo.interestrate.products.Caplet;
-import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -78,8 +72,7 @@ public class BlackScholesDeltaHedgedPortfolioWithAADTest {
 
 
 		/*
-		 * The first three are just for the JVM warm up
-		 * (following timings will be a little more accurate).
+		 * For performance: either use a warm up period or focus on a single product.
 		 */
 		testParameters.add(new Object[] { europeanOption });
 		testParameters.add(new Object[] { bermudanOption });
@@ -87,15 +80,11 @@ public class BlackScholesDeltaHedgedPortfolioWithAADTest {
 		return testParameters;
 	}
 
+	private static Double savedBarrierDiracWidth;
+	private static Boolean savedIsGradientRetainsLeafNodesOnly;
+
 	public BlackScholesDeltaHedgedPortfolioWithAADTest(AbstractAssetMonteCarloProduct product) {
 		super();
-
-		System.setProperty(
-				"net.finmath.functions.RandomVariableDifferentiableInterface.barrierDiracWidth",
-				"0.0");
-		System.setProperty(
-				"net.finmath.functions.RandomVariableDifferentiableInterface.isGradientRetainsLeafNodesOnly",
-				"false");
 
 		this.option = product;
 		// Create a Model (see method getModel)
@@ -104,7 +93,10 @@ public class BlackScholesDeltaHedgedPortfolioWithAADTest {
 
 	public AssetModelMonteCarloSimulationInterface getModel()
 	{
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("barrierDiracWidth", new Double(0.0));
+		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), properties);
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
