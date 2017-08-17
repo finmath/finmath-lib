@@ -29,29 +29,14 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * This class implements the optimized stochastic ADD as it is described in
  * <a href="https://ssrn.com/abstract=2995695">ssrn.com/abstract=2995695</a>.
+ * For details see <a href="http://christianfries.com/finmath/stochasticautodiff/">http://christianfries.com/finmath/stochasticautodiff/</a>.
  * 
  * @author Christian Fries
  * @author Stefan Sedlmair
- * @version 1.0
+ * @version 1.1
  */
 public class RandomVariableDifferentiableAAD implements RandomVariableDifferentiableInterface {
 
-	/*
-	 * barrierDiracWidth defines the width of the discrete approximation of the dirac peak
-	 * from differentiation of a jump (barrier). It corresponds to the finite difference shift
-	 * when the derivative is calculated via finite differences.
-	 * It is a multiplicator to the standard deviation of the random variable.
-	 */
-	private static final double barrierDiracWidth;
-	static {
-		barrierDiracWidth = Double.parseDouble(System.getProperty("net.finmath.functions.RandomVariableDifferentiableInterface.barrierDiracWidth","0.5"));
-	}
-
-	private static final boolean isGradientRetainsLeafNodesOnly;
-	static {
-		isGradientRetainsLeafNodesOnly = Boolean.parseBoolean(System.getProperty("net.finmath.functions.RandomVariableDifferentiableInterface.isGradientRetainsLeafNodesOnly","true"));
-	}
-	
 	private static final long serialVersionUID = 2459373647785530657L;
 
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
@@ -76,12 +61,13 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		private final List<OperatorTreeNode> arguments;
 		private final List<RandomVariableInterface> argumentValues;
 		private final Object operator;
+		private final RandomVariableDifferentiableAADFactory factory;
 
-		public OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator) {
-			this(operatorType, extractOperatorTreeNodes(arguments), extractOperatorValues(arguments), operator);
+		public OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator, RandomVariableDifferentiableAADFactory factory) {
+			this(operatorType, extractOperatorTreeNodes(arguments), extractOperatorValues(arguments), operator, factory);
 		}
 
-		public OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator) {
+		public OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator, RandomVariableDifferentiableAADFactory factory) {
 			super();
 			this.id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;
@@ -89,6 +75,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			// This is the simple modification which reduces memory requirements.
 			this.argumentValues = (operatorType != null && operatorType.equals(OperatorType.ADD)) ? null: argumentValues;
 			this.operator = operator;
+			this.factory = factory;
 			if(operatorType != null && (operatorType.equals(OperatorType.ADD) || operatorType.equals(OperatorType.SUB))) {
 				// Addition does not need to retain arguments
 				argumentValues = null;
@@ -310,7 +297,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					 * (see https://ssrn.com/abstract=2995695 for details).
 					 */
 					resultrandomvariable = Y.sub(Z);
-					double epsilon = barrierDiracWidth*X.getStandardDeviation();
+					double epsilon = factory.getBarrierDiracWidth()*X.getStandardDeviation();
 					if(epsilon > 0) {
 						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
 						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
@@ -351,6 +338,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 */
 	private RandomVariableInterface values;
 	private final OperatorTreeNode operatorTreeNode;
+	private final RandomVariableDifferentiableAADFactory factory;
 
 	public static RandomVariableDifferentiableAAD of(double value) {
 		return new RandomVariableDifferentiableAAD(value);
@@ -361,28 +349,30 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	public RandomVariableDifferentiableAAD(double value) {
-		this(new RandomVariable(value), null, null);
-	}
-
-	public RandomVariableDifferentiableAAD(double time, double[] realisations) {
-		this(new RandomVariable(time, realisations), null, null);
+		this(new RandomVariable(value), null, null, null);
 	}
 
 	public RandomVariableDifferentiableAAD(RandomVariableInterface randomVariable) {
-		this(randomVariable, null, null);
+		this(randomVariable, null, null, null);
 	}
 
-	private RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, OperatorType operator) {
+	public RandomVariableDifferentiableAAD(RandomVariableInterface values, RandomVariableDifferentiableAADFactory factory) {
+		this(values, null, null, factory);
+	}
+
+	private RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, OperatorType operator, RandomVariableDifferentiableAADFactory factory) {
 		super();
 		this.values = values;
-		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, null);
+		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, null, factory);
+		this.factory = factory;
 	}
 
 	public RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, ConditionalExpectationEstimatorInterface estimator,
-			OperatorType operator) {
+			OperatorType operator, RandomVariableDifferentiableAADFactory factory) {
 		super();
 		this.values = values;
-		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator);
+		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator, factory);
+		this.factory = factory;
 	}
 
 	public OperatorTreeNode getOperatorTreeNode() {
@@ -396,6 +386,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 */
 	private RandomVariableInterface getValues(){
 		return values;
+	}
+
+	public RandomVariableDifferentiableAADFactory getFactory() {
+		return factory;
 	}
 
 	public Long getID(){
@@ -434,7 +428,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				// Node has arguments: Propagate derivative to arguments.
 				independent.propagateDerivativesFromResultToArgument(derivatives);
 				// Remove id of this node from derivatives - keep only leaf nodes.
-				if(isGradientRetainsLeafNodesOnly) derivatives.remove(id);
+				if(isGradientRetainsLeafNodesOnly()) derivatives.remove(id);
 
 				// Add all non leaf node arguments to the list of independents
 				for(OperatorTreeNode argument : arguments) {
@@ -447,6 +441,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return derivatives;
 	}
 
+	private boolean isGradientRetainsLeafNodesOnly() {
+		return getFactory().isGradientRetainsLeafNodesOnly();
+	}
 
 	/*
 	 * The following methods are end points since they return <code>double</double> values.
@@ -644,7 +641,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().cap(cap),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(cap) }),
-				OperatorType.CAP);
+				OperatorType.CAP,
+				getFactory());
 	}
 
 	@Override
@@ -652,7 +650,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().floor(floor),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(floor) }),
-				OperatorType.FLOOR);
+				OperatorType.FLOOR,
+				getFactory());
 	}
 
 	@Override
@@ -660,7 +659,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().add(value),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(value) }),
-				OperatorType.ADD);
+				OperatorType.ADD,
+				getFactory());
 	}
 
 	@Override
@@ -668,7 +668,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().sub(value),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(value) }),
-				OperatorType.SUB);
+				OperatorType.SUB,
+				getFactory());
 	}
 
 	@Override
@@ -676,7 +677,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().mult(value),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(value) }),
-				OperatorType.MULT);
+				OperatorType.MULT,
+				getFactory());
 	}
 
 	@Override
@@ -684,7 +686,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().div(value),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(value) }),
-				OperatorType.DIV);
+				OperatorType.DIV,
+				getFactory());
 	}
 
 	@Override
@@ -692,7 +695,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().pow(exponent),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(exponent) }),
-				OperatorType.POW);
+				OperatorType.POW,
+				getFactory());
 	}
 
 	@Override
@@ -700,7 +704,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().average(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.AVERAGE);
+				OperatorType.AVERAGE,
+				getFactory());
 	}
 
 	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface estimator) {
@@ -708,7 +713,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				getValues().getConditionalExpectation(estimator),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
 				estimator,
-				OperatorType.CONDITIONAL_EXPECTATION);
+				OperatorType.CONDITIONAL_EXPECTATION,
+				getFactory());
 
 	}
 
@@ -717,7 +723,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().squared(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.SQUARED);
+				OperatorType.SQUARED,
+				getFactory());
 	}
 
 	@Override
@@ -725,7 +732,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().sqrt(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.SQRT);
+				OperatorType.SQRT,
+				getFactory());
 	}
 
 	@Override
@@ -733,7 +741,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().exp(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.EXP);
+				OperatorType.EXP,
+				getFactory());
 	}
 
 	@Override
@@ -741,7 +750,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().log(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.LOG);
+				OperatorType.LOG,
+				getFactory());
 	}
 
 	@Override
@@ -749,7 +759,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().sin(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.SIN);
+				OperatorType.SIN,
+				getFactory());
 	}
 
 	@Override
@@ -757,7 +768,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().cos(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.COS);
+				OperatorType.COS,
+				getFactory());
 	}
 
 	@Override
@@ -765,7 +777,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().add(randomVariable),
 				Arrays.asList(new RandomVariableInterface[]{ this, randomVariable }),
-				OperatorType.ADD);
+				OperatorType.ADD,
+				getFactory());
 	}
 
 	@Override
@@ -773,7 +786,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().sub(randomVariable),
 				Arrays.asList(new RandomVariableInterface[]{ this, randomVariable }),
-				OperatorType.SUB);
+				OperatorType.SUB,
+				getFactory());
 	}
 
 	@Override
@@ -781,7 +795,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().mult(randomVariable),
 				Arrays.asList(new RandomVariableInterface[]{ this, randomVariable }),
-				OperatorType.MULT);
+				OperatorType.MULT,
+				getFactory());
 	}
 
 	@Override
@@ -789,7 +804,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().div(randomVariable),
 				Arrays.asList(new RandomVariableInterface[]{ this, randomVariable }),
-				OperatorType.DIV);
+				OperatorType.DIV,
+				getFactory());
 	}
 
 	@Override
@@ -797,7 +813,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().cap(cap),
 				Arrays.asList(new RandomVariableInterface[]{ this, cap }),
-				OperatorType.CAP);
+				OperatorType.CAP,
+				getFactory());
 	}
 
 	@Override
@@ -805,7 +822,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().cap(floor),
 				Arrays.asList(new RandomVariableInterface[]{ this, floor }),
-				OperatorType.FLOOR);
+				OperatorType.FLOOR,
+				getFactory());
 	}
 
 	@Override
@@ -813,7 +831,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().accrue(rate, periodLength),
 				Arrays.asList(new RandomVariableInterface[]{ this, rate, new RandomVariable(periodLength) }),
-				OperatorType.ACCRUE);
+				OperatorType.ACCRUE,
+				getFactory());
 	}
 
 	@Override
@@ -821,7 +840,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().discount(rate, periodLength),
 				Arrays.asList(new RandomVariableInterface[]{ this, rate, new RandomVariable(periodLength) }),
-				OperatorType.DISCOUNT);
+				OperatorType.DISCOUNT,
+				getFactory());
 	}
 
 	@Override
@@ -830,7 +850,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(new RandomVariableInterface[]{ trigger, valueIfTriggerNonNegative, valueIfTriggerNegative }),
-				OperatorType.BARRIER);
+				OperatorType.BARRIER,
+				getFactory());
 	}
 
 	@Override
@@ -839,7 +860,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(new RandomVariableInterface[]{ trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative) }),
-				OperatorType.BARRIER);
+				OperatorType.BARRIER,
+				getFactory());
 	}
 
 	@Override
@@ -847,7 +869,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().invert(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.INVERT);
+				OperatorType.INVERT,
+				getFactory());
 	}
 
 	@Override
@@ -855,7 +878,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().abs(),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.ABS);
+				OperatorType.ABS,
+				getFactory());
 	}
 
 	@Override
@@ -863,7 +887,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().addProduct(factor1, factor2),
 				Arrays.asList(new RandomVariableInterface[]{ this, factor1, new RandomVariable(factor2) }),
-				OperatorType.ADDPRODUCT);
+				OperatorType.ADDPRODUCT,
+				getFactory());
 	}
 
 	@Override
@@ -871,7 +896,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().addProduct(factor1, factor2),
 				Arrays.asList(new RandomVariableInterface[]{ this, factor1, factor2 }),
-				OperatorType.ADDPRODUCT);
+				OperatorType.ADDPRODUCT,
+				getFactory());
 	}
 
 	@Override
@@ -879,7 +905,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().addRatio(numerator, denominator),
 				Arrays.asList(new RandomVariableInterface[]{ this, numerator, denominator }),
-				OperatorType.ADDRATIO);
+				OperatorType.ADDRATIO,
+				getFactory());
 	}
 
 	@Override
@@ -887,7 +914,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().subRatio(numerator, denominator),
 				Arrays.asList(new RandomVariableInterface[]{ this, numerator, denominator }),
-				OperatorType.SUBRATIO);
+				OperatorType.SUBRATIO,
+				getFactory());
 	}
 
 	/*
@@ -933,7 +961,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getAverage(probabilities)),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(probabilities) }),
-				OperatorType.AVERAGE2);
+				OperatorType.AVERAGE2,
+				getFactory());
 	}
 
 	private RandomVariableInterface getVarianceAsRandomVariableAAD(RandomVariableInterface probabilities){
@@ -941,7 +970,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getVariance(probabilities)),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(probabilities) }),
-				OperatorType.VARIANCE2);
+				OperatorType.VARIANCE2,
+				getFactory());
 	}
 
 	private RandomVariableInterface 	getStandardDeviationAsRandomVariableAAD(RandomVariableInterface probabilities){
@@ -949,7 +979,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getStandardDeviation(probabilities)),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(probabilities) }),
-				OperatorType.STDEV2);
+				OperatorType.STDEV2,
+				getFactory());
 	}
 
 	private RandomVariableInterface 	getStandardErrorAsRandomVariableAAD(RandomVariableInterface probabilities){
@@ -957,7 +988,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getStandardError(probabilities)),
 				Arrays.asList(new RandomVariableInterface[]{ this, new RandomVariable(probabilities) }),
-				OperatorType.STDERROR2);
+				OperatorType.STDERROR2,
+				getFactory());
 	}
 
 	public RandomVariableInterface getVarianceAsRandomVariableAAD(){
@@ -965,7 +997,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getVariance()),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.VARIANCE);
+				OperatorType.VARIANCE,
+				getFactory());
 	}
 
 	public RandomVariableInterface getSampleVarianceAsRandomVariableAAD() {
@@ -973,7 +1006,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getSampleVariance()),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.SVARIANCE);
+				OperatorType.SVARIANCE,
+				getFactory());
 	}
 
 	public RandomVariableInterface 	getStandardDeviationAsRandomVariableAAD(){
@@ -981,7 +1015,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getStandardDeviation()),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.STDEV);
+				OperatorType.STDEV,
+				getFactory());
 	}
 
 	public RandomVariableInterface getStandardErrorAsRandomVariableAAD(){
@@ -989,7 +1024,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getStandardError()),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.STDERROR);
+				OperatorType.STDERROR,
+				getFactory());
 	}
 
 	public RandomVariableInterface 	getMinAsRandomVariableAAD(){
@@ -997,7 +1033,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getMin()),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.MIN);
+				OperatorType.MIN,
+				getFactory());
 	}
 
 	public RandomVariableInterface 	getMaxAsRandomVariableAAD(){
@@ -1005,6 +1042,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				new RandomVariable(getMax()),
 				Arrays.asList(new RandomVariableInterface[]{ this }),
-				OperatorType.MAX);
+				OperatorType.MAX,
+				getFactory());
 	}
 }

@@ -259,7 +259,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 	public void testRandomVariableGradientBiggerSum(){
 
 		try {
-			/* OutOfMemoryError for >= 10^6*/
+			/* OutOfMemoryError for >= 10^6 for some implementations! */
 			int lengthOfVectors = (int) Math.pow(10, 7);
 
 			double[] x = new double[lengthOfVectors];
@@ -306,7 +306,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 				Assert.assertTrue(analyticGradient[i].equals(aadGradient.get(keys[i])));
 			}
 		} catch(java.lang.OutOfMemoryError e) {
-			System.out.println("Failed due to out of memory.");
+			System.out.println("Failed due to out of memory (this is expected for some implementations).");
 		}
 
 	}
