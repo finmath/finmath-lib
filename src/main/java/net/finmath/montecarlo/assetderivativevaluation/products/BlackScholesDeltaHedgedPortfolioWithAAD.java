@@ -18,8 +18,11 @@ import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements a delta hedged portfolio of an European option (a hedge simulator).
- * The hedge is done under the assumption of a Black Scholes Model (even if the pricing model is a different one).
+ * This class implements a delta hedged portfolio (a hedge simulator).
+ * The delta hedge uses numerical calculation of
+ * the delta and - in theory - works for any model implementing <code>AssetModelMonteCarloSimulationInterface</code>
+ * and any product implementing <code>AbstractAssetMonteCarloProduct</code>.
+ * The results however somewhat depend on the choice of the internal regression basis functions.
  *
  * The <code>getValue</code>-method returns the random variable \( \Pi(t) \) representing the value
  * of the replication portfolio \( \Pi(t) = \phi_0(t) N(t) +  \phi_1(t) S(t) \).
@@ -38,9 +41,12 @@ public class BlackScholesDeltaHedgedPortfolioWithAAD extends AbstractAssetMonteC
 	private double lastOperationTimingDerivative = Double.NaN;
 
 	/**
-	 * Construction of a delta hedge portfolio assuming a Black-Scholes model.
+	 * Construction of a delta hedge portfolio. The delta hedge uses numerical calculation of
+	 * the delta and - in theory - works for any model implementing <code>AssetModelMonteCarloSimulationInterface</code>
+	 * and any product implementing <code>AbstractAssetMonteCarloProduct</code>.
+	 * The results however somewhat depend on the choice of the internal regression basis functions.
 	 *
-	 * @param productToReplicate
+	 * @param productToReplicate The product for which the replication portfolio should be build. May be any product implementing the <code>AbstractAssetMonteCarloProduct</code> interface.
 	 */
 	public BlackScholesDeltaHedgedPortfolioWithAAD(AbstractAssetMonteCarloProduct productToReplicate) {
 		super();
