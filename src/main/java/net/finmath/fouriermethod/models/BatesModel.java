@@ -39,8 +39,6 @@ import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
  * 	<dt>\( \rho \)</dt> <dd>the correlation of the Brownian drivers</dd>
  * 	<dt>\( a \)</dt> <dd>the jump size mean</dd>
  * 	<dt>\( b \)</dt> <dd>the jump size standard deviation</dd>
- * 
- * 	<dt></dt> <dd></dd>
  * </dl>
  * 
  * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
@@ -130,7 +128,8 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 	 * @param beta Mean reversion speed of variance process V.
 	 * @param sigma Volatility of volatility.
 	 * @param rho Correlations of the Brownian drives (underlying, variance).
-	 * @param lambda Coefficients of for the jump intensity.
+	 * @param lambdaZero Constant part of the jump intensity.
+	 * @param lambdaOne Coefficients of the jump intensity, linear in variance.
 	 * @param k Jump size mean.
 	 * @param delta Jump size variance.
 	 */
@@ -142,7 +141,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 			double beta,
 			double sigma,
 			double rho,
-			double lambda,
+			double lambdaZero,
 			double lambdaOne,
 			double k,
 			double delta
@@ -153,7 +152,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 				new double[]{ beta },
 				new double[]{ sigma },
 				new double[]{ rho },
-				new double[]{ lambda, lambdaOne },
+				new double[]{ lambdaZero, lambdaOne },
 				k,
 				delta
 				);
