@@ -13,6 +13,11 @@ The finmath lib libraries provides implementations of methodologies related to m
 - General numerical algorithms like
     - Generation of random numbers
     - Optimization (a Levenberg–Marquardt algorithm is provided)
+- Valuation using Fourtier transforms / characteristic functions
+	- Black-Scholes model
+	- Heston model
+	- Bates model
+	- Two factor Bates model
 - Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
     - LIBOR Market Model
     - Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
@@ -118,7 +123,9 @@ Of course, you may use the IDE of your choice by simply importing the maven pom.
 
 
 Documentation
--------------
+-------
+
+For documentation please check out
 
 -   [finmath lib Project documentation][]  
     provides the documentation of the library api.
