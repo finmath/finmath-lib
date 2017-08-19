@@ -8,7 +8,6 @@ package net.finmath.fouriermethod.models;
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 
 /**
  * Implements the characteristic function of a Bates model.
