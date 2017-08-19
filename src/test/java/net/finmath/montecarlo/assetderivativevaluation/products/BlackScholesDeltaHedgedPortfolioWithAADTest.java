@@ -125,7 +125,7 @@ public class BlackScholesDeltaHedgedPortfolioWithAADTest {
 
 		long timingCalculationStart = System.currentTimeMillis();
 
-		BlackScholesDeltaHedgedPortfolioWithAAD hedge = new BlackScholesDeltaHedgedPortfolioWithAAD(option);
+		DeltaHedgedPortfolioWithAAD hedge = new DeltaHedgedPortfolioWithAAD(option);
 
 		RandomVariableInterface hedgeValue = hedge.getValue(maturity, model);
 

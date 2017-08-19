@@ -30,7 +30,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.1
  */
-public class BlackScholesDeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct {
+public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct {
 
 	// The financial product we like to replicate
 	private final AbstractAssetMonteCarloProduct productToReplicate;
@@ -48,7 +48,7 @@ public class BlackScholesDeltaHedgedPortfolioWithAAD extends AbstractAssetMonteC
 	 *
 	 * @param productToReplicate The product for which the replication portfolio should be build. May be any product implementing the <code>AbstractAssetMonteCarloProduct</code> interface.
 	 */
-	public BlackScholesDeltaHedgedPortfolioWithAAD(AbstractAssetMonteCarloProduct productToReplicate) {
+	public DeltaHedgedPortfolioWithAAD(AbstractAssetMonteCarloProduct productToReplicate) {
 		super();
 		this.productToReplicate = productToReplicate;
 	}
