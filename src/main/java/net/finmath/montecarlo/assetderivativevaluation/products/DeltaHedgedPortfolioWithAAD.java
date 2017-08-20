@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
@@ -97,12 +98,17 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 			RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
 			// Get delta
-			RandomVariableInterface delta = gradient.get(((RandomVariableDifferentiableInterface)underlyingAtTimeIndex).getID()-1);
+			RandomVariableInterface delta = gradient.get(((RandomVariableDifferentiableInterface)underlyingAtTimeIndex).getID());
 			if(delta == null) delta = underlyingAtTimeIndex.mult(0.0);
-			delta = delta.div(underlyingAtTimeIndex).mult(numeraireAtTimeIndex);
 
+//			RandomVariableInterface delta = gradient.get(((RandomVariableDifferentiableInterface)underlyingAtTimeIndex).getID()-1);
+//			if(delta == null) delta = underlyingAtTimeIndex.mult(0.0);
+//			delta = delta.div(underlyingAtTimeIndex);
+
+			delta = delta.mult(numeraireAtTimeIndex);
+			
 			RandomVariableInterface indicator = new RandomVariable(1.0);
-			if(exerciseTime != null) indicator = exerciseTime.barrier(exerciseTime.sub(model.getTime(timeIndex)+0.01), new RandomVariable(1.0), 0.0);
+			if(exerciseTime != null) indicator = exerciseTime.barrier(exerciseTime.sub(model.getTime(timeIndex)+0.001), new RandomVariable(1.0), 0.0);
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
 			ArrayList<RandomVariableInterface> basisFunctions = getRegressionBasisFunctionsBinning(underlyingAtTimeIndex, indicator);
