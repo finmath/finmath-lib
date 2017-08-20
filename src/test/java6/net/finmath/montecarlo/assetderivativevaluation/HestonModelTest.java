@@ -12,7 +12,6 @@ import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.internal.runners.ErrorReportingRunner;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
@@ -41,22 +40,22 @@ public class HestonModelTest {
 	private final double	volatility     = 0.30;
 
 	private final double theta = volatility*volatility;
-	private final double kappa = 0.2;
-	private final double xi = 0.75;
-	private final double rho = -0.2;
+	private final double kappa = 0.1;
+	private final double xi = 0.50;
+	private final double rho = 0.1;
 
 	private final Scheme scheme = Scheme.FULL_TRUNCATION;
 
 	// Process discretization properties
 	private final int		numberOfPaths		= 100000;
 	private final int		numberOfTimeSteps	= 100;
-	private final double	deltaT				= 0.02;
+	private final double	deltaT				= 0.05;
 
 	private final int		seed				= 31415;
 
 	// Product properties
 	private final int		assetIndex = 0;
-	private final double	optionMaturity = 2.0;
+	private final double	optionMaturity = 5.0;
 	private final double	optionStrike = 1.10;
 
 	private static DecimalFormat formatReal3 = new DecimalFormat("####0.000", new DecimalFormatSymbols(Locale.ENGLISH));

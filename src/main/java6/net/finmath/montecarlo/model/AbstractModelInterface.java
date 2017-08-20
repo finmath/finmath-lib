@@ -61,7 +61,7 @@ public interface AbstractModelInterface {
 	int getNumberOfComponents();
 
 	/**
-	 * Applied the state space transform <i>f<sub>i</sub></i> to the given state random variable
+	 * Applies the state space transform <i>f<sub>i</sub></i> to the given state random variable
 	 * such that <i>Y<sub>i</sub> &rarr; f<sub>i</sub>(Y<sub>i</sub>) =: X<sub>i</sub></i>.
 	 * 
 	 * @param componentIndex The component index <i>i</i>.
@@ -69,6 +69,8 @@ public interface AbstractModelInterface {
 	 * @return New random variable holding the result of the state space transformation.
 	 */
 	RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable);
+
+	RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable);
 
 	/**
 	 * Returns the initial value of the state variable of the process <i>Y</i>, not to be

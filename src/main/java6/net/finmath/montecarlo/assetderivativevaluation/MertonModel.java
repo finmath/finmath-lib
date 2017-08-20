@@ -103,6 +103,11 @@ public class MertonModel extends AbstractModel {
 	}
 
 	@Override
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable.log();
+	}
+
+	@Override
 	public RandomVariableInterface[] getInitialState() {
 		return new RandomVariableInterface[] { getProcess().getStochasticDriver().getRandomVariableForConstant(Math.log(initialValue)) };
 	}

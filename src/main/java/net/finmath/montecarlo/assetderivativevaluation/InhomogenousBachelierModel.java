@@ -97,6 +97,11 @@ public class InhomogenousBachelierModel extends AbstractModel {
 	}
 
 	@Override
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable;
+	}
+
+	@Override
 	public RandomVariableInterface getNumeraire(double time) {
 		double numeraireValue = Math.exp(riskFreeRate * time);
 

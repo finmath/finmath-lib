@@ -521,9 +521,12 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 	@Override
 	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
-		RandomVariableInterface value = randomVariable;
+		return randomVariable;
+	}
 
-		return value;
+	@Override
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable;
 	}
 
 	/* (non-Javadoc)

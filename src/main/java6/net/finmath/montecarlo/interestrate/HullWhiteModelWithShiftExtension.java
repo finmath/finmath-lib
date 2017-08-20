@@ -168,6 +168,11 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	}
 
 	@Override
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable;
+	}
+
+	@Override
 	public RandomVariableInterface[] getInitialState() {
 		// Initial value is zero - BrownianMotionInterface serves as a factory here.
 		RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);

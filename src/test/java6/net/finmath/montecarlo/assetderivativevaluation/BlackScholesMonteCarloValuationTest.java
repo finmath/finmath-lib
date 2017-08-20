@@ -16,8 +16,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
@@ -178,8 +176,9 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println(" Strike \t Monte-Carlo \t Analytic \t Deviation");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate();
-		double volatility	= blackScholesModel.getModel().getVolatility();
+		// @TODO This needs to be changes to use random variables.
+		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
+		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
 
 		double optionMaturity	= 1.0;
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.05) {
@@ -382,8 +381,9 @@ public class BlackScholesMonteCarloValuationTest {
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate();
-		double volatility	= blackScholesModel.getModel().getVolatility();
+		// @TODO This needs to be changes to use random variables.
+		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
+		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Delta (European options with maturity 1.0):");
@@ -454,8 +454,9 @@ public class BlackScholesMonteCarloValuationTest {
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate();
-		double volatility	= blackScholesModel.getModel().getVolatility();
+		// @TODO This needs to be changes to use random variables.
+		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
+		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Vega (European options with maturity 1.0):");

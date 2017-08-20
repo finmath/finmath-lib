@@ -7,6 +7,8 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Map;
 
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -36,17 +38,19 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class BlackScholesModel extends AbstractModel {
 
-	private final double initialValue;
-	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
-	private final double volatility;
-	
+	private final RandomVariableInterface initialValue;
+	private final RandomVariableInterface riskFreeRate;
+	private final RandomVariableInterface volatility;
+
+	private final AbstractRandomVariableFactory randomVariableFactory;
+
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
 	 */
-	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[1];
+	private RandomVariableInterface[]	initialState;
 	private RandomVariableInterface		drift;
-	private RandomVariableInterface		volatilityOnPaths;
+	private RandomVariableInterface[]	factorLoadings;
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -54,37 +58,76 @@ public class BlackScholesModel extends AbstractModel {
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModel(
-			double initialValue,
-			double riskFreeRate,
-			double volatility) {
+			RandomVariableInterface initialValue,
+			RandomVariableInterface riskFreeRate,
+			RandomVariableInterface volatility,
+			AbstractRandomVariableFactory randomVariableFactory) {
 		super();
 
 		this.initialValue	= initialValue;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatility		= volatility;
+		this.randomVariableFactory = randomVariableFactory;
+	}
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 * 
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
+	 */
+	public BlackScholesModel(
+			double initialValue,
+			double riskFreeRate,
+			double volatility,
+			AbstractRandomVariableFactory randomVariableFactory) {
+		super();
+
+		this.initialValue	= randomVariableFactory.createRandomVariable(initialValue);
+		this.riskFreeRate	= randomVariableFactory.createRandomVariable(riskFreeRate);
+		this.volatility		= randomVariableFactory.createRandomVariable(volatility);
+		this.randomVariableFactory = randomVariableFactory;
+	}
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 * 
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @deprecated
+	 */
+	public BlackScholesModel(
+			double initialValue,
+			double riskFreeRate,
+			double volatility) {
+		this(initialValue, riskFreeRate, volatility, new RandomVariableFactory());
 	}
 
 	@Override
 	public RandomVariableInterface[] getInitialState() {
 		// Since the underlying process is configured to simulate log(S), the initial value and the drift are transformed accordingly.
-		if(initialValueVector[0] == null) 	initialValueVector[0] = getRandomVariableForConstant(Math.log(initialValue));
-		
-		return initialValueVector;
+		if(initialState == null) 	initialState = new RandomVariableInterface[] { initialValue.log() };
+
+		return initialState;
 	}
 
 	@Override
 	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
 		// Since the underlying process is configured to simulate log(S), the initial value and the drift are transformed accordingly.
-		if(drift == null) drift = getRandomVariableForConstant(riskFreeRate - volatility * volatility / 2.0);
+		if(drift == null) drift = riskFreeRate.sub(volatility.squared().div(2));
 		return new RandomVariableInterface[] { drift };
 	}
 
 	@Override
 	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		if(volatilityOnPaths == null) volatilityOnPaths = getRandomVariableForConstant(volatility);
-		return new RandomVariableInterface[] { volatilityOnPaths };
+		if(factorLoadings == null) factorLoadings = new RandomVariableInterface[] { volatility };
+		return factorLoadings;
 	}
 
 	@Override
@@ -93,10 +136,13 @@ public class BlackScholesModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) {
-		double numeraireValue = Math.exp(riskFreeRate * time);
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable.log();
+	}
 
-		return getRandomVariableForConstant(numeraireValue);
+	@Override
+	public RandomVariableInterface getNumeraire(double time) {
+		return riskFreeRate.mult(time).exp();
 	}
 
 	@Override
@@ -105,7 +151,7 @@ public class BlackScholesModel extends AbstractModel {
 	}
 
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
@@ -113,11 +159,11 @@ public class BlackScholesModel extends AbstractModel {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : this.getRiskFreeRate();
-		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: this.getVolatility();
+		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() 	: initialValue.getAverage();
+		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue()	: getRiskFreeRate().getAverage();
+		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: getVolatility().getAverage();
 
-		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility);
+		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, randomVariableFactory);
 	}
 
 	@Override
@@ -130,11 +176,20 @@ public class BlackScholesModel extends AbstractModel {
 	}
 
 	/**
+	 * Return the initial value of this model.
+	 * 
+	 * @return the initial value of this model.
+	 */
+	public RandomVariableInterface[] getInitialValue() {
+		return new RandomVariableInterface[] { initialValue };
+	}
+
+	/**
 	 * Returns the risk free rate parameter of this model.
 	 *
 	 * @return Returns the riskFreeRate.
 	 */
-	public double getRiskFreeRate() {
+	public RandomVariableInterface getRiskFreeRate() {
 		return riskFreeRate;
 	}
 
@@ -143,7 +198,7 @@ public class BlackScholesModel extends AbstractModel {
 	 * 
 	 * @return Returns the volatility.
 	 */
-	public double getVolatility() {
+	public RandomVariableInterface getVolatility() {
 		return volatility;
 	}
 }

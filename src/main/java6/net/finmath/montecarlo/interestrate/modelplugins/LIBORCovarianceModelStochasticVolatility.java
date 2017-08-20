@@ -184,6 +184,11 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 					}
 
 					@Override
+					public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+						return randomVariable.log();
+					}
+
+					@Override
 					public RandomVariableInterface getRandomVariableForConstant(double value) {
 						return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 					}

@@ -95,6 +95,11 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	}
 
 	@Override
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable;
+	}
+
+	@Override
 	public RandomVariableInterface[] getInitialState() {
 		if(initialState == null) {
 			double dt = getProcess().getTimeDiscretization().getTimeStep(0);

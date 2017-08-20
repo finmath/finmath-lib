@@ -155,6 +155,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
+	 * @TODO THE METHOD NEED TO BE CHANGED. NEED
 	 */
 	@Override
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
@@ -163,8 +164,8 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		 */
 		double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
 		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate();
-		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: model.getVolatility();
+		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate().getAverage();
+		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: model.getVolatility().getAverage();
 		int		newSeed			= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
 
 		/*
@@ -200,7 +201,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
-		return new MonteCarloBlackScholesModel(initialValue, model.getRiskFreeRate(), model.getVolatility(), process);
+		return new MonteCarloBlackScholesModel(initialValue, model.getRiskFreeRate().getAverage(), model.getVolatility().getAverage(), process);
 	}
 
 	/* (non-Javadoc)

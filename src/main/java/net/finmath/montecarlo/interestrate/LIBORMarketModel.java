@@ -862,6 +862,15 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return value;
 	}
 
+	@Override
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		RandomVariableInterface value = randomVariable;
+
+		if(stateSpace == StateSpace.LOGNORMAL)	value = value.log();
+
+		return value;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
 	 */

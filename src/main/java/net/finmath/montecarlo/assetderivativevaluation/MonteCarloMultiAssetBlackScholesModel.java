@@ -152,6 +152,11 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	}
 
 	@Override
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		return randomVariable.log();
+	}
+
+	@Override
 	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
 		if(timeIndex < 0) timeIndex = -timeIndex-1;
