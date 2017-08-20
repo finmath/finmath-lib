@@ -16,7 +16,7 @@ import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements the valuation of a Bermudan option paying
+ * This class implements the valuation of a Bermudan digital option paying
  * <br>
  * \( N_{i} \cdot \mathbb{1}(S(T_{i}) - K_{i}) \) at \( T_{i} \),
  * <br>
@@ -65,7 +65,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 	 * @param notionals The notionals (N(i)) for each exercise date.
 	 * @param strikes The strikes (K(i)) for each exercise date.
 	 * @param exerciseMethod The exercise method to be used for the estimation of the exercise boundary.
-	 * @param properties Use this to specify speacial parameters, e.g., "orderOfRegressionPolynomial" (Integer).
+	 * @param properties Use this map to specify special product parameters, e.g. "orderOfRegressionPolynomial" (Integer).
 	 */
 	public BermudanDigitalOption(
 			double[] exerciseDates,
