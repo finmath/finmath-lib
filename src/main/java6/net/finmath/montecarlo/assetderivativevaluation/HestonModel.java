@@ -324,17 +324,22 @@ public class HestonModel extends AbstractModel {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		RandomVariableInterface	newInitialValue	= getRandomVariableForValue(dataModified.getOrDefault("initialValue", initialValue));
-		RandomVariableInterface	newRiskFreeRate	= getRandomVariableForValue(dataModified.getOrDefault("riskFreeRate", riskFreeRate));
-		RandomVariableInterface	newVolatility	= getRandomVariableForValue(dataModified.getOrDefault("volatility", volatility));
-		RandomVariableInterface	newDiscountRate	= getRandomVariableForValue(dataModified.getOrDefault("discountRate", discountRate));
+		RandomVariableInterface	newInitialValue	= getRandomVariableForValue(getOrDefault(dataModified,"initialValue", initialValue));
+		RandomVariableInterface	newRiskFreeRate	= getRandomVariableForValue(getOrDefault(dataModified,"riskFreeRate", riskFreeRate));
+		RandomVariableInterface	newVolatility	= getRandomVariableForValue(getOrDefault(dataModified,"volatility", volatility));
+		RandomVariableInterface	newDiscountRate	= getRandomVariableForValue(getOrDefault(dataModified,"discountRate", discountRate));
 
-		RandomVariableInterface	newTheta	= getRandomVariableForValue(dataModified.getOrDefault("theta", theta));
-		RandomVariableInterface	newKappa	= getRandomVariableForValue(dataModified.getOrDefault("kappa", kappa));
-		RandomVariableInterface	newXi		= getRandomVariableForValue(dataModified.getOrDefault("xi", xi));
-		RandomVariableInterface	newRho		= getRandomVariableForValue(dataModified.getOrDefault("rho", rho));
+		RandomVariableInterface	newTheta	= getRandomVariableForValue(getOrDefault(dataModified,"theta", theta));
+		RandomVariableInterface	newKappa	= getRandomVariableForValue(getOrDefault(dataModified,"kappa", kappa));
+		RandomVariableInterface	newXi		= getRandomVariableForValue(getOrDefault(dataModified,"xi", xi));
+		RandomVariableInterface	newRho		= getRandomVariableForValue(getOrDefault(dataModified,"rho", rho));
 
 		return new HestonModel(newInitialValue, newRiskFreeRate, newVolatility, newDiscountRate, newTheta, newKappa, newXi, newRho, scheme, randomVariableFactory);
+	}
+
+	private Object getOrDefault(Map<String, Object> map, String key, Object defaultValue) {
+		Object value = map.get(key);
+		return value != null ? value : defaultValue;
 	}
 
 	private RandomVariableInterface getRandomVariableForValue(Object value) {
