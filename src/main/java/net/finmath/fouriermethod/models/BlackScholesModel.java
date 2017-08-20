@@ -21,17 +21,20 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 	private final double initialValue;
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double volatility;
+	private final double discountRate;
 
-	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility) {
+	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility, double discountRate) {
 		super();
 		this.initialValue = initialValue;
 		this.riskFreeRate = riskFreeRate;
 		this.volatility = volatility;
+		this.discountRate = discountRate;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface#apply(double)
-	 */
+	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility) {
+		this(initialValue, riskFreeRate, volatility, riskFreeRate);
+	}
+
 	@Override
 	public CharacteristicFunctionInterface apply(double time) {
 		return argument -> {
@@ -41,7 +44,7 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 							iargument
 							.multiply(0.5*volatility*volatility*time)
 							.add(Math.log(initialValue)-0.5*volatility*volatility*time+riskFreeRate*time))
-					.add(-riskFreeRate*time)
+					.add(-discountRate*time)
 					.exp();
 		};
 	}

@@ -48,24 +48,30 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	private final double initialValue;
 	private final double riskFreeRate; // Actually the same as the drift (which is not stochastic)
 	private final double volatility;
+	private final double discountRate;
 
 	private final double theta;
 	private final double kappa;
 	private final double xi;
 	private final double rho;
 
-	public HestonModel(double initialValue, double riskFreeRate, double volatility, double theta, double kappa,
+	public HestonModel(double initialValue, double riskFreeRate, double volatility, double discountRate, double theta, double kappa,
 			double xi, double rho) {
 		super();
 		this.initialValue = initialValue;
 		this.riskFreeRate = riskFreeRate;
 		this.volatility = volatility;
+		this.discountRate = discountRate;
 		this.theta = theta;
 		this.kappa = kappa;
 		this.xi = xi;
 		this.rho = rho;
 	}
 
+	public HestonModel(double initialValue, double riskFreeRate, double volatility, double theta, double kappa,
+			double xi, double rho) {
+		this(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho);
+	}
 
 	@Override
 	public CharacteristicFunctionInterface apply(final double time) {
@@ -96,13 +102,12 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 								.multiply(0.5).add(new Complex(1).divide(gamma.multiply(time).exp())).log()
 								.add(gamma.multiply(time)).multiply((2 * alpha) / (sigma * sigma)));
 
-				Complex B = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(0.5)
-						.multiply(-2)
+				Complex B = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)
 						.divide(iargument.multiply(rho * sigma).subtract(beta)
 								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
 										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
 
-				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) + time * riskFreeRate)).add(-riskFreeRate*time).exp();
+				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) + time * riskFreeRate)).add(-discountRate*time).exp();
 			};
 		};
 	}

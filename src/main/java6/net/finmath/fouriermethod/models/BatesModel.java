@@ -8,7 +8,6 @@ package net.finmath.fouriermethod.models;
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 
 /**
  * Implements the characteristic function of a Bates model.
@@ -65,6 +64,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 	private final double initialValue;
 	private final double riskFreeRate; // Actually the same as the drift (which is not stochastic)
 	private final double[] volatility;
+	private final double discountRate;
 
 	private final double[] alpha;
 	private final double[] beta;
@@ -76,6 +76,50 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 	private final double delta;
 
 	private final int numberOfFactors;
+
+	/**
+	 * Create a two factor Bates model.
+	 * 
+	 * @param initialValue Initial value of S.
+	 * @param riskFreeRate Risk free rate.
+	 * @param volatility Square root of initial value of the stochastic variance process V.
+	 * @param discountRate Rate used for the discount factor.
+	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
+	 * @param beta Mean reversion speed of variance process V.
+	 * @param sigma Volatility of volatility.
+	 * @param rho Correlations of the Brownian drives (underlying, variance).
+	 * @param lambda Coefficients of for the jump intensity.
+	 * @param k Jump size mean.
+	 * @param delta Jump size variance.
+	 */
+	public BatesModel(
+			double initialValue,
+			double riskFreeRate,
+			double[] volatility,
+			double discountRate,
+			double[] alpha,
+			double[] beta,
+			double[] sigma,
+			double[] rho,
+			double[] lambda,
+			double k,
+			double delta
+			) {
+		super();
+		this.initialValue	= initialValue;
+		this.riskFreeRate	= riskFreeRate;
+		this.volatility		= volatility;
+		this.discountRate	= discountRate;
+		this.alpha			= alpha;
+		this.beta			= beta;
+		this.sigma			= sigma;
+		this.rho			= rho;
+		this.lambda			= lambda;
+		this.k				= k;
+		this.delta			= delta;
+
+		this.numberOfFactors = alpha.length;
+	}
 
 	/**
 	 * Create a two factor Bates model.
@@ -103,19 +147,19 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 			double k,
 			double delta
 			) {
-		super();
-		this.alpha			= alpha;
-		this.beta			= beta;
-		this.sigma			= sigma;
-		this.rho			= rho;
-		this.lambda			= lambda;
-		this.k				= k;
-		this.delta			= delta;
-		this.volatility		= volatility;
-		this.initialValue	= initialValue;
-		this.riskFreeRate	= riskFreeRate;
-
-		this.numberOfFactors = alpha.length;
+		this(
+				initialValue,
+				riskFreeRate,
+				volatility,
+				riskFreeRate,
+				alpha,
+				beta,
+				sigma,
+				rho,
+				lambda,
+				k,
+				delta
+				);
 	}
 
 	/**
@@ -246,7 +290,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 								.add(B[0].multiply(volatility[0]))
 								.add(C.multiply(time*lambda[0]))
 								.add(iargument.multiply(Math.log(initialValue)+time*riskFreeRate))
-								.add(-riskFreeRate*time);
+								.add(-discountRate*time);
 
 				if(numberOfFactors == 2) {
 					characteristicFunction = characteristicFunction
