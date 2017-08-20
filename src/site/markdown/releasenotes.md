@@ -5,12 +5,16 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 3.0.13 (20.08.2017)
+## 3.0.14 (20.08.2017)
 
 ### Monte-Carlo models
 
 - AbstractModelInterface requires the inverse of the state-space-transform. This enables ProcessEulerScheme to construct a sequential dependency structure (this is useful for AAD).
 - ProcessEulerScheme offers the scheme EULER_FUNCTiONAL (constructs a sequential dependency structure (this is useful for AAD))
+
+### Valuation using Fourier transforms
+
+-- Added discount rate as optional parameter to Heston and Bates model.
 
 ## 3.0.12 (19.08.2017)
 
