@@ -70,10 +70,9 @@ public interface AbstractModelInterface {
 	 */
 	RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable);
 
-	RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable);
-//	default RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
-//		throw new UnsupportedOperationException("Inverse of statespace transform not set");
-//	}
+	default RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		throw new UnsupportedOperationException("Inverse of statespace transform not set");
+	}
 	
 	/**
 	 * Returns the initial value of the state variable of the process <i>Y</i>, not to be
