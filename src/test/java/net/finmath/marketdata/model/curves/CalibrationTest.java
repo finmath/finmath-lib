@@ -53,7 +53,7 @@ public class CalibrationTest {
 	 * 
 	 * @return Array of parameters.
 	 */
-	@Parameters
+	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {

@@ -54,7 +54,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 @RunWith(Parameterized.class)
 public class LIBORMarketModelMultiCurveValuationTest {
 
-	@Parameters
+	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {

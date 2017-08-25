@@ -69,7 +69,7 @@ public class LIBORIndexTest {
 	 * 
 	 * @return Array of parameters.
 	 */
-	@Parameters
+	@Parameters(name="{1}-{0}")
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {

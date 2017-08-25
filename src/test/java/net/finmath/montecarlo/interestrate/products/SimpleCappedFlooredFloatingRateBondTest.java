@@ -46,7 +46,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 @RunWith(Parameterized.class)
 public class SimpleCappedFlooredFloatingRateBondTest {
 
-	@Parameters
+	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {

@@ -13,6 +13,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
+import net.finmath.fouriermethod.products.DigitalOption;
 import net.finmath.fouriermethod.products.EuropeanOption;
 import net.finmath.functions.AnalyticFormulas;
 
@@ -47,7 +48,28 @@ public class BlackScholesCallOptionTest {
 		double valueAnalytic	= AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
 		double error			= value-valueAnalytic;
 
-		System.out.println("Result: " + value + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
+		System.out.println(product.getClass().getSimpleName() + "\t" + "Result: " + value + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
+
+		Assert.assertEquals("Value", valueAnalytic, value, 1E-7);
+	}
+
+	@Test
+	public void testDigitalOption() throws CalculationException {
+
+		ProcessCharacteristicFunctionInterface model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+
+		AbstractProductFourierTransform product = new DigitalOption(maturity, strike);
+
+		long startMillis	= System.currentTimeMillis();
+		
+		double value			= product.getValue(model);
+		
+		long endMillis		= System.currentTimeMillis();
+		
+		double valueAnalytic	= AnalyticFormulas.blackScholesDigitalOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
+		double error			= value-valueAnalytic;
+
+		System.out.println(product.getClass().getSimpleName() + "\t" + "Result: " + value + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
 
 		Assert.assertEquals("Value", valueAnalytic, value, 1E-7);
 	}
