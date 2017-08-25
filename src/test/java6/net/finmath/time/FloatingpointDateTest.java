@@ -5,10 +5,9 @@
  */
 package net.finmath.time;
 
-import org.threeten.bp.LocalDate;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
 
 public class FloatingpointDateTest {
 

@@ -1,9 +1,8 @@
 package net.finmath.time.businessdaycalendar;
 
-import org.threeten.bp.LocalDate;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
 
 /**
  * Provides a few simple tests for Business Day Calendars.

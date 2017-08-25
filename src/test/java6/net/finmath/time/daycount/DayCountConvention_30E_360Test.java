@@ -6,10 +6,9 @@
 
 package net.finmath.time.daycount;
 
-import org.threeten.bp.LocalDate;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
 
 /**
  * Testing the 30E/360 DCC.

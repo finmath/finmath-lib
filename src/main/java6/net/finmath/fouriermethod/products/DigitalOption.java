@@ -8,15 +8,15 @@ package net.finmath.fouriermethod.products;
 import org.apache.commons.math3.complex.Complex;
 
 /**
- * Implements valuation of a European option on a single asset.
+ * Implements valuation of a European digital option on a single asset.
  * 
- * Given a model for an asset <i>S</i>, the European option with strike <i>K</i>, maturity <i>T</i>
+ * Given a model for an asset <i>S</i>, the European digital option with strike <i>K</i>, maturity <i>T</i>
  * pays
  * <br>
  * 	<i>indicator(S(T) - K)</i> in <i>T</i>
  * <br>
  * 
- * The class implements the characteristic function of the call option
+ * The class implements the characteristic function of the digital option
  * payoff, i.e., its Fourier transform.
  * 
  * @author Christian Fries
@@ -26,7 +26,7 @@ public class DigitalOption extends AbstractProductFourierTransform {
 
 	private final double maturity;
 	private final double strike;
-	private final String nameOfUnderliyng;
+	private final String nameOfUnderlying;
 	
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -37,7 +37,7 @@ public class DigitalOption extends AbstractProductFourierTransform {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
-		this.nameOfUnderliyng	= null;		// Use asset with index 0
+		this.nameOfUnderlying	= null;		// Use asset with index 0
 	}
 
 	/* (non-Javadoc)

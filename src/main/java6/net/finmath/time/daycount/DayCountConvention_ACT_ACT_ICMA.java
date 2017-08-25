@@ -6,9 +6,10 @@
 
 package net.finmath.time.daycount;
 
-import org.threeten.bp.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import org.threeten.bp.LocalDate;
 
 import net.finmath.time.Period;
 

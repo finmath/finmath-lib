@@ -1,7 +1,5 @@
 package net.finmath.marketdata.model.curves;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +9,8 @@ import java.util.Vector;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.Solver;
