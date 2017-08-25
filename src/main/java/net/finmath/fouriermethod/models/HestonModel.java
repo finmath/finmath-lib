@@ -76,34 +76,30 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	@Override
 	public CharacteristicFunctionInterface apply(final double time) {
 
-		final double alpha = theta*kappa;
-		final double beta = kappa;
-		final double sigma = xi;
-
 		return new CharacteristicFunctionInterface() {
 			@Override
 			public Complex apply(Complex argument) {
 
 				Complex iargument = argument.multiply(Complex.I);
 
-				Complex gamma = iargument.multiply(rho * sigma).subtract(beta).pow(2)
+				Complex gamma = iargument.multiply(rho * xi).subtract(kappa).pow(2)
 						.subtract(
 								iargument.multiply(iargument)
 								.add(iargument.multiply(-1)).multiply(0.5)
-								.multiply(2 * sigma * sigma))
+								.multiply(2 * xi * xi))
 						.sqrt();
 
 				Complex A = iargument
-						.multiply(rho * sigma)
-						.subtract(beta)
-						.subtract(gamma).multiply((-alpha * time) / (sigma * sigma))
-						.subtract(iargument.multiply(rho * sigma).subtract(beta).subtract(gamma)
+						.multiply(rho * xi)
+						.subtract(kappa)
+						.subtract(gamma).multiply((-theta*kappa * time) / (xi * xi))
+						.subtract(iargument.multiply(rho * xi).subtract(kappa).subtract(gamma)
 								.multiply(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1).divide(gamma))
 								.multiply(0.5).add(new Complex(1).divide(gamma.multiply(time).exp())).log()
-								.add(gamma.multiply(time)).multiply((2 * alpha) / (sigma * sigma)));
+								.add(gamma.multiply(time)).multiply((2 * theta*kappa) / (xi * xi)));
 
 				Complex B = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)
-						.divide(iargument.multiply(rho * sigma).subtract(beta)
+						.divide(iargument.multiply(rho * xi).subtract(kappa)
 								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
 										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
 
