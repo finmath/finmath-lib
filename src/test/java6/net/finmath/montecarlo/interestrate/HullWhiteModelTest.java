@@ -138,7 +138,7 @@ public class HullWhiteModelTest {
 		{
 			/*
 			 * Create a volatility model: Hull white with constant coefficients (non time dep.).
-			 */			
+			 */
 			ShortRateVolailityModelInterface volatilityModel = new ShortRateVolatilityModel(
 					new TimeDiscretization(0.0),
 					new double[] { shortRateVolatility } /* volatility */,
