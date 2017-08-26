@@ -8,13 +8,13 @@ package net.finmath.montecarlo.interestrate.products;
 
 import static org.junit.Assert.assertEquals;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;

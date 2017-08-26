@@ -22,9 +22,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import org.junit.Assert;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
-import org.junit.Assert;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObjectInterface;

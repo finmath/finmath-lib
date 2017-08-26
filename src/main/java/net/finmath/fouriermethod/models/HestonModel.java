@@ -28,11 +28,16 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * \]
  * where \( W \) is a Brownian motion.
  * 
+ * The model allows to specify two independent rate for forwarding (\( r^{\text{c}} \)) and discounting (\( r^{\text{d}} \)).
+ * It thus allow for a simple modelling of a funding / collateral curve (via (\( r^{\text{d}} \)) and/or the specification of
+ * a dividend yield.
+ * 
  * The free parameters of this model are:
  * <dl>
  * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
- * 	<dt>\( r \)</dt> <dd>the risk free rate</dd>
+ * 	<dt>\( r^{\text{c}} \)</dt> <dd>the risk free rate</dd>
  * 	<dt>\( \sigma \)</dt> <dd>the initial volatility level</dd>
+ * 	<dt>\( r^{\text{d}} \)</dt> <dd>the discount rate</dd>
  * 	<dt>\( \xi \)</dt> <dd>the volatility of volatility</dd>
  * 	<dt>\( \theta \)</dt> <dd>the mean reversion level of the stochastic volatility</dd>
  * 	<dt>\( \kappa \)</dt> <dd>the mean reversion speed of the stochastic volatility</dd>
@@ -55,6 +60,18 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	private final double xi;
 	private final double rho;
 
+	/**
+	 * Create a Heston model (characteristic function)
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 */
 	public HestonModel(double initialValue, double riskFreeRate, double volatility, double discountRate, double theta, double kappa,
 			double xi, double rho) {
 		super();

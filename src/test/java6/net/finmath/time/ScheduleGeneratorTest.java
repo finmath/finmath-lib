@@ -6,10 +6,9 @@
 
 package net.finmath.time;
 
-import org.threeten.bp.LocalDate;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;

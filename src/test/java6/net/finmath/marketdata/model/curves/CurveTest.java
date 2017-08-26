@@ -12,8 +12,6 @@ import java.text.NumberFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;

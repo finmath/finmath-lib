@@ -5,14 +5,13 @@
  */
 package net.finmath.time;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
 import java.util.ArrayList;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
-import net.finmath.time.Period;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;

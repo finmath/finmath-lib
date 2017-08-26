@@ -1,9 +1,8 @@
 package net.finmath.marketdata.products;
 
-import org.threeten.bp.LocalDate;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.CurveInterface;

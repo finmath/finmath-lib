@@ -6,8 +6,6 @@
 
 package net.finmath.montecarlo.interestrate.products;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;

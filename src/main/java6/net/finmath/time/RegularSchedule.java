@@ -6,9 +6,10 @@
 
 package net.finmath.time;
 
-import org.threeten.bp.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.threeten.bp.LocalDate;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 

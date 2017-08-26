@@ -1,10 +1,9 @@
 package net.finmath.marketdata.model.curves;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 public class DiscountCurveNelsonSiegelSvenssonTest {
 

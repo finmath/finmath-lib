@@ -6,6 +6,7 @@
 package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
+
 import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
