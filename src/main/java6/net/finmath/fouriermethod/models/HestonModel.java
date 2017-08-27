@@ -9,6 +9,7 @@ package net.finmath.fouriermethod.models;
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 
 /**
  * Implements the characteristic function of a Heston model.
@@ -28,11 +29,16 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * \]
  * where \( W \) is a Brownian motion.
  * 
+ * The model allows to specify two independent rate for forwarding (\( r^{\text{c}} \)) and discounting (\( r^{\text{d}} \)).
+ * It thus allow for a simple modelling of a funding / collateral curve (via (\( r^{\text{d}} \)) and/or the specification of
+ * a dividend yield.
+ * 
  * The free parameters of this model are:
  * <dl>
  * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
- * 	<dt>\( r \)</dt> <dd>the risk free rate</dd>
+ * 	<dt>\( r^{\text{c}} \)</dt> <dd>the risk free rate</dd>
  * 	<dt>\( \sigma \)</dt> <dd>the initial volatility level</dd>
+ * 	<dt>\( r^{\text{d}} \)</dt> <dd>the discount rate</dd>
  * 	<dt>\( \xi \)</dt> <dd>the volatility of volatility</dd>
  * 	<dt>\( \theta \)</dt> <dd>the mean reversion level of the stochastic volatility</dd>
  * 	<dt>\( \kappa \)</dt> <dd>the mean reversion speed of the stochastic volatility</dd>
@@ -46,22 +52,67 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 public class HestonModel implements ProcessCharacteristicFunctionInterface {
 
 	private final double initialValue;
-	private final double riskFreeRate; // Actually the same as the drift (which is not stochastic)
+
+	private final DiscountCurveInterface discountCurveForForwardRate;
+	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
+
 	private final double volatility;
-	private final double discountRate;
 
 	private final double theta;
 	private final double kappa;
 	private final double xi;
 	private final double rho;
 
+	/**
+	 * Create a Heston model (characteristic function)
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 */
+	public HestonModel(double initialValue, DiscountCurveInterface discountCurveForForwardRate, double volatility, DiscountCurveInterface discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
+		super();
+		this.initialValue = initialValue;
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		this.riskFreeRate = Double.NaN; // For safety
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		this.discountRate = Double.NaN; // For safety
+		this.volatility = volatility;
+		this.theta = theta;
+		this.kappa = kappa;
+		this.xi = xi;
+		this.rho = rho;
+	}
+
+	/**
+	 * Create a Heston model (characteristic function)
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 */
 	public HestonModel(double initialValue, double riskFreeRate, double volatility, double discountRate, double theta, double kappa,
 			double xi, double rho) {
 		super();
 		this.initialValue = initialValue;
+		this.discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
-		this.volatility = volatility;
+		this.discountCurveForDiscountRate = null;
 		this.discountRate = discountRate;
+		this.volatility = volatility;
 		this.theta = theta;
 		this.kappa = kappa;
 		this.xi = xi;
@@ -103,7 +154,28 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
 										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
 
-				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) + time * riskFreeRate)).add(-discountRate*time).exp();
+				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - getLogDiscountFactorForForward(time))).add(getLogDiscountFactorForDiscounting(time)).exp();
+			}
+
+			
+			/**
+			 * Small helper to calculate rate off the curve or use constant.
+			 * 
+			 * @param time Maturity.
+			 * @return The log of the discount factor, i.e., - rate * time.
+			 */
+			private double getLogDiscountFactorForForward(double time) {
+				return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
+			}
+
+			/**
+			 * Small helper to calculate rate off the curve or use constant.
+			 * 
+			 * @param time Maturity.
+			 * @return The log of the discount factor, i.e., - rate * time.
+			 */
+			private double getLogDiscountFactorForDiscounting(double time) {
+				return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 			};
 		};
 	}
