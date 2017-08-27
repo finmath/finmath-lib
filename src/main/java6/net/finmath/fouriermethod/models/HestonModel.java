@@ -16,7 +16,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * 
  * The model is
  * \[
- * 	dS(t) = r^{\text{c}} S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
+ * 	dS(t) = r^{\text{c}}(t) S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
  * \]
  * \[
  * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
@@ -25,7 +25,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * 	dW_{1} dW_{2} = \rho dt
  * \]
  * \[
- * 	dN(t) = r^{\text{d}} N(t) dt, \quad N(0) = N_{0},
+ * 	dN(t) = r^{\text{d}}(t) N(t) dt, \quad N(0) = N_{0},
  * \]
  * where \( W \) is a Brownian motion.
  * 
@@ -36,9 +36,9 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * The free parameters of this model are:
  * <dl>
  * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
- * 	<dt>\( r^{\text{c}} \)</dt> <dd>the risk free rate</dd>
+ * 	<dt>\( r^{\text{c}} \)</dt> <dd>the risk free rate (may be provided as a curve or a constant)</dd>
  * 	<dt>\( \sigma \)</dt> <dd>the initial volatility level</dd>
- * 	<dt>\( r^{\text{d}} \)</dt> <dd>the discount rate</dd>
+ * 	<dt>\( r^{\text{d}} \)</dt> <dd>the discount rate (may be provided as a curve or a constant)</dd>
  * 	<dt>\( \xi \)</dt> <dd>the volatility of volatility</dd>
  * 	<dt>\( \theta \)</dt> <dd>the mean reversion level of the stochastic volatility</dd>
  * 	<dt>\( \kappa \)</dt> <dd>the mean reversion speed of the stochastic volatility</dd>
@@ -70,9 +70,9 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	 * Create a Heston model (characteristic function)
 	 * 
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
-	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param volatility \( \sigma \) the initial volatility level
-	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
 	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
 	 * @param xi \( \xi \) - the volatility of volatility
@@ -127,6 +127,9 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	@Override
 	public CharacteristicFunctionInterface apply(final double time) {
 
+		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
+		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
+
 		return new CharacteristicFunctionInterface() {
 			@Override
 			public Complex apply(Complex argument) {
@@ -154,29 +157,28 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
 										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
 
-				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - getLogDiscountFactorForForward(time))).add(getLogDiscountFactorForDiscounting(time)).exp();
+				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward)).add(logDiscountFactorForDiscounting).exp();
 			}
-
-			
-			/**
-			 * Small helper to calculate rate off the curve or use constant.
-			 * 
-			 * @param time Maturity.
-			 * @return The log of the discount factor, i.e., - rate * time.
-			 */
-			private double getLogDiscountFactorForForward(double time) {
-				return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
-			}
-
-			/**
-			 * Small helper to calculate rate off the curve or use constant.
-			 * 
-			 * @param time Maturity.
-			 * @return The log of the discount factor, i.e., - rate * time.
-			 */
-			private double getLogDiscountFactorForDiscounting(double time) {
-				return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
-			};
 		};
 	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 * 
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(double time) {
+		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 * 
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(double time) {
+		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
+	};
 }
