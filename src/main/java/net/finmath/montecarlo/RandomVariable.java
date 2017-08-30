@@ -506,6 +506,12 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 	}
 
+	@Override
+	public Double doubleValue() {
+		if(isDeterministic()) return valueIfNonStochastic;
+		else throw new UnsupportedOperationException("The random variable is non-deterministic");
+	}
+
 	public IntToDoubleFunction getOperator() {
 		if(isDeterministic()) {
 			return i -> valueIfNonStochastic;

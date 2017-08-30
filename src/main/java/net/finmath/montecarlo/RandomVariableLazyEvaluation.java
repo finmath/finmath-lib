@@ -478,7 +478,13 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	    }
     }
 
-    /* (non-Javadoc)
+	@Override
+	public Double doubleValue() {
+		if(isDeterministic()) return valueIfNonStochastic;
+		else throw new UnsupportedOperationException("The random variable is non-deterministic");
+	}
+
+	/* (non-Javadoc)
      * @see net.finmath.stochastic.RandomVariableInterface#getOperator()
      */
     @Override

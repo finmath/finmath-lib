@@ -91,6 +91,13 @@ public interface RandomVariableInterface extends Serializable {
 	double[] getRealizations();
 
 	/**
+	 * Returns the double value if isDeterministic() is true. otherwise throws an {@link UnsupportedOperationException}.
+	 * 
+	 * @return The double value if isDeterministic() is true, otherwise throws an  an {@link UnsupportedOperationException}.
+	 */
+	Double doubleValue();
+
+	/**
 	 * Returns the operator path &rarr; this.get(path) corresponding to this random variable.
 	 * 
 	 * @return The operator path &rarr; this.get(path) corresponding to this random variable.

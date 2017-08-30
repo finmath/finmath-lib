@@ -511,6 +511,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	}
 
 	@Override
+	public Double doubleValue() {
+		if(isDeterministic()) return valueIfNonStochastic;
+		else throw new UnsupportedOperationException("The random variable is non-deterministic");
+	}
+
+	@Override
 	public double[] getRealizations() {
 		if(isDeterministic()) {
 			double[] result = new double[1];

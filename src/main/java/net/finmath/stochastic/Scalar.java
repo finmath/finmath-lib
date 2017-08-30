@@ -57,6 +57,11 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
+	public Double doubleValue() {
+		return value;
+	}
+
+	@Override
 	public IntToDoubleFunction getOperator() {
 		return null;
 	}

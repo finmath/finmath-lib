@@ -82,6 +82,13 @@ public interface RandomVariableInterface extends Serializable {
 	double[] getRealizations();
 
 	/**
+	 * Returns the double value if isDeterministic() is true. otherwise throws an {@link UnsupportedOperationException}.
+	 * 
+	 * @return The double value if isDeterministic() is true, otherwise throws an  an {@link UnsupportedOperationException}.
+	 */
+	Double doubleValue();
+
+	/**
 	 * Returns the minimum value attained by this random variable.
 	 * 
 	 * @return The minimum value.

@@ -495,6 +495,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	}
 
 	@Override
+	public Double doubleValue() {
+		if(isDeterministic()) return valueIfNonStochastic;
+		else throw new UnsupportedOperationException("The random variable is non-deterministic");
+	}
+
+	@Override
 	public RandomVariableInterface apply(org.apache.commons.math3.analysis.UnivariateFunction function) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = function.value(valueIfNonStochastic);
