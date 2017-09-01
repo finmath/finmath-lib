@@ -126,24 +126,24 @@ public class RandomVariable implements RandomVariableInterface {
 		this.valueIfNonStochastic = Double.NaN;
 	}
 
-    /**
-     * Create a stochastic random variable.
-     *
-     * @param time the filtration time, set to 0.0 if not used.
-     * @param realizations A map mapping integer (path or state) to double, representing this random variable.
-     * @param size The size, i.e., number of paths.
-     */
-    public RandomVariable(double time, IntToDoubleFunction realizations, int size) {
-        super();
-        this.time = time;
-        this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
-        this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
-        if(size > 1) {
-        	IntStream.range(0,size).parallel().forEach(i -> 
-        		this.realizations[i] = realizations.applyAsDouble(i)
-        			);
-        }
-    }
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
+	 * @param size The size, i.e., number of paths.
+	 */
+	public RandomVariable(double time, IntToDoubleFunction realizations, int size) {
+		super();
+		this.time = time;
+		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
+		this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
+		if(size > 1) {
+			IntStream.range(0,size).parallel().forEach(i -> 
+			this.realizations[i] = realizations.applyAsDouble(i)
+					);
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
@@ -545,28 +545,28 @@ public class RandomVariable implements RandomVariableInterface {
 
 		double      newTime           = Math.max(time, argument.getFiltrationTime());
 
-        int newSize = Math.max(this.size(), argument.size());
+		int newSize = Math.max(this.size(), argument.size());
 
-        IntToDoubleFunction argument0Operator = this.getOperator();
-    	IntToDoubleFunction argument1Operator = argument.getOperator();
-    	IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
+		IntToDoubleFunction argument0Operator = this.getOperator();
+		IntToDoubleFunction argument1Operator = argument.getOperator();
+		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
 
-    	return new RandomVariable(newTime, result, newSize);
+		return new RandomVariable(newTime, result, newSize);
 	}
 
 	@Override
 	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
-        double newTime = Math.max(time, argument1.getFiltrationTime());
-        newTime = Math.max(newTime, argument2.getFiltrationTime());
+		double newTime = Math.max(time, argument1.getFiltrationTime());
+		newTime = Math.max(newTime, argument2.getFiltrationTime());
 
-        int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
+		int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
 
-        IntToDoubleFunction argument0Operator = this.getOperator();
-    	IntToDoubleFunction argument1Operator = argument1.getOperator();
-    	IntToDoubleFunction argument2Operator = argument2.getOperator();
-    	IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
+		IntToDoubleFunction argument0Operator = this.getOperator();
+		IntToDoubleFunction argument1Operator = argument1.getOperator();
+		IntToDoubleFunction argument2Operator = argument2.getOperator();
+		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
 
-    	return new RandomVariable(newTime, result, newSize);
+		return new RandomVariable(newTime, result, newSize);
 	}
 
 	public RandomVariableInterface apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariableInterface argument1, RandomVariableInterface argument2)
