@@ -6,8 +6,9 @@ import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
 /**
- * A business day calendar, where every day is a business day, except for weekends and New York City holidays
- * 
+ * An abstract base class for a business day calendar, where every day is a business day, except
+ * weekends days provided by a <code>Set</code> provided by the method <code>getHolidays</code>.
+ *
  * @author Christian Fries
  */
 public abstract class BusinessdayCalendarExcludingGivenHolidays extends BusinessdayCalendar {
