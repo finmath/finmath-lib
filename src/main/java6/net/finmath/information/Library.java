@@ -42,4 +42,17 @@ public class Library {
 		if(propeties != null) versionString = propeties.getProperty("finmath-lib.version");
 		return versionString;
 	}
+
+	/**
+	 * Return the build string of this instance of finmath-lib.
+	 * Currently this is the Git commit hash.
+	 * 
+	 * @return The build string of this instance of finmath-lib.
+	 */
+	public static String getBuildString() {
+		String versionString = "UNKNOWN";
+		Properties propeties = getProperites();
+		if(propeties != null) versionString = propeties.getProperty("finmath-lib.build");
+		return versionString;
+	}
 }
