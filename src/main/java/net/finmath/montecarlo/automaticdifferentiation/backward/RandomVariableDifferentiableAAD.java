@@ -442,7 +442,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	private boolean isGradientRetainsLeafNodesOnly() {
-		return getFactory().isGradientRetainsLeafNodesOnly();
+		return getFactory() != null ? getFactory().isGradientRetainsLeafNodesOnly() : false;
 	}
 
 	/*
@@ -1044,5 +1044,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				Arrays.asList(new RandomVariableInterface[]{ this }),
 				OperatorType.MAX,
 				getFactory());
+	}
+
+	@Override
+	public String toString() {
+		return "RandomVariableDifferentiableAAD [values=" + values + ", ID=" + getID() + "]";
 	}
 }
