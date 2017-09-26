@@ -353,7 +353,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	public RandomVariableDifferentiableAAD(RandomVariableInterface randomVariable) {
-		this(randomVariable, null, null, null);
+		this(randomVariable, null, null, randomVariable instanceof RandomVariableDifferentiableAAD ? ((RandomVariableDifferentiableAAD)randomVariable).getFactory() : null);
 	}
 
 	public RandomVariableDifferentiableAAD(RandomVariableInterface values, RandomVariableDifferentiableAADFactory factory) {
@@ -1049,5 +1049,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	@Override
 	public String toString() {
 		return "RandomVariableDifferentiableAAD [values=" + values + ", ID=" + getID() + "]";
+	}
+
+	@Override
+	public RandomVariableDifferentiableInterface getCloneIndependent() {
+		return new RandomVariableDifferentiableAAD(this.getValues());
 	}
 }
