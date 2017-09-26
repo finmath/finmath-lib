@@ -44,4 +44,15 @@ public interface RandomVariableDifferentiableInterface extends RandomVariableInt
 	 * @return The gradient map.
 	 */
 	Map<Long, RandomVariableInterface> getGradient();
+	
+	/**
+	 * Returns a clone of this differentiable random variable with a new ID. This implies that the
+	 * random variable is a leaf node and independent from all previous calculations.
+	 * 
+	 * @return A clone of this differentiable random variable with a new ID.
+	 * @throws CloneNotSupportedException 
+	 */
+	default RandomVariableDifferentiableInterface getCloneIndependent() {
+		throw new UnsupportedOperationException("Cloning not supported. Please add implementation of getCloneIndependent.");
+	}
 }
