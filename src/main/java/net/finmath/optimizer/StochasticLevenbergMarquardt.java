@@ -26,7 +26,7 @@ import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDi
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * This class implements a parallel Levenberg Marquardt non-linear least-squares fit
+ * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
  * algorithm.
  * <p>
  * The design avoids the need to define the objective function as a
@@ -220,7 +220,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		this.isParameterCurrentDerivativeValid = new boolean[numberOfPaths];
 		Arrays.fill(isParameterCurrentDerivativeValid, false);
 		this.lambda = new double[numberOfPaths];
-		Arrays.fill(lambda, 1.0);
+		Arrays.fill(lambda, 0.001);
 	}
 
 	/**
@@ -382,7 +382,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 */
 	public void setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives) throws SolverException {
 		// Calculate new derivatives. Note that this method is called only with
-		// parameters = parameterCurrent, so we may use valueCurrent.
+		// parameters = parameterTest, so we may use valueTest.
 
 		/*
 		 * Check if random variable is differentiable
@@ -398,13 +398,14 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 		if(isRandomVariableDifferentiable) {
 			for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
-				Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)valueCurrent[valueIndex]).getGradient();
+				Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)valueTest[valueIndex]).getGradient();
 				for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
-					derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameterCurrent[parameterIndex]).getID());
+					derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameters[parameterIndex]).getID());
 				}
 			}
 		}
 		else {
+			parameters = parameterCurrent;
 			Vector<Future<RandomVariableInterface[]>> valueFutures = new Vector<Future<RandomVariableInterface[]>>(parameterCurrent.length);
 			for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
 				final RandomVariableInterface[] parametersNew	= parameters.clone();
@@ -438,7 +439,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 						}
 						for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
 							derivative[valueIndex] = derivative[valueIndex].sub(valueCurrent[valueIndex]).div(parameterFiniteDifference);
-							derivative[valueIndex].barrier(derivative[valueIndex].isNaN().sub(0.5), derivative[valueIndex], 0.0);
+							derivative[valueIndex] = derivative[valueIndex].barrier(derivative[valueIndex].isNaN().sub(0.5).mult(-1), derivative[valueIndex], 0.0);
 						}
 						return derivative;
 					}
@@ -479,19 +480,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				(iteration > maxIteration)	
 				||
 				// Error does not improve by more that the given error tolerance
-				(errorRootMeanSquaredChange.sub(errorTolerance).getMax() <= 0)
-				//				||
-				/*
-				 * Lambda is infinite, i.e., no new point is acceptable.
-				 * For example, this may happen if setValue repeatedly give contains invalid (NaN) values.
-				 */
-				//				Double.isInfinite(lambda.getMax())
-				;
+				(errorRootMeanSquaredChange.sub(errorTolerance).getMax() <= 0);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.optimizer.Optimizer#run()
-	 */
 	@Override
 	public void run() throws SolverException {
 		try {
@@ -514,12 +505,21 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				// Count iterations
 				iteration++;
 
+				/**
+				 * Small modification to avoid growing operator trees.
+				 */
+				for(int i=0; i<parameterTest.length; i++) {
+					if(parameterTest[i] instanceof RandomVariableDifferentiableInterface)
+						parameterTest[i] = ((RandomVariableDifferentiableInterface) parameterTest[i]).getCloneIndependent();
+					if(parameterCurrent[i] instanceof RandomVariableDifferentiableInterface)
+						parameterCurrent[i] = ((RandomVariableDifferentiableInterface) parameterCurrent[i]).getCloneIndependent();
+				}
+
 				// Calculate values for test parameters
 				setValues(parameterTest, valueTest);
 
 				// Calculate error
 				RandomVariableInterface errorMeanSquaredTest = getMeanSquaredError(valueTest);
-
 
 				/*
 				 * Note: The following test will be false if errorMeanSquaredTest is NaN.
@@ -528,7 +528,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				RandomVariableInterface isPointAccepted = errorMeanSquaredCurrent.sub(errorMeanSquaredTest);
 
 				for(int parameterIndex = 0; parameterIndex<parameterCurrent.length; parameterIndex++) {
-					parameterCurrent[parameterIndex] = parameterCurrent[parameterIndex].barrier(isPointAccepted, parameterTest[parameterIndex], parameterCurrent[parameterIndex]);
+					parameterCurrent[parameterIndex] = parameterTest[parameterIndex].barrier(isPointAccepted, parameterTest[parameterIndex], parameterCurrent[parameterIndex]);
 				}
 				for(int valueIndex = 0; valueIndex<valueCurrent.length; valueIndex++) {
 					valueCurrent[valueIndex] = valueTest[valueIndex].barrier(isPointAccepted, valueTest[valueIndex], valueCurrent[valueIndex]);
@@ -538,16 +538,80 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				errorRootMeanSquaredChange = isPointAccepted.barrier(isPointAccepted, errorMeanSquaredCurrent.sqrt().sub(errorMeanSquaredTest.sqrt()), errorRootMeanSquaredChange);
 				errorMeanSquaredCurrent = errorMeanSquaredTest.cap(errorMeanSquaredCurrent);
 
+				// Check if we are done
+				if (done()) break;
+
+				/*
+				 * Update lambda
+				 */
 				for(int pathIndex=0; pathIndex<isPointAccepted.size(); pathIndex++) {
-					isParameterCurrentDerivativeValid[pathIndex] = isPointAccepted.get(pathIndex) >= 0;
+					isParameterCurrentDerivativeValid[pathIndex] = isPointAccepted.get(pathIndex) <= 0;
 					lambda[pathIndex] = isPointAccepted.get(pathIndex) >= 0 ? lambda[pathIndex] / lambdaDivisor : lambda[pathIndex] * lambdaMultiplicator;
 				}
 
-				// Update a new parameter trial, if we are not done
-				if (!done())
-					updateParameterTest();
-				else
-					break;
+				/*
+				 * Calculate new derivative at parameterTest (where point is accepted).
+				 * Note: the first argument should be parameterTest to use shortest operator tree.
+				 */
+				setDerivatives(parameterTest, derivativeCurrent);
+
+				/*
+				 * Calculate new parameterTest
+				 */
+				double[][]	parameterIncrement = new double[parameterCurrent.length][numberOfPaths];
+				for(int pathIndex=0; pathIndex<numberOfPaths; pathIndex++) {
+					// These members will be updated in each iteration. These are members to prevent repeated memory allocation.
+					double[][]	hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
+					double[]	beta = new double[parameterCurrent.length];
+
+					boolean hessianInvalid = true;
+					while (hessianInvalid) {
+						// Build matrix H (hessian approximation)
+						for (int i = 0; i < parameterCurrent.length; i++) {
+							for (int j = i; j < parameterCurrent.length; j++) {
+								double alphaElement = 0.0;
+								for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
+									alphaElement += weights[valueIndex].get(pathIndex) * derivativeCurrent[i][valueIndex].get(pathIndex) * derivativeCurrent[j][valueIndex].get(pathIndex);
+								}
+								if (i == j) {
+									if (alphaElement == 0.0)
+										alphaElement = 1.0;
+									else
+										alphaElement *= 1 + lambda[pathIndex];
+								}
+
+								hessianMatrix[i][j] = alphaElement;
+								hessianMatrix[j][i] = alphaElement;
+							}
+						}
+
+						// Build beta (Newton step)
+						for (int i = 0; i < parameterCurrent.length; i++) {
+							double betaElement = 0.0;
+							for (int k = 0; k < valueCurrent.length; k++) {
+								betaElement += weights[k].get(pathIndex) * (targetValues[k].get(pathIndex) - valueCurrent[k].get(pathIndex)) * derivativeCurrent[i][k].get(pathIndex);
+							}
+							beta[i] = betaElement;
+						}
+
+						try {
+							// Calculate new increment
+							double[] parameterIncrementOnPath = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
+							for(int i=0; i<parameterIncrementOnPath.length; i++) {
+								parameterIncrement[i][pathIndex] = parameterIncrementOnPath[i];
+							}
+							hessianInvalid = false;
+						} catch (Exception e) {
+							hessianInvalid	= true;
+							lambda[pathIndex] *= 16;
+						}
+					}
+				}
+
+				// Calculate new parameter
+				for (int i = 0; i < parameterCurrent.length; i++) {
+					parameterTest[i] = parameterCurrent[i].add(new RandomVariable(0.0, parameterIncrement[i]));
+				}
 
 				// Log iteration
 				if (logger.isLoggable(Level.FINE))
@@ -572,6 +636,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	}
 
 	public RandomVariableInterface getMeanSquaredError(RandomVariableInterface[] value) {
+		// Note: it is intentional to use a specific RandomVariable implementation here.
 		RandomVariableInterface error = new RandomVariable(0.0);
 
 		for (int valueIndex = 0; valueIndex < value.length; valueIndex++) {
@@ -580,71 +645,6 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		}
 
 		return error.div(value.length);
-	}
-
-	/**
-	 * Calculate a new parameter guess.
-	 * 
-	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 */
-	private void updateParameterTest() throws SolverException {
-		this.setDerivatives(parameterCurrent, derivativeCurrent);
-
-		boolean hessianInvalid = true;
-
-		double[][]	parameterIncrement = new double[parameterCurrent.length][numberOfPaths];
-		for(int pathIndex=0; pathIndex<numberOfPaths; pathIndex++) {
-			// These members will be updated in each iteration. These are members to prevent repeated memory allocation.
-			double[][]	hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
-			double[]	beta = new double[parameterCurrent.length];
-
-			while (hessianInvalid) {
-				hessianInvalid = false;
-				// Build matrix H (hessian approximation)
-				for (int i = 0; i < parameterCurrent.length; i++) {
-					for (int j = i; j < parameterCurrent.length; j++) {
-						double alphaElement = 0.0;
-						for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
-							alphaElement += weights[valueIndex].get(pathIndex) * derivativeCurrent[i][valueIndex].get(pathIndex) * derivativeCurrent[j][valueIndex].get(pathIndex);
-						}
-						if (i == j) {
-							if (alphaElement == 0.0)
-								alphaElement = 1.0;
-							else
-								alphaElement *= 1 + lambda[pathIndex];
-						}
-
-						hessianMatrix[i][j] = alphaElement;
-						hessianMatrix[j][i] = alphaElement;
-					}
-				}
-
-				// Build beta (Newton step)
-				for (int i = 0; i < parameterCurrent.length; i++) {
-					double betaElement = 0.0;
-					for (int k = 0; k < valueCurrent.length; k++) {
-						betaElement += weights[k].get(pathIndex) * (targetValues[k].get(pathIndex) - valueCurrent[k].get(pathIndex)) * derivativeCurrent[i][k].get(pathIndex);
-					}
-					beta[i] = betaElement;
-				}
-
-				try {
-					// Calculate new increment
-					double[] parameterIncrementOnPath = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
-					for(int i=0; i<parameterIncrementOnPath.length; i++) {
-						parameterIncrement[i][pathIndex] = parameterIncrementOnPath[i];
-					}
-				} catch (Exception e) {
-					hessianInvalid	= true;
-					lambda[pathIndex] *= 16;
-				}
-			}
-		}
-
-		// Calculate new parameter
-		for (int i = 0; i < parameterCurrent.length; i++) {
-			parameterTest[i] = parameterCurrent[i].add(new RandomVariable(0.0, parameterIncrement[i]));
-		}
 	}
 
 	/**
