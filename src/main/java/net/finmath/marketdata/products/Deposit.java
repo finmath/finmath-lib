@@ -23,7 +23,7 @@ import net.finmath.time.ScheduleInterface;
  * @author Rebecca Declara
  * @author Christian Fries
  */
-public class Deposit  extends AbstractAnalyticProduct implements AnalyticProductInterface{
+public class Deposit extends AbstractAnalyticProduct implements AnalyticProductInterface{
 
 	private ScheduleInterface	schedule;
 	private double				rate;
@@ -46,28 +46,32 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {
-		if(model==null) 
+		if(model==null) {
 			throw new IllegalArgumentException("model==null");
-		
+		}
+
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
-		if(discountCurve == null)
+		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
+		}
 
 		double maturity = schedule.getPayment(0);
-		
-		if (evaluationTime > maturity)
+
+		if (evaluationTime > maturity) {
 			return 0; // after maturity the contract is worth nothing
+		}
 
 		double payoutDate	= schedule.getPeriodStart(0);
 		double periodLength = schedule.getPeriodLength(0);
 		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
 		double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
-		if (evaluationTime > payoutDate)
+		if (evaluationTime > payoutDate) {
 			return discountFactor * (1.0 + rate * periodLength);
-		else
+		}
+		else {
 			return discountFactor * (1.0 + rate * periodLength) - discountFactorPayout;
-		
+		}
 	}
 
 	/**
@@ -80,12 +84,12 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
-		
+
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
-		
+
 		double payoutDate = schedule.getPeriodStart(0);
 		double maturity = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
