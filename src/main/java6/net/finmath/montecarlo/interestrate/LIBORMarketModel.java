@@ -962,7 +962,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		RandomVariableInterface accrualAccount = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
+		RandomVariableInterface accrualAccount = null; //=randomVariableFactory.createRandomVariable(1.0);
 
 		// Calculate the value of the forward bond
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)
@@ -970,7 +970,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			double subPeriodLength = getLiborPeriod(periodIndex+1) - getLiborPeriod(periodIndex);
 			RandomVariableInterface liborOverSubPeriod = getLIBOR(timeIndex, periodIndex);
 
-			accrualAccount = accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
+			accrualAccount = accrualAccount == null ? liborOverSubPeriod.mult(subPeriodLength).add(1.0) : accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
 		}
 
 		RandomVariableInterface libor = accrualAccount.sub(1.0).div(periodEnd - periodStart);
