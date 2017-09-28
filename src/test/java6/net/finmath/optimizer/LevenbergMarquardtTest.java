@@ -22,7 +22,6 @@ public class LevenbergMarquardtTest {
 		LevenbergMarquardt optimizer = new LevenbergMarquardt() {
 			private static final long serialVersionUID = -6582160713209444489L;
 
-			// Override your objective function here
 			@Override
 			public void setValues(double[] parameters, double[] values) {
 				values[0] = parameters[0] * 0.0 + parameters[1];
@@ -58,6 +57,7 @@ public class LevenbergMarquardtTest {
 		System.out.println("The solver for problem 2 required " + optimizer2.getIterations() + " iterations. Accuracy is " + optimizer2.getRootMeanSquaredError() + ". The best fit parameters are:");
 		for (int i = 0; i < bestParameters2.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters2[i]);
 
+		System.out.println("________________________________________________________________________________");
 		System.out.println();
 
 		Assert.assertTrue(Math.abs(bestParameters2[0] - 2.55) < 1E-12);
@@ -93,6 +93,7 @@ public class LevenbergMarquardtTest {
 		optimizer.setValues(bestParameters, values);
 		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
 		
+		System.out.println("________________________________________________________________________________");
 		System.out.println();
 
 		Assert.assertTrue(optimizer.getRootMeanSquaredError() < 1E-1);
@@ -126,6 +127,7 @@ public class LevenbergMarquardtTest {
 		optimizer.setValues(bestParameters, values);
 		for (int i = 0; i < values.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
 
+		System.out.println("________________________________________________________________________________");
 		System.out.println();
 		
 		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) < 1E-10);
@@ -168,9 +170,105 @@ public class LevenbergMarquardtTest {
 		optimizer.setValues(bestParameters, values);
 		for (int i = 0; i < values.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
 
+		System.out.println("________________________________________________________________________________");
 		System.out.println();
 		
 		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) < 1E-10);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 1.0) < 1E-10);
+	}
+
+	/**
+	 * Optimization of booth function \( f(x,y) = \left(x+2y-7\right)^{2}+\left(2x+y-5\right)^{2} \).
+	 * The solution of \( f(x,y) = 0 \) is \( x=1 \), \( y=3 \).
+	 * 
+	 * The test uses a finite difference approximation for the derivative.
+	 * 
+	 * @throws SolverException
+	 */
+	@Test
+	public void testBoothFunction() throws SolverException {
+		final int numberOfParameters = 2;
+
+		double[] initialParameters = new double[numberOfParameters];
+		double[] parameterSteps = new double[numberOfParameters];
+		Arrays.fill(initialParameters, 2.0);
+		Arrays.fill(parameterSteps, 1E-8);
+
+		double[] targetValues	= new double[] { 0.0 };
+
+		int maxIteration = 1000;
+
+		LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, null) {
+			private static final long serialVersionUID = -282626938650139518L;
+
+			@Override
+			public void setValues(double[] parameters, double[] values) {
+				values[0] = Math.pow(parameters[0] + 2* parameters[1] - 7,2) + Math.pow(2 * parameters[0] + parameters[1] - 5,2);
+			}
+		};
+		optimizer.setParameterSteps(parameterSteps);
+
+		// Set solver parameters
+
+		optimizer.run();
+
+		double[] bestParameters = optimizer.getBestFitParameters();
+		System.out.println("The solver for Booth's function required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
+
+		System.out.println("________________________________________________________________________________");
+		System.out.println();
+		
+		Assert.assertEquals(0.0, optimizer.getRootMeanSquaredError(), 2E-4);
+	}
+
+	/**
+	 * Optimization of booth function \( f(x,y) = \left(x+2y-7\right)^{2}+\left(2x+y-5\right)^{2} \).
+	 * The solution of \( f(x,y) = 0 \) is \( x=1 \), \( y=3 \).
+	 * 
+	 * The test uses a a analytic calculation of derivative.
+	 * 
+	 * @throws SolverException
+	 */
+	@Test
+	public void testBoothFunctionWithAnalyticDerivative() throws SolverException {
+		final int numberOfParameters = 2;
+
+		double[] initialParameters = new double[numberOfParameters];
+		Arrays.fill(initialParameters, 2.0);
+
+		double[] targetValues	= new double[] { 0.0 };
+
+		int maxIteration = 1000;
+
+		LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, null) {
+			private static final long serialVersionUID = -282626938650139518L;
+
+			@Override
+			public void setValues(double[] parameters, double[] values) {
+				values[0] = Math.pow(parameters[0] + 2* parameters[1] - 7,2) + Math.pow(2 * parameters[0] + parameters[1] - 5,2);
+			}
+
+			@Override
+			public void setDerivatives(double[] parameters, double[][] derivatives) {
+				derivatives[0][0] = Math.pow(parameters[0] + 2 * parameters[1] - 7,1) * 2 + Math.pow(2 * parameters[0] + parameters[1] - 5,1) * 4;
+				derivatives[1][0] = Math.pow(parameters[0] + 2 * parameters[1] - 7,1) * 4 + Math.pow(2 * parameters[0] + parameters[1] - 5,1) * 2;
+			}
+		};
+
+		// Set solver parameters
+
+		optimizer.run();
+
+		double[] bestParameters = optimizer.getBestFitParameters();
+		System.out.println("The solver for Booth's function with analytic derivative required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
+
+		System.out.println("________________________________________________________________________________");
+		System.out.println();
+
+		Assert.assertEquals(0.0, optimizer.getRootMeanSquaredError(), 2E-4);
 	}
 }
