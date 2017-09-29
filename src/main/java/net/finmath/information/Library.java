@@ -15,20 +15,19 @@ import java.util.Properties;
  */
 public class Library {
 
-	private static Properties properties = null;
-
+	private static Properties properties;
+	static {
+		properties = new Properties();
+		try {
+			properties.load(Library.class.getResourceAsStream("/finmath-lib.properties"));
+		} catch (Exception e) {
+			properties = null;
+		}
+	}
+	
 	private Library() { }
 
 	private static Properties getProperites() {
-		if(properties == null) {
-			properties = new Properties();
-			try {
-				properties.load(Library.class.getResourceAsStream("/finmath-lib.properties"));
-			} catch (Exception e) {
-				properties = null;
-			}
-		}
-
 		return properties;
 	}
 
@@ -41,6 +40,19 @@ public class Library {
 		String versionString = "UNKNOWN";
 		Properties propeties = getProperites();
 		if(propeties != null) versionString = propeties.getProperty("finmath-lib.version");
+		return versionString;
+	}
+
+	/**
+	 * Return the build string of this instance of finmath-lib.
+	 * Currently this is the Git commit hash.
+	 * 
+	 * @return The build string of this instance of finmath-lib.
+	 */
+	public static String getBuildString() {
+		String versionString = "UNKNOWN";
+		Properties propeties = getProperites();
+		if(propeties != null) versionString = propeties.getProperty("finmath-lib.build");
 		return versionString;
 	}
 }

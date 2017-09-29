@@ -46,27 +46,32 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {
-		// Check for discount curve
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);		
-		if(discountCurve == null) {
-			throw new IllegalArgumentException("No curve of the name " + discountCurveName + " and type DiscountCurveInterface was found in the model.");
+		if(model==null) {
+			throw new IllegalArgumentException("model==null");
 		}
 
-		double maturity		= schedule.getPayment(0);
-		
-		if (evaluationTime > maturity)
+		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		if(discountCurve == null) {
+			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
+		}
+
+		double maturity = schedule.getPayment(0);
+
+		if (evaluationTime > maturity) {
 			return 0; // after maturity the contract is worth nothing
+		}
 
 		double payoutDate	= schedule.getPeriodStart(0);
 		double periodLength = schedule.getPeriodLength(0);
 		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
 		double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
-		if (evaluationTime > payoutDate)
+		if (evaluationTime > payoutDate) {
 			return discountFactor * (1.0 + rate * periodLength);
-		else
+		}
+		else {
 			return discountFactor * (1.0 + rate * periodLength) - discountFactorPayout;
-		
+		}
 	}
 
 	/**
@@ -76,11 +81,13 @@ public class Deposit  extends AbstractAnalyticProduct implements AnalyticProduct
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
 	public double getRate(AnalyticModelInterface model) {
+		if(model==null) {
+			throw new IllegalArgumentException("model==null");
+		}
 
-		// Check for discount curve
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);		
+		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
-			throw new IllegalArgumentException("No curve of the name " + discountCurveName + " and type DiscountCurveInterface was found in the model.");
+			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
 		double payoutDate = schedule.getPeriodStart(0);
