@@ -387,8 +387,8 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @param forwardCurveName      name of the forward curve.
 	 * @param model                 Monte Carlo model providing the forwards.
 	 * @param startTime             time at which the curve starts, i.e. zero time for the curve
-	 * @return A new discount curve.
-	 * @throws CalculationException
+	 * @return a discount curve from forwards given by a LIBORMonteCarloModel.
+	 * @throws CalculationException Thrown if the model failed to provide the forward rates.
 	 */
 	public static DiscountCurveInterface createDiscountCurveFromMonteCarloLiborModel(String forwardCurveName,  LIBORModelMonteCarloSimulationInterface model, double startTime) throws CalculationException{
 		// Check if the LMM uses a discount curve which is created from a forward curve

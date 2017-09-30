@@ -160,6 +160,7 @@ public class HestonModel extends AbstractModel {
 	 * @param xi The volatility of the volatility (of V).
 	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
 	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
+	 * @param randomVariableFactory The factory to be used to construct random variables..
 	 */
 	public HestonModel(
 			double initialValue,
