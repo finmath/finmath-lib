@@ -5,6 +5,21 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.1.0 (30.09.2017)
+
+### Monte-Carlo models
+
+- RandomVariableInterface gets an additional method doubleValue() which will return the value of random variable if it is deterministic. So instead of getAverage() you may call average().doubleValue(). This addition is to allow the consistent use of
+deterministic random variables in analytic model. The advantage of this approach is the possibility of dependency injection (using stochastic automatic differentiation) and the possiblity to use stochastic quantities in analytic models ("stochastic curves").
+
+### Analytic models - Curves
+
+- Introduction of "stochastic curves". The package net.finmath.analytic is a port of net.finmath.marketdata where all curve object operate on RandomVariableInterface. This allows AAD calibration and "stochastic curves".
+
+### Optimizer
+
+- Introduction of the stochastic Levenberg Marquardt algorithm.
+
 ## 3.0.14 (20.08.2017)
 
 ### Monte-Carlo models
