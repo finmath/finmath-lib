@@ -122,6 +122,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 	// Local state of the solver
 	private double[]	lambda;
+	private double		lambdaInitialValue = 0.001;
 	private double		lambdaDivisor = 1.3;
 	private double 		lambdaMultiplicator	= 2.0;
 	private int			numberOfPaths;
@@ -215,12 +216,6 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 		this.executor = executorService;
 		this.executorShutdownWhenDone = (executorService == null);
-
-		this.numberOfPaths = initialParameters[0].size();		// @TODO: check for parameter and target value sizes!
-		this.isParameterCurrentDerivativeValid = new boolean[numberOfPaths];
-		Arrays.fill(isParameterCurrentDerivativeValid, false);
-		this.lambda = new double[numberOfPaths];
-		Arrays.fill(lambda, 0.001);
 	}
 
 	/**
@@ -540,6 +535,18 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 				// Check if we are done
 				if (done()) break;
+
+				
+				// Lazy init of lambda and isParameterCurrentDerivativeValid
+				this.numberOfPaths = isPointAccepted.size();		// @TODO: check for parameter and target value sizes!
+				if(lambda == null) {
+					this.lambda = new double[numberOfPaths];
+					Arrays.fill(lambda, lambdaInitialValue);
+				}
+				if(isParameterCurrentDerivativeValid == null) {
+					this.isParameterCurrentDerivativeValid = new boolean[numberOfPaths];
+					Arrays.fill(isParameterCurrentDerivativeValid, false);
+				}
 
 				/*
 				 * Update lambda
