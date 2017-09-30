@@ -37,22 +37,22 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <p>
  * The Levenberg-Marquardt solver is implemented in using multi-threading.
  * The calculation of the derivatives (in case a specific implementation of
- * {@code setDerivatives(double[] parameters, double[][] derivatives)} is not
+ * {@code setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives)} is not
  * provided) may be performed in parallel by setting the parameter <code>numberOfThreads</code>.
  * </p>
  * 
  * <p>
  * To use the solver inherit from it and implement the objective function as
- * {@code setValues(double[] parameters, double[] values)} where values has
+ * {@code setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values)} where values has
  * to be set to the value of the objective functions for the given parameters.
  * <br>
  * You may also provide an a derivative for your objective function by
- * additionally overriding the function {@code setDerivatives(double[] parameters, double[][] derivatives)},
+ * additionally overriding the function {@code setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives)},
  * otherwise the solver will calculate the derivative via finite differences.
  * </p>
  * <p>
  * To reject a point, it is allowed to set an element of <code>values</code> to {@link java.lang.Double#NaN}
- * in the implementation of {@code setValues(double[] parameters, double[] values)}.
+ * in the implementation of {@code setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values)}.
  * Put differently: The solver handles NaN values in <code>values</code> as an error larger than
  * the current one (regardless of the current error) and rejects the point.
  * <br>
@@ -77,21 +77,21 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <code>
  * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
  * 		// Override your objective function here
- * 		public void setValues(double[] parameters, double[] values) {
+ * 		public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) {
  * 			values[0] = parameters[0] * 0.0 + parameters[1];
  * 			values[1] = parameters[0] * 2.0 + parameters[1];
  * 		}
  * 	};
  * 
  * 	// Set solver parameters
- * 	optimizer.setInitialParameters(new double[] { 0, 0 });
- * 	optimizer.setWeights(new double[] { 1, 1 });
+ * 	optimizer.setInitialParameters(new RandomVariableInterface[] { 0, 0 });
+ * 	optimizer.setWeights(new RandomVariableInterface[] { 1, 1 });
  * 	optimizer.setMaxIteration(100);
- * 	optimizer.setTargetValues(new double[] { 5, 10 });
+ * 	optimizer.setTargetValues(new RandomVariableInterface[] { 5, 10 });
  * 
  * 	optimizer.run();
  * 
- * 	double[] bestParameters = optimizer.getBestFitParameters();
+ * 	RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
  * </code>
  * </pre>
  * 
@@ -200,7 +200,10 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * 
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
+	 * @param weights Weights applied to the error.
+	 * @param parameterSteps Step used for finite difference approximation.
 	 * @param maxIteration Maximum number of iterations.
+	 * @param errorTolerance Error tolerance / accuracy.
 	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
 	 */
 	public StochasticLevenbergMarquardt(RandomVariableInterface[] initialParameters, RandomVariableInterface[] targetValues, RandomVariableInterface[] weights, RandomVariableInterface[] parameterSteps, int maxIteration, RandomVariableInterface errorTolerance, ExecutorService executorService) {
@@ -661,8 +664,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * Create a clone of this LevenbergMarquardt optimizer.
 	 * 
 	 * The clone will use the same objective function than this implementation,
-	 * i.e., the implementation of {@link #setValues(double[], double[])} and
-	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 * i.e., the implementation of {@link #setValues(RandomVariableInterface[], RandomVariableInterface[])} and
+	 * that of {@link #setDerivatives(RandomVariableInterface[], RandomVariableInterface[][])} is reused.
 	 */
 	@Override
 	public StochasticLevenbergMarquardt clone() throws CloneNotSupportedException {
@@ -683,8 +686,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * target values and weights.
 	 * 
 	 * The clone will use the same objective function than this implementation,
-	 * i.e., the implementation of {@link #setValues(double[], double[])} and
-	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 * i.e., the implementation of {@link #setValues(RandomVariableInterface[], RandomVariableInterface[])} and
+	 * that of {@link #setDerivatives(RandomVariableInterface[], RandomVariableInterface[][])} is reused.
 	 * 
 	 * The initial values of the cloned optimizer will either be the original
 	 * initial values of this object or the best parameters obtained by this
@@ -711,8 +714,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * target values and weights.
 	 * 
 	 * The clone will use the same objective function than this implementation,
-	 * i.e., the implementation of {@link #setValues(double[], double[])} and
-	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 * i.e., the implementation of {@link #setValues(RandomVariableInterface[], RandomVariableInterface[])} and
+	 * that of {@link #setDerivatives(RandomVariableInterface[], RandomVariableInterface[][])} is reused.
 	 * 
 	 * The initial values of the cloned optimizer will either be the original
 	 * initial values of this object or the best parameters obtained by this

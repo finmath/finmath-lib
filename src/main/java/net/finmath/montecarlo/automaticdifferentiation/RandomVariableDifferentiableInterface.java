@@ -50,7 +50,6 @@ public interface RandomVariableDifferentiableInterface extends RandomVariableInt
 	 * random variable is a leaf node and independent from all previous calculations.
 	 * 
 	 * @return A clone of this differentiable random variable with a new ID.
-	 * @throws CloneNotSupportedException 
 	 */
 	default RandomVariableDifferentiableInterface getCloneIndependent() {
 		throw new UnsupportedOperationException("Cloning not supported. Please add implementation of getCloneIndependent.");
