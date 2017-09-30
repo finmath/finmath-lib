@@ -717,6 +717,11 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		return getRandomVariableInterface().getRealizations();
 	}
 
+	@Override
+	public Double doubleValue() {
+		return getRandomVariableInterface().doubleValue();
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */

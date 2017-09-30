@@ -212,7 +212,10 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		this.maxIteration		= maxIteration;
 		this.errorTolerance		= errorTolerance != null ? errorTolerance : new RandomVariable(0.0);
 
-		for(int i=0; i<targetValues.length; i++) weights[i] = new RandomVariable(1.0);
+		if(weights == null) {
+			this.weights = new RandomVariableInterface[targetValues.length];
+			for(int i=0; i<targetValues.length; i++) this.weights[i] = new RandomVariable(1.0);
+		}
 
 		this.executor = executorService;
 		this.executorShutdownWhenDone = (executorService == null);

@@ -205,6 +205,11 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return getRandomVariable().getRealizations();
 	}
 
+	@Override
+	public Double doubleValue() {
+		return getRandomVariable().doubleValue();
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */

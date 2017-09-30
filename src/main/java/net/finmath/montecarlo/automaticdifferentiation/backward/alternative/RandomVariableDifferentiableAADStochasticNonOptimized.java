@@ -475,6 +475,11 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 		return getValues().getRealizations();
 	}
 
+	@Override
+	public Double doubleValue() {
+		return getValues().doubleValue();
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */

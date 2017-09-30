@@ -54,7 +54,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		return testParameters;
 	}
 
-	private static DecimalFormat formatReal1 = new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
+	private static DecimalFormat formatReal1 = new DecimalFormat("####0.00", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	private interface TestFunction {
 		RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
@@ -137,7 +137,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 }
 
 	private static class TestFunctionSumOfProductsWithAddAndMult implements TestFunction {
-		private static final int numberOfIterations = 5;
+		private static final int numberOfIterations = 5000;
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
@@ -434,10 +434,52 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(0)
 			},
 			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(10*numberOfPaths),
-				new Integer(100),
-				new Integer(10*numberOfPaths),
-				new Integer(100)
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
+			},
+			{ new TestFunctionSumOfProductsWithAddAndMult(),
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
+			},
+			{ new TestFunctionSumOfProductsWithAddAndMult(),
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
+			},
+			{ new TestFunctionSumOfProductsWithAddAndMult(),
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
+			},
+			{ new TestFunctionSumOfProductsWithAddAndMult(),
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
+			},
+			{ new TestFunctionSumOfProductsWithAddAndMult(),
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
+			},
+			{ new TestFunctionSumOfProductsWithAddAndMult(),
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
+			},
+			{ new TestFunctionSumOfProductsWithAddAndMult(),
+				new Integer(1*numberOfPaths),
+				new Integer(1),
+				new Integer(1*numberOfPaths),
+				new Integer(1)
 			},
 			{ new TestFunctionSumOfProducts(),
 				new Integer(10*numberOfPaths),

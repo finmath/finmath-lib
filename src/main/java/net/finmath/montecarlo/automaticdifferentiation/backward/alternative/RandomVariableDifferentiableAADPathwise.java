@@ -476,6 +476,11 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 		return getValues().getRealizations();
 	}
 
+	@Override
+	public Double doubleValue() {
+		return getValues().doubleValue();
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
 	 */
