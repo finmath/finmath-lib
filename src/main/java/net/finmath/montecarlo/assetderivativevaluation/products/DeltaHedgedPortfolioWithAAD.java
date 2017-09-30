@@ -74,14 +74,14 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 		long timingValuationEnd = System.currentTimeMillis();
 
-		RandomVariableInterface valueOfOptionAccordingBlackScholes = model.getRandomVariableForConstant(value.getAverage());
+		RandomVariableInterface valueOfOption = model.getRandomVariableForConstant(value.getAverage());
 
 		// Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		RandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
 		RandomVariableInterface numeraireToday  = model.getNumeraire(0.0);
 
 		// We store the composition of the hedge portfolio (depending on the path)
-		RandomVariableInterface amountOfNumeraireAsset = valueOfOptionAccordingBlackScholes.div(numeraireToday);
+		RandomVariableInterface amountOfNumeraireAsset = valueOfOption.div(numeraireToday);
 		RandomVariableInterface amountOfUderlyingAsset = model.getRandomVariableForConstant(0.0);
 
 		// Delta of option to replicate
@@ -100,10 +100,6 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 			// Get delta
 			RandomVariableInterface delta = gradient.get(((RandomVariableDifferentiableInterface)underlyingAtTimeIndex).getID());
 			if(delta == null) delta = underlyingAtTimeIndex.mult(0.0);
-
-//			RandomVariableInterface delta = gradient.get(((RandomVariableDifferentiableInterface)underlyingAtTimeIndex).getID()-1);
-//			if(delta == null) delta = underlyingAtTimeIndex.mult(0.0);
-//			delta = delta.div(underlyingAtTimeIndex);
 
 			delta = delta.mult(numeraireAtTimeIndex);
 			
@@ -155,12 +151,12 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 		return lastOperationTimingDerivative;
 	}
 
-	private ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface underlying) {
+	private ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface underlying, RandomVariableInterface indicator) {
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
 		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
-			basisFunctions.add(underlying.pow(powerOfRegressionMonomial));
+			basisFunctions.add(underlying.pow(powerOfRegressionMonomial).mult(indicator));
 		}
 
 		return basisFunctions;

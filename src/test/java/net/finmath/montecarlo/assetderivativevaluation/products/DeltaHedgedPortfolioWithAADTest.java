@@ -158,7 +158,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(brownianMotion, net.finmath.montecarlo.process.ProcessEulerScheme.Scheme.EULER_FUNCTIONAL);
+		AbstractProcess process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER_FUNCTIONAL);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		AssetModelMonteCarloSimulationInterface monteCarloHestonModel = new MonteCarloAssetModel(model, process);
@@ -180,7 +180,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		long timingCalculationEnd = System.currentTimeMillis();
 
 		RandomVariableInterface underlyingAtMaturity = model.getAssetValue(maturity, 0);
-		RandomVariableInterface optionValue = option.getValue(0.0, model).mult(model.getNumeraire(maturity));
+		RandomVariableInterface optionValue = option.getValue(0.0, model).mult(model.getNumeraire(maturity)).div(model.getNumeraire(0));
 		RandomVariableInterface hedgeError = optionValue.sub(hedgeValue);
 
 		double hedgeErrorRMS = Math.sqrt(hedgeError.getVariance());
