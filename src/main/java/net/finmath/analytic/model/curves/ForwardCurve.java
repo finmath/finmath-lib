@@ -321,8 +321,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param name      name of the forward curve.
 	 * @param model     Monte Carlo model providing the forwards.
 	 * @param startTime time at which the curve starts, i.e. zero time for the curve
-	 * @return
-	 * @throws CalculationException
+	 * @return a forward curve from forwards given by a LIBORMonteCarloModel.
+	 * @throws CalculationException Thrown if the model failed to provide the forward rates.
 	 */
 	public static ForwardCurve createForwardCurveFromMonteCarloLiborModel(String name, LIBORModelMonteCarloSimulationInterface model, double startTime) throws CalculationException{
 		
