@@ -62,12 +62,12 @@ import net.finmath.time.TimeDiscretization;
  * 	</tr>
  * 	<tr>
  * 		<td>swapwithresetonreceiver</td>
- * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 		<td>{@link net.finmath.marketdata.products.SwapLeg}</td>
  * 		<td></td>
  * 	</tr>
  * 	<tr>
  * 		<td>swapwithresetonpayer</td>
- * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 		<td>{@link net.finmath.marketdata.products.SwapLeg}</td>
  * 		<td></td>
  * 	</tr>
  * 	<tr>

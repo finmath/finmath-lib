@@ -43,7 +43,9 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	}
 
 	/**
-	 * Create an empty analytic model.
+	 * Create an empty analytic model using a given AbstractRandomVariableFactory for construction of result types.
+	 * 
+	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 */
 	public AnalyticModel(AbstractRandomVariableFactory randomVariableFactory) {
 		this.randomVariableFactory = randomVariableFactory;
@@ -60,8 +62,9 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	}
 	
 	/**
-	 * Create an analytic model with the given curves.
+	 * Create an analytic model with the given curves  using a given AbstractRandomVariableFactory for construction of result types.
 	 * 
+	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 * @param curves The vector of curves.
 	 */
 	public AnalyticModel(AbstractRandomVariableFactory randomVariableFactory, CurveInterface[] curves) {

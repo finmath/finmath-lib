@@ -52,32 +52,32 @@ import net.finmath.time.TimeDiscretization;
  * 	</tr>
  * 	<tr>
  * 		<td>swap</td>
- * 		<td>{@link net.finmath.marketdata.products.Swap}</td>
+ * 		<td>{@link net.finmath.analytic.products.Swap}</td>
  * 		<td></td>
  * 	</tr>
  * 	<tr>
  * 		<td>swapleg</td>
- * 		<td>{@link net.finmath.marketdata.products.SwapLeg}</td>
+ * 		<td>{@link net.finmath.analytic.products.SwapLeg}</td>
  * 		<td>Only the receiver part of <code>CalibrationSpec</code> is used.</td>
  * 	</tr>
  * 	<tr>
  * 		<td>swapwithresetonreceiver</td>
- * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 		<td>{@link net.finmath.analytic.products.SwapLeg}</td>
  * 		<td></td>
  * 	</tr>
  * 	<tr>
  * 		<td>swapwithresetonpayer</td>
- * 		<td>{@link net.finmath.marketdata.products.SwapLeg}, {@link net.finmath.marketdata.products.SwapLegWithResetting}</td>
+ * 		<td>{@link net.finmath.analytic.products.SwapLeg}</td>
  * 		<td></td>
  * 	</tr>
  * 	<tr>
  * 		<td>deposit</td>
- * 		<td>{@link net.finmath.marketdata.products.Deposit}</td>
+ * 		<td>{@link net.finmath.analytic.products.Deposit}</td>
  * 		<td>Only the receiver part of <code>CalibrationSpec</code> is used.</td>
  * 	</tr>
  * 	<tr>
  * 		<td>fra</td>
- * 		<td>{@link net.finmath.marketdata.products.ForwardRateAgreement}</td>
+ * 		<td>{@link net.finmath.analytic.products.ForwardRateAgreement}</td>
  * 		<td>Only the receiver part of <code>CalibrationSpec</code> is used.</td>
  * 	</tr>
  * </table>
@@ -92,9 +92,9 @@ public class CalibratedCurves {
 	private static final boolean isCreateDefaultCurvesForMissingCurves;
 	static {
 		// Default value is true
-		isUseForwardCurve = Boolean.parseBoolean(System.getProperty("net.finmath.marketdata.calibration.CalibratedCurves.isUseForwardCurve","true"));
+		isUseForwardCurve = Boolean.parseBoolean(System.getProperty("net.finmath.analytic.calibration.CalibratedCurves.isUseForwardCurve","true"));
 		// Default value is false
-		isCreateDefaultCurvesForMissingCurves = Boolean.parseBoolean(System.getProperty("net.finmath.marketdata.calibration.CalibratedCurves.isCreateDefaultCurvesForMissingCurves","false"));
+		isCreateDefaultCurvesForMissingCurves = Boolean.parseBoolean(System.getProperty("net.finmath.analytic.calibration.CalibratedCurves.isCreateDefaultCurvesForMissingCurves","false"));
 	}
 
 	/**

@@ -355,7 +355,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * 
 	 * @param time The x<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
-	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
+	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(RandomVariableInterface[])}, i.e., it can be calibrated.
 	 */
 	protected void addPoint(double time, RandomVariableInterface value, boolean isParameter) {
 		synchronized (rationalFunctionInterpolationLazyInitLock) {
