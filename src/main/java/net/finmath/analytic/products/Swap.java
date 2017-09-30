@@ -93,27 +93,6 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		this(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, true);
 	}
 
-	/**
-	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
-	 * 
-	 * @param scheduleReceiveLeg Schedule of the receiver leg.
-	 * @param spreadReceive Fixed spread on the forward or fix rate.
-	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
-	 * @param schedulePayLeg Schedule of the payer leg.
-	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
-	 * @param discountCurvePayName Name of the discount curve for the payer leg.
-	 */
-	public Swap(ScheduleInterface scheduleReceiveLeg,
-			double spreadReceive,
-			String discountCurveReceiveName,
-			ScheduleInterface schedulePayLeg,
-			String forwardCurvePayName,
-			String discountCurvePayName,
-			AbstractRandomVariableFactory factory) {
-		this(scheduleReceiveLeg, null, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, 0.0, discountCurvePayName, true);
-	}
-
-
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {	
 
