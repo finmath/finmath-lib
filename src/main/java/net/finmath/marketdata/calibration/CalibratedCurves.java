@@ -441,7 +441,7 @@ public class CalibratedCurves {
 			createDiscountCurve(calibrationSpec.discountCurvePayerName);
 	
 			forwardCurveReceiverName	= createForwardCurve(calibrationSpec.swapTenorDefinitionReceiver, calibrationSpec.forwardCurveReceiverName);
-			forwardCurvePayerName		= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
+			forwardCurvePayerName	= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
 		}
 		else {
 			Predicate<String> discountCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getDiscountCurve(curveName) == null;
