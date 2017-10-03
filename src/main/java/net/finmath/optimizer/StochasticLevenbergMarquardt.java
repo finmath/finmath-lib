@@ -82,13 +82,13 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * 	// Set solver parameters
  * 	optimizer.setInitialParameters(new RandomVariableInterface[] { 0, 0 });
- * 	optimizer.setWeights(new double[] { 1, 1 });
+ * 	optimizer.setWeights(new RandomVariableInterface[] { 1, 1 });
  * 	optimizer.setMaxIteration(100);
- * 	optimizer.setTargetValues(new double[] { 5, 10 });
+ * 	optimizer.setTargetValues(new RandomVariableInterface[] { 5, 10 });
  * 
  * 	optimizer.run();
  * 
- * 	double[] bestParameters = optimizer.getBestFitParameters();
+ * 	RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
  * </code>
  * </pre>
  * 
@@ -353,12 +353,17 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.optimizer.Optimizer#getIterations()
-	 */
 	@Override
 	public int getIterations() {
 		return iteration;
+	}
+
+	protected void prepareAndSetValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
+		setValues(parameters, values);
+	}
+
+	protected void prepareAndSetDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[] values, RandomVariableInterface[][] derivatives) throws SolverException {
+		setDerivatives(parameters, derivatives);
 	}
 
 	/**
@@ -410,7 +415,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 						// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
 						try {
-							setValues(parametersNew, derivative);
+							prepareAndSetValues(parametersNew, derivative);
 						} catch (Exception e) {
 							// We signal an exception to calculate the derivative as NaN
 							Arrays.fill(derivative, new RandomVariable(Double.NaN));
@@ -471,7 +476,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 			parameterTest		= initialParameters.clone();
 			parameterCurrent	= initialParameters.clone();
 
-			valueTest			= new RandomVariableInterface[numberOfValues];
+			valueTest		= new RandomVariableInterface[numberOfValues];
 			valueCurrent		= new RandomVariableInterface[numberOfValues];
 			Arrays.fill(valueCurrent, new RandomVariable(Double.NaN));
 			derivativeCurrent	= new RandomVariableInterface[numberOfParameters][numberOfValues];
@@ -483,7 +488,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				iteration++;
 
 				// Calculate values for test parameters
-				setValues(parameterTest, valueTest);
+				prepareAndSetValues(parameterTest, valueTest);
 
 				// Calculate error
 				RandomVariableInterface errorMeanSquaredTest = getMeanSquaredError(valueTest);
@@ -532,7 +537,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				 * Calculate new derivative at parameterTest (where point is accepted).
 				 * Note: the first argument should be parameterTest to use shortest operator tree.
 				 */
-				setDerivatives(parameterTest, derivativeCurrent);
+				prepareAndSetDerivatives(parameterTest, valueTest, derivativeCurrent);
 
 				/*
 				 * Calculate new parameterTest
