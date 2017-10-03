@@ -40,20 +40,6 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 @RunWith(Parameterized.class)
 public class RandomVariableDifferentiableAADPerformanceTest {
-	@Parameters
-	public static Collection<Object[]> data() {
-		Collection<Object[]> testParameters = new ArrayList<>();
-		for(int i=0; i<testCases.length; i++) {
-			for(int j=0; j<testMethods.length; j++) {
-				Object[] testParmeter = new Object[2];
-				testParmeter[0] = testCases[i];
-				testParmeter[1] = testMethods[j];
-				testParameters.add(testParmeter);
-			}
-		}
-		return testParameters;
-	}
-
 	private static DecimalFormat formatReal1 = new DecimalFormat("####0.00", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	private interface TestFunction {
@@ -80,7 +66,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 					(new RandomVariableFactory()).createRandomVariable(numberOfIterations)
 			};
 		}
-		
+
 		public long getPeakMemory() { return 0; }
 	}
 
@@ -106,7 +92,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		public long getPeakMemory() { return 0; }
-}
+	}
 
 	private static class TestFunctionSumOfProducts implements TestFunction {
 		private static final int numberOfIterations = 5;
@@ -134,7 +120,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		public long getPeakMemory() { return 0; }
-}
+	}
 
 	private static class TestFunctionSumOfProductsWithAddAndMult implements TestFunction {
 		private static final int numberOfIterations = 5000;
@@ -161,7 +147,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		public long getPeakMemory() { return 0; }
-}
+	}
 
 	private static class TestFunctionAccrue implements TestFunction {
 		private static final int numberOfIterations = 1;
@@ -179,7 +165,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
-		
+
 		public long getPeakMemory() { return 0; }
 	}
 
@@ -200,7 +186,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
-		
+
 		public long getPeakMemory() { return 0; }
 	}
 
@@ -271,7 +257,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		public long getPeakMemory() { return peakMemory; }
-}
+	}
 
 	private static class TestFunctionMonteCarloAsianOption implements TestFunction {
 
@@ -340,7 +326,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		public long getPeakMemory() { return peakMemory; }
-}
+	}
 
 	private static class TestFunctionMonteCarloBermudanOption implements TestFunction {
 
@@ -350,7 +336,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private final double	modelVolatility     = 0.30;
 
 		// Process discretization properties
-		private final int		numberOfPaths		= 50000; // you may try: 250000;
+		private final int		numberOfPaths		= 100000; // you may try: 250000;
 		private final int		numberOfTimeSteps	= 201;
 		private final double	deltaT				= 0.25;	//  quaterly, 50 year
 
@@ -408,14 +394,14 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return null;
 		}
-		
+
 		public long getPeakMemory() { return peakMemory; }
 	}
 
 	private static AbstractRandomVariableFactory[] testMethods = {
-//			new RandomVariableFactory(),
-//			new RandomVariableDifferentiableAADPathwiseFactory(),
-//			new RandomVariableDifferentiableAADStochasticNonOptimizedFactory(),
+			//			new RandomVariableFactory(),
+			//			new RandomVariableDifferentiableAADPathwiseFactory(),
+			//			new RandomVariableDifferentiableAADStochasticNonOptimizedFactory(),
 			new RandomVariableDifferentiableAADFactory()
 	};
 
@@ -440,46 +426,10 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(1)
 			},
 			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
-			},
-			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
-			},
-			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
-			},
-			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
-			},
-			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
-			},
-			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
-			},
-			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
+				new Integer(10*numberOfPaths),
+				new Integer(100),
+				new Integer(10*numberOfPaths),
+				new Integer(100)
 			},
 			{ new TestFunctionSumOfProducts(),
 				new Integer(10*numberOfPaths),
@@ -520,10 +470,33 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	};
 
 
+
+	@Parameters(name="{0}")
+	public static Collection<Object[]> data() {
+		Collection<Object[]> testParameters = new ArrayList<>();
+		for(int i=0; i<testCases.length; i++) {
+			for(int j=0; j<testMethods.length; j++) {
+				Object[] testParmeter = new Object[3];
+				testParmeter[0] = testMethods[j].getClass().getSimpleName() + " "
+						+ testCases[i][0].getClass().getSimpleName() + "("
+						+ testCases[i][1] + ","
+						+ testCases[i][2] + ","
+						+ testCases[i][3] + ","
+						+ testCases[i][4] + ")"
+						;
+				testParmeter[1] = testCases[i];
+				testParmeter[2] = testMethods[j];
+				testParameters.add(testParmeter);
+			}
+		}
+		return testParameters;
+	}
+
+	private String							name;
 	private AbstractRandomVariableFactory	randomVariableFactory;
 	private Object[]						testCase;
 
-	public RandomVariableDifferentiableAADPerformanceTest(Object[] testCase, AbstractRandomVariableFactory testMethod) {
+	public RandomVariableDifferentiableAADPerformanceTest(String name, Object[] testCase, AbstractRandomVariableFactory testMethod) {
 		this.testCase = testCase;
 		this.randomVariableFactory = testMethod;
 	}
@@ -576,7 +549,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		/*
 		 * Test valuation
 		 */
@@ -630,9 +603,6 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		System.out.println("memory requirements.: " + formatReal1.format((endMemAutoDiff-startMemCalculation)/1024.0/1024.0) + " MB");
 		System.out.println("memory requirements.: " + formatReal1.format((function.getPeakMemory())/1024.0/1024.0) + " MB");
 
-		System.out.print("dy/dx = (");
-		for(RandomVariableInterface partialDerivative : dydx) System.out.print(formatReal1.format(partialDerivative.getAverage()) + ",");
-		System.out.println(")");
 		System.out.println("");
 
 		if(dydxAnalytic != null) Assert.assertEquals(0.0, dydxAnalytic[0].sub(dydx[0]).getStandardError(), 1E-4);
