@@ -6,7 +6,6 @@ package net.finmath.optimizer;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.function.Function;
 
 import org.junit.Test;
 
@@ -36,7 +35,7 @@ public class StochasticLevenbergMarquardtTest {
 
 		int maxIteration = 1000;
 
-		StochasticLevenbergMarquardt optimizer = new StochasticLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
+		StochasticLevenbergMarquardtAD optimizer = new StochasticLevenbergMarquardtAD(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			@Override
