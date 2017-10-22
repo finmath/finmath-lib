@@ -63,6 +63,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		private final Object operator;
 		private final RandomVariableDifferentiableAADFactory factory;
 
+		private static final RandomVariableInterface zero = new RandomVariable(0.0);
+		private static final RandomVariableInterface one = new RandomVariable(1.0);
+
 		public OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator, RandomVariableDifferentiableAADFactory factory) {
 			this(operatorType, extractOperatorTreeNodes(arguments), extractOperatorValues(arguments), operator, factory);
 		}
@@ -115,7 +118,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			for(OperatorTreeNode argument : arguments) {
 				if(argument != null) {
 					Long argumentID = argument.id;
-					if(!derivatives.containsKey(argumentID)) derivatives.put(argumentID, new RandomVariable(0.0));
+					if(!derivatives.containsKey(argumentID)) derivatives.put(argumentID, zero);
 
 					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
 					RandomVariableInterface derivative			= derivatives.get(id);
@@ -138,9 +141,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 		}
 
-		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential){
+		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential) {
 
-			if(!arguments.contains(differential)) return new RandomVariable(0.0);
+			if(!arguments.contains(differential)) return zero;
 
 			int differentialIndex = arguments.indexOf(differential);
 			RandomVariableInterface X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
@@ -170,10 +173,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				resultrandomvariable = X.sin().mult(-1.0);
 				break;
 			case AVERAGE:
-				resultrandomvariable = new RandomVariable(1.0);
+				resultrandomvariable = one;
 				break;
 			case CONDITIONAL_EXPECTATION:
-				resultrandomvariable = new RandomVariable(1.0);
+				resultrandomvariable = one;
 				break;
 			case VARIANCE:
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size());
@@ -190,7 +193,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				resultrandomvariable = X.apply(x -> (x == max) ? 1.0 : 0.0);
 				break;
 			case ABS:
-				resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(-1.0));
+				resultrandomvariable = X.barrier(X, one, new RandomVariable(-1.0));
 				break;
 			case STDERROR:
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
@@ -199,7 +202,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/(X.size()-1));
 				break;
 			case ADD:
-				resultrandomvariable = new RandomVariable(1.0);
+				resultrandomvariable = one;
 				break;
 			case SUB:
 				resultrandomvariable = new RandomVariable(differentialIndex == 0 ? 1.0 : -1.0);
@@ -212,18 +215,18 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case CAP:
 				if(differentialIndex == 0) {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					resultrandomvariable = X.barrier(X.sub(Y), zero, one);
 				}
 				else {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					resultrandomvariable = X.barrier(X.sub(Y), one, zero);
 				}
 				break;
 			case FLOOR:
 				if(differentialIndex == 0) {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					resultrandomvariable = X.barrier(X.sub(Y), one, zero);
 				}
 				else {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					resultrandomvariable = X.barrier(X.sub(Y), zero, one);
 				}
 				break;
 			case AVERAGE2:
@@ -243,11 +246,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case POW:
 				/* second argument will always be deterministic and constant! */
-				resultrandomvariable = (differentialIndex == 0) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
+				resultrandomvariable = (differentialIndex == 0) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : zero;
 				break;
 			case ADDPRODUCT:
 				if(differentialIndex == 0) {
-					resultrandomvariable = new RandomVariable(1.0);
+					resultrandomvariable = one;
 				} else if(differentialIndex == 1) {
 					resultrandomvariable = Z;
 				} else {
@@ -256,7 +259,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case ADDRATIO:
 				if(differentialIndex == 0) {
-					resultrandomvariable = new RandomVariable(1.0);
+					resultrandomvariable = one;
 				} else if(differentialIndex == 1) {
 					resultrandomvariable = Z.invert();
 				} else {
@@ -265,7 +268,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case SUBRATIO:
 				if(differentialIndex == 0) {
-					resultrandomvariable = new RandomVariable(1.0);
+					resultrandomvariable = one;
 				} else if(differentialIndex == 1) {
 					resultrandomvariable = Z.invert().mult(-1.0);
 				} else {
@@ -299,17 +302,17 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					resultrandomvariable = Y.sub(Z);
 					double epsilon = factory.getBarrierDiracWidth()*X.getStandardDeviation();
 					if(epsilon > 0) {
-						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
-						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
+						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.add(epsilon/2), one, zero));
+						resultrandomvariable = resultrandomvariable.mult(X.barrier(X.sub(epsilon/2), zero, one));
 						resultrandomvariable = resultrandomvariable.div(epsilon);
 					}
 					else {
 						resultrandomvariable.mult(0.0);
 					}
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
+					resultrandomvariable = X.barrier(X, one, zero);
 				} else {
-					resultrandomvariable = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
+					resultrandomvariable = X.barrier(X, zero, one);
 				}
 			default:
 				break;
@@ -317,19 +320,19 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 			return resultrandomvariable;
 		}
-		
+
 		private static List<OperatorTreeNode> extractOperatorTreeNodes(List<RandomVariableInterface> arguments) {
 			return arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
-				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getOperatorTreeNode(): null;
-				}
-			).collect(Collectors.toList()) : null;
+				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getOperatorTreeNode() : null;
+			}
+					).collect(Collectors.toList()) : null;
 		};
 
 		private static List<RandomVariableInterface> extractOperatorValues(List<RandomVariableInterface> arguments) {
 			return arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
 				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getValues() : x;
-				}
-			).collect(Collectors.toList()) : null;
+			}
+					).collect(Collectors.toList()) : null;
 		};
 	}
 
@@ -632,7 +635,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	/*
-	 * The following methods are operations with are differntiable.
+	 * The following methods are operations with are differentiable.
 	 */
 
 	@Override
