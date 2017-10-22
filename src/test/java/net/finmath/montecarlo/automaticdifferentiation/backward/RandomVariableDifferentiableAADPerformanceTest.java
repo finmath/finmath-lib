@@ -42,6 +42,12 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class RandomVariableDifferentiableAADPerformanceTest {
 	private static DecimalFormat formatReal1 = new DecimalFormat("####0.00", new DecimalFormatSymbols(Locale.ENGLISH));
 
+	public static void main(String[] args) {
+		for(Object[] testData : data()) {
+			(new RandomVariableDifferentiableAADPerformanceTest((String) testData[0], (Object[]) testData[1], (AbstractRandomVariableFactory)testData[2])).test();
+		}
+	}
+	
 	private interface TestFunction {
 		RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
 		RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
@@ -123,7 +129,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	}
 
 	private static class TestFunctionSumOfProductsWithAddAndMult implements TestFunction {
-		private static final int numberOfIterations = 5000;
+		private static final int numberOfIterations = 10;
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
@@ -399,13 +405,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	}
 
 	private static AbstractRandomVariableFactory[] testMethods = {
-			//			new RandomVariableFactory(),
+			new RandomVariableFactory(),
 			//			new RandomVariableDifferentiableAADPathwiseFactory(),
 			//			new RandomVariableDifferentiableAADStochasticNonOptimizedFactory(),
 			new RandomVariableDifferentiableAADFactory()
 	};
 
-	private static int numberOfPaths = 10000;		/* In the paper we use 100000 */
+	private static int numberOfPaths = 10000;//10000;		/* In the paper we use 100000 */
 	private static Object[][] testCases = {
 			{ new TestFunctionBigSum(),
 				new Integer(numberOfPaths),	// number of paths for the arguments
@@ -418,12 +424,6 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				new Integer(1),
 				new Integer(numberOfPaths),
 				new Integer(0)
-			},
-			{ new TestFunctionSumOfProductsWithAddAndMult(),
-				new Integer(1*numberOfPaths),
-				new Integer(1),
-				new Integer(1*numberOfPaths),
-				new Integer(1)
 			},
 			{ new TestFunctionSumOfProductsWithAddAndMult(),
 				new Integer(10*numberOfPaths),
