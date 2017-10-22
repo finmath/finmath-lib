@@ -120,35 +120,23 @@ public class RandomVariable implements RandomVariableInterface {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
 	@Override
 	public double getFiltrationTime() {
 		return time;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
 	@Override
 	public double get(int pathOrState) {
 		if(isDeterministic())   return valueIfNonStochastic;
 		else               		return realizations[pathOrState];
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#size()
-	 */
 	@Override
 	public int size() {
 		if(isDeterministic())    return 1;
 		else                     return realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
-	 */
 	@Override
 	public double getMin() {
 		if(isDeterministic()) return valueIfNonStochastic;
@@ -158,9 +146,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return min;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMax()
-	 */
 	@Override
 	public double getMax() {
 		if(isDeterministic()) return valueIfNonStochastic;
@@ -170,6 +155,7 @@ public class RandomVariable implements RandomVariableInterface {
 		return max;
 	}
 
+	@Override
 	public double getAverage() {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;

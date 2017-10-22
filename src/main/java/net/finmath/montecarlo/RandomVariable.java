@@ -145,19 +145,6 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
-	 */
-	public RandomVariable getMutableCopy() {
-		return this;
-
-		//if(isDeterministic())	return new RandomVariable(time, valueIfNonStochastic);
-		//else					return new RandomVariable(time, realizations.clone());
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.montecarlo.RandomVariable)
-	 */
 	@Override
 	public boolean equals(RandomVariableInterface randomVariable) {
 		if(this.time != randomVariable.getFiltrationTime()) return false;
@@ -172,67 +159,58 @@ public class RandomVariable implements RandomVariableInterface {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
 	@Override
 	public double getFiltrationTime() {
 		return time;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
 	@Override
 	public double get(int pathOrState) {
 		if(isDeterministic())   return valueIfNonStochastic;
 		else               		return realizations[pathOrState];
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#size()
-	 */
 	@Override
 	public int size() {
 		if(isDeterministic())    return 1;
 		else                     return realizations.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
-	 */
 	@Override
 	public double getMin() {
 		if(isDeterministic()) return valueIfNonStochastic;
-		return getRealizationsStream().min().getAsDouble();
+		double min = Double.MAX_VALUE;
+		if(realizations.length != 0) min = realizations[0];     /// @see getMax()
+		for(int i=0; i<realizations.length; i++) min = Math.min(realizations[i],min);
+		return min;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMax()
-	 */
 	@Override
 	public double getMax() {
 		if(isDeterministic()) return valueIfNonStochastic;
-		return getRealizationsStream().max().getAsDouble();
+		double max = -Double.MAX_VALUE;
+		if(realizations.length != 0) max = realizations[0];
+		for(int i=0; i<realizations.length; i++) max = Math.max(realizations[i],max);
+		return max;
 	}
 
-	/**
-	 * @return Sum of all realizations.
-	 */
-	public double getSum() {
-		if(isDeterministic())	return valueIfNonStochastic;
-		if(size() == 0)			return Double.NaN;
-		return getRealizationsStream().sum();
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage()
-	 */
 	@Override
 	public double getAverage() {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
-		return getRealizationsStream().sum()/realizations.length;
+
+		/*
+		 * Kahan summation on realizations[i]
+		 */
+		double sum = 0.0;								// Running sum
+		double error = 0.0;								// Running error compensation
+		for(int i=0; i<realizations.length; i++)  {
+			double value = realizations[i] - error;		// Error corrected value
+			double newSum = sum + value;				// New sum
+			error = (newSum - sum) - value;				// New numerical error
+			sum	= newSum;
+		}
+		return sum/realizations.length;
 	}
 
 	@Override
@@ -240,7 +218,18 @@ public class RandomVariable implements RandomVariableInterface {
 		if(isDeterministic())	return valueIfNonStochastic;
 		if(size() == 0)			return Double.NaN;
 
-		return this.mult(probabilities).getRealizationsStream().sum();
+		/*
+		 * Kahan summation on (realizations[i] * probabilities.get(i))
+		 */
+		double sum = 0.0;
+		double error = 0.0;														// Running error compensation
+		for(int i=0; i<realizations.length; i++)  {
+			double value = realizations[i] * probabilities.get(i) - error;		// Error corrected value
+			double newSum = sum + value;				// New sum
+			error = (newSum - sum) - value;				// New numerical error
+			sum	= newSum;
+		}
+		return sum / realizations.length;
 	}
 
 	@Override
@@ -483,6 +472,11 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
+	public RandomVariableInterface cache() {
+		return this;
+	}
+
+	@Override
 	public DoubleStream getRealizationsStream() {
 		if(isDeterministic()) {
 			return DoubleStream.generate(() -> {
@@ -519,11 +513,6 @@ public class RandomVariable implements RandomVariableInterface {
 		else {
 			return i -> realizations[i];
 		}
-	}
-
-	@Override
-	public RandomVariableInterface cache() {
-		return this;
 	}
 
 	@Override
