@@ -30,12 +30,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @date 27.04.2012
  */
 public class AnalyticFormulas {
-	
+
 	// Suppress default constructor for non-instantiability
 	private AnalyticFormulas() {
 		// This constructor will never be invoked
 	}
-	
+
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
 	 * 
@@ -75,11 +75,11 @@ public class AnalyticFormulas {
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
 			double valueAnalytic = (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;
-			
+
 			return valueAnalytic;
 		}
 	}
-	
+
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
 	 * 
@@ -107,9 +107,9 @@ public class AnalyticFormulas {
 		{	
 			RandomVariableInterface dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			RandomVariableInterface dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
-			
+
 			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
-			
+
 			return valueAnalytic;
 		}
 	}
@@ -168,7 +168,7 @@ public class AnalyticFormulas {
 			return putValue;
 		}
 	}
-	
+
 	/**
 	 * Calculates the Black-Scholes option value of an atm call option.
 	 * 
@@ -189,9 +189,9 @@ public class AnalyticFormulas {
 		// Calculate analytic value
 		double dPlus = 0.5 * volatility * Math.sqrt(optionMaturity);
 		double dMinus = -dPlus;
-		
+
 		double valueAnalytic = (NormalDistribution.cumulativeDistribution(dPlus) - NormalDistribution.cumulativeDistribution(dMinus)) * forward * payoffUnit;
-		
+
 		return valueAnalytic;
 	}
 
@@ -239,9 +239,9 @@ public class AnalyticFormulas {
 		{	
 			// Calculate delta
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			
+
 			double delta = NormalDistribution.cumulativeDistribution(dPlus);
-			
+
 			return delta;
 		}
 	}
@@ -274,9 +274,9 @@ public class AnalyticFormulas {
 		{	
 			// Calculate delta
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
-			
+
 			RandomVariableInterface delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
-			
+
 			return delta;
 		}
 	}
@@ -342,13 +342,13 @@ public class AnalyticFormulas {
 		{	
 			// Calculate gamma
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			
+
 			double gamma = Math.exp(-0.5*dPlus*dPlus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
-			
+
 			return gamma;
 		}
 	}
-	
+
 	/**
 	 * This static method calculated the gamma of a call option under a Black-Scholes model
 	 * 
@@ -375,9 +375,9 @@ public class AnalyticFormulas {
 		{	
 			// Calculate gamma
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
-			
+
 			RandomVariableInterface gamma	= dPlus.squared().mult(-0.5).exp().div(initialStockValue.mult(volatility).mult(Math.sqrt(2.0 * Math.PI * optionMaturity)));
-			
+
 			return gamma;
 		}
 	}
@@ -408,9 +408,9 @@ public class AnalyticFormulas {
 		{
 			// Calculate vega
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			
+
 			double vega = Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) * initialStockValue * Math.sqrt(optionMaturity);
-			
+
 			return vega;
 		}
 	}
@@ -441,9 +441,9 @@ public class AnalyticFormulas {
 		{
 			// Calculate rho
 			double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			
+
 			double rho = optionStrike * optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
-			
+
 			return rho;
 		}
 	}
@@ -471,7 +471,7 @@ public class AnalyticFormulas {
 		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
 		int		maxIterations	= 500;
 		double	maxAccuracy		= 1E-15;
-		
+
 		if(optionStrike <= 0.0)
 		{	
 			// Actually it is not an option
@@ -536,9 +536,9 @@ public class AnalyticFormulas {
 			// Calculate analytic value
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
-			
+
 			double valueAnalytic = Math.exp(- riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
-			
+
 			return valueAnalytic;
 		}
 	}
@@ -570,9 +570,9 @@ public class AnalyticFormulas {
 			// Calculate delta
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
-			
+
 			double delta = Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
-			
+
 			return delta;
 		}
 	}
@@ -606,7 +606,7 @@ public class AnalyticFormulas {
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
 			double vega = - Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI) * dPlus / volatility;
-			
+
 			return vega;
 		}
 	}
@@ -645,7 +645,7 @@ public class AnalyticFormulas {
 
 			double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus)
 					+ Math.sqrt(optionMaturity)/volatility * Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI);
-			
+
 			return rho;
 		}
 	}
@@ -743,7 +743,7 @@ public class AnalyticFormulas {
 		double volatility = Math.sqrt(volatility1*volatility1 + volatility2*volatility2 - 2.0 * volatility1*volatility2*correlation);
 		return blackScholesGeneralizedOptionValue(spot1, volatility, optionMaturity, spot2, 1.0);
 	}
-    
+
 	/**
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
 	 * normal process with constant volatility, i.e., a Bachelier model.
@@ -774,12 +774,12 @@ public class AnalyticFormulas {
 			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
 			double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
-					+ (volatility * Math.sqrt(optionMaturity)) * NormalDistribution.density(dPlus)) * payoffUnit;
-			
+					+ volatility * Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus)) * payoffUnit;
+
 			return valueAnalytic;
 		}
 	}
-	
+
 	/**
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
 	 * normal process with constant volatility, i.e., a Bachelier model.
@@ -808,7 +808,7 @@ public class AnalyticFormulas {
 
 			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
 					.add(dPlus.apply(NormalDistribution::density).mult(integratedVolatility)).mult(payoffUnit);
-			
+
 			return valueAnalytic;
 		}
 	}
@@ -842,8 +842,7 @@ public class AnalyticFormulas {
 
 		// Calculate an lower and upper bound for the volatility
 		double volatilityLowerBound = 0.0;
-		double volatilityUpperBound = (optionValue + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity) / payoffUnit;
-		volatilityUpperBound /= Math.min(1.0, NormalDistribution.density((forward - optionStrike) / (volatilityUpperBound * Math.sqrt(optionMaturity))));
+		double volatilityUpperBound = Math.sqrt(2 * Math.PI * Math.E) * (optionValue / payoffUnit + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity);
 
 		// Solve for implied volatility
 		GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
@@ -1191,15 +1190,15 @@ public class AnalyticFormulas {
 		double skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
 
 		// Some alternative representations
-//		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
-//		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
-//		skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
-//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*3.0*c) + maturity*2.0*c*(1+beta);
-//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*c) - maturity*c*(2.0*rho*nu/a - 2.0);
+		//		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
+		//		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
+		//		skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
+		//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*3.0*c) + maturity*2.0*c*(1+beta);
+		//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*c) - maturity*c*(2.0*rho*nu/a - 2.0);
 
 		// The follwoing may be used as approximations (for beta=0 the approximation is exact).
-//		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
-//		double residual =  skew - approximation;
+		//		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
+		//		double residual =  skew - approximation;
 
 		return  skew;
 	}
@@ -1229,17 +1228,17 @@ public class AnalyticFormulas {
 		double d1xdz1 = 1.0;
 		double d2xdz2 = rho;
 		double d3xdz3 = 3.0*rho*rho-1.0;
-		
+
 		double d1zdK1 = -nu/alpha * Math.pow(underlying, -beta);
 		double d2zdK2 = + nu/alpha * beta * Math.pow(underlying, -beta-1.0);
 		double d3zdK3 = - nu/alpha * beta * (1.0+beta) * Math.pow(underlying, -beta-2.0);
-		
+
 		double d1xdK1 = d1xdz1*d1zdK1;
 		double d2xdK2 = d2xdz2*d1zdK1*d1zdK1 + d1xdz1*d2zdK2;
 		double d3xdK3 = d3xdz3*d1zdK1*d1zdK1*d1zdK1 + 3.0*d2xdz2*d2zdK2*d1zdK1 + d1xdz1*d3zdK3;
-		
+
 		double term1 = alpha * Math.pow(underlying, beta) / nu;
-		*/
+		 */
 
 		double d2Part1dK2 = nu * ((1.0/3.0 - 1.0/2.0 * rho * rho) * nu/alpha * Math.pow(underlying, -beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * alpha/nu*Math.pow(underlying, beta-2));
 		double d0BdK0 = (-1.0/24.0 *beta*(2-beta)*alpha*alpha*Math.pow(underlying, 2*beta-2) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying, beta-1.0) + (2.0 -3.0*rho*rho)*nu*nu/24);

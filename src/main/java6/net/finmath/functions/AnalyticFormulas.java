@@ -618,7 +618,7 @@ public class AnalyticFormulas {
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
 			double vega = - Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI) * dPlus / volatility;
-			
+
 			return vega;
 		}
 	}
@@ -657,7 +657,7 @@ public class AnalyticFormulas {
 
 			double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus)
 					+ Math.sqrt(optionMaturity)/volatility * Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI);
-			
+
 			return rho;
 		}
 	}
@@ -786,7 +786,7 @@ public class AnalyticFormulas {
 			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
 			double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
-					+ (volatility * Math.sqrt(optionMaturity)) * NormalDistribution.density(dPlus)) * payoffUnit;
+					+ volatility * Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus)) * payoffUnit;
 
 			return valueAnalytic;
 		}
@@ -860,8 +860,7 @@ public class AnalyticFormulas {
 
 		// Calculate an lower and upper bound for the volatility
 		double volatilityLowerBound = 0.0;
-		double volatilityUpperBound = (optionValue + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity) / payoffUnit;
-		volatilityUpperBound /= Math.min(1.0, NormalDistribution.density((forward - optionStrike) / (volatilityUpperBound * Math.sqrt(optionMaturity))));
+		double volatilityUpperBound = Math.sqrt(2 * Math.PI * Math.E) * (optionValue / payoffUnit + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity);
 
 		// Solve for implied volatility
 		GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
@@ -1247,17 +1246,17 @@ public class AnalyticFormulas {
 		double d1xdz1 = 1.0;
 		double d2xdz2 = rho;
 		double d3xdz3 = 3.0*rho*rho-1.0;
-		
+
 		double d1zdK1 = -nu/alpha * Math.pow(underlying, -beta);
 		double d2zdK2 = + nu/alpha * beta * Math.pow(underlying, -beta-1.0);
 		double d3zdK3 = - nu/alpha * beta * (1.0+beta) * Math.pow(underlying, -beta-2.0);
-		
+
 		double d1xdK1 = d1xdz1*d1zdK1;
 		double d2xdK2 = d2xdz2*d1zdK1*d1zdK1 + d1xdz1*d2zdK2;
 		double d3xdK3 = d3xdz3*d1zdK1*d1zdK1*d1zdK1 + 3.0*d2xdz2*d2zdK2*d1zdK1 + d1xdz1*d3zdK3;
-		
+
 		double term1 = alpha * Math.pow(underlying, beta) / nu;
-		*/
+		 */
 
 		double d2Part1dK2 = nu * ((1.0/3.0 - 1.0/2.0 * rho * rho) * nu/alpha * Math.pow(underlying, -beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * alpha/nu*Math.pow(underlying, beta-2));
 		double d0BdK0 = (-1.0/24.0 *beta*(2-beta)*alpha*alpha*Math.pow(underlying, 2*beta-2) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying, beta-1.0) + (2.0 -3.0*rho*rho)*nu*nu/24);
@@ -1270,7 +1269,7 @@ public class AnalyticFormulas {
 
 		return  (curvaturePart1 + maturity * curvatureMaturityPart);
 	}
-	
+
 	/**
 	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
 	 * 

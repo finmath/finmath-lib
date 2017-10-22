@@ -21,8 +21,30 @@ import net.finmath.optimizer.SolverException;
  */
 public class AnalyticFormulasTest {
 
-	@Before
-	public void setUp() throws Exception {
+	static final DecimalFormat formatterReal2 = new DecimalFormat("#0.00");
+	@Test
+	public void testBachelierOptionImpliedVolatility() {
+		double spot = 100;
+		double riskFreeRate = 0.05;
+		for(double volatilityNormal = 5.0 / 100.0 * spot; volatilityNormal < 1.0 * spot; volatilityNormal += 5.0 / 100.0 * spot) {
+		for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
+			for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
+
+					double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
+
+					double volatility = volatilityNormal;
+					double forward = spot * Math.exp(riskFreeRate * optionMaturity);
+					double optionStrike = forward + moneyness;
+					double payoffUnit = Math.exp(-riskFreeRate * optionMaturity);
+
+					double optionValue = AnalyticFormulas.bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+					double impliedVolatility = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+
+					System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionValue) + " \t" + formatterReal2.format(volatility) + " \t" + formatterReal2.format(impliedVolatility));
+					Assert.assertEquals(volatility, impliedVolatility, 1E-3);
+				}
+			}
+		}
 	}
 
 	@Test
