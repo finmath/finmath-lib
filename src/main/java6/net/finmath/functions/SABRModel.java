@@ -30,23 +30,28 @@ public class SABRModel {
 	}
 
 	public static double[] sabrCalibrateParameterForImpliedNormalVols(final double underlying, final double maturity, final double[] givenStrikes, final double[] givenVolatilities, final double[] parameterLowerBound, final double[] parameterUpperBound) throws SolverException {
-		/*
-		 * Using Levenberg Marquardt to calibrate SABR
-		 */
-
 		double alpha = 0.006;
 		double beta = 0.05;
 		double rho = 0.0;
 		double nu = 0.075;
 		double displacement = 0.02;
 
+		double[] parameterInitialValues = { alpha, beta, rho, nu, displacement };
 
-		double[] initialParameters = { alpha, beta, rho, nu, displacement };
+		double[] parameterSteps = { 0.5/100.0/100.0, 1.0/100.0, 0.5/100.0, 0.5/100.0, 0.1/100.0 };
+		return sabrCalibrateParameterForImpliedNormalVols(underlying, maturity, givenStrikes, givenVolatilities, parameterInitialValues, parameterSteps, parameterLowerBound, parameterUpperBound);
+	}
+
+	public static double[] sabrCalibrateParameterForImpliedNormalVols(final double underlying, final double maturity, final double[] givenStrikes, final double[] givenVolatilities, final double[] parameterInitialValues, double[] parameterSteps, final double[] parameterLowerBound, final double[] parameterUpperBound) throws SolverException {
+		/*
+		 * Using Levenberg Marquardt to calibrate SABR
+		 */
+
 		double[] targetValues = givenVolatilities;
 		int maxIteration = 1000;
 		int numberOfThreads = 8;
 
-		LevenbergMarquardt lm = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, numberOfThreads) {			
+		LevenbergMarquardt lm = new LevenbergMarquardt(parameterInitialValues, targetValues, maxIteration, numberOfThreads) {			
 			private static final long serialVersionUID = -4481118838855868864L;
 
 			@Override
