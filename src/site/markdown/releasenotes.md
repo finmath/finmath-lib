@@ -5,6 +5,12 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.1.3 (28.10.2017)
+
+### Analytic models - Curves
+
+- Added serializability. For example for AnalytModel and curves. The AnalyticModel may be serialized to disk and loaded from disk. This is useful in curve calibration spreadsheets.
+
 ## 3.1.0 (30.09.2017)
 
 ### Monte-Carlo models
