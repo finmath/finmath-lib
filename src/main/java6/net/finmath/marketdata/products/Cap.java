@@ -6,6 +6,7 @@
 
 package net.finmath.marketdata.products;
 
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
@@ -283,5 +284,11 @@ public class Cap extends AbstractAnalyticProduct {
 				+ forwardCurveName + ", strike=" + strike
 				+ ", discountCurveName=" + discountCurveName
 				+ ", volatiltiySufaceName=" + volatiltiySufaceName + "]";
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		cachedATMForward = Double.NaN;
 	}
 }

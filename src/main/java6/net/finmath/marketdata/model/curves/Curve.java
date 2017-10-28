@@ -5,6 +5,7 @@
  */
 package net.finmath.marketdata.model.curves;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.text.DecimalFormat;
@@ -74,7 +75,6 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		HARMONIC_SPLINE,
 		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/	
 		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING
-
 	}
 
 	/**
@@ -234,8 +234,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;
 
 	private RationalFunctionInterpolation	rationalFunctionInterpolation =  null;
-	private final Object					rationalFunctionInterpolationLazyInitLock = new Object();
-	private SoftReference<Map<Double, Double>> curveCacheReference = null;
+	private transient Object					rationalFunctionInterpolationLazyInitLock = new Object();
+	private transient SoftReference<Map<Double, Double>> curveCacheReference = null;
 
 	private static final long serialVersionUID = -4126228588123963885L;
 	static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
@@ -505,5 +505,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 				+ interpolationMethod + ", extrapolationMethod=" + extrapolationMethod + ", interpolationEntity="
 				+ interpolationEntity + ", rationalFunctionInterpolation=" + rationalFunctionInterpolation
 				+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		rationalFunctionInterpolationLazyInitLock = new Object();
 	}
 }

@@ -6,6 +6,7 @@
 
 package net.finmath.montecarlo;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import net.finmath.stochastic.RandomVariableInterface;
@@ -55,7 +56,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 	private transient RandomVariableInterface[][]	brownianIncrements;
-	private final		Object						brownianIncrementsLazyInitLock = new Object();
+	private transient Object							brownianIncrementsLazyInitLock = new Object();
 
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
@@ -200,5 +201,11 @@ public class BrownianBridge implements BrownianMotionInterface {
 				+ numberOfPaths + ", seed=" + seed + ", start="
 				+ Arrays.toString(start) + ", end=" + Arrays.toString(end)
 				+ "]";
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		brownianIncrementsLazyInitLock = new Object();
 	}
 }

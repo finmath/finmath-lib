@@ -12,6 +12,10 @@ import java.util.TreeSet;
  */
 public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7451923974528392081L;
 	/*
 	 * Details of this calendar.
 	 * If you like to create a similar calendar, just duplicate this class and

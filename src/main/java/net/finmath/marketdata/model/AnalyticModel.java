@@ -5,6 +5,7 @@
  */
 package net.finmath.marketdata.model;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,9 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
  * 
  * @author Christian Fries
  */
-public class AnalyticModel implements AnalyticModelInterface, Cloneable {
+public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable {
+
+	private static final long serialVersionUID = 6906386712907555046L;
 
 	private final Map<String, CurveInterface>				curvesMap				= new HashMap<String, CurveInterface>();
 	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap	= new HashMap<String, VolatilitySurfaceInterface>();

@@ -30,6 +30,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implements Serializable {
 
 	private static final long serialVersionUID = -4126228588123963885L;
+
 	private final String referenceDiscountCurveForForwardsName; // The (pseudo-)discount curve that the forwards are calculated from. Note that this is in general different from the discount curve associated with the forwards
 
 	private final double daycountScaling;

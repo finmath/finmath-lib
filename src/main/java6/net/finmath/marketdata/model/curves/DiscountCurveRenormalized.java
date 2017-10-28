@@ -5,6 +5,9 @@
  */
 package net.finmath.marketdata.model.curves;
 
+import java.io.IOException;
+import java.io.Serializable;
+
 import org.threeten.bp.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -16,14 +19,16 @@ import net.finmath.time.FloatingpointDate;
  * 
  * @author Christian Fries
  */
-public class DiscountCurveRenormalized implements DiscountCurveInterface {
+public class DiscountCurveRenormalized implements DiscountCurveInterface, Serializable {
+
+	private static final long serialVersionUID = -7603795467908495733L;
 
 	private final String name;
 	private final LocalDate referenceDate;
 	private final LocalDate spotDate;	
 	private final String baseCurveName;
 
-	private final transient double spotOffset;
+	private transient double spotOffset;
 
 	public DiscountCurveRenormalized(String name, LocalDate referenceDate, LocalDate spotDate, String baseCurveName) {
 		super();
@@ -88,5 +93,11 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface {
 	@Override
 	public DiscountCurveRenormalized clone() throws CloneNotSupportedException {
 		return new DiscountCurveRenormalized(getName(), getReferenceDate(), spotDate, baseCurveName);
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		this.spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);
 	}
 }

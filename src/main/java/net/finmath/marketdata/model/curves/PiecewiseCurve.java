@@ -20,6 +20,8 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  */
 public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 
+	private static final long serialVersionUID = 8846923173857477343L;
+
 	private CurveInterface	baseCurve;
 	private CurveInterface	fixedPartCurve;
 

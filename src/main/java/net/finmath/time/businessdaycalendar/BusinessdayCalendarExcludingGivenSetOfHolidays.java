@@ -11,6 +11,10 @@ import java.util.Set;
  */
 public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -485496533316101770L;
 	private final Set<LocalDate> holidays;
 	
 	public BusinessdayCalendarExcludingGivenSetOfHolidays(String name, BusinessdayCalendarInterface baseCalendar, boolean isExcludeWeekends, Set<LocalDate> holidays) {

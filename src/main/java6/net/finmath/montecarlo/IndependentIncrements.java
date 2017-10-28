@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
@@ -54,7 +55,7 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 	private final AbstractRandomVariableFactory randomVariableFactory;
 
 	private transient	RandomVariableInterface[][]	increments;
-	private final		Object						incrementsLazyInitLock = new Object();
+	private	transient	Object						incrementsLazyInitLock = new Object();
 
 	private final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions;
 
@@ -281,5 +282,11 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 		result = 31 * result + numberOfPaths;
 		result = 31 * result + seed;
 		return result;
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		incrementsLazyInitLock = new Object();
 	}
 }

@@ -13,6 +13,8 @@ import org.threeten.bp.LocalDate;
  */
 public abstract class BusinessdayCalendarExcludingGivenHolidays extends BusinessdayCalendar {
 
+	private static final long serialVersionUID = -7060298609732249650L;
+
 	private final String name;
 	private final BusinessdayCalendarInterface baseCalendar;
 	private final boolean isExcludeWeekends;

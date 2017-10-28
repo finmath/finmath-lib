@@ -16,7 +16,7 @@ public class ShortRateVolatilityModelHoLee implements ShortRateVolailityModelInt
 
 	private final double volatility;
 
-	private final transient TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0);
+	private final TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0);
 
 	public ShortRateVolatilityModelHoLee(double volatility) {
 		super();

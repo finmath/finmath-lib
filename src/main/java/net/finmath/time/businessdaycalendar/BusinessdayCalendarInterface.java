@@ -6,12 +6,13 @@
 
 package net.finmath.time.businessdaycalendar;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
  * @author Christian Fries
  */
-public interface BusinessdayCalendarInterface {
+public interface BusinessdayCalendarInterface extends Serializable {
 	
 	public enum DateOffsetUnit {
 		DAYS,

@@ -43,8 +43,8 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	private Map<Double, CurveInterface>	capletVolatilities = new HashMap<Double, CurveInterface>();
 	
-	private transient Double[] maturities;
-	private Object lazyInitLock = new Object();
+	private transient Double[]	maturities;
+	private transient Object		lazyInitLock = new Object();
 	
 	/**
 	 * @param name The name of this volatility surface.
@@ -135,7 +135,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 			// @TODO: Below we should trigger an exception if no forwardCurve is supplied but needed.
 			// Interpolation / extrapolation is performed on iso-moneyness lines.
 			double adjustedStrike = forwardCurve.getValue(model, maturityGreaterOfEqual) + (strike - forwardCurve.getValue(model, maturity));
-			
+
 			value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
 		}
 
@@ -185,5 +185,11 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		}
 		
 		return capletVolatilities;
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		lazyInitLock = new Object();
 	}
 }

@@ -13,6 +13,10 @@ import org.threeten.bp.format.DateTimeFormatter;
  */
 public class BusinessdayCalendarExcludingNYCHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3512269252486431367L;
 	/*
 	 * Details of this calendar.
 	 * If you like to create a similar calendar, just duplicate this class and

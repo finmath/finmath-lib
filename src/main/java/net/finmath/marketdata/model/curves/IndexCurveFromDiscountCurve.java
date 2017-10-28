@@ -15,6 +15,8 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  */
 public class IndexCurveFromDiscountCurve extends AbstractCurve implements CurveInterface {
 
+	private static final long serialVersionUID = -3760460344256117452L;
+
 	private final double indexValue;
 	private final DiscountCurveInterface discountCurve;
 	

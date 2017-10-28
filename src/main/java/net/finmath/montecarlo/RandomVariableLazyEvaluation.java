@@ -34,7 +34,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 
-    private final double            time;	                // Time (filtration)
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8413020544732461630L;
+
+	private final double            time;	                // Time (filtration)
 
     // Operator
     private       IntToDoubleFunction   realizations;

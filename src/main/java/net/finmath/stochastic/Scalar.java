@@ -19,6 +19,8 @@ import net.finmath.functions.DoubleTernaryOperator;
  */
 public class Scalar implements RandomVariableInterface {
 
+	private static final long serialVersionUID = -729437972787062992L;
+
 	final double value;
 
 	public Scalar(double value) {

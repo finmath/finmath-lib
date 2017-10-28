@@ -37,6 +37,8 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 
+	private static final long serialVersionUID = 4021745191829488593L;
+
 	private CurveInterface baseCurve;
 
 	/**

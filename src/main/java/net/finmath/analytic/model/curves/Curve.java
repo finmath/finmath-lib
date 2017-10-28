@@ -5,6 +5,7 @@
  */
 package net.finmath.analytic.model.curves;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.text.DecimalFormat;
@@ -235,7 +236,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;
 
 	private RationalFunctionInterpolation	rationalFunctionInterpolation =  null;
-	private final Object					        rationalFunctionInterpolationLazyInitLock = new Object();
+	private transient Object					rationalFunctionInterpolationLazyInitLock = new Object();
 	private SoftReference<Map<Double, RandomVariableInterface>> curveCacheReference = null;
 	//private LIBORModelMonteCarloSimulationInterface model;
 	
@@ -525,5 +526,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 				+ interpolationMethod + ", extrapolationMethod=" + extrapolationMethod + ", interpolationEntity="
 				+ interpolationEntity + ", rationalFunctionInterpolation=" + rationalFunctionInterpolation
 				+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		rationalFunctionInterpolationLazyInitLock = new Object();
 	}
 }

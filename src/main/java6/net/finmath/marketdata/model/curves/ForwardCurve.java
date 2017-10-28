@@ -318,7 +318,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		}
 		}
 	}
-	
+
 	/**
 	 * Returns the forward for the corresponding fixing time.
 	 * 

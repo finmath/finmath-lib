@@ -20,6 +20,8 @@ import org.threeten.bp.LocalDate;
  */
 public abstract class BusinessdayCalendar implements BusinessdayCalendarInterface {
 
+	private static final long serialVersionUID = -970677373015282512L;
+
 	/* (non-Javadoc)
 	 * @see net.finmath.time.BusinessdayCalendarInterface#getAdjustedDate(org.threeten.bp.LocalDate, net.finmath.time.BusinessdayCalendarInterface.DateRollConvention)
 	 */

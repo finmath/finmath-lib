@@ -14,6 +14,8 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  */
 public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCurveInterface {
 
+	private static final long serialVersionUID = -6192098475095644443L;
+
 	/**
 	 * Create a piecewise forward curve.
 	 * 

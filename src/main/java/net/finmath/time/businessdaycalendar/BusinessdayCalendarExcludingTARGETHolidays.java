@@ -16,6 +16,10 @@ import java.time.LocalDate;
  */
 public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalendar {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -607317161321548729L;
 	private BusinessdayCalendarInterface baseCalendar;
 	private final BusinessdayCalendarInterface weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
 	

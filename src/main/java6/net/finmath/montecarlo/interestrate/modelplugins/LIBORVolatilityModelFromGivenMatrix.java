@@ -27,7 +27,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * A cache for the parameter associated with this model, it is only used when getParameter is
 	 * called repeatedly.
 	 */
-	private transient double[]		parameter = null;
+	private transient double[]	parameter;
 
 	// A lazy init cache
 	private transient RandomVariableInterface[][] volatility;

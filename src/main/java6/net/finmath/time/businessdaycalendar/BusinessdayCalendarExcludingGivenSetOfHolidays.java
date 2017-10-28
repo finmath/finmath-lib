@@ -1,8 +1,8 @@
 package net.finmath.time.businessdaycalendar;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
 import java.util.Set;
+
+import org.threeten.bp.LocalDate;
 
 /**
  * A class for a business day calendar, where every day is a business day, except
@@ -12,6 +12,10 @@ import java.util.Set;
  */
 public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -485496533316101770L;
 	private final Set<LocalDate> holidays;
 	
 	public BusinessdayCalendarExcludingGivenSetOfHolidays(String name, BusinessdayCalendarInterface baseCalendar, boolean isExcludeWeekends, Set<LocalDate> holidays) {

@@ -15,6 +15,8 @@ import java.time.LocalDate;
  */
 public class BusinessdayCalendarAny extends BusinessdayCalendar {
 
+	private static final long serialVersionUID = -2440422998196510638L;
+
 	/**
 	 * Create a business day calendar, where every day is a business day.
 	 */

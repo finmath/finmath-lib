@@ -5,6 +5,7 @@
  */
 package net.finmath.marketdata.model.curves;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -13,7 +14,9 @@ import java.time.LocalDate;
  *  
  * @author Christian Fries
  */
-public abstract class AbstractCurve implements CurveInterface, Cloneable {
+public abstract class AbstractCurve implements CurveInterface, Serializable, Cloneable {
+
+	private static final long serialVersionUID = 584342257323693502L;
 
 	private	final	LocalDate	referenceDate;
 	private final	String		name;

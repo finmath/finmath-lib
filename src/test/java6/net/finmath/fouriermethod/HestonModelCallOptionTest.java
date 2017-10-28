@@ -22,9 +22,6 @@ import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
 import net.finmath.fouriermethod.products.DigitalOption;
 import net.finmath.fouriermethod.products.EuropeanOption;
-import net.finmath.functions.AnalyticFormulas;
-import net.finmath.montecarlo.interestrate.products.indices.LIBORIndexTest.CurveSetup;
-import net.finmath.montecarlo.model.AbstractModel;
 
 /**
  * Test class for the valuation of a call option under Heston
