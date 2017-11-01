@@ -101,7 +101,7 @@ public class LIBORMarketModelCalibrationTest {
 		 * use an analytic approximation formula, etc.
 		 */
 		SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.valueOf(targetVolatilityType));
-//		double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetVolatility, fixingDates[0], swaprate, getSwapAnnuity(discountCurve, swapTenor));
+		//		double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetVolatility, fixingDates[0], swaprate, getSwapAnnuity(discountCurve, swapTenor));
 		return new CalibrationItem(swaptionMonteCarlo, targetVolatility, weight);
 	}
 
@@ -139,7 +139,7 @@ public class LIBORMarketModelCalibrationTest {
 
 
 		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve, liborPeriodLength);
-		
+
 		/*
 		 * Create a set of calibration products.
 		 */
@@ -159,7 +159,7 @@ public class LIBORMarketModelCalibrationTest {
 			calibrationItems.add(createCalibrationItem(1.0 /* weight */, exerciseDate, swapPeriodLength, numberOfPeriods, moneyness, targetVolatility, "VOLATILITYLOGNORMAL", forwardCurve, discountCurve));
 		}
 
-		
+
 		double[] atmOptionMaturities	= { 2.00, 3.00, 4.00, 5.00, 7.00, 10.00, 15.00, 20.00, 25.00, 30.00 };
 		double[] atmOptionVolatilities	= { 0.385, 0.351, 0.325, 0.308, 0.288, 0.279, 0.290, 0.272, 0.235, 0.192 };
 
@@ -171,7 +171,7 @@ public class LIBORMarketModelCalibrationTest {
 
 			calibrationItems.add(createCalibrationItem(1.0 /* weight */, exerciseDate, swapPeriodLength, numberOfPeriods, moneyness, targetVolatility, "VOLATILITYLOGNORMAL", forwardCurve, discountCurve));
 		}
-		
+
 		/*
 		 * Create a LIBOR Market Model
 		 */
@@ -195,7 +195,7 @@ public class LIBORMarketModelCalibrationTest {
 		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors + 1, numberOfPaths, 31415 /* seed */);
 		BrownianMotionInterface brownianMotionView1 = new BrownianMotionView(brownianMotion, new Integer[] { 0, 1, 2, 3, 4 });
 		BrownianMotionInterface brownianMotionView2 = new BrownianMotionView(brownianMotion, new Integer[] { 0, 5 });
-		
+
 		// Create a covariance model
 		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors, new double[] { 0.20, 0.05, 0.10, 0.05, 0.10} );
 		// Create blended local volatility model with fixed parameter 0.0 (that is "lognormal").
@@ -232,7 +232,7 @@ public class LIBORMarketModelCalibrationTest {
 
 		// Pass the calibrationParameters to the model.
 		properties.put("calibrationParameters", calibrationParameters);
-		
+
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
 				liborPeriodDiscretization,
 				forwardCurve, discountCurve, covarianceModelStochasticParametric, calibrationItems.toArray(new CalibrationItem[0]), properties);	
@@ -243,7 +243,7 @@ public class LIBORMarketModelCalibrationTest {
 		 */
 		System.out.println("\nCalibrated parameters are:");
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
-//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
+		//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
 		for (double p : param) System.out.println(formatterParam.format(p));
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotionView1);
@@ -271,7 +271,7 @@ public class LIBORMarketModelCalibrationTest {
 		System.out.println("Mean Deviation:" + formatterValue.format(averageDeviation));
 		System.out.println("RMS Error.....:" + formatterValue.format(Math.sqrt(deviationSquaredSum/calibrationItems.size())));
 		System.out.println("__________________________________________________________________________________________\n");
-		
+
 		Assert.assertTrue(Math.abs(averageDeviation) < 1E-2);
 	}
 
@@ -286,9 +286,9 @@ public class LIBORMarketModelCalibrationTest {
 
 		final int numberOfPaths		= 1000;
 		final int numberOfFactors	= 1;
-		
+
 		long millisCurvesStart = System.currentTimeMillis();
-		
+
 		/*
 		 * Calibration test
 		 */
@@ -304,8 +304,8 @@ public class LIBORMarketModelCalibrationTest {
 		// Create the forward curve (initial value of the LIBOR market model)
 		final ForwardCurveInterface forwardCurve = curveModel.getForwardCurve("ForwardCurveFromDiscountCurve(discountCurve-EUR,6M)");
 		final DiscountCurveInterface discountCurve = curveModel.getDiscountCurve("discountCurve-EUR");
-//		curveModel.addCurve(discountCurve.getName(), discountCurve);
-		
+		//		curveModel.addCurve(discountCurve.getName(), discountCurve);
+
 		long millisCurvesEnd = System.currentTimeMillis();
 		System.out.println("");
 
@@ -402,7 +402,7 @@ public class LIBORMarketModelCalibrationTest {
 		Arrays.fill(parameterLowerBound, 0.0);
 		Arrays.fill(parameterUpperBound, Double.POSITIVE_INFINITY);
 
-//		optimizerFactory = new OptimizerFactoryCMAES(accuracy, maxIterations, parameterLowerBound, parameterUpperBound, parameterStandardDeviation);
+		//		optimizerFactory = new OptimizerFactoryCMAES(accuracy, maxIterations, parameterLowerBound, parameterUpperBound, parameterStandardDeviation);
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).
 		Map<String, Object> calibrationParameters = new HashMap<String, Object>();
@@ -452,16 +452,16 @@ public class LIBORMarketModelCalibrationTest {
 			catch(Exception e) {
 			}
 		}
-		
+
 		System.out.println("Calibration of curves........." + (millisCurvesEnd-millisCurvesStart)/1000.0);
 		System.out.println("Calibration of volatilities..." + (millisCalibrationEnd-millisCalibrationStart)/1000.0);
-		
+
 		double averageDeviation = deviationSum/calibrationItems.size();
 		System.out.println("Mean Deviation:" + formatterValue.format(averageDeviation));
 		System.out.println("RMS Error.....:" + formatterValue.format(Math.sqrt(deviationSquaredSum/calibrationItems.size())));
 		System.out.println("__________________________________________________________________________________________\n");
 
-		Assert.assertTrue(Math.abs(averageDeviation) < 1E-2);
+		Assert.assertTrue(Math.abs(averageDeviation) < 2E-4);
 	}
 
 	public AnalyticModelInterface getCalibratedCurve() throws SolverException {
