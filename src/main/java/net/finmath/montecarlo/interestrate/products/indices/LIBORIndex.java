@@ -20,10 +20,10 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class LIBORIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final double periodStartOffset;
 	private final double periodLength;
-    
+
 
 	/**
 	 * Creates a forward rate index for a given period start offset (offset from fixing) and period length.
@@ -51,7 +51,12 @@ public class LIBORIndex extends AbstractIndex {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
+		// Check if model provides this index
 		if(model.getModel().getForwardRateCurve().getName() != null && getName() != null && !model.getModel().getForwardRateCurve().getName().contains(getName())) throw new IllegalArgumentException("No curve for index " + getName() + " found in model.");
+
+		// If evaluationTime < 0 take fixing from curve (note: this is a fall-back, fixing should be provided by product, if possible).
+		if(evaluationTime < 0) return model.getRandomVariableForConstant(model.getModel().getForwardRateCurve().getForward(model.getModel().getAnalyticModel(), periodStartOffset));
+
 		RandomVariableInterface forwardRate = model.getLIBOR(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
 
 		return forwardRate;
