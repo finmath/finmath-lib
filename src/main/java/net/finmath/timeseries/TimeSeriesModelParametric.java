@@ -1,7 +1,7 @@
 /*
  * Created on 12.08.2012
  *
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  */
 package net.finmath.timeseries;
 

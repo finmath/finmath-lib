@@ -1,7 +1,7 @@
 /*
  * Created on 31.01.2015
  *
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
