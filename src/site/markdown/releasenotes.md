@@ -7,7 +7,9 @@ finmath lib Release Notes
 
 ## 3.1.5 (05.11.2017)
 
-### Small performance improvement for Monte-Carlo models. RandomVariable implementation avoids use of apply.
+### Monte-Carlo models
+
+- Small performance improvement for Monte-Carlo models. RandomVariable implementation avoids use of apply.
 
 ## 3.1.3 (28.10.2017)
 
