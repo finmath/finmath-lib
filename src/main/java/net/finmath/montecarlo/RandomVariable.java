@@ -6,6 +6,7 @@
 package net.finmath.montecarlo;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
@@ -15,6 +16,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.math3.util.FastMath;
 
 import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -531,9 +533,33 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
-
 		double      newTime           = Math.max(time, argument.getFiltrationTime());
 
+		if(isDeterministic() && argument.isDeterministic()) {
+			return new RandomVariable(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
+		}
+		else if(isDeterministic() && !argument.isDeterministic()) {
+			// Still faster than a parallel stream (2014.04)
+			double[] result = new double[argument.size()];
+			for(int i=0; i<result.length; i++) result[i] = operator.applyAsDouble(valueIfNonStochastic, argument.get(i));
+			return new RandomVariable(newTime, result);
+		}
+		else if(!isDeterministic() && argument.isDeterministic()) {
+			// Still faster than a parallel stream (2014.04)
+			double[] result = new double[this.size()];
+			for(int i=0; i<result.length; i++) result[i] = operator.applyAsDouble(realizations[i], argument.get(0));
+			return new RandomVariable(newTime, result);
+		}
+		else if(!isDeterministic() && !argument.isDeterministic()) {
+			// Still faster than a parallel stream (2014.04)
+			double[] result = new double[this.size()];
+			for(int i=0; i<result.length; i++) result[i] = operator.applyAsDouble(realizations[i], argument.get(i));
+			return new RandomVariable(newTime, result);
+		}
+
+		/*
+		 * Dead code: slower
+		 */
 		int newSize = Math.max(this.size(), argument.size());
 
 		IntToDoubleFunction argument0Operator = this.getOperator();
@@ -563,180 +589,374 @@ public class RandomVariable implements RandomVariableInterface {
 		return apply((x,y,z) -> operatorOuter.applyAsDouble(x,operatorInner.applyAsDouble(y,z)), argument1, argument2);
 	}
 
-	@Override
 	public RandomVariableInterface cap(double cap) {
-		return apply(x -> Math.min(x, cap));
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.min(realizations[i],cap);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface floor(double floor) {
-		return apply(x -> Math.max(x, floor));
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = Math.max(valueIfNonStochastic,floor);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.max(realizations[i],floor);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface add(double value) {
-		return apply(x -> x + value);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic + value;
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + value;
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(double)
-	 */
 	@Override
 	public RandomVariableInterface sub(double value) {
-		return apply(x -> x - value);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic - value;
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] - value;
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(double)
-	 */
 	@Override
 	public RandomVariableInterface mult(double value) {
-		return apply(x -> x * value);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic * value;
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * value;
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(double)
-	 */
 	@Override
 	public RandomVariableInterface div(double value) {
-		return apply(x -> x / value);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic / value;
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / value;
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#pow(double)
-	 */
 	@Override
 	public RandomVariableInterface pow(double exponent) {
-		return apply(x -> FastMath.pow(x, exponent));
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = Math.pow(valueIfNonStochastic,exponent);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.pow(realizations[i],exponent);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#average()
-	 */
 	@Override
 	public RandomVariableInterface average() {
 		return new RandomVariable(getAverage());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
-	 */
+	@Override
+	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	{
+		return conditionalExpectationOperator.getConditionalExpectation(this);
+	}
+
 	@Override
 	public RandomVariableInterface squared() {
-		return apply(x -> x * x);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic * valueIfNonStochastic;
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * realizations[i];
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
-	 */
 	@Override
 	public RandomVariableInterface sqrt() {
-		return apply(FastMath::sqrt);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = Math.sqrt(valueIfNonStochastic);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.sqrt(realizations[i]);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#exp()
-	 */
 	@Override
-	public RandomVariableInterface exp() {
-		return apply(FastMath::exp);
+	public RandomVariable exp() {
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = FastMath.exp(valueIfNonStochastic);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.exp(realizations[i]);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#log()
-	 */
 	@Override
-	public RandomVariableInterface log() {
-		return apply(FastMath::log);
+	public RandomVariable log() {
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = FastMath.log(valueIfNonStochastic);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.log(realizations[i]);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sin()
-	 */
 	@Override
 	public RandomVariableInterface sin() {
-		return apply(FastMath::sin);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = FastMath.sin(valueIfNonStochastic);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.sin(realizations[i]);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cos()
-	 */
 	@Override
 	public RandomVariableInterface cos() {
-		return apply(FastMath::cos);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = FastMath.cos(valueIfNonStochastic);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.cos(realizations[i]);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
-		return apply((x, y) -> x + y, randomVariable);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic + randomVariable.get(0);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) return randomVariable.add(valueIfNonStochastic);
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + randomVariable.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
-		return apply((x, y) -> x - y, randomVariable);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic - randomVariable.get(0);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic - randomVariable.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] - randomVariable.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
-		return apply((x, y) -> x * y, randomVariable);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic * randomVariable.get(0);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) {
+			return randomVariable.mult(valueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * randomVariable.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
-		return apply((x, y) -> x / y, randomVariable);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic / randomVariable.get(0);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic / randomVariable.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / randomVariable.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cap(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface cap) {
-		return apply(FastMath::min, cap);
+	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = FastMath.min(valueIfNonStochastic, randomVariable.get(0));
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) return randomVariable.cap(valueIfNonStochastic);
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.min(realizations[i], randomVariable.get(i));
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface floor) {
-		return apply(FastMath::max, floor);
+	public RandomVariableInterface floor(RandomVariableInterface randomVariable) {
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = FastMath.max(valueIfNonStochastic, randomVariable.get(0));
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) return randomVariable.floor(valueIfNonStochastic);
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.max(realizations[i], randomVariable.get(i));
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#accrue(net.finmath.stochastic.RandomVariableInterface, double)
-	 */
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
-		return apply((x, y) -> x * (1.0 + y * periodLength), rate);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, rate.getFiltrationTime());
+
+		if(isDeterministic() && rate.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic * (1 + rate.get(0) * periodLength);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic() && !rate.isDeterministic()) {
+			double[] rateRealizations = rate.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic * (1 + rateRealizations[i] * periodLength);
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else if(!isDeterministic() && rate.isDeterministic()) {
+			double rateValue = rate.get(0);
+			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * (1 + rateValue * periodLength);
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] rateRealizations = rate.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * (1 + rateRealizations[i] * periodLength);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#discount(net.finmath.stochastic.RandomVariableInterface, double)
-	 */
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
-		return apply((x, y) -> x / (1.0 + y * periodLength), rate);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, rate.getFiltrationTime());
+
+		if(isDeterministic() && rate.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic / (1 + rate.get(0) * periodLength);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic() && !rate.isDeterministic()) {
+			double[] rateRealizations = rate.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic / (1.0 + rateRealizations[i] * periodLength);
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else if(!isDeterministic() && rate.isDeterministic()) {
+			double rateValue = rate.get(0);
+			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / (1.0 + rateValue * periodLength);
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] rateRealizations = rate.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / (1.0 + rateRealizations[i] * periodLength);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		return trigger.apply(( x, y, z) -> (x >= 0 ? y : z), valueIfTriggerNonNegative, valueIfTriggerNegative);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, trigger.getFiltrationTime());
+		newTime = Math.max(newTime, valueIfTriggerNonNegative.getFiltrationTime());
+		newTime = Math.max(newTime, valueIfTriggerNegative.getFiltrationTime());
+
+		if(isDeterministic() && trigger.isDeterministic() && valueIfTriggerNonNegative.isDeterministic() && valueIfTriggerNegative.isDeterministic()) {
+			double newValueIfNonStochastic = trigger.get(0) >= 0 ? valueIfTriggerNonNegative.get(0) : valueIfTriggerNegative.get(0);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else {
+			int numberOfPaths = Math.max(Math.max(trigger.size(), valueIfTriggerNonNegative.size()), valueIfTriggerNegative.size());
+			double[] newRealizations = new double[numberOfPaths];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i] = trigger.get(i) >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i);
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
 	@Override
@@ -744,57 +964,133 @@ public class RandomVariable implements RandomVariableInterface {
 		return this.barrier(trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNonNegative.getFiltrationTime(), valueIfTriggerNegative));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#invert()
-	 */
 	@Override
 	public RandomVariableInterface invert() {
-		return apply(x -> 1.0 / x);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = 1.0/valueIfNonStochastic;
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = 1.0/realizations[i];
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#abs()
-	 */
 	@Override
 	public RandomVariableInterface abs() {
-		return apply(Math::abs);
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = Math.abs(valueIfNonStochastic);
+			return new RandomVariable(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.abs(realizations[i]);
+			return new RandomVariable(time, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, double)
-	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
-		return apply((x, y) -> x + y * factor2, factor1);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, factor1.getFiltrationTime());
+
+		if(isDeterministic() && factor1.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic + (factor1.get(0) * factor2);
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic() && !factor1.isDeterministic()) {
+			double[] factor1Realizations = factor1.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), factor1.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2;
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else if(!isDeterministic() && factor1.isDeterministic()) {
+			double factor1Value = factor1.get(0);
+			double[] newRealizations = new double[Math.max(size(), factor1.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + factor1Value * factor2;
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] factor1Realizations = factor1.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), factor1.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2;
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
-		return apply((x,y) -> x + y, (x, y) -> x * y, factor1, factor2);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(Math.max(time, factor1.getFiltrationTime()), factor2.getFiltrationTime());
+
+		if(isDeterministic() && factor1.isDeterministic() && factor2.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic + (factor1.get(0) * factor2.get(0));
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic() && !factor1.isDeterministic() && !factor2.isDeterministic()) {
+			double[] factor1Realizations = factor1.getRealizations();
+			double[] factor2Realizations = factor2.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), factor1.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2Realizations[i];
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else if(!isDeterministic() && !factor1.isDeterministic() && !factor2.isDeterministic()) {
+			double[] factor1Realizations = factor1.getRealizations();
+			double[] factor2Realizations = factor2.getRealizations();
+			double[] newRealizations = new double[Math.max(size(), factor1.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2Realizations[i];
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(Math.max(size(), factor1.size()), factor2.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = get(i) + factor1.get(i) * factor2.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
+	@Override
+	public RandomVariableInterface addSumProduct(List<RandomVariableInterface> factor1, List<RandomVariableInterface> factor2)
+	{
+		RandomVariableInterface result = this;
+		for(int i=0; i<factor1.size(); i++) {
+			result = result.addProduct(factor1.get(i), factor2.get(i));
+		}
+		return result;
+	}
+
 	@Override
 	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
-		return apply((x, y) -> x + y, (x, y) -> x / y, numerator, denominator);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
+
+		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic + (numerator.get(0) / denominator.get(0));
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = get(i) + numerator.get(i) / denominator.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
-		return apply((x,y) -> x - y, (x, y) -> x / y, numerator, denominator);
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
+
+		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic()) {
+			double newValueIfNonStochastic = valueIfNonStochastic - (numerator.get(0) / denominator.get(0));
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
+			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = get(i) - numerator.get(i) / denominator.get(i);
+			return new RandomVariable(newTime, newRealizations);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#isNaN()
-	 */
 	@Override
 	public RandomVariableInterface isNaN() {
 		if(isDeterministic()) {
