@@ -59,13 +59,16 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		for(CurveInterface curve : curves) curvesMap.put(curve.getName(), curve);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.AnalyticModelInterface#getCurve(java.lang.String)
-	 */
 	@Override
 	public CurveInterface getCurve(String name)
 	{
 		return curvesMap.get(name);
+	}
+	
+	@Override
+	public  Map<String, CurveInterface> getCurves()
+	{
+		return Collections.unmodifiableMap(curvesMap);
 	}
 
 	public AnalyticModelInterface addCurve(String name, CurveInterface curve) {

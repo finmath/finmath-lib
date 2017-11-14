@@ -35,6 +35,13 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	CurveInterface getCurve(String name);
 
 	/**
+	 * Returns an unmodifiable map of all curves.
+	 *
+	 * @return Map of all curves.
+	 */
+	Map<String, CurveInterface> getCurves();
+
+	/**
 	 * Add a reference to a given curve under a given name to this model. It is not necessary that the name given agrees with
 	 * <code>curve.getName()</code>. This method comes in handy, if you like to create curve mappings.
 	 * 

@@ -5,7 +5,9 @@
  */
 package net.finmath.analytic.model;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +31,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  */
-public class AnalyticModel implements AnalyticModelInterface, Cloneable {
+public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable {
 
 	private final AbstractRandomVariableFactory			randomVariableFactory;
 	private final Map<String, CurveInterface>			curvesMap					= new HashMap<String, CurveInterface>();
@@ -90,6 +92,12 @@ public class AnalyticModel implements AnalyticModelInterface, Cloneable {
 	public CurveInterface getCurve(String name)
 	{
 		return curvesMap.get(name);
+	}
+
+	@Override
+	public  Map<String, CurveInterface> getCurves()
+	{
+		return Collections.unmodifiableMap(curvesMap);
 	}
 
 	public AnalyticModelInterface addCurve(String name, CurveInterface curve) {
