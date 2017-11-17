@@ -23,12 +23,26 @@ import net.finmath.functions.LinearAlgebra;
 /**
  * This class implements a parallel Levenberg Marquardt non-linear least-squares fit
  * algorithm.
+ * 
+ * <p>
+ * The solver minimizes \( || f ||_{L_{2}} \) for a function \( f:\mathbb{R}^n \rightarrow \mathbb{R}^m \).
+ * The solver requires the calculation of a Jacobi-matrix \( J = \frac{\mathrm{d}f}{\mathrm{d}x} \). The iteration steps
+ * are then defined by
+ * \[
+ * 		\Delta x = H_{\lambda}^{-1} J^T f
+ * \]
+ * where \( H_{\lambda} \) is a regularized approximation of the Hessian matrix.
+ * The solver supports two different regularizations. For <code>RegularizationMethod.LEVENBERG</code> the solver uses
+ * \( H_{\lambda} = J^T J + \lambda I \). For <code>RegularizationMethod.LEVENBERG_MARQUARDT</code> the solver uses
+ * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
+ * </p>
+ * 
  * <p>
  * The design avoids the need to define the objective function as a
  * separate class. The objective function is defined by overriding a class
  * method, see the sample code below.
  * </p>
- * 
+
  * <p>
  * The Levenberg-Marquardt solver is implemented in using multi-threading.
  * The calculation of the derivatives (in case a specific implementation of
@@ -108,6 +122,28 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 	private static final long serialVersionUID = 4560864869394838155L;
 
+	/**
+	 * The regularization method used to invert the approximation of the
+	 * Hessian matrix.
+	 * 
+	 * @author Christian Fries
+	 */
+	public enum RegularizationMethod {
+			/**
+			 * The Hessian approximated and regularized as
+			 * \( H_{\lambda} = J^T J + \lambda I \).
+			 */
+			LEVENBERG,
+			
+			/**
+			 * The Hessian approximated and regularized as
+			 * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
+			 */
+			LEVENBERG_MARQUARDT
+	}
+
+	private final RegularizationMethod regularizationMethod;
+	
 	private double[] initialParameters = null;
 	private double[] parameterSteps = null;
 	private double[] targetValues = null;
@@ -116,7 +152,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	private int		maxIteration = 100;
 
 	private double	lambda				= 0.001;
-	private double	lambdaDivisor		= 1.3;
+	private double	lambdaDivisor		= 3.0;
 	private double	lambdaMultiplicator	= 2.0;
 
 	private double	errorRootMeanSquaredTolerance = 0.0;	// by default we solve upto machine presicion
@@ -193,13 +229,15 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	/**
 	 * Create a Levenberg-Marquardt solver.
 	 * 
+	 * @param regularizationMethod The regularization method to use. See {@link RegularizationMethod}.
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
 	 * @param maxIteration Maximum number of iterations.
 	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
 	 */
-	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, ExecutorService executorService) {
+	public LevenbergMarquardt(RegularizationMethod regularizationMethod, double[] initialParameters, double[] targetValues, int maxIteration, ExecutorService executorService) {
 		super();
+		this.regularizationMethod = regularizationMethod;
 		this.initialParameters	= initialParameters;
 		this.targetValues		= targetValues;
 		this.maxIteration		= maxIteration;
@@ -210,6 +248,19 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		this.executor = executorService;
 		this.executorShutdownWhenDone = (executorService == null);
 		this.numberOfThreads = 1;
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 * 
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, ExecutorService executorService) {
+		this(RegularizationMethod.LEVENBERG_MARQUARDT,
+				initialParameters, targetValues, maxIteration, executorService);
 	}
 
 	/**
@@ -257,6 +308,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 */
 	public LevenbergMarquardt() {
 		super();
+		regularizationMethod = RegularizationMethod.LEVENBERG_MARQUARDT;
 	}
 
 	/**
@@ -278,6 +330,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 */
 	public LevenbergMarquardt(int numberOfThreads) {
 		super();
+		regularizationMethod = RegularizationMethod.LEVENBERG_MARQUARDT;
 		this.numberOfThreads = numberOfThreads;
 	}
 
@@ -541,6 +594,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return Stop condition.
 	 */
 	boolean done() {
+		System.out.println(Math.sqrt(errorMeanSquaredCurrent) + " \t" + errorRootMeanSquaredChange + " \t" + lambda);
 		// The solver terminates if...
 		return 
 				// Maximum number of iterations is reached
@@ -682,10 +736,19 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 						alphaElement += weights[valueIndex] * derivativeCurrent[i][valueIndex] * derivativeCurrent[j][valueIndex];
 					}
 					if (i == j) {
-						if (alphaElement == 0.0)
-							alphaElement = 1.0;
-						else
-							alphaElement *= 1 + lambda;
+						if(regularizationMethod == RegularizationMethod.LEVENBERG) {
+							// RegularizationMethod.LEVENBERG - Regularization with a constant lambda
+							alphaElement += lambda;
+						}
+						else {
+							// RegularizationMethod.LEVENBERG_MARQUARDT - Regularization with a lambda time the diagonal of JTJ
+							if (alphaElement == 0.0) {
+								alphaElement = lambda;
+							}
+							else {
+								alphaElement *= 1 + lambda;
+							}
+						}
 					}
 
 					hessianMatrix[i][j] = alphaElement;
@@ -705,6 +768,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 			try {
 				// Calculate new increment
+//				parameterIncrement = LinearAlgebra.solveLinearEquationLeastSquare(hessianMatrix, beta);
 				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
 			} catch (Exception e) {
 				hessianInvalid	= true;
