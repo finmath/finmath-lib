@@ -5,11 +5,15 @@
  */
 package net.finmath.marketdata.model.curves;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.function.BiFunction;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,8 +21,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import net.finmath.marketdata.calibration.CalibratedCurves;
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.Solver;
+import net.finmath.marketdata.calibration.CalibratedCurves.CalibrationSpec;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
@@ -28,7 +34,10 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
+import net.finmath.time.ScheduleGenerator;
+import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
@@ -119,6 +128,83 @@ public class CalibrationTest {
 		System.out.println("__________________________________________________________________________________________\n");
 	}	
 	
+	@Test
+	public void testSingeCurveCalibration() {
+
+		/*
+		 * Calibration of a single curve - OIS curve - self disocunted curve, from a set of calibration products.
+		 */
+
+		LocalDate referenceDate = LocalDate.of(2012,01,10);
+
+		/*
+		 * Define the calibration spec generators for our calibration products
+		 */
+		BiFunction<String, Double, CalibrationSpec> depositForMaturityAndRate = (maturity, rate) -> {
+			ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+			ScheduleInterface scheduleInterfacePay = null;
+			double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
+			CalibrationSpec calibrationSpec = new CalibrationSpec("EUR-OIS-"+maturity, "Deposit", scheduleInterfaceRec, "", rate, "discount-EUR-OIS", scheduleInterfacePay, null, 0, null, "discount-EUR-OIS", calibrationTime);
+			return calibrationSpec;
+		};
+
+		BiFunction<String, Double, CalibrationSpec> swapForMaturityAndRate = (maturity, rate) -> {
+			ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
+			ScheduleInterface scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
+			double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
+			CalibrationSpec calibrationSpec = new CalibrationSpec("EUR-OIS-"+maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime);
+			return calibrationSpec;
+		};
+
+		/*
+		 * Generate empty curve template (for cloning during calibration)
+		 */
+		double[] times = { 0.0 };
+		double[]	 discountFactors = { 1.0 };
+		boolean[] isParameter = { false };
+
+		DiscountCurve discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
+		ForwardCurveFromDiscountCurve forwardCurveFromDiscountCurve = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
+
+
+		CurveInterface[] curveInterfacesSD = {discountCurve, forwardCurveFromDiscountCurve};
+		AnalyticModel forwardCurveModel = new AnalyticModel(curveInterfacesSD);
+
+		List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
+
+		calibrationSpecs.add(depositForMaturityAndRate.apply("1D", 0.00202));
+		calibrationSpecs.add(depositForMaturityAndRate.apply("1M", 0.00191));
+		calibrationSpecs.add(depositForMaturityAndRate.apply("12M", 0.00129));
+
+		calibrationSpecs.add(swapForMaturityAndRate.apply("18M", 0.00108));
+		calibrationSpecs.add(swapForMaturityAndRate.apply("21M", 0.00101));
+		calibrationSpecs.add(swapForMaturityAndRate.apply("2Y", 0.00101));
+		calibrationSpecs.add(swapForMaturityAndRate.apply("3Y", 0.00194));
+		calibrationSpecs.add(swapForMaturityAndRate.apply("4Y", 0.00346));
+		calibrationSpecs.add(swapForMaturityAndRate.apply("5Y", 0.00534));
+
+		CalibrationSpec[] calibratedSpecsArray = calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]);
+		CalibratedCurves calibratedCurves = null;
+		try {
+			calibratedCurves = new CalibratedCurves(calibratedSpecsArray, forwardCurveModel, 0.00000001);
+		} catch (SolverException | CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		double sumOfSquaredErrors = 0.0;
+		for(CalibrationSpec calibratedSpec : calibrationSpecs) {
+			AnalyticProductInterface product = calibratedCurves.getCalibrationProductForSpec(calibratedSpec);
+			double value = product.getValue(0.0, calibratedCurves.getModel());
+			sumOfSquaredErrors += value*value;
+		}
+
+		Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors)/calibrationSpecs.size(), 1E-10);
+
+		DiscountCurveInterface discountCurveCalibrated = (DiscountCurveInterface) calibratedCurves.getCurve("discount-EUR-OIS");
+		System.out.println(discountCurveCalibrated);
+	}
+
 	@Test
 	public void testCurvesAndCalibration() throws SolverException {
 
