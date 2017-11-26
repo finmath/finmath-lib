@@ -25,6 +25,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<src.main.java.dir>src/main/java</src.main.java.dir>
 		<src.test.java.dir>src/test/java</src.test.java.dir>
+		<src.main.kotlin.dir>src/main/kotlin</src.main.kotlin.dir>
+		<src.test.kotlin.dir>src/test/kotlin</src.test.kotlin.dir>
         <kotlin.version>1.0.1-2</kotlin.version>
         <junit.version>4.12</junit.version>
         	</properties>
@@ -134,7 +136,7 @@
                         <goals> <goal>compile</goal> </goals>
                         <configuration>
                             <sourceDirs>
-                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                                <sourceDir>${project.basedir}/${src.main.kotlin.dir}</sourceDir>
                                 <sourceDir>${project.basedir}/${src.main.java.dir}</sourceDir>
                             </sourceDirs>
                         </configuration>
@@ -144,7 +146,7 @@
                         <goals> <goal>test-compile</goal> </goals>
                         <configuration>
                             <sourceDirs>
-                                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                                <sourceDir>${project.basedir}/${src.test.kotlin.dir}</sourceDir>
                                 <sourceDir>${project.basedir}/${src.test.java.dir}</sourceDir>
                             </sourceDirs>
                         </configuration>
