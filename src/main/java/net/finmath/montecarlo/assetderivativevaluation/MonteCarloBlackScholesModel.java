@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.modelling.exponentialsemimartingales.BlackScholesModel;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.model.AbstractModel;

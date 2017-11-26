@@ -15,13 +15,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import net.finmath.analytic.model.curves.DiscountCurve;
+import net.finmath.analytic.model.curves.Curve.ExtrapolationMethod;
+import net.finmath.analytic.model.curves.Curve.InterpolationEntity;
+import net.finmath.analytic.model.curves.Curve.InterpolationMethod;
 import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.models.BlackScholesModel;
-import net.finmath.fouriermethod.models.HestonModel;
+import net.finmath.modelling.exponentialsemimartingales.BlackScholesModel;
+import net.finmath.modelling.exponentialsemimartingales.HestonModel;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
 import net.finmath.fouriermethod.products.DigitalOption;
 import net.finmath.fouriermethod.products.EuropeanOption;
+import net.finmath.montecarlo.RandomVariable;
 
 /**
  * Test class for the valuation of a call option under Heston
@@ -41,8 +46,8 @@ public class HestonModelCallOptionTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-			{ new EuropeanOption(maturity, strike) },
-			{ new DigitalOption(maturity, strike) },
+			{ new EuropeanOption(maturity, strike, discountCurve) },
+			{ new DigitalOption(maturity, strike, discountCurve) },
 		});
 	};
 
@@ -50,7 +55,7 @@ public class HestonModelCallOptionTest {
 	
 	// Model properties
 	private final double	initialValue   = 1.0;
-	private final double	riskFreeRate   = 0.05;
+	private static final double	riskFreeRate   = 0.05;
 	private final double	volatility     = 0.30;
 
 	private final double theta = volatility*volatility;
@@ -60,6 +65,14 @@ public class HestonModelCallOptionTest {
 
 	private static final double maturity	= 1.0;
 	private static final double strike		= 0.95;
+		
+	private static final double[] times = {0.0, 1.0};
+	private static final RandomVariable[] discountFactors = {new RandomVariable(1.0), new RandomVariable(Math.exp(-riskFreeRate * maturity))};
+	private static final boolean[] isParameter = {false, false};
+	private static final DiscountCurve discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors("discountCurve", times, discountFactors, isParameter,
+			InterpolationMethod.PIECEWISE_CONSTANT, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);
+
+
 
 	public HestonModelCallOptionTest(AbstractProductFourierTransform product) {
 		super();
@@ -73,7 +86,7 @@ public class HestonModelCallOptionTest {
 		double xi = 0.000001;
 
 		ProcessCharacteristicFunctionInterface modelBS = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-		ProcessCharacteristicFunctionInterface modelHS = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
+		ProcessCharacteristicFunctionInterface modelHS = new HestonModel(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho);
 
 		long startMillis	= System.currentTimeMillis();
 

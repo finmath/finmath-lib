@@ -48,6 +48,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * @author Christian Fries
  * @author Andy Graf
  * @author Lorenzo Toricelli
+ * @deprecated
  */
 public class HestonModel implements ProcessCharacteristicFunctionInterface {
 
@@ -128,7 +129,6 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	public CharacteristicFunctionInterface apply(final double time) {
 
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
-		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 
 		return new CharacteristicFunctionInterface() {
 			@Override
@@ -157,7 +157,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
 										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
 
-				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward)).add(logDiscountFactorForDiscounting).exp();
+				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward)).exp();
 			}
 		};
 	}
