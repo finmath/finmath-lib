@@ -17,7 +17,7 @@ import org.junit.Test
 import java.time.LocalDate
 import java.util.*
 
-class RandomVariableKotlinTest {
+class CurveCalibrationKotlinTest {
     @Test
     fun testSingeCurveCalibration() {
 
