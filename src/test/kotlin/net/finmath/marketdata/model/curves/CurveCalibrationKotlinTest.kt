@@ -15,7 +15,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 import org.junit.Assert
 import org.junit.Test
 import java.time.LocalDate
-import java.util.LinkedList;
+import java.util.*
 
 class RandomVariableKotlinTest {
     @Test

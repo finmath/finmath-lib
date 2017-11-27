@@ -1,6 +1,11 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 27.11.2017
+ */
+
 package net.finmath.montecarlo
 
-import net.finmath.montecarlo.RandomVariable
 import net.finmath.stochastic.RandomVariableInterface
 import org.junit.Assert
 import org.junit.Test
