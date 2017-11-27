@@ -695,31 +695,22 @@ public class CalibratedCurves {
 		objectsToCalibrate.remove(calibrationCurveOld);
 
 		// Create and add new curve
-		CurveInterface calibrationCurve = null;
+		double valueGuess;
 		if(DiscountCurveInterface.class.isInstance(calibrationCurveOld)) {
-			@SuppressWarnings("unused")
-			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
-
-			// Build new curve with one additional point
-			calibrationCurve = calibrationCurveOld
-					.getCloneBuilder()
-					.addPoint(calibrationSpec.calibrationTime, 1.0, true)
-					.build();
+			valueGuess = 1.0;
 		}
 		else if(ForwardCurveInterface.class.isInstance(calibrationCurveOld)) {
-			// Build new curve with one additional point
-			calibrationCurve = calibrationCurveOld
-					.getCloneBuilder()
-					.addPoint(calibrationSpec.calibrationTime, 0.1, true)
-					.build();
+			valueGuess = 0.0;
 		}
 		else {
-			// Build new curve with one additional point
-			calibrationCurve = calibrationCurveOld
-					.getCloneBuilder()
-					.addPoint(calibrationSpec.calibrationTime, 1.0, true)
-					.build();
+			valueGuess = 1.0;
 		}
+
+		// Build new curve with one additional point
+		CurveInterface calibrationCurve = calibrationCurveOld
+					.getCloneBuilder()
+					.addPoint(calibrationSpec.calibrationTime, valueGuess, true)
+					.build();
 		model = model.addCurves(calibrationCurve);
 		objectsToCalibrate.add(calibrationCurve);
 
