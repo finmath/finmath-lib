@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 import net.finmath.functions.LinearAlgebra;
 
 /**
- * This class implements a parallel Levenberg Marquardt non-linear least-squares fit
+ * This class implements a parallel Levenberg-Marquardt non-linear least-squares fit
  * algorithm.
  * 
  * <p>
@@ -594,7 +594,6 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return Stop condition.
 	 */
 	boolean done() {
-		System.out.println(Math.sqrt(errorMeanSquaredCurrent) + " \t" + errorRootMeanSquaredChange + " \t" + lambda);
 		// The solver terminates if...
 		return 
 				// Maximum number of iterations is reached

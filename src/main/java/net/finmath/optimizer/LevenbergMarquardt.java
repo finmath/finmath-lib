@@ -594,7 +594,6 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return Stop condition.
 	 */
 	boolean done() {
-		System.out.println(Math.sqrt(errorMeanSquaredCurrent) + " \t" + errorRootMeanSquaredChange + " \t" + lambda);
 		// The solver terminates if...
 		return 
 				// Maximum number of iterations is reached

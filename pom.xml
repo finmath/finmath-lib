@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- For publishing to sonatype / central maven repo -->
@@ -322,22 +323,16 @@
 						</goals>
 					</execution>
 				</executions>
-				<!--
-					We allow local modifications. The build number is reliable only in releases obtained via Maven central.
-				-->
+				<!-- We allow local modifications. The build number is reliable only 
+					in releases obtained via Maven central. -->
 				<configuration>
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
 				</configuration>
 			</plugin>
 			<!-- uncomment to use clover -->
-			<!--
-			<plugin>
-				<groupId>com.atlassian.maven.plugins</groupId>
-				<artifactId>clover-maven-plugin</artifactId>
-				<version>4.1.2</version>
-			</plugin>
-			 -->
+			<!-- <plugin> <groupId>com.atlassian.maven.plugins</groupId> <artifactId>clover-maven-plugin</artifactId> 
+				<version>4.1.2</version> </plugin> -->
 			<plugin>
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>bnd-maven-plugin</artifactId>
@@ -374,7 +369,12 @@
 		</resources>
 		<pluginManagement>
 			<plugins>
+<<<<<<< HEAD
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+=======
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+>>>>>>> master
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
