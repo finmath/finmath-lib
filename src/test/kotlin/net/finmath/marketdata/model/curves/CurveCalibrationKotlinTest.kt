@@ -58,7 +58,7 @@ class CurveCalibrationKotlinTest {
 		val swap = { tenor: String, maturity: String, rate: Double ->
 			val scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "quarterly", "act/360", "first", "following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 0)
 			val scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 0)
-			val calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.numberOfPeriods - 1)
+			val calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.numberOfPeriods - 1)
 			val curveName = "forward-EUR-" + tenor;
 			val calibrationSpec = CalibratedCurves.CalibrationSpec("EUR-3M-" + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate!!, "discount-EUR-OIS", curveName, calibrationTime)
 			calibrationSpec
