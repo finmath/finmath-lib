@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
@@ -50,12 +52,12 @@ public class CalibrationTest {
 	static final double errorTolerance = 1E-14;
 
 	final InterpolationMethod interpolationMethod;
-	
+
 	public CalibrationTest(InterpolationMethod interpolationMethod)
 	{
 		this.interpolationMethod = interpolationMethod;
 	}
-	
+
 	/**
 	 * The parameters for this test, that is an error consisting of
 	 * { numberOfPaths, setup }.
@@ -66,12 +68,12 @@ public class CalibrationTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ InterpolationMethod.LINEAR },
-				{ InterpolationMethod.CUBIC_SPLINE },
-				{ InterpolationMethod.AKIMA },
-				{ InterpolationMethod.AKIMA_CONTINUOUS },
-				{ InterpolationMethod.HARMONIC_SPLINE },
-				{ InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING },
+			{ InterpolationMethod.LINEAR },
+			{ InterpolationMethod.CUBIC_SPLINE },
+			{ InterpolationMethod.AKIMA },
+			{ InterpolationMethod.AKIMA_CONTINUOUS },
+			{ InterpolationMethod.HARMONIC_SPLINE },
+			{ InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING },
 		});
 	};
 
@@ -82,7 +84,7 @@ public class CalibrationTest {
 	 * @throws SolverException Thrown if the solver cannot find a solution to the calibration problem.
 	 */
 	public static void main(String[] args) throws SolverException {
-		
+
 		CalibrationTest calibrationTest = new CalibrationTest(InterpolationMethod.LINEAR);
 
 		calibrationTest.testForwardCurveFromDiscountCurve();
@@ -127,9 +129,9 @@ public class CalibrationTest {
 
 		System.out.println("__________________________________________________________________________________________\n");
 	}	
-	
+
 	@Test
-	public void testSingeCurveCalibration() {
+	public void testMultiCurveCalibration() throws SolverException, CloneNotSupportedException {
 
 		/*
 		 * Calibration of a single curve - OIS curve - self disocunted curve, from a set of calibration products.
@@ -140,20 +142,41 @@ public class CalibrationTest {
 		/*
 		 * Define the calibration spec generators for our calibration products
 		 */
-		BiFunction<String, Double, CalibrationSpec> depositForMaturityAndRate = (maturity, rate) -> {
+		BiFunction<String, Double, CalibrationSpec> deposit = (maturity, rate) -> {
 			ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
 			ScheduleInterface scheduleInterfacePay = null;
 			double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
-			CalibrationSpec calibrationSpec = new CalibrationSpec("EUR-OIS-"+maturity, "Deposit", scheduleInterfaceRec, "", rate, "discount-EUR-OIS", scheduleInterfacePay, null, 0, null, "discount-EUR-OIS", calibrationTime);
+			CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Deposit", scheduleInterfaceRec, "", rate, "discount-EUR-OIS", scheduleInterfacePay, null, 0.0, null, "discount-EUR-OIS", calibrationTime);
 			return calibrationSpec;
 		};
 
-		BiFunction<String, Double, CalibrationSpec> swapForMaturityAndRate = (maturity, rate) -> {
+		BiFunction<String, Double, CalibrationSpec> swapSingleCurve = (maturity, rate) -> {
 			ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
 			ScheduleInterface scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
-			double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
-			CalibrationSpec calibrationSpec = new CalibrationSpec("EUR-OIS-"+maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime);
+			double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+			CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime);
 			return calibrationSpec;
+		};
+
+		Function<String,BiFunction<String, Double, CalibrationSpec>> fra = (tenor) -> {
+			return (fixing, rate) -> {
+				ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, fixing, tenor, "tenor", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+				String curveName = "forward-EUR-" + tenor;
+				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + "-" + fixing, "FRA", scheduleInterfaceRec, curveName, rate, "discount-EUR-OIS", null, null, 0.0, null, curveName, calibrationTime);
+				return calibrationSpec;
+			};
+		};
+
+		Function<String,BiFunction<String, Double, CalibrationSpec>> swap = (tenor) -> {
+			return (maturity, rate) -> {
+				ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "quarterly", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				ScheduleInterface scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+				String curveName = "forward-EUR-" + tenor;
+				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-3M-" + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", curveName, calibrationTime);
+				return calibrationSpec;
+			};
 		};
 
 		/*
@@ -163,46 +186,125 @@ public class CalibrationTest {
 		double[]	 discountFactors = { 1.0 };
 		boolean[] isParameter = { false };
 
-		DiscountCurve discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
-		ForwardCurveFromDiscountCurve forwardCurveFromDiscountCurve = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
+		DiscountCurve discountCurveOIS = DiscountCurve.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
+		ForwardCurveInterface forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
+		ForwardCurveInterface forwardCurve3M = new ForwardCurve("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
 
-
-		CurveInterface[] curveInterfacesSD = {discountCurve, forwardCurveFromDiscountCurve};
-		AnalyticModel forwardCurveModel = new AnalyticModel(curveInterfacesSD);
+		AnalyticModel forwardCurveModel = new AnalyticModel(new CurveInterface[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M });
 
 		List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
 
-		calibrationSpecs.add(depositForMaturityAndRate.apply("1D", 0.00202));
-		calibrationSpecs.add(depositForMaturityAndRate.apply("1M", 0.00191));
-		calibrationSpecs.add(depositForMaturityAndRate.apply("12M", 0.00129));
+		/*
+		 * Calibration products for OIS curve: Deposits
+		 */
+		calibrationSpecs.add(deposit.apply("1D", 0.202 / 100.0));
+		calibrationSpecs.add(deposit.apply("1W", 0.195 / 100.0));
+		calibrationSpecs.add(deposit.apply("2W", 0.193 / 100.0));
+		calibrationSpecs.add(deposit.apply("3W", 0.193 / 100.0));
+		calibrationSpecs.add(deposit.apply("1M", 0.191 / 100.0));
+		calibrationSpecs.add(deposit.apply("2M", 0.185 / 100.0));
+		calibrationSpecs.add(deposit.apply("3M", 0.180 / 100.0));
+		calibrationSpecs.add(deposit.apply("4M", 0.170 / 100.0));
+		calibrationSpecs.add(deposit.apply("5M", 0.162 / 100.0));
+		calibrationSpecs.add(deposit.apply("6M", 0.156 / 100.0));
+		calibrationSpecs.add(deposit.apply("7M", 0.150 / 100.0));
+		calibrationSpecs.add(deposit.apply("8M", 0.145 / 100.0));
+		calibrationSpecs.add(deposit.apply("9M", 0.141 / 100.0));
+		calibrationSpecs.add(deposit.apply("10M", 0.136 / 100.0));
+		calibrationSpecs.add(deposit.apply("11M", 0.133 / 100.0));
+		calibrationSpecs.add(deposit.apply("12M", 0.129 / 100.0));
 
-		calibrationSpecs.add(swapForMaturityAndRate.apply("18M", 0.00108));
-		calibrationSpecs.add(swapForMaturityAndRate.apply("21M", 0.00101));
-		calibrationSpecs.add(swapForMaturityAndRate.apply("2Y", 0.00101));
-		calibrationSpecs.add(swapForMaturityAndRate.apply("3Y", 0.00194));
-		calibrationSpecs.add(swapForMaturityAndRate.apply("4Y", 0.00346));
-		calibrationSpecs.add(swapForMaturityAndRate.apply("5Y", 0.00534));
+		/*
+		 * Calibration products for OIS curve: Swaps
+		 */
+		calibrationSpecs.add(swapSingleCurve.apply("15M", 0.118 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("18M", 0.108 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("21M", 0.101 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("2Y", 0.101 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("3Y", 0.194 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("4Y", 0.346 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("5Y", 0.534 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("6Y", 0.723 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("7Y", 0.895 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("8Y", 1.054 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("9Y", 1.189 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("10Y", 1.310 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("11Y", 1.423 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("12Y", 1.520 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("15Y", 1.723 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("20Y", 1.826 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("25Y", 1.877 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("30Y", 1.910 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("40Y", 2.025 / 100.0));
+		calibrationSpecs.add(swapSingleCurve.apply("50Y", 2.101 / 100.0));
 
-		CalibrationSpec[] calibratedSpecsArray = calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]);
-		CalibratedCurves calibratedCurves = null;
-		try {
-			calibratedCurves = new CalibratedCurves(calibratedSpecsArray, forwardCurveModel, 0.00000001);
-		} catch (SolverException | CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		/*
+		 * Calibration products for 3M curve: FRAs
+		 */
+		calibrationSpecs.add(fra.apply("3M").apply("0D", 0.322 / 100.0));
+		calibrationSpecs.add(fra.apply("3M").apply("1M", 0.329 / 100.0));
+		calibrationSpecs.add(fra.apply("3M").apply("2M", 0.328 / 100.0));
+		calibrationSpecs.add(fra.apply("3M").apply("3M", 0.326 / 100.0));
+		calibrationSpecs.add(fra.apply("3M").apply("6M", 0.323 / 100.0));
+		calibrationSpecs.add(fra.apply("3M").apply("9M", 0.316 / 100.0));
+		calibrationSpecs.add(fra.apply("3M").apply("12M", 0.360 / 100.0));
+		calibrationSpecs.add(fra.apply("3M").apply("15M", 0.390 / 100.0));
 
-		double sumOfSquaredErrors = 0.0;
+		/*
+		 * Calibration products for 3M curve: swaps
+		 */
+		calibrationSpecs.add(swap.apply("3M").apply("2Y", 0.380 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("3Y", 0.485 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("4Y", 0.628 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("5Y", 0.812 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("6Y", 0.998 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("7Y", 1.168 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("8Y", 1.316 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("9Y", 1.442 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("10Y", 1.557 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("12Y", 1.752 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("15Y", 1.942 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("20Y", 2.029 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("25Y", 2.045 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("30Y", 2.097 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("40Y", 2.208 / 100.0));
+		calibrationSpecs.add(swap.apply("3M").apply("50Y", 2.286 / 100.0));
+
+		/*
+		 * Calibrate
+		 */
+		CalibratedCurves calibratedCurves = new CalibratedCurves(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), forwardCurveModel, 1E-12);
+
+        /*
+         * Get the calibrated model
+         */
+        AnalyticModelInterface calibratedModel = calibratedCurves.getModel();
+
+        /*
+         * Print calibration errors
+         */
+        System.out.println("\nCalibrated errors:");
+
+        double sumOfSquaredErrors = 0.0;
 		for(CalibrationSpec calibratedSpec : calibrationSpecs) {
 			AnalyticProductInterface product = calibratedCurves.getCalibrationProductForSpec(calibratedSpec);
-			double value = product.getValue(0.0, calibratedCurves.getModel());
+			double value = product.getValue(0.0, calibratedModel);
 			sumOfSquaredErrors += value*value;
 		}
 
-		Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors)/calibrationSpecs.size(), 1E-10);
+        /*
+         * Print calibrated curves
+         */
+        DiscountCurveInterface discountCurveCalibrated = calibratedModel.getDiscountCurve("discount-EUR-OIS");
+        ForwardCurveInterface forwardCurveCalibrated = calibratedModel.getForwardCurve("forward-EUR-3M");
 
-		DiscountCurveInterface discountCurveCalibrated = (DiscountCurveInterface) calibratedCurves.getCurve("discount-EUR-OIS");
-		System.out.println(discountCurveCalibrated);
+        System.out.println("\nCalibrated discount curve:");
+        System.out.println(discountCurveCalibrated);
+
+        System.out.println("\nCalibrated forward curve:");
+        System.out.println(forwardCurveCalibrated);
+
+        Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors)/calibrationSpecs.size(), 1E-10);
 	}
 
 	@Test
@@ -213,7 +315,7 @@ public class CalibrationTest {
 		 * 
 		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
-		
+
 		System.out.println("Calibrating a discount curve from swaps (single-curve/self-discounting).");
 
 		// Create a discount curve
@@ -235,7 +337,7 @@ public class CalibrationTest {
 
 		// Create a collection of objective functions (calibration products)
 		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<AnalyticProductInterface>();
-		
+
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), null, 0.03, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
@@ -276,13 +378,13 @@ public class CalibrationTest {
 
 		System.out.println("__________________________________________________________________________________________\n");
 
-		
+
 		/*
 		 * CALIBRATE A FORWARD CURVE, USING THE GIVEN DISCOUNT CURVE (MULTI-CURVE SETUP)
 		 * 
 		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
-		
+
 		// Create initial guess for the curve
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards("forwardCurve", new double[] {2.0/365.0, 1.0, 2.0, 3.0, 4.0}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05}, model1, discountCurve.getName(), 0.5);
 
@@ -293,7 +395,7 @@ public class CalibrationTest {
 
 		// Create a collection of objective functions (calibration products)
 		Vector<AnalyticProductInterface> calibrationProducts2 = new Vector<AnalyticProductInterface>();
-			
+
 		// It is possible to mix tenors (although it may not be meaningful in a forward curve calibration)
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.06, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 0.5)), "forwardCurve", 0.0, "discountCurve"));
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 2, 0.5)), "forwardCurve", 0.0, "discountCurve"));
@@ -316,7 +418,7 @@ public class CalibrationTest {
 		 * The model calibratedModel2 now contains a set of calibrated curves.
 		 * The curves are clones. The model model2 still contains the original curve.
 		 */
-	
+
 		// Calibration check
 		System.out.println("Calibration check:");
 		double error2 = 0;
