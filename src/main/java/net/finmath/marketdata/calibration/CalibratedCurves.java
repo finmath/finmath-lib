@@ -33,6 +33,7 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Generate a collection of calibrated curves (discount curves, forward curves)
@@ -276,6 +277,11 @@ public class CalibratedCurves {
 					+ forwardCurvePayerName + ", spreadPayer=" + spreadPayer + ", discountCurvePayerName="
 					+ discountCurvePayerName + ", calibrationCurveName=" + calibrationCurveName + ", calibrationTime="
 					+ calibrationTime + "]";
+		}
+
+		@NotNull
+		public String getSymbol() {
+			return symbol;
 		}
 	}
 
