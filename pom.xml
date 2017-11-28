@@ -125,7 +125,8 @@
 	<build>
 		<defaultGoal>clean install javadoc:javadoc</defaultGoal>
 		<finalName>${project.artifactId}-${project.version}</finalName>
-
+		<sourceDirectory>${src.main.java.dir}</sourceDirectory>
+		<testSourceDirectory>${src.test.java.dir}</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
