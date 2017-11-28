@@ -151,20 +151,19 @@ class CurveCalibrationKotlinTest {
 		calibrationSpecs.add(swap("3M", "40Y", 2.208 / 100.0))
 		calibrationSpecs.add(swap("3M", "50Y", 2.286 / 100.0))
 
-
-		val calibratedSpecsArray = calibrationSpecs.toTypedArray()
-		var calibratedCurves = CalibratedCurves(calibratedSpecsArray, forwardCurveModel, 1E-12);
+		/*
+		 * Calibrate
+		 */
+		var calibratedCurves = CalibratedCurves(calibrationSpecs.toTypedArray(), forwardCurveModel, 1E-12)
 
         /*
          * Get the calibrated model
          */
-
         var calibratedModel = calibratedCurves.model;
 
         /*
          * Print calibration errors
          */
-
         println("\nCalibrated errors:")
 
         var sumOfSquaredErrors = 0.0
@@ -178,7 +177,6 @@ class CurveCalibrationKotlinTest {
         /*
          * Print calibrated curves
          */
-
         val discountCurveCalibrated = calibratedModel.getDiscountCurve("discount-EUR-OIS")
         val forwardCurveCalibrated = calibratedModel.getForwardCurve("forward-EUR-3M")
 
