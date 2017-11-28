@@ -8,7 +8,7 @@ About finmath lib
 
 ****************************************
 
-The finmath lib libraries provides implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
+The finmath lib libraries provides (JVM) implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
 - General numerical algorithms like
     - Generation of random numbers
@@ -39,9 +39,14 @@ The finmath lib libraries provides implementations of methodologies related to m
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
 
-**finmath lib is now on Java 8 (since February 2nd, 2014), but a Java 6 version is provided too.**
+Languages and Build
+--------------------------------------
 
-*Note: for convenience the provided Eclipse project is configured for Java 6. The maven pom defaults to Java 6. To build the Java 8 version use the profile "java-8", i.e. the maven command line option "-P java-8"*
+The library is available for Java 8 and Java 6. We are starting to provide examples in Kotlin.
+
+The Maven build file is provide. Import the project as Maven project.
+
+The default Maven profile is Java 8 without Kotlin. To enable Java 6 version select the Maven profile 'java-6'. To enable Kotlin select the Maven profile 'kotlin'.
 
 Distribution
 --------------------------------------
