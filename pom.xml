@@ -128,37 +128,6 @@
 
 		<plugins>
 			<plugin>
-				<artifactId>kotlin-maven-plugin</artifactId>
-				<groupId>org.jetbrains.kotlin</groupId>
-				<version>${kotlin.version}</version>
-				<executions>
-					<execution>
-						<id>compile</id>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-						<configuration>
-							<sourceDirs>
-								<sourceDir>${project.basedir}/${src.main.kotlin.dir}</sourceDir>
-								<sourceDir>${project.basedir}/${src.main.java.dir}</sourceDir>
-							</sourceDirs>
-						</configuration>
-					</execution>
-					<execution>
-						<id>test-compile</id>
-						<goals>
-							<goal>test-compile</goal>
-						</goals>
-						<configuration>
-							<sourceDirs>
-								<sourceDir>${project.basedir}/${src.test.kotlin.dir}</sourceDir>
-								<sourceDir>${project.basedir}/${src.test.java.dir}</sourceDir>
-							</sourceDirs>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
@@ -415,6 +384,93 @@
 
 	<profiles>
 		<profile>
+			<id>kotlin</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<src.main.java.dir>src/main/java</src.main.java.dir>
+				<src.test.java.dir>src/test/java</src.test.java.dir>
+				<envClassifier />
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>kotlin-maven-plugin</artifactId>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<version>${kotlin.version}</version>
+						<executions>
+							<execution>
+								<id>compile</id>
+								<goals>
+									<goal>compile</goal>
+								</goals>
+								<configuration>
+									<sourceDirs>
+										<sourceDir>${project.basedir}/${src.main.kotlin.dir}</sourceDir>
+										<sourceDir>${project.basedir}/${src.main.java.dir}</sourceDir>
+									</sourceDirs>
+								</configuration>
+							</execution>
+							<execution>
+								<id>test-compile</id>
+								<goals>
+									<goal>test-compile</goal>
+								</goals>
+								<configuration>
+									<sourceDirs>
+										<sourceDir>${project.basedir}/${src.test.kotlin.dir}</sourceDir>
+										<sourceDir>${project.basedir}/${src.test.java.dir}</sourceDir>
+									</sourceDirs>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.6.1</version>
+						<executions>
+							<!-- Replacing default-compile as it is treated specially by maven -->
+							<execution>
+								<id>default-compile</id>
+								<phase>none</phase>
+							</execution>
+							<!-- Replacing default-testCompile as it is treated specially by maven -->
+							<execution>
+								<id>default-testCompile</id>
+								<phase>none</phase>
+							</execution>
+							<execution>
+								<id>java-compile</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>compile</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>java-test-compile</id>
+								<phase>test-compile</phase>
+								<goals>
+									<goal>testCompile</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.6.1</version>
+						<configuration>
+							<source>1.8</source>
+							<target>1.8</target>
+							<compilerVersion>1.8</compilerVersion>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>java-8</id>
 			<activation>
 				<jdk>1.8</jdk>
@@ -465,6 +521,7 @@
 			</build>
 		</profile>
 	</profiles>
+
 	<issueManagement>
 		<system>GitHub</system>
 		<url>https://github.com/finmath/finmath-lib/issues</url>
