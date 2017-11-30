@@ -18,7 +18,7 @@ import org.junit.Test
 import java.time.LocalDate
 import java.util.*
 
-class CurveCalibrationKotlinTest {
+class CalibrationMultiCurveKotlinTest {
 	@Test
 	fun testSingeCurveCalibration() {
 
@@ -43,7 +43,7 @@ class CurveCalibrationKotlinTest {
 			val scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 1)
 			val scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 1)
 			val calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.numberOfPeriods - 1)
-			val calibrationSpec = CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate!!, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime)
+			val calibrationSpec = CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime)
 			calibrationSpec
 		}
 
@@ -60,7 +60,7 @@ class CurveCalibrationKotlinTest {
 			val scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 0)
 			val calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.numberOfPeriods - 1)
 			val curveName = "forward-EUR-" + tenor;
-			val calibrationSpec = CalibratedCurves.CalibrationSpec("EUR-3M-" + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate!!, "discount-EUR-OIS", curveName, calibrationTime)
+			val calibrationSpec = CalibratedCurves.CalibrationSpec("EUR-3M-" + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", curveName, calibrationTime)
 			calibrationSpec
 		}
 
@@ -168,7 +168,7 @@ class CurveCalibrationKotlinTest {
 
         var sumOfSquaredErrors = 0.0
         for (calibratedSpec in calibrationSpecs) {
-            val product = calibratedCurves!!.getCalibrationProductForSpec(calibratedSpec)
+            val product = calibratedCurves.getCalibrationProductForSpec(calibratedSpec)
             val value = product.getValue(0.0, calibratedModel)
             System.out.println(calibratedSpec.getSymbol() + "\t" + value);
             sumOfSquaredErrors += value * value
