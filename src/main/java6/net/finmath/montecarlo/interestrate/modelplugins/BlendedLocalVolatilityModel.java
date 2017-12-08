@@ -12,15 +12,21 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Blended model (or displaced diffusion model) build on top of a standard covariance model.
  * 
  * The model constructed for the <i>i</i>-th factor loading is
- * <center>
- * <i>(a L<sub>i,0</sub> + (1-a)L<sub>i</sub>(t)) F<sub>i</sub>(t)</i>
- * </center>
- * where <i>a</i> is the displacement and <i>L<sub>i</sub></i> is
+ * \[
+ * 	( a + (1-a) L_{i}(t) ) F_{i}(t) \text{,}
+ * \]
+ * or
+ * \[
+ * 	( a L_{i,0} + (1-a) L_{i}(t) ) F_{i}(t) \text{,}
+ * \]
+ * if an initial forward curve \( i \mapsto L_{i,0} \) is given,
+ * where <i>a</i> is the displacement or blending parameter and <i>L<sub>i</sub></i> is
  * the realization of the <i>i</i>-th component of the stochastic process and
  * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
  * 
  * If a forward curve is provided, the deterministic value L<sub>i,0</sub> is
- * calculated form this curve (using fixing in <i>T<sub>i</sub></i>.
+ * calculated form this curve (using fixing in <i>T<sub>i</sub></i>),
+ * otherwise it is replaced by 1.
  * 
  * The parameter of this model is a joint parameter vector, consisting
  * of the parameter vector of the given base covariance model and
