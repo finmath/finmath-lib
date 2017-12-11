@@ -307,7 +307,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 						resultrandomvariable = resultrandomvariable.div(epsilon);
 					}
 					else {
-						resultrandomvariable.mult(0.0);
+						resultrandomvariable = zero;
 					}
 				} else if(differentialIndex == 1) {
 					resultrandomvariable = X.barrier(X, one, zero);
