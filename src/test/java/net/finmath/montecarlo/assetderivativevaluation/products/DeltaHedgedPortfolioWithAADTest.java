@@ -67,7 +67,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 	private AssetModelMonteCarloSimulationInterface model = null;
 	private AbstractAssetMonteCarloProduct option = null;
 
-	@Parameters
+	@Parameters(name="{0}-{1}")
 	public static Collection<Object[]> data() {
 		Collection<Object[]> testParameters = new ArrayList<>();
 
