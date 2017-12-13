@@ -3,3 +3,11 @@ env:
   - MVN_PROFILE=java-6
   - MVN_PROFILE=java-8
 script: "mvn test -B -P ${MVN_PROFILE}"
+
+addons:
+  sonarcloud:
+    organization: "william1104-github" # the key of the org you chose at step #3
+    token:
+      secure: SONAR_TOKEN
+script:
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
