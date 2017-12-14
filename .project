@@ -6,11 +6,6 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.jetbrains.kotlin.ui.kotlinBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
 			</arguments>
@@ -22,17 +17,9 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>org.jetbrains.kotlin.core.kotlinNature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.eclipse.jem.workbench.JavaEMFNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.jem.beaninfo.BeanInfoNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>kotlin_bin</name>
-			<type>2</type>
-			<locationURI>org.jetbrains.kotlin.core.filesystem:/finmath%20lib/kotlin_bin</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
