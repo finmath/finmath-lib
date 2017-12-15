@@ -839,7 +839,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	@Override
-	public LIBORMarketModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+	public LIBORMarketModelStandard getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		TimeDiscretizationInterface		liborPeriodDiscretization	= this.liborPeriodDiscretization;
 		AnalyticModelInterface			analyticModel				= this.curveModel;
 		ForwardCurveInterface			forwardRateCurve			= this.forwardRateCurve;
@@ -863,10 +863,10 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		}
 
 		if(swaptionMarketData == null) {
-			return new LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, covarianceModel);
+			return new LIBORMarketModelStandard(liborPeriodDiscretization, forwardRateCurve, covarianceModel);
 		}
 		else {
-			return new LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, covarianceModel, swaptionMarketData);
+			return new LIBORMarketModelStandard(liborPeriodDiscretization, forwardRateCurve, covarianceModel, swaptionMarketData);
 
 		}
 	}
