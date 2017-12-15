@@ -370,18 +370,14 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	private RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, OperatorType operator, RandomVariableDifferentiableAADFactory factory) {
-		super();
-		this.values = values;
-		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, null, factory);
-		this.factory = factory;
+		this(values, arguments, null, operator, factory);
 	}
 
-	public RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, ConditionalExpectationEstimatorInterface estimator,
-			OperatorType operator, RandomVariableDifferentiableAADFactory factory) {
+	public RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, ConditionalExpectationEstimatorInterface estimator, OperatorType operator, RandomVariableDifferentiableAADFactory factory) {
 		super();
 		this.values = values;
 		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator, factory);
-		this.factory = factory;
+		this.factory = factory != null ? factory : new RandomVariableDifferentiableAADFactory();
 	}
 
 	public OperatorTreeNode getOperatorTreeNode() {
