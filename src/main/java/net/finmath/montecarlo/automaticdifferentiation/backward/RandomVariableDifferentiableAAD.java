@@ -115,28 +115,34 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
 			if(arguments == null) return;
-			for(OperatorTreeNode argument : arguments) {
-				if(argument != null) {
-					Long argumentID = argument.id;
-					if(!derivatives.containsKey(argumentID)) derivatives.put(argumentID, zero);
+			synchronized (derivatives) {
+				for(OperatorTreeNode argument : arguments) {
+					if(argument != null) {
+						Long argumentID = argument.id;
 
-					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
-					RandomVariableInterface derivative			= derivatives.get(id);
-					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
+						RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
+						RandomVariableInterface derivative			= derivatives.get(id);
+						RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
 
-					// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
-					if(operatorType == OperatorType.AVERAGE) {
-						derivative = derivative.average();
+						// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
+						if(operatorType == OperatorType.AVERAGE) {
+							derivative = derivative.average();
+						}
+						// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
+						if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
+							ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
+							derivative = estimator.getConditionalExpectation(derivative);
+						}
+
+						if(argumentDerivative == null) {
+							argumentDerivative = derivative.mult(partialDerivative);
+						}
+						else {
+							argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
+						}
+
+						derivatives.put(argumentID, argumentDerivative);
 					}
-					// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
-					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
-						ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
-						derivative = estimator.getConditionalExpectation(derivative);
-					}
-
-					argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
-
-					derivatives.put(argumentID, argumentDerivative);
 				}
 			}
 		}
@@ -246,7 +252,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case POW:
 				/* second argument will always be deterministic and constant! */
-				derivative = (differentialIndex == 0) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : zero;
+				derivative = (differentialIndex == 0) ? X.pow(Y.getAverage() - 1.0).mult(Y) : zero;
 				break;
 			case ADDPRODUCT:
 				if(differentialIndex == 0) {
@@ -412,7 +418,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		// The map maintaining the derivatives id -> derivative
 		Map<Long, RandomVariableInterface> derivatives = new HashMap<>();
 		// Put derivative of this node w.r.t. itself
-		derivatives.put(getID(), new RandomVariable(1.0));
+		derivatives.put(getID(), getFactory().createRandomVariableNonDifferentiable(Double.NEGATIVE_INFINITY,1.0));
 
 		// The set maintaining the independents. Note: TreeMap is maintaining a sorting on the keys.
 		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
