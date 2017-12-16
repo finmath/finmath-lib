@@ -55,7 +55,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	private static DecimalFormat formatReal1		= new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	@Parameters
+	@Parameters(name="{0}")
 	public static Collection<Object[]> data() {
 		Collection<Object[]> testParameters = new ArrayList<>();
 
@@ -153,9 +153,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		return testParameters;
 	}
 
-	String productName;
-	AbstractLIBORMonteCarloProduct product;
-	LIBORVolatilityModel volatilityModel;
+	private final String productName;
+	private final AbstractLIBORMonteCarloProduct product;
+
+	private LIBORVolatilityModel volatilityModel;
 
 	public LIBORMarketModelNormalAADSensitivitiesTest(String productName, AbstractLIBORMonteCarloProduct product) throws CalculationException {
 		this.productName = productName;
@@ -251,6 +252,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		/*
 		 * Test valuation
 		 */
+		long memoryStart = getAllocatedMemory();
 		long timingCalculationStart = System.currentTimeMillis();
 
 		RandomVariableInterface value = product.getValue(0.0, liborMarketModel);
@@ -272,9 +274,11 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		catch(java.lang.ClassCastException e) {};
 
 		long timingGradientEnd = System.currentTimeMillis();
+		long memoryEnd = getAllocatedMemory();
 
 		int numberOfVegasTheoretical	= 0;
-		int numberOfVegasEffective		= 0;
+		int numberOfVegasEffective	= 0;
+		double[][] modelVegas = new double[volatilityModel.getTimeDiscretization().getNumberOfTimeSteps()][volatilityModel.getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 		if(gradient != null) {
 			for(int timeIndex=0; timeIndex<volatilityModel.getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 				for(int componentIndex=0; componentIndex<volatilityModel.getLiborPeriodDiscretization().getNumberOfTimeSteps(); componentIndex++) {
@@ -289,7 +293,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 						}
 					}
 //					System.out.println(volatilityModel.getTimeDiscretization().getTime(timeIndex) + "\t" + volatilityModel.getLiborPeriodDiscretization().getTime(componentIndex) + "\t" + modelVega);
+					modelVegas[timeIndex][componentIndex] = modelVega;
+					System.out.print(modelVega + "\t");
 				}
+				System.out.println("");
 			}
 		}
 		//		RandomVariableInterface modelDelta = gradient.get(liborMarketModel.getLIBOR(0, 0));
@@ -319,6 +326,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		System.out.println("derivative......................: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
 		System.out.println("number of vegas (theoretical)...: " + numberOfVegasTheoretical);
 		System.out.println("number of vegas (effective).....: " + numberOfVegasEffective);
+		System.out.println("memory..........................: " + ((double)(memoryEnd-memoryStart))/1024.0/1024.0 + " M");
 		System.out.println("\n");
 		
 		Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
@@ -331,4 +339,13 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
 	}	
+
+	
+	static long getAllocatedMemory() {
+		System.gc();
+		System.gc();
+		System.gc();
+		long allocatedMemory = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
+		return allocatedMemory;
+	}
 }
