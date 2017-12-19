@@ -20,7 +20,6 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.montecarlo.automaticdifferentiation.backward.alternative.RandomVariableAADv2Factory;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 
@@ -38,7 +37,6 @@ public class RandomVariableDifferentiableInterfaceTest {
 	public static Collection<Object[]> data(){
 		return Arrays.asList(new Object[][] {
 			{new RandomVariableDifferentiableAADFactory(new RandomVariableFactory()) },
-			{new RandomVariableAADv2Factory(new RandomVariableFactory())}
 		});
 	}
 
