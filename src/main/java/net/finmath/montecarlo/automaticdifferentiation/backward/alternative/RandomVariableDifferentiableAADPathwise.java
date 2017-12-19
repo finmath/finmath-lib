@@ -1,5 +1,7 @@
-/**
- * 
+/*
+ * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christianfries.com.
+ *
+ * Created on 17.06.2017
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
@@ -7,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
@@ -291,7 +294,8 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 		return getOperatorTreeNode().id;
 	}
 
-	public Map<Long, RandomVariableInterface> getGradient() {
+	@Override
+	public Map<Long, RandomVariableInterface> getGradient(Set<Long> independentIDs) {
 
 		// The map maintaining the derivatives id -> derivative
 		Map<Long, RandomVariableInterface> derivatives = new HashMap<Long, RandomVariableInterface>();
@@ -333,6 +337,11 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 		return derivatives;
 	}
 
+	@Override
+	public Map<Long, RandomVariableInterface> getDifferentials(Set<Long> dependentIDs) {
+		throw new UnsupportedOperationException();
+	}
+	
 	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD 
 	 * that is deterministic by its nature. For their double-returning pendant just return the average of the deterministic RandomVariableAAD  */
 

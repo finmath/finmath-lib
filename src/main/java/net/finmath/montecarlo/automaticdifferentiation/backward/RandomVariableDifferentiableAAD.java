@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
@@ -409,7 +410,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 * 
 	 * @return The gradient map.
 	 */
-	public Map<Long, RandomVariableInterface> getGradient() {
+	@Override
+	public Map<Long, RandomVariableInterface> getGradient(Set<Long> independentIDs) {
 
 		// The map maintaining the derivatives id -> derivative
 		Map<Long, RandomVariableInterface> derivatives = new HashMap<>();
@@ -432,6 +434,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			if(arguments != null && arguments.size() > 0) {
 				// Node has arguments: Propagate derivative to arguments.
 				independent.propagateDerivativesFromResultToArgument(derivatives);
+
 				// Remove id of this node from derivatives - keep only leaf nodes.
 				if(isGradientRetainsLeafNodesOnly()) derivatives.remove(id);
 
@@ -441,6 +444,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					if(argument != null) independents.put(argument.id, argument);
 				}
 			}
+
+			if(independentIDs != null && independentIDs.contains(id))  derivatives.remove(id);
 		}
 
 		return derivatives;
@@ -450,6 +455,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return getFactory() != null ? getFactory().isGradientRetainsLeafNodesOnly() : false;
 	}
 
+	@Override
+	public Map<Long, RandomVariableInterface> getDifferentials(Set<Long> dependentIDs) {
+		throw new UnsupportedOperationException();
+	}
+	
 	/*
 	 * The following methods are end points since they return <code>double</double> values.
 	 * You cannot differentiate these results.
