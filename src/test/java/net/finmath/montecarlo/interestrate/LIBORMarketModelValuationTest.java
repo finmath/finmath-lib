@@ -745,7 +745,7 @@ public class LIBORMarketModelValuationTest {
 		// Set calibration properties
 		Map<String, Object> calibrationParameters = new HashMap<String, Object>();
 		calibrationParameters.put("accuracy", new Double(1E-6));
-		calibrationParameters.put("numberOfPaths", new Integer(4000));
+		calibrationParameters.put("numberOfPaths", new Integer(20000));
 		properties.put("calibrationParameters", calibrationParameters);
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
@@ -766,14 +766,17 @@ public class LIBORMarketModelValuationTest {
 				liborMarketModelCalibrated, process);
 
 		double deviationSum = 0.0;
+		double deviationSquaredSum = 0.0;
 		for (int i = 0; i < calibrationItems.size(); i++) {
 			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
 			double valueModel = calibrationProduct.getValue(simulationCalibrated);
 			double valueTarget = calibrationItems.get(i).calibrationTargetValue;
 			deviationSum += (valueModel-valueTarget);
+			deviationSquaredSum += Math.pow(valueModel-valueTarget,2);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
 		}
-		System.out.println("Mean Deviation:" + deviationSum/calibrationItems.size());
+		System.out.println("Mean Deviation...............:" + deviationSum/calibrationItems.size());
+		System.out.println("Root Mean Squared Deviation..:" + Math.sqrt(deviationSquaredSum)/calibrationItems.size());
 		System.out.println("__________________________________________________________________________________________\n");
 	}
 
