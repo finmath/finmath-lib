@@ -39,6 +39,7 @@ import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximatio
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -550,7 +551,7 @@ public class LIBORMarketModelValuationTest {
 	@Test
 	public void testSwaptionSmile() throws CalculationException {
 		/*
-		 * Value a swaption
+		 * Value swaptions
 		 */
 		System.out.println("Swaption prices:\n");
 		System.out.println("Moneyness      Simulation       Analytic        Deviation");
@@ -621,6 +622,46 @@ public class LIBORMarketModelValuationTest {
 	}
 
 	@Test
+	public void testLIBORInArrearsConvexity() throws CalculationException {
+		/*
+		 * Value payment of a forward rate at a later toime
+		 */
+		System.out.println("Forward value:\n");
+		System.out.println("Maturity \tRate");
+
+		double fixing = 5.0;		
+		for(double payment = 5.0; payment < 20; payment += 0.5) {
+			double periodStart = fixing;
+			double periodEnd = fixing + 0.5;
+			RandomVariableInterface libor = liborMarketModel.getLIBOR(fixing, periodStart, periodEnd);
+			RandomVariableInterface numeraireAtPayment = liborMarketModel.getNumeraire(payment);
+			RandomVariableInterface numeraireAtEvaluation = liborMarketModel.getNumeraire(0);
+
+			double value = libor.div(numeraireAtPayment).mult(numeraireAtEvaluation).getAverage();
+			double zeroCouponBondCorrespondingToPaymentTime = numeraireAtEvaluation.div(numeraireAtPayment).getAverage();
+			double rate = value / zeroCouponBondCorrespondingToPaymentTime;
+
+			RandomVariableInterface numeraireAtPeriodEnd = liborMarketModel.getNumeraire(periodEnd);
+			double zeroCouponBondCorrespondingToPeriodEnd = numeraireAtEvaluation.div(numeraireAtPeriodEnd).getAverage();
+			double forward = libor.div(numeraireAtPeriodEnd).mult(numeraireAtEvaluation).getAverage() / zeroCouponBondCorrespondingToPeriodEnd;
+			
+			System.out.println(payment + "       \t" + formatterValue.format(rate));
+			
+			if(payment < periodEnd) {
+				Assert.assertTrue("LIBOR payment convexity adjustment: rate > forward", rate > forward);
+			}
+			if(payment > periodEnd) {
+				Assert.assertTrue("LIBOR payment convexity adjustment: rate < forward", rate < forward);
+			}
+		}
+		System.out.println("__________________________________________________________________________________________\n");
+
+		/*
+		 * jUnit assertion: condition under which we consider this test successful
+		 */
+	}
+
+	@Test
 	public void testSwaptionCalibration() throws CalculationException {
 
 		/*
@@ -674,7 +715,7 @@ public class LIBORMarketModelValuationTest {
 					// You may also use full Monte-Carlo calibration - more accurate. Also possible for displaced diffusion.
 					SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, ValueUnit.VOLATILITY);
 					calibrationItems.add(new CalibrationItem(swaptionMonteCarlo, targetValueVolatilty, 1.0));
-					
+
 					// Alternative: Calibration to prices
 					//Swaption swaptionMonteCarlo = new Swaption(exerciseDate, fixingDates, paymentDates, swaprates);
 					//double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetValueVolatilty, fixingDates[0], swaprate, getSwapAnnuity(liborMarketModel,swapTenor));
@@ -704,7 +745,7 @@ public class LIBORMarketModelValuationTest {
 		// Set calibration properties
 		Map<String, Object> calibrationParameters = new HashMap<String, Object>();
 		calibrationParameters.put("accuracy", new Double(1E-6));
-		calibrationParameters.put("numberOfPaths", new Integer(4000));
+		calibrationParameters.put("numberOfPaths", new Integer(20000));
 		properties.put("calibrationParameters", calibrationParameters);
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
@@ -725,14 +766,17 @@ public class LIBORMarketModelValuationTest {
 				liborMarketModelCalibrated, process);
 
 		double deviationSum = 0.0;
+		double deviationSquaredSum = 0.0;
 		for (int i = 0; i < calibrationItems.size(); i++) {
 			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
 			double valueModel = calibrationProduct.getValue(simulationCalibrated);
 			double valueTarget = calibrationItems.get(i).calibrationTargetValue;
 			deviationSum += (valueModel-valueTarget);
+			deviationSquaredSum += Math.pow(valueModel-valueTarget,2);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
 		}
-		System.out.println("Mean Deviation:" + deviationSum/calibrationItems.size());
+		System.out.println("Mean Deviation...............:" + deviationSum/calibrationItems.size());
+		System.out.println("Root Mean Squared Deviation..:" + Math.sqrt(deviationSquaredSum)/calibrationItems.size());
 		System.out.println("__________________________________________________________________________________________\n");
 	}
 
