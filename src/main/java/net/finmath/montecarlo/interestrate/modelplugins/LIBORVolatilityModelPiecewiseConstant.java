@@ -168,6 +168,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 	@Override
 	public Object clone() {
 		return new LIBORVolatilityModelPiecewiseConstant(
+				randomVariableFactory,
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
 				this.simulationTimeDiscretization,

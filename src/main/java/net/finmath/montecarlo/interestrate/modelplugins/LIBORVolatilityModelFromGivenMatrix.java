@@ -133,6 +133,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	    }
 			 				
 		return new LIBORVolatilityModelFromGivenMatrix(
+				randomVariableFactory,
 				getTimeDiscretization(),
 				getLiborPeriodDiscretization(),
 				newVolatilityArray);
