@@ -337,7 +337,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public Map<Long, RandomVariableInterface> getDifferentials(Set<Long> dependentIDs) {
+	public Map<Long, RandomVariableInterface> getTangents(Set<Long> dependentIDs) {
 		throw new UnsupportedOperationException();
 	}
 

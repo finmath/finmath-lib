@@ -8,8 +8,6 @@ package net.finmath.montecarlo.automaticdifferentiation;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.OperationNotSupportedException;
-
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -17,17 +15,33 @@ import net.finmath.stochastic.RandomVariableInterface;
  * random variable implementing <code>RandomVariableInterface</code>
  * allowing automatic differentiation.
  * 
- * The interface will introduce two additional methods: <code>Long getID()</code> and
- * <code>Map&lt;Long, RandomVariableInterface&gt; getGradient()</code>.
+ * The interface will introduce three additional methods:
+ * <code>Long getID()</code> and
+ * <code>Map&lt;Long, RandomVariableInterface&gt; getGradient()</code>
+ * and
+ * <code>Map&lt;Long, RandomVariableInterface&gt; getTangents()</code>.
+ * 
  * The method <code>getGradient</code> will return a map providing the first order
  * differentiation of the given random variable (this) with respect to
- * <i>all</i> its input <code>RandomVariableDifferentiableInterface</code>s (leaf nodes).
+ * <i>all</i> its input <code>RandomVariableDifferentiableInterface</code>s.
  * 
- * To get the differentiation with respect to a specific object use
+ * The method <code>getTangents</code> will return a map providing the first order
+ * differentiation of <i>all</i> dependent random variables with respect to the
+ * given random variable (this).
+ * 
+ * To get the differentiation dY/dX of Y with respect to a specific object X using backward mode (getGradient) use
  * <code>
- * 		Map gradient = X.getGradient();
+ * 		Map gradient = Y.getGradient();
+ * 		RandomVariableInterface derivative = Y.get(X.getID());
+ * </code>
+ * 
+ * To get the differentiation dY/dX of Y with respect to a specific object X using forward mode (getTanget) use
+ * <code>
+ * 		Map tangent = X.getTangent();
  * 		RandomVariableInterface derivative = X.get(Y.getID());
  * </code>
+ * 
+ * Note: Some implementations may allow limit the result of the gradient to leave nodes or the result of the tangent to terminal nodes.
  * 
  * @author Christian Fries
  */
@@ -60,23 +74,24 @@ public interface RandomVariableDifferentiableInterface extends RandomVariableInt
 	Map<Long, RandomVariableInterface> getGradient(Set<Long> independentIDs);
 
 	/**
-	 * Returns the differentials of this random variable with respect to all its children nodes.
+	 * Returns the tangents of this random variable with respect to all its dependent nodes.
 	 * The method calculated the map \( u \mapsto \frac{d u}{d v} \) where \( v \) denotes <code>this</code>.
 	 * 
-	 * @return The map of all differentials .
+	 * @return The map of all tangents .
 	 */
-	default Map<Long, RandomVariableInterface> getDifferentials() {
-		return getDifferentials(null);
+	default Map<Long, RandomVariableInterface> getTangents() {
+		return getTangents(null);
 	}
 
 	/**
-	 * Returns the differentials of this random variable with respect to the given IDs (if dependent).
+	 * Returns the tangents of this random variable with respect to the given dependent node IDs (if dependent).
 	 * The method calculated the map \( u \mapsto \frac{d u}{d v} \) where \( v \) denotes <code>this</code>.
 	 * 
-	 * @param dependentIDs {@link Set} of IDs of random variables \( u \) with respect to which the differentials \( \frac{d u}{d v} \) will be calculated. If null, derivatives w.r.t. all known dependents are returned.
+	 * @param dependentIDs {@link Set} of IDs of random variables \( u \) with respect to which the differentials \( \frac{d u}{d v} \) will be calculated.
+	 * If null, derivatives w.r.t. all known dependents are returned.
 	 * @return The map of differentials.
 	 */
-	Map<Long, RandomVariableInterface> getDifferentials(Set<Long> dependentIDs);
+	Map<Long, RandomVariableInterface> getTangents(Set<Long> dependentIDs);
 
 	/**
 	 * Returns a clone of this differentiable random variable with a new ID. This implies that the

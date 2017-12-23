@@ -338,7 +338,7 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	}
 
 	@Override
-	public Map<Long, RandomVariableInterface> getDifferentials(Set<Long> dependentIDs) {
+	public Map<Long, RandomVariableInterface> getTangents(Set<Long> dependentIDs) {
 		throw new UnsupportedOperationException();
 	}
 	
