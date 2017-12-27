@@ -40,7 +40,7 @@
 		</menu>
 
 		<menu name="Concepts">
-			<item name="Tracking Measurability" href="concepts/automatictrackingofmeasurability" />
+			<item name="Automatic Tracking of Measurability" href="concepts/automatictrackingofmeasurability" />
 		</menu>
 		
 		<menu name="Usages">

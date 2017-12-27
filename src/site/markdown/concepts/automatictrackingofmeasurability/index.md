@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The _automatic tracking of measurability_ has been part of [finmath-lib](http://finmath.net/finmath-lib) since its earliest version (&approx; 2004). It adds a method to random variables to inspect their measurability. Its implementation is similar to a forward mode automatic differentiation.
+The _automatic tracking of measurability_ has been part of [finmath-lib](http://finmath.net/finmath-lib) since its earliest version (&approx; 2004). It adds a method to random variables to inspect their measurability. Its concept and implementation is similar to a forward mode automatic differentiation, in the sense that each operator is augmented with a corresponding operation on measurability and certain random variables (constants, Brownian increments) are initialized with specific values).
 
 ### Definition
 
@@ -13,13 +13,13 @@ For a random variable X we define a map T : X &rarr; [-&infin; , &infin;) such t
 Originally the concept was introduces as a safe-guard in least-square-estimates of the conditional expectation (American Monte-Carlo), to ensure that the regression basis functions are F<sub>t</sub>-measurable if used in an F<sub>t</sub>-conditional expectation.
 However, the concept allows for important optimizations in the context of _stochastic automatic differentiation_: it may be used to detect cases where the computationally expensive conditional expectation operator can be avoided. It is:
 <center> 
-E(X | F<sub>t</sub>) = X if t &ge; T(X),
+E(X | F<sub>t</sub>) = X if t &ge; T(X).
 </center>
-where T(X) := <code>X.getFiltrationTime()</code>. See [ssrn.com/abstract=3000822](https://ssrn.com/abstract=3000822) for the interaction with an AD/AAD algorithm.
+See [ssrn.com/abstract=3000822](https://ssrn.com/abstract=3000822) for the interaction with an AD/AAD algorithm.
 
 ## Implementation
 
-Then random variable interface provides a method <code>getFiltrationTime()</code> implementing T(X) such that for a random variable X represented by the object <code>X</code> and t calculated by <code>t = X.getFiltrationTime()</code> it is guaranteed that X is F<sub>t</sub>-measurable (note again: it is not guaranteed that t is the smallest such number, although in most cases the implementation can provide the smallest time).
+Then random variable interface provides a method <code>getFiltrationTime()</code> implementing T(X) such that for a random variable X represented by the object <code>X</code> and t calculated by t = <code>X.getFiltrationTime()</code> it is guaranteed that X is F<sub>t</sub>-measurable (note again: it is not guaranteed that t is the smallest such number, although in most cases the implementation can provide the smallest time).
 
 The implementation is similar to a forward mode automatic differentiation, where the operator on random variables is augmented by additional operations on the filtration time:
 
