@@ -39,6 +39,10 @@
 			<item name="Release Notes" href="releasenotes.html" />
 		</menu>
 
+		<menu name="Concepts">
+			<item name="Tracking Measurability" href="concepts/automatictrackingofmeasurability" />
+		</menu>
+		
 		<menu name="Usages">
 			<item name="Spreadsheets" href="http://finmath.net/spreadsheets/" />
 			<item name="Special Topics" href="http://finmath.net/topics/" />
