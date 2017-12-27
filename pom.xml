@@ -193,10 +193,8 @@
 					<docfilessubdirs>true</docfilessubdirs>
 					<header>
 			   			<![CDATA[
-						<span class="logo-white">finMath</span><span class="logo-red"> lib</span>
-		    			documentation
-						<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-						</script>
+						<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
+						<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 			   			]]>
 					</header>
 					<footer>
@@ -532,10 +530,8 @@
 					<docfilessubdirs>true</docfilessubdirs>
 					<header>
 			   			<![CDATA[
-						<span class="logo-white">finMath</span><span class="logo-red"> lib</span>
-		    			documentation
-						<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-						</script>
+						<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
+						<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 			   			]]>
 					</header>
 					<footer>
