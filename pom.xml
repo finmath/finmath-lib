@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- For publishing to sonatype / central maven repo -->
@@ -262,11 +263,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.7</version>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 				<version>3.6</version>
@@ -303,9 +299,19 @@
 					<doUpdate>false</doUpdate>
 				</configuration>
 			</plugin>
-			<!-- uncomment to use clover -->
-			<!-- <plugin> <groupId>com.atlassian.maven.plugins</groupId> <artifactId>clover-maven-plugin</artifactId> 
-				<version>4.1.2</version> </plugin> -->
+			<plugin>
+				<groupId>org.openclover</groupId>
+				<artifactId>clover-maven-plugin</artifactId>
+				<configuration>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>instrument</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>bnd-maven-plugin</artifactId>
@@ -593,14 +599,10 @@
 				<version>2.20.1</version>
 			</plugin>
 			<plugin>
-				<groupId>com.atlassian.maven.plugins</groupId>
+				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>4.1.2</version>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.7</version>
+				<configuration>
+				</configuration>
 			</plugin>
 		</plugins>
 	</reporting>
