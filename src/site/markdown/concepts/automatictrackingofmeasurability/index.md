@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The _automatic tracking of measurability_ has been part of [finmath-lib](http://finmath.net/finmath-lib) since its earliest version (&approx; 2004). It adds a method to random variables to inspect their measurability. Its concept and implementation is similar to a forward mode automatic differentiation, in the sense that each operator is augmented with a corresponding operation on measurability and certain random variables (constants, Brownian increments) are initialized with specific values).
+The _automatic tracking of measurability_ has been part of [finmath-lib](http://finmath.net/finmath-lib) since its earliest version (&approx; 2004). It adds a method to random variables to inspect their measurability. Its concept and implementation is similar to a forward mode automatic differentiation, in the sense that each operator is augmented with a corresponding operation on measurability and certain random variables (constants, Brownian increments) are initialized with specific values.
 
 ### Definition
 
@@ -35,17 +35,17 @@ An implementation may achieve this by augmenting (extending) the type X by (X,t)
 
 ### Example
 
-The method is implemented in <code>RandomVariable</code> in finmath-lib. The interface is given as (extract)
+The method is implemented in <code>RandomVariable</code> implementing the interface <code>RandomVariableInterface</code> in finmath-lib. The interface is given as (extract)
 
 	public interface RandomVariableInterface {
 		double getFiltrationTime();
 		public RandomVariableInterface add(RandomVariableInterface randomVariable);
-
-...
-
+		
+		// ... (declaration of other methods)
+		
 	}
 
-and the implementation (extract)
+and the implementation is given as (extract) 
 
 	public class RandomVariable implements RandomVariableInterface {
 	
@@ -55,21 +55,19 @@ and the implementation (extract)
 		public double getFiltrationTime() {
 			return time;
 		}
-
-...
-
+		
+		// ... (implementation of other methods)
+		
 		@Override
 		public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 			// Set time of this random variable to maximum of time with respect to which measurability is known.
 			double newTime = Math.max(time, randomVariable.getFiltrationTime());
-	
-...
+			
+			// ... (calculate newRealizations as sum of this and randomVariable)
 			
 			return new RandomVariable(newTime, newRealizations);
 		}
 	}
-
-
 
 
 ## References
