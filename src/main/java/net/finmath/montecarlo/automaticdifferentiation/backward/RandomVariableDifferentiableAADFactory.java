@@ -33,7 +33,7 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	}
 
 	/**
-	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
+	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
 	 */
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
