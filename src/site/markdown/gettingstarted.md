@@ -12,7 +12,8 @@ The finmath lib source code is available from GitHub. Visit [finmath-lib on GitH
 
 ####  Importing the finmath lib source code into Eclipse
 
-To import the source code into you Eclipse workspace:
+To import the source code into your Eclipse workspace:
+
 * File -> Import… -> Git -> Projects from Git -> Clone URI
 * Enter the URI https://github.com/finmath/finmath-lib.git
 * Select "Next".
@@ -23,8 +24,10 @@ To import the source code into you Eclipse workspace:
 
 The main library code is available in the folder src/main/java.
 
-There some unit test available under the folder src/test/java. In Eclipse right click on any class file in src/test/java and select
+There are some unit test available under the folder src/test/java. In Eclipse right click on any class file in src/test/java and select
+
 * Run As -> JUnit Test
+
 to run the test.
 
 ### Creating your own project
@@ -32,6 +35,7 @@ to run the test.
 To create your own projects which uses finmath-lib:
 
 In Eclipse
+
 - File -> New -> Java Project
 - Enter a name for the project
 - Right click on the new project and select "Properties".
