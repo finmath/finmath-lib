@@ -23,7 +23,6 @@ import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAAD;
-import net.finmath.optimizer.StochasticLevenbergMarquardt.RegularizationMethod;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -110,20 +109,34 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.6
  */
-public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenbergMarquardt {
+public abstract class StochasticLevenbergMarquardtAD extends net.finmath.optimizer.StochasticLevenbergMarquardt {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8852002990042152135L;
 
+	public StochasticLevenbergMarquardtAD(List<RandomVariableInterface> initialParameters, List<RandomVariableInterface> targetValues, int maxIteration, ExecutorService executorService) {
+		super(initialParameters, targetValues, maxIteration, executorService);
+	}
 
-	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
-			RandomVariableInterface[] initialParameters,
-			RandomVariableInterface[] targetValues,
-			RandomVariableInterface[] parameterSteps, int maxIteration, double errorTolerance,
+	public StochasticLevenbergMarquardtAD(List<RandomVariableInterface> initialParameters,
+			List<RandomVariableInterface> targetValues, int maxIteration, int numberOfThreads) {
+		super(initialParameters, targetValues, maxIteration, numberOfThreads);
+	}
+
+
+	public StochasticLevenbergMarquardtAD(RandomVariableInterface[] initialParameters,
+			RandomVariableInterface[] targetValues, int maxIteration, int numberOfThreads) {
+		super(initialParameters, targetValues, maxIteration, numberOfThreads);
+	}
+
+
+	public StochasticLevenbergMarquardtAD(RandomVariableInterface[] initialParameters,
+			RandomVariableInterface[] targetValues, RandomVariableInterface[] weights,
+			RandomVariableInterface[] parameterSteps, int maxIteration, RandomVariableInterface errorTolerance,
 			ExecutorService executorService) {
-		super(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);
+		super(initialParameters, targetValues, weights, parameterSteps, maxIteration, errorTolerance, executorService);
 	}
 
 
