@@ -52,7 +52,7 @@ public class StochasticLevenbergMarquardtTestInverse {
 
 		int maxIteration = 1000000;
 
-		StochasticLevenbergMarquardtAD optimizer = new StochasticLevenbergMarquardtAD(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
+		StochasticPathwiseLevenbergMarquardtAD optimizer = new StochasticPathwiseLevenbergMarquardtAD(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -109,30 +109,28 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.6
  */
-public abstract class StochasticLevenbergMarquardtAD extends net.finmath.optimizer.StochasticLevenbergMarquardt {
+public abstract class StochasticPathwiseLevenbergMarquardtAD extends net.finmath.optimizer.StochasticPathwiseLevenbergMarquardt {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8852002990042152135L;
 
-	public StochasticLevenbergMarquardtAD(List<RandomVariableInterface> initialParameters, List<RandomVariableInterface> targetValues, int maxIteration, ExecutorService executorService) {
+	public StochasticPathwiseLevenbergMarquardtAD(List<RandomVariableInterface> initialParameters, List<RandomVariableInterface> targetValues, int maxIteration, ExecutorService executorService) {
 		super(initialParameters, targetValues, maxIteration, executorService);
 	}
 
-	public StochasticLevenbergMarquardtAD(List<RandomVariableInterface> initialParameters,
-			List<RandomVariableInterface> targetValues, int maxIteration, int numberOfThreads) {
+	public StochasticPathwiseLevenbergMarquardtAD(List<RandomVariableInterface> initialParameters, List<RandomVariableInterface> targetValues, int maxIteration, int numberOfThreads) {
 		super(initialParameters, targetValues, maxIteration, numberOfThreads);
 	}
 
 
-	public StochasticLevenbergMarquardtAD(RandomVariableInterface[] initialParameters,
-			RandomVariableInterface[] targetValues, int maxIteration, int numberOfThreads) {
+	public StochasticPathwiseLevenbergMarquardtAD(RandomVariableInterface[] initialParameters, RandomVariableInterface[] targetValues, int maxIteration, int numberOfThreads) {
 		super(initialParameters, targetValues, maxIteration, numberOfThreads);
 	}
 
 
-	public StochasticLevenbergMarquardtAD(RandomVariableInterface[] initialParameters,
+	public StochasticPathwiseLevenbergMarquardtAD(RandomVariableInterface[] initialParameters,
 			RandomVariableInterface[] targetValues, RandomVariableInterface[] weights,
 			RandomVariableInterface[] parameterSteps, int maxIteration, RandomVariableInterface errorTolerance,
 			ExecutorService executorService) {
