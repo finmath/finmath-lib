@@ -38,14 +38,14 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
 		
-		barrierDiracWidth = 0.2;
+		barrierDiracWidth = 0.05;	// Corresponds to 2% of paths used for estimation bin  0.05 = 2%,  0.025 = 1%
 		isGradientRetainsLeafNodesOnly = true;
 	}
 
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
 		super(randomVariableFactoryForNonDifferentiable);
 		
-		barrierDiracWidth = (Double) properties.getOrDefault("barrierDiracWidth", new Double(0.2));
+		barrierDiracWidth = (Double) properties.getOrDefault("barrierDiracWidth", new Double(0.05));
 		isGradientRetainsLeafNodesOnly = (Boolean) properties.getOrDefault("isGradientRetainsLeafNodesOnly", new Boolean(true));
 	}
 
