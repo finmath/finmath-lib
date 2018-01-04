@@ -219,7 +219,6 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @param regularizationMethod The regularization method to use. See {@link RegularizationMethod}.
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
-	 * @param weights Weights applied to the error.
 	 * @param parameterSteps Step used for finite difference approximation.
 	 * @param maxIteration Maximum number of iterations.
 	 * @param errorTolerance Error tolerance / accuracy.
@@ -242,7 +241,6 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * 
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
-	 * @param weights Weights applied to the error.
 	 * @param parameterSteps Step used for finite difference approximation.
 	 * @param maxIteration Maximum number of iterations.
 	 * @param errorTolerance Error tolerance / accuracy.
