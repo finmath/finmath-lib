@@ -12,20 +12,20 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * @author Christian Fries
  */
-public class StochasticOptimizerFactoryLevenbergMarquardt implements StochasticOptimizerFactoryInterface {
+public class StochasticPathwiseOptimizerFactoryLevenbergMarquardt implements StochasticOptimizerFactoryInterface {
 
 	private final int		maxIterations;
 	private final double	errorTolerance;
 	private final int		maxThreads;
 
-	public StochasticOptimizerFactoryLevenbergMarquardt(int maxIterations, double errorTolerance, int maxThreads) {
+	public StochasticPathwiseOptimizerFactoryLevenbergMarquardt(int maxIterations, double errorTolerance, int maxThreads) {
 		super();
 		this.maxIterations = maxIterations;
 		this.errorTolerance = errorTolerance;
 		this.maxThreads = maxThreads;
 	}
 
-	public StochasticOptimizerFactoryLevenbergMarquardt(int maxIterations, int maxThreads) {
+	public StochasticPathwiseOptimizerFactoryLevenbergMarquardt(int maxIterations, int maxThreads) {
 		this(maxIterations, 0.0, maxThreads);
 	}
 
@@ -42,7 +42,7 @@ public class StochasticOptimizerFactoryLevenbergMarquardt implements StochasticO
 	@Override
 	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] lowerBound, RandomVariableInterface[]  upperBound, RandomVariableInterface[] parameterSteps, RandomVariableInterface[] targetValues) {
 		return
-				new StochasticLevenbergMarquardt(initialParameters, targetValues, null /* weights */, parameterSteps, maxIterations, null, null)
+				new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, null /* weights */, parameterSteps, maxIterations, null, null)
 		{	
 			private static final long serialVersionUID = -7050719719557572792L;
 

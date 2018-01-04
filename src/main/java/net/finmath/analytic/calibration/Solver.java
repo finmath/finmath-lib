@@ -15,7 +15,7 @@ import net.finmath.analytic.products.AnalyticProductInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
-import net.finmath.optimizer.StochasticOptimizerFactoryLevenbergMarquardt;
+import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.StochasticOptimizerInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -190,7 +190,7 @@ public class Solver {
 
 		if(optimizerFactory == null) {
 			int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
-			optimizerFactory = new StochasticOptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);
+			optimizerFactory = new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);
 		}
 
 		StochasticOptimizerInterface optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);

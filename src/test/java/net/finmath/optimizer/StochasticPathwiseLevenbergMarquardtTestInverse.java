@@ -12,7 +12,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * @author Mario Viehmann
  */
-public class StochasticLevenbergMarquardtTestInverse {
+public class StochasticPathwiseLevenbergMarquardtTestInverse {
 
 	@ Test
 	public void testInverse() throws SolverException{
@@ -52,7 +52,7 @@ public class StochasticLevenbergMarquardtTestInverse {
 
 		int maxIteration = 1000000;
 
-		StochasticLevenbergMarquardt optimizer = new StochasticLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
+		StochasticPathwiseLevenbergMarquardt optimizer = new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  *
  */
-public class StochasticLevenbergMarquardtTest {
+public class StochasticPathwiseLevenbergMarquardtTest {
 
 	@Test
 	public void test() throws SolverException {
@@ -32,7 +32,7 @@ public class StochasticLevenbergMarquardtTest {
 
 		int maxIteration = 1000;
 
-		StochasticLevenbergMarquardt optimizer = new StochasticLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
+		StochasticPathwiseLevenbergMarquardt optimizer = new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			@Override
@@ -48,7 +48,7 @@ public class StochasticLevenbergMarquardtTest {
 		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
-		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError().getAverage());
+		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class StochasticLevenbergMarquardtTest {
 
 		int maxIteration = 1000;
 
-		StochasticLevenbergMarquardt optimizer = new StochasticLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
+		StochasticPathwiseLevenbergMarquardt optimizer = new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			@Override
@@ -90,6 +90,6 @@ public class StochasticLevenbergMarquardtTest {
 		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
-		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError().getAverage());
+		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
 	}
 }
