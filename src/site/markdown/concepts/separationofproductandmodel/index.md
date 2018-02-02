@@ -2,7 +2,7 @@
 02.02.2017. Work in progress. Will appear in a future version (4.x).
 
 ## Introduction
-The valuation library proposes the separation of financial products and models and numerical methods (as suggested in ISBN 0-470-04722-4).
+The valuation library proposes the separation of financial products and models and numerical methods (as suggested in ISBN).
 
 The core concept here is to provide data, products, models and implementations independent of each other. For this the real of model and products is decomposed into the following components:
 
@@ -17,7 +17,7 @@ The core concept here is to provide data, products, models and implementations i
 To allow the construction of products for a given model implementation without knowing the actual model and product implementation, models provide a product factory. That is all model implementations provide a method
 
 ```
-ProductImplementation getProduct(ProductDescriptor productDescripor)
+ProductImplementation getProduct(ProductDescriptor productDescriptor)
 ```
 
 ## Core Interfaces
