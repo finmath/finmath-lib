@@ -1,5 +1,9 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.01.2018
+ */
 package net.finmath.interpolation;
-
 
 import org.junit.Assert;
 import org.junit.Test;
