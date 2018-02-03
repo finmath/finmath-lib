@@ -182,8 +182,10 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 
 	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
-		if(timeIndex < 0) timeIndex = -timeIndex-1;
+		
+		// We round to the previous stock vaue (may generate loss of volatility and inconsistent forwards).
+		if(timeIndex < 0) timeIndex = -timeIndex-2;
+
 		return getAssetValue(timeIndex, assetIndex);
-		//		return assetSimulation.getAssetValue(time, assetIndex).mult(liborSimulation.getNumeraire(time)).div(assetSimulation.getNumeraire(time));
 	}	
 }
