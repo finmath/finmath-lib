@@ -7,6 +7,8 @@ package net.finmath.fouriermethod.products;
 
 import org.apache.commons.math3.complex.Complex;
 
+import net.finmath.analytic.model.curves.DiscountCurve;
+
 /**
  * Implements valuation of a European option on a single asset.
  * 
@@ -28,17 +30,19 @@ public class EuropeanOption extends AbstractProductFourierTransform {
 	private final double maturity;
 	private final double strike;
 	private final String nameOfUnderliyng;
+	private final DiscountCurve discountCurve;
 	
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 */
-	public EuropeanOption(double maturity, double strike) {
+	public EuropeanOption(double maturity, double strike, DiscountCurve discountCurve) {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
 		this.nameOfUnderliyng	= null;		// Use asset with index 0
+		this.discountCurve      = discountCurve;
 	}
 
 	/* (non-Javadoc)
@@ -60,6 +64,14 @@ public class EuropeanOption extends AbstractProductFourierTransform {
 	@Override
 	public double getMaturity() {
 		return maturity;
+	}
+	
+	public DiscountCurve getDiscountCurve() {
+		return this.discountCurve;
+	}
+	
+	public String getNameOfUnderlying() {
+		return this.nameOfUnderliyng;
 	}
 
 	/* (non-Javadoc)

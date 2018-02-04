@@ -3,10 +3,14 @@
  *
  * Created on 20.01.2004
  */
-package net.finmath.montecarlo.assetderivativevaluation;
+package net.finmath.modelling.exponentialsemimartingales;
 
 import java.util.Map;
 
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunctionInterface;
+import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractModel;
@@ -33,10 +37,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
  * 
  * @author Christian Fries
+ * @author Alessandro Gnoatto
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
-public class BlackScholesModel extends AbstractModel {
+public class BlackScholesModel extends AbstractModel implements ProcessCharacteristicFunctionInterface {
 
 	private final RandomVariableInterface initialValue;
 	private final RandomVariableInterface riskFreeRate;
@@ -100,7 +105,6 @@ public class BlackScholesModel extends AbstractModel {
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
-	 * @deprecated
 	 */
 	public BlackScholesModel(
 			double initialValue,
@@ -200,5 +204,18 @@ public class BlackScholesModel extends AbstractModel {
 	 */
 	public RandomVariableInterface getVolatility() {
 		return volatility;
+	}
+
+	@Override
+	public CharacteristicFunctionInterface apply(double time) {
+		return argument -> {
+			Complex iargument = argument.multiply(Complex.I);
+			return	iargument
+					.multiply(
+							iargument
+							.multiply(0.5*volatility.getAverage()*volatility.getAverage()*time)
+							.add(Math.log(initialValue.getAverage())-0.5*volatility.getAverage()*volatility.getAverage()*time+riskFreeRate.getAverage()*time))
+					.exp();
+		};
 	}
 }

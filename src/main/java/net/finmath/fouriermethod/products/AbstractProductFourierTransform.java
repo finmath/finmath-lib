@@ -10,6 +10,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import org.apache.commons.math3.complex.Complex;
 
+import net.finmath.analytic.model.curves.DiscountCurve;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
@@ -42,8 +43,8 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 		};
 
 		RealIntegralInterface integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);
-
-		return integrator.integrate(integrand) / 2.0 / Math.PI;
+		
+		return ((this.getDiscountCurve().getDiscountFactor(this.getMaturity())).getAverage()) * integrator.integrate(integrand) / 2.0 / Math.PI;
 	}
 
 	/**
@@ -52,6 +53,13 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	 * @return The maturity of the associated payoff.
 	 */
 	public abstract double getMaturity();
+	
+	/**
+	 * Return the discount curve of the associated product.
+	 * 
+	 * @return The discount curve of the associated product.
+	 */
+	public abstract DiscountCurve getDiscountCurve();
 	
 	/**
 	 * Return the lower bound of the imaginary part of the domain where

@@ -3,10 +3,15 @@
  *
  * Created on 20.01.2012
  */
-package net.finmath.montecarlo.assetderivativevaluation;
+package net.finmath.modelling.exponentialsemimartingales;
 
 import java.util.Map;
 
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunctionInterface;
+import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractModel;
@@ -64,10 +69,13 @@ import net.finmath.stochastic.RandomVariableInterface;
  * </dl>
  * 
  * @author Christian Fries
+ * @author Andy Graf
+ * @author Lorenzo Toricelli
+ * @author Alessandro Gnoatto
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
-public class HestonModel extends AbstractModel {
+public class HestonModel extends AbstractModel implements ProcessCharacteristicFunctionInterface{
 
 	/**
 	 * Truncation schemes to be used in the calculation of drift and diffusion coefficients.
@@ -212,6 +220,32 @@ public class HestonModel extends AbstractModel {
 			Scheme scheme
 			) {
 		this(initialValue, riskFreeRate, volatility, discountRate, theta, kappa, xi, rho, scheme, new RandomVariableFactory());
+	}
+	
+	/**
+	 * Create a Heston model.
+	 * 
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param discountRate The discount rate used in the numeraire.
+	 * @param theta The longterm mean reversion level of V (a reasonable value is volatility*volatility).
+	 * @param kappa The mean reversion speed.
+	 * @param xi The volatility of the volatility (of V).
+	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
+	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
+	 */
+	public HestonModel(
+			double initialValue,
+			double riskFreeRate,
+			double volatility,
+			double discountRate,
+			double theta,
+			double kappa,
+			double xi,
+			double rho
+			) {
+		this(initialValue, riskFreeRate, volatility, discountRate, theta, kappa, xi, rho, Scheme.FULL_TRUNCATION, new RandomVariableFactory());
 	}
 
 	/**
@@ -381,4 +415,40 @@ public class HestonModel extends AbstractModel {
 	public RandomVariableInterface getVolatility() {
 		return volatility;
 	}
+
+	@Override
+	public CharacteristicFunctionInterface apply(final double time) {
+
+		return new CharacteristicFunctionInterface() {
+			@Override
+			public Complex apply(Complex argument) {
+
+				Complex iargument = argument.multiply(Complex.I);
+
+				Complex gamma = iargument.multiply(rho.doubleValue() * xi.doubleValue()).subtract(kappa.doubleValue()).pow(2)
+						.subtract(
+								iargument.multiply(iargument)
+								.add(iargument.multiply(-1)).multiply(0.5)
+								.multiply(2 * xi.doubleValue() * xi.doubleValue()))
+						.sqrt();
+
+				Complex A = iargument
+						.multiply(rho.doubleValue() * xi.doubleValue())
+						.subtract(kappa.doubleValue())
+						.subtract(gamma).multiply((-theta.doubleValue()*kappa.doubleValue() * time) / (xi.doubleValue() * xi.doubleValue()))
+						.subtract(iargument.multiply(rho.doubleValue() * xi.doubleValue()).subtract(kappa.doubleValue()).subtract(gamma)
+								.multiply(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1).divide(gamma))
+								.multiply(0.5).add(new Complex(1).divide(gamma.multiply(time).exp())).log()
+								.add(gamma.multiply(time)).multiply((2 * theta.doubleValue()*kappa.doubleValue()) / (xi.doubleValue() * xi.doubleValue())));
+
+				Complex B = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)
+						.divide(iargument.multiply(rho.doubleValue() * xi.doubleValue()).subtract(kappa.doubleValue())
+								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
+										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
+
+				return A.add(B.multiply(volatility.doubleValue()*volatility.doubleValue())).add(iargument.multiply(Math.log(initialValue.doubleValue()) + riskFreeRate.getAverage()*time)).exp();
+			}
+		};
+	}
+
 }

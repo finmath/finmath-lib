@@ -15,6 +15,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * 
  * @author Christian Fries
  * @author Alessandro Gnoatto
+ * @deprecated
  */
 public class BlackScholesModel implements ProcessCharacteristicFunctionInterface {
 
@@ -44,7 +45,6 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 							iargument
 							.multiply(0.5*volatility*volatility*time)
 							.add(Math.log(initialValue)-0.5*volatility*volatility*time+riskFreeRate*time))
-					.add(-discountRate*time)
 					.exp();
 		};
 	}
