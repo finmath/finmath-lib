@@ -27,16 +27,19 @@ The concept is mirrored via a few interfaces:
 interface ProductDescriptor {
 	// Marker Interface
 }
-
+```
+```
 interface ModelDescriptor {
 	// Marker Interface
 }
-
+```
+```
 interface ProductImplementation {
 	ProductImplementation of(ProductDescriptor productDescriptor);
 	Valuation getValue(ModelImplementation model);
 }
-
+```
+```
 interface ModelImplementation {
 	ModelImplementation of(ModelDescriptor modelDescriptor);
 	ProductImplementation getProduct(ProductDescriptor productDescriptor);

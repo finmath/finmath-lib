@@ -29,7 +29,9 @@ Let T(X) denote the filtration time of X, i.e., T(X) = <code>X.getFiltrationTime
 * For Brownian increments W(t+&Delta;t)-W(t) we set T(W(t+&Delta;t)-W(t)) = t+&Delta;
 * For operators f on random variables X<sub>1</sub>,...,X<sub>n</sub> with Z = f(X<sub>1</sub>,...,X<sub>n</sub>) we set T(Z) = max(T(X<sub>1</sub>),...,T(X<sub>n</sub>))
 
-This definition of T already fulfills the requirement that t = T(Z) is a time guaranteeing that Z is F<sub>t</sub>-measurable, however it may not give the smallest such filtration time. There are a few optimizations or special cases which can be implemented, e.g. for Z = 0 * X we have T(Z) = T(0) (instead of T(Z) = max(T(0),T(X)) = T(X). Note: This definition already covers the generation of the correct filtration times for an Euler-scheme of an Ito process.
+This definition of T already fulfils the requirement that t = T(Z) is a time guaranteeing that Z is F<sub>t</sub>-measurable, however it may not give the smallest such filtration time. There are a few optimizations or special cases which can be implemented, e.g. for Z = 0 * X we have T(Z) = T(0) (instead of T(Z) = max(T(0),T(X)) = T(X)).
+
+Note: This definition already covers the generation of the correct filtration times for an Euler-scheme of an Ito process.
 
 An implementation may achieve this by augmenting (extending) the type X by (X,t) with t = T(X) and overloading operators on X.
 
