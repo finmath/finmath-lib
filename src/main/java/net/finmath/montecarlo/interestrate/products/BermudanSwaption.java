@@ -16,7 +16,7 @@ import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Implements the valuation of a cancelable swap under a <code>LIBORModelMonteCarloSimulationInterface</code>
+ * Implements the valuation of a Bermudan swaption under a <code>LIBORModelMonteCarloSimulationInterface</code>
  * 
  * @author Christian Fries
  * @version 1.2
