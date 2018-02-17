@@ -6,10 +6,21 @@
 
 package net.finmath.fouriermethod.models;
 
+import java.time.LocalDate;
+
+import javax.swing.plaf.FontUIResource;
+
 import org.apache.commons.math3.complex.Complex;
 
+import net.finmath.experimental.model.Model;
+import net.finmath.experimental.model.Product;
+import net.finmath.experimental.model.ProductDescriptor;
+import net.finmath.experimental.model.SingleAssetProductDescriptor;
+import net.finmath.experimental.model.implementation.HestonModelDescriptor;
+import net.finmath.experimental.model.implementation.SingleAssetFourierProductFactory;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * Implements the characteristic function of a Heston model.
@@ -49,8 +60,10 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * @author Andy Graf
  * @author Lorenzo Toricelli
  */
-public class HestonModel implements ProcessCharacteristicFunctionInterface {
+public class HestonModel implements Model<HestonModelDescriptor>, ProcessCharacteristicFunctionInterface {
 
+	private final LocalDate referenceDate;
+	
 	private final double initialValue;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
@@ -67,6 +80,53 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	private final double rho;
 
 	/**
+	 * Create a model from a model desciptor.
+	 * 
+	 * @param descriptor A Heston model descriptor.
+	 */
+	public HestonModel(HestonModelDescriptor descriptor) {
+		this(
+				descriptor.getReferenceDate(),
+				descriptor.getInitialValue(),
+				descriptor.getDiscountCurveForForwardRate(),
+				descriptor.getVolatility(),
+				descriptor.getDiscountCurveForDiscountRate(),
+				descriptor.getTheta(),
+				descriptor.getKappa(),
+				descriptor.getXi(),
+				descriptor.getRho()
+				);
+	}
+	
+	/**
+	 * Create a Heston model (characteristic function)
+	 * 
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link FloatingpointDate}.
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 */
+	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurveInterface discountCurveForForwardRate, double volatility, DiscountCurveInterface discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
+		super();
+		this.referenceDate = referenceDate;
+		this.initialValue = initialValue;
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		this.riskFreeRate = Double.NaN; // For safety
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		this.discountRate = Double.NaN; // For safety
+		this.volatility = volatility;
+		this.theta = theta;
+		this.kappa = kappa;
+		this.xi = xi;
+		this.rho = rho;
+	}
+
+	/**
 	 * Create a Heston model (characteristic function)
 	 * 
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
@@ -79,17 +139,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
 	public HestonModel(double initialValue, DiscountCurveInterface discountCurveForForwardRate, double volatility, DiscountCurveInterface discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
-		super();
-		this.initialValue = initialValue;
-		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		this.riskFreeRate = Double.NaN; // For safety
-		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate = Double.NaN; // For safety
-		this.volatility = volatility;
-		this.theta = theta;
-		this.kappa = kappa;
-		this.xi = xi;
-		this.rho = rho;
+		this(null, initialValue, discountCurveForForwardRate, volatility, discountCurveForDiscountRate, theta, kappa, xi, rho);
 	}
 
 	/**
@@ -107,6 +157,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	public HestonModel(double initialValue, double riskFreeRate, double volatility, double discountRate, double theta, double kappa,
 			double xi, double rho) {
 		super();
+		this.referenceDate = null;
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
@@ -180,5 +231,21 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	 */
 	private double getLogDiscountFactorForDiscounting(double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
-	};
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.experimental.model.Model#getDescriptor()
+	 */
+	@Override
+	public HestonModelDescriptor getDescriptor() {
+		return new HestonModelDescriptor(referenceDate, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.experimental.model.Model#getProductFromDesciptor(net.finmath.experimental.model.ProductDescriptor)
+	 */
+	@Override
+	public Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+		return (new SingleAssetFourierProductFactory()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+	}
 }

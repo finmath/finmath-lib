@@ -5,7 +5,19 @@
  */
 package net.finmath.fouriermethod.products;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.experimental.model.Model;
+import net.finmath.experimental.model.Product;
+import net.finmath.experimental.model.SingleAssetProductDescriptor;
+import net.finmath.experimental.model.implementation.HestonModelDescriptor;
+import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.fouriermethod.CharacteristicFunctionInterface;
+import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 
 /**
  * Implements valuation of a European option on a single asset.
@@ -23,27 +35,35 @@ import org.apache.commons.math3.complex.Complex;
  * @author Alessandro Gnoatto
  * @version 1.0
  */
-public class EuropeanOption extends AbstractProductFourierTransform {
+public class EuropeanOption extends AbstractProductFourierTransform implements Product<SingleAssetEuropeanOptionProductDescriptor> {
 
+	private final String underlyingName;
 	private final double maturity;
 	private final double strike;
-	private final String nameOfUnderliyng;
 	
+	/**
+	 * @param description
+	 */
+	public EuropeanOption(SingleAssetEuropeanOptionProductDescriptor description) {
+		this(description.getUnderlyingName(), description.getMaturity(), description.getStrike());
+	}
+
+	public EuropeanOption(String underlyingName, double maturity, double strike) {
+		super();
+		this.underlyingName = underlyingName;
+		this.maturity = maturity;
+		this.strike = strike;
+	}
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 */
 	public EuropeanOption(double maturity, double strike) {
-		super();
-		this.maturity			= maturity;
-		this.strike				= strike;
-		this.nameOfUnderliyng	= null;		// Use asset with index 0
+		this(null, maturity, strike);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.fouriermethod.CharacteristicFunctionInterface#apply(org.apache.commons.math3.complex.Complex)
-	 */
 	@Override
 	public Complex apply(Complex argument) {
 		Complex iargument = argument.multiply(Complex.I);
@@ -54,27 +74,37 @@ public class EuropeanOption extends AbstractProductFourierTransform {
 		return numerator.divide(denominator).negate();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.fouriermethod.products.AbstractProductFourierTransform#getMaturity()
-	 */
 	@Override
 	public double getMaturity() {
 		return maturity;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.fouriermethod.products.AbstractProductFourierTransform#getDomainImagLowerBound()
-	 */
 	@Override
 	public double getIntegrationDomainImagLowerBound() {
 		return 0.5;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.fouriermethod.products.AbstractProductFourierTransform#getDomainImagUpperBound()
-	 */
 	@Override
 	public double getIntegrationDomainImagUpperBound() {
 		return 2.5;
+	}
+
+	@Override
+	public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
+		return new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturity, strike);
+	}
+
+	@Override
+	public Map<String, Object> getValue(Model<?> model) {
+		Map<String, Object>  result = new HashMap<String, Object>();
+
+		try {
+			double value = super.getValue((ProcessCharacteristicFunctionInterface) model);
+			result.put("value", value);
+		} catch (CalculationException e) {
+			result.put("exception", e);
+		}
+		
+		return result;
 	}
 }

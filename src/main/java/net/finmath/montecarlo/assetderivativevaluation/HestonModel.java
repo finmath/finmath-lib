@@ -7,8 +7,15 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Map;
 
+import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.experimental.model.Model;
+import net.finmath.experimental.model.Product;
+import net.finmath.experimental.model.ProductDescriptor;
+import net.finmath.experimental.model.implementation.HestonModelDescriptor;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.interestrate.products.indices.AnalyticModelIndex;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -67,7 +74,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
-public class HestonModel extends AbstractModel {
+public class HestonModel extends AbstractModel implements Model<HestonModelDescriptor> {
 
 	/**
 	 * Truncation schemes to be used in the calculation of drift and diffusion coefficients.
@@ -77,17 +84,24 @@ public class HestonModel extends AbstractModel {
 		 * Reflection scheme, that is V is replaced by Math.abs(V), where V denotes the current realization of V(t).
 		 */
 		REFLECTION,
-		
+
 		/**
 		 * Full truncation scheme, that is V is replaced by Math.max(V,0), where V denotes the current realization of V(t).
 		 */
 		FULL_TRUNCATION
 	};
 
+
+
 	private final RandomVariableInterface initialValue;
-	private final RandomVariableInterface riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+
+	private final DiscountCurveInterface discountCurveForForwardRate;
+	private final RandomVariableInterface riskFreeRate;		// Constant rate, used if discountCurveForForwardRate is null
+
 	private final RandomVariableInterface volatility;
-	private final RandomVariableInterface discountRate;		// The discount rate, can be different from the drift.
+
+	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final RandomVariableInterface discountRate;		// Constant rate, used if discountCurveForForwardRate is null
 
 	private final RandomVariableInterface theta;
 	private final RandomVariableInterface kappa;
@@ -104,6 +118,71 @@ public class HestonModel extends AbstractModel {
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
 	 */
 	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[2];
+
+	/**
+	 * @param descriptor
+	 */
+	public HestonModel(HestonModelDescriptor descriptor, 			Scheme scheme,
+			AbstractRandomVariableFactory randomVariableFactory
+			) {
+		this(
+				randomVariableFactory.createRandomVariable(descriptor.getInitialValue()),
+				descriptor.getDiscountCurveForForwardRate(),
+				randomVariableFactory.createRandomVariable(descriptor.getVolatility()),
+				descriptor.getDiscountCurveForDiscountRate(),
+				randomVariableFactory.createRandomVariable(descriptor.getTheta()),
+				randomVariableFactory.createRandomVariable(descriptor.getKappa()),
+				randomVariableFactory.createRandomVariable(descriptor.getXi()),
+				randomVariableFactory.createRandomVariable(descriptor.getRho()),
+				scheme,
+				randomVariableFactory
+				);
+	}
+
+	/**
+	 * Create a Heston model.
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate the discount curve  \( df^{\text{c}} \) used to calculate the risk free rate \( r^{\text{c}}(t_{i},t_{i+1}) = \frac{\ln(\frac{df^{\text{c}}(t_{i})}{df^{\text{c}}(t_{i+1})}}{t_{i+1}-t_{i}} \)
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountCurveForDiscountRate the discount curve  \( df^{\text{d}} \) used to calculate the numeraire, \( r^{\text{d}}(t_{i},t_{i+1}) = \frac{\ln(\frac{df^{\text{d}}(t_{i})}{df^{\text{d}}(t_{i+1})}}{t_{i+1}-t_{i}} \)
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public HestonModel(
+			RandomVariableInterface initialValue,
+			DiscountCurveInterface discountCurveForForwardRate,
+			RandomVariableInterface volatility,
+			DiscountCurveInterface discountCurveForDiscountRate,
+			RandomVariableInterface theta,
+			RandomVariableInterface kappa,
+			RandomVariableInterface xi,
+			RandomVariableInterface rho,
+			Scheme scheme,
+			AbstractRandomVariableFactory randomVariableFactory
+			) {
+		super();
+
+		this.initialValue	= initialValue;
+		this.discountCurveForForwardRate	= discountCurveForForwardRate;
+		this.riskFreeRate = null;
+		this.volatility		= volatility;
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		this.discountRate = null;
+		this.theta			= theta;
+		this.kappa			= kappa;
+		this.xi				= xi;
+		this.rho			= rho;
+		this.rhoBar			= rho.squared().sub(1).mult(-1).sqrt();
+
+		this.scheme			= scheme;
+
+		this.randomVariableFactory = randomVariableFactory;
+	}
 
 	/**
 	 * Create a Heston model.
@@ -134,15 +213,17 @@ public class HestonModel extends AbstractModel {
 		super();
 
 		this.initialValue	= initialValue;
+		this.discountCurveForForwardRate = null;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatility		= volatility;
 		this.discountRate	= discountRate;
+		this.discountCurveForDiscountRate = null;
 		this.theta			= theta;
 		this.kappa			= kappa;
 		this.xi				= xi;
 		this.rho			= rho;
 		this.rhoBar			= rho.squared().sub(1).mult(-1).sqrt();
-		
+
 		this.scheme			= scheme;
 
 		this.randomVariableFactory = randomVariableFactory;
@@ -259,7 +340,19 @@ public class HestonModel extends AbstractModel {
 
 		RandomVariableInterface[] drift = new RandomVariableInterface[2];
 
-		drift[0] = riskFreeRate.sub(stochasticVariance.div(2.0));
+		RandomVariableInterface riskFreeRateAtTimeStep = null;
+		if(discountCurveForForwardRate != null) {
+			double time		= getTime(timeIndex);
+			double timeNext	= getTime(timeIndex);
+
+			double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
+			riskFreeRateAtTimeStep = randomVariableFactory.createRandomVariable(rate);
+		}
+		else {
+			riskFreeRateAtTimeStep = riskFreeRate;
+		}
+
+		drift[0] = riskFreeRateAtTimeStep.sub(stochasticVariance.div(2.0));
 		drift[1] = theta.sub(stochasticVariance).mult(kappa);
 
 		return drift;
@@ -318,7 +411,12 @@ public class HestonModel extends AbstractModel {
 
 	@Override
 	public RandomVariableInterface getNumeraire(double time) {
-		return discountRate.mult(time).exp();
+		if(discountCurveForDiscountRate != null) {
+			return randomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+		}
+		else {
+			return discountRate.mult(time).exp();
+		}
 	}
 
 	@Override
@@ -356,7 +454,7 @@ public class HestonModel extends AbstractModel {
 		if(value instanceof RandomVariableInterface) return (RandomVariableInterface) value;
 		else return getRandomVariableForConstant(((Number) value).doubleValue());
 	}
-	
+
 	@Override
 	public String toString() {
 		return "HestonModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="
@@ -380,5 +478,23 @@ public class HestonModel extends AbstractModel {
 	 */
 	public RandomVariableInterface getVolatility() {
 		return volatility;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.experimental.model.Model#getDescriptor()
+	 */
+	@Override
+	public HestonModelDescriptor getDescriptor() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.experimental.model.Model#getProductFromDesciptor(net.finmath.experimental.model.ProductDescriptor)
+	 */
+	@Override
+	public Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
