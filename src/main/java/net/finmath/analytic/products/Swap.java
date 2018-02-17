@@ -11,7 +11,6 @@ import net.finmath.analytic.model.curves.CurveInterface;
 import net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;

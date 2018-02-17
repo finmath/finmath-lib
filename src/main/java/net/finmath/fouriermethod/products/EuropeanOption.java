@@ -13,10 +13,7 @@ import org.apache.commons.math3.complex.Complex;
 import net.finmath.exception.CalculationException;
 import net.finmath.experimental.model.Model;
 import net.finmath.experimental.model.Product;
-import net.finmath.experimental.model.SingleAssetProductDescriptor;
-import net.finmath.experimental.model.implementation.HestonModelDescriptor;
 import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 
 /**

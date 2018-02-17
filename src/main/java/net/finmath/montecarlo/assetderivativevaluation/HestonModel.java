@@ -7,7 +7,6 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Map;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.experimental.model.Model;
 import net.finmath.experimental.model.Product;
 import net.finmath.experimental.model.ProductDescriptor;
@@ -15,7 +14,6 @@ import net.finmath.experimental.model.implementation.HestonModelDescriptor;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.interestrate.products.indices.AnalyticModelIndex;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
 

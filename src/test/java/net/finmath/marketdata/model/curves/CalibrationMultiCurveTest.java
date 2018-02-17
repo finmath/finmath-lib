@@ -6,25 +6,15 @@
 package net.finmath.marketdata.model.curves;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.marketdata.calibration.CalibratedCurves;
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
-import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.calibration.CalibratedCurves.CalibrationSpec;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -32,12 +22,9 @@ import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.marketdata.products.AnalyticProductInterface;
-import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
-import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 

@@ -16,6 +16,8 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jetbrains.annotations.NotNull;
+
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
@@ -33,7 +35,6 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Generate a collection of calibrated curves (discount curves, forward curves)

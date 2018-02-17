@@ -6,8 +6,6 @@
 
 package net.finmath.experimental.model.implementation;
 
-import static org.junit.Assert.*;
-
 import java.time.LocalDate;
 import java.util.Map;
 

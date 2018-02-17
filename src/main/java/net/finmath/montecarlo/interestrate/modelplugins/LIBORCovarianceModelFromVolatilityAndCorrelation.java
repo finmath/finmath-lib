@@ -7,7 +7,6 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.util.Arrays;
 
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 

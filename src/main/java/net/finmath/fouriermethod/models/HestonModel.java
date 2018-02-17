@@ -8,8 +8,6 @@ package net.finmath.fouriermethod.models;
 
 import java.time.LocalDate;
 
-import javax.swing.plaf.FontUIResource;
-
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.experimental.model.Model;

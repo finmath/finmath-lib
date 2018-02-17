@@ -23,7 +23,6 @@ import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.time.FloatingpointDate;
 
 /**
  * A very simple container for Caplet volatilities.

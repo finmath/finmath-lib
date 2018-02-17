@@ -15,8 +15,8 @@ import net.finmath.analytic.products.AnalyticProductInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
-import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.StochasticOptimizerInterface;
+import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
