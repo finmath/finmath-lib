@@ -72,7 +72,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
-public class HestonModel extends AbstractModel implements Model<HestonModelDescriptor> {
+public class HestonModel extends AbstractModel {
 
 	/**
 	 * Truncation schemes to be used in the calculation of drift and diffusion coefficients.
@@ -341,7 +341,7 @@ public class HestonModel extends AbstractModel implements Model<HestonModelDescr
 		RandomVariableInterface riskFreeRateAtTimeStep = null;
 		if(discountCurveForForwardRate != null) {
 			double time		= getTime(timeIndex);
-			double timeNext	= getTime(timeIndex);
+			double timeNext	= getTime(timeIndex+1);
 
 			double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
 			riskFreeRateAtTimeStep = randomVariableFactory.createRandomVariable(rate);
@@ -476,23 +476,5 @@ public class HestonModel extends AbstractModel implements Model<HestonModelDescr
 	 */
 	public RandomVariableInterface getVolatility() {
 		return volatility;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.experimental.model.Model#getDescriptor()
-	 */
-	@Override
-	public HestonModelDescriptor getDescriptor() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.experimental.model.Model#getProductFromDesciptor(net.finmath.experimental.model.ProductDescriptor)
-	 */
-	@Override
-	public Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
