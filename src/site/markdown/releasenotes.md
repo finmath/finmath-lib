@@ -7,12 +7,12 @@ finmath lib Release Notes
 
 ## 3.2.0 (18.02.2018)
 
-### General Refactoring - Interfaces
+### General Refactoring - Interfaces (see Concepts / Separation of Model and Products)
 
-- The interface net.finmath.modelling.ModelInterface has been renamed/refactored to net.finmath.modelling.Model<T extends ModelDescriptor>. This is related to the introduction of ModelDescriptors and ProductDescriptors. The interface was previously a marker interface, but now comes with two methods.
-- The interface net.finmath.modelling.ProductInterface has been renamed/refactored to net.finmath.modelling.Product<T extends ProductDescriptor>. This is related to the introduction of ModelDescriptors and ProductDescriptors. The interface was previously a marker interface, but now comes with two methods.
-- Classes implementing the interface Product<T> require a type parameterization, example: ```AbstractMonteCarloProduct<T extends ProductDescriptor> implements Product<T>'''
-
+- The interface `net.finmath.modelling.ModelInterface` has been renamed/refactored to `net.finmath.modelling.Model<T extends ModelDescriptor>`. This is related to the introduction of ModelDescriptors and ProductDescriptors. The interface was previously a marker interface, but now comes with two methods.
+- The interface `net.finmath.modelling.ProductInterface` has been renamed/refactored to `net.finmath.modelling.Product<T extends ProductDescriptor>`. This is related to the introduction of ModelDescriptors and ProductDescriptors. The interface was previously a marker interface, but now comes with two methods.
+- Classes implementing the interface `Product<T>` require a type parameterization, example: `AbstractMonteCarloProduct<T extends ProductDescriptor> implements Product<T>`
+- Heston model may be constructed by a model descriptor. See `net.finmath.modelling.descriptor.HestonModelDescriptorTest` for an example.
 
 ## 3.1.5 (05.11.2017)
 
