@@ -17,6 +17,14 @@ import net.finmath.experimental.model.ProductDescriptor;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.IndependentIncrementsInterface;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 
@@ -63,21 +71,44 @@ public class HestonModelDescriptorTest {
 		ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturity, strike));
 
 		/*
-		 * Create Fourier implementation of Heston model
+		 * Create Fourier implementation of model and product
 		 */
+
+		// Create Fourier implementation of Heston model
 		Model<?> hestonModel = (new HestonModelFourierFactory()).getModelFromDescription(hestonModelDescriptor);
-		
-		/*
-		 * Create product implementation compatible with Heston model
-		 */
+
+		// Create product implementation compatible with Heston model
 		Product<?> europeanOption = hestonModel.getProductFromDesciptor(europeanOptionDescriptor);
 		
-		/*
-		 * Evaluate product
-		 */
+		// Evaluate product
 		Map<String, Object> value = europeanOption.getValue(hestonModel);
 
 		System.out.println(value);
+
+		/*
+		 * Create Monte Carlo implementation of model and product
+		 */
+
+		// Process discretization properties
+		final int		numberOfPaths		= 100000;
+		final int		numberOfTimeSteps	= 100;
+		final double	deltaT				= 0.05;
+		final int		seed				= 31415;
+
+		// Create a time discretization
+		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		
+		// Create Fourier implementation of Heston model
+		Model<?> hestonModel2 = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescription(hestonModelDescriptor);
+
+		// Create product implementation compatible with Heston model
+		Product<?> europeanOption2 = hestonModel2.getProductFromDesciptor(europeanOptionDescriptor);
+
+		Map<String, Object> value2 = europeanOption2.getValue(hestonModel2);
+
+		System.out.println(value2);
 	}
 
 }

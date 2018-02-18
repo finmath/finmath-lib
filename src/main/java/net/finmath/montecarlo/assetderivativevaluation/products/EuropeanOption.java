@@ -5,7 +5,15 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.finmath.exception.CalculationException;
+import net.finmath.experimental.model.Model;
+import net.finmath.experimental.model.Product;
+import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -26,12 +34,34 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.3
  */
-public class EuropeanOption extends AbstractAssetMonteCarloProduct {
+public class EuropeanOption extends AbstractAssetMonteCarloProduct implements Product<SingleAssetEuropeanOptionProductDescriptor> {
 
 	private final double maturity;
 	private final double strike;
 	private final Integer underlyingIndex;
 	private final String nameOfUnderliyng;
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param descriptor Implementation of SingleAssetEuropeanOptionProductDescriptor
+	 */
+	public EuropeanOption(SingleAssetEuropeanOptionProductDescriptor descriptor) {
+		this(descriptor.getUnderlyingName(), descriptor.getMaturity(), descriptor.getStrike());
+	}
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 */
+	public EuropeanOption(String underlyingName, double maturity, double strike) {
+		super();
+		this.nameOfUnderliyng	= underlyingName;
+		this.maturity			= maturity;
+		this.strike				= strike;
+		this.underlyingIndex		= 0;
+	}
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -87,5 +117,24 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;
+	}
+
+	@Override
+	public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
+		return new SingleAssetEuropeanOptionProductDescriptor(nameOfUnderliyng, maturity, strike);
+	}
+
+	@Override
+	public Map<String, Object> getValue(Model<?> model) {
+		Map<String, Object>  result = new HashMap<String, Object>();
+
+		try {
+			double value = super.getValue((AssetModelMonteCarloSimulationInterface) model);
+			result.put("value", value);
+		} catch (CalculationException e) {
+			result.put("exception", e);
+		}
+		
+		return result;
 	}
 }
