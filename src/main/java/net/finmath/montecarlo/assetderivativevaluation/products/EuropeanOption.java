@@ -12,8 +12,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.experimental.model.Model;
 import net.finmath.experimental.model.Product;
 import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
