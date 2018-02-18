@@ -24,6 +24,8 @@ public interface Product<T extends ProductDescriptor> {
 	T getDescriptor();
 
 	/**
+	 * Valuation of this product under a given model.
+	 * 
 	 * @param model The model under which the product will be valued.
 	 * @return Result map.
 	 */
