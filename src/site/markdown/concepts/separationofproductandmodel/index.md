@@ -4,7 +4,7 @@
 ## Introduction
 The valuation library proposes the separation of financial products and models and numerical methods (as suggested in ISBN).
 
-The core concept here is to provide data, products, models and implementations independent of each other. For this the real of model and products is decomposed into the following components:
+The core concept here is to provide data, products, models and implementations (mostly) independent of each other. For this the realm of model and products is decomposed into the following components:
 
 *product descriptors*: A product descriptor is a class representing a financial product. It is a model independent representation comparable to a POJO. There should be factories creating product descriptor out of FpML, XML or Key-Value representations and a product descriptor should be able to serialize itself into these formats.
 
@@ -17,7 +17,7 @@ The core concept here is to provide data, products, models and implementations i
 To allow the construction of products for a given model implementation without knowing the actual model and product implementation, models provide a product factory. That is all model implementations provide a method
 
 ```
-ProductImplementation getProduct(ProductDescriptor productDescriptor)
+	Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor);
 ```
 
 ## Core Interfaces
@@ -34,15 +34,66 @@ interface ModelDescriptor {
 }
 ```
 ```
-interface ProductImplementation {
-	ProductImplementation of(ProductDescriptor productDescriptor);
-	Valuation getValue(ModelImplementation model);
+public interface Product<T extends ProductDescriptor> {
+
+	/**
+	 * Return a product descriptor representing this model.
+	 * 
+	 * @return The product descriptor of this product.
+	 */
+	T getDescriptor();
+
+	/**
+	 * Valuation of this product under a given model.
+	 * 
+	 * @param model The model under which the product will be valued.
+	 * @return Result map.
+	 */
+	Map<String, Object> getValue(Model<?> model);
 }
 ```
 ```
-interface ModelImplementation {
-	ModelImplementation of(ModelDescriptor modelDescriptor);
-	ProductImplementation getProduct(ProductDescriptor productDescriptor);
+public interface Model<T extends ModelDescriptor> {
+
+	/**
+	 * Return a model descriptor representing this model.
+	 * 
+	 * @return The model descriptor of this model.
+	 */
+	T getDescriptor();
+	
+
+	/**
+	 * Construct a product from a product descriptor, which may be valued by this mmodel.
+	 * 
+	 * @param productDescriptor Given product descriptor.
+	 * @return An instance of a product implementation.
+	 */
+	Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor);
+}
+```
+
+## Product and Model Factories
+Product and models are constructed by implmenting factories. Factories carry the implementation specific part of the model or product. For example: A Fourier transform implementation of a Heston model requires the specification of the integration method used (line of integration, number of intergration points, etc.). A Monte-Carlo implementatio of a Heston model requies the specification of the Brownian driver (random number generator) and numerical scheme (Euler scheme with truncation, etc.).
+
+For this reason we have two additional interfaces
+
+```
+public interface ProductFactory<T extends ProductDescriptor> {
+
+	/**
+	 * Constructs the product from a given product descriptor.
+	 * 
+	 * @param description A product descriptor.
+	 * @return An instance of the product describable by this descriptor.
+	 */
+	Product<?> getProductFromDescription(T description);
+}
+```
+```
+public interface ModelFactory<T extends ModelDescriptor> {
+	
+		Model<?> getModelFromDescription(T description);
 }
 ```
 
