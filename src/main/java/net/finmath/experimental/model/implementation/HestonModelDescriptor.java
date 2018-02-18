@@ -8,8 +8,8 @@ package net.finmath.experimental.model.implementation;
 
 import java.time.LocalDate;
 
-import net.finmath.experimental.model.ModelDescriptor;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.modelling.ModelDescriptor;
 
 /**
  * @author Christian Fries

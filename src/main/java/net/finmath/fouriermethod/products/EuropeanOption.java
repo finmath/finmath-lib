@@ -11,10 +11,10 @@ import java.util.Map;
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.experimental.model.Model;
-import net.finmath.experimental.model.Product;
 import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
 
 /**
  * Implements valuation of a European option on a single asset.
@@ -92,7 +92,21 @@ public class EuropeanOption extends AbstractProductFourierTransform implements P
 	}
 
 	@Override
-	public Map<String, Object> getValue(Model<?> model) {
+	public Double getValue(double evaluationTime, Model<?> model) {
+		Double value = null;
+		try {
+			value = super.getValue((ProcessCharacteristicFunctionInterface) model);
+		} catch (CalculationException e) {
+		}
+		
+		return value;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.modelling.Product#getValues(double, net.finmath.modelling.Model)
+	 */
+	@Override
+	public Map<String, Object> getValues(double evaluationTime, Model<?> model) {
 		Map<String, Object>  result = new HashMap<String, Object>();
 
 		try {

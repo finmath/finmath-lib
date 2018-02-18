@@ -12,12 +12,12 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.experimental.model.Model;
-import net.finmath.experimental.model.Product;
-import net.finmath.experimental.model.ProductDescriptor;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
+import net.finmath.modelling.ProductDescriptor;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -80,7 +80,8 @@ public class HestonModelDescriptorTest {
 		Product<?> europeanOptionFourier = hestonModelFourier.getProductFromDesciptor(europeanOptionDescriptor);
 		
 		// Evaluate product
-		Map<String, Object> valueFourier = europeanOptionFourier.getValue(hestonModelFourier);
+		double evaluationTime = 0.0;
+		Map<String, Object> valueFourier = (Map<String, Object>)europeanOptionFourier.getValues(evaluationTime, hestonModelFourier);
 
 		System.out.println(valueFourier);
 
@@ -98,7 +99,7 @@ public class HestonModelDescriptorTest {
 		// Create product implementation compatible with Heston model
 		Product<?> europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDesciptor(europeanOptionDescriptor);
 
-		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValue(hestonModelMonteCarlo);
+		Map<String, Object> valueMonteCarlo = (Map<String, Object>)europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 
 		System.out.println(valueMonteCarlo);
 		

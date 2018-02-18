@@ -10,14 +10,14 @@ import java.time.LocalDate;
 
 import org.apache.commons.math3.complex.Complex;
 
-import net.finmath.experimental.model.Model;
-import net.finmath.experimental.model.Product;
-import net.finmath.experimental.model.ProductDescriptor;
-import net.finmath.experimental.model.SingleAssetProductDescriptor;
 import net.finmath.experimental.model.implementation.HestonModelDescriptor;
 import net.finmath.experimental.model.implementation.SingleAssetFourierProductFactory;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.time.FloatingpointDate;
 
 /**

@@ -6,7 +6,7 @@
 package net.finmath.marketdata.products;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.Product;
 
 /**
  * The interface which has to be implemented by a product which may
@@ -14,7 +14,7 @@ import net.finmath.modelling.ProductInterface;
  * 
  * @author Christian Fries
  */
-public interface AnalyticProductInterface extends ProductInterface {
+public interface AnalyticProductInterface extends Product {
 
 	/**
 	 * Return the valuation of the product using the given model.

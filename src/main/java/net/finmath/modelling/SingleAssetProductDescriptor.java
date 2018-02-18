@@ -4,7 +4,7 @@
  * Created on 09.02.2018
  */
 
-package net.finmath.experimental.model;
+package net.finmath.modelling;
 
 /**
  * Interface for a product descriptor.
@@ -12,20 +12,5 @@ package net.finmath.experimental.model;
  * 
  * @author Christian Fries
  */
-public interface ProductDescriptor {
-	
-	/**
-	 * Return the version of the model description.
-	 * 
-	 * @return Version number.
-	 */
-	Integer version();
-	
-	/**
-	 * Return the name of the model represented by this descriptor.
-	 * 
-	 * @return Name of the model.
-	 */
-	String name();
-	
+public interface SingleAssetProductDescriptor extends ProductDescriptor {
 }

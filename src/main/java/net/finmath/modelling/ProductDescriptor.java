@@ -4,15 +4,15 @@
  * Created on 09.02.2018
  */
 
-package net.finmath.experimental.model;
+package net.finmath.modelling;
 
 /**
- * Interface for a model descriptor.
+ * Interface for a product descriptor.
  * For a description of the general concept see <a href="http://finmath.net/finmath-lib/concepts/separationofproductandmodel">http://finmath.net/finmath-lib/concepts/separationofproductandmodel</a>.
  * 
  * @author Christian Fries
  */
-public interface ModelDescriptor {
+public interface ProductDescriptor {
 	
 	/**
 	 * Return the version of the model description.
@@ -27,4 +27,5 @@ public interface ModelDescriptor {
 	 * @return Name of the model.
 	 */
 	String name();
+	
 }

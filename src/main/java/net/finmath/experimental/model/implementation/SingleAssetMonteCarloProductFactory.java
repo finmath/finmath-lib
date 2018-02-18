@@ -6,9 +6,9 @@
 
 package net.finmath.experimental.model.implementation;
 
-import net.finmath.experimental.model.Product;
-import net.finmath.experimental.model.ProductFactory;
-import net.finmath.experimental.model.SingleAssetProductDescriptor;
+import net.finmath.modelling.Product;
+import net.finmath.modelling.ProductFactory;
+import net.finmath.modelling.SingleAssetProductDescriptor;
 
 /**
  * @author Christian Fries

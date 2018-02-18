@@ -1,10 +1,10 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  *
- * Created on 09.02.2018
+ * Created on 11.10.2013
  */
 
-package net.finmath.experimental.model;
+package net.finmath.modelling;
 
 /**
  * Interface for a describable model.
@@ -19,7 +19,7 @@ public interface Model<T extends ModelDescriptor> {
 	 * 
 	 * @return The model descriptor of this model.
 	 */
-	T getDescriptor();
+	default T getDescriptor() { throw new UnsupportedOperationException(); }
 	
 
 	/**
@@ -28,5 +28,5 @@ public interface Model<T extends ModelDescriptor> {
 	 * @param productDescriptor Given product descriptor.
 	 * @return An instance of a product implementation.
 	 */
-	Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor);
+	default Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor) { throw new UnsupportedOperationException(); }
 }

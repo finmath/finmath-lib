@@ -7,7 +7,7 @@
 package net.finmath.marketdata.products;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.Model;
 
 /**
  * @author Christian Fries
@@ -19,7 +19,7 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 	 * @see net.finmath.marketdata.products.ProductInterface#getValue(double, net.finmath.marketdata.products.ModelInterface)
 	 */
 	@Override
-	public Object getValue(double evaluationTime, ModelInterface model) {
+	public Object getValue(double evaluationTime, Model model) {
 		throw new IllegalArgumentException("The product " + this.getClass()
 				+ " cannot be valued against a model " + model.getClass() + "."
 				+ "It requires a model of type " + AnalyticModelInterface.class + ".");

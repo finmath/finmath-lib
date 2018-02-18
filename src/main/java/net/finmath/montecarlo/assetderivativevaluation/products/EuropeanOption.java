@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.experimental.model.Model;
-import net.finmath.experimental.model.Product;
 import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -32,7 +32,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.3
  */
-public class EuropeanOption extends AbstractAssetMonteCarloProduct implements Product<SingleAssetEuropeanOptionProductDescriptor> {
+public class EuropeanOption extends AbstractAssetMonteCarloProduct<SingleAssetEuropeanOptionProductDescriptor> implements Product<SingleAssetEuropeanOptionProductDescriptor> {
 
 	private final double maturity;
 	private final double strike;
@@ -123,11 +123,11 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct implements Pr
 	}
 
 	@Override
-	public Map<String, Object> getValue(Model<?> model) {
+	public Map<String, Object> getValues(double evaluationTime, Model<?> model) {
 		Map<String, Object>  result = new HashMap<String, Object>();
 
 		try {
-			double value = super.getValue((AssetModelMonteCarloSimulationInterface) model);
+			double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface) model).getAverage();
 			result.put("value", value);
 		} catch (CalculationException e) {
 			result.put("exception", e);

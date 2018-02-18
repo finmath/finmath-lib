@@ -6,11 +6,11 @@
 
 package net.finmath.experimental.model.implementation;
 
-import net.finmath.experimental.model.Model;
-import net.finmath.experimental.model.ModelFactory;
-import net.finmath.experimental.model.Product;
-import net.finmath.experimental.model.ProductDescriptor;
-import net.finmath.experimental.model.SingleAssetProductDescriptor;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.ModelFactory;
+import net.finmath.modelling.Product;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;

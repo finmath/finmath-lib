@@ -6,8 +6,8 @@
 
 package net.finmath.experimental.model.implementation;
 
-import net.finmath.experimental.model.Model;
-import net.finmath.experimental.model.ModelFactory;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.ModelFactory;
 
 /**
  * @author Christian Fries
@@ -24,5 +24,4 @@ public class HestonModelFourierFactory implements ModelFactory<HestonModelDescri
 	public Model<HestonModelDescriptor> getModelFromDescription(HestonModelDescriptor description) {
 		return new net.finmath.fouriermethod.models.HestonModel(description);
 	}
-
 }

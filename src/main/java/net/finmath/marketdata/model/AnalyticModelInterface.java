@@ -14,14 +14,14 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
-import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.Model;
 
 /**
  * A collection of objects representing analytic valuations, i.e., curves and volatility surfaces.
  * 
  * @author Christian Fries
  */
-public interface AnalyticModelInterface extends ModelInterface, Cloneable {
+public interface AnalyticModelInterface extends Model, Cloneable {
 
 	/**
 	 * Get a curve by a given curve name.

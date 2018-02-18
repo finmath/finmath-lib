@@ -6,7 +6,7 @@
 
 package net.finmath.experimental.model.implementation;
 
-import net.finmath.experimental.model.SingleAssetProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
 
 /**
  * @author Christian Fries

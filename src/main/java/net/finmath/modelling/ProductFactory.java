@@ -4,7 +4,7 @@
  * Created on 09.02.2018
  */
 
-package net.finmath.experimental.model;
+package net.finmath.modelling;
 
 /**
  * 

@@ -14,7 +14,7 @@ import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
 import net.finmath.analytic.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.analytic.model.volatilities.VolatilitySurfaceInterface;
-import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.Model;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -22,7 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  */
-public interface AnalyticModelInterface extends ModelInterface, Cloneable {
+public interface AnalyticModelInterface extends Model, Cloneable {
 
 	RandomVariableInterface getRandomVariableForConstant(double value);
 	
