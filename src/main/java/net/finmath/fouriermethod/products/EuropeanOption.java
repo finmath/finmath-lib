@@ -39,10 +39,12 @@ public class EuropeanOption extends AbstractProductFourierTransform implements P
 	private final double strike;
 	
 	/**
-	 * @param description
+	 * Create the product from a descriptor.
+	 * 
+	 * @param descriptor A descriptor of the product.
 	 */
-	public EuropeanOption(SingleAssetEuropeanOptionProductDescriptor description) {
-		this(description.getUnderlyingName(), description.getMaturity(), description.getStrike());
+	public EuropeanOption(SingleAssetEuropeanOptionProductDescriptor descriptor) {
+		this(descriptor.getUnderlyingName(), descriptor.getMaturity(), descriptor.getStrike());
 	}
 
 	public EuropeanOption(String underlyingName, double maturity, double strike) {

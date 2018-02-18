@@ -115,7 +115,11 @@ public class HestonModel extends AbstractModel {
 	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[2];
 
 	/**
-	 * @param descriptor
+	 * Create the model from a descriptor.
+	 * 
+	 * @param descriptor A descriptor of the product.
+	 * @param scheme The scheme.
+	 * @param randomVariableFactory A random variable factory to be used for the parameters.
 	 */
 	public HestonModel(HestonModelDescriptor descriptor, 			Scheme scheme,
 			AbstractRandomVariableFactory randomVariableFactory
