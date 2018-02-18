@@ -11,10 +11,10 @@ import java.util.Map;
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.modelling.Model;
 import net.finmath.modelling.Product;
+import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 
 /**
  * Implements valuation of a European option on a single asset.

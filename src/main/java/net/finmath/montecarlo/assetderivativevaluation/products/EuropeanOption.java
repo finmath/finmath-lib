@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.experimental.model.implementation.SingleAssetEuropeanOptionProductDescriptor;
 import net.finmath.modelling.Model;
 import net.finmath.modelling.Product;
+import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 

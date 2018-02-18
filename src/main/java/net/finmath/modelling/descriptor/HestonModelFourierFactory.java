@@ -4,7 +4,7 @@
  * Created on 09.02.2018
  */
 
-package net.finmath.experimental.model.implementation;
+package net.finmath.modelling.descriptor;
 
 import net.finmath.modelling.Model;
 import net.finmath.modelling.ModelFactory;

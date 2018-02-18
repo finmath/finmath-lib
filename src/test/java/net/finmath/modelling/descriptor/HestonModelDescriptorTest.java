@@ -4,7 +4,7 @@
  * Created on 17.02.2018
  */
 
-package net.finmath.experimental.model.implementation;
+package net.finmath.modelling.descriptor;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -18,6 +18,10 @@ import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.modelling.Model;
 import net.finmath.modelling.Product;
 import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.descriptor.HestonModelDescriptor;
+import net.finmath.modelling.descriptor.HestonModelFourierFactory;
+import net.finmath.modelling.descriptor.HestonModelMonteCarloFactory;
+import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
