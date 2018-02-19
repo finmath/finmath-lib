@@ -41,7 +41,7 @@
 
 		<menu name="Concepts">
 			<item name="Automatic Tracking of Measurability" href="concepts/automatictrackingofmeasurability" />
-			<item name="Separation of Product and Model and Numerical Method" href="separationofproductandmodel" />
+			<item name="Separation of Product and Model and Numerical Method" href="concepts/separationofproductandmodel" />
 		</menu>
 		
 		<menu name="Usages">
