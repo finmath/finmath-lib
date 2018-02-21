@@ -6,9 +6,10 @@
 package net.finmath.interpolation;
 
 import java.util.Arrays;
+import java.util.function.BiFunction;
 
 /**
- * Simple bi-linear interpolation of data point \( z_{i,j} \) over a Cartesian grid \( (x_{i},y_{j}) \).
+ * Simple bi-linear interpolation of data points \( z_{i,j} \) over a Cartesian grid \( (x_{i},y_{j}) \).
  * 
  * The interpolation function is
  * \[
@@ -22,7 +23,7 @@ import java.util.Arrays;
  * 
  * @author Christian Fries
  */
-public class BiLinearInterpolation {
+public class BiLinearInterpolation implements BiFunction<Double, Double, Double> {
 
 	private final double x[];
 	private final double y[];
@@ -33,6 +34,11 @@ public class BiLinearInterpolation {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+
+	@Override
+	public Double apply(Double x, Double y) {
+		return getValue(x, y);
 	}
 
 	double getValue(double x, double y) {
