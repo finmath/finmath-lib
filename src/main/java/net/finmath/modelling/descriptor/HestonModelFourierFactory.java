@@ -21,7 +21,7 @@ public class HestonModelFourierFactory implements ModelFactory<HestonModelDescri
 	}
 
 	@Override
-	public Model<HestonModelDescriptor> getModelFromDescription(HestonModelDescriptor description) {
-		return new net.finmath.fouriermethod.models.HestonModel(description);
+	public Model<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor descriptor) {
+		return new net.finmath.fouriermethod.models.HestonModel(descriptor);
 	}
 }

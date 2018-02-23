@@ -16,8 +16,8 @@ public interface ProductFactory<T extends ProductDescriptor> {
 	/**
 	 * Constructs the product from a given product descriptor.
 	 * 
-	 * @param description A product descriptor.
+	 * @param descriptor A product descriptor.
 	 * @return An instance of the product describable by this descriptor.
 	 */
-	Product<?> getProductFromDescription(T description);
+	Product<? extends T> getProductFromDescription(T descriptor);
 }

@@ -39,9 +39,11 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 
 
 	@Override
-	public Model<HestonModelDescriptor> getModelFromDescription(HestonModelDescriptor descriptor) {
+	public Model<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
 		class HestonMonteCarloModel extends MonteCarloAssetModel implements Model<HestonModelDescriptor> {
 
+			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
+			
 			/**
 			 * @param model
 			 * @param process
@@ -52,17 +54,23 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			
 			@Override
 			public HestonModelDescriptor getDescriptor() {
-				return descriptor;
+				return modelDescriptor;
 			}
 
 			@Override
-			public Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor) {
-				return (new SingleAssetMonteCarloProductFactory()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+			public Product<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+				if(productDescriptor instanceof SingleAssetProductDescriptor) {
+					return productFactory.getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+				}
+				else {
+					String name = modelDescriptor.name();
+					throw new IllegalArgumentException("Unsupported product type " + name);
+				}
 			}	
 		};
-		
+
 		return new HestonMonteCarloModel(
-				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(descriptor, scheme, randomVariableFactory), 
+				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(modelDescriptor, scheme, randomVariableFactory), 
 				new ProcessEulerScheme(brownianMotion)
 				);
 	}

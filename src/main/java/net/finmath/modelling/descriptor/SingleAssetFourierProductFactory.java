@@ -22,15 +22,16 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 	}
 
 	@Override
-	public Product<?> getProductFromDescription(SingleAssetProductDescriptor descriptor) {
+	public Product<? extends SingleAssetProductDescriptor> getProductFromDescription(SingleAssetProductDescriptor descriptor) {
 
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
-			Product<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.fouriermethod.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
+			final Product<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.fouriermethod.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
 			return product;
 		}
 		else {
 			String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}
+
 	}
 }

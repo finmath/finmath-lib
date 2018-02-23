@@ -231,19 +231,13 @@ public class HestonModel implements Model<HestonModelDescriptor>, ProcessCharact
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.experimental.model.Model#getDescriptor()
-	 */
 	@Override
 	public HestonModelDescriptor getDescriptor() {
 		return new HestonModelDescriptor(referenceDate, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.experimental.model.Model#getProductFromDesciptor(net.finmath.experimental.model.ProductDescriptor)
-	 */
 	@Override
-	public Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+	public Product<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
 		return (new SingleAssetFourierProductFactory()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
 	}
 }

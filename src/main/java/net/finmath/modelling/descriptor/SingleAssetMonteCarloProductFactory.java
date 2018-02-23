@@ -15,14 +15,8 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
  */
 public class SingleAssetMonteCarloProductFactory implements ProductFactory<SingleAssetProductDescriptor> {
 
-	/**
-	 * Create factory.
-	 */
-	public SingleAssetMonteCarloProductFactory() {
-	}
-
 	@Override
-	public Product<?> getProductFromDescription(SingleAssetProductDescriptor descriptor) {
+	public Product<? extends SingleAssetProductDescriptor> getProductFromDescription(SingleAssetProductDescriptor descriptor) {
 
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
 			Product<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);

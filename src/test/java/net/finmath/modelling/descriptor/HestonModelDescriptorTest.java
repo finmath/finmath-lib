@@ -15,20 +15,16 @@ import org.junit.Test;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.Model;
 import net.finmath.modelling.Product;
 import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.descriptor.HestonModelDescriptor;
-import net.finmath.modelling.descriptor.HestonModelFourierFactory;
-import net.finmath.modelling.descriptor.HestonModelMonteCarloFactory;
-import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 
 /**
  * Unit test creating a Heston model and a European option from corresponding model descriptors and product descriptors
@@ -78,7 +74,7 @@ public class HestonModelDescriptorTest {
 		 */
 
 		// Create Fourier implementation of Heston model
-		Model<?> hestonModelFourier = (new HestonModelFourierFactory()).getModelFromDescription(hestonModelDescriptor);
+		Model<?> hestonModelFourier = (new HestonModelFourierFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
 		Product<?> europeanOptionFourier = hestonModelFourier.getProductFromDesciptor(europeanOptionDescriptor);
@@ -98,7 +94,7 @@ public class HestonModelDescriptorTest {
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 		
 		// Create Fourier implementation of Heston model
-		Model<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescription(hestonModelDescriptor);
+		Model<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
 		Product<?> europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDesciptor(europeanOptionDescriptor);

@@ -13,7 +13,7 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
  *
  */
 public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetProductDescriptor {
-	
+
 	private static final String productName = "Single asset European option";
 	
 	private final String underlyingName;
@@ -57,5 +57,4 @@ public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetPr
 	public Double getStrike() {
 		return strike;
 	}
-
 }

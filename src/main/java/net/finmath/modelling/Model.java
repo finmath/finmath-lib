@@ -20,7 +20,6 @@ public interface Model<T extends ModelDescriptor> {
 	 * @return The model descriptor of this model.
 	 */
 	default T getDescriptor() { throw new UnsupportedOperationException(); }
-	
 
 	/**
 	 * Construct a product from a product descriptor, which may be valued by this mmodel.
@@ -28,5 +27,5 @@ public interface Model<T extends ModelDescriptor> {
 	 * @param productDescriptor Given product descriptor.
 	 * @return An instance of a product implementation.
 	 */
-	default Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor) { throw new UnsupportedOperationException(); }
+	default Product<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) { throw new UnsupportedOperationException(); }
 }
