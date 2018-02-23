@@ -74,7 +74,7 @@ public interface Model<T extends ModelDescriptor> {
 ```
 
 ## Product and Model Factories
-Product and models are constructed by implmenting factories. Factories carry the implementation specific part of the model or product. For example: A Fourier transform implementation of a Heston model requires the specification of the integration method used (line of integration, number of intergration points, etc.). A Monte-Carlo implementatio of a Heston model requies the specification of the Brownian driver (random number generator) and numerical scheme (Euler scheme with truncation, etc.).
+Product and models are constructed by implementing factories. Factories carry the implementation specific part of the model or product. For example: A Fourier transform implementation of a Heston model requires the specification of the integration method used (line of integration, number of integration points, etc.). A Monte-Carlo implementation of a Heston model requires the specification of the Brownian driver (random number generator) and numerical scheme (Euler scheme with truncation, etc.).
 
 For this reason we have two additional interfaces
 
@@ -84,16 +84,16 @@ public interface ProductFactory<T extends ProductDescriptor> {
 	/**
 	 * Constructs the product from a given product descriptor.
 	 * 
-	 * @param description A product descriptor.
+	 * @param descriptor A product descriptor.
 	 * @return An instance of the product describable by this descriptor.
 	 */
-	Product<?> getProductFromDescription(T description);
+	Product<? extends T> getProductFromDescription(T descriptor);
 }
 ```
 ```
 public interface ModelFactory<T extends ModelDescriptor> {
-	
-		Model<?> getModelFromDescription(T description);
+
+	Model<? extends T> getModelFromDescriptor(T description);
 }
 ```
 
