@@ -37,19 +37,39 @@ interface ModelDescriptor {
 public interface Product<T extends ProductDescriptor> {
 
 	/**
-	 * Return a product descriptor representing this model.
+	 * Return a product descriptor representing this product.
 	 * 
 	 * @return The product descriptor of this product.
 	 */
 	T getDescriptor();
 
 	/**
-	 * Valuation of this product under a given model.
+	 * Return the valuation of the product using the given model.
 	 * 
-	 * @param model The model under which the product will be valued.
-	 * @return Result map.
+	 * Implement this method using a checked cast of the model to a derived model for which the product
+	 * provides a valuation algorithm. Example: an interest rate product requires that the passed model
+	 * object implements the interface of an interest rate model. Since there is no polymorphism on
+	 * arguments (see Double Dynamic Dispatch), we reply on a checked cast.
+	 * 
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param model The model under which the product is valued.
+	 * @return The value of the product using the given model.
 	 */
-	Map<String, Object> getValue(Model<?> model);
+	Object getValue(double evaluationTime, Model<?> model);
+
+	/**
+	 * Return the valuation of the product using the given model.
+	 * 
+	 * Implement this method using a checked cast of the model to a derived model for which the product
+	 * provides a valuation algorithm. Example: an interest rate product requires that the passed model
+	 * object implements the interface of an interest rate model. Since there is no polymorphism on
+	 * arguments (see Double Dynamic Dispatch), we reply on a checked cast.
+	 * 
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param model The model under which the product is valued.
+	 * @return Map containing the value of the product using the given model.
+	 */
+	Map<String, Object> getValues(double evaluationTime, Model<?> model);
 }
 ```
 ```
