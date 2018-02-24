@@ -17,7 +17,7 @@ The core concept here is to provide data, products, models and implementations (
 To allow the construction of products for a given model implementation without knowing the actual model and product implementation, models provide a product factory. That is all model implementations provide a method
 
 ```
-	Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor);
+	Product<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor);
 ```
 
 ## Core Interfaces
@@ -69,7 +69,7 @@ public interface Model<T extends ModelDescriptor> {
 	 * @param productDescriptor Given product descriptor.
 	 * @return An instance of a product implementation.
 	 */
-	Product<?> getProductFromDesciptor(ProductDescriptor productDescriptor);
+	Product<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor);
 }
 ```
 
@@ -97,7 +97,7 @@ public interface ModelFactory<T extends ModelDescriptor> {
 }
 ```
 
-## Calibration Roundtrip
+## Calibration Round Trip
 The setup allows to perform calibrations using specific calibration products and numerical methods to be re-used in more general models. Consider for example an Equity Heston model implemented as Monte-Carlo simulation. While brute-force Monte-Carlo calibration is expensive, fast an accurate valuations (and hence calibrations) exists for a restricted set of products where fast Fourier transforms can be utilized. Hence, calibration of the Monte-Carlo Heston model can be performed in the following steps:
 
 * Create a Fourier transform implementation of the Heston model.
@@ -108,3 +108,14 @@ The setup allows to perform calibrations using specific calibration products and
 * Create the Monte-Carlo Heston model from the model descriptor of the calibrated model.
 * The Monte-Carlo model will create Monte-Carlo implementations of the calibration products using the Monte-Carlo Heston model’s product factory.
 * Check that the Monte-Carlo Heston model is calibrated by checking the calibration products.
+
+## Specifications specific to the Numerical Method
+
+The implementation of a model may require additional specifications.
+These additional specificaitons are *not* part of the model descriptor. They belong to the model factory.
+
+### Example
+
+A standard Black Scholes model with constant coefficients is fully determined by the inital value, the drift and the volatility.
+A Monte-Carlo simulation of this model requires a time-diescretization of the Euler-Scheme, the number of paths, specifcations related to the random number generators, etc., which are part of the BlackScholesModelMonteCarloFactory.
+A Fourier transform implementation of this model requires specification of the ingration method applied to the characteristic functions, which are part of the BlackScholesModelFourierFactory.
