@@ -34,7 +34,9 @@ The finmath lib libraries provides implementations of methodologies related to m
     - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the LIBOR market model
-- Valuation of complex derivatives (e.g. Bermudan/multi-callables)
+- Valuation of complex derivatives
+    - Bermudan options / multi-callables lower bound via regression estimation of the conditional expectation
+    - Bermudan options / multi-callables upper bound via dual method
 - Hedge Simulation
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
