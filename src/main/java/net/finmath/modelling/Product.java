@@ -17,7 +17,7 @@ import java.util.Map;
 public interface Product<T extends ProductDescriptor> {
 
 	/**
-	 * Return a product descriptor representing this model.
+	 * Return a product descriptor representing this product.
 	 * 
 	 * @return The product descriptor of this product.
 	 */
