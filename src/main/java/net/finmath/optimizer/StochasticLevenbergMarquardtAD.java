@@ -5,25 +5,10 @@
  */
 package net.finmath.optimizer;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import net.finmath.functions.LinearAlgebra;
-import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAAD;
-import net.finmath.optimizer.StochasticLevenbergMarquardt.RegularizationMethod;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**

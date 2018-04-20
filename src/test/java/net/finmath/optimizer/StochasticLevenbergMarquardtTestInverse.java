@@ -2,9 +2,9 @@ package net.finmath.optimizer;
 
 import java.util.Arrays;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import org.junit.Assert;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 

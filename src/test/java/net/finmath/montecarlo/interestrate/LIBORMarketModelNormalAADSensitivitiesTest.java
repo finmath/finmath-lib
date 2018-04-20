@@ -49,10 +49,11 @@ import net.finmath.time.TimeDiscretization;
 @RunWith(Parameterized.class)
 public class LIBORMarketModelNormalAADSensitivitiesTest {
 
-	private final static int numberOfPaths		= 5000;
+	private final static int numberOfPaths		= 15000;
 	private final static int numberOfFactors	= 1;
 
 	private static DecimalFormat formatReal1		= new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
+	private static DecimalFormat formatSci		= new DecimalFormat(" 0.0000E0", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	@Parameters(name="{0}")
@@ -149,6 +150,34 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
 				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
 		});
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
 
 		return testParameters;
 	}
@@ -190,6 +219,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
 
+		TimeDiscretization timeDiscretizationSmall = new TimeDiscretization(0.0, 8, 8.0);
+
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
@@ -200,11 +231,15 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) Arrays.fill(volatilityMatrix[timeIndex], d);
 		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatilityMatrix);
 
+		volatilityMatrix = new double[timeDiscretizationSmall.getNumberOfTimeSteps()][timeDiscretizationSmall.getNumberOfTimeSteps()];
+		for(int timeIndex=0; timeIndex<timeDiscretizationSmall.getNumberOfTimeSteps(); timeIndex++) Arrays.fill(volatilityMatrix[timeIndex], d);
+		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretizationSmall, timeDiscretizationSmall, volatilityMatrix);
+
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
 		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
-				timeDiscretization, liborPeriodDiscretization, numberOfFactors,
+				timeDiscretizationSmall, timeDiscretizationSmall, numberOfFactors,
 				correlationDecayParam);
 
 
@@ -212,8 +247,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 * Combine volatility model and correlation model to a covariance model
 		 */
 		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
-				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization,
-						liborPeriodDiscretization, volatilityModel, correlationModel);
+				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationSmall,
+						timeDiscretizationSmall, volatilityModel, correlationModel);
 
 		// BlendedLocalVolatlityModel (future extension)
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
@@ -294,7 +329,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 					}
 //					System.out.println(volatilityModel.getTimeDiscretization().getTime(timeIndex) + "\t" + volatilityModel.getLiborPeriodDiscretization().getTime(componentIndex) + "\t" + modelVega);
 					modelVegas[timeIndex][componentIndex] = modelVega;
-					System.out.print(modelVega + "\t");
+//					System.out.print(formatSci.format(modelVega) + "\t");
 				}
 				System.out.println("");
 			}
@@ -305,6 +340,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		/*
 		 * Test results against alternative implementation
 		 */
+		liborMarketModel = null;
 		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */);
 	
 		/*
@@ -312,7 +348,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 		long timingCalculation2Start = System.currentTimeMillis();
 
-		double valueSimulation2 = product.getValue(liborMarketModelPlain);
+		double valueSimulation2 = 0.0;//product.getValue(liborMarketModelPlain);
 
 		long timingCalculation2End = System.currentTimeMillis();
 

@@ -7,8 +7,6 @@ package net.finmath.montecarlo.interestrate.covariancemodels;
 
 import java.util.ArrayList;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
