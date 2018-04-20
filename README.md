@@ -8,6 +8,8 @@ About finmath lib
 
 ****************************************
 
+** Project home page: http://finmath.net/finmath-lib **
+
 The finmath lib libraries provides (JVM) implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
 - General numerical algorithms like
