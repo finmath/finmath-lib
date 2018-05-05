@@ -76,7 +76,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		/*
 		 * Build index map
 		 */
-		double maxMaturity = timeToMaturityDiscretization.getTime(timeToMaturityDiscretization.getNumberOfTimes()-1);
+		double maxMaturity = liborPeriodDiscretization.getTime(liborPeriodDiscretization.getNumberOfTimes()-1);
 		int volatilityIndex = 0;
 		for(int simulationTime=0; simulationTime<simulationTimeDiscretization.getNumberOfTimes(); simulationTime++) {
 			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<Integer, Integer>();
@@ -150,25 +150,22 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 			int timeIndexSimulationTime = simulationTimeDiscretization.getTimeIndex(time);
 			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = -timeIndexSimulationTime-1-1;
 			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = 0;
-			if(timeIndexSimulationTime > simulationTimeDiscretization.getNumberOfTimes()) timeIndexSimulationTime--;
+			if(timeIndexSimulationTime >= simulationTimeDiscretization.getNumberOfTimes()) timeIndexSimulationTime--;
 
 			int timeIndexTimeToMaturity = timeToMaturityDiscretization.getTimeIndex(timeToMaturity);
 			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
 			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = 0;
-			if(timeIndexTimeToMaturity > timeToMaturityDiscretization.getNumberOfTimes()) timeIndexTimeToMaturity--;
+			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) timeIndexTimeToMaturity--;
 
- 			synchronized (this) {
+			synchronized (volatilityRandomVariables) {
 
-			RandomVariableInterface volatilityRandomVariable = volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity];
-			if(volatilityRandomVariable == null) {
-				volatilityInstanteaneous = volatility[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];				
-				volatilityRandomVariable = randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);
-				volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity] = volatilityRandomVariable;
-			}
-
-//			volatilityInstanteaneous = volatility[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];				
-//			return randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);
-			return volatilityRandomVariable;
+				RandomVariableInterface volatilityRandomVariable = volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity];
+				if(volatilityRandomVariable == null) {
+					volatilityInstanteaneous = volatility[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];				
+					volatilityRandomVariable = randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);
+					volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity] = volatilityRandomVariable;
+				}
+				return volatilityRandomVariable;
 			}
 		}
 	}
