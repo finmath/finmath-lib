@@ -322,7 +322,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
         double[] realizationsSorted = getRealizations().clone();
         Arrays.sort(realizationsSorted);
 
-        int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * (1-quantile) - 1), 0), size()-1);
+        int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * quantile - 1), 0), size()-1);
 
         return realizationsSorted[indexOfQuantileValue];
     }

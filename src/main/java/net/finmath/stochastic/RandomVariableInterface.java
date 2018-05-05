@@ -209,7 +209,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * Returns the quantile value for this given random variable, i.e., the value x such that P(this &lt; x) = quantile,
 	 * where P denotes the probability measure.
 	 * The method will consider picewise constant values (with constant extrapolation) in the random variable.
-	 * That is getQuantile(0) and getQuantile(1) will return the largest and smallest value.
+	 * That is getQuantile(0) wiil return the smallest value and getQuantile(1) will return the largest value.
 	 * 
 	 * @param quantile The quantile level.
 	 * @return The quantile value assuming equi-distribution.

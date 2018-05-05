@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo;
 
+import org.apache.commons.math3.random.MersenneTwister;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -103,5 +104,40 @@ public class RandomVariableTest {
 
 		double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
 		Assert.assertTrue(check == 0.0);
+	}
+	
+	/**
+	 * Testing quantiles of normal distribution.
+	 * Based on feedback provided by Alessandro Gnoatto and a student of him.
+	 */
+	@Test
+	public void testGetQuantile() {
+		
+		final int seed = 3141;
+		final int numberOfSamplePoints = 10000000;
+		
+		MersenneTwister mersenneTwister = new MersenneTwister(seed);
+		double[] samples = new double[numberOfSamplePoints];
+		for(int i = 0; i< numberOfSamplePoints; i++) {
+			double randomNumber = mersenneTwister.nextDouble();
+			samples[i] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(randomNumber);
+		}
+		
+		RandomVariableInterface normalDistributedRandomVariable = new RandomVariable(0.0,samples);
+		
+		double q00 = normalDistributedRandomVariable.getQuantile(0.0);
+		Assert.assertEquals(normalDistributedRandomVariable.getMin(), q00, 1E-12);
+
+		double q05 = normalDistributedRandomVariable.getQuantile(0.05);
+		Assert.assertEquals(-1.645, q05, 1E-3);
+
+		double q50 = normalDistributedRandomVariable.getQuantile(0.5);
+		Assert.assertEquals(0, q50, 2E-4);
+
+		double q95 = normalDistributedRandomVariable.getQuantile(0.95);
+		Assert.assertEquals(1.645, q95, 1E-3);
+
+		double q99 = normalDistributedRandomVariable.getQuantile(0.99);
+		Assert.assertEquals(2.33, q99, 1E-2);
 	}
 }

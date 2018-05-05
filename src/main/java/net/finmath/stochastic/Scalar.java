@@ -130,29 +130,27 @@ public class Scalar implements RandomVariableInterface {
 
 	@Override
 	public double getQuantile(double quantile) {
-		return 0;
+		return value;
 	}
 
 	@Override
 	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
-		return 0;
+		return value;
 	}
 
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
-		return 0;
+		return value;
 	}
 
 	@Override
 	public double[] getHistogram(double[] intervalPoints) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

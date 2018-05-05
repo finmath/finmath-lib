@@ -9,6 +9,7 @@ finmath lib Release Notes
 
 ### Monte-Carlo Simulation
 
+- API Change: The implementation of the method getQuantile of RandomVariableInterface has been changed to comply with its JavaDoc. In case backward compatibbility is requied replace getQuantile(x) by getQuantile(1.0-x)
 - Performance improvement by caching of SVD solver. This has some relevance for the valuation of forward sensitivities or MVA, see https://ssrn.com/abstract=3018165
 - Small improvement to exception message.
 
