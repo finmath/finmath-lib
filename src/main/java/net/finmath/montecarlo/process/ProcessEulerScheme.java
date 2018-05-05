@@ -179,7 +179,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 			}
 			catch(Exception e) {
-				throw new RuntimeException("Drift calculaton failed at time " + getTime(timeIndex - 1), e);
+				throw new RuntimeException("Drift calculaton failed at time " + getTime(timeIndex - 1) + ". See cause for details.", e);
 			}
 
 			// Calculate new realization
