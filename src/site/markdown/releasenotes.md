@@ -5,6 +5,23 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.2.2 (05.05.2018)
+
+### Monte-Carlo Simulation
+
+- Performance improvement by caching of SVD solver. This has some relevance for the valuation of forward sensitivities or MVA, see https://ssrn.com/abstract=3018165
+- Small improvement to exception message.
+
+### LIBOR Market Model
+
+- Fixed bug which could lead to race condition when performing a multi-threadded calibration of the correlation.
+- LMM covariance model is serializable using Java standard serializer.
+
+### General Improvements
+
+- Improved JavaDoc.
+- Updated maven plug-ins.
+
 ## 3.2.0 (18.02.2018)
 
 ### General Refactoring - Interfaces (see Concepts / Separation of Model and Products)
