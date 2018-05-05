@@ -20,6 +20,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
+	private static final long serialVersionUID = -8017326082950665302L;
+
 	private final AbstractRandomVariableFactory	randomVariableFactory;
 	private final double[][]		volatilityMatrix;
 	

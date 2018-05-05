@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.io.Serializable;
+
 import net.finmath.time.TimeDiscretizationInterface;
 
 
@@ -18,8 +20,11 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  */
-public abstract class LIBORCorrelationModel {
-    final TimeDiscretizationInterface	timeDiscretization;
+public abstract class LIBORCorrelationModel implements Serializable {
+
+	private static final long serialVersionUID = -6780424108470638825L;
+
+	final TimeDiscretizationInterface	timeDiscretization;
     final TimeDiscretizationInterface	liborPeriodDiscretization;
 	
 	public LIBORCorrelationModel(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization) {

@@ -53,6 +53,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel {
 
+	private static final long serialVersionUID = 7015719361182945464L;
+
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
 	/**

@@ -42,6 +42,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 
+	private static final long serialVersionUID = -1350610395956564302L;
+
 	private AbstractRandomVariableFactory randomVariableFactory;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private RandomVariableInterface displacement;

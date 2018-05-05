@@ -35,6 +35,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends LIBORVolatilityModel {
 
+	private static final long serialVersionUID = -1613728266481870311L;
+
 	private double a;
 	private double b;
 	private double c;

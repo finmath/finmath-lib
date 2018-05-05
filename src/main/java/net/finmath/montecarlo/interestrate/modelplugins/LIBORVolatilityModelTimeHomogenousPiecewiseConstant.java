@@ -18,6 +18,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVolatilityModel {
 
+	private static final long serialVersionUID = -1942151065049237807L;
+
 	private final TimeDiscretizationInterface timeToMaturityDiscretization;
 	private double[] volatility;
 

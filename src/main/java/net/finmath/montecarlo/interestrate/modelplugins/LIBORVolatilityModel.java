@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.io.Serializable;
+
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -18,8 +20,11 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  */
-public abstract class LIBORVolatilityModel {
-    private TimeDiscretizationInterface	timeDiscretization;
+public abstract class LIBORVolatilityModel implements Serializable {
+
+	private static final long serialVersionUID = 5481713000841480672L;
+
+	private TimeDiscretizationInterface	timeDiscretization;
     private TimeDiscretizationInterface	liborPeriodDiscretization;
 	
     // You cannot instantiate the class empty

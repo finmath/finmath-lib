@@ -24,6 +24,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
 	
+	private static final long serialVersionUID = -8218022418731667531L;
+
 	private final	int			numberOfFactors;
 	private 		double		a;
 	private final	boolean		isCalibrateable;

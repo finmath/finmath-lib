@@ -15,7 +15,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolatilityModel {
 
-    private double a;
+	private static final long serialVersionUID = 8398006103722351360L;
+
+	private double a;
     private double b;
 
     private boolean isCalibrateable = false;
