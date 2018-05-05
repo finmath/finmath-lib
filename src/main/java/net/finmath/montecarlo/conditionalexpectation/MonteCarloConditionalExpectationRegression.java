@@ -5,7 +5,11 @@
  */
 package net.finmath.montecarlo.conditionalexpectation;
 
-import net.finmath.functions.LinearAlgebra;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
+
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -29,15 +33,23 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
 	private RandomVariableInterface[]    basisFunctionsPredictor		= null;
     
+	private transient DecompositionSolver solver;
+	private final transient Object solverLock;
+
+	public MonteCarloConditionalExpectationRegression() {
+		super();
+		solverLock = new Object();	// Lock for LazyInit of solver.
+	}
+
 	/**
 	 * Creates a class for conditional expectation estimation.
 	 * 
 	 * @param basisFunctions A vector of random variables to be used as basis functions.
 	 */
 	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctions) {
-		super();
-		this.basisFunctionsEstimator = basisFunctions;
-		this.basisFunctionsPredictor = basisFunctions;
+		this();
+		this.basisFunctionsEstimator = getNonZeroBasisFunctions(basisFunctions);
+		this.basisFunctionsPredictor = basisFunctionsEstimator;
 	}
 
 	/**
@@ -47,9 +59,9 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
 	 */
 	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctionsEstimator, RandomVariableInterface[] basisFunctionsPredictor) {
-		super();
-		this.basisFunctionsEstimator = basisFunctionsEstimator;
-		this.basisFunctionsPredictor = basisFunctionsPredictor;
+		this();
+		this.basisFunctionsEstimator = getNonZeroBasisFunctions(basisFunctionsEstimator);
+		this.basisFunctionsPredictor = getNonZeroBasisFunctions(basisFunctionsPredictor);
 	}
 
 	@Override
@@ -58,7 +70,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
 		// Calculate estimate, i.e. X x
-		RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
+		RandomVariableInterface[] basisFunctions = basisFunctionsPredictor;
 		RandomVariableInterface conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
 		for(int i=1; i<basisFunctions.length; i++) {
 			conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
@@ -76,13 +88,20 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 */
 	public double[] getLinearRegressionParameters(RandomVariableInterface dependents) {
 
-		// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
-		RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsEstimator);
-		double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
-		for(int i=0; i<basisFunctions.length; i++) {
-			for(int j=i; j<basisFunctions.length; j++) {
-				XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
-				XTX[j][i] = XTX[i][j];												// Symmetric matrix
+		RandomVariableInterface[] basisFunctions = basisFunctionsEstimator;
+
+		synchronized (solverLock) {
+			if(solver == null) {
+				// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
+				double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
+				for(int i=0; i<basisFunctions.length; i++) {
+					for(int j=i; j<basisFunctions.length; j++) {
+						XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
+						XTX[j][i] = XTX[i][j];												// Symmetric matrix
+					}
+				}
+
+				solver = new SingularValueDecomposition(new Array2DRowRealMatrix(XTX, false)).getSolver();
 			}
 		}
 
@@ -93,9 +112,8 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		}
 
 		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
-		// @TODO A performance improvement is possible here by caching the SVD decomposition of the basis functions
-		double[] linearRegressionParameters = LinearAlgebra.solveLinearEquationLeastSquare(XTX, XTy);
-
+		double[] linearRegressionParameters = solver.solve(new ArrayRealVector(XTy)).toArray();
+		
 		return linearRegressionParameters;
 	}
 
