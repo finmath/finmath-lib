@@ -6,9 +6,14 @@
 package net.finmath.montecarlo;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.functions.JarqueBeraTest;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -19,11 +24,28 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * 
  */
+@RunWith(Parameterized.class)
 public class BrownianMotionTest {
 
 	static final DecimalFormat formatterReal2	= new DecimalFormat(" 0.00");
 	static final DecimalFormat formatterSci4	= new DecimalFormat(" 0.0000E00;-0.0000E00");
 	static final DecimalFormat formatterSci1	= new DecimalFormat(" 0E00;-0.E00");
+
+	private AbstractRandomVariableFactory randomVariableFactory;
+
+	@Parameters(name="{0}")
+	public static Collection<Object[]> generateData()
+	{
+		return Arrays.asList(new Object[][] {
+			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */)},
+			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)},
+		});
+	};
+
+	public BrownianMotionTest(AbstractRandomVariableFactory randomVariableFactory) {
+		super();
+		this.randomVariableFactory = randomVariableFactory;
+	}
 
 	@Test
 	public void testScalarValuedBrownianMotionTerminalDistribution() {
@@ -44,7 +66,8 @@ public class BrownianMotionTest {
 					timeDiscretization,
 					1,
 					numberOfPaths,
-					seed
+					seed,
+					randomVariableFactory
 			);
 			
 			System.out.print("\tNumber of path = " + formatterSci1.format(numberOfPaths) + "\t ");
@@ -83,7 +106,8 @@ public class BrownianMotionTest {
 				timeDiscretization,
 				1,
 				numberOfPaths,
-				seed
+				seed,
+				randomVariableFactory
 		);
 		
 		JarqueBeraTest jb = new JarqueBeraTest();
@@ -126,7 +150,8 @@ public class BrownianMotionTest {
 				timeDiscretization,
 				2,
 				numberOfPaths,
-				seed
+				seed,
+				randomVariableFactory
 		);
 		
 		System.out.println("Test of average and variance of the integral of (Delta W)^2.");
