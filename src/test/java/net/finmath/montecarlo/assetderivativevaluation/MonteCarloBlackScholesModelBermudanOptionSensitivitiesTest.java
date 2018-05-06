@@ -36,7 +36,7 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 	private final double	modelVolatility     = 0.30;
 
 	// Process discretization properties
-	private final int		numberOfPaths		= 20000;
+	private final int		numberOfPaths		= 20000; // 20000; possible, but requires more memory in unit test configuration
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 	
