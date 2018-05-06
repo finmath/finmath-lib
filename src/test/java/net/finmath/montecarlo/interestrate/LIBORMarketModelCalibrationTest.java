@@ -175,8 +175,8 @@ public class LIBORMarketModelCalibrationTest {
 		testProperties.put("SolverType", 			solverType);
 		testProperties.put("ValueUnit", 			valueUnit);
 
-		testProperties.put("numberOfPathsATM", 			(int) 1E3);
-		testProperties.put("numberOfPathsSwaptionSmile",	(int) 1E3);
+		testProperties.put("numberOfPathsATM", 			(int) 500);	// unit test uses low number of path - can be changed.
+		testProperties.put("numberOfPathsSwaptionSmile",	(int) 500);
 
 		testProperties.put("numberOfThreads", 	4); /*max Threads CIP90/91: 16/12 */
 		testProperties.put("maxIterations", 	100);
@@ -208,12 +208,12 @@ public class LIBORMarketModelCalibrationTest {
 		final OptimizerDerivativeType derivativeType 	= (OptimizerDerivativeType) properties.getOrDefault(	"DerivativeType", OptimizerDerivativeType.FINITE_DIFFERENCES); 
 		final OptimizerSolverType solverType 			= (OptimizerSolverType) 	properties.getOrDefault(	"SolverType", OptimizerSolverType.VECTOR); 
 		final int maxIterations 						= (int) properties.getOrDefault("maxIterations", 400); 
-		final long maxRunTimeInMillis 	= (long) 	properties.getOrDefault(	"maxRunTime", (long)6E5 /*10min*/); 
-		final double errorTolerance 	= (double) 	properties.getOrDefault(	"errorTolerance", 0.0);
-		final int numberOfThreads 		= (int) 	properties.getOrDefault(	"numberOfThreads", 2);
-		final int numberOfFactors 		= (int) 	properties.getOrDefault(	"numberOfFactors", 1);
-		final int numberOfPaths 		= (int) 	properties.getOrDefault(	"numberOfPathsATM", (int)1E3);
-		final int seed 					= (int) 	properties.getOrDefault(	"seed", 1234);
+		final long maxRunTimeInMillis 	= (long) 	properties.getOrDefault("maxRunTime", (long)6E5 /*10min*/); 
+		final double errorTolerance 	= (double) 	properties.getOrDefault("errorTolerance", 0.0);
+		final int numberOfThreads 		= (int) 	properties.getOrDefault("numberOfThreads", 2);
+		final int numberOfFactors 		= (int) 	properties.getOrDefault("numberOfFactors", 1);
+		final int numberOfPaths 		= (int) 	properties.getOrDefault("numberOfPathsATM", (int)1E3);
+		final int seed 					= (int) 	properties.getOrDefault("seed", 1234);
 
 
 		StochasticOptimizerFactoryInterface optimizerFactory = (StochasticOptimizerFactoryInterface) properties.get("OptimizerFactory");
