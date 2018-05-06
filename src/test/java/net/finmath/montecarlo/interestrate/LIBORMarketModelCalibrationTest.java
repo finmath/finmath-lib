@@ -420,7 +420,7 @@ public class LIBORMarketModelCalibrationTest {
 
 			evaluateCalibration(liborMarketModelCalibrated, brownianMotion,
 					calibrationItemNames, calibrationItemsVALUE, calibrationItemsVOLATILITYNORMAL,
-					2E-4 /*assertTrueVALUE*/, 1E-4 /*assertTrueVOLATILITYNORMAL*/, 
+					2E-4 /*assertTrueVALUE*/, 2E-4 /*assertTrueVOLATILITYNORMAL*/, 
 					"ATM" + "-" + derivativeType + "-" + optimizerType + "-" + valueUnit + "-" + numberOfPaths);		
 	}
 
