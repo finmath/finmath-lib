@@ -33,8 +33,7 @@ public class RandomVariableTest {
 	{
 		return Arrays.asList(new Object[][] {
 			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */)},
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)},
-			{ new RandomVariableLazyEvaluationFactory()}
+			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)}
 		});
 	};
 
