@@ -44,12 +44,15 @@ import net.finmath.time.TimeDiscretization;
 /**
  * This class tests the LIBOR market model and products.
  * 
+ * The unit test has currently no assert, because a finite difference benchmark would simply take far too long (hours!).
+ * (But I did that benchmark once ;-).
+ * 
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
 public class LIBORMarketModelNormalAADSensitivitiesTest {
 
-	private final static int numberOfPaths		= 15000;
+	private final static int numberOfPaths		= 5000; // 15000; more possible if memory of unit test is increased.
 	private final static int numberOfFactors	= 1;
 
 	private static DecimalFormat formatReal1		= new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
