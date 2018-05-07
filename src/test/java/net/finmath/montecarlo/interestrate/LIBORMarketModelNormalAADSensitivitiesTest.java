@@ -44,7 +44,8 @@ import net.finmath.time.TimeDiscretization;
 /**
  * This class tests the LIBOR market model and products.
  * 
- * The unit test has currently no assert, because a finite difference benchmark would simply take far too long (hours!).
+ * The unit test has currently ony an assert for the valuation,
+ * because a finite difference benchmark would simply take far too long (hours!).
  * (But I did that benchmark once ;-).
  * 
  * @author Christian Fries
@@ -351,7 +352,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 		long timingCalculation2Start = System.currentTimeMillis();
 
-		double valueSimulation2 = 0.0;//product.getValue(liborMarketModelPlain);
+		double valueSimulation2 = product.getValue(liborMarketModelPlain);
 
 		long timingCalculation2End = System.currentTimeMillis();
 
