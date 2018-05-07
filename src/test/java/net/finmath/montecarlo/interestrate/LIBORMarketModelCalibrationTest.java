@@ -184,7 +184,7 @@ public class LIBORMarketModelCalibrationTest {
 
 		//		testProperties.put("maxRunTime", 		(long) (30 * /*min->sec*/ 60 * /*sec->millis*/ 1E3));	
 
-		testProperties.put("stepSize", 	0.0001);
+		testProperties.put("stepSize", 	0.00001);
 
 
 	}
@@ -420,7 +420,8 @@ public class LIBORMarketModelCalibrationTest {
 
 			evaluateCalibration(liborMarketModelCalibrated, brownianMotion,
 					calibrationItemNames, calibrationItemsVALUE, calibrationItemsVOLATILITYNORMAL,
-					2E-4 /*assertTrueVALUE*/, 2E-4 /*assertTrueVOLATILITYNORMAL*/, 
+					valueUnit == ValueUnit.VALUE ? 1E-4 : 1E-2 /*assertTrueVALUE*/,
+					valueUnit == ValueUnit.VOLATILITYNORMAL ? 2E-4 : 1E-2 /*assertTrueVOLATILITYNORMAL*/, 
 					"ATM" + "-" + derivativeType + "-" + optimizerType + "-" + valueUnit + "-" + numberOfPaths);		
 	}
 
