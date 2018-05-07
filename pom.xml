@@ -255,9 +255,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.20</version>
+				<version>2.21.0</version>
 				<configuration>
-					<argLine>-mx2G</argLine>
+					<argLine>-mx4G</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
