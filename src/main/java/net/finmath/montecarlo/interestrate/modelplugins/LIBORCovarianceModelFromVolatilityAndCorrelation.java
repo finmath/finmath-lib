@@ -132,8 +132,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 			System.arraycopy(parameters, parameterIndex, newVolatilityParameter, 0, newVolatilityParameter.length);
 			parameterIndex += newVolatilityParameter.length;
 			if(!Arrays.equals(newVolatilityParameter, volatilityModel.getParameter())) {
-				volatilityModel = ((LIBORVolatilityModel) volatilityModel.clone());
-				volatilityModel.setParameter(newVolatilityParameter);
+				volatilityModel = volatilityModel.getCloneWithModifiedParameter(newVolatilityParameter);
 			}
 		}
 
@@ -143,7 +142,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 			parameterIndex += newCorrelationParameter.length;
 			if(!Arrays.equals(newCorrelationParameter, correlationModel.getParameter())) {
 				correlationModel = ((LIBORCorrelationModel) correlationModel.clone());
-				correlationModel.setParameter(newCorrelationParameter);
+				correlationModel.getCloneWithModifiedParameter(newCorrelationParameter);
 			}
 		}
 		return new LIBORCovarianceModelFromVolatilityAndCorrelation(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), volatilityModel, correlationModel);

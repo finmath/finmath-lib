@@ -18,6 +18,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVolatilityModel {
 
+	private static final long serialVersionUID = -1942151065049237807L;
+
 	private final TimeDiscretizationInterface timeToMaturityDiscretization;
 	private double[] volatility;
 
@@ -46,8 +48,13 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		this.volatility = parameter;
+	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant getCloneWithModifiedParameter(double[] parameter) {
+		return new LIBORVolatilityModelTimeHomogenousPiecewiseConstant(
+				super.getTimeDiscretization(),
+				super.getLiborPeriodDiscretization(),
+				this.timeToMaturityDiscretization,
+				parameter
+				);
 	}
 
 	@Override

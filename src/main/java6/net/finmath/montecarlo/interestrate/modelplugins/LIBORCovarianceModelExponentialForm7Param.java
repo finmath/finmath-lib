@@ -11,6 +11,8 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCovarianceModelParametric {
 
+	private static final long serialVersionUID = -7980504204664006566L;
+
 	private double[] parameter = new double[7];
 
 	private LIBORVolatilityModelMaturityDependentFourParameterExponentialForm	volatilityModel;

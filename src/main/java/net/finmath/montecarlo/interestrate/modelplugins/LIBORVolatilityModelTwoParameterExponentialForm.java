@@ -62,11 +62,16 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		if(!isCalibrateable) return;
+	public LIBORVolatilityModelTwoParameterExponentialForm getCloneWithModifiedParameter(double[] parameter) {
+		if(!isCalibrateable) return this;
 
-		this.a = parameter[0];
-        this.b = parameter[1];
+		return new LIBORVolatilityModelTwoParameterExponentialForm(
+				getTimeDiscretization(),
+				getLiborPeriodDiscretization(),
+				a,
+				b,
+				isCalibrateable
+				);
 	}
 
     /* (non-Javadoc)

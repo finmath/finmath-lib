@@ -6,6 +6,8 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -40,8 +42,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 
+	private static final long serialVersionUID = -1350610395956564302L;
+
+	private AbstractRandomVariableFactory randomVariableFactory;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
-	private double displacement;
+	private RandomVariableInterface displacement;
 
 	private ForwardCurveInterface forwardCurve;
 	
@@ -61,17 +66,46 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 * 
+	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param forwardCurve The given forward curve L<sub>0</sub>
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public BlendedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurveInterface forwardCurve, double displacement, boolean isCalibrateable) {
+	public BlendedLocalVolatilityModel(AbstractRandomVariableFactory randomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurveInterface forwardCurve, double displacement, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
+		
+		this.randomVariableFactory = randomVariableFactory;
 		this.covarianceModel	= covarianceModel;
 		this.forwardCurve		= forwardCurve;
-		this.displacement		= displacement;
+		this.displacement		= randomVariableFactory.createRandomVariable(displacement);
 		this.isCalibrateable	= isCalibrateable;
+	}
+
+	/**
+	 * Displaced diffusion model build on top of a standard covariance model.
+	 * 
+	 * The model performs a linear interpolation of a log-normal model (a = 0) and a normal model (a = 1).
+	 * 
+	 * The model constructed is <i>(a + (1-a)L) F</i> where <i>a</i> is
+	 * the displacement and <i>L</i> is
+	 * the component of the stochastic process and <i>F</i> is the factor loading
+	 * loading from the given covariance model.
+	 * 
+	 * The parameter of this model is a joint parameter vector, where the first
+	 * entry is the displacement and the remaining entries are the parameter vector
+	 * of the given base covariance model.
+	 * 
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model.
+	 * 
+	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
+	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
+	 * @param displacement The displacement <i>a</i>.
+	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public BlendedLocalVolatilityModel(AbstractRandomVariableFactory randomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
+		this(randomVariableFactory, covarianceModel, null, displacement, isCalibrateable);
 	}
 
 	/**
@@ -96,12 +130,12 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
 	public BlendedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
-		this(covarianceModel, null, displacement, isCalibrateable);
+		this(new RandomVariableFactory(), covarianceModel, displacement, isCalibrateable);
 	}
 
 	@Override
 	public Object clone() {
-		return new BlendedLocalVolatilityModel((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement, isCalibrateable);
+		return new BlendedLocalVolatilityModel(randomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement.doubleValue(), isCalibrateable);
 	}
 	
 	/**
@@ -125,12 +159,12 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		if(!isCalibrateable) return covarianceModel.getParameter();
 
 		double[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new double[] { displacement };
+		if(covarianceParameters == null) return new double[] { displacement.doubleValue() };
 		
 		// Append displacement to the end of covarianceParameters
 		double[] jointParameters = new double[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
-		jointParameters[covarianceParameters.length] = displacement;
+		jointParameters[covarianceParameters.length] = displacement.doubleValue();
 
 		return jointParameters;
 	}
@@ -147,7 +181,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
-		displacement = parameter[covarianceParameters.length];
+		displacement = randomVariableFactory.createRandomVariable(parameter[covarianceParameters.length]);
 	}
 
 	@Override
@@ -169,7 +203,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		}
 
 		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].mult(1.0-displacement).add(displacement * forward);
+			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].sub(realizationAtTimeIndex[component].mult(displacement)).add(displacement.mult(forward));
 			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
 			}

@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.io.Serializable;
+
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -14,8 +16,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  */
-public abstract class AbstractLIBORCovarianceModel {
+public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	
+	private static final long serialVersionUID = 5364544247367259329L;
+
 	private	TimeDiscretizationInterface		timeDiscretization;
 	private TimeDiscretizationInterface		liborPeriodDiscretization;
 	private	int								numberOfFactors;

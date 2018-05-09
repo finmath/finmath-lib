@@ -25,13 +25,13 @@ public abstract class LIBORVolatilityModel implements Serializable {
 	private static final long serialVersionUID = 5481713000841480672L;
 
 	private TimeDiscretizationInterface	timeDiscretization;
-    private TimeDiscretizationInterface	liborPeriodDiscretization;
-	
-    // You cannot instantiate the class empty
-    @SuppressWarnings("unused")
+	private TimeDiscretizationInterface	liborPeriodDiscretization;
+
+	// You cannot instantiate the class empty
+	@SuppressWarnings("unused")
 	private LIBORVolatilityModel() {
 	}
-    
+
 	/**
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
@@ -42,11 +42,11 @@ public abstract class LIBORVolatilityModel implements Serializable {
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
 	}
 
-    public abstract double[]	getParameter();
-    public abstract void		setParameter(double[] parameter);
+	public abstract double[]	getParameter();
+	public abstract LIBORVolatilityModel	getCloneWithModifiedParameter(double[] parameter);
 
-    /**
-     * Implement this method to complete the implementation.
+	/**
+	 * Implement this method to complete the implementation.
 	 * @param timeIndex The time index (for timeDiscretization)
 	 * @param component The libor index (for liborPeriodDiscretization)
 	 * @return A random variable (e.g. as a vector of doubles) representing the volatility for each path.

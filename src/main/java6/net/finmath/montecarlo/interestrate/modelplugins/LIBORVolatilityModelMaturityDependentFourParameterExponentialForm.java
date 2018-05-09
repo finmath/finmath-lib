@@ -16,7 +16,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm extends LIBORVolatilityModel {
 
-    private double[] a;
+	private static final long serialVersionUID = 1412665163004646789L;
+	
+	private double[] a;
     private double[] b;
     private double[] c;
     private double[] d;
@@ -55,21 +57,35 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
 	@Override
 	public double[] getParameter() {
-		double[] parameter = new double[4];
-		parameter[0] = a[0];
-		parameter[1] = b[0];
-		parameter[2] = c[0];
-		parameter[3] = d[0];
+		double[] parameter = new double[a.length+b.length+c.length+d.length];
+        System.arraycopy(a, 0, parameter, 0, a.length);
+        System.arraycopy(b, 0, parameter, a.length, b.length);
+        System.arraycopy(c, 0, parameter, a.length+b.length, c.length);
+        System.arraycopy(d, 0, parameter, a.length+b.length+c.length, d.length);
 
 		return parameter;
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-        Arrays.fill(this.a, parameter[0]);
-        Arrays.fill(this.b, parameter[1]);
-        Arrays.fill(this.c, parameter[2]);
-        Arrays.fill(this.d, parameter[3]);
+	public LIBORVolatilityModelMaturityDependentFourParameterExponentialForm getCloneWithModifiedParameter(double[] parameter) {
+		double[] parameterA = new double[a.length];
+		double[] parameterB = new double[b.length];
+		double[] parameterC = new double[c.length];
+		double[] parameterD = new double[d.length];
+
+        System.arraycopy(parameter, 0, parameterA, 0, a.length);
+        System.arraycopy(parameter, a.length, parameterA, 0, b.length);
+        System.arraycopy(parameter, a.length+b.length, parameterA, 0, c.length);
+        System.arraycopy(parameter, a.length+b.length+c.length, parameterA, 0, d.length);
+
+        return new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(
+				super.getTimeDiscretization(),
+				super.getLiborPeriodDiscretization(),
+				parameterA,
+				parameterB,
+				parameterC,
+				parameterD
+				);
 	}
 
     /* (non-Javadoc)
@@ -95,13 +111,6 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
         return new RandomVariable(getTimeDiscretization().getTime(timeIndex),volatilityInstanteaneous);
     }
-
-	public void setParameters(double[] a, double[] b, double[] c, double[] d) {
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
-	}
 
 	@Override
 	public Object clone() {

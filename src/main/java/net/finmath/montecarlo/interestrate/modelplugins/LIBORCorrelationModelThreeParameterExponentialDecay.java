@@ -29,6 +29,8 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	private double	c;
 	private final boolean isCalibrateable;
 
+	private Object lazyInitLock = new Object();	// lock used for lazy init of correlationMatrix and factorMatrix
+	
 	private transient double[][]	correlationMatrix;
 	private transient double[][]	factorMatrix;
 	
@@ -56,26 +58,29 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		if(!isCalibrateable) return;
+	public LIBORCorrelationModelThreeParameterExponentialDecay getCloneWithModifiedParameter(double[] parameter) {
+		if(!isCalibrateable) return this;
 
-		a = parameter[0];
-		b = parameter[1];
-		c = parameter[2];
-		
-		factorMatrix = null;
-		correlationMatrix = null;
+		return new LIBORCorrelationModelThreeParameterExponentialDecay(
+				getTimeDiscretization(),
+				getLiborPeriodDiscretization(),
+				getNumberOfFactors(),
+				parameter[0], parameter[1], parameter[2], isCalibrateable);
 	}
 	
 	@Override
     public double	getFactorLoading(int timeIndex, int factor, int component) {
-		if(factorMatrix == null) initialize(numberOfFactors, a, b, c);
+		synchronized (lazyInitLock) {
+			if(factorMatrix == null) initialize(numberOfFactors, a, b, c);			
+		}
 
 		return factorMatrix[component][factor];
 	}
 	@Override
     public double	getCorrelation(int timeIndex, int component1, int component2) {
-		if(correlationMatrix == null) initialize(numberOfFactors, a, b, c);
+		synchronized (lazyInitLock) {
+			if(correlationMatrix == null) initialize(numberOfFactors, a, b, c);
+		}
 
 		return correlationMatrix[component1][component2];
 	}
@@ -85,7 +90,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		return numberOfFactors;
 	}
 
-	private synchronized void initialize(int numberOfFactors, double a, double b, double c) {
+	private void initialize(int numberOfFactors, double a, double b, double c) {
 		/*
 		 * Create instantaneous correlation matrix
 		 */

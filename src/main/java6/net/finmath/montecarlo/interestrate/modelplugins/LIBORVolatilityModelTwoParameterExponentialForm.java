@@ -15,7 +15,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolatilityModel {
 
-    private double a;
+	private static final long serialVersionUID = 8398006103722351360L;
+
+	private double a;
     private double b;
 
     private boolean isCalibrateable = false;
@@ -60,11 +62,16 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		if(!isCalibrateable) return;
+	public LIBORVolatilityModelTwoParameterExponentialForm getCloneWithModifiedParameter(double[] parameter) {
+		if(!isCalibrateable) return this;
 
-		this.a = parameter[0];
-        this.b = parameter[1];
+		return new LIBORVolatilityModelTwoParameterExponentialForm(
+				getTimeDiscretization(),
+				getLiborPeriodDiscretization(),
+				a,
+				b,
+				isCalibrateable
+				);
 	}
 
     /* (non-Javadoc)

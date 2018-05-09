@@ -32,8 +32,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 
 	private double[][]	correlationMatrix;
 	private double[][]	factorMatrix;
-	
-	
+
 	/**
 	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
 	 * 
@@ -64,12 +63,10 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		if(!isCalibrateable) return;
-
-		a = Math.abs(parameter[0]);
-
-		initialize(numberOfFactors, a);
+	public LIBORCorrelationModelExponentialDecay getCloneWithModifiedParameter(double[] parameter) {
+		if(!isCalibrateable) return this;
+		
+		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter[0]);
 	}
 
 	@Override

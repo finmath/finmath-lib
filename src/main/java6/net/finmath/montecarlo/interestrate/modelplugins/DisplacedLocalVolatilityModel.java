@@ -31,6 +31,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 
+	private static final long serialVersionUID = 8032949024525942210L;
+
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private double displacement;
 

@@ -39,6 +39,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolatilityModel {
 
+	private static final long serialVersionUID = -7371483471144264848L;
+
 	private final AbstractRandomVariableFactory	randomVariableFactory;
 
 	private double a;
@@ -102,16 +104,18 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		if(!isCalibrateable) return;
-
-		this.a = parameter[0];
-		this.b = parameter[1];
-		this.c = parameter[2];
-		this.d = parameter[3];
-
-		// Invalidate cache
-		volatility = null;
+	public LIBORVolatilityModelFourParameterExponentialForm getCloneWithModifiedParameter(double[] parameter) {
+		if(!isCalibrateable) return this;
+		
+		return new LIBORVolatilityModelFourParameterExponentialForm(
+				super.getTimeDiscretization(),
+				super.getLiborPeriodDiscretization(),
+				parameter[0],
+				parameter[1],
+				parameter[2],
+				parameter[3],
+				isCalibrateable
+				);
 	}
 
 	@Override

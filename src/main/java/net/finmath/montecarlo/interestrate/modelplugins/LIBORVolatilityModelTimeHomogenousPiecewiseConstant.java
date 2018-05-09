@@ -48,8 +48,13 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		this.volatility = parameter;
+	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant getCloneWithModifiedParameter(double[] parameter) {
+		return new LIBORVolatilityModelTimeHomogenousPiecewiseConstant(
+				super.getTimeDiscretization(),
+				super.getLiborPeriodDiscretization(),
+				this.timeToMaturityDiscretization,
+				parameter
+				);
 	}
 
 	@Override

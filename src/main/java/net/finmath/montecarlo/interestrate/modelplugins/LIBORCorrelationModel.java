@@ -34,7 +34,7 @@ public abstract class LIBORCorrelationModel implements Serializable {
 	}
 
     public abstract double[]	getParameter();
-    public abstract void		setParameter(double[] parameter);
+    public abstract LIBORCorrelationModel		getCloneWithModifiedParameter(double[] parameter);
 
     public abstract	double	getFactorLoading(int timeIndex, int factor, int component);
 	public abstract	double	getCorrelation(int timeIndex, int component1, int component2);

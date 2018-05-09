@@ -86,20 +86,20 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
-		if(!isCalibrateable) return;
+	public LIBORVolatilityModelFourParameterExponentialFormIntegrated getCloneWithModifiedParameter(double[] parameter) {
+		if(!isCalibrateable) return this;
 
-		this.a = parameter[0];
-		this.b = parameter[1];
-		this.c = parameter[2];
-		this.d = parameter[3];
-		
-		cap	= new CapletVolatilitiesParametric("", null, a, b, c, d);
+		return new LIBORVolatilityModelFourParameterExponentialFormIntegrated(
+				super.getTimeDiscretization(),
+				super.getLiborPeriodDiscretization(),
+				parameter[0],
+				parameter[1],
+				parameter[2],
+				parameter[3],
+				isCalibrateable
+				);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
-	 */
 	@Override
 	public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
 		// Create a very simple volatility model here
