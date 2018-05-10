@@ -5,6 +5,25 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.2.3 (10.05.2018)
+
+### LIBOR Market Model
+
+- LIBOR Volatility and Correlation models are immutable.
+
+The method `setParameter` has been replaced by
+`getCloneWithModifiedParameter`.
+
+Instead of
+
+	newModel = model.clone();
+	newModel.setParameter(parameter);
+
+call
+
+	newModel = model.getCloneWithModifiedParameter(parameter);
+
+
 ## 3.2.2 (05.05.2018)
 
 ### Monte-Carlo Simulation
