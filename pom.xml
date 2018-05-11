@@ -640,7 +640,6 @@
 		<url>https://github.com/finmath/finmath-lib</url>
 		<connection>scm:git:https://github.com/finmath/finmath-lib.git</connection>
 		<developerConnection>scm:git:https://github.com/finmath/finmath-lib.git</developerConnection>
-		<tag>finmath-lib-3.0.9</tag>
 	</scm>
 
 	<ciManagement>
