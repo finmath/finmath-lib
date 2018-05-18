@@ -38,6 +38,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 - Calibration of the LIBOR market model
 - Valuation of complex derivatives (e.g. Bermudan/multi-callables)
 - Hedge Simulation
+- Margin Valuation Adjustments (MVA) though forward ISDA SIMM simulation (this is currently a separate project at https://github.com/finmath ).
 
 The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
 
