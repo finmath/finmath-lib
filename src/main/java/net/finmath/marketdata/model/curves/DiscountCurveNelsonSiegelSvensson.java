@@ -126,10 +126,10 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilderInterface getCloneBuilder() {
 		return new CurveBuilderInterface() {
 			@Override
-			public CurveInterface build() throws CloneNotSupportedException {
+			public CurveInterface build() {
 				return DiscountCurveNelsonSiegelSvensson.this;
 			}
 

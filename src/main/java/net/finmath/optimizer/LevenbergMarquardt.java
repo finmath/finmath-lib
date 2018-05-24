@@ -533,7 +533,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 			final int workerParameterIndex = parameterIndex;
 			Callable<double[]> worker = new  Callable<double[]>() {
-				public double[] call() throws SolverException {
+				public double[] call() {
 					double parameterFiniteDifference;
 					if(parameterSteps != null) {
 						parameterFiniteDifference = parameterSteps[workerParameterIndex];
@@ -817,7 +817,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public LevenbergMarquardt getCloneWithModifiedTargetValues(double[] newTargetVaues, double[] newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
+		LevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
 		clonedOptimizer.weights = newWeights.clone();				// Defensive copy
 
@@ -845,7 +845,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public LevenbergMarquardt getCloneWithModifiedTargetValues(List<Number> newTargetVaues, List<Number> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
+		LevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);
 		clonedOptimizer.weights = numberListToDoubleArray(newWeights);
 

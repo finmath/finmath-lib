@@ -69,8 +69,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getCloneBuilder()
 	 */
 	@Override
-	public CurveBuilderInterface getCloneBuilder()
-			throws CloneNotSupportedException {
+	public CurveBuilderInterface getCloneBuilder() {
 		// TODO Auto-generated method stub
 		return null;
 	}

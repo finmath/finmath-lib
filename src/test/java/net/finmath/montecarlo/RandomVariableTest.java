@@ -36,9 +36,9 @@ public class RandomVariableTest {
 			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)},
 			{ new RandomVariableLazyEvaluationFactory()}
 		});
-	};
+	}
 
-	public RandomVariableTest(AbstractRandomVariableFactory randomVariableFactory) {
+    public RandomVariableTest(AbstractRandomVariableFactory randomVariableFactory) {
 		super();
 		this.randomVariableFactory = randomVariableFactory;
 	}

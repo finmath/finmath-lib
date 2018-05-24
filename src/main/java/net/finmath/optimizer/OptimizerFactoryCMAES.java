@@ -91,7 +91,7 @@ public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 			}
 
 			@Override
-			public void run() throws SolverException {
+			public void run() {
 				optimizer = new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer(maxIterations, accuracy, true, 0, 0, new MersenneTwister(3141), false, new SimplePointChecker<org.apache.commons.math3.optim.PointValuePair>(0, 0)) {
 					@Override
 					public double computeObjectiveValue(double[] parameters) {

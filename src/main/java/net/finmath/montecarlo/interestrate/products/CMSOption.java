@@ -138,7 +138,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
     	TimeDiscretizationInterface floatTenor	= new TimeDiscretization(swapTenor);
     	double forwardSwapRate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
     	double swapAnnuity = SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
-    	double payoffUnit = SwapAnnuity.getSwapAnnuity(new TimeDiscretization( new double[] { swapTenor[0], swapTenor[1] } ), forwardCurve) / (swapTenor[1] - swapTenor[0]);
+    	double payoffUnit = SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1] - swapTenor[0]);
     	return AnalyticFormulas.huntKennedyCMSOptionValue(forwardSwapRate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit, strike) * (swapTenor[1] - swapTenor[0]);
     }
 }

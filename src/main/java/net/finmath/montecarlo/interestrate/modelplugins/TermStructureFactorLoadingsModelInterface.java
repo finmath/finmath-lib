@@ -48,5 +48,5 @@ public interface TermStructureFactorLoadingsModelInterface {
 	/**
 	 * @return the numberOfFactors
 	 */
-	public int getNumberOfFactors();
+    int getNumberOfFactors();
 }

@@ -19,7 +19,7 @@ public class MersenneTwister implements Serializable {
 	private final org.apache.commons.math3.random.MersenneTwister mersenneTwister;
 	
 	public MersenneTwister(long seed) {
-			mersenneTwister	= new org.apache.commons.math3.random.MersenneTwister((long)seed);
+			mersenneTwister	= new org.apache.commons.math3.random.MersenneTwister(seed);
 	}
 
 	/**

@@ -520,7 +520,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		System.out.println("Interplation of given input points (x,y):");
 		System.out.println("  x: " + Arrays.toString(givenPoints));
 		System.out.println("  y: " + Arrays.toString(givenValues));
-		System.out.println("");
+		System.out.println();
 
 
 		// Create interpolated curve
@@ -532,7 +532,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.AKIMA, ExtrapolationMethod.CONSTANT);
@@ -542,7 +542,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.CUBIC_SPLINE, ExtrapolationMethod.CONSTANT);
@@ -552,7 +552,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 		
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.PIECEWISE_CONSTANT, ExtrapolationMethod.CONSTANT);
@@ -562,7 +562,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 		
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.HARMONIC_SPLINE, ExtrapolationMethod.CONSTANT);
@@ -572,7 +572,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 	}
 
 	@Override

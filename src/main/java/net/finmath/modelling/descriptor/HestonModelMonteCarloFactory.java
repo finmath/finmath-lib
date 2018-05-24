@@ -67,9 +67,9 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
 			}	
-		};
+		}
 
-		return new HestonMonteCarloModel(
+        return new HestonMonteCarloModel(
 				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(modelDescriptor, scheme, randomVariableFactory), 
 				new ProcessEulerScheme(brownianMotion)
 				);

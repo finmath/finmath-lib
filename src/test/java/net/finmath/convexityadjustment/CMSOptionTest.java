@@ -99,7 +99,7 @@ public class CMSOptionTest {
 		TimeDiscretizationInterface floatTenor	= new TimeDiscretization(swapTenor);
 		double rate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
 		double swapAnnuity			= SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
-		double payoffUnit			= SwapAnnuity.getSwapAnnuity(new TimeDiscretization( new double[] { swapTenor[0], swapTenor[1] } ), forwardCurve) / (swapTenor[1]-swapTenor[0]);
+		double payoffUnit			= SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1]-swapTenor[0]);
 		double adjustedCMSRate = AnalyticFormulas.huntKennedyCMSAdjustedRate(rate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit);
 		double valueCMSOptionHKAdjRate	= AnalyticFormulas.blackModelSwaptionValue(adjustedCMSRate, swaprateVolatility, exerciseDate, strike, payoffUnit) * (swapTenor[1]-swapTenor[0]);
 		System.out.println("CMS Option with Black-Scholes using Adjusted Forward Swapate:\t" + formatterPercent.format(valueCMSOptionHKAdjRate));

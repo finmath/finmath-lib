@@ -173,14 +173,14 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 		 */
 		public CurveBuilder(Curve curve) throws CloneNotSupportedException {
-			this.curve = (Curve)curve.clone();
+			this.curve = curve.clone();
 		}
 
 		/* (non-Javadoc)
 		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#build()
 		 */
 		@Override
-		public CurveInterface build() throws CloneNotSupportedException {
+		public CurveInterface build() {
 			Curve buildCurve = curve;
 			curve = null;
 			return buildCurve;
@@ -497,7 +497,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	@Override
 	public CurveInterface getCloneForParameter(RandomVariableInterface[] parameter) throws CloneNotSupportedException {
 		if(Arrays.equals(parameter, getParameter())) return this;
-		Curve newCurve = (Curve) this.clone();
+		Curve newCurve = this.clone();
 		newCurve.setParameterPrivate(parameter);
 
 		return newCurve;

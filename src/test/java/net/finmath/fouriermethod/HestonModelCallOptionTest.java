@@ -44,9 +44,9 @@ public class HestonModelCallOptionTest {
 			{ new EuropeanOption(maturity, strike) },
 			{ new DigitalOption(maturity, strike) },
 		});
-	};
+	}
 
-	private final AbstractProductFourierTransform product;
+    private final AbstractProductFourierTransform product;
 	
 	// Model properties
 	private final double	initialValue   = 1.0;

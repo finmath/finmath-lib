@@ -81,7 +81,7 @@ public class HestonModelDescriptorTest {
 		
 		// Evaluate product
 		double evaluationTime = 0.0;
-		Map<String, Object> valueFourier = (Map<String, Object>)europeanOptionFourier.getValues(evaluationTime, hestonModelFourier);
+		Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, hestonModelFourier);
 
 		System.out.println(valueFourier);
 
@@ -99,7 +99,7 @@ public class HestonModelDescriptorTest {
 		// Create product implementation compatible with Heston model
 		Product<?> europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDesciptor(europeanOptionDescriptor);
 
-		Map<String, Object> valueMonteCarlo = (Map<String, Object>)europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
+		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 
 		System.out.println(valueMonteCarlo);
 		

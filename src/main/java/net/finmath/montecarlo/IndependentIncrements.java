@@ -260,10 +260,8 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 		if (numberOfFactors != that.numberOfFactors) return false;
 		if (numberOfPaths != that.numberOfPaths) return false;
 		if (seed != that.seed) return false;
-		if (!timeDiscretization.equals(that.timeDiscretization)) return false;
-
-		return true;
-	}
+        return timeDiscretization.equals(that.timeDiscretization);
+    }
 
 	@Override
 	public int hashCode() {

@@ -18,9 +18,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public abstract class LogNormalProcess {
 
-	public enum Scheme { EULER, PREDICTOR_USING_EULERSTEP, PREDICTOR_USING_LASTREALIZATION };
+	public enum Scheme { EULER, PREDICTOR_USING_EULERSTEP, PREDICTOR_USING_LASTREALIZATION }
 
-	private BrownianMotionInterface	brownianMotion;
+    private BrownianMotionInterface	brownianMotion;
 
 	private RandomVariableInterface[][]     discreteProcess         = null;
 	private RandomVariableInterface[]       discreteProcessWeights  = null;

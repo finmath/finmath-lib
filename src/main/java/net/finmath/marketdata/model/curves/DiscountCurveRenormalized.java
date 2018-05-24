@@ -59,7 +59,7 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface, Serial
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilderInterface getCloneBuilder() {
 		throw new UnsupportedOperationException("Method not supported.");
 	}
 
@@ -90,7 +90,7 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface, Serial
 	}
 
 	@Override
-	public DiscountCurveRenormalized clone() throws CloneNotSupportedException {
+	public DiscountCurveRenormalized clone() {
 		return new DiscountCurveRenormalized(getName(), getReferenceDate(), spotDate, baseCurveName);
 	}
 

@@ -149,7 +149,7 @@ public class CurveFactory {
 			currentProjectedIndexValue /= seasonCurve.getValue(baseTime);
 
 			CurveInterface indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
-			CurveInterface indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, new CurveInterface[] { indexCurve, seasonCurve });
+			CurveInterface indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, indexCurve, seasonCurve);
 			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurveWithSeason, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1] + 1.0/365.0);
 			return indexCurveWithFixing;
 		}
