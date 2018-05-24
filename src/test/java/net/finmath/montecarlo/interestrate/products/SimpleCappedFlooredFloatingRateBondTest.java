@@ -52,13 +52,13 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		return Arrays.asList(new Object[][] {
 				{ Measure.SPOT }, { Measure.TERMINAL }
 		});
-	};
+	}
 
-	private final int numberOfPaths = 10000;
+    private final int numberOfPaths = 10000;
 
 	private final Measure measure;
 
-	public SimpleCappedFlooredFloatingRateBondTest(Measure measure) throws CalculationException {
+	public SimpleCappedFlooredFloatingRateBondTest(Measure measure) {
 		// Store measure
 		this.measure = measure;
 	}
@@ -76,9 +76,9 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		 */
 		double[] fixingDates  = (new TimeDiscretization(0.0, 9, 0.5)).getAsDoubleArray();
 		double[] paymentDates = (new TimeDiscretization(0.5, 9, 0.5)).getAsDoubleArray();
-		double maturity = 0.5 + 9 * 0.5;;
+		double maturity = 0.5 + 9 * 0.5;
 
-		double[] floors = null;
+        double[] floors = null;
 		double[] caps = null;
 		double[] spreads = null;
 

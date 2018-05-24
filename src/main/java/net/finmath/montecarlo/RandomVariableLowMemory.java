@@ -239,7 +239,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		double sum = 0.0;
 		double error = 0.0;														// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
-			double value = ((double)realizations[i]) * ((double)probabilities.get(i)) - error;		// Error corrected value
+			double value = ((double)realizations[i]) * probabilities.get(i) - error;		// Error corrected value
 			double newSum = sum + value;				// New sum
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;

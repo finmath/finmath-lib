@@ -274,7 +274,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	}
 
 	@Override
-	public LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+	public LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
 		throw new UnsupportedOperationException();
 	}
 

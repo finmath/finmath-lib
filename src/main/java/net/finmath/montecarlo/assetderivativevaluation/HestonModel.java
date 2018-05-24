@@ -84,11 +84,10 @@ public class HestonModel extends AbstractModel {
 		 * Full truncation scheme, that is V is replaced by Math.max(V,0), where V denotes the current realization of V(t).
 		 */
 		FULL_TRUNCATION
-	};
+	}
 
 
-
-	private final RandomVariableInterface initialValue;
+    private final RandomVariableInterface initialValue;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
 	private final RandomVariableInterface riskFreeRate;		// Constant rate, used if discountCurveForForwardRate is null

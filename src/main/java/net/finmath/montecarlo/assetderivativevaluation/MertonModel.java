@@ -141,7 +141,7 @@ public class MertonModel extends AbstractModel {
 	}
 
 	@Override
-	public AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+	public AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
 		// TODO Auto-generated method stub
 		return null;
 	}

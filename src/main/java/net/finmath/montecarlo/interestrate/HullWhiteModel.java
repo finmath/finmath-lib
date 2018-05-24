@@ -308,7 +308,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	}
 
 	@Override
-	public LIBORModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+	public LIBORModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -301,7 +301,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 				characteristicFunction = characteristicFunction.exp();
 
 				return characteristicFunction;
-			};
-		};
+			}
+        };
 	}
 }

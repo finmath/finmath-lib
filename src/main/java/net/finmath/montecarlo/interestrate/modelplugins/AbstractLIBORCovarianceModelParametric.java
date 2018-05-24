@@ -168,7 +168,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<Double> worker = new  Callable<Double>() {
-						public Double call() throws SolverException {
+						public Double call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getValue(liborMarketModelMonteCarloSimulation);
 							} catch (CalculationException e) {

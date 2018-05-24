@@ -275,7 +275,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 			private static final long serialVersionUID = 8030873619034187741L;
 
 			@Override
-			public void setValues(double[] arg0, double[] arg1) throws SolverException {
+			public void setValues(double[] arg0, double[] arg1) {
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};

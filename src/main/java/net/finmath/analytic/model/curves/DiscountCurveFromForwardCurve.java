@@ -193,9 +193,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 				return false;
 		} else if (!forwardCurveName.equals(other.forwardCurveName))
 			return false;
-		if (Double.doubleToLongBits(timeScaling) != Double
-				.doubleToLongBits(other.timeScaling))
-			return false;
-		return true;
-	}
+        return Double.doubleToLongBits(timeScaling) == Double
+                .doubleToLongBits(other.timeScaling);
+    }
 }

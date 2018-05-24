@@ -60,9 +60,9 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		return Arrays.asList(new Object[][] {
 				{ Measure.SPOT }, { Measure.TERMINAL }
 		});
-	};
+	}
 
-	private final int numberOfPaths		= 40000;
+    private final int numberOfPaths		= 40000;
 	private final int numberOfFactors	= 6;
 
 	private final Measure measure;
@@ -592,15 +592,15 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				}
 			}
 		}
-		System.out.println("");
+		System.out.println();
 
 		/*
 		 * Take discretization and forward curve from liborMarketModel
 		 */
 		TimeDiscretizationInterface timeDiscretization = liborMarketModel.getTimeDiscretization();
 
-		DiscountCurveInterface discountCurve = ((LIBORMarketModelInterface)liborMarketModel.getModel()).getDiscountCurve();
-		ForwardCurveInterface forwardCurve = ((LIBORMarketModelInterface)liborMarketModel.getModel()).getForwardRateCurve();
+		DiscountCurveInterface discountCurve = liborMarketModel.getModel().getDiscountCurve();
+		ForwardCurveInterface forwardCurve = liborMarketModel.getModel().getForwardRateCurve();
 
 		/*
 		 * Create a LIBOR Market Model
@@ -638,11 +638,11 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		System.out.println("__________________________________________________________________________________________\n");
 	}
 
-	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
+	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
 	}
 
-	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
+	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
 	}
 }

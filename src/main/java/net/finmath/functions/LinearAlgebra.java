@@ -222,15 +222,15 @@ public class LinearAlgebra {
 
 			@Override
 			public int compareTo(EigenValueIndex o) { return o.value.compareTo(value); }
-		};
-		List<EigenValueIndex> eigenValueIndices = new ArrayList<EigenValueIndex>();
+		}
+        List<EigenValueIndex> eigenValueIndices = new ArrayList<EigenValueIndex>();
 		for(int i=0; i<eigenValues.length; i++) eigenValueIndices.add(i,new EigenValueIndex(i,eigenValues[i]));
 		Collections.sort(eigenValueIndices);
 
 		// Extract factors corresponding to the largest eigenvalues
 		double[][] factorMatrix = new double[eigenValues.length][numberOfFactors];
 		for (int factor = 0; factor < numberOfFactors; factor++) {
-			int		eigenVectorIndex	= (int) eigenValueIndices.get(factor).index;
+			int		eigenVectorIndex	= eigenValueIndices.get(factor).index;
 			double	eigenValue			= eigenValues[eigenVectorIndex];
 			double	signChange			= eigenVectorMatrix[0][eigenVectorIndex] > 0.0 ? 1.0 : -1.0;		// Convention: Have first entry of eigenvector positive. This is to make results more consistent.
 			double  eigenVectorNormSquared     = 0.0;

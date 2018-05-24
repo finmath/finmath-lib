@@ -14,8 +14,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public interface StochasticOptimizerInterface {
 
-	public interface ObjectiveFunction {
-		public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException;
+	interface ObjectiveFunction {
+		void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException;
 	}
 
 	/**

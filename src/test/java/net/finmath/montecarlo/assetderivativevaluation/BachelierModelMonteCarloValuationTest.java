@@ -112,7 +112,7 @@ public class BachelierModelMonteCarloValuationTest {
 		System.out.println("\t 5: Multi-Threadded valuation of some ten thousand Asian options.");
 		System.out.println("\t 6: Sensitivity (Delta) of European call options (with different strikes) using different methods.");
 		System.out.println("\t 7: Sensitivity (Vega) of European call options (with different strikes) using different methods.");
-		System.out.println("");
+		System.out.println();
 		System.out.print("Test to run: ");
 
 		//  open up standard input
@@ -127,7 +127,7 @@ public class BachelierModelMonteCarloValuationTest {
 			System.exit(1);
 		}
 
-		System.out.println("");
+		System.out.println();
 		return testNumber;
 	}
 

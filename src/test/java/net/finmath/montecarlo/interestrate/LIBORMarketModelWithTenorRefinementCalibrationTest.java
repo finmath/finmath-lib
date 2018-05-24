@@ -94,7 +94,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		test.testATMSwaptionCalibration();
 	}
 	
-	public LIBORMarketModelWithTenorRefinementCalibrationTest() throws CalculationException {
+	public LIBORMarketModelWithTenorRefinementCalibrationTest() {
 	}
 
 	private CalibrationItem createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, String targetVolatilityType, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) throws CalculationException {
@@ -240,7 +240,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		 * Test our calibration
 		 */
 		System.out.println("\nCalibrated parameters are:");
-		double[] param = ((TermStructureCovarianceModelParametric)((LIBORMarketModelWithTenorRefinement) liborMarketModelCalibrated).getCovarianceModel()).getParameter();
+		double[] param = ((LIBORMarketModelWithTenorRefinement) liborMarketModelCalibrated).getCovarianceModel().getParameter();
 		//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
 		for (double p : param) System.out.println(formatterParam.format(p));
 
@@ -441,7 +441,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 						calibrationItems.toArray(new CalibrationItem[0]), properties);
 
 				System.out.println("\nCalibrated parameters are:");
-				double[] param = ((TermStructureCovarianceModelParametric)((LIBORMarketModelWithTenorRefinement) liborMarketModelCalibrated).getCovarianceModel()).getParameter();
+				double[] param = ((LIBORMarketModelWithTenorRefinement) liborMarketModelCalibrated).getCovarianceModel().getParameter();
 				//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
 				for (double p : param) System.out.println(p);
 				bestParameters = param;
@@ -564,7 +564,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					for(int calibrationProductIndex=0; calibrationProductIndex<calibrationItems.size(); calibrationProductIndex++) {
 						final int workerCalibrationProductIndex = calibrationProductIndex;
 						Callable<Double> worker = new  Callable<Double>() {
-							public Double call() throws SolverException {
+							public Double call() {
 								try {
 									return calibrationItems.get(workerCalibrationProductIndex).calibrationProduct.getValue(liborMarketModelMonteCarloSimulation);
 								} catch (CalculationException e) {
@@ -700,7 +700,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					for(int calibrationProductIndex=0; calibrationProductIndex<calibrationItems.size(); calibrationProductIndex++) {
 						final int workerCalibrationProductIndex = calibrationProductIndex;
 						Callable<Double> worker = new  Callable<Double>() {
-							public Double call() throws SolverException {
+							public Double call() {
 								try {
 									return  calibrationItems.get(workerCalibrationProductIndex).calibrationProduct.getValue(liborMarketModelMonteCarloSimulation);
 								} catch (CalculationException e) {
@@ -940,7 +940,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		return model;
 	}
 
-	private static double getParSwaprate(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] swapTenor) throws CalculationException {
+	private static double getParSwaprate(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] swapTenor) {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve, discountCurve);
 	}
 }

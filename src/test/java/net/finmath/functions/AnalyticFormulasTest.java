@@ -77,7 +77,7 @@ public class AnalyticFormulasTest {
 				private static final long serialVersionUID = -4799790311777696204L;
 
 				@Override
-				public void setValues(double[] parameters, double[] values) throws SolverException {
+				public void setValues(double[] parameters, double[] values) {
 					for(int strikeIndex = 0; strikeIndex < givenStrikes.length; strikeIndex++) {
 						double strike = givenStrikes[strikeIndex];
 						values[strikeIndex] = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(parameters[0] /* alpha */, parameters[1] /* beta */, parameters[2] /* rho */, parameters[3] /* nu */, parameters[4] /* displacement */, underlying, strike, maturity);

@@ -53,7 +53,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	
     public RandomVariableInterface[]	getInitialState() {
         return model.getInitialState();
-    };
+    }
 
     public RandomVariableInterface[]	getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
     	return model.getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
