@@ -307,7 +307,7 @@ public class LIBORMarketModelCalibrationTest {
 		//		curveModel.addCurve(discountCurve.getName(), discountCurve);
 
 		long millisCurvesEnd = System.currentTimeMillis();
-		System.out.println("");
+		System.out.println();
 
 		/*
 		 * Calibration of model volatilities
@@ -598,7 +598,7 @@ public class LIBORMarketModelCalibrationTest {
 		return model;
 	}
 
-	private static double getParSwaprate(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] swapTenor) throws CalculationException {
+	private static double getParSwaprate(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] swapTenor) {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve, discountCurve);
 	}
 }

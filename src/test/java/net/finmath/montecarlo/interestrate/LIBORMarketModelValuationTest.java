@@ -146,7 +146,7 @@ public class LIBORMarketModelValuationTest {
 		 * Value a bond
 		 */
 
-		DiscountCurveInterface discountCurve = ((LIBORMarketModelInterface)liborMarketModel.getModel()).getDiscountCurve();
+		DiscountCurveInterface discountCurve = liborMarketModel.getModel().getDiscountCurve();
 
 		System.out.println("Bond prices:\n");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
@@ -723,14 +723,14 @@ public class LIBORMarketModelValuationTest {
 				}
 			}
 		}
-		System.out.println("");
+		System.out.println();
 
 		/*
 		 * Take discretization and forward curve from liborMarketModel
 		 */
 		TimeDiscretizationInterface timeDiscretization = liborMarketModel.getTimeDiscretization();
 
-		ForwardCurveInterface forwardCurve = ((LIBORMarketModelInterface)liborMarketModel.getModel()).getForwardRateCurve();
+		ForwardCurveInterface forwardCurve = liborMarketModel.getModel().getForwardRateCurve();
 
 		/*
 		 * Create a LIBOR Market Model
@@ -780,11 +780,11 @@ public class LIBORMarketModelValuationTest {
 		System.out.println("__________________________________________________________________________________________\n");
 	}
 
-	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
+	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
 	}
 
-	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) throws CalculationException {
+	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
 	}	
 }

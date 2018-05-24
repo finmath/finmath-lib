@@ -14,7 +14,7 @@ import java.time.LocalDate;
  */
 public interface BusinessdayCalendarInterface extends Serializable {
 	
-	public enum DateOffsetUnit {
+	enum DateOffsetUnit {
 		DAYS,
 		BUSINESS_DAYS,
 		WEEKS,
@@ -40,7 +40,7 @@ public interface BusinessdayCalendarInterface extends Serializable {
 		}
 	}
 
-	public enum DateRollConvention {
+	enum DateRollConvention {
 		UNADJUSTED,
 		FOLLOWING,
 		PRECEDING,
@@ -109,7 +109,7 @@ public interface BusinessdayCalendarInterface extends Serializable {
 	 * @param businessDays The number of business days from the starting date (negative values are allowed).
 	 * @return A date of a business day such that the number of business days between this one (including) and the start date (excluding) is businessDays.
 	 */
-	public LocalDate getRolledDate(LocalDate baseDate, int businessDays);
+    LocalDate getRolledDate(LocalDate baseDate, int businessDays);
 
 	/**
 	 * Create a new date by "adding" a year fraction to a given base date.

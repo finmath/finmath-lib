@@ -94,9 +94,9 @@ public class LIBORIndexTest {
 				{ new Integer(100000) , CurveSetup.DISCRETE },
 				{ new Integer(200000) , CurveSetup.DISCRETE },
 		});
-	};
+	}
 
-	private final int numberOfFactors = 5;
+    private final int numberOfFactors = 5;
 	private final double correlationDecayParam = 0.05;
 	
 	private double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };

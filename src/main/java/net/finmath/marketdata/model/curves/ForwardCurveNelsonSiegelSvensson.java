@@ -86,8 +86,8 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
 		if(daycountConvention != null) {
 			LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
-			LocalDate paymentDate		= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);;
-			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
+			LocalDate paymentDate		= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);
+            daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
 		}
 
 		return (discountCurve.getDiscountFactor(model, fixingTime+periodOffset) / discountCurve.getDiscountFactor(model, fixingTime+periodOffset + paymentOffset) - 1.0) / daycountFraction;
@@ -99,10 +99,10 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilderInterface getCloneBuilder() {
 		return new CurveBuilderInterface() {
 			@Override
-			public CurveInterface build() throws CloneNotSupportedException {
+			public CurveInterface build() {
 				return ForwardCurveNelsonSiegelSvensson.this;
 			}
 

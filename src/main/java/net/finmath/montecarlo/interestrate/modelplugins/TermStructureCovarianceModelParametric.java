@@ -134,7 +134,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<Double> worker = new  Callable<Double>() {
-						public Double call() throws SolverException {
+						public Double call() {
 							try {
 								return calibrationWeights[workerCalibrationProductIndex] * (calibrationProducts[workerCalibrationProductIndex].getValue(termStructureModelMonteCarloSimulation) - calibrationTargetValues[workerCalibrationProductIndex]);
 							} catch (CalculationException e) {

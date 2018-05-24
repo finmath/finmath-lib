@@ -65,10 +65,10 @@ public class CapletVolatilitiesParametricCalibrationTest {
 				{ QuotingConvention.VOLATILITYLOGNORMAL },
 				{ QuotingConvention.VOLATILITYNORMAL },
 		});
-	};
+	}
 
-	
-	public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
+
+    public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
 		super();
 		this.calibrationTargetValueQuotingConvention = calibrationTargetValueQuotingConvention;
 		

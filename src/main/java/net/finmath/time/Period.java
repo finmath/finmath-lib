@@ -95,12 +95,9 @@ public class Period implements Comparable<Period> {
 		} else if (!periodEnd.equals(other.periodEnd))
 			return false;
 		if (periodStart == null) {
-			if (other.periodStart != null)
-				return false;
-		} else if (!periodStart.equals(other.periodStart))
-			return false;
-		return true;
-	}
+            return other.periodStart == null;
+		} else return periodStart.equals(other.periodStart);
+    }
 
 	@Override
 	public String toString() {

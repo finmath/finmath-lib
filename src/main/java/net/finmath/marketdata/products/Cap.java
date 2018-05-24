@@ -242,7 +242,7 @@ public class Cap extends AbstractAnalyticProduct {
 			double[] strikes		= { 0.0 };
 			double[] volatilities	= { volatility };
 			VolatilitySurfaceInterface flatSurface = new CapletVolatilities(model.getVolatilitySurface(volatiltiySufaceName).getName(), model.getVolatilitySurface(volatiltiySufaceName).getReferenceDate(), model.getForwardCurve(forwardCurveName), maturities, strikes, volatilities, quotingConvention, model.getDiscountCurve(discountCurveName));
-			AnalyticModelInterface flatModel = (AnalyticModelInterface)model.clone();
+			AnalyticModelInterface flatModel = model.clone();
 			flatModel = flatModel.addVolatilitySurfaces(flatSurface);
 			double flatModelValue = this.getValueAsPrice(evaluationTime, flatModel);
 			double error = value-flatModelValue;

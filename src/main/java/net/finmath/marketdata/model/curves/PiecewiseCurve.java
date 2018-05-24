@@ -135,7 +135,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	@Override
 	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		PiecewiseCurve newCurve = clone();
-		newCurve.baseCurve = (CurveInterface) baseCurve.getCloneForParameter(value);
+		newCurve.baseCurve = baseCurve.getCloneForParameter(value);
 		
 		return newCurve;
 	}

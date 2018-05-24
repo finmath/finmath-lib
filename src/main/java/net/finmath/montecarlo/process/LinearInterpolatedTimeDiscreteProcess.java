@@ -101,9 +101,8 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @param time The time \( t \).
 	 * @param component The component to be returned (if this is a vector valued process), otherwise 0.
 	 * @return The random variable \( X(t) \).
-	 * @throws CalculationException Thrown if this process fails to evaluate at the given time point.
-	 */
-	public RandomVariableInterface getProcessValue(double time, int component) throws CalculationException {
+     */
+	public RandomVariableInterface getProcessValue(double time, int component) {
 		double timeLower = timeDiscretization.getTimeIndexNearestLessOrEqual(time);
 		double timeUpper = timeDiscretization.getTimeIndexNearestGreaterOrEqual(time);
 		if(timeLower == timeUpper) return realizations.get(timeLower);
@@ -115,13 +114,13 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	}
 
 	@Override
-	public RandomVariableInterface getProcessValue(int timeIndex, int component) throws CalculationException {
+	public RandomVariableInterface getProcessValue(int timeIndex, int component) {
 		return realizations.get(timeDiscretization.getTime(timeIndex));
 
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariableInterface getMonteCarloWeights(int timeIndex) {
 		throw new UnsupportedOperationException();
 	}
 

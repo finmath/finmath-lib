@@ -23,7 +23,7 @@ public class SingleAssetEuropeanOptionMonteCarloProductFactory implements Produc
 	@Override
 	public Product<SingleAssetEuropeanOptionProductDescriptor> getProductFromDescription(SingleAssetEuropeanOptionProductDescriptor descriptor) {
 
-		Product<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
+		Product<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(descriptor);
 		return product;
 	}
 }

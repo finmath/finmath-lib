@@ -55,7 +55,7 @@ public class SABRModel {
 			private static final long serialVersionUID = -4481118838855868864L;
 
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			public void setValues(double[] parameters, double[] values) {
 				for(int parameterIndex = 0; parameterIndex<parameters.length; parameterIndex++) {
 					parameters[parameterIndex] = Math.min(Math.max(parameters[parameterIndex],parameterLowerBound[parameterIndex]),parameterUpperBound[parameterIndex]);
 				}

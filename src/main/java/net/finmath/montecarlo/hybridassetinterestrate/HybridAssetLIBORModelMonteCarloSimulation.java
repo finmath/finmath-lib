@@ -124,7 +124,7 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 		return liborSimulation.getLIBOR(time, periodStart, periodEnd);
 	}
 
-	public HybridAssetLIBORModelMonteCarloSimulation getCloneWithModifiedData( Map<String, Object> dataModified) throws CalculationException {
+	public HybridAssetLIBORModelMonteCarloSimulation getCloneWithModifiedData( Map<String, Object> dataModified) {
 		return null;
 	}
 

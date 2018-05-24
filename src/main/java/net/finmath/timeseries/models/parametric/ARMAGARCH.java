@@ -267,7 +267,7 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 			private static final long serialVersionUID = -8844232820888815090L;
 
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			public void setValues(double[] parameters, double[] values) {
 				values[0] = objectiveFunction.value(parameters);
 			}
 		};

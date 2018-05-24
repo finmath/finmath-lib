@@ -152,7 +152,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	private final Logger logger = Logger.getLogger("net.finmath");
 
 	// A simple test
-	public static void main(String[] args) throws SolverException, CloneNotSupportedException {
+	public static void main(String[] args) throws SolverException {
 		// RandomVariableDifferentiableAAD is possible here!
 		// RandomVariableInterface[] initialParameters = new RandomVariableInterface[] { new RandomVariableDifferentiableAAD(2), new RandomVariableDifferentiableAAD(2) };
 		RandomVariableInterface[] initialParameters = new RandomVariableInterface[] { new RandomVariable(2), new RandomVariable(2) };
@@ -396,7 +396,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 
 				final int workerParameterIndex = parameterIndex;
 				Callable<RandomVariableInterface[]> worker = new  Callable<RandomVariableInterface[]>() {
-					public RandomVariableInterface[] call() throws SolverException {
+					public RandomVariableInterface[] call() {
 						RandomVariableInterface parameterFiniteDifference;
 						if(parameterSteps != null) {
 							parameterFiniteDifference = parameterSteps[workerParameterIndex];
@@ -639,7 +639,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * that of {@link #setDerivatives(RandomVariableInterface[], RandomVariableInterface[][])} is reused.
 	 */
 	@Override
-	public StochasticPathwiseLevenbergMarquardt clone() throws CloneNotSupportedException {
+	public StochasticPathwiseLevenbergMarquardt clone() {
 		/*
 		StochasticLevenbergMarquardt clonedOptimizer = (StochasticLevenbergMarquardt)super.clone();
 		clonedOptimizer.isParameterCurrentDerivativeValid = false;
@@ -671,7 +671,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(RandomVariableInterface[] newTargetVaues, RandomVariableInterface[] newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		StochasticPathwiseLevenbergMarquardt clonedOptimizer = (StochasticPathwiseLevenbergMarquardt)clone();
+		StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
 		clonedOptimizer.weights = newWeights.clone();				// Defensive copy
 
@@ -699,7 +699,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(List<RandomVariableInterface> newTargetVaues, List<RandomVariableInterface> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		StochasticPathwiseLevenbergMarquardt clonedOptimizer = (StochasticPathwiseLevenbergMarquardt)clone();
+		StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);
 		clonedOptimizer.weights = numberListToDoubleArray(newWeights);
 

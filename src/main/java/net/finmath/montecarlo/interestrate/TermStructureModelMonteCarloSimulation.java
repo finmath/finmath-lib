@@ -104,8 +104,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	}
 
 	@Override
-	public RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException
-	{
+	public RandomVariableInterface[] getLIBORs(int timeIndex) {
 		throw new UnsupportedOperationException();
 	}
 

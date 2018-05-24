@@ -246,7 +246,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 			private static final long serialVersionUID = -3791313169935939272L;
 
 			@Override
-			public void setValues(double[] arg0, double[] arg1) throws SolverException {
+			public void setValues(double[] arg0, double[] arg1) {
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};

@@ -151,12 +151,12 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	@Override
 	public Object clone() {
 	    // Clone the outer array.
-	    double[][] newVolatilityArray = (double[][]) volatilityMatrix.clone();
+	    double[][] newVolatilityArray = volatilityMatrix.clone();
 
 	    // Clone the contents of the array
 	    int rows = newVolatilityArray.length;
 	    for(int row=0;row<rows;row++){
-	    	newVolatilityArray[row] = (double[]) newVolatilityArray[row].clone();
+	    	newVolatilityArray[row] = newVolatilityArray[row].clone();
 	    }
 			 				
 		return new LIBORVolatilityModelFromGivenMatrix(

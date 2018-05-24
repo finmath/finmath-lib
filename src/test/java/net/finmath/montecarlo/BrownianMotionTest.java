@@ -40,9 +40,9 @@ public class BrownianMotionTest {
 			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */)},
 			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)},
 		});
-	};
+	}
 
-	public BrownianMotionTest(AbstractRandomVariableFactory randomVariableFactory) {
+    public BrownianMotionTest(AbstractRandomVariableFactory randomVariableFactory) {
 		super();
 		this.randomVariableFactory = randomVariableFactory;
 	}
@@ -85,7 +85,7 @@ public class BrownianMotionTest {
 			System.out.println(" - OK");
 		}
 
-		System.out.println("");
+		System.out.println();
 	}
 	
 	@Test
@@ -130,7 +130,7 @@ public class BrownianMotionTest {
 
 		Assert.assertTrue("Test on normal distribution.", 10.0 * fail < timeDiscretization.getNumberOfTimeSteps());
 
-		System.out.println("");
+		System.out.println();
 	}
 
 	@Test
@@ -190,6 +190,6 @@ public class BrownianMotionTest {
 		System.out.println("\tint_0^t dW1 dW2 = " + formatterSci4.format(meanOfSumOfCrossIncrements)
 				+ "\t (Monte-Carlo variance: " + formatterSci4.format(varianceOfSumOfCrossIncrements) + ")");
 
-		System.out.println("");
+		System.out.println();
 	}
 }

@@ -24,8 +24,8 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	private double volatility;
 
 	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[1];
-	private RandomVariableInterface	drift;;
-	private RandomVariableInterface	volatilityOnPaths;
+	private RandomVariableInterface	drift;
+    private RandomVariableInterface	volatilityOnPaths;
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
