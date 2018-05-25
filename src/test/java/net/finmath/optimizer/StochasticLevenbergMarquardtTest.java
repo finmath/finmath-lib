@@ -3,13 +3,12 @@
  */
 package net.finmath.optimizer;
 
-import java.util.Arrays;
-
-import org.junit.Test;
-
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAAD;
 import net.finmath.stochastic.RandomVariableInterface;
+import org.junit.Test;
+
+import java.util.Arrays;
 
 /**
  * @author Christian Fries

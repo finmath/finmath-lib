@@ -5,11 +5,11 @@
  */
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
-import java.util.Arrays;
-
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModel;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
+
+import java.util.Arrays;
 
 /**
  * A covariance model build from a volatility model implementing
@@ -142,7 +142,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 			parameterIndex += newCorrelationParameter.length;
 			if(!Arrays.equals(newCorrelationParameter, correlationModel.getParameter()))
 				correlationModel = ((LIBORCorrelationModel) correlationModel.clone());
-				correlationModel.setParameter(newCorrelationParameter);
+				correlationModel.getCloneWithModifiedParameter(newCorrelationParameter);
 		}
 		return new LIBORCovarianceModelFromVolatilityAndCorrelation(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), volatilityModel, correlationModel);
 	}

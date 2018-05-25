@@ -5,10 +5,10 @@
  */
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
-import java.util.ArrayList;
-
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
+
+import java.util.ArrayList;
 
 /**
  * Implements a simple volatility model using given piece-wise constant values on

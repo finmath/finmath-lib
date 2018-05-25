@@ -3,11 +3,11 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
-import java.util.ArrayList;
-
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariableInterface;
+
+import java.util.ArrayList;
 
 /**
  * @author Stefan Sedlmair

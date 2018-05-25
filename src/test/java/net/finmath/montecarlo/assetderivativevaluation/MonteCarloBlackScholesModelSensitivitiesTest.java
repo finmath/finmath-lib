@@ -6,17 +6,6 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.BrownianMotion;
@@ -33,6 +22,16 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -57,7 +56,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 	
 	@Parameters
 	public static Collection<Object[]> data() {
-		return (Collection<Object[]>) Arrays.asList(
+		return Arrays.asList(
 				new Object[][] { 
 					{ new EuropeanOption(2.0 /* optionMaturity */, 1.05 /* optionStrike */) },
 					{ new AsianOption(2.0 /* optionMaturity */, 1.05 /* optionStrike */, new TimeDiscretization(0.0, 0.5, 1.0, 1.5, 2.0)) },
@@ -94,23 +93,23 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		System.out.println("\n");
 		System.out.println("Testing " + product.getClass().getSimpleName());
 		System.out.println("__________________________________________________________");
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("value using Monte-Carlo (AAD random variable).: " + sensitivitiesAAD.get("value"));
 		System.out.println("value using Monte-Carlo (plain)...............: " + sensitivitiesFD.get("value"));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println("delta using adj. auto diff....: " + sensitivitiesAAD.get("delta"));
 		System.out.println("delta using finite differences: " + sensitivitiesFD.get("delta"));
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("rho using adj. auto diff....: " + sensitivitiesAAD.get("rho"));
 		System.out.println("rho using finite differences: " + sensitivitiesFD.get("rho"));
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("vega using Madj. auto diff...: " + sensitivitiesAAD.get("vega"));
 		System.out.println("vega using finite differences: " + sensitivitiesFD.get("vega"));
-		System.out.println("");
+		System.out.println();
 
 		Assert.assertEquals(sensitivitiesAAD.get("value"), sensitivitiesFD.get("value"), 0.0);
 		Assert.assertEquals(sensitivitiesAAD.get("delta"), sensitivitiesFD.get("delta"), 0.05);
@@ -195,7 +194,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
-		RandomVariableInterface value = (RandomVariableDifferentiableInterface) product.getValue(0.0, monteCarloBlackScholesModel);
+		RandomVariableInterface value = product.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate sensitivities using AAD

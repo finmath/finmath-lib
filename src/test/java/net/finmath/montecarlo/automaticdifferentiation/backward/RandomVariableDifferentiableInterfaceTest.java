@@ -3,17 +3,6 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Random;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
@@ -22,6 +11,16 @@ import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDif
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Unit test for random variables implementing <code>RandomVariableDifferentiableInterface</code>.
@@ -235,7 +234,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
 		int numberOfIterations =  (int) Math.pow(10, 3);
 
-		RandomVariableDifferentiableInterface sum =  (RandomVariableDifferentiableInterface) randomVariableFactory.createRandomVariable(0.0);
+		RandomVariableDifferentiableInterface sum = randomVariableFactory.createRandomVariable(0.0);
 		for(int i = 0; i < numberOfIterations; i++){
 			sum = (RandomVariableDifferentiableInterface) sum.add(aadRandomVariable01);
 		}
@@ -276,7 +275,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 
 			long startValuation = System.currentTimeMillis();
 
-			RandomVariableDifferentiableInterface sum =  (RandomVariableDifferentiableInterface) randomVariableFactory.createRandomVariable(0.0);
+			RandomVariableDifferentiableInterface sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = (RandomVariableDifferentiableInterface) sum.add(aadRandomVariable01);
 			}
@@ -322,8 +321,8 @@ public class RandomVariableDifferentiableInterfaceTest {
 		}
 
 		/*x_1*/
-		RandomVariableDifferentiableInterface randomVariable01 = 
-				(RandomVariableDifferentiableInterface) randomVariableFactory.createRandomVariable(0.0, x);
+		RandomVariableDifferentiableInterface randomVariable01 =
+				randomVariableFactory.createRandomVariable(0.0, x);
 
 		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
 		int numberOfIterations =  (int) Math.pow(10, 3);
@@ -387,8 +386,8 @@ public class RandomVariableDifferentiableInterfaceTest {
 		RandomVariable randomVariable02 = new RandomVariable(0.0, x);
 
 		/*x_1*/
-		RandomVariableDifferentiableInterface aadRandomVariable01 = 
-				(RandomVariableDifferentiableInterface) randomVariableFactory.createRandomVariable(randomVariable01.getFiltrationTime(), randomVariable01.getRealizations());
+		RandomVariableDifferentiableInterface aadRandomVariable01 =
+				randomVariableFactory.createRandomVariable(randomVariable01.getFiltrationTime(), randomVariable01.getRealizations());
 
 		/* throws StackOverflowError/OutOfMemoryError for >= 10^4 iterations */
 		int numberOfIterations =  (int) Math.pow(10, 3);

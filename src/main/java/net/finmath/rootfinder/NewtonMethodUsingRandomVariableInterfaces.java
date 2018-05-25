@@ -13,9 +13,9 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class NewtonMethodUsingRandomVariableInterfaces implements RandomVariableRootFinderUsingDerivative {
 
-	private static enum MethodForAccuracy {AVERAGE, MAX, MIN};
-	
-	/**
+	private enum MethodForAccuracy {AVERAGE, MAX, MIN}
+
+    /**
 	 * 
 	 */
 	private RandomVariableInterface	nextPoint;											// Stores the next point to be returned by getPoint()

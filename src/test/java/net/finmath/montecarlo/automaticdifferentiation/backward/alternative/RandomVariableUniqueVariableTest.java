@@ -38,7 +38,7 @@ public class RandomVariableUniqueVariableTest {
 		
 		RandomVariableInterface[] g =  f.getGradient();
 		for(int i = 0; i < g.length; i++){
-			System.out.println((RandomVariable)g[i]);
+			System.out.println(g[i]);
 		}
 		
 	}

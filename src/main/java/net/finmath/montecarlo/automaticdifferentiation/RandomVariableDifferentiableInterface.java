@@ -5,10 +5,10 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation;
 
+import net.finmath.stochastic.RandomVariableInterface;
+
 import java.util.Map;
 import java.util.Set;
-
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Interface providing additional methods for

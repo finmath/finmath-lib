@@ -6,11 +6,6 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Test;
-
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -23,6 +18,10 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -75,7 +74,7 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 		double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
 		double[] strikes = new double[] { optionStrike, 1.05*optionStrike, 1.05*optionStrike, 1.05*optionStrike };
 		BermudanOption bermudanOption = new BermudanOption(exerciseDates, notionals, strikes);
-		RandomVariableInterface value = (RandomVariableDifferentiableInterface) bermudanOption.getValue(0.0, monteCarloBlackScholesModel);
+		RandomVariableInterface value = bermudanOption.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate sensitivities using AAD
@@ -106,19 +105,19 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 		double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println("delta using adj. auto diff....: " + deltaAAD);
 		System.out.println("delta using finite differences: " + deltaFiniteDifference);
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("rho using adj. auto diff....: " + rhoAAD);
 		System.out.println("rho using finite differences: " + rhoFiniteDifference);
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("vega using Madj. auto diff...: " + vegaAAD);
 		System.out.println("vega using finite differences: " + vegaFiniteDifference);
-		System.out.println("");
+		System.out.println();
 
 //		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}

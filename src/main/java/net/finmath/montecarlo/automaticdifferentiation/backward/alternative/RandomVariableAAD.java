@@ -3,6 +3,10 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.RandomVariableInterface;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,10 +16,6 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
-
-import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implementation of <code>RandomVariableInterface</code> having the additional feature to calculate the backward algorithmic differentiation.
@@ -32,7 +32,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	/* static elements of the class are shared between all members */
 	private static ArrayList<RandomVariableAAD> arrayListOfAllAADRandomVariables = new ArrayList<>();
 	private static AtomicInteger indexOfNextRandomVariable = new AtomicInteger(0);
-	private static enum OperatorType {
+	private enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
 		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, AVERAGE, VARIANCE, 
 		STDEV, MIN, MAX, STDERROR, SVARIANCE
@@ -516,7 +516,7 @@ public class RandomVariableAAD implements RandomVariableInterface {
 
 		for(Integer indexOfDependentRandomVariable: arrayListOfAllIndicesOfDependentRandomVariables){
 			gradient.put(indexOfDependentRandomVariable, omegaHat[arrayListOfAllIndicesOfDependentRandomVariables.get(indexOfDependentRandomVariable)]);
-		};
+		}
 
 		return gradient;
 	}
@@ -531,8 +531,8 @@ public class RandomVariableAAD implements RandomVariableInterface {
 
 			/* if current index belongs to a true variable and is not yet in the list: add it*/
 			if(getAADRandomVariableFromList(currentParentIndex).isVariable() && 
-					!arrayListOfAllIndicesOfDependentRandomVariables.contains((Integer)currentParentIndex)){
-				arrayListOfAllIndicesOfDependentRandomVariables.add((Integer)currentParentIndex);
+					!arrayListOfAllIndicesOfDependentRandomVariables.contains(currentParentIndex)){
+				arrayListOfAllIndicesOfDependentRandomVariables.add(currentParentIndex);
 			} else {
 				arrayListOfAllIndicesOfDependentRandomVariables.addAll(
 						getAADRandomVariableFromList(currentParentIndex).getArrayListOfAllIndicesOfDependentRandomVariables());

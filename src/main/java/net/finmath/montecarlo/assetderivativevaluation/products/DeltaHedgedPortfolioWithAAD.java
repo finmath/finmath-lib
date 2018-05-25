@@ -5,10 +5,6 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
@@ -16,6 +12,10 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * This class implements a delta hedged portfolio (a hedge simulator).

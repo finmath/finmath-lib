@@ -6,15 +6,6 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryUsage;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -27,6 +18,14 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -79,7 +78,7 @@ public class MonteCarloBlackScholesModelAsianOptionSensitivitiesTest {
 		 * Value a call option (using the product implementation)
 		 */
 		AsianOption europeanOption = new AsianOption(optionMaturity, optionStrike, new TimeDiscretization(0.5, 1.0, 1.5, 2.0));
-		RandomVariableInterface value = (RandomVariableDifferentiableInterface) europeanOption.getValue(0.0, monteCarloBlackScholesModel);
+		RandomVariableInterface value = europeanOption.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate sensitivities using AAD
@@ -119,22 +118,22 @@ public class MonteCarloBlackScholesModelAsianOptionSensitivitiesTest {
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("delta using adj. auto diff....: " + deltaAAD);
 		System.out.println("delta using finite differences: " + deltaFiniteDifference);
 		System.out.println("delta using analytic formula..: " + deltaAnalytic);
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("rho using adj. auto diff....: " + rhoAAD);
 		System.out.println("rho using finite differences: " + rhoFiniteDifference);
 		System.out.println("rho using analytic formula..: " + rhoAnalytic);
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("vega using Madj. auto diff...: " + vegaAAD);
 		System.out.println("vega using finite differences: " + vegaFiniteDifference);
 		System.out.println("vega using analytic formula..: " + vegaAnalytic);
-		System.out.println("");
+		System.out.println();
 
 		System.out.println(memoryUsagePeak()/1024/1024);
 		Assert.assertEquals(deltaFiniteDifference, deltaAAD, 0.005);

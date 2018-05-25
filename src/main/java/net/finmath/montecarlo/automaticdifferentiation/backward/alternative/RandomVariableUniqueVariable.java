@@ -3,16 +3,16 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.RandomVariableInterface;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
-
-import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Stefan Sedlmair
@@ -149,7 +149,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 	
 	public boolean isVariable(){
-		return (parentsVariables == null && isConstant() == false) ? true : false;
+		return parentsVariables == null && isConstant() == false;
 
 	}
 	

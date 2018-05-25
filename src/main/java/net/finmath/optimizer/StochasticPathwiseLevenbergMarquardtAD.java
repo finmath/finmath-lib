@@ -5,12 +5,12 @@
  */
 package net.finmath.optimizer;
 
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
