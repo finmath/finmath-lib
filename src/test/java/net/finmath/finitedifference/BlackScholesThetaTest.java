@@ -1,6 +1,8 @@
 package net.finmath.finitedifference;
 
 import net.finmath.finitedifference.experimental.BlackScholesTheta;
+import net.finmath.finitedifference.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.products.FDMEuropeanCallOption;
 import net.finmath.functions.AnalyticFormulas;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,15 +11,16 @@ public class BlackScholesThetaTest {
 
     @Test
     public void test() throws AssertionError {
+        double riskFreeRate = 0.06;
+        double volatility = 0.4;
+        double optionMaturity = 1;
+        double optionStrike = 50;
+
         BlackScholesTheta blackScholesFD = new BlackScholesTheta();
         double[][] stockAndOptionPrice = blackScholesFD.solve();
         double[] initialStockPrice = stockAndOptionPrice[0];
         double[] optionValue = stockAndOptionPrice[1];
 
-        double riskFreeRate = 0.06;
-        double volatility = 0.4;
-        double optionMaturity = 1;
-        double optionStrike = 50;
         double[] analyticalOptionValue = new double[stockAndOptionPrice[0].length];
         for (int i =0; i < analyticalOptionValue.length; i++) {
             analyticalOptionValue[i] = AnalyticFormulas.blackScholesOptionValue(initialStockPrice[i], riskFreeRate,
@@ -25,6 +28,22 @@ public class BlackScholesThetaTest {
         }
 
         Assert.assertArrayEquals(optionValue, analyticalOptionValue, 2e-2);
+
+        // First refactoring attempt
+        int numTimesteps = 35;
+        int numSpacesteps = 200;
+        int numStandardDeviations = 5;
+        double initialValue = 50;
+
+        FDMBlackScholesModel model = new FDMBlackScholesModel(
+                numTimesteps,
+                numSpacesteps,
+                numStandardDeviations,
+                initialValue,
+                riskFreeRate,
+                volatility);
+        FDMEuropeanCallOption callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike, riskFreeRate);
+        double valueFDM = callOption.getValue(model);
 
     }
 }
