@@ -5,6 +5,12 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.2.4 (09.06.2018)
+
+### Market Data: Bond Curves
+
+- Added implementation for Bond curve calibration via Local Linear Regression (see https://ssrn.com/abstract=3073942 ). See package net.finmath.marketdata.model.bond
+
 ## 3.2.3 (10.05.2018)
 
 ### LIBOR Market Model
