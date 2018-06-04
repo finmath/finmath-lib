@@ -31,7 +31,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
  * see {@link net.finmath.marketdata.model.curves.Curve}.
  * 
  * @author Moritz Scherrmann
- * @author Chrisitan Fries
+ * @author Christian Fries
  */
 public class CurveEstimation{
 
@@ -73,8 +73,8 @@ public class CurveEstimation{
 			Distribution distribution){
 		this.referenceDate = referenceDate;
 		this.bandwidth = bandwidth;
-		this.X=X;
-		this.Y=Y;
+		this.X = X;
+		this.Y = Y;
 		this.partition = new Partition(partitionValues.clone(), weight);
 
 
@@ -215,7 +215,6 @@ public class CurveEstimation{
 
 		return Solve.solve(M, R);
 	}
-
 }
 
 
