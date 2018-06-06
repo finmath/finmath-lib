@@ -410,7 +410,7 @@ public class InterestRateProductTest {
 			System.out.println("Could not write FexiCap.data file.");
 		}
 	}
-
+/*
 	@Test
 	public void testTarnPrice(LIBORModelMonteCarloSimulationInterface liborMarketModel) throws CalculationException {
         double[] periodLengths = { 0.5, 0.5, 0.5, 0.5, 0.5 };
@@ -427,4 +427,5 @@ public class InterestRateProductTest {
 					+ "\t" + product2.getValue(liborMarketModel)
         );
 	}
+*/
 }
