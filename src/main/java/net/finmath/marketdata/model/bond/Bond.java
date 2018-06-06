@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.AbstractAnalyticProduct;
@@ -21,23 +22,30 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Implements the valuation of a bond (zero-coupon, fixed coupon or floating coupon)
- *  with unit notional of 1 using curves (discount curve, forward curve).
+ * with unit notional of 1 using curves:
+ * <ul>
+ * 	<li>a forward curve, if the bond has floating rate coupons</li>
+ * 	<li>a discount curve as a base curve for discounting</li>
+ * 	<li>a survival probability curve for additional credit risk related discount factor</li>
+ * 	<li>a basis factor curve for additional bond related discount factor</li>
+ * </ul>
  * 
  * Support for day counting is provided via the class implementing
  * <code>ScheduleInterface</code>.
  * 
  * @author Moritz Scherrmann
+ * @author Chrisitan Fries
  */
 public class Bond extends AbstractAnalyticProduct implements AnalyticProductInterface {
 	
-	private final ScheduleInterface				                   schedule;
-	private final String						          discountCurveName;
-	private final String						           forwardCurveName; //Set null if fixed- or zero-coupon bond   
-	private final String					   survivalProbabilityCurveName;
-	private final String						       basisFactorCurveName;
-	private final double                                        fixedCoupon; //Set equal zero if floating rate note 
-	private final double                                     floatingSpread;
-	private final double                                       recoveryRate;
+	private final ScheduleInterface	schedule;
+	private final String discountCurveName;
+	private final String forwardCurveName; //Set null if fixed- or zero-coupon bond   
+	private final String survivalProbabilityCurveName;
+	private final String basisFactorCurveName;
+	private final double fixedCoupon; //Set equal zero if floating rate note 
+	private final double floatingSpread;
+	private final double recoveryRate;
 	
 	
 	/**
@@ -182,9 +190,9 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 		
 		double basisFactorFactor	= paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0;
 		
-		
 		value +=  discountFactor * survivalProbabilityFactor * basisFactorFactor;
 		
+		// @TODO: The forward value should use division of all curves
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 	
@@ -238,12 +246,12 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * This method can be used for optimizer.
 	 * 
 	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
-	 * @param yield The yield which is used for discounted the coupon payments.
+	 * @param rate The yield which is used for discounted the coupon payments.
 	 * @param model The model under which the product is valued.
 	 * @return The value of the bond for the given yield.
 	 */
 	public double getValueWithGivenYield(double evaluationTime, double rate, AnalyticModelInterface model) {
-		DiscountCurveInterface referenceCurve=net.finmath.marketdata.model.curves.DiscountCurve.createDiscountCurveFromDiscountFactors("referenceCurve", new double[] {0.0, 1.0},new double[]  {1.0, 1.0});
+		DiscountCurveInterface referenceCurve = DiscountCurve.createDiscountCurveFromDiscountFactors("referenceCurve", new double[] {0.0, 1.0}, new double[]  {1.0, 1.0});
 		return getValueWithGivenSpreadOverCurve(evaluationTime, referenceCurve, rate, model);
 	}
 	
@@ -256,7 +264,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The optimal spread value.
 	 */
-	public double getSpread(double bondPrice,CurveInterface referenceCurve, AnalyticModelInterface model) {
+	public double getSpread(double bondPrice, CurveInterface referenceCurve, AnalyticModelInterface model) {
 		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);		
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
 			double x = search.getNextPoint();
