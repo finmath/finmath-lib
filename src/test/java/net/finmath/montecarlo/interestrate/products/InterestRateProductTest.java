@@ -411,8 +411,8 @@ public class InterestRateProductTest {
 		}
 	}
 
-	/*
-	public static void tarnPriceTest(LIBORModelMonteCarloSimulationInterface liborMarketModel) {
+	@Test
+	public void testTarnPrice(LIBORModelMonteCarloSimulationInterface liborMarketModel) throws CalculationException {
         double[] periodLengths = { 0.5, 0.5, 0.5, 0.5, 0.5 };
         
 		double[] fixingDates = { 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5 };
@@ -427,5 +427,4 @@ public class InterestRateProductTest {
 					+ "\t" + product2.getValue(liborMarketModel)
         );
 	}
-	*/
 }

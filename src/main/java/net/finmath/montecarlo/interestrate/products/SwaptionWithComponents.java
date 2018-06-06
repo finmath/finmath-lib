@@ -26,9 +26,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 
-	AbstractLIBORMonteCarloProduct option;
+	private AbstractLIBORMonteCarloProduct option;
 	
 	/**
+	 * @param exerciseDate The exercise date
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
@@ -87,7 +88,7 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
      * @param evaluationTime The time on which this products value should be observed.
      * @param model The model used to price the product.
      * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException 
+     * @throws CalculationException Thrown when valuation fails from valuation model.
      */
     @Override
     public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        

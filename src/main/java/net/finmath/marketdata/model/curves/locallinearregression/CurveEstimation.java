@@ -58,10 +58,10 @@ public class CurveEstimation{
 	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.     
 	 * @param bandwidth The bandwidth parameter of the regression.
 	 * @param X The realization of a random variable X.
-	 * @param X The realization of a random variable Y.
-	 * @param partitionValues The values to create a partition. It is important that min(partition) <= min(X) and max(partition) >= max(X).
+	 * @param Y The realization of a random variable Y.
+	 * @param partitionValues The values to create a partition. It is important that min(partition) &le; min(X) and max(partition) &ge; max(X).
 	 * @param weight The weight needed to create a partition.
-	 * @param Distribution The kernel type. 
+	 * @param distribution The kernel type. 
 	 */
 	public CurveEstimation(
 			LocalDate referenceDate,
@@ -99,8 +99,8 @@ public class CurveEstimation{
 	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.     
 	 * @param bandwidth The bandwidth parameter of the regression.
 	 * @param X The realization of a random variable X.
-	 * @param X The realization of a random variable Y.
-	 * @param partitionValues The values to create a partition. It is important that min(partition) <= min(X) and max(partition) >= max(X).
+	 * @param Y The realization of a random variable Y.
+	 * @param partitionValues The values to create a partition. It is important that min(partition) &le; min(X) and max(partition) &ge; max(X).
 	 * @param weight The weight needed to create a partition.
 	 */
 	public CurveEstimation(
