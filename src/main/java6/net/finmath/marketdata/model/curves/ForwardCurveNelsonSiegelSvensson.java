@@ -83,12 +83,11 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
-		paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
 		if(daycountConvention != null) {
 			LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
-			LocalDate paymentDate		= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);;
-			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
+			LocalDate paymentDate		= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);
+            daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
 		}
 
 		return (discountCurve.getDiscountFactor(model, fixingTime+periodOffset) / discountCurve.getDiscountFactor(model, fixingTime+periodOffset + paymentOffset) - 1.0) / daycountFraction;
