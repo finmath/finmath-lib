@@ -368,7 +368,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @param name The name of this discount curve.
 	 * @param tenor Time discretization for the forward rates
 	 * @param forwardRates Array of forward rates.
-	 * @return A new discount factor object.
+	 * @return A new discount curve object.
 	 */
 	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretizationInterface tenor, double[] forwardRates) {
 		DiscountCurve discountFactors = new DiscountCurve(name);

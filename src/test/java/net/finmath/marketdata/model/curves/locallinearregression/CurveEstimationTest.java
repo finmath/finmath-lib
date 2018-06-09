@@ -13,7 +13,6 @@ import org.jblas.DoubleMatrix;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.functions.LinearAlgebra;
 import net.finmath.marketdata.model.curves.CurveInterface;
 
 public class CurveEstimationTest {

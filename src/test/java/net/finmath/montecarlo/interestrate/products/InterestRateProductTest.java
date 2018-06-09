@@ -28,13 +28,6 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExp
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialForm;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.Bond;
-import net.finmath.montecarlo.interestrate.products.FlexiCap;
-import net.finmath.montecarlo.interestrate.products.Swap;
-import net.finmath.montecarlo.interestrate.products.Swaption;
-import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
-import net.finmath.montecarlo.interestrate.products.indices.ConstantMaturitySwaprate;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
 

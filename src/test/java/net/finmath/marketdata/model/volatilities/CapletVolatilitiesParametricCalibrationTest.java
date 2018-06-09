@@ -58,7 +58,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 	 * 
 	 * @return Array of parameters.
 	 */
-	@Parameters(name="{1}")
+	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
