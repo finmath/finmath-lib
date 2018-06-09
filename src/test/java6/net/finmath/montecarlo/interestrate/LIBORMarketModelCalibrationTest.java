@@ -284,7 +284,7 @@ public class LIBORMarketModelCalibrationTest {
 	@Test
 	public void testATMSwaptionCalibration() throws CalculationException, SolverException {
 
-		final int numberOfPaths		= 5000;
+		final int numberOfPaths		= 1000;
 		final int numberOfFactors	= 1;
 
 		long millisCurvesStart = System.currentTimeMillis();
