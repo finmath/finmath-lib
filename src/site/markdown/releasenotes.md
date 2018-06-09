@@ -5,11 +5,15 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 3.2.4 (09.06.2018)
+## 3.2.5 (09.06.2018)
 
 ### Market Data: Bond Curves
 
 - Added implementation for Bond curve calibration via Local Linear Regression (see https://ssrn.com/abstract=3073942 ). See package net.finmath.marketdata.model.bond
+
+### LIBOR Market Model
+
+- Fixed an inconsistency in the LMM curve interpolation. The LMM curve interpolation is now 100% consistent with the interpolation of the provided forward/discount curve, given that the forward curves allows for an interpolation on short periods (Note: not all forward curves allow this, positive example are forward curves from discout curves and NSS curves).
 
 ## 3.2.3 (10.05.2018)
 
