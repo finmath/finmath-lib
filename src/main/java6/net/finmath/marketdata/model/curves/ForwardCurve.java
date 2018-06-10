@@ -7,6 +7,7 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
