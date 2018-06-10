@@ -8,6 +8,8 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import javax.naming.OperationNotSupportedException;
+
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.FloatingpointDate;
@@ -107,7 +109,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 			@Override
 			public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
-				return this;
+				throw new UnsupportedOperationException("NSS curve does not support adding points.");
 			}			
 		};
 	}

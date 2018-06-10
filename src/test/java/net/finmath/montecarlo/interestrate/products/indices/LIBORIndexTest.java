@@ -134,7 +134,7 @@ public class LIBORIndexTest {
 			
 			// @TODO Add correct benchmark for case CurveSetup.DISCRETE_FORWARDCURVE
 			// The setup DISCRETE_FORWARDCURVE has a different behaviour for interpolated forwards, so we will see deviations on unaligned periods:
-			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) toleranceThisTest += 10.0/100.0/100.0 * (periodEnd-periodStart);
+			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) toleranceThisTest += 5.0/100.0/100.0 * (periodEnd-periodStart);
 
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
@@ -312,9 +312,6 @@ public class LIBORIndexTest {
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
 			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 			
-			// The setup DISCRETE_FORWARDCURVE has a different behaviour for interpolated forwards, so we will see deviations on unaligned periods:
-			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) toleranceThisTest += 1.0/100.0/100.0;
-
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );
@@ -353,9 +350,6 @@ public class LIBORIndexTest {
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
 			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 			
-			// The setup DISCRETE_FORWARDCURVE has a different behaviour for interpolated forwards, so we will see deviations on unaligned periods:
-			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) toleranceThisTest += 1.0/100.0/100.0;
-
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );

@@ -108,7 +108,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 			@Override
 			public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
-				return this;
+				throw new UnsupportedOperationException("NSS curve does not support adding points.");
 			}			
 		};
 	}
