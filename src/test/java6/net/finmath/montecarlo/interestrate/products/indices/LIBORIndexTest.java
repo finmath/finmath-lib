@@ -68,8 +68,8 @@ public class LIBORIndexTest {
 	}
 
 	/**
-	 * The parameters for this test, that is an error consisting of
-	 * { numberOfPaths, setup }.
+	 * The parameters for this test, that is an array consisting of
+	 * { numberOfPaths, setup, isVolatility }.
 	 * 
 	 * @return Array of parameters.
 	 */
