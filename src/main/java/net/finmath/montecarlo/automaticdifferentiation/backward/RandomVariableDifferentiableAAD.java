@@ -435,7 +435,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 				// Add all non leaf node arguments to the list of independents
 				for(OperatorTreeNode argument : arguments) {
-					// If in argument is null, it is a (non-differentiable) constant.
+					// If an argument is null, it is a (non-differentiable) constant.
 					if(argument != null) independents.put(argument.id, argument);
 				}
 			}
