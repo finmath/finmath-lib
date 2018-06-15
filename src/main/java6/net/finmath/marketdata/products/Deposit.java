@@ -23,7 +23,7 @@ import net.finmath.time.ScheduleInterface;
  * @author Rebecca Declara
  * @author Christian Fries
  */
-public class Deposit  extends AbstractAnalyticProduct implements AnalyticProductInterface{
+public class Deposit extends AbstractAnalyticProduct implements AnalyticProductInterface{
 
 	private ScheduleInterface	schedule;
 	private double				rate;
