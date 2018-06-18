@@ -2,7 +2,7 @@ package net.finmath.finitedifference.products;
 
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
 
-public class FDMEuropeanCallOption {
+public class FDMEuropeanCallOption implements FiniteDifference1DBoundary {
     public double maturity;
     public double strike;
     private double riskFreeRate;
@@ -17,11 +17,13 @@ public class FDMEuropeanCallOption {
         return Math.max(stockPrice - strike, 0);
     }
 
-    public double valueAtLowerStockPriceBoundary(double stockPrice, double currentTime) {
+    @Override
+	public double valueAtLowerStockPriceBoundary(double stockPrice, double currentTime) {
         return 0;
     }
 
-    public double valueAtUpperStockPriceBoundary(double stockPrice, double currentTime) {
+    @Override
+	public double valueAtUpperStockPriceBoundary(double stockPrice, double currentTime) {
         return stockPrice - strike * Math.exp(-riskFreeRate*(maturity - currentTime));
     }
 

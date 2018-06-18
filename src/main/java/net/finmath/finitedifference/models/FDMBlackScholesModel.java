@@ -3,6 +3,13 @@ package net.finmath.finitedifference.models;
 import net.finmath.finitedifference.products.FDMEuropeanCallOption;
 import net.finmath.finitedifference.solvers.FDMThetaMethod;
 
+/**
+ * Black Scholes model using finite difference method.
+ * 
+ * @author Ralph Rudd
+ * @author Christian Fries
+ * @author Jörg Kienitz
+ */
 public class FDMBlackScholesModel {
     public int numTimesteps;
     public int numSpacesteps;
@@ -31,13 +38,12 @@ public class FDMBlackScholesModel {
                 * (Math.exp(Math.pow(volatility, 2) * time) - 1);
     }
 
-    public double expectedValueOfStockPrice(double time) {
+    public double getForwardValue(double time) {
         return initialValue * Math.exp(riskFreeRate * time);
     }
 
-
     public double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option, double theta) {
-        FDMThetaMethod solver = new FDMThetaMethod(this, option, theta);
-        return solver.valueOption();
+        FDMThetaMethod solver = new FDMThetaMethod(this, option, option.maturity, option.strike, theta);
+        return solver.getValue(stockPrice -> option.valueAtMaturity(stockPrice));
     }
 }

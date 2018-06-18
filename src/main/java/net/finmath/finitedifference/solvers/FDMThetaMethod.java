@@ -2,51 +2,48 @@ package net.finmath.finitedifference.solvers;
 
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.products.FDMEuropeanCallOption;
+import net.finmath.finitedifference.products.FiniteDifference1DBoundary;
+
 import org.apache.commons.math3.linear.*;
 
 import java.util.Arrays;
+import java.util.function.DoubleUnaryOperator;
 
+/**
+ * One dimensional finite difference solver.
+ * 
+ * @author Ralph Rudd
+ * @author Christian Fries
+ * @author Jörg Kienitz
+ */
 public class FDMThetaMethod {
     private FDMBlackScholesModel model;
-    private FDMEuropeanCallOption option;
+    private FiniteDifference1DBoundary boundaryCondition;
     private double alpha;
     private double beta;
     private double gamma;
     private double theta;
+    private double center;
+    private double timeHorizon;
 
-
-    // State Space Transformations
-    private double f_x(double S) {return Math.log(S / option.strike); }
-    private double f_s(double x) { return option.strike * Math.exp(x); }
-    private double f_t(double tau) { return option.maturity - (2 * tau) / Math.pow(model.volatility, 2); }
-    private double f(double V, double x, double tau) { return (V / option.strike) * Math.exp(-alpha * x - beta * tau); }
-
-    // Heat Equation Boundary Conditions
-    private double u_0(double x) {
-        return f(option.valueAtMaturity(f_s(x)), x, 0);
-    }
-    private double u_neg_inf(double x, double tau) {
-        return f(option.valueAtLowerStockPriceBoundary(f_s(x), f_t(tau)), x, tau);
-    }
-    private double u_pos_inf(double x, double tau) {
-        return f(option.valueAtUpperStockPriceBoundary(f_s(x), f_t(tau)), x, tau);
-    }
-
-    public FDMThetaMethod(FDMBlackScholesModel model, FDMEuropeanCallOption option, double theta) {
+    public FDMThetaMethod(FDMBlackScholesModel model, FiniteDifference1DBoundary boundaryCondition, double timeHorizon, double center, double theta) {
         this.model = model;
-        this.option = option;
+        this.boundaryCondition = boundaryCondition;
+        this.timeHorizon = timeHorizon;
+        this.center = center;
         this.theta = theta;
+
         this.gamma = (2 * model.riskFreeRate) / Math.pow(model.volatility, 2);
         this.alpha = -0.5 * (gamma - 1);
         this.beta = -0.25 * Math.pow((gamma + 1), 2);
     }
 
-    public double[][] valueOption() {
+    public double[][] getValue(DoubleUnaryOperator valueAtMaturity) {
         // Grid Generation
-        double maximumStockPriceOnGrid = model.expectedValueOfStockPrice(option.maturity)
-                + model.numStandardDeviations * Math.sqrt(model.varianceOfStockPrice(option.maturity));
-        double minimumStockPriceOnGrid = Math.max(model.expectedValueOfStockPrice(option.maturity)
-                - model.numStandardDeviations * Math.sqrt(model.varianceOfStockPrice(option.maturity)), 0);
+        double maximumStockPriceOnGrid = model.getForwardValue(timeHorizon)
+                + model.numStandardDeviations * Math.sqrt(model.varianceOfStockPrice(timeHorizon));
+        double minimumStockPriceOnGrid = Math.max(model.getForwardValue(timeHorizon)
+                - model.numStandardDeviations * Math.sqrt(model.varianceOfStockPrice(timeHorizon)), 0);
         double maximumX = f_x(maximumStockPriceOnGrid);
         double minimumX = f_x(Math.max(minimumStockPriceOnGrid, 1));
         double dx = (maximumX - minimumX) / (model.numSpacesteps - 2);
@@ -61,7 +58,7 @@ public class FDMThetaMethod {
         }
 
         // Create time vector for heat equation
-        double dtau = Math.pow(model.volatility, 2) * option.maturity / (2 * model.numTimesteps);
+        double dtau = Math.pow(model.volatility, 2) * timeHorizon / (2 * model.numTimesteps);
         double[] tau = new double[model.numTimesteps + 1];
         for (int i = 0; i < model.numTimesteps + 1; i++) {
             tau[i] = i * dtau;
@@ -96,7 +93,8 @@ public class FDMThetaMethod {
         // Initialize U
         double[] U = new double[len];
         for (int i = 0; i < U.length; i++) {
-            U[i] = u_0(x[i]);
+        	double state = x[i];
+            U[i] = f(valueAtMaturity.applyAsDouble(f_s(state)), state, 0);
         }
         RealMatrix UVector = MatrixUtils.createColumnRealMatrix(U);
 
@@ -117,7 +115,7 @@ public class FDMThetaMethod {
         double[] optionPrice = new double[len];
         double[] stockPrice = new double[len];
         for (int i = 0; i < len; i++ ){
-            optionPrice[i] = U[i] * option.strike *
+            optionPrice[i] = U[i] * center *
                     Math.exp(alpha * x[i] + beta * tau[model.numTimesteps]);
             stockPrice[i] = f_s(x[i]);
         }
@@ -128,4 +126,17 @@ public class FDMThetaMethod {
         return stockAndOptionPrice;
     }
 
+    // State Space Transformations
+    private double f_x(double S) {return Math.log(S / center); }
+    private double f_s(double x) { return center * Math.exp(x); }
+    private double f_t(double tau) { return timeHorizon - (2 * tau) / Math.pow(model.volatility, 2); }
+    private double f(double V, double x, double tau) { return (V / center) * Math.exp(-alpha * x - beta * tau); }
+
+    // Heat Equation Boundary Conditions
+    private double u_neg_inf(double x, double tau) {
+        return f(boundaryCondition.valueAtLowerStockPriceBoundary(f_s(x), f_t(tau)), x, tau);
+    }
+    private double u_pos_inf(double x, double tau) {
+        return f(boundaryCondition.valueAtUpperStockPriceBoundary(f_s(x), f_t(tau)), x, tau);
+    }
 }

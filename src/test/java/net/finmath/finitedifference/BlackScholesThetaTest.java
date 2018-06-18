@@ -45,6 +45,7 @@ public class BlackScholesThetaTest {
                 initialValue,
                 riskFreeRate,
                 volatility);
+
         FDMEuropeanCallOption callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike, riskFreeRate);
         double[][] valueFDM = callOption.getValue(model, theta);
         double[] initialStockPrice = valueFDM[0];
@@ -57,6 +58,5 @@ public class BlackScholesThetaTest {
 
         Assert.assertArrayEquals(optionValue, analyticalOptionValue, 1.2e-2);
         System.out.println(Arrays.toString(optionValue));
-
     }
 }
