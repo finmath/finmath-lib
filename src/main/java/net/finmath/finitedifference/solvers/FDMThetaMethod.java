@@ -1,13 +1,16 @@
 package net.finmath.finitedifference.solvers;
 
-import net.finmath.finitedifference.models.FDMBlackScholesModel;
-import net.finmath.finitedifference.products.FDMEuropeanCallOption;
-import net.finmath.finitedifference.products.FiniteDifference1DBoundary;
-
-import org.apache.commons.math3.linear.*;
-
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+
+import net.finmath.finitedifference.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.products.FiniteDifference1DBoundary;
 
 /**
  * One dimensional finite difference solver.
