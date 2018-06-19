@@ -1,8 +1,12 @@
 package net.finmath.finitedifference.models;
 
+import java.util.function.DoubleUnaryOperator;
+
 import net.finmath.finitedifference.products.FDMEuropeanCallOption;
 
 public interface FiniteDifference1DModel {
+
+	double[][] getValue(double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary);
 
 	double varianceOfStockPrice(double time);
 
@@ -10,11 +14,10 @@ public interface FiniteDifference1DModel {
 
 	double getRiskFreeRate();
 
-	double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option);
-
 	double getNumStandardDeviations();
 
 	int getNumSpacesteps();
 
 	double getVolatility();
+
 }

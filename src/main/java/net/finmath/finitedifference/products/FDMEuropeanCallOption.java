@@ -3,7 +3,7 @@ package net.finmath.finitedifference.products;
 import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
-public class FDMEuropeanCallOption implements FiniteDifference1DBoundary {
+public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteDifference1DBoundary {
 	private final double maturity;
 	private final double strike;
 
@@ -18,7 +18,9 @@ public class FDMEuropeanCallOption implements FiniteDifference1DBoundary {
 
 	public double[][] getValue(FiniteDifference1DModel model) {
 		// The FDM algorithm requires the boundary conditions of the product
-		return model.valueOptionWithThetaMethod(this);
+		FiniteDifference1DBoundary boundary = this;
+		
+		return model.getValue(maturity, assetValue -> valueAtMaturity(assetValue), boundary);
 	}
 
 	/*

@@ -1,5 +1,7 @@
 package net.finmath.finitedifference.models;
 
+import java.util.function.DoubleUnaryOperator;
+
 import net.finmath.finitedifference.products.FDMEuropeanCallOption;
 import net.finmath.finitedifference.solvers.FDMThetaMethod;
 
@@ -94,9 +96,9 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#valueOptionWithThetaMethod(net.finmath.finitedifference.products.FDMEuropeanCallOption, double)
 	 */
 	@Override
-	public double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option) {
-        FDMThetaMethod solver = new FDMThetaMethod(this, option, option.getMaturity(), center, theta);
-        return solver.getValue(stockPrice -> option.valueAtMaturity(stockPrice));
+	public double[][] getValue(double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary) {
+        FDMThetaMethod solver = new FDMThetaMethod(this, boundary, time, center, theta);
+        return solver.getValue(values);
     }
 
 }
