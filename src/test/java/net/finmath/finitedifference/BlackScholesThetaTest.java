@@ -43,12 +43,13 @@ public class BlackScholesThetaTest {
                 numTimesteps,
                 numSpacesteps,
                 numStandardDeviations,
+                theta,
                 initialValue,
                 riskFreeRate,
                 volatility);
 
         FDMEuropeanCallOption callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike);
-        double[][] valueFDM = callOption.getValue(model, theta);
+        double[][] valueFDM = callOption.getValue(model);
         double[] initialStockPrice = valueFDM[0];
         double[] optionValue = valueFDM[1];
         double[] analyticalOptionValue = new double[optionValue.length];

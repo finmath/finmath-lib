@@ -10,6 +10,5 @@ public interface FiniteDifference1DModel {
 
 	double getRiskFreeRate();
 
-	double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option, double theta);
-
+	double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option);
 }

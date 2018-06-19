@@ -11,26 +11,34 @@ import net.finmath.finitedifference.solvers.FDMThetaMethod;
  * @author Jörg Kienitz
  */
 public class FDMBlackScholesModel implements FiniteDifference1DModel {
-    public int numTimesteps;
-    public int numSpacesteps;
-    public int numStandardDeviations;
     public double initialValue;
     public double riskFreeRate;
     public double volatility;
+
+    /*
+     * Solver properties - will be moved to solver.
+     */
+    public int numTimesteps;
+    public int numSpacesteps;
+    public int numStandardDeviations;
+    private double theta;
 
     public FDMBlackScholesModel(
             int numTimesteps,
             int numSpacesteps,
             int numStandardDeviations,
+            double theta,
             double initialValue,
             double riskFreeRate,
             double volatility) {
-        this.numTimesteps = numTimesteps;
-        this.numSpacesteps = numSpacesteps;
-        this.numStandardDeviations = numStandardDeviations;
         this.initialValue = initialValue;
         this.riskFreeRate = riskFreeRate;
         this.volatility = volatility;
+        
+        this.numTimesteps = numTimesteps;
+        this.numSpacesteps = numSpacesteps;
+        this.numStandardDeviations = numStandardDeviations;
+        this.theta = theta;
     }
 
     /* (non-Javadoc)
@@ -58,11 +66,32 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 		return riskFreeRate;
 	}
 
+	
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	public double getVolatility() {
+		return volatility;
+	}
+
+	public int getNumTimesteps() {
+		return numTimesteps;
+	}
+
+	public int getNumSpacesteps() {
+		return numSpacesteps;
+	}
+
+	public int getNumStandardDeviations() {
+		return numStandardDeviations;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#valueOptionWithThetaMethod(net.finmath.finitedifference.products.FDMEuropeanCallOption, double)
 	 */
 	@Override
-	public double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option, double theta) {
+	public double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option) {
         FDMThetaMethod solver = new FDMThetaMethod(this, option, option.maturity, option.strike, theta);
         return solver.getValue(stockPrice -> option.valueAtMaturity(stockPrice));
     }
