@@ -95,9 +95,9 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#valueOptionWithThetaMethod(net.finmath.finitedifference.products.FDMEuropeanCallOption, double)
 	 */
 	@Override
-	public double[][] getValue(double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary) {
+	public double[][] getValue(double evaluationnTime, double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary) {
 		FDMThetaMethod solver = new FDMThetaMethod(this, boundary, time, center, theta);
-		return solver.getValue(values);
+		return solver.getValue(evaluationnTime, time, values);
 	}
 
 }

@@ -51,7 +51,7 @@ public class BlackScholesThetaTest {
 				volatility);
 
 		FiniteDifference1DProduct callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike);
-		double[][] valueFDM = callOption.getValue(model);
+		double[][] valueFDM = callOption.getValue(0.0, model);
 		double[] initialStockPrice = valueFDM[0];
 		double[] optionValue = valueFDM[1];
 		double[] analyticalOptionValue = new double[optionValue.length];

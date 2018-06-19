@@ -12,15 +12,15 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 		this.strike = optionStrike;
 	}
 
-	public double valueAtMaturity(double stockPrice) {
-		return Math.max(stockPrice - strike, 0);
-	}
-
-	public double[][] getValue(FiniteDifference1DModel model) {
-		// The FDM algorithm requires the boundary conditions of the product
+	public double[][] getValue(double evaluationTime, FiniteDifference1DModel model) {
+		
+		/*
+		 * The FDM algorithm requires the boundary conditions of the product.
+		 * This product implements the boundary interface
+		 */
 		FiniteDifference1DBoundary boundary = this;
 		
-		return model.getValue(maturity, assetValue -> valueAtMaturity(assetValue), boundary);
+		return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(assetValue - strike, 0), boundary);
 	}
 
 	/*
@@ -37,9 +37,4 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 	public double getValueAtUpperBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
 		return stockPrice - strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
 	}
-
-	public double getMaturity() {
-		return maturity;
-	}
-
 }

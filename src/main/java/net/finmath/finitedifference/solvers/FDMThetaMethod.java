@@ -44,7 +44,10 @@ public class FDMThetaMethod {
 		this.beta = -0.25 * Math.pow((gamma + 1), 2);
 	}
 
-	public double[][] getValue(DoubleUnaryOperator valueAtMaturity) {
+	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator valueAtMaturity) {
+		if(evaluationTime != 0) throw new IllegalArgumentException("Evaluation time != 0 not supported.");
+		if(time != timeHorizon) throw new IllegalArgumentException("Given time != timeHorizonn not supported.");
+
 		// Grid Generation
 		double maximumStockPriceOnGrid = model.getForwardValue(timeHorizon)
 				+ model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon));

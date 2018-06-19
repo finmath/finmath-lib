@@ -9,7 +9,11 @@ import net.finmath.finitedifference.models.FiniteDifference1DModel;
  */
 public interface FiniteDifference1DProduct {
 
-	double[][] getValue(FiniteDifference1DModel model);
-
-	double getMaturity();
+	/**
+	 * Return the value of the product under the given model.
+	 * 
+	 * @param model
+	 * @return
+	 */
+	double[][] getValue(double evaluationTime, FiniteDifference1DModel model);
 }
