@@ -18,12 +18,12 @@ public class FDMEuropeanCallOption implements FiniteDifference1DBoundary {
     }
 
     @Override
-	public double valueAtLowerStockPriceBoundary(double stockPrice, double currentTime) {
+	public double getValueAtLowerBoundary(double currentTime, double stockPrice) {
         return 0;
     }
 
     @Override
-	public double valueAtUpperStockPriceBoundary(double stockPrice, double currentTime) {
+	public double getValueAtUpperBoundary(double currentTime, double stockPrice) {
         return stockPrice - strike * Math.exp(-riskFreeRate*(maturity - currentTime));
     }
 

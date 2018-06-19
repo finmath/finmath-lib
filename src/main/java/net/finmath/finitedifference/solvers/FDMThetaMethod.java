@@ -137,9 +137,9 @@ public class FDMThetaMethod {
 
 	// Heat Equation Boundary Conditions
 	private double u_neg_inf(double x, double tau) {
-		return f(boundaryCondition.valueAtLowerStockPriceBoundary(f_s(x), f_t(tau)), x, tau);
+		return f(boundaryCondition.getValueAtLowerBoundary(f_t(tau), f_s(x)), x, tau);
 	}
 	private double u_pos_inf(double x, double tau) {
-		return f(boundaryCondition.valueAtUpperStockPriceBoundary(f_s(x), f_t(tau)), x, tau);
+		return f(boundaryCondition.getValueAtUpperBoundary(f_t(tau), f_s(x)), x, tau);
 	}
 }
