@@ -11,6 +11,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
+import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
 /**
  * One dimensional finite difference solver.
@@ -20,7 +21,7 @@ import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
  * @author Jörg Kienitz
  */
 public class FDMThetaMethod {
-	private FDMBlackScholesModel model;
+	private FiniteDifference1DModel model;
 	private FiniteDifference1DBoundary boundaryCondition;
 	private double alpha;
 	private double beta;
@@ -61,9 +62,9 @@ public class FDMThetaMethod {
 		}
 
 		// Create time vector for heat equation
-		double dtau = Math.pow(model.getVolatility(), 2) * timeHorizon / (2 * model.getNumTimesteps());
-		double[] tau = new double[model.getNumTimesteps() + 1];
-		for (int i = 0; i < model.getNumTimesteps() + 1; i++) {
+		double dtau = Math.pow(model.getVolatility(), 2) * timeHorizon / (2 * model.getNumSpacesteps());
+		double[] tau = new double[model.getNumSpacesteps() + 1];
+		for (int i = 0; i < model.getNumSpacesteps() + 1; i++) {
 			tau[i] = i * dtau;
 		}
 
@@ -102,7 +103,7 @@ public class FDMThetaMethod {
 		RealMatrix UVector = MatrixUtils.createColumnRealMatrix(U);
 
 		// Solve system
-		for (int m = 0; m < model.getNumTimesteps(); m++) {
+		for (int m = 0; m < model.getNumSpacesteps(); m++) {
 			b[0] = (u_neg_inf(N_neg * dx, tau[m]) * (1 - theta) * kappa)
 					+ (u_neg_inf(N_neg * dx, tau[m + 1]) * theta * kappa);
 			b[len-1] = (u_pos_inf(N_pos * dx, tau[m]) * (1 - theta) * kappa)
@@ -119,7 +120,7 @@ public class FDMThetaMethod {
 		double[] stockPrice = new double[len];
 		for (int i = 0; i < len; i++ ){
 			optionPrice[i] = U[i] * center *
-					Math.exp(alpha * x[i] + beta * tau[model.getNumTimesteps()]);
+					Math.exp(alpha * x[i] + beta * tau[model.getNumSpacesteps()]);
 			stockPrice[i] = f_s(x[i]);
 		}
 

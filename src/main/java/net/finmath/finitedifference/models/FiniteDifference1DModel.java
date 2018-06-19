@@ -11,4 +11,10 @@ public interface FiniteDifference1DModel {
 	double getRiskFreeRate();
 
 	double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option);
+
+	double getNumStandardDeviations();
+
+	int getNumSpacesteps();
+
+	double getVolatility();
 }

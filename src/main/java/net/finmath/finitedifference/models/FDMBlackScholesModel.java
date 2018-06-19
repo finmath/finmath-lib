@@ -83,7 +83,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 		return numSpacesteps;
 	}
 
-	public int getNumStandardDeviations() {
+	public double getNumStandardDeviations() {
 		return numStandardDeviations;
 	}
 
