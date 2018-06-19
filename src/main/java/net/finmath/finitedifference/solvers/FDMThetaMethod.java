@@ -10,7 +10,7 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
-import net.finmath.finitedifference.products.FiniteDifference1DBoundary;
+import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
 
 /**
  * One dimensional finite difference solver.
@@ -137,9 +137,9 @@ public class FDMThetaMethod {
 
 	// Heat Equation Boundary Conditions
 	private double u_neg_inf(double x, double tau) {
-		return f(boundaryCondition.getValueAtLowerBoundary(f_t(tau), f_s(x)), x, tau);
+		return f(boundaryCondition.getValueAtLowerBoundary(model, f_t(tau), f_s(x)), x, tau);
 	}
 	private double u_pos_inf(double x, double tau) {
-		return f(boundaryCondition.getValueAtUpperBoundary(f_t(tau), f_s(x)), x, tau);
+		return f(boundaryCondition.getValueAtUpperBoundary(model, f_t(tau), f_s(x)), x, tau);
 	}
 }

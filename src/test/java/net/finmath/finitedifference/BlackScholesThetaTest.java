@@ -2,6 +2,7 @@ package net.finmath.finitedifference;
 
 import net.finmath.finitedifference.experimental.BlackScholesTheta;
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.models.FiniteDifference1DModel;
 import net.finmath.finitedifference.products.FDMEuropeanCallOption;
 import net.finmath.functions.AnalyticFormulas;
 import org.junit.Assert;
@@ -38,7 +39,7 @@ public class BlackScholesThetaTest {
         double initialValue = 50;
         double theta = 0.5;
 
-        FDMBlackScholesModel model = new FDMBlackScholesModel(
+        FiniteDifference1DModel model = new FDMBlackScholesModel(
                 numTimesteps,
                 numSpacesteps,
                 numStandardDeviations,
@@ -46,7 +47,7 @@ public class BlackScholesThetaTest {
                 riskFreeRate,
                 volatility);
 
-        FDMEuropeanCallOption callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike, riskFreeRate);
+        FDMEuropeanCallOption callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike);
         double[][] valueFDM = callOption.getValue(model, theta);
         double[] initialStockPrice = valueFDM[0];
         double[] optionValue = valueFDM[1];

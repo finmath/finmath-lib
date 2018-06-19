@@ -10,7 +10,7 @@ import net.finmath.finitedifference.solvers.FDMThetaMethod;
  * @author Christian Fries
  * @author Jörg Kienitz
  */
-public class FDMBlackScholesModel {
+public class FDMBlackScholesModel implements FiniteDifference1DModel {
     public int numTimesteps;
     public int numSpacesteps;
     public int numStandardDeviations;
@@ -33,17 +33,38 @@ public class FDMBlackScholesModel {
         this.volatility = volatility;
     }
 
-    public double varianceOfStockPrice(double time) {
+    /* (non-Javadoc)
+	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#varianceOfStockPrice(double)
+	 */
+    @Override
+	public double varianceOfStockPrice(double time) {
         return Math.pow(initialValue, 2) * Math.exp(2 * riskFreeRate * time)
                 * (Math.exp(Math.pow(volatility, 2) * time) - 1);
     }
 
-    public double getForwardValue(double time) {
+    /* (non-Javadoc)
+	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#getForwardValue(double)
+	 */
+    @Override
+	public double getForwardValue(double time) {
         return initialValue * Math.exp(riskFreeRate * time);
     }
 
-    public double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option, double theta) {
+	/* (non-Javadoc)
+	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#getRiskFreeRate()
+	 */
+	@Override
+	public double getRiskFreeRate() {
+		return riskFreeRate;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#valueOptionWithThetaMethod(net.finmath.finitedifference.products.FDMEuropeanCallOption, double)
+	 */
+	@Override
+	public double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option, double theta) {
         FDMThetaMethod solver = new FDMThetaMethod(this, option, option.maturity, option.strike, theta);
         return solver.getValue(stockPrice -> option.valueAtMaturity(stockPrice));
     }
+
 }
