@@ -21,12 +21,14 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
     private int numTimesteps;
     private int numSpacesteps;
     private int numStandardDeviations;
+    private double center;
     private double theta;
 
     public FDMBlackScholesModel(
             int numTimesteps,
             int numSpacesteps,
             int numStandardDeviations,
+            double center,
             double theta,
             double initialValue,
             double riskFreeRate,
@@ -38,6 +40,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
         this.numTimesteps = numTimesteps;
         this.numSpacesteps = numSpacesteps;
         this.numStandardDeviations = numStandardDeviations;
+        this.center = center;
         this.theta = theta;
     }
 
@@ -92,7 +95,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	 */
 	@Override
 	public double[][] valueOptionWithThetaMethod(FDMEuropeanCallOption option) {
-        FDMThetaMethod solver = new FDMThetaMethod(this, option, option.maturity, option.strike, theta);
+        FDMThetaMethod solver = new FDMThetaMethod(this, option, option.getMaturity(), center, theta);
         return solver.getValue(stockPrice -> option.valueAtMaturity(stockPrice));
     }
 

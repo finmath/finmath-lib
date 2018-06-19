@@ -4,8 +4,8 @@ import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
 public class FDMEuropeanCallOption implements FiniteDifference1DBoundary {
-	public double maturity;
-	public double strike;
+	private final double maturity;
+	private final double strike;
 
 	public FDMEuropeanCallOption(double optionMaturity, double optionStrike) {
 		this.maturity = optionMaturity;
@@ -34,6 +34,10 @@ public class FDMEuropeanCallOption implements FiniteDifference1DBoundary {
 	@Override
 	public double getValueAtUpperBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
 		return stockPrice - strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
+	}
+
+	public double getMaturity() {
+		return maturity;
 	}
 
 }

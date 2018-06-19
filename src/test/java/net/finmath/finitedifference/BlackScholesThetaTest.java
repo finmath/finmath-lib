@@ -43,6 +43,7 @@ public class BlackScholesThetaTest {
                 numTimesteps,
                 numSpacesteps,
                 numStandardDeviations,
+                optionStrike, // center of the grid.
                 theta,
                 initialValue,
                 riskFreeRate,
