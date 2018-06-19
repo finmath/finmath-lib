@@ -26,5 +26,5 @@ public interface FiniteDifference1DBoundary {
 	 * @return the value process at the upper boundary
 	 */
 	double getValueAtUpperBoundary(FiniteDifference1DModel model, double time, double assetValue);
-	
+
 }

@@ -1,9 +1,7 @@
 package net.finmath.concurrency;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Implementation of the Future interface,

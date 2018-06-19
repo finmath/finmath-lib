@@ -16,6 +16,8 @@ import net.finmath.finitedifference.models.FiniteDifference1DModel;
 /**
  * One dimensional finite difference solver.
  * 
+ * This is where the real stuff happens.
+ * 
  * @author Ralph Rudd
  * @author Christian Fries
  * @author Jörg Kienitz
