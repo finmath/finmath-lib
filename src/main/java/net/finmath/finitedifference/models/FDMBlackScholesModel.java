@@ -11,16 +11,16 @@ import net.finmath.finitedifference.solvers.FDMThetaMethod;
  * @author Jörg Kienitz
  */
 public class FDMBlackScholesModel implements FiniteDifference1DModel {
-    public double initialValue;
-    public double riskFreeRate;
-    public double volatility;
+    private double initialValue;
+    private double riskFreeRate;
+    private double volatility;
 
     /*
      * Solver properties - will be moved to solver.
      */
-    public int numTimesteps;
-    public int numSpacesteps;
-    public int numStandardDeviations;
+    private int numTimesteps;
+    private int numSpacesteps;
+    private int numStandardDeviations;
     private double theta;
 
     public FDMBlackScholesModel(

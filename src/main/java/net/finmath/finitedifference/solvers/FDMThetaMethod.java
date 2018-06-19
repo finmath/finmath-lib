@@ -36,7 +36,7 @@ public class FDMThetaMethod {
 		this.center = center;
 		this.theta = theta;
 
-		this.gamma = (2 * model.riskFreeRate) / Math.pow(model.volatility, 2);
+		this.gamma = (2 * model.getRiskFreeRate()) / Math.pow(model.getVolatility(), 2);
 		this.alpha = -0.5 * (gamma - 1);
 		this.beta = -0.25 * Math.pow((gamma + 1), 2);
 	}
@@ -44,12 +44,12 @@ public class FDMThetaMethod {
 	public double[][] getValue(DoubleUnaryOperator valueAtMaturity) {
 		// Grid Generation
 		double maximumStockPriceOnGrid = model.getForwardValue(timeHorizon)
-				+ model.numStandardDeviations * Math.sqrt(model.varianceOfStockPrice(timeHorizon));
+				+ model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon));
 		double minimumStockPriceOnGrid = Math.max(model.getForwardValue(timeHorizon)
-				- model.numStandardDeviations * Math.sqrt(model.varianceOfStockPrice(timeHorizon)), 0);
+				- model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon)), 0);
 		double maximumX = f_x(maximumStockPriceOnGrid);
 		double minimumX = f_x(Math.max(minimumStockPriceOnGrid, 1));
-		double dx = (maximumX - minimumX) / (model.numSpacesteps - 2);
+		double dx = (maximumX - minimumX) / (model.getNumSpacesteps() - 2);
 		int N_pos = (int) Math.ceil((maximumX / dx) + 1);
 		int N_neg = (int) Math.floor((minimumX / dx) - 1);
 
@@ -61,9 +61,9 @@ public class FDMThetaMethod {
 		}
 
 		// Create time vector for heat equation
-		double dtau = Math.pow(model.volatility, 2) * timeHorizon / (2 * model.numTimesteps);
-		double[] tau = new double[model.numTimesteps + 1];
-		for (int i = 0; i < model.numTimesteps + 1; i++) {
+		double dtau = Math.pow(model.getVolatility(), 2) * timeHorizon / (2 * model.getNumTimesteps());
+		double[] tau = new double[model.getNumTimesteps() + 1];
+		for (int i = 0; i < model.getNumTimesteps() + 1; i++) {
 			tau[i] = i * dtau;
 		}
 
@@ -102,7 +102,7 @@ public class FDMThetaMethod {
 		RealMatrix UVector = MatrixUtils.createColumnRealMatrix(U);
 
 		// Solve system
-		for (int m = 0; m < model.numTimesteps; m++) {
+		for (int m = 0; m < model.getNumTimesteps(); m++) {
 			b[0] = (u_neg_inf(N_neg * dx, tau[m]) * (1 - theta) * kappa)
 					+ (u_neg_inf(N_neg * dx, tau[m + 1]) * theta * kappa);
 			b[len-1] = (u_pos_inf(N_pos * dx, tau[m]) * (1 - theta) * kappa)
@@ -119,7 +119,7 @@ public class FDMThetaMethod {
 		double[] stockPrice = new double[len];
 		for (int i = 0; i < len; i++ ){
 			optionPrice[i] = U[i] * center *
-					Math.exp(alpha * x[i] + beta * tau[model.numTimesteps]);
+					Math.exp(alpha * x[i] + beta * tau[model.getNumTimesteps()]);
 			stockPrice[i] = f_s(x[i]);
 		}
 
@@ -132,7 +132,7 @@ public class FDMThetaMethod {
 	// State Space Transformations
 	private double f_x(double S) {return Math.log(S / center); }
 	private double f_s(double x) { return center * Math.exp(x); }
-	private double f_t(double tau) { return timeHorizon - (2 * tau) / Math.pow(model.volatility, 2); }
+	private double f_t(double tau) { return timeHorizon - (2 * tau) / Math.pow(model.getVolatility(), 2); }
 	private double f(double V, double x, double tau) { return (V / center) * Math.exp(-alpha * x - beta * tau); }
 
 	// Heat Equation Boundary Conditions
