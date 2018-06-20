@@ -129,7 +129,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
 	@Override
 	public LIBORVolatilityModelFromGivenMatrix getCloneWithModifiedParameter(double[] parameter) {
-	    // Clone the outer array.
+		// Clone the outer array.
 	    double[][] newVolatilityArray = new double[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 
 		int parameterIndex = 0;

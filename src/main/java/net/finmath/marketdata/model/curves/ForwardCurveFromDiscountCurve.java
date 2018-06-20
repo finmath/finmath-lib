@@ -133,13 +133,16 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
-		if(model==null)
+		if(model == null) {
 			throw new IllegalArgumentException(this.getName() + ": model==null");
+		}
 		DiscountCurveInterface referenceDiscountCurveForForwards = model.getDiscountCurve(referenceDiscountCurveForForwardsName); // do not use discountCurveName here (usually this is an OIS curve)
-		if(referenceDiscountCurveForForwards==null)
+		if(referenceDiscountCurveForForwards == null) {
 			throw new IllegalArgumentException(this.getName() + ": referenceDiscountCurveForForwards " + referenceDiscountCurveForForwardsName + " not found in the model:\n" + model.toString());
-		if(Double.isNaN(paymentOffset) || paymentOffset<=0.0)
+		}
+		if(Double.isNaN(paymentOffset) || paymentOffset<=0.0) {
 			throw new IllegalArgumentException(this.getName() + ": Requesting forward with paymentOffset " + paymentOffset + " not allowed.");
+		}
 
 		double daycount = paymentOffset * daycountScaling;
 		return (referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+periodOffset) / referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;

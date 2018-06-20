@@ -82,7 +82,6 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
-		paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
 		if(daycountConvention != null) {
 			LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
@@ -108,7 +107,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 			@Override
 			public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
-				return this;
+				throw new UnsupportedOperationException("NSS curve does not support adding points.");
 			}			
 		};
 	}

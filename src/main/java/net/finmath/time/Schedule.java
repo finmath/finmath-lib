@@ -117,6 +117,23 @@ public class Schedule implements ScheduleInterface {
 	public Iterator<Period> iterator() {
 		return periods.iterator();
 	}
+	
+	@Override
+	public int getPeriodIndex(double time) {
+		if(time< getPeriodStart(0)|| time>= getPeriodEnd(getNumberOfPeriods()-1)) {
+			throw new IllegalArgumentException("Time point not included");
+		}
+		for(int i=0; i<getNumberOfPeriods()-1;i++) {
+		if(time<=getPeriodEnd(i)) return i;
+		}
+		return getNumberOfPeriods()-1;
+	}
+	
+	@Override
+	public int getPeriodIndex(LocalDate date) {
+	double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(),date);
+	return getPeriodIndex(floatingDate);
+	}
 
 	@Override
 	public String toString() {

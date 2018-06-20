@@ -671,7 +671,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 */
 
 		/*
-		 * Check if numeraire cache is values (i.e. process did not change)
+		 * Check if numeraire cache is valid (i.e. process did not change)
 		 */
 		if(getProcess() != numerairesProcess) {
 			numeraires.clear();
@@ -743,7 +743,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		double[] liborInitialStates = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			//			double rate = forwardRateCurve.getForward(curveModel, liborPeriodDiscretization.getTime(timeIndex), liborPeriodDiscretization.getTimeStep(timeIndex));
-			double rate = forwardRateCurve.getForward(curveModel, liborPeriodDiscretization.getTime(timeIndex));
+			double rate = forwardRateCurve.getForward(curveModel, liborPeriodDiscretization.getTime(timeIndex), liborPeriodDiscretization.getTimeStep(timeIndex));
 			liborInitialStates[timeIndex] = (stateSpace == StateSpace.LOGNORMAL) ? Math.log(Math.max(rate,0)) : rate;
 		}
 
@@ -913,7 +913,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, periodEnd-previousEndTime);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
-			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime));
+			double analyticInterpolatedOnePlusLiborDt		= Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) * (periodEnd-previousEndTime)/(nextEndTime-previousEndTime));
 			double analyticOnePlusLiborDt					= (1 + analyticLibor * (periodEnd-previousEndTime));
 			double adjustment = analyticOnePlusLiborDt / analyticInterpolatedOnePlusLiborDt;
 			libor = libor.mult(periodEnd-periodStart).add(1.0).mult(adjustment).sub(1.0).div(periodEnd-periodStart);
@@ -936,12 +936,12 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			// Analytic adjustment for the interpolation
 			// @TODO reference to AnalyticModel must not be null
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
-			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-periodStart);
+			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), periodStart, nextStartTime-periodStart);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-previousStartTime);
-			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) * (nextStartTime-periodStart)/(nextStartTime-previousStartTime));
-			double analyticOnePlusLiborDt					= (1 + analyticLibor * (periodStart-previousStartTime));
+			double analyticInterpolatedOnePlusLiborDt		= Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) * (nextStartTime-periodStart)/(nextStartTime-previousStartTime));
+			double analyticOnePlusLiborDt					= (1 + analyticLibor * (nextStartTime-periodStart));
 			double adjustment = analyticOnePlusLiborDt / analyticInterpolatedOnePlusLiborDt;
-			libor = libor.mult(periodEnd-periodStart).add(1.0).div(adjustment).sub(1.0).div(periodEnd-periodStart);
+			libor = libor.mult(periodEnd-periodStart).add(1.0).mult(adjustment).sub(1.0).div(periodEnd-periodStart);
 			return libor;
 		}
 
@@ -1088,7 +1088,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			Map<String, Object> properties = new HashMap<String, Object>();
 			properties.put("measure",		measure.name());
 			properties.put("stateSpace",	stateSpace.name());
-			return new LIBORMarketModel(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), covarianceModel, new CalibrationItem[0], properties);
+			return new LIBORMarketModel(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, new CalibrationItem[0], properties);
 		} catch (CalculationException e) {
 			return null;
 		}

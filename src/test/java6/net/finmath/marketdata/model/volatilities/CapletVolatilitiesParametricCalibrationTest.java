@@ -65,10 +65,10 @@ public class CapletVolatilitiesParametricCalibrationTest {
 				{ QuotingConvention.VOLATILITYLOGNORMAL },
 				{ QuotingConvention.VOLATILITYNORMAL },
 		});
-	};
+	}
 
-	
-	public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
+
+    public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
 		super();
 		this.calibrationTargetValueQuotingConvention = calibrationTargetValueQuotingConvention;
 		
@@ -238,13 +238,13 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		 */
 		if(calibrationTargetValueQuotingConvention ==  QuotingConvention.VOLATILITYLOGNORMAL) {
 			// Check parameters
-			Assert.assertArrayEquals(new double[] { -1.04, 8.35 , 2.10, -0.01 }, calibratedParameters, 0.01 /* tolerance */ );
+			Assert.assertArrayEquals(new double[] { -1.04, 8.37 , 2.11, -0.01 }, calibratedParameters, 0.01 /* tolerance */ );
 			// Check rms (not a very strict test)
 			Assert.assertTrue(rms < 0.08);
 		}
 		else {
 			// Check parameters
-			Assert.assertArrayEquals(new double[] { -1.08, 8.73 , 2.19, -0.01 }, calibratedParameters, 0.01 /* tolerance */ );
+			Assert.assertArrayEquals(new double[] { -1.08, 8.76 , 2.19, -0.01 }, calibratedParameters, 0.01 /* tolerance */ );
 			// Check rms (not a very strict test)
 			Assert.assertTrue(rms < 0.02);
 		}

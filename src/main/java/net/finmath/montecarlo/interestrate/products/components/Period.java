@@ -1,5 +1,7 @@
 /*
  * Created on 22.11.2009
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  */
 package net.finmath.montecarlo.interestrate.products.components;
 

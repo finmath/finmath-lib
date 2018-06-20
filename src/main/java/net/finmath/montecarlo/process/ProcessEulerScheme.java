@@ -17,7 +17,6 @@ import java.util.concurrent.Future;
 import net.finmath.concurrency.FutureWrapper;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**

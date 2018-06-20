@@ -18,25 +18,25 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
- * Simple stochastic volatility model, using a process
+ * As Heston like stochastic volatility model, using a process \( lambda(t) = \sqrt(V(t)) \)
  * \[
- * 	d\lambda(t) = \nu \lambda(t) \left( \rho \mathrm{d} W_{1}(t) + \sqrt{1-\rho^{2}} \mathrm{d} W_{2}(t) \right) \text{,}
+ * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{1}(t), \quad V(0) = 1.0,
  * \]
  * where \( \lambda(0) = 1 \) to scale all factor loadings \( f_{i} \) returned by a given covariance model.
  * 
  * The model constructed is \( \lambda(t) F(t) \) where \( \lambda(t) \) is
- * the (Euler discretization of the) above process and \( F = ( f_{1}, \ldots, f_{m} ) \) is the factor loading
+ * a discretization of the above process and \( F = ( f_{1}, \ldots, f_{m} ) \) is the factor loading
  * from the given covariance model.
  * 
- * The process uses the first two factors of the Brownian motion provided by an object implementing
+ * The process uses the first factor of the Brownian motion provided by an object implementing
  * {@link net.finmath.montecarlo.BrownianMotionInterface}. This can be used to generate correlations to
  * other objects. If you like to reuse a factor of another Brownian motion use a
  * {@link net.finmath.montecarlo.BrownianMotionView}
- * to delegate \( ( \mathrm{d} W_{1}(t) , \mathrm{d} W_{2}(t) ) \) to a different object.
+ * to delegate \( ( \mathrm{d} W_{1}(t) ) \) to a different object.
  * 
  * The parameter of this model is a joint parameter vector, consisting
  * of the parameter vector of the given base covariance model and
- * appending the parameters <i>&nu;</i> and <i>&rho;</i> at the end.
+ * appending the parameters <i>&kappa;</i>, <i>&theta;</i> and <i>&xi;</i> at the end.
  * 
  * If this model is not calibrateable, its parameter vector is that of the
  * covariance model, i.e., <i>&nu;</i> and <i>&rho;</i> will be not
@@ -46,13 +46,13 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 
  * @author Christian Fries
  */
-public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovarianceModelParametric {
+public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBORCovarianceModelParametric {
 
 	private static final long serialVersionUID = -1907512921302707075L;
 
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private BrownianMotionInterface brownianMotion;
-	private	double rho, nu;
+	private	double kappa, theta, xi;
 
 	private boolean isCalibrateable = false;
 
@@ -63,17 +63,19 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 	 * 
 	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
 	 * @param brownianMotion An object implementing {@link BrownianMotionInterface} with at least two factors. This class uses the first two factors, but you may use {@link BrownianMotionView} to change this.
-	 * @param nu The initial value for <i>&nu;</i>, the volatility of the volatility.
-	 * @param rho The initial value for <i>&rho;</i> the correlation to the first factor.
+	 * @param kappa The initial value for <i>&kappa;</i>, the mean reversion speed of the variance process V.
+	 * @param theta The initial value for <i>&theta;</i> the mean reversion level of the variance process V.
+	 * @param xi The initial value for <i>&xi;</i> the volatility of the variance process V.
 	 * @param isCalibrateable If true, the parameters <i>&nu;</i> and <i>&rho;</i> are parameters. Note that the covariance model (<code>covarianceModel</code>) may have its own parameter calibration settings.
 	 */
-	public LIBORCovarianceModelStochasticVolatility(AbstractLIBORCovarianceModelParametric covarianceModel, BrownianMotionInterface brownianMotion, double nu, double rho, boolean isCalibrateable) {
+	public LIBORCovarianceModelStochasticHestonVolatility(AbstractLIBORCovarianceModelParametric covarianceModel, BrownianMotionInterface brownianMotion, double kappa, double theta, double xi, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 
 		this.covarianceModel = covarianceModel;
 		this.brownianMotion = brownianMotion;
-		this.nu		= nu;
-		this.rho	= rho;
+		this.kappa = kappa;
+		this.theta = theta;
+		this.xi = xi;
 		
 		this.isCalibrateable = isCalibrateable;
 	}
@@ -83,13 +85,14 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		if(!isCalibrateable) return covarianceModel.getParameter();
 
 		double[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new double[] { nu, rho };
+		if(covarianceParameters == null) return new double[] { theta, kappa, xi };
 
 		// Append nu and rho to the end of covarianceParameters
-		double[] jointParameters = new double[covarianceParameters.length+2];
+		double[] jointParameters = new double[covarianceParameters.length+3];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
-		jointParameters[covarianceParameters.length+0] = nu;
-		jointParameters[covarianceParameters.length+1] = rho;
+		jointParameters[covarianceParameters.length+0] = kappa;
+		jointParameters[covarianceParameters.length+1] = theta;
+		jointParameters[covarianceParameters.length+1] = xi;
 
 		return jointParameters;
 	}
@@ -103,26 +106,27 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 			return;
 		}
 
-		double[] covarianceParameters = new double[parameter.length-2];
+		double[] covarianceParameters = new double[parameter.length-3];
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
 		
-		nu	= parameter[covarianceParameters.length + 0];
-		rho	= parameter[covarianceParameters.length + 1];
+		kappa	= parameter[covarianceParameters.length + 0];
+		theta	= parameter[covarianceParameters.length + 1];
+		xi		= parameter[covarianceParameters.length + 2];
 
 		stochasticVolatilityScalings = null;
 	}
 
 	@Override
 	public Object clone() {
-		LIBORCovarianceModelStochasticVolatility newModel = new LIBORCovarianceModelStochasticVolatility((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), brownianMotion, nu, rho, isCalibrateable);
+		LIBORCovarianceModelStochasticHestonVolatility newModel = new LIBORCovarianceModelStochasticHestonVolatility((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), brownianMotion, kappa, theta, xi, isCalibrateable);
 		return newModel;
 	}
 
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		LIBORCovarianceModelStochasticVolatility model = (LIBORCovarianceModelStochasticVolatility)this.clone();
+		LIBORCovarianceModelStochasticHestonVolatility model = (LIBORCovarianceModelStochasticHestonVolatility)this.clone();
 		model.setParameter(parameters);
 		return model;
 	}
@@ -156,7 +160,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 					@Override
 					public int getNumberOfFactors() {
-						return 2;
+						return 1;
 					}
 
 					@Override
@@ -166,27 +170,27 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 					@Override
 					public RandomVariableInterface[] getInitialState() {
-						return new RandomVariableInterface[] { brownianMotion.getRandomVariableForConstant(0.0) };
+						return new RandomVariableInterface[] { brownianMotion.getRandomVariableForConstant(1.0) };
 					}
 
 					@Override
 					public RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex) {
-						return new RandomVariableInterface[] { brownianMotion.getRandomVariableForConstant(rho * nu) , brownianMotion.getRandomVariableForConstant(Math.sqrt(1.0 - rho*rho) * nu) };
+						return new RandomVariableInterface[] { realizationAtTimeIndex[0].floor(0).sqrt().mult(xi) };
 					}
 
 					@Override
 					public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-						return new RandomVariableInterface[] { brownianMotion.getRandomVariableForConstant(- 0.5 * nu*nu) };
+						return new RandomVariableInterface[] { realizationAtTimeIndex[0].sub(theta).mult(-kappa) };
 					}
 
 					@Override
 					public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
-						return randomVariable.exp();
+						return randomVariable;
 					}
 
 					@Override
 					public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
-						return randomVariable.log();
+						return randomVariable;
 					}
 
 					@Override
@@ -215,7 +219,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		if(stochasticVolatilityScaling != null) {
 			factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 			for(int i=0; i<factorLoading.length; i++) {
-				factorLoading[i] = factorLoading[i].mult(stochasticVolatilityScaling);
+				factorLoading[i] = factorLoading[i].mult(stochasticVolatilityScaling.floor(0.0).sqrt());
 			}
 		}
 

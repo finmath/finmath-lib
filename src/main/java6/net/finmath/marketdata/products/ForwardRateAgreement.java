@@ -109,5 +109,3 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		return forwardCurve.getForward(model,fixingDate);
 	}
 }
-
-
