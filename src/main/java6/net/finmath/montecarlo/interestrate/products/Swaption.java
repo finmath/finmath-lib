@@ -142,7 +142,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			// @TODO: Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
 			double discountingDate = Math.max(fixingDate,exerciseDate);
 			double discountingAdjustment = 1.0;
-			if(model.getModel().getDiscountCurve() != null) {
+			if(model.getModel() != null && model.getModel().getDiscountCurve() != null) {
 				AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
 				DiscountCurveInterface discountCurve = model.getModel().getDiscountCurve();
 				ForwardCurveInterface forwardCurve = model.getModel().getForwardRateCurve();
