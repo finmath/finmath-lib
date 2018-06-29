@@ -12,8 +12,9 @@ public interface FiniteDifference1DProduct {
 	/**
 	 * Return the value of the product under the given model.
 	 * 
-	 * @param model
-	 * @return
+	 * @param evaluationTime The time at which the value (valuation) is requested.
+	 * @param model The model under which the valuation should be performed.
+	 * @return The random variable representing the valuation result.
 	 */
 	double[][] getValue(double evaluationTime, FiniteDifference1DModel model);
 }
