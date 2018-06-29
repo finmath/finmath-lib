@@ -1026,20 +1026,20 @@ public class AnalyticFormulas {
 			/*
 			 * General non-ATM case no prob with log(F/K)
 			 */
-			double FK = underlying * strike;
+			double forwardTimesStrike = underlying * strike;
 
-			double z = nu/alpha * Math.pow(FK, (1-beta)/2) * Math.log(underlying / strike); 
+			double z = nu/alpha * Math.pow(forwardTimesStrike, (1-beta)/2) * Math.log(underlying / strike); 
 
 			double x = Math.log((Math.sqrt(1- 2*rho * z + z*z) + z - rho)/(1 - rho));
 
-			double term1 = alpha / Math.pow(FK,(1-beta)/2) 
+			double term1 = alpha / Math.pow(forwardTimesStrike,(1-beta)/2) 
 					/ (1 + Math.pow(1-beta,2)/24*Math.pow(Math.log(underlying/strike),2)
 							+ Math.pow(1-beta,4)/1920 * Math.pow(Math.log(underlying/strike),4));
 
 			double term2 = (Math.abs(x-z) < 1E-10) ? 1 : z / x;
 
-			double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(FK, 1-beta)
-					+ rho*beta*nu*alpha / 4 / Math.pow(FK, (1-beta)/2)
+			double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(forwardTimesStrike, 1-beta)
+					+ rho*beta*nu*alpha / 4 / Math.pow(forwardTimesStrike, (1-beta)/2)
 					+ (2-3*rho*rho)/24 * nu*nu) *maturity;
 
 
