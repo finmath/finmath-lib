@@ -177,7 +177,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
      * @param swapTenor The swap tenor.
      * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
      */
-    static public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
+    public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
     	/*
     	 * Small workaround for the case that the discount curve is not set. This part will be removed later.
     	 */
@@ -246,7 +246,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
         return results;
     }
     
-    static public double[][][] getIntegratedLIBORCovariance(LIBORMarketModel model) {
+    public static double[][][] getIntegratedLIBORCovariance(LIBORMarketModel model) {
     	return model.getIntegratedLIBORCovariance();
     }
  }

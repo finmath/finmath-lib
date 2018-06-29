@@ -45,8 +45,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 public class TestCurvesFromLIBORModel {
-	private final static int numberOfPaths		= 1000;
-	private final static int numberOfFactors	= 1;
+	private static final int numberOfPaths		= 1000;
+	private static final int numberOfFactors	= 1;
 
 	static LIBORVolatilityModel volatilityModel;
 	
