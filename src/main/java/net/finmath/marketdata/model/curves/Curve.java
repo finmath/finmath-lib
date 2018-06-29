@@ -115,7 +115,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @param value The value (or y-value) of the point.
 		 * @param isParameter A boolean specifying if this point is considered a "degree of freedom", e.g., in a calibration.
 		 */
-		public Point(double time, double value, boolean isParameter) {
+		Point(double time, double value, boolean isParameter) {
 			super();
 			this.time = time;
 			this.value = value;
