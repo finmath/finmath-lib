@@ -61,7 +61,7 @@ import net.finmath.time.FloatingpointDate;
 public class HestonModel implements Model<HestonModelDescriptor>, ProcessCharacteristicFunctionInterface {
 
 	private final LocalDate referenceDate;
-	
+
 	private final double initialValue;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
@@ -95,7 +95,7 @@ public class HestonModel implements Model<HestonModelDescriptor>, ProcessCharact
 				descriptor.getRho()
 				);
 	}
-	
+
 	/**
 	 * Create a Heston model (characteristic function)
 	 * 
@@ -192,7 +192,7 @@ public class HestonModel implements Model<HestonModelDescriptor>, ProcessCharact
 								.multiply(2 * xi * xi))
 						.sqrt();
 
-				Complex A = iargument
+				Complex a = iargument
 						.multiply(rho * xi)
 						.subtract(kappa)
 						.subtract(gamma).multiply((-theta*kappa * time) / (xi * xi))
@@ -201,12 +201,12 @@ public class HestonModel implements Model<HestonModelDescriptor>, ProcessCharact
 								.multiply(0.5).add(new Complex(1).divide(gamma.multiply(time).exp())).log()
 								.add(gamma.multiply(time)).multiply((2 * theta*kappa) / (xi * xi)));
 
-				Complex B = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)
+				Complex b = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)
 						.divide(iargument.multiply(rho * xi).subtract(kappa)
 								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
 										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
 
-				return A.add(B.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward)).add(logDiscountFactorForDiscounting).exp();
+				return a.add(b.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward)).add(logDiscountFactorForDiscounting).exp();
 			}
 		};
 	}

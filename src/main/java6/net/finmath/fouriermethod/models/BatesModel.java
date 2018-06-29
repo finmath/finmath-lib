@@ -213,7 +213,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 
 				Complex iargument = argument.multiply(Complex.I);
 
-				Complex C = iargument
+				Complex c = iargument
 						.multiply(iargument)
 						.add(iargument.multiply(-1))
 						.multiply(0.5*delta*delta)			
@@ -223,8 +223,8 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 						.add(iargument.multiply(-k));
 
 				Complex[] gamma = new Complex[numberOfFactors];
-				Complex[] A = new Complex[numberOfFactors];
-				Complex[] B = new Complex[numberOfFactors];
+				Complex[] a = new Complex[numberOfFactors];
+				Complex[] b = new Complex[numberOfFactors];
 				for(int i = 0; i < numberOfFactors; i++) {
 					gamma[i] = iargument
 							.multiply(rho[i]*sigma[i])
@@ -234,14 +234,14 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 									iargument.multiply(iargument)
 									.add(iargument.multiply(-1))
 									.multiply(0.5)
-									.add(C.multiply(lambda[i+1]))
+									.add(c.multiply(lambda[i+1]))
 									.multiply(2*sigma[i]*sigma[i])
 									)
 							.sqrt()
 							;
 
 
-					A[i] =
+					a[i] =
 							iargument
 							.multiply(rho[i] * sigma[i])
 							.subtract(beta[i])
@@ -263,11 +263,11 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 									)
 							;
 
-					B[i] = iargument
+					b[i] = iargument
 							.multiply(iargument)
 							.add(iargument.multiply(-1))
 							.multiply(0.5)
-							.add(C.multiply(lambda[i+1]))
+							.add(c.multiply(lambda[i+1]))
 							.multiply(-2)
 							.divide(iargument
 									.multiply(rho[i] * sigma[i])
@@ -286,16 +286,16 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 				}
 
 				Complex characteristicFunction =
-						A[0]
-								.add(B[0].multiply(volatility[0]))
-								.add(C.multiply(time*lambda[0]))
+						a[0]
+								.add(b[0].multiply(volatility[0]))
+								.add(c.multiply(time*lambda[0]))
 								.add(iargument.multiply(Math.log(initialValue)+time*riskFreeRate))
 								.add(-discountRate*time);
 
 				if(numberOfFactors == 2) {
 					characteristicFunction = characteristicFunction
-							.add(A[1])
-							.add(B[1].multiply(volatility[1]));
+							.add(a[1])
+							.add(b[1].multiply(volatility[1]));
 				}
 
 				characteristicFunction = characteristicFunction.exp();

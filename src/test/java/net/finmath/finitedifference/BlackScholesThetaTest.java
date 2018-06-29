@@ -1,15 +1,15 @@
 package net.finmath.finitedifference;
 
-import net.finmath.finitedifference.experimental.BlackScholesTheta;
+import java.util.Arrays;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 import net.finmath.finitedifference.products.FDMEuropeanCallOption;
 import net.finmath.finitedifference.products.FiniteDifference1DProduct;
 import net.finmath.functions.AnalyticFormulas;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Arrays;
 
 public class BlackScholesThetaTest {
 
