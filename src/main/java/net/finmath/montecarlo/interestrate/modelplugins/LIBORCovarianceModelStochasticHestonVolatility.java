@@ -10,7 +10,6 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -62,7 +61,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
 	 * 
 	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
-	 * @param brownianMotion An object implementing {@link BrownianMotionInterface} with at least two factors. This class uses the first two factors, but you may use {@link BrownianMotionView} to change this.
+	 * @param brownianMotion An object implementing {@link BrownianMotionInterface} with at least two factors. This class uses the first two factors, but you may use {@link net.finmath.montecarlo.BrownianMotionView} to change this.
 	 * @param kappa The initial value for <i>&kappa;</i>, the mean reversion speed of the variance process V.
 	 * @param theta The initial value for <i>&theta;</i> the mean reversion level of the variance process V.
 	 * @param xi The initial value for <i>&xi;</i> the volatility of the variance process V.
