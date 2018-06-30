@@ -757,13 +757,16 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
-	 * normal process with constant volatility, i.e., a Bachelier model.
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with constant volatility, i.e., a Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * \]
 	 * 
-	 * @param forward The forward of the underlying.
-	 * @param volatility The Bachelier volatility.
+	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike.
+	 * @param optionStrike The option strike K.
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
@@ -794,10 +797,13 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
-	 * normal process with constant volatility, i.e., a Bachelier model.
+	 * normal process with constant volatility, i.e., a Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * \]
 	 * 
-	 * @param forward The forward of the underlying.
-	 * @param volatility The Bachelier volatility.
+	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
