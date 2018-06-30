@@ -31,7 +31,7 @@ public class TestRootFinders {
 		rootFinder = new SecantMethod(2.0,10.0);
 		testRootFinder(rootFinder);
 
-		System.out.println("");
+		System.out.println();
 
 		System.out.println("Root finders with    derivative:");
 		System.out.println("--------------------------------");
