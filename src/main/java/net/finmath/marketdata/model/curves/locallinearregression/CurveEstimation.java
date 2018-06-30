@@ -19,8 +19,9 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
- * This class implements the method of local linear regression with discrete kernel function, see Beier/Fries (2017).
- * In particular it represents the implementation of proposition 2 and 3.
+ * This class implements the method of local linear regression with discrete kernel function, see see https://ssrn.com/abstract=3073942
+ * 
+ * In particular it represents the implementation of proposition 2 and 3 of the paper.
  * 
  * This class allows choosing between three different kernel functions, i.e. a normal, a Laplace or a Cauchy kernel.
  * 
