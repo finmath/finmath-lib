@@ -1,7 +1,6 @@
 package net.finmath.finitedifference.products;
 
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
 

@@ -7,7 +7,6 @@
 package net.finmath.fouriermethod.models;
 
 import java.time.LocalDate;
-import java.util.Locale;
 
 import org.apache.commons.math3.complex.Complex;
 
@@ -18,7 +17,6 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
-import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetFourierProductFactory;
 
 /**

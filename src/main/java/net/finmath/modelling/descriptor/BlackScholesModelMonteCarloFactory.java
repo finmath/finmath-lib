@@ -14,7 +14,6 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
