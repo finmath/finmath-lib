@@ -2,12 +2,14 @@ package net.finmath.finitedifference.models;
 
 import java.util.function.DoubleUnaryOperator;
 
+import net.finmath.modelling.ModelInterface;
+
 /**
  * Interface one dimensional finite difference models.
  * 
  * @author Christian Fries
  */
-public interface FiniteDifference1DModel {
+public interface FiniteDifference1DModel extends ModelInterface {
 
 	/**
 	 * Return the conditional expectation of the given values at a given time contrained by the given boundary conditions.
