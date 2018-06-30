@@ -5,6 +5,30 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.2.8 (30.06.2018)
+
+### Model and Product Interfaces
+
+- Partially reverting the refactoring from 3.2.0 (removing parametrizatio of model 
+  and product interfaces). Adding dedicated interfaces DecribedProduct<T> and DecribedModel<T> 
+  for model and products allowing construction from product descriptors. For details 
+  see concepts/separationofproductandmodel.
+- The interface `net.finmath.modelling.Model<T extends ModelDescriptor>` has been renamed/refactored to `net.finmath.modelling.ModelInterface`.
+- The interface `net.finmath.modelling.Product<T extends ProductDescriptor>` has been renamed/refactored to `net.finmath.modelling.ProductInterface`.
+- Adding (extracting) additional interfaces `DescribedModel<T extends ModelDescriptor>` 
+  and `DescribedProduct<T extends ProductDescriptor>`.
+
+### Finite Difference Methods
+
+- Merged initial version of the finite difference methods.
+- Added a unit test illustrating the use of model descriptors and product descriptors 
+  for a Black-Scholes model and a European option on a Monte-Carlo-, Fourier-Transform-, and 
+  Finite-Difference-Method-Factory.
+
+### Documentation
+
+- Model and product interfaces are described in concepts/separationofproductandmodel
+  
 ## 3.2.5 (09.06.2018)
 
 ### Market Data: Bond Curves
