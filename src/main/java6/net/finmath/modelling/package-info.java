@@ -1,5 +1,5 @@
 /**
- * 		Provides interface separating models and products.
+ * Provides interface separating models and products.
  *
  * 
  * @author Christian Fries
