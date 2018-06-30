@@ -9,10 +9,10 @@ finmath lib Release Notes
 
 ### Model and Product Interfaces
 
-- Partially reverting the refactoring from 3.2.0 (removing parametrizatio of model 
-  and product interfaces). Adding dedicated interfaces DecribedProduct<T> and DecribedModel<T> 
+- Partially reverting the refactoring from 3.2.0 (removing type parameter from model 
+  and product interfaces). Adding dedicated interfaces `DecribedProduct<T extends ProductDescriptor>` and `DecribedModel<T extends ModelDescriptor>`
   for model and products allowing construction from product descriptors. For details 
-  see concepts/separationofproductandmodel.
+  see [concepts "separation of product and model"](concepts/separationofproductandmodel).
 - The interface `net.finmath.modelling.Model<T extends ModelDescriptor>` has been renamed/refactored to `net.finmath.modelling.ModelInterface`.
 - The interface `net.finmath.modelling.Product<T extends ProductDescriptor>` has been renamed/refactored to `net.finmath.modelling.ProductInterface`.
 - Adding (extracting) additional interfaces `DescribedModel<T extends ModelDescriptor>` 
@@ -27,7 +27,7 @@ finmath lib Release Notes
 
 ### Documentation
 
-- Model and product interfaces are described in concepts/separationofproductandmodel
+- Model and product interfaces are described in [concepts "separation of product and model"](concepts/separationofproductandmodel).
   
 ## 3.2.5 (09.06.2018)
 
