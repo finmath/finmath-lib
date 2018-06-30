@@ -6,6 +6,9 @@
 
 package net.finmath.montecarlo.hybridassetinterestrate.products;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
@@ -83,6 +86,13 @@ public class WorstOfExpressCertificate implements ProductInterface {
 		return values.getAverage();
 	}
 
+	@Override
+	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+		Map<String, Object> results = new HashMap<String, Object>();
+		results.put("value", getValue(evaluationTime, model));
+		return results;
+	}
+	
 	/**
 	 * @param model
 	 * @param exerciseDate

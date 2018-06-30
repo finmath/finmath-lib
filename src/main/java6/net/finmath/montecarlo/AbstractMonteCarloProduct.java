@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -34,9 +33,40 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 
 	@Override
 	public Object getValue(double evaluationTime, ModelInterface model) {
-		throw new IllegalArgumentException("The product " + this.getClass()
-				+ " cannot be valued against a model " + model.getClass() + "."
-				+ "It requires a model of type " + AnalyticModelInterface.class + ".");
+		if(model instanceof MonteCarloSimulationInterface) {
+			try {
+				return getValue(evaluationTime, (MonteCarloSimulationInterface)model);
+			} catch (CalculationException e) {
+				return null;
+			}
+		}
+		else {
+			throw new IllegalArgumentException("The product " + this.getClass()
+			+ " cannot be valued against a model " + model.getClass() + "."
+			+ "It requires a model of type " + MonteCarloSimulationInterface.class + ".");
+		}
+	}
+
+	@Override
+	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+		Map<String, Object> results;
+		if(model instanceof MonteCarloSimulationInterface) {
+			try {
+				results = getValues(evaluationTime, (MonteCarloSimulationInterface)model);
+			} catch (CalculationException e) {
+				results = new HashMap<String, Object>();
+				results.put("exception", e);
+			}
+		}
+		else {
+			Exception e = new IllegalArgumentException("The product " + this.getClass()
+			+ " cannot be valued against a model " + model.getClass() + "."
+			+ "It requires a model of type " + MonteCarloSimulationInterface.class + ".");
+			results = new HashMap<String, Object>();
+			results.put("exception", e);
+		}
+		
+		return results;
 	}
 
 	/**

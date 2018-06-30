@@ -21,7 +21,6 @@ public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloP
 	 */
 	public AbstractAssetMonteCarloProduct() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
     public abstract RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException;
@@ -29,6 +28,13 @@ public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloP
     @Override
     public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
     	// This product requires an AssetModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
-    	return getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface)model);
+		if(model instanceof AssetModelMonteCarloSimulationInterface) {
+			return getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface)model);
+		}
+		else {
+			throw new IllegalArgumentException("The product " + this.getClass()
+			+ " cannot be valued against a model " + model.getClass() + "."
+			+ "It requires a model of type " + AssetModelMonteCarloSimulationInterface.class + ".");
+		}
     }
 }

@@ -6,8 +6,6 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.AbstractMonteCarloProduct;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -19,7 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  */
-public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloProduct {
+public class SwaprateCovarianceAnalyticApproximation extends AbstractLIBORMonteCarloProduct {
 
     final double[]    swapTenor1;       // Vector of swap tenor (period start and end dates).
     final double[]    swapTenor2;       // Vector of swap tenor (period start and end dates).
@@ -36,15 +34,20 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
         this.swapTenor2 = swapTenor2;
     }
 
-    /* (non-Javadoc)
-     * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
-    	return getValue(evaluationTime, (LIBORMarketModel)((LIBORModelMonteCarloSimulationInterface) model).getModel());
-    }
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+    	// This product requires an LIBORModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
+		if(model.getModel() instanceof LIBORMarketModel) {
+	    	return getValue(evaluationTime, (LIBORMarketModel)model.getModel());
+		}
+		else {
+			throw new IllegalArgumentException("The product " + this.getClass()
+			+ " cannot be valued against a model " + model.getModel() + "."
+			+ "It requires a model of type constructed from a " + LIBORMarketModel.class + ".");
+		}
+	}
 
-    /**
+	/**
      * Calculates the approximated integrated instantaneous covariance of two swap rates,
      * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
      * 

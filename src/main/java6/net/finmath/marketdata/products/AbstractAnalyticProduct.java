@@ -6,6 +6,9 @@
 
 package net.finmath.marketdata.products;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.modelling.ModelInterface;
 
@@ -27,5 +30,12 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 
 	public double getValue(AnalyticModelInterface model) {
  		return getValue(0.0, model);
+	}
+
+	@Override
+	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+		Map<String, Object> results = new HashMap<String, Object>();
+		results.put("value", getValue(evaluationTime, model));
+		return results;
 	}
 }

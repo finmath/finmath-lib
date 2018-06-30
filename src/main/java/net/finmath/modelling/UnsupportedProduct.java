@@ -7,6 +7,7 @@
 package net.finmath.modelling;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
@@ -22,7 +23,7 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 
 	private static final long serialVersionUID = 5375406324063846793L;
 	private final Exception exception;
-	
+
 	/**
 	 * Creates an unsupported product throwing an exception if its <code>getValue</code> method is called.
 	 * 
@@ -40,6 +41,11 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
+	}
+
+	@Override
+	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
 		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
 	}
 

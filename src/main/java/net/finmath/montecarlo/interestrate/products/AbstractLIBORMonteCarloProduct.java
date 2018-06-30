@@ -47,7 +47,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public abstract RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
-
+	
 	public RandomVariableInterface getValueForModifiedData(double evaluationTime, MonteCarloSimulationInterface monteCarloSimulationInterface, Map<String, Object> dataModified) throws CalculationException
 	{
 		return this.getValue(evaluationTime, monteCarloSimulationInterface.getCloneWithModifiedData(dataModified));
@@ -72,10 +72,18 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 		return result;
 	}
 
-	@Override
-	public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
-		return getValue(evaluationTime, (LIBORModelMonteCarloSimulationInterface)model);
-	}
+    @Override
+    public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
+    	// This product requires an LIBORModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
+		if(model instanceof LIBORModelMonteCarloSimulationInterface) {
+			return getValue(evaluationTime, (LIBORModelMonteCarloSimulationInterface)model);
+		}
+		else {
+			throw new IllegalArgumentException("The product " + this.getClass()
+			+ " cannot be valued against a model " + model.getClass() + "."
+			+ "It requires a model of type " + LIBORModelMonteCarloSimulationInterface.class + ".");
+		}
+    }
 
 	/**
 	 * Overwrite this method if the product supplies a custom FactorDriftInterface to be used in proxy simulation.

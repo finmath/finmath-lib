@@ -6,6 +6,7 @@
 
 package net.finmath.modelling;
 
+import java.util.Map;
 
 /**
  * Interface implemented by all financial product which may be valued by a model.
@@ -24,9 +25,9 @@ public interface ProductInterface {
 	 * 
 	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param model The model under which the product is valued.
-	 * @return The value of the product using the given model.
+	 * @return Object containing the value of the product using the given model.
 	 */
-	Object getValue(double evaluationTime, ModelInterface<?> model);
+	Object getValue(double evaluationTime, ModelInterface model);
 
 	/**
 	 * Return the valuation of the product using the given model.
@@ -40,5 +41,5 @@ public interface ProductInterface {
 	 * @param model The model under which the product is valued.
 	 * @return Map containing the value of the product using the given model.
 	 */
-	default Map<String, Object> getValues(double evaluationTime, ModelInterface<?> model) { throw new UnsupportedOperationException(); }
+	Map<String, Object> getValues(double evaluationTime, ModelInterface model);
 }
