@@ -13,21 +13,28 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 - General numerical algorithms like
     - Generation of random numbers
     - Optimization (a Levenberg–Marquardt algorithm is provided)
-- Valuation using Fourtier transforms / characteristic functions
+- Valuation using **Fourier transforms** / **characteristic functions**
 	- Black-Scholes model
 	- Heston model
 	- Bates model
 	- Two factor Bates model
-- Monte-Carlo simulation of multi-dimensional, multi-factor stochastic differential equations (SDEs)
+- **Finite difference methods**
+	- Numerical schemes using finite differences
+		- Theta-scheme
+	- Models
+		- Black-Scholes model
+	- Products
+		- European option
+- **Monte-Carlo simulation** of multi-dimensional, multi-factor stochastic differential equations (SDEs)
     - LIBOR Market Model
-    - Black Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
+    - Black-Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
     - Equity Hybrid LIBOR Market Model
     - Hull-White Short Rate Model (with time dependent parameters)
     - Merton Model (as Monte-Carlo Simulation)
     - Heston Model (as Monte-Carlo Simulation)
-- Estimation of conditional expectations in a Monte-Carlo framework
-- Stochastic Automatic Differentiation (AAD) (requires finmath-lib-automaticdifferentiation-extensions https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions )
-- Monte-Carlo Simulation on GPGPUs (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
+- **American Monte-Carlo**: Estimation of conditional expectations in a Monte-Carlo framework
+- **Stochastic Automatic Differentiation** (AAD) (requires finmath-lib-automaticdifferentiation-extensions https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions )
+- **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
 	- Multi-curve interest rate curve calibration (OIS discounting, basis-swaps, cross-currency-swaps).
 	- Bond curve calibration using local linear regression (see https://ssrn.com/abstract=3073942 ).
@@ -40,8 +47,6 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Bermudan options / multi-callables lower bound via regression estimation of the conditional expectation
     - Bermudan options / multi-callables upper bound via dual method
 - Hedge Simulation
-
-The libraries have a focus on Monte-Carlo methods, interest rate products and models and hybrid models.
 
 Languages and Build
 --------------------------------------
@@ -170,13 +175,13 @@ The finmath-lib-automaticdifferentiation-extensions implement the RandomVariable
 Coding Conventions
 -------------------------------------
 
-We follow losely the Eclipse coding conventions, which are a minmal modification of the original Java coding conventions. See https://wiki.eclipse.org/Coding_Conventions
+We follow losely the Eclipse coding conventions, which are a minimal modification of the original Java coding conventions. See https://wiki.eclipse.org/Coding_Conventions
 
 We deviate in some places:
 
 -   We allow for long code lines. Some coding conventions limit the length of a line to something like 80 characters (like FORTRAN did in the 70'ies). Given widescreen monitors we believe that line wrapping makes code much harder to read than code with long(er) lines.
 
--	We usually do not make a space after statements like `íf`, `for`. We interpred `íf` and `for` as functions and for functions and methods we do not have a space between the name and the argument list either. That is, we write
+-	We usually do not make a space after statements like `íf`, `for`. We interpret `íf` and `for` as functions and for functions and methods we do not have a space between the name and the argument list either. That is, we write
 
     if(condition) {
       // code
