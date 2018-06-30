@@ -11,7 +11,7 @@ The valuation library proposes the separation of financial products and models a
 For this, the library is structured in the following way:
 
 - a hierachie of *model interfaces* related to asset classes/numerical methods with a 1:1 
-relation to a hierarchie of *product interfaces* related to asset classes/numerical methods 
+relation to a hierarchy of *product interfaces* related to asset classes/numerical methods 
 with a multitude of models and products implementing these interfaces.
 - A 1:n relation of model descriptors to model implementations and a 1:n relation of 
 product descriptors to product implementations, with factories providing a unified way to construct 
