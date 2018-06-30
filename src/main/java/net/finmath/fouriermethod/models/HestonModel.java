@@ -18,7 +18,6 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetFourierProductFactory;
-import net.finmath.time.FloatingpointDate;
 
 /**
  * Implements the characteristic function of a Heston model.
@@ -99,7 +98,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 	/**
 	 * Create a Heston model (characteristic function)
 	 * 
-	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link FloatingpointDate}.
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param volatility \( \sigma \) the initial volatility level
