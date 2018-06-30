@@ -102,10 +102,11 @@
 		<!-- Checks for Size Violations. -->
 		<!-- See http://checkstyle.sf.net/config_sizes.html -->
 		<module name="LineLength">
-			<property name="max" value="360" />
+			<property name="max" value="400" />
 		</module>
 		<module name="MethodLength">
-			<property name="max" value="250" />
+			<property name="tokens" value="METHOD_DEF"/>
+  			<property name="max" value="250" />
 		</module>
 		<module name="ParameterNumber">
 			<property name="max" value="15" />
