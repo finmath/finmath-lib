@@ -14,38 +14,38 @@ package net.finmath.rootfinder;
  * @date 2008-04-06
  */
 public class RiddersMethod implements RootFinder {
-	
+
 	// We store the left and right end point of the intervall
 	private final double[] points = new double[3]; // left, middle, right
 	private final double[] values = new double[3]; // left, middle, right
-	
+
 	/*
 	 * State of solver 
 	 */	
 	private double	nextPoint;						// Stores the next point to return by getPoint()
 	private int		solverState			= 0;		// Internal state of the solver - see <code>setValue()</code>
-	
+
 	private int		numberOfIterations	= 0; 		// Number of numberOfIterations
 	private double	bestPoint;
 	private double  accuracy            = Double.MAX_VALUE;     // Current accuracy of solution
 	private boolean	isDone				= false;	// Will be true if machine accuracy has been reached
-	
+
 	public static void main(String[] args) {
 		// Test
 		RiddersMethod search = new RiddersMethod(-1.0, 5.0);
-		
+
 		while(search.getAccuracy() > 1E-13 && !search.isDone()) {
 			double x = search.getNextPoint();
-			
+
 			double y = x - 0.656;
-			
+
 			search.setValue(y);
 			System.out.println(search.getAccuracy());
 		}
-		
+
 		System.out.println(search.getNumberOfIterations() + " " + search.getBestPoint());
 	}
-	
+
 	/**
 	 * @param leftPoint left point of search interval
 	 * @param rightPoint right point of search interval
@@ -55,40 +55,40 @@ public class RiddersMethod implements RootFinder {
 		points[0]	= leftPoint;
 		points[2]	= rightPoint;
 		points[1]	= (points[0] + points[2]) / 2.0;
-		
+
 		nextPoint	= points[0];
 		bestPoint	= points[1];
 		accuracy	= points[2]-points[0];
 	}
-	
+
 	/**
 	 * @return Best point optained so far
 	 */
 	@Override
-    public double getBestPoint() {
+	public double getBestPoint() {
 		return bestPoint;
 	}
-	
+
 	/**
 	 * @return Next point for which a value should be set using <code>setValue</code>.
 	 */
 	@Override
-    public double getNextPoint() {
+	public double getNextPoint() {
 		return nextPoint;
 	}
-	
+
 	/**
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint</code> call.
 	 */
 	@Override
-    public void setValue(double value) {
+	public void setValue(double value) {
 		switch(solverState)
 		{
 		case 0:
 		default:
 			// State 0: We have asked for left point
 			values[0] = value;
-			
+
 			// In next state ask for right point
 			nextPoint = points[2];
 			solverState++;
@@ -109,7 +109,11 @@ public class RiddersMethod implements RootFinder {
 			values[1] = value;
 
 			double s = Math.sqrt(values[1]*values[1]-values[0]*values[2]);
-			if (s == 0.0) isDone = true;
+			if (s == 0.0) {
+				accuracy = 0.0;
+				bestPoint = nextPoint;
+				isDone = true;
+			}
 
 			// Calculate next point to propose
 			nextPoint = points[1]+(points[1]-points[0])* (values[0] >= values[2] ? 1.0 : -1.0) *values[1]/s; // Updating formula.
@@ -119,6 +123,8 @@ public class RiddersMethod implements RootFinder {
 			// State 3: We have asked for an additional point (stored in next point)
 			if(value == 0.0)
 			{
+				accuracy = 0.0;
+				bestPoint = nextPoint;
 				isDone = true;
 			}
 
@@ -149,32 +155,33 @@ public class RiddersMethod implements RootFinder {
 			}
 
 			points[1] = 0.5*(points[0]+points[2]);		// Middle point
-			
+
 			// In next state ask for middle point
 			nextPoint = points[1];
 			solverState = 2;				// Next state is 2
 
 			// Savety belt: check if still improve or if we have reached machine accuracy
-//			if(Math.abs(points[2]-points[0]) >= accuracy) isDone = true;	
+			//			if(Math.abs(points[2]-points[0]) >= accuracy) isDone = true;	
 
 			break;
 		}
-		
-		// Update accuracy
-		accuracy = Math.abs(points[2]-points[0]);
 
-		// Update best point
-		bestPoint = points[1];
+		if(!isDone) {
+			// Update accuracy
+			accuracy = Math.abs(points[2]-points[0]);
+
+			// Update best point
+			bestPoint = points[1];
+		}
 
 		numberOfIterations++;
 	}
 
-	
 	/**
 	 * @return Returns the numberOfIterations.
 	 */
 	@Override
-    public int getNumberOfIterations() {
+	public int getNumberOfIterations() {
 		return numberOfIterations;
 	}
 
@@ -182,7 +189,7 @@ public class RiddersMethod implements RootFinder {
 	 * @return Returns the accuracy.
 	 */
 	@Override
-    public double getAccuracy() {
+	public double getAccuracy() {
 		return accuracy;
 	}
 
@@ -190,10 +197,10 @@ public class RiddersMethod implements RootFinder {
 	 * @return Returns the isDone.
 	 */
 	@Override
-    public boolean isDone() {
+	public boolean isDone() {
 		return isDone;
 	}
-	
+
 	private static final double sign(double a, double b) 
 	{
 		return b>= 0.0 ? a>=0 ? a : -a : a>0 ? -a : a;

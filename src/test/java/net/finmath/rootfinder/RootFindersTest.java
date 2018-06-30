@@ -8,13 +8,18 @@ package net.finmath.rootfinder;
 
 import java.text.DecimalFormat;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * @author Christian Fries
  * @version 1.1
  * @date 2008-04-06
  */
-public class TestRootFinders {
-	public static void main(String[] args) {
+public class RootFindersTest {
+
+	@Test
+	public void testRootFinders() {
 		System.out.println("Applying root finders to x^3 + 2*y^2 + x + 1 = 0\n");
 
 		System.out.println("Root finders without derivative:");
@@ -63,10 +68,12 @@ public class TestRootFinders {
 		System.out.print("Root......: "+formatter.format(rootFinder.getBestPoint())+"\t");
 		System.out.print("Accuracy..: "+formatter.format(rootFinder.getAccuracy() )+"\t");
 		System.out.print("Iterations: "+rootFinder.getNumberOfIterations() +"\n");
+
+		Assert.assertEquals("x such that x^3 + x^2 + x + 1 = 0", -1.0, rootFinder.getBestPoint(), 1E-12);
 	}
 
 	public static void testRootFinderWithDerivative(
-            RootFinderWithDerivative rootFinder) {
+			RootFinderWithDerivative rootFinder) {
 		System.out.println("Testing " + rootFinder.getClass().getName() + ":");
 
 		// Find a solution to x^3 + x^2 + x + 1 = 0
@@ -84,5 +91,7 @@ public class TestRootFinders {
 		System.out.print("Root......: "+formatter.format(rootFinder.getBestPoint())+"\t");
 		System.out.print("Accuracy..: "+formatter.format(rootFinder.getAccuracy() )+"\t");
 		System.out.print("Iterations: "+rootFinder.getNumberOfIterations() +"\n");
+
+		Assert.assertEquals("x such that x^3 + x^2 + x + 1 = 0", -1.0, rootFinder.getBestPoint(), 1E-12);
 	}
 }
