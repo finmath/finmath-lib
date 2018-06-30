@@ -5,7 +5,11 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 3.2.8 (30.06.2018)
+## 3.2.9 (30.06.2018)
+
+###
+
+- Clean up of the model hierarchy.
 
 ### Model and Product Interfaces
 
