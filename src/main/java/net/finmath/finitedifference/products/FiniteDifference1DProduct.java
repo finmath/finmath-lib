@@ -1,13 +1,16 @@
 package net.finmath.finitedifference.products;
 
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
+import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.ProductInterface;
 
 /**
  * Interface one dimensional finite difference products.
  * 
  * @author Christian Fries
  */
-public interface FiniteDifference1DProduct {
+public interface FiniteDifference1DProduct extends ProductInterface {
 
 	/**
 	 * Return the value of the product under the given model.
@@ -17,4 +20,18 @@ public interface FiniteDifference1DProduct {
 	 * @return The random variable representing the valuation result.
 	 */
 	double[][] getValue(double evaluationTime, FiniteDifference1DModel model);
+
+
+	default public Object getValue(double evaluationTime, ModelInterface model) {
+		if(model instanceof FiniteDifference1DModel) {
+			return getValue(evaluationTime, (FiniteDifference1DModel) model);
+		}
+		else {
+			throw new IllegalArgumentException(
+					"The product " + this.getClass()
+					+ " cannot be valued against a model " + model.getClass() + "."
+					+ "It requires a model of type " + FiniteDifference1DModel.class + "."
+					);
+		}
+	}
 }
