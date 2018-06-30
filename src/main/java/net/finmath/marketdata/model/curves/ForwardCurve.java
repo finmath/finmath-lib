@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
@@ -27,6 +28,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 
 	private static final long serialVersionUID = -4126228588123963885L;
+	private static Logger logger = Logger.getLogger("net.finmath");
 
 	/**
 	 * Additional choice of interpolation entities for forward curves.
@@ -331,11 +333,13 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
-		// @TODO: A warning should be issued that this implementation does not use 
-//		if(paymentOffset != this.getPaymentOffset(fixingTime)) {
-//			Logger.getLogger("net.finmath").warning("Requesting forward with paymentOffsets not agreeing with original calibration. Requested: " + paymentOffsets +". Calibrated: " + getPaymentOffset(fixingTime) + ".");
-//		}
-		return this.getForward(model, fixingTime);
+		double forward = this.getForward(model, fixingTime);
+		double curvePaymentOffset = this.getPaymentOffset(fixingTime);
+		if(paymentOffset != curvePaymentOffset) {
+			forward = (Math.exp(Math.log(1+forward*curvePaymentOffset) * paymentOffset/curvePaymentOffset)-1.0)/paymentOffset;
+			logger .warning("Requesting forward with paymentOffsets not agreeing with original calibration. Requested: " + paymentOffset +". Calibrated: " + curvePaymentOffset + ".");
+		}
+		return forward;
 	}
 
 	/**

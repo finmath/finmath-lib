@@ -90,9 +90,6 @@ public class BrownianBridge implements BrownianMotionInterface {
 		this(timeDiscretization, numberOfPaths, seed, new RandomVariableInterface[] {start}, new RandomVariableInterface[] {end});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getBrownianIncrement(int, int)
-	 */
 	@Override
 	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
@@ -187,13 +184,13 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	@Override
-	public RandomVariableInterface[] getIncrement(int timeIndex)
-	{
-		RandomVariableInterface[] increment = new RandomVariableInterface[getNumberOfFactors()];
-		for(int factorIndex = 0; factorIndex<getNumberOfFactors(); factorIndex++) {
-			increment[factorIndex] = getIncrement(timeIndex, factorIndex);
+	public RandomVariableInterface[] getIncrement(int timeIndex) {
+		// Thread safe lazy initialization
+		synchronized(brownianIncrementsLazyInitLock) {
+			if(brownianIncrements == null) doGenerateBrownianMotion();
 		}
-		return increment;
+
+		return brownianIncrements[timeIndex].clone();
 	}
 
 	@Override

@@ -154,7 +154,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
      * @param swapTenor The swap tenor.
      * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
      */
-    static public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
+    public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
         double swapStart    = swapTenor[0];
         double swapEnd      = swapTenor[swapTenor.length-1];
         
@@ -214,7 +214,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
         return results;
     }
     
-    static public double[][][] getIntegratedLIBORCovariance(LIBORMarketModel model) {
+    public static double[][][] getIntegratedLIBORCovariance(LIBORMarketModel model) {
     	return model.getIntegratedLIBORCovariance();
     }
  }

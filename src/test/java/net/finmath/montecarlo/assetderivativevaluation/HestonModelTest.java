@@ -8,10 +8,15 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
@@ -30,9 +35,24 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
- *
  */
+@RunWith(Parameterized.class)
 public class HestonModelTest {
+
+	/**
+	 * The parameters for this test, that is an array consisting of
+	 * { xi }.
+	 * 
+	 * @return Array of parameters.
+	 */
+	@Parameters(name="xi={0}}")
+	public static Collection<Object[]> generateData()
+	{
+		ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+		parameters.add(new Object[] { 0.0 });
+		parameters.add(new Object[] { 0.5 });
+		return parameters;
+	}
 
 	// Model properties
 	private final double	initialValue   = 1.0;
@@ -41,7 +61,7 @@ public class HestonModelTest {
 
 	private final double theta = volatility*volatility;
 	private final double kappa = 0.1;
-	private final double xi = 0.50;
+	private final double xi;		// Will be set by parameterized test
 	private final double rho = 0.1;
 
 	private final Scheme scheme = Scheme.FULL_TRUNCATION;
@@ -59,7 +79,12 @@ public class HestonModelTest {
 	private final double	optionStrike = 1.10;
 
 	private static DecimalFormat formatReal3 = new DecimalFormat("####0.000", new DecimalFormatSymbols(Locale.ENGLISH));
-	
+
+	public HestonModelTest(double xi) {
+		super();
+		this.xi = xi;
+	}
+
 	@Test
 	public void test() throws CalculationException {
 
@@ -92,19 +117,19 @@ public class HestonModelTest {
 			monteCarloHestonModel = new MonteCarloAssetModel(model, process);
 		}
 
-        ProcessCharacteristicFunctionInterface characteristFunctionHeston = new net.finmath.fouriermethod.models.HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
-		
+		ProcessCharacteristicFunctionInterface characteristFunctionHeston = new net.finmath.fouriermethod.models.HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
+
 		System.out.println("Implied volatilties using:\n"
 				+ "  (mc/bs) = Monte-Carlo/Black-Scholes\n"
 				+ "  (mc/hs) = Monte-Carlo/Heston\n"
-				+ "  (ft/hs) = Fourtier-transform/Heston\n");
+				+ "  (ft/hs) = Fourier-transform/Heston\n");
 
 		/*
 		 * Value a call option (using the product implementation)
 		 */
 		System.out.println("strike  " + "\t" + "vol(mc/bs)" + "\t" + "vol(mc/hs)" + "\t" + "vol(ft/hs)");
 		for(double moneyness = 0.8; moneyness <= 1.5; moneyness += 0.1) {
-			
+
 			/*
 			 * Valuation using Monte-Carlo models
 			 */
@@ -122,14 +147,20 @@ public class HestonModelTest {
 			/*
 			 * Valuation using Fourier transform models
 			 */
-	        AbstractProductFourierTransform europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
-	        double valueHestonFourier = europeanFourier.getValue(characteristFunctionHeston);
+			AbstractProductFourierTransform europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
+			double valueHestonFourier = europeanFourier.getValue(characteristFunctionHeston);
 			double impliedVolHestonFourier = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueHestonFourier);
-						
+
 			System.out.println(formatReal3.format(optionStrike * moneyness) + "    \t" + formatReal3.format(impliedVolBlackScholesMonteCarlo) +
-			"    \t" + formatReal3.format(impliedVolHestonMonteCarlo) + "    \t" + formatReal3.format(impliedVolHestonFourier));
-			
-			Assert.assertEquals(impliedVolHestonFourier, impliedVolHestonMonteCarlo, 5E-3);
+					"    \t" + formatReal3.format(impliedVolHestonMonteCarlo) + "    \t" + formatReal3.format(impliedVolHestonFourier));
+
+			if(xi == 0) {
+				Assert.assertEquals(impliedVolBlackScholesMonteCarlo, impliedVolHestonMonteCarlo, 1E-10);
+			}
+			else {
+				Assert.assertEquals(impliedVolHestonFourier, impliedVolHestonMonteCarlo, 5E-3);
+			}
 		}
+		System.out.println();
 	}
 }

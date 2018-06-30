@@ -5,15 +5,9 @@
  */
 package net.finmath.fouriermethod.products;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.math3.complex.Complex;
 
-import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.modelling.Model;
-import net.finmath.modelling.Product;
+import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 
 /**
@@ -32,7 +26,7 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
  * @author Alessandro Gnoatto
  * @version 1.0
  */
-public class EuropeanOption extends AbstractProductFourierTransform implements Product<SingleAssetEuropeanOptionProductDescriptor> {
+public class EuropeanOption extends AbstractProductFourierTransform implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
 
 	private final String underlyingName;
 	private final double maturity;
@@ -91,33 +85,5 @@ public class EuropeanOption extends AbstractProductFourierTransform implements P
 	@Override
 	public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
 		return new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturity, strike);
-	}
-
-	@Override
-	public Double getValue(double evaluationTime, Model<?> model) {
-		Double value = null;
-		try {
-			value = super.getValue((ProcessCharacteristicFunctionInterface) model);
-		} catch (CalculationException e) {
-		}
-		
-		return value;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.modelling.Product#getValues(double, net.finmath.modelling.Model)
-	 */
-	@Override
-	public Map<String, Object> getValues(double evaluationTime, Model<?> model) {
-		Map<String, Object>  result = new HashMap<String, Object>();
-
-		try {
-			double value = super.getValue((ProcessCharacteristicFunctionInterface) model);
-			result.put("value", value);
-		} catch (CalculationException e) {
-			result.put("exception", e);
-		}
-		
-		return result;
 	}
 }

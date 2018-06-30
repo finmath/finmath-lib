@@ -34,7 +34,7 @@ public class ModelFactory {
 		// TODO Auto-generated constructor stub
 	}
 
-	public synchronized static ModelFactory getInstance() {
+	public static synchronized ModelFactory getInstance() {
 		if(modelFactory == null) modelFactory = new ModelFactory();
 
 		return modelFactory;

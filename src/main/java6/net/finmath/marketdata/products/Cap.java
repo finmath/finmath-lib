@@ -138,16 +138,18 @@ public class Cap extends AbstractAnalyticProduct {
 
 			double forward = 0.0;
 			if(forwardCurve != null) {
-				forward			+= forwardCurve.getForward(model, fixingDate);
+				forward			+= forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
 			else if(discountCurveForForward != null) {
 				/*
 				 * Classical single curve case: using a discount curve as a forward curve.
 				 * This is only implemented for demonstration purposes (an exception would also be appropriate :-)
 				 */
-				if(fixingDate != paymentDate)
+				if(fixingDate != paymentDate) {
 					forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate-fixingDate);
+				}
 			}
+
 			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			double payoffUnit = discountFactor * periodLength;
 

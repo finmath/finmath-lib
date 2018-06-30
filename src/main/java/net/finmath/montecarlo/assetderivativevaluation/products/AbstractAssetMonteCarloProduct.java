@@ -4,7 +4,6 @@
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.modelling.ProductDescriptor;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
@@ -15,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  */
-public abstract class AbstractAssetMonteCarloProduct<T extends ProductDescriptor> extends AbstractMonteCarloProduct<T> {
+public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloProduct {
 
 	/**
 	 * 

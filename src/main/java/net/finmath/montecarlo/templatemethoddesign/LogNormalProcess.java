@@ -104,8 +104,8 @@ public abstract class LogNormalProcess {
 	}
 
 
-	abstract public RandomVariableInterface[]	getInitialValue();
-	abstract public RandomVariableInterface	getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
+	public abstract RandomVariableInterface[]	getInitialValue();
+	public abstract RandomVariableInterface	getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
 
 	/**
 	 * Get the the drift.
@@ -142,7 +142,7 @@ public abstract class LogNormalProcess {
 	 * @param realizationAtTimeIndex The realization at the current time index.
 	 * @return factor loading for given factor and component
 	 */
-	abstract public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, RandomVariableInterface[] realizationAtTimeIndex);
+	public abstract RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, RandomVariableInterface[] realizationAtTimeIndex);
 
 	/**
 	 * This method returns the realization of the process at a certain time index.

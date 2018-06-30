@@ -29,7 +29,7 @@ import java.util.Set;
 public class TimeDiscretization implements Serializable, TimeDiscretizationInterface {
 
 	private static final long serialVersionUID = 6880668325019167781L;
-	private final static double	timeTickSizeDefault = Double.parseDouble(System.getProperty("net.finmath.functions.TimeDiscretization.timeTickSize", new Double(1.0 / (365.0 * 24.0)).toString()));;
+	private static final double	timeTickSizeDefault = Double.parseDouble(System.getProperty("net.finmath.functions.TimeDiscretization.timeTickSize", new Double(1.0 / (365.0 * 24.0)).toString()));
 
 	private final double[]	timeDiscretization;
 	private final double	timeTickSize = timeTickSizeDefault;
@@ -224,9 +224,8 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 		if (getClass() != obj.getClass()) return false;
 		TimeDiscretization other = (TimeDiscretization) obj;
 		if (!Arrays.equals(timeDiscretization, other.timeDiscretization)) return false;
-		if (Double.doubleToLongBits(timeTickSize) != Double.doubleToLongBits(other.timeTickSize)) return false;
-		return true;
-	}
+        return Double.doubleToLongBits(timeTickSize) == Double.doubleToLongBits(other.timeTickSize);
+    }
 
 	private double roundToTimeTickSize(double time) {
 		return Math.rint(time/timeTickSize)*timeTickSize;

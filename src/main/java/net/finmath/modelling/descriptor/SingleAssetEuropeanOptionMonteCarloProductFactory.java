@@ -6,7 +6,7 @@
 
 package net.finmath.modelling.descriptor;
 
-import net.finmath.modelling.Product;
+import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductFactory;
 
 /**
@@ -21,9 +21,9 @@ public class SingleAssetEuropeanOptionMonteCarloProductFactory implements Produc
 	}
 
 	@Override
-	public Product<SingleAssetEuropeanOptionProductDescriptor> getProductFromDescription(SingleAssetEuropeanOptionProductDescriptor descriptor) {
+	public DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> getProductFromDescription(SingleAssetEuropeanOptionProductDescriptor descriptor) {
 
-		Product<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(descriptor);
+		DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(descriptor);
 		return product;
 	}
 }

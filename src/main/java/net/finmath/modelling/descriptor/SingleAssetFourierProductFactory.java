@@ -6,7 +6,7 @@
 
 package net.finmath.modelling.descriptor;
 
-import net.finmath.modelling.Product;
+import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 
@@ -22,10 +22,10 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 	}
 
 	@Override
-	public Product<? extends SingleAssetProductDescriptor> getProductFromDescription(SingleAssetProductDescriptor descriptor) {
+	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescription(SingleAssetProductDescriptor descriptor) {
 
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
-			final Product<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.fouriermethod.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
+			final DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.fouriermethod.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
 			return product;
 		}
 		else {

@@ -6,9 +6,9 @@
 
 package net.finmath.modelling.descriptor;
 
-import net.finmath.modelling.Model;
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
-import net.finmath.modelling.Product;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
@@ -39,8 +39,8 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 
 
 	@Override
-	public Model<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
-		class HestonMonteCarloModel extends MonteCarloAssetModel implements Model<HestonModelDescriptor> {
+	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
+		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
 			
@@ -58,7 +58,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}
 
 			@Override
-			public Product<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
 					return productFactory.getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
 				}

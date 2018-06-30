@@ -10,9 +10,8 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.modelling.Model;
-import net.finmath.modelling.Product;
-import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.ProductInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -20,7 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 
  * @author Christian Fries
  */
-public abstract class AbstractMonteCarloProduct<T extends ProductDescriptor> implements Product<T> {
+public abstract class AbstractMonteCarloProduct implements ProductInterface {
 
 	private final String currency;
 
@@ -34,7 +33,7 @@ public abstract class AbstractMonteCarloProduct<T extends ProductDescriptor> imp
 	}
 
 	@Override
-	public Object getValue(double evaluationTime, Model model) {
+	public Object getValue(double evaluationTime, ModelInterface model) {
 		throw new IllegalArgumentException("The product " + this.getClass()
 				+ " cannot be valued against a model " + model.getClass() + "."
 				+ "It requires a model of type " + AnalyticModelInterface.class + ".");

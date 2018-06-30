@@ -1038,20 +1038,20 @@ public class AnalyticFormulas {
 			/*
 			 * General non-ATM case no prob with log(F/K)
 			 */
-			double FK = underlying * strike;
+			double forwardTimesStrike = underlying * strike;
 
-			double z = nu/alpha * Math.pow(FK, (1-beta)/2) * Math.log(underlying / strike); 
+			double z = nu/alpha * Math.pow(forwardTimesStrike, (1-beta)/2) * Math.log(underlying / strike); 
 
 			double x = Math.log((Math.sqrt(1- 2*rho * z + z*z) + z - rho)/(1 - rho));
 
-			double term1 = alpha / Math.pow(FK,(1-beta)/2) 
+			double term1 = alpha / Math.pow(forwardTimesStrike,(1-beta)/2) 
 					/ (1 + Math.pow(1-beta,2)/24*Math.pow(Math.log(underlying/strike),2)
 							+ Math.pow(1-beta,4)/1920 * Math.pow(Math.log(underlying/strike),4));
 
 			double term2 = (Math.abs(x-z) < 1E-10) ? 1 : z / x;
 
-			double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(FK, 1-beta)
-					+ rho*beta*nu*alpha / 4 / Math.pow(FK, (1-beta)/2)
+			double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(forwardTimesStrike, 1-beta)
+					+ rho*beta*nu*alpha / 4 / Math.pow(forwardTimesStrike, (1-beta)/2)
 					+ (2-3*rho*rho)/24 * nu*nu) *maturity;
 
 
@@ -1208,15 +1208,15 @@ public class AnalyticFormulas {
 		double skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
 
 		// Some alternative representations
-//		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
-//		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
-//		skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
-//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*3.0*c) + maturity*2.0*c*(1+beta);
-//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*c) - maturity*c*(2.0*rho*nu/a - 2.0);
+		//		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
+		//		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
+		//		skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
+		//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*3.0*c) + maturity*2.0*c*(1+beta);
+		//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*c) - maturity*c*(2.0*rho*nu/a - 2.0);
 
 		// The follwoing may be used as approximations (for beta=0 the approximation is exact).
-//		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
-//		double residual =  skew - approximation;
+		//		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
+		//		double residual =  skew - approximation;
 
 		return  skew;
 	}

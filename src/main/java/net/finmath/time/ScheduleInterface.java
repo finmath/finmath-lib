@@ -107,4 +107,20 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * @return The period length for a given period index.
 	 */
 	double getPeriodLength(int periodIndex);
+	
+	/**
+	 * Return the index of the period which contains the given time point.
+	 * 
+	 * @param time A given time.
+	 * @return The period index of the .
+	 */
+	int getPeriodIndex(double time);
+	
+	/**
+	 * Return the index of the period which contains the given date.
+	 * 
+	 * @param date A given date.
+	 * @return The period index of the .
+	 */
+	int getPeriodIndex(LocalDate date);
 }

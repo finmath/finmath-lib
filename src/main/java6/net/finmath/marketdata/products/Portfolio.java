@@ -29,8 +29,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	private ArrayList<AnalyticProductInterface>	products;
 	private ArrayList<Double>					weights;
 
-	private final static int chunkSize			= 20;
-	private final static int numberOfThreads	= 32;
+	private static final int chunkSize			= 20;
+	private static final int numberOfThreads	= 32;
 	private static ExecutorService				executorService = Executors.newFixedThreadPool(numberOfThreads, new ThreadFactory() {
 		@Override
 		public Thread newThread(Runnable runnable) {

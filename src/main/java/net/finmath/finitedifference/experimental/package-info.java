@@ -5,6 +5,6 @@
  *
  * @author Christian Fries
  * @author Jörg Kienitz
- * @author Ralph Rudd
+ * @author Dr Ralph Rudd
  */
 package net.finmath.finitedifference.experimental;

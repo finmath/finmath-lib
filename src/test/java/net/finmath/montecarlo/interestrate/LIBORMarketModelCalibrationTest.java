@@ -223,7 +223,7 @@ public class LIBORMarketModelCalibrationTest {
 		 * The optimizer to use and some of its parameters
 		 */
 
-		// The accuracy of the slower. The solver steps if the value does not improve more thatn the given parameter.
+		// The accuracy of the solver. The solver stops if the value does not improve more than the given parameter.
 		Double accuracy = new Double(1E-5);
 		int maxIterations = 100;
 		int numberOfThreads = 4;		// two concurrent models
@@ -390,7 +390,7 @@ public class LIBORMarketModelCalibrationTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).		
-		Double accuracy = new Double(1E-4);	// Lower accuracy to reduce runtime of the unit test
+		Double accuracy = new Double(1E-6);	// Lower accuracy to reduce runtime of the unit test
 		int maxIterations = 100;
 		int numberOfThreads = 4;
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);

@@ -31,12 +31,16 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 - Stochastic Automatic Differentiation (AAD) (requires finmath-lib-automaticdifferentiation-extensions https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions )
 - Monte-Carlo Simulation on GPGPUs (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
+	- Multi-curve interest rate curve calibration (OIS discounting, basis-swaps, cross-currency-swaps).
+	- Bond curve calibration using local linear regression (see https://ssrn.com/abstract=3073942 ).
     - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
     - Various interpolation entities (value, log-value, rate, etc.).
     - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the LIBOR market model
-- Valuation of complex derivatives (e.g. Bermudan/multi-callables)
+- Valuation of complex derivatives
+    - Bermudan options / multi-callables lower bound via regression estimation of the conditional expectation
+    - Bermudan options / multi-callables upper bound via dual method
 - Hedge Simulation
 - Margin Valuation Adjustments (MVA) though forward ISDA SIMM simulation (this is currently a separate project at https://github.com/finmath ).
 

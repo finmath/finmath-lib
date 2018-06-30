@@ -6,9 +6,20 @@
 
 package net.finmath.fouriermethod.models;
 
+import java.time.LocalDate;
+import java.util.Locale;
+
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
+import net.finmath.modelling.descriptor.HestonModelDescriptor;
+import net.finmath.modelling.descriptor.SingleAssetFourierProductFactory;
 
 /**
  * Implements the characteristic function of a Black Scholes model.
@@ -16,18 +27,56 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * @author Christian Fries
  * @author Alessandro Gnoatto
  */
-public class BlackScholesModel implements ProcessCharacteristicFunctionInterface {
+public class BlackScholesModel implements ProcessCharacteristicFunctionInterface, DescribedModel<BlackScholesModelDescriptor> {
+
+	private final LocalDate referenceDate;
 
 	private final double initialValue;
-	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+
+	private final DiscountCurveInterface discountCurveForForwardRate;
+	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
+
 	private final double volatility;
-	private final double discountRate;
+
+	/**
+	 * Create a model from a model desciptor.
+	 * 
+	 * @param descriptor A Black Scholes model descriptor.
+	 */
+	public BlackScholesModel(BlackScholesModelDescriptor descriptor) {
+		this(
+				descriptor.getReferenceDate(),
+				descriptor.getInitialValue(),
+				descriptor.getDiscountCurveForForwardRate(),
+				descriptor.getVolatility(),
+				descriptor.getDiscountCurveForDiscountRate()
+				);
+	}
+
+	public BlackScholesModel(LocalDate referenceDate, double initialValue,
+			DiscountCurveInterface discountCurveForForwardRate,
+			double volatility, DiscountCurveInterface discountCurveForDiscountRate) {
+		super();
+		this.referenceDate = referenceDate;
+		this.initialValue = initialValue;
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		this.riskFreeRate = Double.NaN;
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		this.discountRate = Double.NaN;
+		this.volatility = volatility;
+	}
 
 	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility, double discountRate) {
 		super();
+		this.referenceDate = LocalDate.now();
 		this.initialValue = initialValue;
+		this.discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
 		this.volatility = volatility;
+		this.discountCurveForDiscountRate = null;
 		this.discountRate = discountRate;
 	}
 
@@ -37,15 +86,48 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 
 	@Override
 	public CharacteristicFunctionInterface apply(double time) {
+		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
+		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
+
 		return argument -> {
 			Complex iargument = argument.multiply(Complex.I);
 			return	iargument
 					.multiply(
 							iargument
 							.multiply(0.5*volatility*volatility*time)
-							.add(Math.log(initialValue)-0.5*volatility*volatility*time+riskFreeRate*time))
-					.add(-discountRate*time)
+							.add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))
+					.add(logDiscountFactorForDiscounting)
 					.exp();
 		};
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 * 
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(double time) {
+		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 * 
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(double time) {
+		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
+	}
+
+	@Override
+	public BlackScholesModelDescriptor getDescriptor() {
+		return new BlackScholesModelDescriptor(referenceDate, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility);
+	}
+
+	@Override
+	public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+		return (new SingleAssetFourierProductFactory()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
 	}
 }

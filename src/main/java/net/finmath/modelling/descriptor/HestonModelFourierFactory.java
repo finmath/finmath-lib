@@ -6,7 +6,7 @@
 
 package net.finmath.modelling.descriptor;
 
-import net.finmath.modelling.Model;
+import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ModelFactory;
 
 /**
@@ -21,7 +21,7 @@ public class HestonModelFourierFactory implements ModelFactory<HestonModelDescri
 	}
 
 	@Override
-	public Model<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor descriptor) {
+	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor descriptor) {
 		return new net.finmath.fouriermethod.models.HestonModel(descriptor);
 	}
 }

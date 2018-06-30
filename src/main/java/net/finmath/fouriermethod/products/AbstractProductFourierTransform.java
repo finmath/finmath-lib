@@ -6,6 +6,8 @@
 
 package net.finmath.fouriermethod.products;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 
 import org.apache.commons.math3.complex.Complex;
@@ -15,12 +17,39 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.integration.RealIntegralInterface;
 import net.finmath.integration.SimpsonRealIntegrator;
+import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.ProductInterface;
 
 /**
  * @author Christian Fries
  *
  */
-public abstract class AbstractProductFourierTransform implements CharacteristicFunctionInterface {
+public abstract class AbstractProductFourierTransform implements CharacteristicFunctionInterface, ProductInterface {
+
+	@Override
+	public Double getValue(double evaluationTime, ModelInterface model) {
+		Double value = null;
+		try {
+			value = getValue((ProcessCharacteristicFunctionInterface) model);
+		} catch (CalculationException e) {
+		}
+		
+		return value;
+	}
+
+	@Override
+	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+		Map<String, Object>  result = new HashMap<String, Object>();
+
+		try {
+			double value = getValue((ProcessCharacteristicFunctionInterface) model);
+			result.put("value", value);
+		} catch (CalculationException e) {
+			result.put("exception", e);
+		}
+		
+		return result;
+	}
 
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.

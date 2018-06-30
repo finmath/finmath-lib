@@ -84,4 +84,15 @@ public class RegularSchedule implements ScheduleInterface {
 	public Iterator<Period> iterator() {
 		return null;
 	}
+	
+	@Override
+	public int getPeriodIndex(double time) {
+		return timeDiscretization.getTimeIndex(time);
+	}
+	
+	@Override
+	public int getPeriodIndex(LocalDate date) {
+		double time= FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);
+		return getPeriodIndex(time);
+	}
 }
