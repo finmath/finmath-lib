@@ -18,6 +18,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class SwaptionFactory {
 
+	private SwaptionFactory() {
+	}
+
 	public static AbstractLIBORMonteCarloProduct createSwaption(String className, double swaprate, TimeDiscretizationInterface swapTenor, String valueUnitAsString) {
 
 		if(className.equals("SwaptionAnalyticApproximation")) {

@@ -36,7 +36,10 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
 public class FloatingpointDate {
 
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
-	
+
+	private FloatingpointDate() {
+	}
+
 	/**
 	 * Convert a floating point date to a LocalDate.
 	 * 

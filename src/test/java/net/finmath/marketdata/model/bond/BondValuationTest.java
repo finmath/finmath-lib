@@ -64,7 +64,7 @@ public class BondValuationTest {
 			{ InterpolationMethod.HARMONIC_SPLINE },
 			{ InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING },
 		});
-	};
+	}
 
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.

@@ -18,7 +18,7 @@ public class SABRModel {
 	/**
 	 * 
 	 */
-	public SABRModel() {
+	private SABRModel() {
 		// TODO Auto-generated constructor stub
 	}
 

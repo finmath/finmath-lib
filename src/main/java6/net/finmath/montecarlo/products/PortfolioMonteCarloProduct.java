@@ -71,8 +71,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
 	 */
 	@Override
-	public RandomVariableInterface getValue(final double evaluationTime,
-			final MonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariableInterface getValue(final double evaluationTime, final MonteCarloSimulationInterface model) throws CalculationException {
 		
 		if(products == null || products.length == 0) return null;
 

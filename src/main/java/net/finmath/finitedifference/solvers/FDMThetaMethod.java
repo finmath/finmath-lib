@@ -54,7 +54,7 @@ public class FDMThetaMethod {
 		double minimumStockPriceOnGrid = Math.max(model.getForwardValue(timeHorizon)
 				- model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon)), 0);
 		double maximumX = f_x(maximumStockPriceOnGrid);
-		double minimumX = f_x(Math.max(minimumStockPriceOnGrid, center/100.0));	// Previously there was a floor at 1 here. The floor at 1 is problematic. It does not scale with the spot! @TODO: There should be a more intelligent method to set the floor (do we need this?)
+		double minimumX = f_x(Math.max(minimumStockPriceOnGrid, center/50.0));	// Previously there was a floor at 1 here. The floor at 1 is problematic. It does not scale with the spot! @TODO: There should be a more intelligent method to set the floor (do we need this?)
 		double dx = (maximumX - minimumX) / (model.getNumSpacesteps() - 2);
 		int N_pos = (int) Math.ceil((maximumX / dx) + 1);
 		int N_neg = (int) Math.floor((minimumX / dx) - 1);

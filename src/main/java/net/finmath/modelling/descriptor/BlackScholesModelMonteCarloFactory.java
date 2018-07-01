@@ -13,9 +13,8 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -29,8 +28,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 	private final IndependentIncrementsInterface brownianMotion;
 
 
-	public BlackScholesModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory,
-			IndependentIncrementsInterface brownianMotion) {
+	public BlackScholesModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory, IndependentIncrementsInterface brownianMotion) {
 		super();
 		this.randomVariableFactory = randomVariableFactory;
 		this.brownianMotion = brownianMotion;
@@ -38,15 +36,27 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 
 	@Override
 	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(BlackScholesModelDescriptor modelDescriptor) {
+		
+		/*
+		 * Build model from description.
+		 * Adding product factory.
+		 * 
+		 * We build the class implementing DescribedModel<BlackScholesModelDescriptor> as an inner class.
+		 * For larger applications this should be a dedicated class file.
+		 */
+		AbstractModel model = new net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves(
+				modelDescriptor.getInitialValue(),
+				modelDescriptor.getDiscountCurveForForwardRate(),
+				modelDescriptor.getVolatility(),
+				modelDescriptor.getDiscountCurveForDiscountRate(),
+				randomVariableFactory
+				);
+
 		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
 			
-			/**
-			 * @param model
-			 * @param process
-			 */
-			public BlackScholesMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
+			BlackScholesMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);
 			}
 			
@@ -67,20 +77,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 			}	
 		}
 
-        return new BlackScholesMonteCarloModel(
-				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(
-						brownianMotion.getRandomVariableForConstant(modelDescriptor.getInitialValue()),
-						modelDescriptor.getDiscountCurveForForwardRate(),
-						brownianMotion.getRandomVariableForConstant(modelDescriptor.getVolatility()),
-						modelDescriptor.getDiscountCurveForDiscountRate(),
-						brownianMotion.getRandomVariableForConstant(0.0),
-						brownianMotion.getRandomVariableForConstant(0.0),
-						brownianMotion.getRandomVariableForConstant(0.0),
-						brownianMotion.getRandomVariableForConstant(0.0),
-						HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory
-						), 
-				new ProcessEulerScheme(brownianMotion)
-				);
+        return new BlackScholesMonteCarloModel(model, new ProcessEulerScheme(brownianMotion));
 	}
 
 }

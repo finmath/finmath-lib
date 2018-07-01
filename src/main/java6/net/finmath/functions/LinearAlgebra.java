@@ -62,21 +62,21 @@ public class LinearAlgebra {
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
 	 * 
-	 * @param A The matrix (left hand side of the linear equation).
+	 * @param matrixA The matrix A (left hand side of the linear equation).
 	 * @param b The vector (right hand of the linear equation).
 	 * @return A solution x to A x = b.
 	 */
-	public static double[] solveLinearEquation(double[][] A, double[] b) {
+	public static double[] solveLinearEquation(double[][] matrixA, double[] b) {
 
 		if(isSolverUseApacheCommonsMath) {
-			Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(A);
+			Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
 
 			DecompositionSolver solver;
 			if(matrix.getColumnDimension() == matrix.getRowDimension()) {
 				solver = new LUDecomposition(matrix).getSolver();			
 			}
 			else {
-				solver = new QRDecomposition(new Array2DRowRealMatrix(A)).getSolver();			
+				solver = new QRDecomposition(new Array2DRowRealMatrix(matrixA)).getSolver();			
 			}
 
 			// Using SVD - very slow
@@ -85,7 +85,7 @@ public class LinearAlgebra {
 			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
 		}
 		else {
-			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(A), new org.jblas.DoubleMatrix(b)).data;
+			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
 
 			// For use of colt:
 			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();

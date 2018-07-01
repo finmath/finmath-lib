@@ -29,6 +29,9 @@ public class CurveFactory {
 
 	private static DayCountConvention_ACT_365 modelDcc = new DayCountConvention_ACT_365();
 
+	private CurveFactory() {
+	}
+
 	/**
 	 * Creates a monthly index curve with seasonality and past fixings.
 	 * 

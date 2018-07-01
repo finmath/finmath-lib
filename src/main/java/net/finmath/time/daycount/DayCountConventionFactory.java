@@ -18,8 +18,7 @@ public class DayCountConventionFactory {
 	/**
 	 * Factory methods for day count conventions.
 	 */
-	public DayCountConventionFactory() {
-		// TODO Auto-generated constructor stub
+	private DayCountConventionFactory() {
 	}
 
 	/**

@@ -12,19 +12,12 @@ import java.util.Map;
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 import net.finmath.finitedifference.products.FDMEuropeanCallOption;
-import net.finmath.finitedifference.products.FiniteDifference1DProduct;
-import net.finmath.finitedifference.solvers.FDMThetaMethod;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
-import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
-import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
 
 /**
  * @author Christian Fries

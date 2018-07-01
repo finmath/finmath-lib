@@ -13,6 +13,9 @@ public class NormalDistribution {
     // Create normal distribution (for if we use Jakarta Commons Math)
     static final org.apache.commons.math3.distribution.NormalDistribution normalDistribution  = new org.apache.commons.math3.distribution.NormalDistribution();
 
+	private NormalDistribution() {
+	}
+
 	/**
 	 * Returns the value of the density at x.
 	 * 
