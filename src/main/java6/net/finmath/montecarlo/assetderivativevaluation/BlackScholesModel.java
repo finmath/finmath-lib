@@ -7,7 +7,6 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Map;
 
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractModel;
