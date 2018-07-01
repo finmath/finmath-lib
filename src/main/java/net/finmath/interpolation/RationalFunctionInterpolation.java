@@ -87,7 +87,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
-		public RationalFunction(double[] coefficientsNumerator, double[] coefficientsDenominator) {
+		RationalFunction(double[] coefficientsNumerator, double[] coefficientsDenominator) {
 			super();
 			this.coefficientsNumerator = coefficientsNumerator;
 			this.coefficientsDenominator = coefficientsDenominator;
@@ -98,7 +98,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 * 
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
-		public RationalFunction(double[] coefficients) {
+		RationalFunction(double[] coefficients) {
 			super();
 			this.coefficientsNumerator = coefficients;
 			this.coefficientsDenominator = null;
