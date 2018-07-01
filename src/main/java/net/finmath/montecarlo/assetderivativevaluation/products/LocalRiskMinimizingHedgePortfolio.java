@@ -99,21 +99,21 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 			MonteCarloConditionalExpectationRegression condExpectationHedging	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsEstimator);
 			MonteCarloConditionalExpectationRegression condExpectationValuation	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsPredictor);
 
-			RandomVariableInterface S = underlyingAtTimeNext.div(numeraireAtTimeNext);
-			RandomVariableInterface ES = condExpectationHedging.getConditionalExpectation(S);
-			S = S.sub(ES);
+			RandomVariableInterface underlyingRebased = underlyingAtTimeNext.div(numeraireAtTimeNext);
+			RandomVariableInterface underlyingRebasedExpected = condExpectationHedging.getConditionalExpectation(underlyingRebased);
+			RandomVariableInterface underlyingRebasedMartingale = underlyingRebased.sub(underlyingRebasedExpected);
 
-			RandomVariableInterface V = productAtTimeNext.div(numeraireAtTimeNext);
-			RandomVariableInterface EV = condExpectationHedging.getConditionalExpectation(V);
-			V = V.sub(EV);
+			RandomVariableInterface derivativeRebased = productAtTimeNext.div(numeraireAtTimeNext);
+			RandomVariableInterface derivativeRebasedExpected = condExpectationHedging.getConditionalExpectation(derivativeRebased);
+			RandomVariableInterface derivativeRebasedMartingale = derivativeRebased.sub(derivativeRebasedExpected);
 
-			RandomVariableInterface SV = V.mult(S);
-			RandomVariableInterface ESV = condExpectationValuation.getConditionalExpectation(SV);
+			RandomVariableInterface derivativeTimesUnderlying = derivativeRebasedMartingale.mult(underlyingRebasedMartingale);
+			RandomVariableInterface derivativeTimesUnderlyingExpected = condExpectationValuation.getConditionalExpectation(derivativeTimesUnderlying);
 
-			RandomVariableInterface S2 = S.mult(S);
-			RandomVariableInterface ES2 = condExpectationValuation.getConditionalExpectation(S2);
+			RandomVariableInterface underlyingRabasedMartingaleSquared = underlyingRebasedMartingale.squared();
+			RandomVariableInterface underlyingRabasedMartingaleSquaredExpected = condExpectationValuation.getConditionalExpectation(underlyingRabasedMartingaleSquared);
 
-			RandomVariableInterface delta = ESV.div(ES2);
+			RandomVariableInterface delta = derivativeTimesUnderlyingExpected.div(underlyingRabasedMartingaleSquaredExpected);
 
 			RandomVariableInterface underlyingValue = model.getAssetValue(time,0);
 			RandomVariableInterface numeraireValue  = model.getNumeraire(time);
