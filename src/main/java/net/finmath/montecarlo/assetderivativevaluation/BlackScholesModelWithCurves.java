@@ -55,8 +55,9 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	 * Create a Black-Scholes specification implementing AbstractModel.
 	 * 
 	 * @param initialValue Spot value.
-	 * @param riskFreeRate The risk free rate.
+	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
 	 * @param volatility The log volatility.
+	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
 	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
@@ -80,8 +81,9 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	 * Create a Black-Scholes specification implementing AbstractModel.
 	 * 
 	 * @param initialValue Spot value.
-	 * @param riskFreeRate The risk free rate.
+	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
 	 * @param volatility The log volatility.
+	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
 	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
