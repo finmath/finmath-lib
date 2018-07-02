@@ -4,10 +4,11 @@
  * Created on 09.02.2018
  */
 
-package net.finmath.modelling.descriptor;
+package net.finmath.modelling.productfactory;
 
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductFactory;
+import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 
 /**
  * @author Christian Fries

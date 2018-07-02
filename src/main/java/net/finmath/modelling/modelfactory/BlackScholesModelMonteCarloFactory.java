@@ -4,17 +4,19 @@
  * Created on 09.02.2018
  */
 
-package net.finmath.modelling.descriptor;
+package net.finmath.modelling.modelfactory;
 
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
+import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -22,38 +24,46 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 /**
  * @author Christian Fries
  */
-public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDescriptor> {
+public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackScholesModelDescriptor> {
 
-	private final net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme scheme;
 	private final AbstractRandomVariableFactory randomVariableFactory;
 	private final IndependentIncrementsInterface brownianMotion;
 
 
-	public HestonModelMonteCarloFactory(Scheme scheme, AbstractRandomVariableFactory randomVariableFactory,
-			IndependentIncrementsInterface brownianMotion) {
+	public BlackScholesModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory, IndependentIncrementsInterface brownianMotion) {
 		super();
-		this.scheme = scheme;
 		this.randomVariableFactory = randomVariableFactory;
 		this.brownianMotion = brownianMotion;
 	}
 
-
 	@Override
-	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
-		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
+	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(BlackScholesModelDescriptor modelDescriptor) {
+		
+		/*
+		 * Build model from description.
+		 * Adding product factory.
+		 * 
+		 * We build the class implementing DescribedModel<BlackScholesModelDescriptor> as an inner class.
+		 * For larger applications this should be a dedicated class file.
+		 */
+		AbstractModel model = new net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves(
+				modelDescriptor.getInitialValue(),
+				modelDescriptor.getDiscountCurveForForwardRate(),
+				modelDescriptor.getVolatility(),
+				modelDescriptor.getDiscountCurveForDiscountRate(),
+				randomVariableFactory
+				);
+
+		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
 			
-			/**
-			 * @param model
-			 * @param process
-			 */
-			public HestonMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
+			BlackScholesMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);
 			}
 			
 			@Override
-			public HestonModelDescriptor getDescriptor() {
+			public BlackScholesModelDescriptor getDescriptor() {
 				return modelDescriptor;
 			}
 
@@ -69,10 +79,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}	
 		}
 
-        return new HestonMonteCarloModel(
-				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(modelDescriptor, scheme, randomVariableFactory), 
-				new ProcessEulerScheme(brownianMotion)
-				);
+        return new BlackScholesMonteCarloModel(model, new ProcessEulerScheme(brownianMotion));
 	}
 
 }
