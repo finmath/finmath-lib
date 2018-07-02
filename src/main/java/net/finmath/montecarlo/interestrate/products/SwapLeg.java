@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
@@ -26,7 +28,7 @@ import net.finmath.time.ScheduleInterface;
  * @author Christian Fries
  *
  */
-public class SwapLeg extends AbstractLIBORMonteCarloProduct {
+public class SwapLeg extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapLegProductDescriptor> {
 
 	private final ScheduleInterface				legSchedule;
 	private final AbstractNotional				notional;
@@ -110,8 +112,18 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 		this(legSchedule, notional, index, spread, true, isNotionalExchanged, false);
 	}
 
+	public SwapLeg(InterestRateSwapLegProductDescriptor descriptor) {
+		this(descriptor.getLegSchedule(), descriptor.getNotional(), descriptor.getIndex(), descriptor.getSpread(), descriptor.isCouponFlow(), 
+				descriptor.isNotionalExchanged(), descriptor.isNotionalAccruing());
+	}
+
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		return components.getValue(evaluationTime, model);
+	}
+
+	@Override
+	public InterestRateSwapLegProductDescriptor getDescriptor() {
+		return new InterestRateSwapLegProductDescriptor(legSchedule, notional, index, spread, couponFlow, isNotionalExchanged, isNotionalAccruing);
 	}
 }
