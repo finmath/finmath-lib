@@ -79,7 +79,7 @@ public class HestonModelDescriptorTest {
 		DescribedModel<?> hestonModelFourier = (new HestonModelFourierFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		ProductInterface europeanOptionFourier = hestonModelFourier.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionFourier = hestonModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
 		
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -99,7 +99,7 @@ public class HestonModelDescriptorTest {
 		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		ProductInterface europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 

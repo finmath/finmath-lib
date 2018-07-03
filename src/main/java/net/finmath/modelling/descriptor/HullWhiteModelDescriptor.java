@@ -6,7 +6,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
-public class HullWhiteModelDescriptor implements LiborModelDescriptor {
+public class HullWhiteModelDescriptor implements InterestRateModelDescriptor {
 	
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;
 	private final String							forwardCurveName;

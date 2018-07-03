@@ -1,20 +1,26 @@
 package net.finmath.modelling;
 
-public interface DescribedModel<T extends ModelDescriptor> extends ModelInterface {
+public interface DescribedModel<M extends ModelDescriptor> extends ModelInterface {
 
 	/**
 	 * Return a model descriptor representing this model.
 	 * 
 	 * @return The model descriptor of this model.
 	 */
-	T getDescriptor();
+	M getDescriptor();
 
 	/**
-	 * Construct a product from a product descriptor, which may be valued by this mmodel.
+	 * Construct a product from a product descriptor, which may be valued by this model.
 	 * 
 	 * @param productDescriptor Given product descriptor.
 	 * @return An instance of a product implementation.
 	 */
-	DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor);
+	DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor);
+	
+	/**
+	 * An additional product factory may registered with a model.
+	 * The parameter append indicated if the models own factory should by queried before (or after) the given one.
+	 */
+	DescribedModel<? extends M> getModelWithProductFactory(ProductFactory< ? extends ProductDescriptor, M > productFactory, boolean append);
 
 }

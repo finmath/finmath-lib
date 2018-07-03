@@ -17,6 +17,7 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
@@ -60,7 +61,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
 
 					class FDCallOptionProduct extends FDMEuropeanCallOption implements DescribedProduct<SingleAssetProductDescriptor> {
@@ -100,6 +101,15 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 					String name = modelDescriptor.name();
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
+			}
+
+
+			@Override
+			public DescribedModel<BlackScholesModelDescriptor> getModelWithProductFactory(
+					ProductFactory<? extends ProductDescriptor, BlackScholesModelDescriptor> productFactory,
+					boolean append) {
+				// TODO Auto-generated method stub
+				return null;
 			}	
 		}
 

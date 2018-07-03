@@ -10,6 +10,7 @@ import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
@@ -60,7 +61,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
 					return productFactory.getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
 				}
@@ -68,6 +69,13 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 					String name = modelDescriptor.name();
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
+			}
+
+			@Override
+			public DescribedModel<HestonModelDescriptor> getModelWithProductFactory(
+					ProductFactory<? extends ProductDescriptor, HestonModelDescriptor> productFactory, boolean append) {
+				// TODO Auto-generated method stub
+				return null;
 			}	
 		}
 

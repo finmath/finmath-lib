@@ -6,6 +6,8 @@
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -27,12 +29,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.3
  */
-public class DigitalOption extends AbstractAssetMonteCarloProduct {
+public class DigitalOption extends AbstractAssetMonteCarloProduct implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor> {
 
 	private final double maturity;
 	private final double strike;
 	private final Integer underlyingIndex;
-	private final String nameOfUnderliyng;
+	private final String nameOfUnderlying;
 
 	/**
 	 * Construct a product representing an digital option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -45,7 +47,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 		this.maturity			= maturity;
 		this.strike				= strike;
 		this.underlyingIndex	= underlyingIndex;
-		this.nameOfUnderliyng	= null;		// Use underlyingIndex
+		this.nameOfUnderlying	= null;		// Use underlyingIndex
 	}
 
 	/**
@@ -55,6 +57,18 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 	 */
 	public DigitalOption(double maturity, double strike) {
 		this(maturity, strike, 0);
+	}
+	
+	public DigitalOption(String nameOfUnderlying, double maturity, double strike) {
+		super();
+		this.nameOfUnderlying = nameOfUnderlying;
+		this.maturity = maturity;
+		this.strike = strike;
+		this.underlyingIndex = 0;
+	}
+
+	public DigitalOption(SingleAssetDigitalOptionProductDescriptor descriptor) {
+		this(descriptor.getNameOfUnderlying(), descriptor.getMaturity(), descriptor.getStrike());
 	}
 
 	/**
@@ -88,5 +102,10 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;
+	}
+
+	@Override
+	public SingleAssetDigitalOptionProductDescriptor getDescriptor() {
+		return new SingleAssetDigitalOptionProductDescriptor(nameOfUnderlying, maturity, strike);
 	}
 }

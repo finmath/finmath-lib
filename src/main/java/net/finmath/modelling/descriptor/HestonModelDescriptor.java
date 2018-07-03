@@ -9,13 +9,12 @@ package net.finmath.modelling.descriptor;
 import java.time.LocalDate;
 
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.modelling.ModelDescriptor;
 
 /**
  * @author Christian Fries
  *
  */
-public class HestonModelDescriptor implements ModelDescriptor {
+public class HestonModelDescriptor implements AssetModelDescriptor {
 
 	private final LocalDate referenceDate;
 	

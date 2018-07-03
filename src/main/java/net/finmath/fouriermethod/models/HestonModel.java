@@ -12,7 +12,6 @@ import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
@@ -57,7 +56,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
  * @author Andy Graf
  * @author Lorenzo Toricelli
  */
-public class HestonModel implements ProcessCharacteristicFunctionInterface, DescribedModel<HestonModelDescriptor> {
+public class HestonModel extends AbstractFourierModel<HestonModelDescriptor> {
 
 	private final LocalDate referenceDate;
 
@@ -235,8 +234,8 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 		return new HestonModelDescriptor(referenceDate, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);
 	}
 
-	@Override
-	public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
-		return (new SingleAssetFourierProductFactory()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
-	}
+//	@Override
+//	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+//		return (new SingleAssetFourierProductFactory<HestonModelDescriptor>()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+//	}
 }

@@ -76,7 +76,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelFourier = (new BlackScholesModelFourierFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionFourier = blackScholesModelFourier.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionFourier = blackScholesModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
 
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -96,7 +96,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
 
@@ -110,7 +110,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
 
