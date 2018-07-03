@@ -20,7 +20,6 @@ import net.finmath.modelling.ProductInterface;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
-import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 import net.finmath.modelling.modelfactory.BlackScholesModelFourierFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.HestonModelFourierFactory;
