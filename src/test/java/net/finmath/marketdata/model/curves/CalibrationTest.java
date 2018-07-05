@@ -245,5 +245,5 @@ public class CalibrationTest {
 		Assert.assertTrue(error2 < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
-	}		
+	}
 }

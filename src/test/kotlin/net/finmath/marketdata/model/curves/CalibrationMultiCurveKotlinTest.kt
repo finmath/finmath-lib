@@ -31,6 +31,14 @@ class CalibrationMultiCurveKotlinTest {
 		/*
 		 * Define the calibration spec generators for our calibration products
 		 */
+		val frequencyForTenor = { tenor: String ->
+			when (tenor) {
+				"3M" -> "quarterly"
+				"6M" -> "semiannual"
+				else -> throw IllegalArgumentException("Unkown tenor $tenor")
+			}
+		}
+
 		val deposit = { maturity: String, rate: Double ->
 			val scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 0)
 			val scheduleInterfacePay: ScheduleInterface? = null
@@ -64,14 +72,30 @@ class CalibrationMultiCurveKotlinTest {
 			calibrationSpec
 		}
 
+		val swapBasis = { tenorRec: String, tenorPay: String, maturity: String, rate: Double ->
+				val curveNameRec = "forward-EUR-$tenorRec"
+				val curveNamePay = "forward-EUR-$tenorPay"
+
+				val frequencyRec = frequencyForTenor(tenorRec)
+				val frequencyPay = frequencyForTenor(tenorPay)
+
+				val scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 0)
+				val scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyPay, "act/360", "first", "following", BusinessdayCalendarExcludingTARGETHolidays(), 0, 0)
+				val calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.numberOfPeriods - 1)
+
+				val calibrationSpec = CalibratedCurves.CalibrationSpec("EUR-$tenorRec-$tenorPay$maturity", "Swap", scheduleInterfaceRec, curveNameRec, 0.0, "discount-EUR-OIS", scheduleInterfacePay, curveNamePay, rate!!, "discount-EUR-OIS", curveNameRec, calibrationTime)
+				calibrationSpec
+			}
+
 		/*
 		 * Generate empty curve templates (for cloning during calibration)
 		 */
 		val discountCurveOIS = DiscountCurve.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, doubleArrayOf(0.0), doubleArrayOf(1.0), booleanArrayOf(false), Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.LOG_OF_VALUE)
 		val forwardCurveOIS = ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M")
         val forwardCurve3M = ForwardCurve("forward-EUR-3M", referenceDate, "3M", BusinessdayCalendarExcludingTARGETHolidays(),BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS")
+		val forwardCurve6M = ForwardCurve("forward-EUR-6M", referenceDate, "6M", BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE, ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS")
 
-		val forwardCurveModel = AnalyticModel(arrayOf(discountCurveOIS, forwardCurveOIS, forwardCurve3M))
+		val forwardCurveModel = AnalyticModel(arrayOf(discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M))
 
 		val calibrationSpecs = LinkedList<CalibratedCurves.CalibrationSpec>()
 
@@ -152,6 +176,27 @@ class CalibrationMultiCurveKotlinTest {
 		calibrationSpecs.add(swap("3M", "50Y", 2.286 / 100.0))
 
 		/*
+		 * Calibration products for 6M curve: tenor basis swaps
+		 * Note: the fixed bases is added to the second argument tenor (here 3M).
+		 */
+		calibrationSpecs.add(swapBasis("6M", "3M","2Y", 0.255 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","3Y", 0.245 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","4Y", 0.227 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","5Y", 0.210 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","6Y", 0.199 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","7Y", 0.189 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","8Y", 0.177 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","9Y", 0.170 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","10Y", 0.164 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","12Y", 0.156 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","15Y", 0.135 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","20Y", 0.125 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","25Y", 0.117 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","30Y", 0.107 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","40Y", 0.095 / 100.0))
+		calibrationSpecs.add(swapBasis("6M", "3M","50Y", 0.088 / 100.0))
+
+		/*
 		 * Calibrate
 		 */
 		var calibratedCurves = CalibratedCurves(calibrationSpecs.toTypedArray(), forwardCurveModel, 1E-12)
@@ -179,13 +224,17 @@ class CalibrationMultiCurveKotlinTest {
          */
         val discountCurveCalibrated = calibratedModel.getDiscountCurve("discount-EUR-OIS")
         val forwardCurveCalibrated = calibratedModel.getForwardCurve("forward-EUR-3M")
+		val forwardCurve6MCalibrated = calibratedModel.getForwardCurve("forward-EUR-6M")
 
-        println("\nCalibrated discount curve:")
+		println("\nCalibrated discount curve:")
         println(discountCurveCalibrated)
 
         println("\nCalibrated forward curve:")
         println(forwardCurveCalibrated)
 
-        Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors) / calibrationSpecs.size, 1E-10)
+		println("\nCalibrated forward curve:")
+		println(forwardCurve6MCalibrated)
+
+		Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors) / calibrationSpecs.size, 1E-10)
     }
 }
