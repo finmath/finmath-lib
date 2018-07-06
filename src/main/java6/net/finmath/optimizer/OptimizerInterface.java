@@ -12,8 +12,8 @@ package net.finmath.optimizer;
  */
 public interface OptimizerInterface {
 
-	public interface ObjectiveFunction {
-		public void setValues(double[] parameters, double[] values) throws SolverException;
+	interface ObjectiveFunction {
+		void setValues(double[] parameters, double[] values) throws SolverException;
 	}
 
 	/**
