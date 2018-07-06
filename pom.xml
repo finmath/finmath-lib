@@ -147,7 +147,7 @@
 		<dependency>
 			<groupId>net.finmath</groupId>
 			<artifactId>finmath-lib</artifactId>
-			<version>3.2.3</version>
+			<version>3.2.10</version>
 			<classifier />
 		</dependency>
 		<dependency>
