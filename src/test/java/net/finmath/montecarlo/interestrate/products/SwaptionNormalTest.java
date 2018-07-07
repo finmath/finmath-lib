@@ -160,7 +160,7 @@ public class SwaptionNormalTest {
 				}
 				else {
 					instVolatility = (0.3 + 0.2 * Math.exp(-0.25 * timeToMaturity))
-					* forwardCurve.getForward(null, liborPeriodDiscretization.getTime(liborIndex)); //rescale by the interest rate level; not necessary, but tidier/more realistic values
+							* forwardCurve.getForward(null, liborPeriodDiscretization.getTime(liborIndex)); //rescale by the interest rate level; not necessary, but tidier/more realistic values
 				}
 
 				// Store

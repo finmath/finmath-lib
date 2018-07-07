@@ -198,7 +198,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		double min = Double.MAX_VALUE;
 		if(realizations.length != 0)
-		 {
+		{
 			min = realizations[0];     /// @see getMax()
 		}
 		for(int i=0; i<realizations.length; i++) {

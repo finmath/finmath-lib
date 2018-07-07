@@ -181,8 +181,8 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 			System.out.println(time + "\t" + probabilities[exerciseDateIndex]);
 		}
 		System.out.println("NEVER" + "\t" + probabilities[exerciseDates.length]);
-		*/
-		
+		 */
+
 		// Note that values is a relative price - no numeraire division is required
 		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
