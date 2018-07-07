@@ -28,7 +28,7 @@ public class EuropeanOption extends AbstractProductFourierTransform {
 	private final double maturity;
 	private final double strike;
 	private final String nameOfUnderliyng;
-	
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)

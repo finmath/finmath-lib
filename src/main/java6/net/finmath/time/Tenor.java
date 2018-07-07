@@ -73,9 +73,9 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	/**
 	 * Construct a tenor from meta data.
 	 * 
-     * @param initial First discretization point.
-     * @param numberOfTimeSteps Number of time steps.
-     * @param deltaT Time step size.
+	 * @param initial First discretization point.
+	 * @param numberOfTimeSteps Number of time steps.
+	 * @param deltaT Time step size.
 	 */
 	public Tenor(double initial, int numberOfTimeSteps, double deltaT) {
 		super(initial, numberOfTimeSteps, deltaT);
@@ -85,10 +85,10 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	/**
 	 * Construct a tenor from meta data.
 	 * 
-     * @param initial First discretization point.
-     * @param last Last time steps.
-     * @param deltaT Time step size.
-     * @param shortPeriodLocation Placement of the stub period.
+	 * @param initial First discretization point.
+	 * @param last Last time steps.
+	 * @param deltaT Time step size.
+	 * @param shortPeriodLocation Placement of the stub period.
 	 */
 	public Tenor(double initial, double last, double deltaT, ShortPeriodLocation shortPeriodLocation) {
 		super(initial, last, deltaT, shortPeriodLocation);
@@ -118,14 +118,15 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 	public double getDaycountFraction(int timeIndex) {
 		return this.getTimeStep(timeIndex);
 	}
-	
+
 	@Override
 	public String toString() {
 		String datesOutputString = "[";
-		for(int iDate=0; iDate<dates.length; iDate++)
+		for(int iDate=0; iDate<dates.length; iDate++) {
 			datesOutputString += dates[iDate].toString() + (iDate==dates.length-1 ? "" : ", ");
+		}
 		datesOutputString += "]";
-		
+
 		return "Tenor [referenceDate=" + referenceDate + ", dates=" + datesOutputString + "]";
 	}
 }

@@ -25,7 +25,7 @@ public class SABRModel {
 	public static double[] sabrCalibrateParameterForImpliedNormalVols(final double underlying, final double maturity, final double[] givenStrikes, final double[] givenVolatilities) throws SolverException {
 		double[] parameterLowerBound = { 0.0, 0.0, 0.0, 0.0, Double.NEGATIVE_INFINITY};
 		double[] parameterUpperBound = {Double.POSITIVE_INFINITY, 1.0, 1.0, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
-		
+
 		return sabrCalibrateParameterForImpliedNormalVols(underlying, maturity, givenStrikes, givenVolatilities, parameterLowerBound, parameterUpperBound);
 	}
 

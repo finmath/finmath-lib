@@ -15,10 +15,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  */
 public class Notional implements AbstractNotional {
-	
+
 	private final String currency;
 	private final RandomVariable notional;
-	
+
 	/**
 	 * Creates a constant (non-stochastic) notional.
 	 * 

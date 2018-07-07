@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 public class FutureWrapper<V> implements Future<V> {
 
 	private V object;
-	
+
 	/**
 	 * Create a wrapper to an object that looks like a Future on that object.
 	 * 

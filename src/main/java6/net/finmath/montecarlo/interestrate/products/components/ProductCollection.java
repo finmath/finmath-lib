@@ -73,8 +73,11 @@ public class ProductCollection extends AbstractProductComponent {
 		for(AbstractProductComponent product : products) {
 			Set<String> productUnderlyingNames = product.queryUnderlyings();
 			if(productUnderlyingNames != null) {
-				if(underlyingNames == null)	underlyingNames = productUnderlyingNames;
-				else						underlyingNames.addAll(productUnderlyingNames);
+				if(underlyingNames == null) {
+					underlyingNames = productUnderlyingNames;
+				} else {
+					underlyingNames.addAll(productUnderlyingNames);
+				}
 			}
 		}
 		return underlyingNames;

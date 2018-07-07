@@ -71,7 +71,9 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 	 * @throws SolverException Exception thrown when solver fails.
 	 */
 	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModelInterface calibrationModel, final Vector<AnalyticProductInterface> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation, OptimizerFactoryInterface optimizerFactory) throws CalculationException, SolverException {
-		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
+		if(calibrationParameters == null) {
+			calibrationParameters = new HashMap<String,Object>();
+		}
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		Double	evaluationTimeParameter		= (Double)calibrationParameters.get("evaluationTime");

@@ -51,7 +51,7 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 
 		// Roll to end of month.
 		endDate = endDate.withDayOfMonth(endDate.lengthOfMonth());
-		
+
 		double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, endDate);
 		return baseIndex.getValue(time, model);
 	}

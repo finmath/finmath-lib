@@ -24,12 +24,12 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 	@Override
 	public Object getValue(double evaluationTime, ModelInterface model) {
 		throw new IllegalArgumentException("The product " + this.getClass()
-				+ " cannot be valued against a model " + model.getClass() + "."
-				+ "It requires a model of type " + AnalyticModelInterface.class + ".");
+		+ " cannot be valued against a model " + model.getClass() + "."
+		+ "It requires a model of type " + AnalyticModelInterface.class + ".");
 	}
 
 	public double getValue(AnalyticModelInterface model) {
- 		return getValue(0.0, model);
+		return getValue(0.0, model);
 	}
 
 	@Override

@@ -43,7 +43,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.4
  */
 public class ProcessEulerScheme extends AbstractProcess {
-	
+
 	private static boolean isUseMultiThreadding;
 	static {
 		// Default value is true
@@ -108,7 +108,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		if(discreteProcess[timeIndex][componentIndex] == null) {
 			throw new NullPointerException("Generation of process component " + componentIndex + " at time index " + timeIndex + " failed. Likely due to out of memory");
 		}
-		
+
 		// Return value of process
 		return discreteProcess[timeIndex][componentIndex];
 	}
@@ -136,7 +136,9 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * Calculates the whole (discrete) process.
 	 */
 	private void doPrecalculateProcess() {
-		if (discreteProcess != null && discreteProcess.length != 0)	return;
+		if (discreteProcess != null && discreteProcess.length != 0) {
+			return;
+		}
 
 		final int numberOfPaths			= this.getNumberOfPaths();
 		final int numberOfFactors		= this.getNumberOfFactors();
@@ -191,16 +193,22 @@ public class ProcessEulerScheme extends AbstractProcess {
 				final RandomVariableInterface	driftOfComponent	= drift[componentIndex];
 
 				// Check if the component process has stopped to evolve
-				if (driftOfComponent == null) continue;
+				if (driftOfComponent == null) {
+					continue;
+				}
 
 				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
 					public RandomVariableInterface call() throws SolverException {
-						if(scheme == Scheme.EULER_FUNCTIONAL) currentState[componentIndex] = applyStateSpaceTransformInverse(componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
+						if(scheme == Scheme.EULER_FUNCTIONAL) {
+							currentState[componentIndex] = applyStateSpaceTransformInverse(componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
+						}
 
 						RandomVariableInterface[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
-						if (factorLoadings == null) return null;
+						if (factorLoadings == null) {
+							return null;
+						}
 
 						// Apply drift
 						if(driftOfComponent != null) {
@@ -221,13 +229,14 @@ public class ProcessEulerScheme extends AbstractProcess {
 				 * Optional multi-threadding (asyncronous calculation of the components)
 				 */
 				Future<RandomVariableInterface> result = null;
-				if(isUseMultiThreadding) result = executor.submit(worker);
-				else {
+				if(isUseMultiThreadding) {
+					result = executor.submit(worker);
+				} else {
 					try {
 						result = new FutureWrapper<RandomVariableInterface>(worker.call());
 					} catch (Exception e) {}
 				}
-				
+
 				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
 				discreteProcessAtCurrentTimeIndex.set(componentIndex, result);
 			}
@@ -236,8 +245,11 @@ public class ProcessEulerScheme extends AbstractProcess {
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
 					Future<RandomVariableInterface> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
-					if(discreteProcessAtCurrentTimeIndexAndComponent != null)	discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();
-					else														discreteProcess[timeIndex][componentIndex] = null;
+					if(discreteProcessAtCurrentTimeIndexAndComponent != null) {
+						discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();
+					} else {
+						discreteProcess[timeIndex][componentIndex] = null;
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -256,7 +268,9 @@ public class ProcessEulerScheme extends AbstractProcess {
 					RandomVariableInterface driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];
 					RandomVariableInterface driftWithoutPredictorOfComponent	= drift[componentIndex];
 
-					if (driftWithPredictorOfComponent == null || driftWithoutPredictorOfComponent == null) continue;
+					if (driftWithPredictorOfComponent == null || driftWithoutPredictorOfComponent == null) {
+						continue;
+					}
 
 					// Calculated the predictor corrector drift adjustment
 					RandomVariableInterface driftAdjustment = driftWithPredictorOfComponent.sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);

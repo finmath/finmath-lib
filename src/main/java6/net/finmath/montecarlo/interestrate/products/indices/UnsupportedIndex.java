@@ -27,7 +27,7 @@ public class UnsupportedIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 5375406324063846793L;
 	private final Exception exception;
-	
+
 	/**
 	 * Creates an unsupported index throwing an exception if his <code>getValue</code> method is called.
 	 * 
@@ -56,7 +56,9 @@ public class UnsupportedIndex extends AbstractIndex {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		if(getName() == null) return null;
+		if(getName() == null) {
+			return null;
+		}
 
 		Set<String> underlying = new HashSet<String>();
 		underlying.add(getName());

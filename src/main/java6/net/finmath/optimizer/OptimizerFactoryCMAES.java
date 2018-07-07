@@ -101,7 +101,9 @@ public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 							return Double.NaN;
 						}
 						double rms = 0;
-						for(double value : values) rms += value*value;
+						for(double value : values) {
+							rms += value*value;
+						}
 						return Math.sqrt(rms);
 					}			
 
@@ -128,7 +130,7 @@ public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 
 				try {
 					result = optimizer.optimize(
-							new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log((double)initialParameters.length))),
+							new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(initialParameters.length))),
 							new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(effectiveParameterStandardDeviation)
 							);
 				} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {

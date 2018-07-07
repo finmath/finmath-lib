@@ -72,7 +72,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	{
 		// Change time scale
 		maturity *= timeScaling;
-		
+
 		double beta1	= parameter[0];
 		double beta2	= parameter[1];
 		double beta3	= parameter[2];
@@ -105,7 +105,9 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	 */
 	public double getZeroRate(double maturity)
 	{
-		if(maturity == 0) return this.getZeroRate(1.0E-14);
+		if(maturity == 0) {
+			return this.getZeroRate(1.0E-14);
+		}
 
 		return -Math.log(getDiscountFactor(null, maturity))/maturity;
 	}
@@ -120,7 +122,9 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	{
 		double[] values = new double[maturities.length];
 
-		for(int i=0; i<maturities.length; i++) values[i] = getZeroRate(maturities[i]);
+		for(int i=0; i<maturities.length; i++) {
+			values[i] = getZeroRate(maturities[i]);
+		}
 
 		return values;
 	}

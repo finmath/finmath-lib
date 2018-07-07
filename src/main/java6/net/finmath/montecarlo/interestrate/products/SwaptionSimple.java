@@ -78,7 +78,9 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface value = swaption.getValue(evaluationTime, model);
 
-		if(valueUnit == ValueUnit.VALUE) return value;
+		if(valueUnit == ValueUnit.VALUE) {
+			return value;
+		}
 
 		ForwardCurveInterface forwardCurve	 = model.getModel().getForwardRateCurve();
 		DiscountCurveInterface discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;

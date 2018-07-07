@@ -104,7 +104,9 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 */
 	@Override
 	public double getPaymentOffset(double fixingTime) {
-		if(paymentOffsetCode == null) return paymentOffset;
+		if(paymentOffsetCode == null) {
+			return paymentOffset;
+		}
 
 		if(paymentOffsets.containsKey(fixingTime)) {
 			return paymentOffsets.get(fixingTime);
@@ -135,11 +137,13 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	{
 		double[] values = new double[fixingTimes.length];
 
-		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
+		for(int i=0; i<fixingTimes.length; i++) {
+			values[i] = getForward(model, fixingTimes[i]);
+		}
 
 		return values;
 	}
-	
+
 	public String toString() {
 		return "AbstractForwardCurve [" + super.toString() + ", discountCurveName=" + discountCurveName + ", paymentOffsetCode=" + paymentOffsetCode + ", paymentBusinessdayCalendar=" + paymentBusinessdayCalendar + ", paymentDateRollConvention=" + paymentDateRollConvention + "]";
 	}

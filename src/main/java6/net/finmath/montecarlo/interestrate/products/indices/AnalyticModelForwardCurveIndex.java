@@ -25,7 +25,7 @@ public class AnalyticModelForwardCurveIndex extends AbstractIndex {
 
 	private final String curveName;
 	private final double fixingOffet;
-    private final double paymentOffset;
+	private final double paymentOffset;
 
 	/**
 	 * Creates a forward rate index for a given period start offset (offset from fixing) and period length.
@@ -46,17 +46,21 @@ public class AnalyticModelForwardCurveIndex extends AbstractIndex {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
-		if(analyticModel == null) throw new IllegalArgumentException("Provided model does not carry an associated analytic model.");
+		if(analyticModel == null) {
+			throw new IllegalArgumentException("Provided model does not carry an associated analytic model.");
+		}
 
 		ForwardCurveInterface curve = analyticModel.getForwardCurve(curveName);
-		if(curve == null) throw new IllegalArgumentException("Associated analytic model does not carry a curve of the name " +  curveName + ".");
-		
+		if(curve == null) {
+			throw new IllegalArgumentException("Associated analytic model does not carry a curve of the name " +  curveName + ".");
+		}
+
 		double index = curve.getForward(analyticModel, evaluationTime + fixingOffet, paymentOffset);
-		
+
 		return model.getRandomVariableForConstant(index);
 	}
 
-    
+
 	/**
 	 * Returns the fixingOffet as an act/365 day count.
 	 * 

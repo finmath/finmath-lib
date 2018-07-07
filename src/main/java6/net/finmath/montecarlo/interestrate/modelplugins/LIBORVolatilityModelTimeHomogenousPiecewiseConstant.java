@@ -36,8 +36,12 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
-		if(timeToMaturityDiscretization.getTime(0) != 0) throw new IllegalArgumentException("timeToMaturityDiscretization should start with 0 as first time point.");
-		if(timeToMaturityDiscretization.getNumberOfTimes() != volatility.length) throw new IllegalArgumentException("volatility.length should equal timeToMaturityDiscretization.getNumberOfTimes() .");
+		if(timeToMaturityDiscretization.getTime(0) != 0) {
+			throw new IllegalArgumentException("timeToMaturityDiscretization should start with 0 as first time point.");
+		}
+		if(timeToMaturityDiscretization.getNumberOfTimes() != volatility.length) {
+			throw new IllegalArgumentException("volatility.length should equal timeToMaturityDiscretization.getNumberOfTimes() .");
+		}
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.volatility = volatility;
 	}
@@ -72,12 +76,20 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 		else
 		{
 			int timeIndexTimeToMaturity = timeToMaturityDiscretization.getTimeIndex(timeToMaturity);
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = 0;
-			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) timeIndexTimeToMaturity--;
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
+			}
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = 0;
+			}
+			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) {
+				timeIndexTimeToMaturity--;
+			}
 			volatilityInstanteaneous = volatility[timeIndexTimeToMaturity];
 		}
-		if(volatilityInstanteaneous < 0.0) volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
+		if(volatilityInstanteaneous < 0.0) {
+			volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
+		}
 
 		return new RandomVariable(getTimeDiscretization().getTime(timeIndex),volatilityInstanteaneous);
 	}

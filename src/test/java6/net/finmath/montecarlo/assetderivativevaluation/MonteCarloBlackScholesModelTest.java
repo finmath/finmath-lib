@@ -35,7 +35,7 @@ public class MonteCarloBlackScholesModelTest {
 	private final int		numberOfPaths		= 20000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
-	
+
 	private final int		seed				= 31415;
 
 	// Product properties
@@ -61,18 +61,18 @@ public class MonteCarloBlackScholesModelTest {
 		/*
 		 * Value a call option - directly
 		 */
-		
+
 		RandomVariableInterface asset = process.getProcessValue(timeDiscretization.getTimeIndex(optionMaturity), assetIndex);
 		RandomVariableInterface numeraireAtPayment = model.getNumeraire(optionMaturity);
 		RandomVariableInterface numeraireAtEval = model.getNumeraire(0.0);
-		
+
 		RandomVariableInterface payoff = asset.sub(optionStrike).floor(0.0);
 		double value = payoff.div(numeraireAtPayment).mult(numeraireAtEval).getAverage();
 
 		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 		System.out.println("value using Monte-Carlo.......: " + value);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
-		
+
 		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
 
@@ -99,7 +99,7 @@ public class MonteCarloBlackScholesModelTest {
 
 		System.out.println("value using Monte-Carlo.......: " + value);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
-		
+
 		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
 }

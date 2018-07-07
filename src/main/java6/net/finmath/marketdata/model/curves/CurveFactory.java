@@ -94,7 +94,7 @@ public class CurveFactory {
 		else if(seasonalAveragingNumberOfYears != null && seasonalityAdjustments != null) {
 			throw new IllegalArgumentException("Specified seasonal factors and seasonal averaging at the same time.");
 		}
-		
+
 		/*
 		 * Create the index curve from annualized zero rates.
 		 */
@@ -110,10 +110,15 @@ public class CurveFactory {
 			if(forwardsFixingType != null && forwardsFixingLag != null) {
 				if(forwardsFixingType.equals("endOfMonth")) {
 					cpiDate = cpiDate.withDayOfMonth(1);
-					if(forwardsFixingLag.equals("-2M")) cpiDate = cpiDate.minusMonths(2);
-					else if(forwardsFixingLag.equals("-3M")) cpiDate = cpiDate.minusMonths(3);
-					else if(forwardsFixingLag.equals("-4M")) cpiDate = cpiDate.minusMonths(4);
-					else throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
+					if(forwardsFixingLag.equals("-2M")) {
+						cpiDate = cpiDate.minusMonths(2);
+					} else if(forwardsFixingLag.equals("-3M")) {
+						cpiDate = cpiDate.minusMonths(3);
+					} else if(forwardsFixingLag.equals("-4M")) {
+						cpiDate = cpiDate.minusMonths(4);
+					} else {
+						throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
+					}
 					cpiDate = cpiDate.withDayOfMonth(cpiDate.lengthOfMonth());
 				}
 				else {
@@ -130,10 +135,15 @@ public class CurveFactory {
 		LocalDate baseDate = referenceDate;
 		if(forwardsFixingType != null && forwardsFixingType.equals("endOfMonth") && forwardsFixingLag != null) {
 			baseDate = baseDate.withDayOfMonth(1);
-			if(forwardsFixingLag.equals("-2M")) baseDate = baseDate.minusMonths(2);
-			else if(forwardsFixingLag.equals("-3M")) baseDate = baseDate.minusMonths(3);
-			else if(forwardsFixingLag.equals("-4M")) baseDate = baseDate.minusMonths(4);
-			else throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
+			if(forwardsFixingLag.equals("-2M")) {
+				baseDate = baseDate.minusMonths(2);
+			} else if(forwardsFixingLag.equals("-3M")) {
+				baseDate = baseDate.minusMonths(3);
+			} else if(forwardsFixingLag.equals("-4M")) {
+				baseDate = baseDate.minusMonths(4);
+			} else {
+				throw new IllegalArgumentException("Unsupported fixing type for forward in curve " + name);
+			}
 			baseDate = baseDate.withDayOfMonth(baseDate.lengthOfMonth());
 		}
 
@@ -141,7 +151,9 @@ public class CurveFactory {
 		 * Index base value
 		 */
 		Double baseValue	= indexFixings.get(baseDate);
-		if(baseValue == null) throw new IllegalArgumentException("Curve " + name + " has missing index value for base date " + baseDate);
+		if(baseValue == null) {
+			throw new IllegalArgumentException("Curve " + name + " has missing index value for base date " + baseDate);
+		}
 		double baseTime		= FloatingpointDate.getFloatingPointDateFromDate(referenceDate, baseDate);
 
 		/*

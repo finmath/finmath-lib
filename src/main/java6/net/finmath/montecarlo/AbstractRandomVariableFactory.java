@@ -13,11 +13,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public abstract class AbstractRandomVariableFactory {
 
-    public RandomVariableInterface createRandomVariable(double value) {
-        return createRandomVariable(-Double.MAX_VALUE, value);
-    }
+	public RandomVariableInterface createRandomVariable(double value) {
+		return createRandomVariable(-Double.MAX_VALUE, value);
+	}
 
-    public abstract RandomVariableInterface createRandomVariable(double time, double value);
+	public abstract RandomVariableInterface createRandomVariable(double time, double value);
 
-    public abstract RandomVariableInterface createRandomVariable(double time, double[] values);
+	public abstract RandomVariableInterface createRandomVariable(double time, double[] values);
 }

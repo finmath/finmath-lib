@@ -20,7 +20,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCorrelationModel {
-	
+
 	private static final long serialVersionUID = 5063076041285957177L;
 
 	private int		numberOfFactors;
@@ -30,13 +30,13 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	private final boolean isCalibrateable;
 
 	private Object lazyInitLock = new Object();	// lock used for lazy init of correlationMatrix and factorMatrix
-	
+
 	private transient double[][]	correlationMatrix;
 	private transient double[][]	factorMatrix;
-	
+
 	public LIBORCorrelationModelThreeParameterExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a, double b, double c, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		
+
 		this.numberOfFactors = numberOfFactors;
 		this.a = a;
 		this.b = b;
@@ -46,7 +46,9 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return null;
+		if(!isCalibrateable) {
+			return null;
+		}
 
 		double[] parameter = new double[3];
 
@@ -59,7 +61,9 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 
 	@Override
 	public LIBORCorrelationModelThreeParameterExponentialDecay getCloneWithModifiedParameter(double[] parameter) {
-		if(!isCalibrateable) return this;
+		if(!isCalibrateable) {
+			return this;
+		}
 
 		return new LIBORCorrelationModelThreeParameterExponentialDecay(
 				getTimeDiscretization(),
@@ -67,26 +71,30 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 				getNumberOfFactors(),
 				parameter[0], parameter[1], parameter[2], isCalibrateable);
 	}
-	
+
 	@Override
-    public double	getFactorLoading(int timeIndex, int factor, int component) {
+	public double	getFactorLoading(int timeIndex, int factor, int component) {
 		synchronized (lazyInitLock) {
-			if(factorMatrix == null) initialize(numberOfFactors, a, b, c);			
+			if(factorMatrix == null) {
+				initialize(numberOfFactors, a, b, c);
+			}			
 		}
 
 		return factorMatrix[component][factor];
 	}
 	@Override
-    public double	getCorrelation(int timeIndex, int component1, int component2) {
+	public double	getCorrelation(int timeIndex, int component1, int component2) {
 		synchronized (lazyInitLock) {
-			if(correlationMatrix == null) initialize(numberOfFactors, a, b, c);
+			if(correlationMatrix == null) {
+				initialize(numberOfFactors, a, b, c);
+			}
 		}
 
 		return correlationMatrix[component1][component2];
 	}
 
 	@Override
-    public int		getNumberOfFactors() {
+	public int		getNumberOfFactors() {
 		return numberOfFactors;
 	}
 
@@ -115,19 +123,19 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		/*
 		 * Perform a factor decomposition (and reduction if numberOfFactors < correlationMatrix.columns())
 		 */
-        factorMatrix = LinearAlgebra.factorReduction(correlationMatrix, numberOfFactors);
+		factorMatrix = LinearAlgebra.factorReduction(correlationMatrix, numberOfFactors);
 
-        for(int component1=0; component1<factorMatrix.length; component1++) {
-            for(int component2=component1+1; component2<factorMatrix.length; component2++) {
-            	double correlation = 0.0;
-            	for(int factor=0; factor<factorMatrix[component1].length; factor++) {
-            		correlation += factorMatrix[component1][factor] * factorMatrix[component2][factor];
-            	}
-            	correlationMatrix[component1][component2] = correlation;
-            	correlationMatrix[component2][component1] = correlation;
-            }
-        	correlationMatrix[component1][component1] = 1.0;
-        }
+		for(int component1=0; component1<factorMatrix.length; component1++) {
+			for(int component2=component1+1; component2<factorMatrix.length; component2++) {
+				double correlation = 0.0;
+				for(int factor=0; factor<factorMatrix[component1].length; factor++) {
+					correlation += factorMatrix[component1][factor] * factorMatrix[component2][factor];
+				}
+				correlationMatrix[component1][component2] = correlation;
+				correlationMatrix[component2][component1] = correlation;
+			}
+			correlationMatrix[component1][component1] = 1.0;
+		}
 	}
 
 	@Override
@@ -142,7 +150,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 
 		newModel.correlationMatrix	= this.correlationMatrix;
 		newModel.factorMatrix		= this.factorMatrix;
-		
+
 		return newModel;
 	}
 }

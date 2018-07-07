@@ -46,14 +46,14 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 
 	private final double shape;
 	private final double scale;
-	
+
 	private final TimeDiscretizationInterface						timeDiscretization;
 
 	private final int			numberOfFactors;
 	private final int			numberOfPaths;
 	private final int			seed;
 
-    private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 	private transient RandomVariableInterface[][]	gammaIncrements;
 
@@ -104,7 +104,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 	}
 
 	@Override
-    public IndependentIncrementsInterface getCloneWithModifiedSeed(int seed) {
+	public IndependentIncrementsInterface getCloneWithModifiedSeed(int seed) {
 		return new GammaProcess(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, shape);
 	}
 
@@ -128,7 +128,9 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {
-			if(gammaIncrements == null) doGenerateGammaIncrements();
+			if(gammaIncrements == null) {
+				doGenerateGammaIncrements();
+			}
 		}
 
 		/*
@@ -138,11 +140,14 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 		return gammaIncrements[timeIndex][factor];
 	}
 
-    /**
+	/**
 	 * Lazy initialization of gammaIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateGammaIncrements() {
-		if(gammaIncrements != null) return;	// Nothing to do
+		if(gammaIncrements != null)
+		{
+			return;	// Nothing to do
+		}
 
 		// Create random number sequence generator
 		MersenneTwister			mersenneTwister		= new MersenneTwister(seed);
@@ -180,33 +185,33 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 
 		// Wrap the values in RandomVariable objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-            double time = timeDiscretization.getTime(timeIndex+1);
+			double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				gammaIncrements[timeIndex][factor] =
-                        randomVariableFactory.createRandomVariable(time, gammaIncrementsArray[timeIndex][factor]);
+						randomVariableFactory.createRandomVariable(time, gammaIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
 
 	@Override
-    public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretizationInterface getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
 	@Override
-    public int getNumberOfFactors() {
+	public int getNumberOfFactors() {
 		return numberOfFactors;
 	}
 
 	@Override
-    public int getNumberOfPaths() {
+	public int getNumberOfPaths() {
 		return numberOfPaths;
 	}
 
-    @Override
-    public RandomVariableInterface getRandomVariableForConstant(double value) {
-        return randomVariableFactory.createRandomVariable(value);
-    }
+	@Override
+	public RandomVariableInterface getRandomVariableForConstant(double value) {
+		return randomVariableFactory.createRandomVariable(value);
+	}
 
 	/**
 	 * @return Returns the seed.
@@ -224,28 +229,40 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 				+ "\n" + "shape: " + shape;
 	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-        GammaProcess that = (GammaProcess) o;
+		GammaProcess that = (GammaProcess) o;
 
-        if (numberOfFactors != that.numberOfFactors) return false;
-        if (numberOfPaths != that.numberOfPaths) return false;
-        if (seed != that.seed) return false;
-        if (!timeDiscretization.equals(that.timeDiscretization)) return false;
+		if (numberOfFactors != that.numberOfFactors) {
+			return false;
+		}
+		if (numberOfPaths != that.numberOfPaths) {
+			return false;
+		}
+		if (seed != that.seed) {
+			return false;
+		}
+		if (!timeDiscretization.equals(that.timeDiscretization)) {
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = timeDiscretization.hashCode();
-        result = 31 * result + numberOfFactors;
-        result = 31 * result + numberOfPaths;
-        result = 31 * result + seed;
-        result = 31 * result + (new Double(shape)).hashCode();
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = timeDiscretization.hashCode();
+		result = 31 * result + numberOfFactors;
+		result = 31 * result + numberOfPaths;
+		result = 31 * result + seed;
+		result = 31 * result + (new Double(shape)).hashCode();
+		return result;
+	}
 }

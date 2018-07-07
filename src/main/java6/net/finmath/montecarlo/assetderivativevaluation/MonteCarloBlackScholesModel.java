@@ -43,7 +43,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
 public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulationInterface {
-	
+
 	private final BlackScholesModel model;
 	private final double initialValue;
 	private final int seed = 3141;
@@ -66,7 +66,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		super();
 
 		this.initialValue = initialValue;
-		
+
 		// Create the model
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
@@ -97,7 +97,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 		// Create the model
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-		
+
 		// Link model and process for delegation
 		process.setModel(model);
 		model.setProcess(process);
@@ -186,7 +186,11 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		if(timeShift != 0) {
 			ArrayList<Double> newTimes = new ArrayList<Double>();
 			newTimes.add(newInitialTime);
-			for(Double time : model.getProcess().getStochasticDriver().getTimeDiscretization()) if(time > newInitialTime) newTimes.add(time);
+			for(Double time : model.getProcess().getStochasticDriver().getTimeDiscretization()) {
+				if(time > newInitialTime) {
+					newTimes.add(time);
+				}
+			}
 			TimeDiscretizationInterface newTimeDiscretization = new TimeDiscretization(newTimes);
 			brownianMotion = brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
 		}

@@ -17,7 +17,7 @@ public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends Bus
 	 */
 	private static final long serialVersionUID = -485496533316101770L;
 	private final Set<LocalDate> holidays;
-	
+
 	public BusinessdayCalendarExcludingGivenSetOfHolidays(String name, BusinessdayCalendarInterface baseCalendar, boolean isExcludeWeekends, Set<LocalDate> holidays) {
 		super(name, baseCalendar, isExcludeWeekends);
 		this.holidays = holidays;

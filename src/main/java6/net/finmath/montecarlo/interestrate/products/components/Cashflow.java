@@ -68,10 +68,14 @@ public class Cashflow extends AbstractProductComponent {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 
 		// Note: We use > here. To distinguish an end of day valuation use hour of day for cash flows and evaluation date.
-		if(evaluationTime > flowDate) return model.getRandomVariableForConstant(0.0);
+		if(evaluationTime > flowDate) {
+			return model.getRandomVariableForConstant(0.0);
+		}
 
 		RandomVariableInterface values = model.getRandomVariableForConstant(flowAmount);
-		if(isPayer) values = values.mult(-1.0);
+		if(isPayer) {
+			values = values.mult(-1.0);
+		}
 
 		// Rebase to evaluationTime
 		if(flowDate != evaluationTime) {

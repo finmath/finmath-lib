@@ -26,11 +26,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.0
  */
 public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarloProduct {
-	
+
 	// Model assumptions for the hedge
 	private final AbstractAssetMonteCarloProduct productToHedge;
 	private final AssetModelMonteCarloSimulationInterface modelUsedForHedging;
-	
+
 	/**
 	 * Construction of a delta hedge portfolio using finite differences on every path and
 	 * in every time-step. Note that this requires many revaluations of the product
@@ -47,7 +47,7 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
-		
+
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
 		int numberOfPath			= model.getNumberOfPaths();
@@ -55,7 +55,7 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
 		 */
-		
+
 		// We store the composition of the hedge portfolio (depending on the path)
 		double[] amountOfUderlyingAsset		= new double[numberOfPath];
 		double[] amountOfNumeraireAsset		= new double[numberOfPath];
@@ -64,21 +64,21 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
 		RandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
-	    RandomVariableInterface numeraireToday  = model.getNumeraire(0.0);
+		RandomVariableInterface numeraireToday  = model.getNumeraire(0.0);
 		double initialValueAsset		= underlyingToday.get(0);
 		double initialValueNumeraire	= numeraireToday.get(0);
 
 		double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
-		
+
 		Arrays.fill(amountOfNumeraireAsset, valueOfOptionAccordingHedgeModel/initialValueNumeraire);
 		Arrays.fill(amountOfUderlyingAsset, 0.0);
-		
-		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
-		    double time = model.getTime(timeIndex);
 
-		    // Get value of underlying and numeraire assets			
+		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
+			double time = model.getTime(timeIndex);
+
+			// Get value of underlying and numeraire assets			
 			RandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
-		    RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
+			RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 			for(int path=0; path<model.getNumberOfPaths(); path++)
 			{
 				double underlyingValue	= underlyingAtTimeIndex.get(path);
@@ -126,7 +126,7 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 
 			portfolioValue[path] =
 					amountOfNumeraireAsset[path] * numeraireAtEvaluationTime.get(path)
-				+	amountOfUderlyingAsset[path] * underlyingValue;
+					+	amountOfUderlyingAsset[path] * underlyingValue;
 		}
 
 		return new RandomVariable(evaluationTime, portfolioValue);

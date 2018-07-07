@@ -32,8 +32,8 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	private final double strike;
 	private final TimeDiscretizationInterface timesForAveraging;
 	private final Integer underlyingIndex;
-	
-	
+
+
 	/**
 	 * Construct a product representing an Asian option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * A(T) = 1/n sum_{i=1,...,n} S(t_i), where t_i are given observation times.
@@ -82,7 +82,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 			average = average.add(underlying);
 		}
 		average = average.div(timesForAveraging.getNumberOfTimes());
-		
+
 		// The payoff: values = max(underlying - strike, 0)
 		RandomVariableInterface values = average.sub(strike).floor(0.0);
 

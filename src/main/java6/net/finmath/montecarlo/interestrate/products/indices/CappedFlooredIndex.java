@@ -43,8 +43,12 @@ public class CappedFlooredIndex extends AbstractIndex {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface indexValues = index.getValue(evaluationTime, model);
 
-		if(floor != null)	indexValues = indexValues.floor(floor.getValue(evaluationTime, model));
-		if(cap != null)		indexValues = indexValues.cap(cap.getValue(evaluationTime, model));
+		if(floor != null) {
+			indexValues = indexValues.floor(floor.getValue(evaluationTime, model));
+		}
+		if(cap != null) {
+			indexValues = indexValues.cap(cap.getValue(evaluationTime, model));
+		}
 
 		return indexValues;
 	}
@@ -54,13 +58,19 @@ public class CappedFlooredIndex extends AbstractIndex {
 		Set<String> underlyingNames			= index != null ? index.queryUnderlyings() : null;
 		Set<String>	underlyingNamesCap		= cap != null ? cap.queryUnderlyings() : null;
 		if(underlyingNamesCap != null) {
-			if(underlyingNames != null)	underlyingNames.addAll(underlyingNamesCap);
-			else						underlyingNames = underlyingNamesCap;
+			if(underlyingNames != null) {
+				underlyingNames.addAll(underlyingNamesCap);
+			} else {
+				underlyingNames = underlyingNamesCap;
+			}
 		}
 		Set<String>	underlyingNamesFloor	= floor != null ? floor.queryUnderlyings() : null;
 		if(underlyingNamesFloor != null) {
-			if(underlyingNames != null)	underlyingNames.addAll(underlyingNamesFloor);
-			else						underlyingNames = underlyingNamesFloor;
+			if(underlyingNames != null) {
+				underlyingNames.addAll(underlyingNamesFloor);
+			} else {
+				underlyingNames = underlyingNamesFloor;
+			}
 		}
 		return underlyingNames;
 	}

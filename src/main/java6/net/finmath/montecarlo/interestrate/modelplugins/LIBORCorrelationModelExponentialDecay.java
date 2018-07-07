@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
-	
+
 	private static final long serialVersionUID = -8218022418731667531L;
 
 	private final	int			numberOfFactors;
@@ -64,8 +64,10 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 
 	@Override
 	public LIBORCorrelationModelExponentialDecay getCloneWithModifiedParameter(double[] parameter) {
-		if(!isCalibrateable) return this;
-		
+		if(!isCalibrateable) {
+			return this;
+		}
+
 		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter[0]);
 	}
 
@@ -73,19 +75,19 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	public Object clone() {
 		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, isCalibrateable);
 	}
-	
+
 	@Override
-    public double	getFactorLoading(int timeIndex, int factor, int component) {
+	public double	getFactorLoading(int timeIndex, int factor, int component) {
 		return factorMatrix[component][factor];
 	}
 
 	@Override
-    public double	getCorrelation(int timeIndex, int component1, int component2) {
+	public double	getCorrelation(int timeIndex, int component1, int component2) {
 		return correlationMatrix[component1][component2];
 	}
 
 	@Override
-    public int		getNumberOfFactors() {
+	public int		getNumberOfFactors() {
 		return factorMatrix[0].length;
 	}
 
@@ -108,24 +110,26 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		/*
 		 * Perform a factor decomposition (and reduction if numberOfFactors < correlationMatrix.columns())
 		 */
-        factorMatrix = LinearAlgebra.factorReduction(correlationMatrix, numberOfFactors);
+		factorMatrix = LinearAlgebra.factorReduction(correlationMatrix, numberOfFactors);
 
-        for(int component1=0; component1<factorMatrix.length; component1++) {
-            for(int component2=0; component2<component1; component2++) {
-            	double correlation = 0.0;
-            	for(int factor=0; factor<factorMatrix[component1].length; factor++) {
-            		correlation += factorMatrix[component1][factor] * factorMatrix[component2][factor];
-            	}
-            	correlationMatrix[component1][component2] = correlation;
-            	correlationMatrix[component2][component1] = correlation;
-            }
-        	correlationMatrix[component1][component1] = 1.0;
-        }
+		for(int component1=0; component1<factorMatrix.length; component1++) {
+			for(int component2=0; component2<component1; component2++) {
+				double correlation = 0.0;
+				for(int factor=0; factor<factorMatrix[component1].length; factor++) {
+					correlation += factorMatrix[component1][factor] * factorMatrix[component2][factor];
+				}
+				correlationMatrix[component1][component2] = correlation;
+				correlationMatrix[component2][component1] = correlation;
+			}
+			correlationMatrix[component1][component1] = 1.0;
+		}
 	}
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return null;
+		if(!isCalibrateable) {
+			return null;
+		}
 
 		double[] parameter = new double[1];
 

@@ -129,21 +129,21 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @author Christian Fries
 	 */
 	public enum RegularizationMethod {
-			/**
-			 * The Hessian approximated and regularized as
-			 * \( H_{\lambda} = J^T J + \lambda I \).
-			 */
-			LEVENBERG,
-			
-			/**
-			 * The Hessian approximated and regularized as
-			 * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
-			 */
-			LEVENBERG_MARQUARDT
+		/**
+		 * The Hessian approximated and regularized as
+		 * \( H_{\lambda} = J^T J + \lambda I \).
+		 */
+		LEVENBERG,
+
+		/**
+		 * The Hessian approximated and regularized as
+		 * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
+		 */
+		LEVENBERG_MARQUARDT
 	}
 
 	private final RegularizationMethod regularizationMethod;
-	
+
 	private double[] initialParameters = null;
 	private double[] parameterSteps = null;
 	private double[] targetValues = null;
@@ -212,7 +212,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 		double[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 
 		/*
 		 * Creating a clone, continuing the search with new target values.
@@ -223,7 +225,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 		double[] bestParameters2 = optimizer2.getBestFitParameters();
 		System.out.println("The solver for problem 2 required " + optimizer2.getIterations() + " iterations. The best fit parameters are:");
-		for (int i = 0; i < bestParameters2.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters2[i]);
+		for (int i = 0; i < bestParameters2.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters2[i]);
+		}
 	}
 
 	/**
@@ -319,7 +323,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 */
 	private static double[] numberListToDoubleArray(List<Number> listOfNumbers) {
 		double[] arrayOfDoubles	= new double[listOfNumbers.size()];
-		for(int i=0; i<arrayOfDoubles.length; i++) arrayOfDoubles[i] = listOfNumbers.get(i).doubleValue();
+		for(int i=0; i<arrayOfDoubles.length; i++) {
+			arrayOfDoubles[i] = listOfNumbers.get(i).doubleValue();
+		}
 		return arrayOfDoubles;
 	}
 
@@ -342,7 +348,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return A self reference.
 	 */
 	public LevenbergMarquardt setInitialParameters(double[] initialParameters) {
-		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		if(done()) {
+			throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		}
 		this.initialParameters = initialParameters;
 		return this;
 	}
@@ -356,7 +364,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return A self reference.
 	 */
 	public LevenbergMarquardt setParameterSteps(double[] parameterSteps) {
-		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		if(done()) {
+			throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		}
 		this.parameterSteps = parameterSteps;
 		return this;
 	}
@@ -369,7 +379,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return A self reference.
 	 */
 	public LevenbergMarquardt setTargetValues(double[] targetValues) {
-		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		if(done()) {
+			throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		}
 		this.targetValues = targetValues;
 		return this;
 	}
@@ -382,7 +394,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return A self reference.
 	 */
 	public LevenbergMarquardt setMaxIteration(int maxIteration) {
-		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		if(done()) {
+			throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		}
 		this.maxIteration = maxIteration;
 		return this;
 	}
@@ -394,7 +408,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return A self reference.
 	 */
 	public LevenbergMarquardt setWeights(double[] weights) {
-		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		if(done()) {
+			throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		}
 		this.weights = weights;
 		return this;
 	}
@@ -408,7 +424,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @return A self reference.
 	 */
 	public LevenbergMarquardt setErrorTolerance(double errorTolerance) {
-		if(done()) throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		if(done()) {
+			throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
+		}
 		this.errorRootMeanSquaredTolerance = errorTolerance;
 		return this;
 	}
@@ -452,7 +470,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &gt; 1.
 	 */
 	public void setLambdaMultiplicator(double lambdaMultiplicator) {
-		if(lambdaMultiplicator <= 1.0) throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
+		if(lambdaMultiplicator <= 1.0) {
+			throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
+		}
 		this.lambdaMultiplicator = lambdaMultiplicator;
 	}
 
@@ -475,7 +495,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @param lambdaDivisor the lambdaDivisor to set. Should be &gt; 1.
 	 */
 	public void setLambdaDivisor(double lambdaDivisor) {
-		if(lambdaDivisor <= 1.0) throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
+		if(lambdaDivisor <= 1.0) {
+			throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
+		}
 		this.lambdaDivisor = lambdaDivisor;
 	}
 
@@ -560,7 +582,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
 						derivative[valueIndex] -= valueCurrent[valueIndex];
 						derivative[valueIndex] /= parameterFiniteDifference;
-						if(Double.isNaN(derivative[valueIndex])) derivative[valueIndex] = 0.0;
+						if(Double.isNaN(derivative[valueIndex])) {
+							derivative[valueIndex] = 0.0;
+						}
 					}
 					return derivative;
 				}
@@ -615,9 +639,11 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	@Override
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
-		if(numberOfThreads > 1) if(executor == null) {
-			executor = Executors.newFixedThreadPool(numberOfThreads);
-			executorShutdownWhenDone = true;
+		if(numberOfThreads > 1) {
+			if(executor == null) {
+				executor = Executors.newFixedThreadPool(numberOfThreads);
+				executorShutdownWhenDone = true;
+			}
 		}
 
 		try {
@@ -674,10 +700,11 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 				}
 
 				// Update a new parameter trial, if we are not done
-				if (!done())
+				if (!done()) {
 					updateParameterTest();
-				else
+				} else {
 					break;
+				}
 
 				// Log iteration
 				if (logger.isLoggable(Level.FINE))
@@ -767,7 +794,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 			try {
 				// Calculate new increment
-//				parameterIncrement = LinearAlgebra.solveLinearEquationLeastSquare(hessianMatrix, beta);
+				//				parameterIncrement = LinearAlgebra.solveLinearEquationLeastSquare(hessianMatrix, beta);
 				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
 			} catch (Exception e) {
 				hessianInvalid	= true;
@@ -817,11 +844,13 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public LevenbergMarquardt getCloneWithModifiedTargetValues(double[] newTargetVaues, double[] newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
+		LevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
 		clonedOptimizer.weights = newWeights.clone();				// Defensive copy
 
-		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+		if(isUseBestParametersAsInitialParameters && this.done()) {
+			clonedOptimizer.initialParameters = this.getBestFitParameters();
+		}
 
 		return clonedOptimizer;
 	}
@@ -845,11 +874,13 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
 	public LevenbergMarquardt getCloneWithModifiedTargetValues(List<Number> newTargetVaues, List<Number> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)clone();
+		LevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);
 		clonedOptimizer.weights = numberListToDoubleArray(newWeights);
 
-		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+		if(isUseBestParametersAsInitialParameters && this.done()) {
+			clonedOptimizer.initialParameters = this.getBestFitParameters();
+		}
 
 		return clonedOptimizer;
 	}

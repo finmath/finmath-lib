@@ -79,7 +79,9 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		this.strikes = strikes;
 		this.exerciseMethod = exerciseMethod;
 		orderOfRegressionPolynomial = (Integer)properties.get("orderOfRegressionPolynomial");
-		if(orderOfRegressionPolynomial == null) orderOfRegressionPolynomial = 4;
+		if(orderOfRegressionPolynomial == null) {
+			orderOfRegressionPolynomial = 4;
+		}
 	}
 
 	/**
@@ -123,7 +125,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		RandomVariableInterface	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
 
 		RandomVariableInterface one				= model.getRandomVariableForConstant(1.0);
-		
+
 		for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex>=0; exerciseDateIndex--)
 		{
 			double exerciseDate = exerciseDates[exerciseDateIndex];
@@ -166,7 +168,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 				underlying	= valueOfPaymentsIfExercised.sub(martingale);
 				trigger		= value.sub(underlying);
 				break;
-				*/
+				 */
 			}
 
 			// If trigger is positive keep value, otherwise take underlying

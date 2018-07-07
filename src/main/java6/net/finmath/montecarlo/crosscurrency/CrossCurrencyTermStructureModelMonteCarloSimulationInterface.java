@@ -41,7 +41,7 @@ public interface CrossCurrencyTermStructureModelMonteCarloSimulationInterface ex
 	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	RandomVariableInterface getExchangeRate(String fromCurve, String toCurve, double time) throws CalculationException;
-	
+
 	/**
 	 * Return the numeraire at a given time.
 	 * 

@@ -52,6 +52,7 @@ public interface AbstractProcessInterface extends ProcessInterface {
 	 * @deprecated Please use getStochasticDriver() instead.
 	 * @return Returns the Brownian motion used to generate this process
 	 */
+	@Deprecated
 	BrownianMotionInterface getBrownianMotion();
 
 	/**

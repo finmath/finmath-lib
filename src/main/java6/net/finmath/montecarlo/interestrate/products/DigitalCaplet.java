@@ -27,7 +27,7 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 	private final double	periodStart;
 	private final double	periodEnd;
 	private final double	strike;
-		
+
 	/**
 	 * Create a digital caplet with given maturity and strike.
 	 * 
@@ -45,41 +45,41 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 		this.strike = strike;
 	}
 
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Set payment date and period length
 		double	paymentDate		= periodEnd;
 		double	periodLength	= periodEnd - periodStart;
 
-        // Get random variables
+		// Get random variables
 		RandomVariableInterface	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
 
 		RandomVariableInterface 			trigger		= libor.sub(strike).mult(periodLength);
 		RandomVariableInterface				values		= (new RandomVariable(1.0)).barrier(trigger, (new RandomVariable(periodLength)), (new RandomVariable(0.0)));
 
-        // Get numeraire and probabilities for payment time
+		// Get numeraire and probabilities for payment time
 		RandomVariableInterface	numeraire					= model.getNumeraire(paymentDate);
 		RandomVariableInterface	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
 
 		values = values.div(numeraire).mult(monteCarloProbabilities);
-		
-        // Get numeraire and probabilities for evaluation time
+
+		// Get numeraire and probabilities for evaluation time
 		RandomVariableInterface	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
 
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);		
-		
+
 		// Return values
 		return values;
 	}

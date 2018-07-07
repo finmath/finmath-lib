@@ -18,7 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class Bond extends AbstractLIBORMonteCarloProduct {
 	private double maturity;
 
-    /**
+	/**
 	 * @param maturity The maturity given as double.
 	 */
 	public Bond(double maturity) {
@@ -26,31 +26,31 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 		this.maturity = maturity;
 	}
 
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		
-		// Get random variables
-        RandomVariableInterface	numeraire				= model.getNumeraire(maturity);
-        RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-        // Calculate numeraire relative value
-        RandomVariableInterface values = model.getRandomVariableForConstant(1.0);
-        values = values.div(numeraire).mult(monteCarloProbabilities);
-        
-        // Convert back to values
-        RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
-        RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
-        values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
+		// Get random variables
+		RandomVariableInterface	numeraire				= model.getNumeraire(maturity);
+		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
+
+		// Calculate numeraire relative value
+		RandomVariableInterface values = model.getRandomVariableForConstant(1.0);
+		values = values.div(numeraire).mult(monteCarloProbabilities);
+
+		// Convert back to values
+		RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 
 		// Return values
 		return values;	
@@ -69,7 +69,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	public void setMaturity(double maturity) {
 		this.maturity = maturity;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

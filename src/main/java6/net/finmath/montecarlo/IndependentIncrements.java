@@ -166,7 +166,9 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 
 		// Thread safe lazy initialization
 		synchronized(incrementsLazyInitLock) {
-			if(increments == null) doGenerateIncrements();
+			if(increments == null) {
+				doGenerateIncrements();
+			}
 		}
 
 		/*
@@ -179,7 +181,10 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateIncrements() {
-		if(increments != null) return;	// Nothing to do
+		if(increments != null)
+		 {
+			return;	// Nothing to do
+		}
 
 		// Create random number sequence generator
 		MersenneTwister			mersenneTwister		= new MersenneTwister(seed);
@@ -262,15 +267,27 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
 		IndependentIncrements that = (IndependentIncrements) o;
 
-		if (numberOfFactors != that.numberOfFactors) return false;
-		if (numberOfPaths != that.numberOfPaths) return false;
-		if (seed != that.seed) return false;
-		if (!timeDiscretization.equals(that.timeDiscretization)) return false;
+		if (numberOfFactors != that.numberOfFactors) {
+			return false;
+		}
+		if (numberOfPaths != that.numberOfPaths) {
+			return false;
+		}
+		if (seed != that.seed) {
+			return false;
+		}
+		if (!timeDiscretization.equals(that.timeDiscretization)) {
+			return false;
+		}
 
 		return true;
 	}

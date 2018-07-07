@@ -47,7 +47,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		for(int simulationTime=0; simulationTime<simulationTimeDiscretization.getNumberOfTimes(); simulationTime++) {
 			Map<Integer, Integer> timeToMaturityIndexing = new ConcurrentHashMap<Integer, Integer>();
 			for(int timeToMaturity=0; timeToMaturity<timeToMaturityDiscretization.getNumberOfTimes(); timeToMaturity++) {
-				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) continue;
+				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) {
+					continue;
+				}
 
 				timeToMaturityIndexing.put(timeToMaturity,volatilityIndex++);
 			}
@@ -81,7 +83,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		for(int simulationTime=0; simulationTime<simulationTimeDiscretization.getNumberOfTimes(); simulationTime++) {
 			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<Integer, Integer>();
 			for(int timeToMaturity=0; timeToMaturity<timeToMaturityDiscretization.getNumberOfTimes(); timeToMaturity++) {
-				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) continue;
+				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) {
+					continue;
+				}
 
 				timeToMaturityIndexing.put(timeToMaturity,volatilityIndex++);
 			}
@@ -99,7 +103,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 			throw new IllegalArgumentException("Volatility length does not match number of free parameters.");
 		}
 
-		if(volatilityIndex != this.volatility.length) throw new IllegalArgumentException("volatility.length should equal simulationTimeDiscretization.getNumberOfTimes()*timeToMaturityDiscretization.getNumberOfTimes().");
+		if(volatilityIndex != this.volatility.length) {
+			throw new IllegalArgumentException("volatility.length should equal simulationTimeDiscretization.getNumberOfTimes()*timeToMaturityDiscretization.getNumberOfTimes().");
+		}
 		this.simulationTimeDiscretization = simulationTimeDiscretization;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.isCalibrateable = isCalibrateable;
@@ -125,8 +131,11 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 
 	@Override
 	public double[] getParameter() {
-		if(isCalibrateable)	return volatility;
-		else return null;
+		if(isCalibrateable) {
+			return volatility;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -159,14 +168,26 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		else
 		{
 			int timeIndexSimulationTime = simulationTimeDiscretization.getTimeIndex(time);
-			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = -timeIndexSimulationTime-1-1;
-			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = 0;
-			if(timeIndexSimulationTime >= simulationTimeDiscretization.getNumberOfTimes()) timeIndexSimulationTime--;
+			if(timeIndexSimulationTime < 0) {
+				timeIndexSimulationTime = -timeIndexSimulationTime-1-1;
+			}
+			if(timeIndexSimulationTime < 0) {
+				timeIndexSimulationTime = 0;
+			}
+			if(timeIndexSimulationTime >= simulationTimeDiscretization.getNumberOfTimes()) {
+				timeIndexSimulationTime--;
+			}
 
 			int timeIndexTimeToMaturity = timeToMaturityDiscretization.getTimeIndex(timeToMaturity);
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = 0;
-			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) timeIndexTimeToMaturity--;
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
+			}
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = 0;
+			}
+			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) {
+				timeIndexTimeToMaturity--;
+			}
 
 			synchronized (volatilityRandomVariables) {
 

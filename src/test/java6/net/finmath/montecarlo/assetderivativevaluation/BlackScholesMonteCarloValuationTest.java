@@ -94,7 +94,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 		long end = System.currentTimeMillis();
 
-		System.out.println("\nCalculation time required: " + ((double)(end-start))/1000.0 + " seconds.");
+		System.out.println("\nCalculation time required: " + (end-start)/1000.0 + " seconds.");
 	}
 
 	public BlackScholesMonteCarloValuationTest() {

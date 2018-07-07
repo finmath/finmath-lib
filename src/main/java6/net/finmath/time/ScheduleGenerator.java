@@ -88,18 +88,42 @@ public class ScheduleGenerator {
 		ACT_ACT;
 
 		public static DaycountConvention getEnum(String string) {
-			if(string == null) throw new IllegalArgumentException();
-			if(string.equalsIgnoreCase("30e/360 isda"))	return E30_360_ISDA;
-			if(string.equalsIgnoreCase("e30/360 isda"))	return E30_360_ISDA;
-			if(string.equalsIgnoreCase("30e/360"))		return E30_360;
-			if(string.equalsIgnoreCase("e30/360"))		return E30_360;
-			if(string.equalsIgnoreCase("30/360"))		return E30_360;
-			if(string.equalsIgnoreCase("30u/360"))		return U30_360;
-			if(string.equalsIgnoreCase("u30/360"))		return U30_360;
-			if(string.equalsIgnoreCase("act/360"))		return ACT_360;
-			if(string.equalsIgnoreCase("act/365"))		return ACT_365;
-			if(string.equalsIgnoreCase("act/act isda"))	return ACT_ACT_ISDA;
-			if(string.equalsIgnoreCase("act/act"))		return ACT_ACT;
+			if(string == null) {
+				throw new IllegalArgumentException();
+			}
+			if(string.equalsIgnoreCase("30e/360 isda")) {
+				return E30_360_ISDA;
+			}
+			if(string.equalsIgnoreCase("e30/360 isda")) {
+				return E30_360_ISDA;
+			}
+			if(string.equalsIgnoreCase("30e/360")) {
+				return E30_360;
+			}
+			if(string.equalsIgnoreCase("e30/360")) {
+				return E30_360;
+			}
+			if(string.equalsIgnoreCase("30/360")) {
+				return E30_360;
+			}
+			if(string.equalsIgnoreCase("30u/360")) {
+				return U30_360;
+			}
+			if(string.equalsIgnoreCase("u30/360")) {
+				return U30_360;
+			}
+			if(string.equalsIgnoreCase("act/360")) {
+				return ACT_360;
+			}
+			if(string.equalsIgnoreCase("act/365")) {
+				return ACT_365;
+			}
+			if(string.equalsIgnoreCase("act/act isda")) {
+				return ACT_ACT_ISDA;
+			}
+			if(string.equalsIgnoreCase("act/act")) {
+				return ACT_ACT;
+			}
 
 			return DaycountConvention.valueOf(string.toUpperCase());
 		}
@@ -217,7 +241,9 @@ public class ScheduleGenerator {
 		}
 
 		// This should not happen.
-		if(periodLengthDays == 0 && periodLengthWeeks == 0 && periodLengthMonth == 0) throw new IllegalArgumentException("Schedule generation requires positive period length.");
+		if(periodLengthDays == 0 && periodLengthWeeks == 0 && periodLengthMonth == 0) {
+			throw new IllegalArgumentException("Schedule generation requires positive period length.");
+		}
 		if(shortPeriodConvention == ShortPeriodConvention.LAST) {
 			/*
 			 * Going forward on periodStartDate, starting with startDate as periodStartDate
@@ -254,7 +280,9 @@ public class ScheduleGenerator {
 				LocalDate periodEndDate		= businessdayCalendar.getAdjustedDate(periodEndDateUnadjusted, dateRollConvention);
 
 				// Skip empty periods
-				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
+				if(periodStartDate.compareTo(periodEndDate) == 0) {
+					continue;
+				}
 
 				// Roll fixing date
 				LocalDate fixingDate = businessdayCalendar.getRolledDate(periodStartDate, fixingOffsetDays);
@@ -307,7 +335,9 @@ public class ScheduleGenerator {
 				LocalDate periodStartDate	= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
 
 				// Skip empty periods
-				if(periodStartDate.compareTo(periodEndDate) == 0) continue;
+				if(periodStartDate.compareTo(periodEndDate) == 0) {
+					continue;
+				}
 
 				// Roll fixing date
 				LocalDate fixingDate = businessdayCalendar.getRolledDate(periodStartDate, fixingOffsetDays);
@@ -673,8 +703,9 @@ public class ScheduleGenerator {
 			throw new IllegalArgumentException("Error when parsing futureCode " + futureCode + ". Must be of format MMMYY with english month format (e.g. DEC17)");
 		}
 		// get third wednesday in month, adjust with following if no busday
-		while(!futureExpiryDate.getDayOfWeek().equals(DayOfWeek.WEDNESDAY))
+		while(!futureExpiryDate.getDayOfWeek().equals(DayOfWeek.WEDNESDAY)) {
 			futureExpiryDate = futureExpiryDate.plusDays(1);
+		}
 		futureExpiryDate = futureExpiryDate.plusWeeks(2);
 		futureExpiryDate = businessdayCalendar.getAdjustedDate(futureExpiryDate, startOffsetString, DateRollConvention.FOLLOWING); // adjust to the next good busday
 
@@ -711,6 +742,7 @@ public class ScheduleGenerator {
 	 * @return The corresponding schedule
 	 * @deprecated Will be removed in version 2.3
 	 */
+	@Deprecated
 	public static ScheduleInterface createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate startDate,
@@ -754,6 +786,7 @@ public class ScheduleGenerator {
 	 * @return The corresponding schedule
 	 * @deprecated Will be removed in version 2.3
 	 */
+	@Deprecated
 	public static ScheduleInterface createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate startDate,

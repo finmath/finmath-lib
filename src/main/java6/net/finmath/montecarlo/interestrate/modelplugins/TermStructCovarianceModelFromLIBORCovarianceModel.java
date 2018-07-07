@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermStructureFactorLoadingsModelInterface {
 
 	private final AbstractLIBORCovarianceModelParametric covarianceModel;
-	
+
 	/**
 	 * Create a term structure covariance model model implementing TermStructureCovarianceModelInterface
 	 * using a given model implementing AbstractLIBORCovarianceModelParametric.
@@ -52,7 +52,7 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 			for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
 				factorLoadings[factorIndex] = factorLoadings[factorIndex].mult(liborPeriodDiscretization.getTimeStep(periodStartIndex));
 			}
-			
+
 			for(int periodIndex = periodStartIndex+1; periodIndex<periodEndIndex; periodIndex++) {
 				RandomVariableInterface[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, liborAtTimeIndex);
 				double periodLength = liborPeriodDiscretization.getTimeStep(periodIndex);

@@ -33,7 +33,7 @@ import org.threeten.bp.Month;
 public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 
 	private boolean isEndOfMonth =  true;
-	
+
 	/**
 	 * Create a 30U/360 day count convention.
 	 */
@@ -54,7 +54,9 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycount(endDate,startDate);
+		}
 
 		int startDateDay 	= startDate.getDayOfMonth();
 		int startDateMonth 	= startDate.getMonthValue();
@@ -70,17 +72,23 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 				startDate.getDayOfMonth() == startDate.lengthOfMonth() && 
 				endDate.getMonth() == Month.FEBRUARY &&
 				endDate.getDayOfMonth() == endDate.lengthOfMonth()
-			) endDateDay = 30;
+				) {
+			endDateDay = 30;
+		}
 
 		if(
 				isEndOfMonth &&
 				startDate.getMonth() == Month.FEBRUARY &&
 				startDate.getDayOfMonth() == startDate.lengthOfMonth()
-			) startDateDay = 30;
-			
-		if(endDateDay > 30 && startDateDay >= 30) endDateDay = 30;
+				) {
+			startDateDay = 30;
+		}
+
+		if(endDateDay > 30 && startDateDay >= 30) {
+			endDateDay = 30;
+		}
 		startDateDay = Math.min(startDateDay,30);
-		
+
 		return (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (endDateDay - startDateDay);
 	}
 

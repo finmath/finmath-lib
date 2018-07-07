@@ -244,7 +244,9 @@ public class LIBORMarketModelCalibrationTest {
 		System.out.println("\nCalibrated parameters are:");
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
 		//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
-		for (double p : param) System.out.println(formatterParam.format(p));
+		for (double p : param) {
+			System.out.println(formatterParam.format(p));
+		}
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotionView1);
 		net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation simulationCalibrated = new net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation(
@@ -340,7 +342,9 @@ public class LIBORMarketModelCalibrationTest {
 			exercise	= Math.round(exercise/0.25)*0.25;
 			tenor		= Math.round(tenor/0.25)*0.25;
 
-			if(exercise < 1.0) continue;
+			if(exercise < 1.0) {
+				continue;
+			}
 
 			int numberOfPeriods = (int)Math.round(tenor / swapPeriodLength);
 
@@ -418,7 +422,9 @@ public class LIBORMarketModelCalibrationTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModel.CalibrationItem[] calibrationItemsLMM = new LIBORMarketModel.CalibrationItem[calibrationItemNames.size()];
-		for(int i=0; i<calibrationItemNames.size(); i++) calibrationItemsLMM[i] = new LIBORMarketModel.CalibrationItem(calibrationItems.get(i).calibrationProduct,calibrationItems.get(i).calibrationTargetValue,calibrationItems.get(i).calibrationWeight);
+		for(int i=0; i<calibrationItemNames.size(); i++) {
+			calibrationItemsLMM[i] = new LIBORMarketModel.CalibrationItem(calibrationItems.get(i).calibrationProduct,calibrationItems.get(i).calibrationTargetValue,calibrationItems.get(i).calibrationWeight);
+		}
 		LIBORModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
 				liborPeriodDiscretization,
 				curveModel,
@@ -431,7 +437,9 @@ public class LIBORMarketModelCalibrationTest {
 
 		System.out.println("\nCalibrated parameters are:");
 		double[] param = ((AbstractLIBORCovarianceModelParametric)((LIBORMarketModel) liborMarketModelCalibrated).getCovarianceModel()).getParameter();
-		for (double p : param) System.out.println(p);
+		for (double p : param) {
+			System.out.println(p);
+		}
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 		LIBORModelMonteCarloSimulationInterface simulationCalibrated = new LIBORModelMonteCarloSimulation(liborMarketModelCalibrated, process);

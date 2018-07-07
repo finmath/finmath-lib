@@ -38,7 +38,7 @@ as argument.
 					values[1] = 1.0 - parameters[0];
 				}
 		};
-		
+
 		OptimizerInterface optimizer = optimizerFactory.getOptimizer(
 				objectiveFunction,
 				new double[] { 0.5, 0.5 }, // initialParameters
@@ -54,7 +54,7 @@ as argument.
 		for (int i = 0; i &lt; bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
 
 		System.out.println();
-		
+
 		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) &lt; 1E-10);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 1.0) &lt; 1E-10);
 	}
@@ -63,7 +63,7 @@ as argument.
 Now, we may pass different optimizers to the optimization problem. For example the CMA-ES solver from commons math:
 <pre>
 	public void testRosenbrockFunctionWithCMAES() throws SolverException {
-		
+
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryCMAES(0.0, 200);
 		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
@@ -72,7 +72,7 @@ Now, we may pass different optimizers to the optimization problem. For example t
 Or the multi-threadded Levenberg Marquardt solver (using two threads) from finmath-lib:
 <pre>
 	public void testRosenbrockFunctionWithLevenbergMarquard() throws SolverException {
-		
+
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(200, 2);
 		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
@@ -85,5 +85,5 @@ Or the multi-threadded Levenberg Marquardt solver (using two threads) from finma
 	In addition we provide wrappers (via specific <code>OptimizationFactoryInterface</code>
 	implementations) to some optimizers from Apache commons-math.
 </p>
-*/
+ */
 package net.finmath.optimizer;
