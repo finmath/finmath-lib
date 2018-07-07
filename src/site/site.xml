@@ -41,7 +41,10 @@
 
 		<menu name="Concepts">
 			<item name="Automatic Tracking of Measurability" href="concepts/automatictrackingofmeasurability" />
-			<item name="Separation of Product and Model and Numerical Method" href="concepts/separationofproductandmodel" />
+			<item name="Separation of Product and Model and Numerical Method" href="concepts/separationofproductandmodel">
+				<item name="Model and Product Interfaces" href="concepts/separationofproductandmodel/modelandproductinterfaces.html" />
+				<item name="Model and Product Descriptors" href="concepts/separationofproductandmodel/modelandproductdescriptors.html" />
+			</item>
 		</menu>
 		
 		<menu name="Usages">
