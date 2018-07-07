@@ -64,8 +64,11 @@ public class PerformanceIndex extends AbstractIndex {
 		Set<String> underlyingNames			= numeratorIndex.queryUnderlyings();
 		Set<String>	underlyingNames2		= denominatorIndex.queryUnderlyings();
 		if(underlyingNames2 != null) {
-			if(underlyingNames != null)	underlyingNames.addAll(underlyingNames2);
-			else						underlyingNames = underlyingNames2;
+			if(underlyingNames != null) {
+				underlyingNames.addAll(underlyingNames2);
+			} else {
+				underlyingNames = underlyingNames2;
+			}
 		}
 		return underlyingNames;
 	}

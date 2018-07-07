@@ -54,7 +54,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * 
 	 * @return The value at the give time.
 	 */
-     RandomVariableInterface getValue(AnalyticModelInterface model, double time);
+	RandomVariableInterface getValue(AnalyticModelInterface model, double time);
 
 	/**
 	 * Create a deep copied clone.

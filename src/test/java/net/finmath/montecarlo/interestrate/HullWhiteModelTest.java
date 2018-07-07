@@ -204,7 +204,7 @@ public class HullWhiteModelTest {
 			AbstractLIBORCovarianceModel covarianceModel2 = new HullWhiteLocalVolatilityModel(covarianceModel, liborPeriodLength);
 
 			// Set model properties
-			Map<String, String> properties = new HashMap<String, String>();
+			Map<String, String> properties = new HashMap<>();
 
 			// Choose the simulation measure
 			properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
@@ -258,7 +258,9 @@ public class HullWhiteModelTest {
 
 			// Bond price analytic
 			DiscountCurveInterface discountCurve = hullWhiteModelSimulation.getModel().getDiscountCurve();
-			if(discountCurve == null) discountCurve = new DiscountCurveFromForwardCurve(hullWhiteModelSimulation.getModel().getForwardRateCurve());
+			if(discountCurve == null) {
+				discountCurve = new DiscountCurveFromForwardCurve(hullWhiteModelSimulation.getModel().getForwardRateCurve());
+			}
 			double valueAnalytic = discountCurve.getDiscountFactor(maturity);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
@@ -385,9 +387,13 @@ public class HullWhiteModelTest {
 			double daycountFraction = periodEnd-periodStart;
 
 			String		tenorCode;
-			if(periodLength == 0.5) tenorCode = "6M";
-			else if(periodLength == 1.0) tenorCode = "1Y";
-			else throw new IllegalArgumentException("Unsupported period length.");
+			if(periodLength == 0.5) {
+				tenorCode = "6M";
+			} else if(periodLength == 1.0) {
+				tenorCode = "1Y";
+			} else {
+				throw new IllegalArgumentException("Unsupported period length.");
+			}
 
 			double strike = 0.05;
 
@@ -647,9 +653,13 @@ public class HullWhiteModelTest {
 			double daycountFraction = periodEnd-periodStart;
 
 			String		tenorCode;
-			if(periodLength == 0.5) tenorCode = "6M";
-			else if(periodLength == 1.0) tenorCode = "1Y";
-			else throw new IllegalArgumentException("Unsupported period length.");
+			if(periodLength == 0.5) {
+				tenorCode = "6M";
+			} else if(periodLength == 1.0) {
+				tenorCode = "1Y";
+			} else {
+				throw new IllegalArgumentException("Unsupported period length.");
+			}
 
 			double forward			= getParSwaprate(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}, tenorCode);
 			double discountFactor	= getSwapAnnuity(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}) / periodLength;
@@ -870,7 +880,9 @@ public class HullWhiteModelTest {
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
 		DiscountCurveInterface discountCurve = liborMarketModel.getModel().getDiscountCurve();
-		if(discountCurve == null) discountCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
+		if(discountCurve == null) {
+			discountCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
+		}
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve);
 	}
 }

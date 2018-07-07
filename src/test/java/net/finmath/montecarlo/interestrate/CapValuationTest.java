@@ -62,7 +62,7 @@ public class CapValuationTest {
 		init(numberOfPaths);
 	}
 
-	
+
 	/**
 	 * Initialize market data objects and the libor market model object.
 	 * 
@@ -99,7 +99,7 @@ public class CapValuationTest {
 		double c = 1.50;
 		double d = 0.10;
 		capletVol = new CapletVolatilitiesParametric("EUR", referenceDate, a, b, c, d);
-//		capletVol = new CapletVolatilitiesParametricFourParameterPicewiseConstant("EUR", referenceDate, a, b, c, d, liborPeriodDiscretization);
+		//		capletVol = new CapletVolatilitiesParametricFourParameterPicewiseConstant("EUR", referenceDate, a, b, c, d, liborPeriodDiscretization);
 
 
 		/*
@@ -112,7 +112,7 @@ public class CapValuationTest {
 
 		// LIBOR volatility model
 		LIBORVolatilityModelFourParameterExponentialFormIntegrated volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
-//		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+		//		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -134,7 +134,7 @@ public class CapValuationTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
@@ -154,7 +154,7 @@ public class CapValuationTest {
 		ProcessEulerScheme process = new ProcessEulerScheme(
 				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
-//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		this.liborMarketModel = new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
@@ -195,7 +195,7 @@ public class CapValuationTest {
 			LocalDate startDate = referenceDate.plusMonths(3);
 
 			ScheduleInterface schedule = new RegularSchedule(new TimeDiscretization(0.25, maturityIndex-1, 0.25));
-//			ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), startDate.getTime(), "quarterly", (maturityIndex-1)*0.25, "act/365", "first");
+			//			ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), startDate.getTime(), "quarterly", (maturityIndex-1)*0.25, "act/365", "first");
 
 			Cap capAnalytic = new Cap(schedule, forwardCurve.getName() /* forwardCurveName */, strike, false /* isStrikeMoneyness */, discountCurve.getName() /* discountCurveName */, "EUR" /* volatiltiySufaceName */);
 			double valueAnalytic = capAnalytic.getValue(model);

@@ -49,31 +49,31 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	 * @param spread Additional fixed payment (if any).
 	 * @param discountCurveName Name of the discount curve for the forward.
 	 */
-    public MarketForwardRateAgreement(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
-	    super();
+	public MarketForwardRateAgreement(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
+		super();
 		this.maturity = maturity;
 		this.paymentOffset = paymentOffset;
-	    this.forwardCurveName = forwardCurveName;
-	    this.spread = spread;
-	    this.discountCurveName = discountCurveName;
-    }
+		this.forwardCurveName = forwardCurveName;
+		this.spread = spread;
+		this.discountCurveName = discountCurveName;
+	}
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {	
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
-		
+
 		DiscountCurveInterface	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			// User might like to get forward from discount curve.
 			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
-			
+
 			if(discountCurveForForward == null) {
 				// User specified a name for the forward curve, but no curve was found.
 				throw new IllegalArgumentException("No curve of the name " + forwardCurveName + " was found in the model.");
 			}
 		}
-		
+
 		RandomVariableInterface forward		= model.getRandomVariableForConstant(-spread);
 		if(forwardCurve != null) {
 			forward = forward.add(forwardCurve.getForward(model, maturity));

@@ -27,7 +27,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 
 	private double fixedPartStartTime;
 	private double fixedPartEndTime;
-	
+
 
 	/**
 	 * A builder (following the builder pattern) for PiecewiseCurve objects.
@@ -38,7 +38,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	public static class CurveBuilder extends Curve.CurveBuilder implements CurveBuilderInterface {
 
 		private PiecewiseCurve			curve = null;
-		
+
 		/**
 		 * Create a CurveBuilder from a given piecewiseCurve
 		 * 
@@ -49,7 +49,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 			super((Curve)(piecewiseCurve.baseCurve));
 			this.curve = piecewiseCurve;
 		}
-		
+
 		@Override
 		public CurveInterface build() throws CloneNotSupportedException {
 			PiecewiseCurve buildCurve = curve.clone();
@@ -136,7 +136,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		PiecewiseCurve newCurve = clone();
 		newCurve.baseCurve = baseCurve.getCloneForParameter(value);
-		
+
 		return newCurve;
 	}
 
@@ -153,9 +153,9 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	@Override
 	public String toString() {
 		return "ForwardCurveWithFixings [getBaseCurve()=" + getBaseCurve()
-				+ ", getFixedPartCurve()=" + getFixedPartCurve()
-				+ ", getFixedPartStartTime()=" + getFixedPartStartTime()
-				+ ", getFixedPartEndTime()=" + getFixedPartEndTime()
-				+ ", toString()=" + super.toString() + "]";
+		+ ", getFixedPartCurve()=" + getFixedPartCurve()
+		+ ", getFixedPartStartTime()=" + getFixedPartStartTime()
+		+ ", getFixedPartEndTime()=" + getFixedPartEndTime()
+		+ ", toString()=" + super.toString() + "]";
 	}
 }

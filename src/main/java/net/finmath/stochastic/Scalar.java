@@ -253,39 +253,56 @@ public class Scalar implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
-		if(value == 0) return new Scalar(0.0);
+		if(value == 0) {
+			return new Scalar(0.0);
+		}
 		return randomVariable.mult(value);
 	}
 
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
-		if(value == 0) return new Scalar(0.0);
+		if(value == 0) {
+			return new Scalar(0.0);
+		}
 		return randomVariable.mult(value);
 	}
 
 	@Override
 	public RandomVariableInterface cap(RandomVariableInterface cap) {
-		if(cap.isDeterministic()) return new Scalar(Math.min(value, cap.get(0)));
-		else return cap.cap(value);
+		if(cap.isDeterministic()) {
+			return new Scalar(Math.min(value, cap.get(0)));
+		} else {
+			return cap.cap(value);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface floor(RandomVariableInterface floor) {
-		if(floor.isDeterministic()) return new Scalar(Math.max(value, floor.get(0)));
-		else return floor.floor(value);
+		if(floor.isDeterministic()) {
+			return new Scalar(Math.max(value, floor.get(0)));
+		} else {
+			return floor.floor(value);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
-		if(rate.isDeterministic()) return new Scalar(value * (1 + rate.get(0) * periodLength));
-		else return rate.mult(periodLength*value).add(value);
+		if(rate.isDeterministic()) {
+			return new Scalar(value * (1 + rate.get(0) * periodLength));
+		} else {
+			return rate.mult(periodLength*value).add(value);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
-		if(value == 0) return new Scalar(0.0);
-		else if(rate.isDeterministic()) return new Scalar(value / (1 + rate.get(0) * periodLength));
-		else return rate.mult(periodLength/value).add(1.0/value).invert();
+		if(value == 0) {
+			return new Scalar(0.0);
+		} else if(rate.isDeterministic()) {
+			return new Scalar(value / (1 + rate.get(0) * periodLength));
+		} else {
+			return rate.mult(periodLength/value).add(1.0/value).invert();
+		}
 	}
 
 	@Override
@@ -319,26 +336,38 @@ public class Scalar implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
-		if(factor1.isDeterministic()) return new Scalar(value + factor1.get(0) * factor2);
-		else return factor1.mult(factor2).add(value);
+		if(factor1.isDeterministic()) {
+			return new Scalar(value + factor1.get(0) * factor2);
+		} else {
+			return factor1.mult(factor2).add(value);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
-		if(factor1.isDeterministic() && factor2.isDeterministic()) return new Scalar(value + factor1.get(0) * factor2.get(0));
-		else return factor1.mult(factor2).add(value);
+		if(factor1.isDeterministic() && factor2.isDeterministic()) {
+			return new Scalar(value + factor1.get(0) * factor2.get(0));
+		} else {
+			return factor1.mult(factor2).add(value);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
-		if(numerator.isDeterministic() && denominator.isDeterministic()) return new Scalar(value + numerator.get(0) * denominator.get(0));
-		else return numerator.div(denominator).add(value);
+		if(numerator.isDeterministic() && denominator.isDeterministic()) {
+			return new Scalar(value + numerator.get(0) * denominator.get(0));
+		} else {
+			return numerator.div(denominator).add(value);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
-		if(numerator.isDeterministic() && denominator.isDeterministic()) return new Scalar(value - numerator.get(0) * denominator.get(0));
-		else return numerator.div(denominator).sub(value).mult(-1.0);
+		if(numerator.isDeterministic() && denominator.isDeterministic()) {
+			return new Scalar(value - numerator.get(0) * denominator.get(0));
+		} else {
+			return numerator.div(denominator).sub(value).mult(-1.0);
+		}
 	}
 
 	@Override

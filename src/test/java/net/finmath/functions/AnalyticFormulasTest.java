@@ -26,8 +26,8 @@ public class AnalyticFormulasTest {
 		double spot = 100;
 		double riskFreeRate = 0.05;
 		for(double volatilityNormal = 5.0 / 100.0 * spot; volatilityNormal < 1.0 * spot; volatilityNormal += 5.0 / 100.0 * spot) {
-		for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
-			for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
+			for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
+				for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
 
 					double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
 

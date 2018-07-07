@@ -18,7 +18,7 @@ import net.finmath.modelling.ModelDescriptor;
 public class HestonModelDescriptor implements ModelDescriptor {
 
 	private final LocalDate referenceDate;
-	
+
 	private final Double initialValue;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
@@ -45,7 +45,7 @@ public class HestonModelDescriptor implements ModelDescriptor {
 		this.xi = xi;
 		this.rho = rho;
 	}
-	
+
 	@Override
 	public Integer version() {
 		return 1;

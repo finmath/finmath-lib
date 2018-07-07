@@ -110,7 +110,7 @@ public class BondValuationTest {
 
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<AnalyticProductInterface>();
+		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<>();
 		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
 		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
 		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 3, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
@@ -125,11 +125,11 @@ public class BondValuationTest {
 		}
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<ParameterObjectInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<>();
 		curvesToCalibrate1.add(basisFactorCurve);
 
 		// Calibrate the curve
-		ArrayList<Double> targetList = new ArrayList<Double>();
+		ArrayList<Double> targetList = new ArrayList<>();
 		targetList.add(1.04762);
 		targetList.add(1.09297);
 		targetList.add(1.136162);

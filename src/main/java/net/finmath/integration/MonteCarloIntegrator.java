@@ -31,7 +31,9 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 	 */
 	public MonteCarloIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints, boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
-		if(numberOfEvaluationPoints < 3) throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
+		if(numberOfEvaluationPoints < 3) {
+			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
+		}
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 	}
 
@@ -54,7 +56,7 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		double	lowerBound			= getLowerBound();
 		double	upperBound			= getUpperBound();
 		double	range				= upperBound-lowerBound;
-		
+
 		// Create random number sequence generator (we use MersenneTwister)
 		MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
 

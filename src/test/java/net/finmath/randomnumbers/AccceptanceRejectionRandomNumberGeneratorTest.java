@@ -25,22 +25,22 @@ public class AccceptanceRejectionRandomNumberGeneratorTest {
 		DoubleUnaryOperator referenceDistributionICDF = x -> { return -Math.log(1 - x); };
 		double acceptanceLevel = Math.sqrt(2.0 / Math.PI * Math.exp(1));
 		RandomNumberGenerator normalRandomNumberGeneratorAR = new AccceptanceRejectionRandomNumberGenerator(uniformRandomNumberGenerator2D, targetDensity, referenceDensity, referenceDistributionICDF, acceptanceLevel);
-		
+
 		RandomNumberGenerator uniformRandomNumberGenerator1D = new HaltonSequence(new int[] { 2 });
 
 		Random randomForSign = new Random(3141);
-		
+
 		int numberOfPaths = 1000000;
 		double[] normalFromAR = new double[numberOfPaths];
 		double[] normalFromICDF = new double[numberOfPaths];
 		for(int i = 0; i<numberOfPaths; i++) {
 			double normalPositive = normalRandomNumberGeneratorAR.getNext()[0];
-		
+
 			normalFromAR[i] = (randomForSign.nextDouble() > 0.5 ? 1.0 : -1.0) * normalPositive;
-			
+
 			normalFromICDF[i] = NormalDistribution.inverseCumulativeDistribution(uniformRandomNumberGenerator1D.getNext()[0]);
 		}
-		
+
 		double[] interv = (new TimeDiscretization(-3, 101, 6.0/100)).getAsDoubleArray();
 		double[] histOfNormalFromAR = new RandomVariable(0.0, normalFromAR).getHistogram(interv);
 		double[] histOfNormalFromICDF = new RandomVariable(0.0, normalFromICDF).getHistogram(interv);

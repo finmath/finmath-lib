@@ -119,7 +119,9 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 		RandomVariableInterface value = new RandomVariable(0.0);
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
 			double paymentDate		= schedule.getPayment(periodIndex);
-			if(paymentDate <= evaluationTime) continue;
+			if(paymentDate <= evaluationTime) {
+				continue;
+			}
 
 			double periodLength		= schedule.getPeriodLength(periodIndex);
 			RandomVariableInterface discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);

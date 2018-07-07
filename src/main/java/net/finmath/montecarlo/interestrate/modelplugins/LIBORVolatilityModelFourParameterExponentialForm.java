@@ -92,7 +92,9 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return null;
+		if(!isCalibrateable) {
+			return null;
+		}
 
 		double[] parameter = new double[4];
 		parameter[0] = a;
@@ -105,8 +107,10 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	@Override
 	public LIBORVolatilityModelFourParameterExponentialForm getCloneWithModifiedParameter(double[] parameter) {
-		if(!isCalibrateable) return this;
-		
+		if(!isCalibrateable) {
+			return this;
+		}
+
 		return new LIBORVolatilityModelFourParameterExponentialForm(
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
@@ -123,7 +127,9 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 		if(randomVariableFactory != null) {
 			synchronized (randomVariableFactory) {
-				if(volatility == null) volatility = new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
+				if(volatility == null) {
+					volatility = new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
+				}
 
 				if(volatility[timeIndex][liborIndex] == null) {
 					volatility[timeIndex][liborIndex] = randomVariableFactory.createRandomVariable(getVolatilityAsDouble(timeIndex, liborIndex));
@@ -152,11 +158,13 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		{
 			volatilityInstanteaneous = (a + b * timeToMaturity) * Math.exp(-c * timeToMaturity) + d;
 		}
-		if(volatilityInstanteaneous < 0.0) volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
-		
+		if(volatilityInstanteaneous < 0.0) {
+			volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
+		}
+
 		return volatilityInstanteaneous;
 	}
-	
+
 	@Override
 	public Object clone() {
 		return new LIBORVolatilityModelFourParameterExponentialForm(

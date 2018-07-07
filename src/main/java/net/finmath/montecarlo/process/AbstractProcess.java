@@ -22,8 +22,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public abstract class AbstractProcess implements AbstractProcessInterface, Cloneable {
 
-    private AbstractModelInterface			model;
-    private TimeDiscretizationInterface		timeDiscretization;
+	private AbstractModelInterface			model;
+	private TimeDiscretizationInterface		timeDiscretization;
 
 	/**
 	 * Create a discretization scheme / a time discrete process.
@@ -37,63 +37,67 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 
 	public abstract Object getCloneWithModifiedSeed(int seed);	
 
-    /*
-     * Delegation to model
-     */
+	/*
+	 * Delegation to model
+	 */
 
-    public void setModel(AbstractModelInterface model) {
-    	if(this.model != null) throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
+	public void setModel(AbstractModelInterface model) {
+		if(this.model != null) {
+			throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
+		}
 
-    	this.model = model;
-    }
+		this.model = model;
+	}
 
-    public int getNumberOfComponents() {
-        return model.getNumberOfComponents();
-    }
-	
-    public RandomVariableInterface[]	getInitialState() {
-        return model.getInitialState();
-    }
+	public int getNumberOfComponents() {
+		return model.getNumberOfComponents();
+	}
 
-    public RandomVariableInterface[]	getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-    	return model.getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
-    }
+	public RandomVariableInterface[]	getInitialState() {
+		return model.getInitialState();
+	}
 
-    public RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-        // Delegate to model
-        return model.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
-    }
+	public RandomVariableInterface[]	getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+		return model.getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
+	}
 
-    public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
-        // Delegate to model
-        return model.applyStateSpaceTransform(componentIndex, randomVariable);
-    }
+	public RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+		// Delegate to model
+		return model.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	}
 
-    public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
-        // Delegate to model
-        return model.applyStateSpaceTransformInverse(componentIndex, randomVariable);
-    }
+	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+		// Delegate to model
+		return model.applyStateSpaceTransform(componentIndex, randomVariable);
+	}
 
-    /*
+	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+		// Delegate to model
+		return model.applyStateSpaceTransformInverse(componentIndex, randomVariable);
+	}
+
+	/*
 	 * Time discretization management
 	 */
-	
+
 	@Override
-    public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretizationInterface getTimeDiscretization() {
 		return timeDiscretization;
 	}
-		
+
 	@Override
-    public double getTime(int timeIndex) {
-		if(timeIndex < 0 || timeIndex >= timeDiscretization.getNumberOfTimes()) throw new ArrayIndexOutOfBoundsException("Index for process time discretization out of bounds.");
+	public double getTime(int timeIndex) {
+		if(timeIndex < 0 || timeIndex >= timeDiscretization.getNumberOfTimes()) {
+			throw new ArrayIndexOutOfBoundsException("Index for process time discretization out of bounds.");
+		}
 		return timeDiscretization.getTime(timeIndex);
 	}
 
 	@Override
-    public int getTimeIndex(double time) {
+	public int getTimeIndex(double time) {
 		return timeDiscretization.getTimeIndex(time);
 	}
 
 	@Override
-    public abstract AbstractProcess clone();
+	public abstract AbstractProcess clone();
 }

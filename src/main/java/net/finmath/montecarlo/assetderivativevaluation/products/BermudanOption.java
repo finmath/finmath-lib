@@ -53,7 +53,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	private boolean		intrinsicValueAsBasisFunction	= false;
 
 	private ExerciseMethod exerciseMethod;
-	
+
 	private RandomVariableInterface lastValuationExerciseTime;
 
 	/**
@@ -153,9 +153,12 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			RandomVariableInterface valueOfPaymentsIfExercised = underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
-            ArrayList<RandomVariableInterface> basisFunctions;
-			if(intrinsicValueAsBasisFunction)	basisFunctions = getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0));
-			else								basisFunctions = getRegressionBasisFunctions(underlyingAtExercise);
+			ArrayList<RandomVariableInterface> basisFunctions;
+			if(intrinsicValueAsBasisFunction) {
+				basisFunctions = getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0));
+			} else {
+				basisFunctions = getRegressionBasisFunctions(underlyingAtExercise);
+			}
 			ConditionalExpectationEstimatorInterface condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariableInterface[0]));
 
 			RandomVariableInterface underlying	= null;
@@ -176,7 +179,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 				martingale = martingale.sub(martingale.getAverage()).mult(lambda);
 
 				// Initialize value as 0-M, if we are on the last exercise date.
-				if(exerciseDateIndex==exerciseDates.length-1) value = value.sub(martingale);
+				if(exerciseDateIndex==exerciseDates.length-1) {
+					value = value.sub(martingale);
+				}
 
 				underlying	= valueOfPaymentsIfExercised.sub(martingale);
 				trigger		= value.sub(underlying);
@@ -188,7 +193,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			exerciseTime	= exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
 		}
 		lastValuationExerciseTime = exerciseTime;
-		
+
 		// Note that values is a relative price - no numeraire division is required
 		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
@@ -214,7 +219,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	private ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface underlying) {
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
 		underlying = new RandomVariable(0.0, underlying.getRealizations());
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
@@ -226,7 +231,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	private ArrayList<RandomVariableInterface> getRegressionBasisFunctionsBinning(RandomVariableInterface underlying) {
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
 
 		underlying = new RandomVariable(0.0, underlying.getRealizations());
 		int numberOfBins = 20;
@@ -237,7 +242,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			RandomVariableInterface basisFunction = underlying.barrier(underlying.sub(binLeft), new RandomVariable(1.0), 0.0);
 			basisFunctions.add(basisFunction);
 		}
-		
+
 		return basisFunctions;
 	}
 }

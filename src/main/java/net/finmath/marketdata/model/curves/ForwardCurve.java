@@ -137,11 +137,11 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 
 		ForwardCurve forwardCurve = new ForwardCurve(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,
 				interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName);
-	
+
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			forwardCurve.addForward(model, times[timeIndex], givenForwards[timeIndex], false);
 		}
-	
+
 		return forwardCurve;
 	}
 
@@ -251,7 +251,9 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	public static ForwardCurve createForwardCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors, double paymentOffset) {
 		ForwardCurve forwardCurve = new ForwardCurve(name, paymentOffset, InterpolationEntityForward.FORWARD, null);
 
-		if(times.length == 0) throw new IllegalArgumentException("Vector of times must not be empty.");
+		if(times.length == 0) {
+			throw new IllegalArgumentException("Vector of times must not be empty.");
+		}
 
 		if(times[0] > 0) {
 			// Add first forward
@@ -302,8 +304,9 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		default:
 			return interpolationEntityForwardValue;
 		case FORWARD_TIMES_DISCOUNTFACTOR:
-			if(model==null)
+			if(model==null) {
 				throw new IllegalArgumentException("model==null. Not allowed for interpolationEntityForward " + interpolationEntityForward);
+			}
 			return interpolationEntityForwardValue / model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+paymentOffset);
 		case ZERO:
 		{
@@ -326,7 +329,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * 
 	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
 	 * @param fixingTime The fixing time of the index associated with this forward curve.
-     * @param paymentOffset The payment offset (as internal day count fraction) specifying the payment of this index. Used only as a fallback and/or consistency check.
+	 * @param paymentOffset The payment offset (as internal day count fraction) specifying the payment of this index. Used only as a fallback and/or consistency check.
 	 * 
 	 * @return The forward.
 	 */
@@ -383,10 +386,12 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 
 	@Override
 	protected void addPoint(double time, double value, boolean isParameter) {
-		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) time += getPaymentOffset(time);
+		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
+			time += getPaymentOffset(time);
+		}
 		super.addPoint(time, value, isParameter);
 	}
-	
+
 	/**
 	 * Returns the special interpolation method used for this forward curve.
 	 * 

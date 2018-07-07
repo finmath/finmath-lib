@@ -59,7 +59,9 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	@Override
 	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
-		if(timeIndex < 0) timeIndex = (-timeIndex-1)-1;
+		if(timeIndex < 0) {
+			timeIndex = (-timeIndex-1)-1;
+		}
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 
@@ -107,7 +109,9 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	public RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException
 	{
 		RandomVariableInterface[] randomVariableVector = new RandomVariableInterface[getNumberOfComponents()];
-		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++)	randomVariableVector[componentIndex] = getLIBOR(timeIndex, componentIndex);
+		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
+			randomVariableVector[componentIndex] = getLIBOR(timeIndex, componentIndex);
+		}
 
 		return randomVariableVector;
 	}
@@ -186,7 +190,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	 */
 	public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(String entityKey, Object dataModified) throws CalculationException
 	{
-		Map<String, Object> dataModifiedMap = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedMap = new HashMap<>();
 		dataModifiedMap.put(entityKey, dataModified);
 		return getCloneWithModifiedData(dataModifiedMap);
 	}

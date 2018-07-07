@@ -113,7 +113,7 @@ public class SwaptionNormalTest {
 			// Absolute error
 			double deviation = Math.abs(valueSimulation - valueAnalytic);
 			System.out.println(formatterDeviation.format(deviation) + "          ");
-			
+
 			Assert.assertEquals(valueSimulation, valueAnalytic, 1E-3);
 		}
 	}
@@ -155,11 +155,13 @@ public class SwaptionNormalTest {
 				double timeToMaturity = maturity - time;
 
 				double instVolatility;
-				if(timeToMaturity <= 0)
+				if(timeToMaturity <= 0) {
 					instVolatility = 0;				// This forward rate is already fixed, no volatility
-				else
+				}
+				else {
 					instVolatility = (0.3 + 0.2 * Math.exp(-0.25 * timeToMaturity))
 					* forwardCurve.getForward(null, liborPeriodDiscretization.getTime(liborIndex)); //rescale by the interest rate level; not necessary, but tidier/more realistic values
+				}
 
 				// Store
 				volatility[timeIndex][liborIndex] = instVolatility;
@@ -184,7 +186,7 @@ public class SwaptionNormalTest {
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());

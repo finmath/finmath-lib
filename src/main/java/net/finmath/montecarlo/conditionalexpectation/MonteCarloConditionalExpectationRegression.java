@@ -32,7 +32,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
 	private RandomVariableInterface[]    basisFunctionsPredictor		= null;
-    
+
 	private transient DecompositionSolver solver;
 	private final transient Object solverLock;
 
@@ -78,7 +78,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 		return conditionalExpectation;
 	}
-    
+
 	/**
 	 * Return the solution x of XTX x = XT y for a given y.
 	 * @TODO Performance upon repeated call can be optimized by caching XTX.
@@ -113,7 +113,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
 		double[] linearRegressionParameters = solver.solve(new ArrayRealVector(XTy)).toArray();
-		
+
 		return linearRegressionParameters;
 	}
 

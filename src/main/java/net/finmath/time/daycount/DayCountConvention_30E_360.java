@@ -35,7 +35,7 @@ import java.time.LocalDate;
 public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 
 	private final boolean is30Eplus360;
-	
+
 	/**
 	 * Create a 30E/360 or 30E+/360 day count convention.
 	 * 
@@ -51,26 +51,30 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 	public DayCountConvention_30E_360() {
 		this(false);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycount(endDate,startDate);
+		}
 
 		int startDateDay 	= startDate.getDayOfMonth();
 		int startDateMonth 	= startDate.getMonthValue();
 		int startDateYear 	= startDate.getYear();
-		
+
 		int endDateDay 		= endDate.getDayOfMonth();
 		int endDateMonth 	= endDate.getMonthValue();
 		int endDateYear 	= endDate.getYear();
 
 		double daycount = (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0));
 
-		if(is30Eplus360 && endDateDay == 31) daycount +=1.0;
-		
+		if(is30Eplus360 && endDateDay == 31) {
+			daycount +=1.0;
+		}
+
 		return daycount;
 	}
 

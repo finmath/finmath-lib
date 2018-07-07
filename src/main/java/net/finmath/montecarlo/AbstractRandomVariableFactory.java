@@ -18,10 +18,10 @@ public abstract class AbstractRandomVariableFactory implements Serializable{
 	private static final long serialVersionUID = -4412332958142580025L;
 
 	public RandomVariableInterface createRandomVariable(double value) {
-        return createRandomVariable(-Double.MAX_VALUE, value);
-    }
+		return createRandomVariable(-Double.MAX_VALUE, value);
+	}
 
-    public abstract RandomVariableInterface createRandomVariable(double time, double value);
+	public abstract RandomVariableInterface createRandomVariable(double time, double value);
 
-    public abstract RandomVariableInterface createRandomVariable(double time, double[] values);
+	public abstract RandomVariableInterface createRandomVariable(double time, double[] values);
 }

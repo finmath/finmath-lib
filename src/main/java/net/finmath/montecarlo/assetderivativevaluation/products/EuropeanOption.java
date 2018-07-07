@@ -124,7 +124,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct implements De
 
 	@Override
 	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
-		Map<String, Object>  result = new HashMap<String, Object>();
+		Map<String, Object>  result = new HashMap<>();
 
 		try {
 			double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface) model).getAverage();
@@ -132,7 +132,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct implements De
 		} catch (CalculationException e) {
 			result.put("exception", e);
 		}
-		
+
 		return result;
 	}
 }

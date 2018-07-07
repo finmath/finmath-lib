@@ -66,7 +66,7 @@ public class CalibrationTest {
 		});
 	}
 
-    /**
+	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
 	 * 
 	 * @param args Arguments - not used.
@@ -148,7 +148,7 @@ public class CalibrationTest {
 				);
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<AnalyticProductInterface>();
+		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<>();
 
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
@@ -159,7 +159,7 @@ public class CalibrationTest {
 		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurveFromDiscountCurve });
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<ParameterObjectInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<>();
 		curvesToCalibrate1.add(discountCurve);
 
 		// Calibrate the curve
@@ -206,7 +206,7 @@ public class CalibrationTest {
 		System.out.println("Calibrating a forward curve from swaps using the given discount curve.");
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts2 = new Vector<AnalyticProductInterface>();
+		Vector<AnalyticProductInterface> calibrationProducts2 = new Vector<>();
 
 		// It is possible to mix tenors (although it may not be meaningful in a forward curve calibration)
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.06, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 0.5)), "forwardCurve", 0.0, "discountCurve"));
@@ -216,7 +216,7 @@ public class CalibrationTest {
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve"));
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<ParameterObjectInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<>();
 		curvesToCalibrate2.add(forwardCurve);
 
 		// Calibrate the curve

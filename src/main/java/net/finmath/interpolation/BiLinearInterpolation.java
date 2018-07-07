@@ -43,18 +43,26 @@ public class BiLinearInterpolation implements BiFunction<Double, Double, Double>
 
 	double getValue(double x, double y) {
 		int indexGreaterOrEqualX = Arrays.binarySearch(this.x, x);
-		if(indexGreaterOrEqualX < 0) indexGreaterOrEqualX = -indexGreaterOrEqualX-1;
+		if(indexGreaterOrEqualX < 0) {
+			indexGreaterOrEqualX = -indexGreaterOrEqualX-1;
+		}
 		int upperIndexX = Math.min(Math.max(indexGreaterOrEqualX, 0), this.x.length-1);
 		int lowerIndexX = Math.min(Math.max(upperIndexX-1, 0), this.x.length-1);
 
 		int indexGreaterOrEqualY = Arrays.binarySearch(this.y, y);
-		if(indexGreaterOrEqualY < 0) indexGreaterOrEqualY = -indexGreaterOrEqualY-1;
+		if(indexGreaterOrEqualY < 0) {
+			indexGreaterOrEqualY = -indexGreaterOrEqualY-1;
+		}
 		int upperIndexY = Math.min(Math.max(indexGreaterOrEqualY, 0), this.y.length-1);
 		int lowerIndexY = Math.min(Math.max(upperIndexY-1, 0), this.y.length-1);
 
-		if(upperIndexX == lowerIndexX) upperIndexX++;
-		if(upperIndexY == lowerIndexY) upperIndexY++;
-		
+		if(upperIndexX == lowerIndexX) {
+			upperIndexX++;
+		}
+		if(upperIndexY == lowerIndexY) {
+			upperIndexY++;
+		}
+
 		double alphaX = (this.x[upperIndexX]-x)/(this.x[upperIndexX]-this.x[lowerIndexX]);
 		double alphaY = (this.y[upperIndexY]-y)/(this.y[upperIndexY]-this.y[lowerIndexY]);
 

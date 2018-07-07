@@ -121,11 +121,15 @@ public class CurveEstimation{
 	 */
 	public CurveInterface getRegressionCurve(){
 		// @TODO Add threadsafe lazy init.
-		if(regressionCurve !=null) return regressionCurve;
+		if(regressionCurve !=null) {
+			return regressionCurve;
+		}
 		DoubleMatrix a = solveEquationSystem();
 		double[] curvePoints=new double[partition.getLength()];
 		curvePoints[0]=a.get(0);
-		for(int i=1;i<curvePoints.length;i++) curvePoints[i]=curvePoints[i-1]+a.get(i)*(partition.getIntervalLength(i-1));
+		for(int i=1;i<curvePoints.length;i++) {
+			curvePoints[i]=curvePoints[i-1]+a.get(i)*(partition.getIntervalLength(i-1));
+		}
 		return new Curve(
 				"RegressionCurve",
 				referenceDate,
@@ -147,7 +151,9 @@ public class CurveEstimation{
 		DoubleMatrix M=new DoubleMatrix(partition.getLength(),partition.getLength());
 		DoubleMatrix partitionAsVector=new DoubleMatrix(partition.getPoints());
 		DoubleMatrix shiftedPartition=new DoubleMatrix(partition.getLength());
-		for(int j=1; j<shiftedPartition.length;j++) shiftedPartition.put(j, partition.getPoint(j-1));
+		for(int j=1; j<shiftedPartition.length;j++) {
+			shiftedPartition.put(j, partition.getPoint(j-1));
+		}
 		DoubleMatrix partitionIncrements= partitionAsVector.sub(shiftedPartition).put(0,1);
 		DoubleMatrix kernelValues=new DoubleMatrix(partition.getLength()-1);
 		DoubleMatrix M1_1= new DoubleMatrix(1);
@@ -207,7 +213,9 @@ public class CurveEstimation{
 		MSubMatrix=MSubMatrix.add(MSubMatrix.transpose()).add(DoubleMatrix.diag(MSubDiagonal));
 
 		int[] rowColIndex =new int[partition.getLength()-1];
-		for(int n=0;n<rowColIndex.length;n++) rowColIndex[n]=n+1;
+		for(int n=0;n<rowColIndex.length;n++) {
+			rowColIndex[n]=n+1;
+		}
 
 		M.put(0,0,M1_1.get(0));
 		M.put(rowColIndex, 0, MFirstCol);

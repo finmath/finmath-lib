@@ -47,7 +47,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
 	private AbstractProcessInterface									numerairesProcess = null;
 
-	
+
 	// Initialized lazily using process time discretization
 	private RandomVariableInterface[] initialState;
 
@@ -81,7 +81,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 
-		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
+		numeraires = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -112,7 +112,9 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
-		if(time == getTime(0)) return new RandomVariable(1.0);
+		if(time == getTime(0)) {
+			return new RandomVariable(1.0);
+		}
 
 		int timeIndex = getProcess().getTimeIndex(time);
 		if(timeIndex < 0) {
@@ -122,7 +124,9 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 
 			// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
 			int previousTimeIndex = getProcess().getTimeIndex(time);
-			if(previousTimeIndex < 0) previousTimeIndex = -previousTimeIndex-1;
+			if(previousTimeIndex < 0) {
+				previousTimeIndex = -previousTimeIndex-1;
+			}
 			previousTimeIndex--;
 			double previousTime = getProcess().getTime(previousTimeIndex);
 
@@ -148,21 +152,21 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 		 */
 		RandomVariableInterface numeraire = numeraires.get(timeIndex);
 		if(numeraire == null) {
-		/*
+			/*
 			 * Calculate the numeraire for timeIndex
-		 */
+			 */
 			RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 			RandomVariableInterface integratedRate = zero;
-		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
-		for(int i=0; i<timeIndex; i++) {
+			// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
+			for(int i=0; i<timeIndex; i++) {
 				RandomVariableInterface rate = getShortRate(i);
 				double dt = getProcess().getTimeDiscretization().getTimeStep(i);
 				//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
 				integratedRate = integratedRate.addProduct(rate, dt);
 
-			numeraire = integratedRate.exp();
-			numeraires.put(i+1, numeraire);
-		}
+				numeraire = integratedRate.exp();
+				numeraires.put(i+1, numeraire);
+			}
 		}
 
 		/*

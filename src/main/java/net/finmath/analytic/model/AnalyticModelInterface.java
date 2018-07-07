@@ -25,7 +25,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 
 	RandomVariableInterface getRandomVariableForConstant(double value);
-	
+
 	/**
 	 * Get a curve by a given curve name.
 	 * 
@@ -98,7 +98,7 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 */
 	AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces);
 
-	
+
 	AnalyticModelInterface clone();
 
 	AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, RandomVariableInterface[]> curvesParameterPairs) throws CloneNotSupportedException;

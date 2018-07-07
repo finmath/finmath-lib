@@ -29,7 +29,7 @@ public interface DayCountConventionInterface {
 	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @return The number of days within the given period.
 	 */
-    double getDaycount(LocalDate startDate, LocalDate endDate);
+	double getDaycount(LocalDate startDate, LocalDate endDate);
 
 	/**
 	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
@@ -39,6 +39,6 @@ public interface DayCountConventionInterface {
 	 * @param endDate The end date given as a {@link java.time.LocalDate}.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
-    double getDaycountFraction(LocalDate startDate, LocalDate endDate);
-	
+	double getDaycountFraction(LocalDate startDate, LocalDate endDate);
+
 }

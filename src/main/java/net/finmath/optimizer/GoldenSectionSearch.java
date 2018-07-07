@@ -30,25 +30,25 @@ package net.finmath.optimizer;
  * @version 1.1
  */
 public class GoldenSectionSearch {
-	
+
 	// This is the golden section ratio
 	static final double GOLDEN_SECTION_RATIO = (3.0 - Math.sqrt(5.0)) / 2.0;
-	
+
 	// We store the left and right end point of the interval and a middle point (placed at golden section ratio) together with their values
 	private final double[] points = new double[3]; // left, middle, right
 	private final double[] values = new double[3]; // left, middle, right
-	
+
 	/*
 	 * State of solver 
 	 */
-	
+
 	private double	nextPoint;						// Stores the next point to return by getPoint()
 	private boolean	expectingValue		= false;	// Stores the state (true, if next call should be setValue(), false for getPoint())
-	
+
 	private int		numberOfIterations	= 0; 		// Number of numberOfIterations
 	private double	accuracy;						// Current accuracy of solution
 	private boolean	isDone				= false;	// Will be true if machine accuracy has been reached
-	
+
 	public static void main(String[] args) {
 		System.out.println("Test of GoldenSectionSearch Class.\n");
 
@@ -58,12 +58,12 @@ public class GoldenSectionSearch {
 		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);		
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
 			double x = search.getNextPoint();
-			
+
 			double y = (x - 0.656) * (x - 0.656);
-			
+
 			search.setValue(y);
 		}
-		
+
 		System.out.println("Result....: " + search.getBestPoint());
 		System.out.println("Solution..: 0.656");
 		System.out.println("Iterations: " + search.getNumberOfIterations() + "\n");
@@ -74,17 +74,17 @@ public class GoldenSectionSearch {
 		GoldenSectionSearch search2 = new GoldenSectionSearch(0.0, 6.0);		
 		while(search2.getAccuracy() > 1E-11 && !search2.isDone()) {
 			double x = search2.getNextPoint();
-			
+
 			double y = Math.cos(x);
-			
+
 			search2.setValue(y);
 		}
-		
+
 		System.out.println("Result....: " + search2.getBestPoint());
 		System.out.println("Solution..: " + Math.PI + " (Pi)");
 		System.out.println("Iterations: " + search2.getNumberOfIterations() + "\n");
 	}
-	
+
 	/**
 	 * @param leftPoint left point of search interval
 	 * @param rightPoint right point of search interval
@@ -94,11 +94,11 @@ public class GoldenSectionSearch {
 		points[0]	= leftPoint;
 		points[1]	= getGoldenSection(leftPoint, rightPoint);
 		points[2]	= rightPoint;
-		
+
 		nextPoint	= points[0];
 		accuracy	= points[2]-points[0];
 	}
-	
+
 	/**
 	 * @return Returns the best point obtained so far.
 	 */
@@ -106,7 +106,7 @@ public class GoldenSectionSearch {
 		// Lazy: we always return the middle point as best point
 		return points[1];
 	}
-	
+
 	/**
 	 * Returns the next point for which a valuation is requested.
 	 * 
@@ -116,7 +116,7 @@ public class GoldenSectionSearch {
 		expectingValue = true;
 		return nextPoint;
 	}
-	
+
 	/**
 	 * Set the value corresponding to the point returned by a previous call of <code>getNextPoint()</code>.
 	 * If setValue is called without prior call to getNextPoint(),
@@ -125,28 +125,31 @@ public class GoldenSectionSearch {
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint()</code> call.
 	 */
 	public void setValue(double value) {
-		if(!expectingValue) throw new RuntimeException("Call to setValue() perfomed without prior getNextPoint() call (e.g. call performed twice).");
-		
+		if(!expectingValue) {
+			throw new RuntimeException("Call to setValue() perfomed without prior getNextPoint() call (e.g. call performed twice).");
+		}
+
 		if (numberOfIterations < 3) {
 			/**
 			 * Initially fill values
 			 */
 			values[numberOfIterations] = value;
-			
+
 			if (numberOfIterations < 2) {
 				nextPoint = points[numberOfIterations + 1];
 			} else {
-				if (points[1] - points[0] > points[2] - points[1])
+				if (points[1] - points[0] > points[2] - points[1]) {
 					nextPoint = getGoldenSection(points[0], points[1]);
-				else
+				} else {
 					nextPoint = getGoldenSection(points[1], points[2]);
+				}
 			}			
 		}
 		else {
 			/**
 			 * Golden section search update rule
 			 */
-			
+
 			if (points[1] - points[0] > points[2] - points[1]) {
 				// The left interval is the large one
 				if (value < values[1]) {
@@ -155,7 +158,7 @@ public class GoldenSectionSearch {
 					 */
 					points[2] = points[1];
 					values[2] = values[1];
-					
+
 					points[1] = nextPoint;
 					values[1] = value;
 				} else {
@@ -173,7 +176,7 @@ public class GoldenSectionSearch {
 					 */
 					points[0] = points[1];
 					values[0] = values[1];
-					
+
 					points[1] = nextPoint;
 					values[1] = value;
 				} else {
@@ -188,39 +191,42 @@ public class GoldenSectionSearch {
 			/*
 			 * Update next point to ask value for (create point in larger interval)
 			 */
-			if (points[1] - points[0] > points[2] - points[1])
+			if (points[1] - points[0] > points[2] - points[1]) {
 				nextPoint = getGoldenSection(points[0], points[1]);
-			else
+			} else {
 				nextPoint = getGoldenSection(points[1], points[2]);
-			
+			}
+
 			/*
 			 * Save belt: check if still improve or if we have reached machine accuracy
 			 */
-			if(points[2]-points[0] >= accuracy) isDone = true;
+			if(points[2]-points[0] >= accuracy) {
+				isDone = true;
+			}
 			accuracy = points[2]-points[0];
 		}
-		
+
 		numberOfIterations++;			
 		expectingValue = false;
-    }
-	
-	public void optimize() {
-    	while(!isDone()) {
-    		double parameter	= getNextPoint();
-    		double value		= value(parameter);
-    		this.setValue(value);
-    	}
 	}
-	
+
+	public void optimize() {
+		while(!isDone()) {
+			double parameter	= getNextPoint();
+			double value		= value(parameter);
+			this.setValue(value);
+		}
+	}
+
 	public double value(double parameter) {
 		// You need to overwrite this mehtod with you own objective function
 		throw new RuntimeException("Objective function not overwritten.");
 	}
-	
+
 	/**
 	 * @return Returns the golden section of an interval.
 	 */
-    static double getGoldenSection(double left, double right) {
+	static double getGoldenSection(double left, double right) {
 		return GOLDEN_SECTION_RATIO * left + (1.0 - GOLDEN_SECTION_RATIO) * right;
 	}
 

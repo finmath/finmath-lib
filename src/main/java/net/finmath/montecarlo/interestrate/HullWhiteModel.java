@@ -174,7 +174,9 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 
 			// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
 			int previousTimeIndex = getProcess().getTimeIndex(time);
-			if(previousTimeIndex < 0) previousTimeIndex = -previousTimeIndex-1;
+			if(previousTimeIndex < 0) {
+				previousTimeIndex = -previousTimeIndex-1;
+			}
 			previousTimeIndex--;
 			double previousTime = getProcess().getTime(previousTimeIndex);
 			double nextTime = getProcess().getTime(previousTimeIndex+1);
@@ -207,7 +209,9 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		double timeNext = getProcess().getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexVolatility < 0) timeIndexVolatility = -timeIndexVolatility-2;
+		if(timeIndexVolatility < 0) {
+			timeIndexVolatility = -timeIndexVolatility-2;
+		}
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double meanReversionEffective = meanReversion*getB(time,timeNext)/(timeNext-time);
 
@@ -223,7 +227,9 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		double timeNext = getProcess().getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexVolatility < 0) timeIndexVolatility = -timeIndexVolatility-2;
+		if(timeIndexVolatility < 0) {
+			timeIndexVolatility = -timeIndexVolatility-2;
+		}
 
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
@@ -354,7 +360,10 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 			double t2 = getProcess().getTime(i);
 
 			int timeIndexVolatilityModel = volatilityModel.getTimeDiscretization().getTimeIndex(t);
-			if(timeIndexVolatilityModel < 0) timeIndexVolatilityModel = -timeIndexVolatilityModel-2;	// Get timeIndex corresponding to previous point
+			if(timeIndexVolatilityModel < 0)
+			 {
+				timeIndexVolatilityModel = -timeIndexVolatilityModel-2;	// Get timeIndex corresponding to previous point
+			}
 			double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatilityModel);
 
 			integratedDriftAdjustment += getShortRateConditionalVariance(0, t) * getB(t,t2)/(t2-t) * (t2-t) - integratedDriftAdjustment * meanReversion * (t2-t) * getB(t,t2)/(t2-t);
@@ -397,10 +406,16 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	 */
 	private double getMRTime(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		 {
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		 {
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -428,10 +443,16 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	 */
 	private double getB(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		 {
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		 {
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -460,12 +481,20 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	 * @return The integral \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \).
 	 */
 	private double getV(double time, double maturity) {
-		if(time==maturity) return 0;
+		if(time==maturity) {
+			return 0;
+		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		 {
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		 {
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -490,12 +519,20 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	}
 
 	private double getDV(double time, double maturity) {
-		if(time==maturity) return 0;
+		if(time==maturity) {
+			return 0;
+		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		 {
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		 {
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -529,10 +566,16 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	 */
 	public double getShortRateConditionalVariance(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		 {
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		 {
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;

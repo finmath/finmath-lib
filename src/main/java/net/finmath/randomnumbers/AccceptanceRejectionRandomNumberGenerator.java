@@ -21,7 +21,9 @@ public class AccceptanceRejectionRandomNumberGenerator implements  RandomNumberG
 			DoubleUnaryOperator referenceDistributionICDF,
 			double acceptanceLevel) {
 
-		if(uniformRandomNumberGenerator.getDimension() < 2) throw new IllegalArgumentException("The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.");
+		if(uniformRandomNumberGenerator.getDimension() < 2) {
+			throw new IllegalArgumentException("The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.");
+		}
 
 		this.uniformRandomNumberGenerator = uniformRandomNumberGenerator;
 		this.targetDensity = targetDensity;

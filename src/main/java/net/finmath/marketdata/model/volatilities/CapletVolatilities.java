@@ -40,11 +40,11 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  */
 public class CapletVolatilities extends AbstractVolatilitySurface {
 
-	private Map<Double, CurveInterface>	capletVolatilities = new HashMap<Double, CurveInterface>();
-	
+	private Map<Double, CurveInterface>	capletVolatilities = new HashMap<>();
+
 	private transient Double[]	maturities;
 	private transient Object		lazyInitLock = new Object();
-	
+
 	/**
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
@@ -65,10 +65,11 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
 		this.quotingConvention = volatilityConvention;
-		
-		if(maturities.length != strikes.length || maturities.length != volatilities.length)
+
+		if(maturities.length != strikes.length || maturities.length != volatilities.length) {
 			throw new IllegalArgumentException("Length of vectors is not equal.");
-		
+		}
+
 		for(int i=0; i<volatilities.length; i++) {
 			double maturity		= maturities[i];
 			double strike		= strikes[i];
@@ -95,8 +96,11 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	private void add(double maturity, double strike, double volatility) {
 		CurveInterface curve = capletVolatilities.get(maturity);
 		try {
-			if(curve == null) curve = (new Curve.CurveBuilder()).addPoint(strike, volatility, true).build();
-			else curve = curve.getCloneBuilder().addPoint(strike, volatility, true).build();
+			if(curve == null) {
+				curve = (new Curve.CurveBuilder()).addPoint(strike, volatility, true).build();
+			} else {
+				curve = curve.getCloneBuilder().addPoint(strike, volatility, true).build();
+			}
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException("Unable to build curve.");
 		}
@@ -113,21 +117,29 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	@Override
 	public double getValue(AnalyticModelInterface model, double maturity, double strike, VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
-		if(maturity == 0) return 0;
-		
+		if(maturity == 0) {
+			return 0;
+		}
+
 		double value;
 		if(capletVolatilities.containsKey(maturity)) {
 			value			= capletVolatilities.get(maturity).getValue(strike);
 		}
 		else {
 			synchronized (lazyInitLock) {
-				if(maturities == null) maturities = capletVolatilities.keySet().toArray(new Double[0]);
+				if(maturities == null) {
+					maturities = capletVolatilities.keySet().toArray(new Double[0]);
+				}
 				Arrays.sort(maturities);
 			}
-			
+
 			int maturityGreaterEqualIndex = Arrays.binarySearch(maturities, maturity);
-			if(maturityGreaterEqualIndex < 0) maturityGreaterEqualIndex = -maturityGreaterEqualIndex-1;
-			if(maturityGreaterEqualIndex > maturities.length-1) maturityGreaterEqualIndex = maturities.length-1;
+			if(maturityGreaterEqualIndex < 0) {
+				maturityGreaterEqualIndex = -maturityGreaterEqualIndex-1;
+			}
+			if(maturityGreaterEqualIndex > maturities.length-1) {
+				maturityGreaterEqualIndex = maturities.length-1;
+			}
 
 			double maturityGreaterOfEqual	= maturities[maturityGreaterEqualIndex];
 
@@ -144,16 +156,20 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	public static AbstractVolatilitySurface fromFile(File inputFile) throws FileNotFoundException {
 		// Read data
 		BufferedReader		dataStream	= new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));		
-		ArrayList<String>	datasets	= new ArrayList<String>();
+		ArrayList<String>	datasets	= new ArrayList<>();
 		try {
 			while(true) {
 				String line = dataStream.readLine();
-	
+
 				// Check for end of file
-				if(line == null)	break;
-	
+				if(line == null) {
+					break;
+				}
+
 				// Ignore non caplet data
-				if(!line.startsWith("caplet\t")) continue;
+				if(!line.startsWith("caplet\t")) {
+					continue;
+				}
 
 				datasets.add(line);
 			}
@@ -162,14 +178,14 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// @TODO: Name and reference date have to be set?!
 		CapletVolatilities capletVolatilities = new CapletVolatilities(null, null);
-		
+
 		// Parse data
 		for(int datasetIndex=0; datasetIndex<datasets.size(); datasetIndex++) {
 			StringTokenizer stringTokenizer = new StringTokenizer(datasets.get(datasetIndex),"\t");
-	
+
 			try {
 				// Skip identifier
 				stringTokenizer.nextToken();
@@ -182,7 +198,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return capletVolatilities;
 	}
 

@@ -38,7 +38,7 @@ public class RandomVariableTest {
 		});
 	}
 
-    public RandomVariableTest(AbstractRandomVariableFactory randomVariableFactory) {
+	public RandomVariableTest(AbstractRandomVariableFactory randomVariableFactory) {
 		super();
 		this.randomVariableFactory = randomVariableFactory;
 	}

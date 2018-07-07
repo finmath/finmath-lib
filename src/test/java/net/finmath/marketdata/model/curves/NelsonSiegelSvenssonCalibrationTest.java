@@ -57,9 +57,9 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		String	forwardStartPeriod = "0D";
 
 		double[] initialParameters	= new double[] { 0.025, -0.015, -0.025, 0.03, 1.5, 10 };
-		
+
 		DiscountCurveInterface discountCurve	= new DiscountCurveNelsonSiegelSvensson("discountCurve-" + currency, referenceDate, initialParameters, 1.0);
-		
+
 		/*
 		 * We create a forward curve by referencing the same discount curve, since
 		 * this is a single curve setup.
@@ -69,26 +69,26 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		 * have free parameters.
 		 */
 		ForwardCurveInterface forwardCurve		= new ForwardCurveFromDiscountCurve(discountCurve.getName(), referenceDate, forwardCurveTenor);
-		
+
 		/*
 		 * Model consists of the two curves, but only one of them provides free parameters.
 		 */
 		AnalyticModelInterface model = new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts = new Vector<AnalyticProductInterface>();
+		Vector<AnalyticProductInterface> calibrationProducts = new Vector<>();
 		for(int i=0; i<rates.length; i++) {
-			
+
 			ScheduleInterface schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 			ScheduleInterface scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-			
+
 			calibrationProducts.add(new Swap(schedulePay, null, rates[i], discountCurve.getName(), scheduleRec, forwardCurve.getName(), 0.0, discountCurve.getName()));
 		}
 
 		/*
 		 * Create a collection of curves to calibrate
 		 */
-		Set<ParameterObjectInterface> curvesToCalibrate = new HashSet<ParameterObjectInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate = new HashSet<>();
 		curvesToCalibrate.add(discountCurve);
 
 		/*
@@ -107,7 +107,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		discountCurve	= new DiscountCurveNelsonSiegelSvensson(discountCurve.getName(), referenceDate, parametersBest, 1.0);
 		forwardCurve	= new ForwardCurveFromDiscountCurve(forwardCurve.getName(), discountCurve.getName(), referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.MODIFIED_FOLLOWING, 365.0/365.0, 0.0);
 		model			= new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
-		
+
 		double squaredErrorSum = 0.0;
 		for(AnalyticProductInterface c : calibrationProducts) {
 			double value = c.getValue(0.0, model);
@@ -116,7 +116,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 			squaredErrorSum += error*error;
 		}
 		double rms = Math.sqrt(squaredErrorSum/calibrationProducts.size());
-		
+
 		System.out.println("Independent checked acccurary: " + rms);
 
 		return parametersBest;
@@ -130,14 +130,14 @@ public class NelsonSiegelSvenssonCalibrationTest {
 	 */
 	@Test
 	public void testCalibration() throws SolverException {
-		
+
 		final String[] maturity					= { "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "11Y", "12Y", "15Y", "20Y", "25Y", "30Y", "35Y", "40Y", "50Y" };
 		final String[] frequency				= { "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual" };
 		final String[] frequencyFloat			= { "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly", "quarterly" };
 		final String[] daycountConventions		= { "ACT/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360" };
 		final String[] daycountConventionsFloat	= { "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360" };
 		final double[] rates					= {0.0042, 0.0032, 0.0038, 0.0052, 0.0069, 0.00855, 0.0102, 0.0119, 0.0134, 0.0150, 0.0165, 0.0178, 0.0189, 0.0200, 0.0224, 0.0250, 0.0264, 0.0271, 0.0275, 0.0276, 0.0276 };
-		HashMap<String, Object> parameters = new HashMap<String, Object>();
+		HashMap<String, Object> parameters = new HashMap<>();
 
 		parameters.put("referenceDate", LocalDate.of(2014, Month.AUGUST, 12)); 
 		parameters.put("currency", "EUR");

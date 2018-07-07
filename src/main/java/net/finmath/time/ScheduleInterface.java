@@ -24,7 +24,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * @author Christian Fries
  */
 public interface ScheduleInterface extends Iterable<Period> {
-	
+
 	/**
 	 * Returns the reference data of this schedule.
 	 * The reference date is only used to convert dates to doubles using
@@ -34,7 +34,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * @return The reference data of this schedule corresponding to t=0.
 	 */
 	LocalDate getReferenceDate();
-	
+
 	/**
 	 * Returns the array of periods.
 	 * 
@@ -55,7 +55,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * @return The number of periods.
 	 */
 	int getNumberOfPeriods();
-	
+
 	/**
 	 * Return the period for a given period index.
 	 * 
@@ -107,7 +107,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * @return The period length for a given period index.
 	 */
 	double getPeriodLength(int periodIndex);
-	
+
 	/**
 	 * Return the index of the period which contains the given time point.
 	 * 
@@ -115,7 +115,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * @return The period index of the .
 	 */
 	int getPeriodIndex(double time);
-	
+
 	/**
 	 * Return the index of the period which contains the given date.
 	 * 

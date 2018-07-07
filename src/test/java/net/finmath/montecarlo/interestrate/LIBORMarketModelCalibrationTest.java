@@ -143,7 +143,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Create a set of calibration products.
 		 */
-		ArrayList<CalibrationItem> calibrationItems = new ArrayList<CalibrationItem>();
+		ArrayList<CalibrationItem> calibrationItems = new ArrayList<>();
 
 		double	swapPeriodLength	= 0.5;
 		int		numberOfPeriods		= 20;
@@ -204,7 +204,7 @@ public class LIBORMarketModelCalibrationTest {
 		AbstractLIBORCovarianceModelParametric covarianceModelStochasticParametric = new LIBORCovarianceModelStochasticVolatility(covarianceModelBlended, brownianMotionView2, 0.01, -0.30, true);
 
 		// Set model properties
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
@@ -213,7 +213,7 @@ public class LIBORMarketModelCalibrationTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).
-		Map<String, Object> calibrationParameters = new HashMap<String, Object>();
+		Map<String, Object> calibrationParameters = new HashMap<>();
 		// The brownianMotion to be used - if a full Monte-Carlo valuation is necessary.
 		calibrationParameters.put("brownianMotion", brownianMotionView1);
 		// The step size vector used to calculate first derivatives via finite differences
@@ -244,7 +244,9 @@ public class LIBORMarketModelCalibrationTest {
 		System.out.println("\nCalibrated parameters are:");
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
 		//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
-		for (double p : param) System.out.println(formatterParam.format(p));
+		for (double p : param) {
+			System.out.println(formatterParam.format(p));
+		}
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotionView1);
 		net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation simulationCalibrated = new net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation(
@@ -317,8 +319,8 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Create a set of calibration products.
 		 */
-		ArrayList<String>					calibrationItemNames	= new ArrayList<String>();
-		final ArrayList<CalibrationItem>	calibrationItems		= new ArrayList<CalibrationItem>();
+		ArrayList<String>					calibrationItemNames	= new ArrayList<>();
+		final ArrayList<CalibrationItem>	calibrationItems		= new ArrayList<>();
 
 		double	swapPeriodLength	= 0.5;
 
@@ -340,7 +342,9 @@ public class LIBORMarketModelCalibrationTest {
 			exercise	= Math.round(exercise/0.25)*0.25;
 			tenor		= Math.round(tenor/0.25)*0.25;
 
-			if(exercise < 1.0) continue;
+			if(exercise < 1.0) {
+				continue;
+			}
 
 			int numberOfPeriods = (int)Math.round(tenor / swapPeriodLength);
 
@@ -381,7 +385,7 @@ public class LIBORMarketModelCalibrationTest {
 		AbstractLIBORCovarianceModelParametric covarianceModelDisplaced = new DisplacedLocalVolatilityModel(covarianceModelParametric, 1.0/0.25, false /* isCalibrateable */);
 
 		// Set model properties
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
@@ -405,7 +409,7 @@ public class LIBORMarketModelCalibrationTest {
 		//		optimizerFactory = new OptimizerFactoryCMAES(accuracy, maxIterations, parameterLowerBound, parameterUpperBound, parameterStandardDeviation);
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).
-		Map<String, Object> calibrationParameters = new HashMap<String, Object>();
+		Map<String, Object> calibrationParameters = new HashMap<>();
 		calibrationParameters.put("accuracy", accuracy);
 		calibrationParameters.put("brownianMotion", brownianMotion);
 		calibrationParameters.put("optimizerFactory", optimizerFactory);
@@ -418,7 +422,9 @@ public class LIBORMarketModelCalibrationTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModel.CalibrationItem[] calibrationItemsLMM = new LIBORMarketModel.CalibrationItem[calibrationItemNames.size()];
-		for(int i=0; i<calibrationItemNames.size(); i++) calibrationItemsLMM[i] = new LIBORMarketModel.CalibrationItem(calibrationItems.get(i).calibrationProduct,calibrationItems.get(i).calibrationTargetValue,calibrationItems.get(i).calibrationWeight);
+		for(int i=0; i<calibrationItemNames.size(); i++) {
+			calibrationItemsLMM[i] = new LIBORMarketModel.CalibrationItem(calibrationItems.get(i).calibrationProduct,calibrationItems.get(i).calibrationTargetValue,calibrationItems.get(i).calibrationWeight);
+		}
 		LIBORModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
 				liborPeriodDiscretization,
 				curveModel,
@@ -431,7 +437,9 @@ public class LIBORMarketModelCalibrationTest {
 
 		System.out.println("\nCalibrated parameters are:");
 		double[] param = ((AbstractLIBORCovarianceModelParametric)((LIBORMarketModel) liborMarketModelCalibrated).getCovarianceModel()).getParameter();
-		for (double p : param) System.out.println(p);
+		for (double p : param) {
+			System.out.println(p);
+		}
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 		LIBORModelMonteCarloSimulationInterface simulationCalibrated = new LIBORModelMonteCarloSimulation(liborMarketModelCalibrated, process);
@@ -472,7 +480,7 @@ public class LIBORMarketModelCalibrationTest {
 		final String[] daycountConventionsFloat	= { "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360" };
 		final double[] rates					= { -0.00216 ,-0.00208 ,-0.00222 ,-0.00216 ,-0.0019 ,-0.0014 ,-0.00072 ,0.00011 ,0.00103 ,0.00196 ,0.00285 ,0.00367 ,0.0044 ,0.00604 ,0.00733 ,0.00767 ,0.00773 ,0.00765 ,0.00752 ,0.007138 ,0.007 };
 
-		HashMap<String, Object> parameters = new HashMap<String, Object>();
+		HashMap<String, Object> parameters = new HashMap<>();
 
 		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30)); 
 		parameters.put("currency", "EUR");
@@ -522,7 +530,7 @@ public class LIBORMarketModelCalibrationTest {
 		ForwardCurveInterface forwardCurve		= new ForwardCurveFromDiscountCurve(curveNameDiscount, referenceDate, forwardCurveTenor);
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts = new Vector<AnalyticProductInterface>();
+		Vector<AnalyticProductInterface> calibrationProducts = new Vector<>();
 		double[] curveMaturities	= new double[rates.length+1];
 		double[] curveValue			= new double[rates.length+1];
 		boolean[] curveIsParameter	= new boolean[rates.length+1];
@@ -561,7 +569,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Create a collection of curves to calibrate
 		 */
-		Set<ParameterObjectInterface> curvesToCalibrate = new HashSet<ParameterObjectInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate = new HashSet<>();
 		curvesToCalibrate.add(discountCurve);
 
 		/*

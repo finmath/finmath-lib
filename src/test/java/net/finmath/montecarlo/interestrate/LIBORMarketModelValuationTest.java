@@ -117,7 +117,7 @@ public class LIBORMarketModelValuationTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
@@ -644,9 +644,9 @@ public class LIBORMarketModelValuationTest {
 			RandomVariableInterface numeraireAtPeriodEnd = liborMarketModel.getNumeraire(periodEnd);
 			double zeroCouponBondCorrespondingToPeriodEnd = numeraireAtEvaluation.div(numeraireAtPeriodEnd).getAverage();
 			double forward = libor.div(numeraireAtPeriodEnd).mult(numeraireAtEvaluation).getAverage() / zeroCouponBondCorrespondingToPeriodEnd;
-			
+
 			System.out.println(payment + "       \t" + formatterValue.format(rate));
-			
+
 			if(payment < periodEnd) {
 				Assert.assertTrue("LIBOR payment convexity adjustment: rate > forward", rate > forward);
 			}
@@ -672,7 +672,7 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * Create a set of calibration products.
 		 */
-		ArrayList<CalibrationItem> calibrationItems = new ArrayList<CalibrationItem>();
+		ArrayList<CalibrationItem> calibrationItems = new ArrayList<>();
 		for (int exerciseIndex = 4; exerciseIndex <= liborMarketModel.getNumberOfLibors() - 5; exerciseIndex+=4) {
 			double exerciseDate = liborMarketModel.getLiborPeriod(exerciseIndex);
 			for (int numberOfPeriods = 1; numberOfPeriods < liborMarketModel.getNumberOfLibors() - exerciseIndex - 5; numberOfPeriods+=4) {
@@ -740,10 +740,10 @@ public class LIBORMarketModelValuationTest {
 		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborMarketModel.getLiborPeriodDiscretization(), liborMarketModel.getNumberOfFactors());
 
 		// Set model properties
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 
 		// Set calibration properties
-		Map<String, Object> calibrationParameters = new HashMap<String, Object>();
+		Map<String, Object> calibrationParameters = new HashMap<>();
 		calibrationParameters.put("accuracy", new Double(1E-6));
 		calibrationParameters.put("numberOfPaths", new Integer(20000));
 		properties.put("calibrationParameters", calibrationParameters);
@@ -760,7 +760,9 @@ public class LIBORMarketModelValuationTest {
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
-		for (double p : param) System.out.println(p);
+		for (double p : param) {
+			System.out.println(p);
+		}
 
 		net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation simulationCalibrated = new net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation(
 				liborMarketModelCalibrated, process);

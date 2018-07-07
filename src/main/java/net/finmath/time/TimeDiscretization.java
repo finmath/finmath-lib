@@ -31,7 +31,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	private static final long serialVersionUID = 6880668325019167781L;
 	private static final double	timeTickSizeDefault = Double.parseDouble(System.getProperty("net.finmath.functions.TimeDiscretization.timeTickSize", new Double(1.0 / (365.0 * 24.0)).toString()));
 
-    private final double[]	timeDiscretization;
+	private final double[]	timeDiscretization;
 	private final double	timeTickSize = timeTickSizeDefault;
 
 	public enum ShortPeriodLocation {
@@ -60,7 +60,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	public TimeDiscretization(Double[] times) {
 		super();
 		this.timeDiscretization = new double[times.length];
-		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) this.timeDiscretization[timeIndex] = roundToTimeTickSize(times[timeIndex]);
+		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
+			this.timeDiscretization[timeIndex] = roundToTimeTickSize(times[timeIndex]);
+		}
 		java.util.Arrays.sort(this.timeDiscretization);
 	}
 
@@ -73,7 +75,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	public TimeDiscretization(ArrayList<Double> timeDiscretization) {
 		super();
 		this.timeDiscretization = new double[timeDiscretization.size()];
-		for(int timeIndex=0; timeIndex<timeDiscretization.size(); timeIndex++) this.timeDiscretization[timeIndex] = roundToTimeTickSize(timeDiscretization.get(timeIndex));
+		for(int timeIndex=0; timeIndex<timeDiscretization.size(); timeIndex++) {
+			this.timeDiscretization[timeIndex] = roundToTimeTickSize(timeDiscretization.get(timeIndex));
+		}
 		java.util.Arrays.sort(this.timeDiscretization);
 	}
 
@@ -86,7 +90,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 		super();
 		this.timeDiscretization = new double[times.size()];
 		Iterator<Double> time = times.iterator();
-		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) this.timeDiscretization[timeIndex] = roundToTimeTickSize(time.next());
+		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
+			this.timeDiscretization[timeIndex] = roundToTimeTickSize(time.next());
+		}
 		java.util.Arrays.sort(this.timeDiscretization);
 	}
 
@@ -101,7 +107,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	public TimeDiscretization(double initial, int numberOfTimeSteps, double deltaT) {
 		super();
 		timeDiscretization = new double[numberOfTimeSteps+1];
-		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) timeDiscretization[timeIndex] = roundToTimeTickSize(initial + timeIndex * deltaT);
+		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
+			timeDiscretization[timeIndex] = roundToTimeTickSize(initial + timeIndex * deltaT);
+		}
 	}
 
 	/**
@@ -117,15 +125,21 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 		int numberOfTimeSteps = (int)((last-initial)/ deltaT + 0.5);
 
 		// Adjust for short period, if any
-		if(roundToTimeTickSize(initial + numberOfTimeSteps * deltaT) < roundToTimeTickSize(last)) numberOfTimeSteps++;
+		if(roundToTimeTickSize(initial + numberOfTimeSteps * deltaT) < roundToTimeTickSize(last)) {
+			numberOfTimeSteps++;
+		}
 
 		timeDiscretization = new double[numberOfTimeSteps+1];
 		if(shortPeriodLocation == ShortPeriodLocation.SHORT_PERIOD_AT_END) {
-			for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) timeDiscretization[timeIndex] = roundToTimeTickSize(initial + timeIndex * deltaT);
+			for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
+				timeDiscretization[timeIndex] = roundToTimeTickSize(initial + timeIndex * deltaT);
+			}
 			timeDiscretization[timeDiscretization.length-1] = last;
 		}
 		else {
-			for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) timeDiscretization[timeIndex] = roundToTimeTickSize(last - (numberOfTimeSteps-timeIndex) * deltaT);
+			for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
+				timeDiscretization[timeIndex] = roundToTimeTickSize(last - (numberOfTimeSteps-timeIndex) * deltaT);
+			}
 			timeDiscretization[0] = initial;
 		}
 	}
@@ -159,14 +173,18 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	@Override
 	public int getTimeIndexNearestLessOrEqual(double time) {
 		int index = java.util.Arrays.binarySearch(timeDiscretization,roundToTimeTickSize(time));
-		if(index < 0) index = -index-2;
+		if(index < 0) {
+			index = -index-2;
+		}
 		return index;
 	}
 
 	@Override
 	public int getTimeIndexNearestGreaterOrEqual(double time) {
 		int index = java.util.Arrays.binarySearch(timeDiscretization,time);
-		if(index < 0) index = -index-1;
+		if(index < 0) {
+			index = -index-1;
+		}
 		return index;
 	}
 
@@ -178,8 +196,10 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	@Override
 	public ArrayList<Double> getAsArrayList() {
-		ArrayList<Double>	times = new ArrayList<Double>(timeDiscretization.length);
-		for (double aTimeDiscretization : timeDiscretization) times.add(aTimeDiscretization);
+		ArrayList<Double>	times = new ArrayList<>(timeDiscretization.length);
+		for (double aTimeDiscretization : timeDiscretization) {
+			times.add(aTimeDiscretization);
+		}
 		return times;
 	}
 
@@ -219,13 +239,21 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
 		TimeDiscretization other = (TimeDiscretization) obj;
-		if (!Arrays.equals(timeDiscretization, other.timeDiscretization)) return false;
-        return Double.doubleToLongBits(timeTickSize) == Double.doubleToLongBits(other.timeTickSize);
-    }
+		if (!Arrays.equals(timeDiscretization, other.timeDiscretization)) {
+			return false;
+		}
+		return Double.doubleToLongBits(timeTickSize) == Double.doubleToLongBits(other.timeTickSize);
+	}
 
 	private double roundToTimeTickSize(double time) {
 		return Math.rint(time/timeTickSize)*timeTickSize;

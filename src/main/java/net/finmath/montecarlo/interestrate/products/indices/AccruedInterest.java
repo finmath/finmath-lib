@@ -77,7 +77,9 @@ public class AccruedInterest extends AbstractIndex {
 		double daycountFraction	= daycountConvention.getDaycountFraction(periodStartDate, getModelDate(fixingTime));
 		double daycountPeriod	= daycountConvention.getDaycountFraction(periodStartDate, periodEndDate);
 		daycountFraction = Math.min(Math.max(daycountFraction, 0.0), daycountPeriod);
-		if(isNegativeAccruedInterest) daycountFraction = daycountPeriod - daycountFraction;
+		if(isNegativeAccruedInterest) {
+			daycountFraction = daycountPeriod - daycountFraction;
+		}
 
 		return index.getValue(indexFixingTime, model).mult(daycountFraction);
 	}

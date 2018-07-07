@@ -25,7 +25,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[1];
 	private RandomVariableInterface	drift;
-    private RandomVariableInterface	volatilityOnPaths;
+	private RandomVariableInterface	volatilityOnPaths;
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -92,7 +92,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	public int getNumberOfAssets() {
 		return 1;
 	}
-	
+
 	/**
 	 * @return Returns the initialValue.
 	 */
@@ -145,7 +145,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return getBrownianMotion().getRandomVariableForConstant(value);
 	}
-	
+
 	@Override
 	public String toString() {
 		return super.toString() + "\n" +

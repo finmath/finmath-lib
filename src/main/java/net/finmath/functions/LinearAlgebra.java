@@ -45,7 +45,9 @@ public class LinearAlgebra {
 			try {
 				double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
 				// The following should not happen.
-				if(x[0] != 1.0 || x[1] != 0.0) isSolverUseApacheCommonsMath = true;
+				if(x[0] != 1.0 || x[1] != 0.0) {
+					isSolverUseApacheCommonsMath = true;
+				}
 			}
 			catch(java.lang.UnsatisfiedLinkError e) {
 				isSolverUseApacheCommonsMath = true;
@@ -223,8 +225,10 @@ public class LinearAlgebra {
 			@Override
 			public int compareTo(EigenValueIndex o) { return o.value.compareTo(value); }
 		}
-        List<EigenValueIndex> eigenValueIndices = new ArrayList<EigenValueIndex>();
-		for(int i=0; i<eigenValues.length; i++) eigenValueIndices.add(i,new EigenValueIndex(i,eigenValues[i]));
+		List<EigenValueIndex> eigenValueIndices = new ArrayList<>();
+		for(int i=0; i<eigenValues.length; i++) {
+			eigenValueIndices.add(i,new EigenValueIndex(i,eigenValues[i]));
+		}
 		Collections.sort(eigenValueIndices);
 
 		// Extract factors corresponding to the largest eigenvalues
@@ -261,16 +265,19 @@ public class LinearAlgebra {
 		// Renormalize rows
 		for (int row = 0; row < correlationMatrix.length; row++) {
 			double sumSquared = 0;
-			for (int factor = 0; factor < numberOfFactors; factor++)
+			for (int factor = 0; factor < numberOfFactors; factor++) {
 				sumSquared += factorMatrix[row][factor] * factorMatrix[row][factor];
+			}
 			if(sumSquared != 0) {
-				for (int factor = 0; factor < numberOfFactors; factor++)
+				for (int factor = 0; factor < numberOfFactors; factor++) {
 					factorMatrix[row][factor] = factorMatrix[row][factor] / Math.sqrt(sumSquared);
+				}
 			}
 			else {
 				// This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
-				for (int factor = 0; factor < numberOfFactors; factor++)
-					factorMatrix[row][factor] = 1.0;			    
+				for (int factor = 0; factor < numberOfFactors; factor++) {
+					factorMatrix[row][factor] = 1.0;
+				}			    
 			}
 		}
 

@@ -49,7 +49,9 @@ public class AccruedInterestTest {
 			return -1;
 		}
 		for(int i=0; i<testSchedule.getNumberOfPeriods()-1;i++) {
-			if(floatingDate<=testSchedule.getPeriodEnd(i)) return i;
+			if(floatingDate<=testSchedule.getPeriodEnd(i)) {
+				return i;
+			}
 		}
 		return testSchedule.getNumberOfPeriods()-1;
 	}

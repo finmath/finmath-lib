@@ -42,8 +42,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(List<AnalyticProductInterface> products, List<Double> weights) {
 		super();
-		this.products = new ArrayList<AnalyticProductInterface>();
-		this.weights = new ArrayList<Double>();
+		this.products = new ArrayList<>();
+		this.weights = new ArrayList<>();
 		this.products.addAll(products);
 		this.weights.addAll(weights);
 	}
@@ -66,8 +66,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(Portfolio portfolio, List<AnalyticProductInterface> products, List<Double> weights) {
 		super();
-		this.products = new ArrayList<AnalyticProductInterface>();
-		this.weights = new ArrayList<Double>();
+		this.products = new ArrayList<>();
+		this.weights = new ArrayList<>();
 		this.products.addAll(portfolio.getProducts());
 		this.weights.addAll(portfolio.getWeights());
 		this.products.addAll(products);
@@ -82,8 +82,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(AnalyticProductInterface product, double weight) {
 		super();
-		this.products = new ArrayList<AnalyticProductInterface>();
-		this.weights = new ArrayList<Double>();
+		this.products = new ArrayList<>();
+		this.weights = new ArrayList<>();
 		this.products.add(product);
 		this.weights.add(weight);
 	}
@@ -109,12 +109,12 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	@Override
 	public RandomVariableInterface getValue(final double evaluationTime, final AnalyticModelInterface model) {
 		RandomVariableInterface value = model.getRandomVariableForConstant(0.0);
-		
+
 		List<RandomVariableInterface> productValues	= products.parallelStream().map(product -> product.getValue(evaluationTime, model)).collect(Collectors.toList());
 		List<RandomVariableInterface> weightsRandomVariables = weights.parallelStream().map(weight -> model.getRandomVariableForConstant(weight)).collect(Collectors.toList());
 
 		value = value.addSumProduct(productValues, weightsRandomVariables);
-		
+
 		return value;
 	}
 

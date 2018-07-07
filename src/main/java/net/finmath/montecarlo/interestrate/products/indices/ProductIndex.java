@@ -46,8 +46,11 @@ public class ProductIndex extends AbstractIndex {
 		Set<String> underlyingNames			= index1.queryUnderlyings();
 		Set<String>	underlyingNames2		= index2.queryUnderlyings();
 		if(underlyingNames2 != null) {
-			if(underlyingNames != null)	underlyingNames.addAll(underlyingNames2);
-			else						underlyingNames = underlyingNames2;
+			if(underlyingNames != null) {
+				underlyingNames.addAll(underlyingNames2);
+			} else {
+				underlyingNames = underlyingNames2;
+			}
 		}
 		return underlyingNames;
 	}

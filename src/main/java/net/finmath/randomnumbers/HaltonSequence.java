@@ -25,7 +25,9 @@ public class HaltonSequence implements RandomNumberGenerator {
 	 */
 	public HaltonSequence(int[] base) {
 		for(int i=0; i<base.length; i++) {
-			if(base[i] <= 1) throw new IllegalArgumentException("base needs to be larger than 1");
+			if(base[i] <= 1) {
+				throw new IllegalArgumentException("base needs to be larger than 1");
+			}
 		}
 
 		this.base = base;

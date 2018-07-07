@@ -110,7 +110,9 @@ public class BondCurve extends AbstractCurve  {
 	 */
 	public double getZeroRate(double maturity)
 	{
-		if(maturity == 0) return this.getZeroRate(1.0E-14);
+		if(maturity == 0) {
+			return this.getZeroRate(1.0E-14);
+		}
 
 		return -Math.log(getDiscountFactor(null, maturity))/maturity;
 	}

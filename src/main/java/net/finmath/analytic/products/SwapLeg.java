@@ -49,7 +49,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		this.discountCurveForNotionalResetName = discountCurveForNotionalResetName=="" ? discountCurveName : discountCurveForNotionalResetName; // empty discountCurveForNotionalResetName is interpreted as no notional reset
 		this.isNotionalExchanged = isNotionalExchanged;
 	}
-	
+
 	/**
 	 * Creates a swap leg without notional reset.
 	 * 
@@ -81,7 +81,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
-		
+
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		DiscountCurveInterface discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
 		if(discountCurve == null) {
@@ -90,12 +90,12 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		if(discountCurveForNotionalReset == null) {
 			throw new IllegalArgumentException("No discountCurveForNotionalReset with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
 		}
-		
+
 		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
-		
+
 		RandomVariableInterface value = model.getRandomVariableForConstant(0.0);
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixingDate	= legSchedule.getFixing(periodIndex);

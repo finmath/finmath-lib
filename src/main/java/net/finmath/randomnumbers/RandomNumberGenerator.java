@@ -12,6 +12,6 @@ package net.finmath.randomnumbers;
 public interface RandomNumberGenerator {
 
 	double[] getNext();
-	
+
 	int getDimension();
 }

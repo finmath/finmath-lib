@@ -37,7 +37,7 @@ public class TrapezoidalRealIntegratorTest {
 		 */
 		double valueTrapezoidal = trapezoidalRealIntegrator.integrate(interpolation);
 		double valueSimpsons = simpsonRealIntegrator.integrate(interpolation);
-		
+
 		Assert.assertEquals("Difference of trapezoidal and Simpson's rule", 0.0, valueSimpsons-valueTrapezoidal, 0.000001);
 	}
 }

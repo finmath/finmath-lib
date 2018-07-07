@@ -43,7 +43,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
-			
+
 			/**
 			 * @param model
 			 * @param process
@@ -51,7 +51,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			public HestonMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);
 			}
-			
+
 			@Override
 			public HestonModelDescriptor getDescriptor() {
 				return modelDescriptor;
@@ -69,7 +69,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}	
 		}
 
-        return new HestonMonteCarloModel(
+		return new HestonMonteCarloModel(
 				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(modelDescriptor, scheme, randomVariableFactory), 
 				new ProcessEulerScheme(brownianMotion)
 				);

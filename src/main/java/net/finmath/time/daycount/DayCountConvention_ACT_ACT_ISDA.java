@@ -40,7 +40,7 @@ import java.time.Month;
 public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 
 	private final boolean isCountLastDayNotFirst;
-	
+
 	/**
 	 * Create an ACT/ACT ISDA day count convention.
 	 * 
@@ -63,7 +63,9 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycountFraction(endDate,startDate);
+		}
 
 		/*
 		 * Number of whole years between start and end, excluding start's year and excluding end's year.
@@ -77,8 +79,10 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 		 * Fraction from start to the end of start's year
 		 */
 		LocalDate startDateNextYear = LocalDate.of(startDate.getYear()+1,Month.JANUARY,1);
-		
-		if(isCountLastDayNotFirst) startDateNextYear = startDateNextYear.minusDays(1);
+
+		if(isCountLastDayNotFirst) {
+			startDateNextYear = startDateNextYear.minusDays(1);
+		}
 
 		daycountFraction += getDaycount(startDate, startDateNextYear) / startDate.lengthOfYear();
 
@@ -86,11 +90,13 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 		 * Fraction from beginning of end's year to end
 		 */
 		LocalDate endDateStartYear = LocalDate.of(endDate.getYear(), Month.JANUARY, 1);
-		if (isCountLastDayNotFirst) endDateStartYear = endDateStartYear.minusDays(1);
-		
+		if (isCountLastDayNotFirst) {
+			endDateStartYear = endDateStartYear.minusDays(1);
+		}
+
 
 		daycountFraction += getDaycount(endDateStartYear, endDate) / endDate.lengthOfYear();
-		
+
 		return Math.max(daycountFraction,0.0);
 	}
 

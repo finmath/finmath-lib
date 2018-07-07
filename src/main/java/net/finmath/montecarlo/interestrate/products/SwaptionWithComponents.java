@@ -27,7 +27,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 
 	private AbstractLIBORMonteCarloProduct option;
-	
+
 	/**
 	 * @param exerciseDate The exercise date
 	 * @param fixingDates Vector of fixing dates
@@ -35,12 +35,12 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public SwaptionWithComponents(
-		double exerciseDate,
-		double[] fixingDates,
-		double[] paymentDates,
-		double[] swaprates) {
+			double exerciseDate,
+			double[] fixingDates,
+			double[] paymentDates,
+			double[] swaprates) {
 		super();
-		
+
 		/*
 		 * Create components.
 		 * 
@@ -49,11 +49,11 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 		 * Hence, the definition of the product is the definition of the pricing algorithm.
 		 */
 
-		Collection<AbstractProductComponent> legs = new ArrayList<AbstractProductComponent>();
+		Collection<AbstractProductComponent> legs = new ArrayList<>();
 
 		AbstractNotional notional = new Notional(1.0);
 
-		Collection<AbstractProductComponent> fixedLegPeriods = new ArrayList<AbstractProductComponent>();
+		Collection<AbstractProductComponent> fixedLegPeriods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
 			double daycountFraction = paymentDates[periodIndex]-fixingDates[periodIndex];
 			Period period = new Period(fixingDates[periodIndex], paymentDates[periodIndex], fixingDates[periodIndex],
@@ -63,8 +63,8 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 		}
 		ProductCollection fixedLeg = new ProductCollection(fixedLegPeriods);
 		legs.add(fixedLeg);
-		
-		Collection<AbstractProductComponent> floatingLegPeriods = new ArrayList<AbstractProductComponent>();
+
+		Collection<AbstractProductComponent> floatingLegPeriods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
 			double daycountFraction = paymentDates[periodIndex]-fixingDates[periodIndex];
 			double periodLength = paymentDates[periodIndex]-fixingDates[periodIndex];
@@ -79,21 +79,21 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 		ProductCollection underlying = new ProductCollection(legs);
 		option = new Option(exerciseDate, underlying);
 	}
-	
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws CalculationException Thrown when valuation fails from valuation model.
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
-    	RandomVariableInterface	values	= 	option.getValue(evaluationTime, model);
 
-        return values;
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws CalculationException Thrown when valuation fails from valuation model.
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+		RandomVariableInterface	values	= 	option.getValue(evaluationTime, model);
+
+		return values;
 	}
 }

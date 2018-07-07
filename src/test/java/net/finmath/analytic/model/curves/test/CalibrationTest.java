@@ -47,12 +47,12 @@ public class CalibrationTest {
 	static final double errorTolerance = 1E-14;
 
 	final InterpolationMethod interpolationMethod;
-	
+
 	public CalibrationTest(InterpolationMethod interpolationMethod)
 	{
 		this.interpolationMethod = interpolationMethod;
 	}
-	
+
 	/**
 	 * The parameters for this test, that is an error consisting of
 	 * { numberOfPaths, setup }.
@@ -63,23 +63,23 @@ public class CalibrationTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ InterpolationMethod.LINEAR },
-//				{ InterpolationMethod.CUBIC_SPLINE },
-//				{ InterpolationMethod.AKIMA },
-//				{ InterpolationMethod.AKIMA_CONTINUOUS },
-				{ InterpolationMethod.HARMONIC_SPLINE },
-				{ InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING },
+			{ InterpolationMethod.LINEAR },
+			//				{ InterpolationMethod.CUBIC_SPLINE },
+			//				{ InterpolationMethod.AKIMA },
+			//				{ InterpolationMethod.AKIMA_CONTINUOUS },
+			{ InterpolationMethod.HARMONIC_SPLINE },
+			{ InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING },
 		});
 	}
 
-    /**
+	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
 	 * 
 	 * @param args Arguments - not used.
 	 * @throws SolverException Thrown if the solver cannot find a solution to the calibration problem.
 	 */
 	public static void main(String[] args) throws SolverException {
-		
+
 		CalibrationTest calibrationTest = new CalibrationTest(InterpolationMethod.LINEAR);
 
 		calibrationTest.testForwardCurveFromDiscountCurve();
@@ -124,7 +124,7 @@ public class CalibrationTest {
 
 		System.out.println("__________________________________________________________________________________________\n");
 	}	
-	
+
 	@Test
 	public void testCurvesAndCalibration() throws SolverException {
 
@@ -133,7 +133,7 @@ public class CalibrationTest {
 		 * 
 		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
-		
+
 		System.out.println("Calibrating a discount curve from swaps (single-curve/self-discounting).");
 
 		// Create a discount curve
@@ -154,8 +154,8 @@ public class CalibrationTest {
 				);
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<AnalyticProductInterface>();
-		
+		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<>();
+
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), null, 0.03, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
@@ -165,7 +165,7 @@ public class CalibrationTest {
 		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurveFromDiscountCurve });
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<ParameterObjectInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<>();
 		curvesToCalibrate1.add(discountCurve);
 
 		// Calibrate the curve
@@ -196,13 +196,13 @@ public class CalibrationTest {
 
 		System.out.println("__________________________________________________________________________________________\n");
 
-		
+
 		/*
 		 * CALIBRATE A FORWARD CURVE, USING THE GIVEN DISCOUNT CURVE (MULTI-CURVE SETUP)
 		 * 
 		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
-		
+
 		// Create initial guess for the curve
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards("forwardCurve", new double[] {2.0/365.0, 1.0, 2.0, 3.0, 4.0}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05}, model1, discountCurve.getName(), 0.5);
 
@@ -212,8 +212,8 @@ public class CalibrationTest {
 		System.out.println("Calibrating a forward curve from swaps using the given discount curve.");
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts2 = new Vector<AnalyticProductInterface>();
-			
+		Vector<AnalyticProductInterface> calibrationProducts2 = new Vector<>();
+
 		// It is possible to mix tenors (although it may not be meaningful in a forward curve calibration)
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.06, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 0.5)), "forwardCurve", 0.0, "discountCurve"));
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 2, 0.5)), "forwardCurve", 0.0, "discountCurve"));
@@ -222,7 +222,7 @@ public class CalibrationTest {
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve"));
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<ParameterObjectInterface>();
+		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<>();
 		curvesToCalibrate2.add(forwardCurve);
 
 		// Calibrate the curve
@@ -236,7 +236,7 @@ public class CalibrationTest {
 		 * The model calibratedModel2 now contains a set of calibrated curves.
 		 * The curves are clones. The model model2 still contains the original curve.
 		 */
-	
+
 		// Calibration check
 		System.out.println("Calibration check:");
 		double error2 = 0;

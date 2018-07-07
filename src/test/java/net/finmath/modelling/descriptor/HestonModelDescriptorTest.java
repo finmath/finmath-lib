@@ -78,7 +78,7 @@ public class HestonModelDescriptorTest {
 
 		// Create product implementation compatible with Heston model
 		ProductInterface europeanOptionFourier = hestonModelFourier.getProductFromDesciptor(europeanOptionDescriptor);
-		
+
 		// Evaluate product
 		double evaluationTime = 0.0;
 		Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, hestonModelFourier);
@@ -92,7 +92,7 @@ public class HestonModelDescriptorTest {
 		// Create a time discretization
 		BrownianMotionInterface brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
-		
+
 		// Create Fourier implementation of Heston model
 		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
 
@@ -102,7 +102,7 @@ public class HestonModelDescriptorTest {
 		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 
 		System.out.println(valueMonteCarlo);
-		
+
 		double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
 		Assert.assertEquals("Difference of Fourier and Monte-Carlo valuation", 0.0, deviation, 1E-3);
 	}

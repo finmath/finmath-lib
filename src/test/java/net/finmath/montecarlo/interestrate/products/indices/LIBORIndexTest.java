@@ -73,36 +73,36 @@ public class LIBORIndexTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ new Integer(1000) , CurveSetup.NSS },
-				{ new Integer(2000) , CurveSetup.NSS },
-				{ new Integer(4000) , CurveSetup.NSS },
-				{ new Integer(8000) , CurveSetup.NSS },
-				{ new Integer(10000) , CurveSetup.NSS },
-				{ new Integer(20000) , CurveSetup.NSS },
-				{ new Integer(40000) , CurveSetup.NSS },
-				{ new Integer(80000) , CurveSetup.NSS },
-				{ new Integer(100000) , CurveSetup.NSS },
-				{ new Integer(200000) , CurveSetup.NSS },
-				{ new Integer(1000) , CurveSetup.DISCRETE },
-				{ new Integer(2000) , CurveSetup.DISCRETE },
-				{ new Integer(4000) , CurveSetup.DISCRETE },
-				{ new Integer(8000) , CurveSetup.DISCRETE },
-				{ new Integer(10000) , CurveSetup.DISCRETE },
-				{ new Integer(20000) , CurveSetup.DISCRETE },
-				{ new Integer(40000) , CurveSetup.DISCRETE },
-				{ new Integer(80000) , CurveSetup.DISCRETE },
-				{ new Integer(100000) , CurveSetup.DISCRETE },
-				{ new Integer(200000) , CurveSetup.DISCRETE },
+			{ new Integer(1000) , CurveSetup.NSS },
+			{ new Integer(2000) , CurveSetup.NSS },
+			{ new Integer(4000) , CurveSetup.NSS },
+			{ new Integer(8000) , CurveSetup.NSS },
+			{ new Integer(10000) , CurveSetup.NSS },
+			{ new Integer(20000) , CurveSetup.NSS },
+			{ new Integer(40000) , CurveSetup.NSS },
+			{ new Integer(80000) , CurveSetup.NSS },
+			{ new Integer(100000) , CurveSetup.NSS },
+			{ new Integer(200000) , CurveSetup.NSS },
+			{ new Integer(1000) , CurveSetup.DISCRETE },
+			{ new Integer(2000) , CurveSetup.DISCRETE },
+			{ new Integer(4000) , CurveSetup.DISCRETE },
+			{ new Integer(8000) , CurveSetup.DISCRETE },
+			{ new Integer(10000) , CurveSetup.DISCRETE },
+			{ new Integer(20000) , CurveSetup.DISCRETE },
+			{ new Integer(40000) , CurveSetup.DISCRETE },
+			{ new Integer(80000) , CurveSetup.DISCRETE },
+			{ new Integer(100000) , CurveSetup.DISCRETE },
+			{ new Integer(200000) , CurveSetup.DISCRETE },
 		});
 	}
 
-    private final int numberOfFactors = 5;
+	private final int numberOfFactors = 5;
 	private final double correlationDecayParam = 0.05;
-	
+
 	private double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };
 	private double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50 , 5.00 };
 	private double[] tolerance		= { 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4 , 3E-4 };		// Tolerance at 100.000 path
-	
+
 	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
 
 	public LIBORIndexTest(Integer numberOfPaths, CurveSetup curveSetup) throws CalculationException {
@@ -113,10 +113,10 @@ public class LIBORIndexTest {
 
 	@Test
 	public void testSinglePeriods() throws CalculationException {
-		
+
 		NumberFormat formatDec2 = new DecimalFormat("0.00");
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
-		
+
 		for(int iTestCase = 0; iTestCase<periodStarts.length; iTestCase++) {
 			double periodStart	= periodStarts[iTestCase];
 			double periodEnd	= periodEnds[iTestCase];
@@ -126,8 +126,8 @@ public class LIBORIndexTest {
 			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new Notional(1.0), index, periodLength, true, true, false);
 			double value = period.getValue(liborMarketModel);
 
-			double toleranceThisTest = tolerance[iTestCase]/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0);
-			
+			double toleranceThisTest = tolerance[iTestCase]/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
+
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
 							formatDec6.format(value) + "\t" +
@@ -139,9 +139,9 @@ public class LIBORIndexTest {
 
 	@Test
 	public void testMultiPeriodFloater() throws CalculationException {
-		
+
 		double tolerance = 2E-3;
-		ArrayList<AbstractProductComponent> periods = new ArrayList<AbstractProductComponent>();
+		ArrayList<AbstractProductComponent> periods = new ArrayList<>();
 		for(int iPeriod = 0; iPeriod<10; iPeriod++) {
 			double periodStart	= 2.0 + 0.5 * iPeriod;
 			double periodEnd	= 2.0 + 0.5 * (iPeriod+1);
@@ -153,8 +153,8 @@ public class LIBORIndexTest {
 		}
 		AbstractProductComponent floater = new ProductCollection(periods);
 		double value = floater.getValue(liborMarketModel);
-		
-		double toleranceThisTest = tolerance/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0);
+
+		double toleranceThisTest = tolerance/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
 
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
 		System.out.println(
@@ -166,12 +166,12 @@ public class LIBORIndexTest {
 
 	@Test
 	public void testUnalignedPeriods() throws CalculationException {
-		
+
 		NumberFormat formatDec2 = new DecimalFormat("0.00");
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
-		
+
 		TimeDiscretizationInterface liborPeriodDiscretization = liborMarketModel.getLiborPeriodDiscretization();
-		
+
 		for(int iPeriodStart=liborPeriodDiscretization.getNumberOfTimeSteps()-2; iPeriodStart < liborPeriodDiscretization.getNumberOfTimeSteps()-1; iPeriodStart++) {
 			double periodStart	= liborPeriodDiscretization.getTime(3);
 			double periodEnd	= liborPeriodDiscretization.getTime(iPeriodStart+1);
@@ -180,13 +180,13 @@ public class LIBORIndexTest {
 			// Shift period by half libor period
 			periodStart	+= liborPeriodDiscretization.getTime(4)-liborPeriodDiscretization.getTime(3);
 			periodEnd	+= liborPeriodDiscretization.getTime(4)-liborPeriodDiscretization.getTime(3);
-			
+
 			AbstractIndex index = new LIBORIndex(0.0, periodLength);
 			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new Notional(1.0), index, periodLength, true, true, false);
 			double value = period.getValue(liborMarketModel);
-			
+
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/200000.0);
+			double toleranceThisTest = oneBasisPoint/Math.sqrt((liborMarketModel.getNumberOfPaths())/200000.0);
 
 			Assert.assertEquals(0.0, value / periodLength, toleranceThisTest);
 
@@ -270,10 +270,11 @@ public class LIBORIndexTest {
 				double timeToMaturity = maturity - time;
 
 				double instVolatility;
-				if(timeToMaturity <= 0)
+				if(timeToMaturity <= 0) {
 					instVolatility = 0;				// This forward rate is already fixed, no volatility
-				else
+				} else {
 					instVolatility = 0.3 + 0.2 * Math.exp(-0.25 * timeToMaturity);
+				}
 
 				// Store
 				volatility[timeIndex][liborIndex] = instVolatility;
@@ -300,11 +301,11 @@ public class LIBORIndexTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());
-		
+
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 

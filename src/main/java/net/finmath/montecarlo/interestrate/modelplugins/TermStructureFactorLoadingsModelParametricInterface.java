@@ -19,7 +19,7 @@ public interface TermStructureFactorLoadingsModelParametricInterface extends Ter
 	 * 
 	 * @return Parameter vector.
 	 */
-    double[]	getParameter();
+	double[]	getParameter();
 
 	/**
 	 * Return an instance of this model using a new set of parameters.
@@ -28,5 +28,5 @@ public interface TermStructureFactorLoadingsModelParametricInterface extends Ter
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
-    TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
+	TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
 }

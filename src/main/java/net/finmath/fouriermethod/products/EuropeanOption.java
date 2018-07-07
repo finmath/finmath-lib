@@ -31,7 +31,7 @@ public class EuropeanOption extends AbstractProductFourierTransform implements D
 	private final String underlyingName;
 	private final double maturity;
 	private final double strike;
-	
+
 	/**
 	 * Create the product from a descriptor.
 	 * 

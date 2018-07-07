@@ -42,22 +42,28 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 		this.discountCurveName = discountCurveName;
 
 		// Check schedule
-		if(schedule.getNumberOfPeriods() > 1) throw new IllegalArgumentException("Number of periods has to be 1: Change frequency to 'tenor'!");
+		if(schedule.getNumberOfPeriods() > 1) {
+			throw new IllegalArgumentException("Number of periods has to be 1: Change frequency to 'tenor'!");
+		}
 	}
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
-		if(model==null) 
+		if(model==null) {
 			throw new IllegalArgumentException("model==null");
-		
+		}
+
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
-		if(discountCurve == null)
+		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
+		}
 
 		double maturity = schedule.getPayment(0);
-		
+
 		if (evaluationTime > maturity)
+		{
 			model.getRandomVariableForConstant(0.0); // after maturity the contract is worth nothing
+		}
 
 		double payoutDate	= schedule.getPeriodStart(0);
 		double periodLength = schedule.getPeriodLength(0);
@@ -71,7 +77,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 		else {
 			value = discountFactor.mult(1.0 + rate * periodLength).sub(discountFactorPayout);
 		}
-		
+
 		return value.div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}
 
@@ -85,12 +91,12 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
-		
+
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
-		
+
 		double payoutDate = schedule.getPeriodStart(0);
 		double maturity = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);

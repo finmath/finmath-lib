@@ -24,7 +24,7 @@ public class Library {
 			properties = null;
 		}
 	}
-	
+
 	private Library() { }
 
 	private static Properties getProperites() {
@@ -39,7 +39,9 @@ public class Library {
 	public static String getVersionString() {
 		String versionString = "UNKNOWN";
 		Properties propeties = getProperites();
-		if(propeties != null) versionString = propeties.getProperty("finmath-lib.version");
+		if(propeties != null) {
+			versionString = propeties.getProperty("finmath-lib.version");
+		}
 		return versionString;
 	}
 
@@ -52,7 +54,9 @@ public class Library {
 	public static String getBuildString() {
 		String versionString = "UNKNOWN";
 		Properties propeties = getProperites();
-		if(propeties != null) versionString = propeties.getProperty("finmath-lib.build");
+		if(propeties != null) {
+			versionString = propeties.getProperty("finmath-lib.build");
+		}
 		return versionString;
 	}
 }

@@ -13,7 +13,7 @@ import java.time.LocalDate;
  * @author Christian Fries
  */
 public interface BusinessdayCalendarInterface extends Serializable {
-	
+
 	enum DateOffsetUnit {
 		DAYS,
 		BUSINESS_DAYS,
@@ -28,13 +28,27 @@ public interface BusinessdayCalendarInterface extends Serializable {
 		 * @return The date roll convention enum.
 		 */
 		public static DateOffsetUnit getEnum(String string) {
-			if(string == null) throw new IllegalArgumentException();
-			if(string.equalsIgnoreCase("d"))	return DAYS;
-			if(string.equalsIgnoreCase("b"))	return BUSINESS_DAYS;
-			if(string.equalsIgnoreCase("bd"))	return BUSINESS_DAYS;
-			if(string.equalsIgnoreCase("w"))	return WEEKS;
-			if(string.equalsIgnoreCase("m"))	return MONTHS;
-			if(string.equalsIgnoreCase("y"))	return YEARS;
+			if(string == null) {
+				throw new IllegalArgumentException();
+			}
+			if(string.equalsIgnoreCase("d")) {
+				return DAYS;
+			}
+			if(string.equalsIgnoreCase("b")) {
+				return BUSINESS_DAYS;
+			}
+			if(string.equalsIgnoreCase("bd")) {
+				return BUSINESS_DAYS;
+			}
+			if(string.equalsIgnoreCase("w")) {
+				return WEEKS;
+			}
+			if(string.equalsIgnoreCase("m")) {
+				return MONTHS;
+			}
+			if(string.equalsIgnoreCase("y")) {
+				return YEARS;
+			}
 
 			return DateOffsetUnit.valueOf(string.toUpperCase());
 		}
@@ -54,18 +68,30 @@ public interface BusinessdayCalendarInterface extends Serializable {
 		 * @return The date roll convention enum.
 		 */
 		public static DateRollConvention getEnum(String string) {
-	        if(string == null) throw new IllegalArgumentException();
-	        if(string.equalsIgnoreCase("actual"))		return UNADJUSTED;
-	        if(string.equalsIgnoreCase("modfollow"))	return MODIFIED_FOLLOWING;
-	        if(string.equalsIgnoreCase("modpreced"))	return MODIFIED_PRECEDING;
-	        if(string.equalsIgnoreCase("follow"))		return 	FOLLOWING;
-	        if(string.equalsIgnoreCase("preced"))		return 	PRECEDING;
+			if(string == null) {
+				throw new IllegalArgumentException();
+			}
+			if(string.equalsIgnoreCase("actual")) {
+				return UNADJUSTED;
+			}
+			if(string.equalsIgnoreCase("modfollow")) {
+				return MODIFIED_FOLLOWING;
+			}
+			if(string.equalsIgnoreCase("modpreced")) {
+				return MODIFIED_PRECEDING;
+			}
+			if(string.equalsIgnoreCase("follow")) {
+				return 	FOLLOWING;
+			}
+			if(string.equalsIgnoreCase("preced")) {
+				return 	PRECEDING;
+			}
 
-	        return DateRollConvention.valueOf(string.toUpperCase());
-	    }
+			return DateRollConvention.valueOf(string.toUpperCase());
+		}
 	}
 
-	
+
 	/**
 	 * Test if a given date is a businessday.
 	 * 
@@ -73,7 +99,7 @@ public interface BusinessdayCalendarInterface extends Serializable {
 	 * @return True, if the given date is a businessday, otherwise false.
 	 */
 	boolean isBusinessday(LocalDate date);
-	
+
 	/**
 	 * Get an adjusted date for a given date.
 	 * 
@@ -109,7 +135,7 @@ public interface BusinessdayCalendarInterface extends Serializable {
 	 * @param businessDays The number of business days from the starting date (negative values are allowed).
 	 * @return A date of a business day such that the number of business days between this one (including) and the start date (excluding) is businessDays.
 	 */
-    LocalDate getRolledDate(LocalDate baseDate, int businessDays);
+	LocalDate getRolledDate(LocalDate baseDate, int businessDays);
 
 	/**
 	 * Create a new date by "adding" a year fraction to a given base date.

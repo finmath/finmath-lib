@@ -90,7 +90,9 @@ public class JNumberField extends JTextField implements ActionListener {
 
 	public void setAdmissibleValues(TimeDiscretizationInterface timeDiscretization) {
 		this.admissibleValues = new double[timeDiscretization.getNumberOfTimeSteps()+1];
-		for(int i=0; i<admissibleValues.length; i++) this.admissibleValues[i] = timeDiscretization.getTime(i);
+		for(int i=0; i<admissibleValues.length; i++) {
+			this.admissibleValues[i] = timeDiscretization.getTime(i);
+		}
 	}
 
 	public double getPreferedValueIncrement() {
@@ -108,7 +110,10 @@ public class JNumberField extends JTextField implements ActionListener {
 	public void addToAdmissibleValueIndex(int increment) {
 		if(admissibleValues != null) {
 			int index = getAdmissibleValueIndex();
-			if(index < 0) return;	// Admissible values not set
+			if(index < 0)
+			 {
+				return;	// Admissible values not set
+			}
 
 			index = Math.max(0,Math.min(index + increment, admissibleValues.length-1));
 			value = admissibleValues[index];
@@ -149,12 +154,16 @@ public class JNumberField extends JTextField implements ActionListener {
 	}
 
 	private void updateData() {
-		if(value == null) parseField();
+		if(value == null) {
+			parseField();
+		}
 		synchronized (updateLock) {
 
 			// Constrain to admissibleValues
 			int index = getAdmissibleValueIndex();
-			if(index >= 0) value = admissibleValues[index];
+			if(index >= 0) {
+				value = admissibleValues[index];
+			}
 
 			// Apply bounds
 			this.value = new Double(Math.min(Math.max(lowerBound,value.doubleValue()),upperBound));
@@ -162,8 +171,11 @@ public class JNumberField extends JTextField implements ActionListener {
 			// Write and resize field
 			this.setText(formatter.format(value));
 
-			if(lowerBound != -Double.MAX_VALUE && upperBound != Double.MAX_VALUE)	this.setColumns(1+Math.max(formatter.format(lowerBound).length(), formatter.format(upperBound).length()));
-			else																	this.setColumns(1+this.getText().length());        
+			if(lowerBound != -Double.MAX_VALUE && upperBound != Double.MAX_VALUE) {
+				this.setColumns(1+Math.max(formatter.format(lowerBound).length(), formatter.format(upperBound).length()));
+			} else {
+				this.setColumns(1+this.getText().length());
+			}        
 
 		}
 	}
@@ -172,10 +184,15 @@ public class JNumberField extends JTextField implements ActionListener {
 		// Constrain to admissibleValues
 		if(this.admissibleValues != null && admissibleValues.length > 0) {
 			int index = java.util.Arrays.binarySearch(admissibleValues, value.doubleValue());
-			if(index < 0) index = -index-1;
-			if(index > admissibleValues.length) index--;
+			if(index < 0) {
+				index = -index-1;
+			}
+			if(index > admissibleValues.length) {
+				index--;
+			}
 			return index;
-		}
-		else return -1;    	
+		} else {
+			return -1;
+		}    	
 	}
 }

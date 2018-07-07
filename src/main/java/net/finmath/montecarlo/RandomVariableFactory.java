@@ -33,13 +33,19 @@ public class RandomVariableFactory extends AbstractRandomVariableFactory {
 
 	@Override
 	public RandomVariableInterface createRandomVariable(double time, double value) {
-		if(isUseDoublePrecisionFloatingPointImplementation) return new RandomVariable(time, value);
-		else												return new RandomVariableLowMemory(time, value);
+		if(isUseDoublePrecisionFloatingPointImplementation) {
+			return new RandomVariable(time, value);
+		} else {
+			return new RandomVariableLowMemory(time, value);
+		}
 	}
 
 	@Override
 	public RandomVariableInterface createRandomVariable(double time, double[] values) {
-		if(isUseDoublePrecisionFloatingPointImplementation) return new RandomVariable(time, values);
-		else												return new RandomVariableLowMemory(time, values);
+		if(isUseDoublePrecisionFloatingPointImplementation) {
+			return new RandomVariable(time, values);
+		} else {
+			return new RandomVariableLowMemory(time, values);
+		}
 	}
 }

@@ -53,10 +53,12 @@ public class FloatingpointDate {
 	 * @return The date resulting from adding Math.round(fixingTime*365.0) days to referenceDate.
 	 */
 	public static LocalDate getDateFromFloatingPointDate(LocalDate referenceDate, double floatingPointDate) {
-		if(referenceDate == null) return null;
+		if(referenceDate == null) {
+			return null;
+		}
 		return referenceDate.plusDays((int)Math.round(floatingPointDate*365.0));
 	}
-	
+
 	/**
 	 * Convert a given date to a floating point date using a given reference date.
 	 * 

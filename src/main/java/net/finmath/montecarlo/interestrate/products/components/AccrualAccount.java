@@ -53,7 +53,9 @@ public class AccrualAccount extends AbstractProductComponent {
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		if(evaluationTime <= 0) return pastFixings.getValue(evaluationTime, model);
+		if(evaluationTime <= 0) {
+			return pastFixings.getValue(evaluationTime, model);
+		}
 
 		RandomVariableInterface value = pastFixings.getValue(0.0, model);
 

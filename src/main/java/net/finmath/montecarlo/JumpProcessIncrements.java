@@ -112,7 +112,9 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 
 		// Thread safe lazy initialization
 		synchronized(incrementsLazyInitLock) {
-			if(increments == null) doGenerateIncrements();
+			if(increments == null) {
+				doGenerateIncrements();
+			}
 		}
 
 		/*
@@ -125,7 +127,10 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateIncrements() {
-		if(increments != null) return;	// Nothing to do
+		if(increments != null)
+		 {
+			return;	// Nothing to do
+		}
 
 		// Create random number sequence generator
 		MersenneTwister mersenneTwister = new MersenneTwister(seed);

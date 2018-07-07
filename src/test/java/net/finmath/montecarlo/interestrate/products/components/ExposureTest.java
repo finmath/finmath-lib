@@ -96,8 +96,10 @@ public class ExposureTest {
 		// Print a single exposure path and the expected positive exposure
 		for(double observationDate : lmm.getTimeDiscretization()) {
 
-			if(observationDate == 0) continue;
-			
+			if(observationDate == 0) {
+				continue;
+			}
+
 			/*
 			 * Calculate expected positive exposure of a swap
 			 */
@@ -124,7 +126,7 @@ public class ExposureTest {
 		 */
 		TimeDiscretization tenor = new TimeDiscretization(0.0, 40, 0.25);
 		ScheduleInterface schedule = new RegularSchedule(tenor);
-		
+
 		AbstractNotional notional = new Notional(1.0);
 		AbstractIndex index = new LIBORIndex("forwardCurve", 0.0, 0.25);
 		double fixedCoupon = 0.025;
@@ -188,7 +190,7 @@ public class ExposureTest {
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* maturities */,
 				new double[] {0.02, 0.02, 0.02, 0.02, 0.03}	/* zero rates */
 				);
-		
+
 		/*
 		 * Create a simulation time discretization
 		 */
@@ -209,10 +211,11 @@ public class ExposureTest {
 				double timeToMaturity = maturity - time;
 
 				double instVolatility;
-				if(timeToMaturity <= 0)
+				if(timeToMaturity <= 0) {
 					instVolatility = 0;				// This forward rate is already fixed, no volatility
-				else
+				} else {
 					instVolatility = 0.3 + 0.2 * Math.exp(-0.25 * timeToMaturity);
+				}
 
 				// Store
 				volatility[timeIndex][liborIndex] = instVolatility;
@@ -239,11 +242,11 @@ public class ExposureTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());
-		
+
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
