@@ -110,8 +110,7 @@ public class JNumberField extends JTextField implements ActionListener {
 	public void addToAdmissibleValueIndex(int increment) {
 		if(admissibleValues != null) {
 			int index = getAdmissibleValueIndex();
-			if(index < 0)
-			 {
+			if(index < 0) {
 				return;	// Admissible values not set
 			}
 

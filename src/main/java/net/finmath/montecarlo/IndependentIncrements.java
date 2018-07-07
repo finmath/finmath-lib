@@ -171,8 +171,7 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateIncrements() {
-		if(increments != null)
-		 {
+		if(increments != null) {
 			return;	// Nothing to do
 		}
 

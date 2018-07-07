@@ -144,8 +144,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 	 * Lazy initialization of gammaIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateGammaIncrements() {
-		if(gammaIncrements != null)
-		{
+		if(gammaIncrements != null) {
 			return;	// Nothing to do
 		}
 

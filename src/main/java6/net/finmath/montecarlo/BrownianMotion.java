@@ -127,8 +127,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateBrownianMotion() {
-		if(brownianIncrements != null)
-		 {
+		if(brownianIncrements != null) {
 			return;	// Nothing to do
 		}
 
