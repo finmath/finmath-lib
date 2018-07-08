@@ -343,7 +343,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		double curvePaymentOffset = this.getPaymentOffset(fixingTime);
 		if(paymentOffset != curvePaymentOffset) {
 			forward = (Math.exp(Math.log(1+forward*curvePaymentOffset) * paymentOffset/curvePaymentOffset)-1.0)/paymentOffset;
-			logger .warning("Requesting forward with paymentOffsets not agreeing with original calibration. Requested: " + paymentOffset +". Calibrated: " + curvePaymentOffset + ".");
+			// logger.warning("Requesting forward with paymentOffsets not agreeing with original calibration. Requested: " + paymentOffset +". Calibrated: " + curvePaymentOffset + ".");
 		}
 		return forward;
 	}
