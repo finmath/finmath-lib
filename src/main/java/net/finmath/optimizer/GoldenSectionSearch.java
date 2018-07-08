@@ -210,12 +210,13 @@ public class GoldenSectionSearch {
 		expectingValue = false;
 	}
 
-	public void optimize() {
+	public GoldenSectionSearch optimize() {
 		while(!isDone()) {
 			double parameter	= getNextPoint();
 			double value		= value(parameter);
 			this.setValue(value);
 		}
+		return this;
 	}
 
 	public double value(double parameter) {
