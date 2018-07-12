@@ -77,9 +77,10 @@ public class OptionSurfaceData{
 	
 	/**
 	 * Creates an equity option surface from an array of smiles.
-	 * @param smiles
-	 * @param discountCurve
-	 * @param equityForwardCurve
+	 * 
+	 * @param smiles The option smile data.
+	 * @param discountCurve A discount curve for discounting (funding/collateral rate).
+	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
 	 */
 	public OptionSurfaceData(OptionSmileData[] smiles, DiscountCurveInterface discountCurve,
 			DiscountCurveInterface equityForwardCurve) {
