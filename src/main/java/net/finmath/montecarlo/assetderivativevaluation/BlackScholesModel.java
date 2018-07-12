@@ -92,14 +92,12 @@ public class BlackScholesModel extends AbstractModel {
 	}
 
 	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
+	 * Create a Black-Scholes model from given parameters.
 	 * 
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
-	 * @deprecated
 	 */
-	@Deprecated
 	public BlackScholesModel(
 			double initialValue,
 			double riskFreeRate,
