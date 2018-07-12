@@ -104,7 +104,7 @@ over one with a third folder like java-common.
 -    To build finmath lib for java 6 use src/main/java-6
 
 These builds may be performed via Maven the profiles "java-8" and "java-6".
-The eclipse project file is pre-configured to Java 6.
+The eclipse project file is pre-configured to Java 8.
 
 #### Maven build
 
