@@ -17,7 +17,6 @@ import java.util.concurrent.Future;
 import net.finmath.concurrency.FutureWrapper;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -52,7 +51,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	public enum Scheme {
 		EULER, PREDICTOR_CORRECTOR, EULER_FUNCTIONAL
-	};
+	}
 
 	private IndependentIncrementsInterface stochasticDriver;
 
@@ -181,7 +180,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 			}
 			catch(Exception e) {
-				throw new RuntimeException("Drift calculaton failed at time " + getTime(timeIndex - 1), e);
+				throw new RuntimeException("Drift calculaton failed at time index " + timeIndex + " (time=" + getTime(timeIndex - 1) + ") . See cause of this exception for details.", e);
 			}
 
 			// Calculate new realization
@@ -198,7 +197,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 				}
 
 				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
-					public RandomVariableInterface call() throws SolverException {
+					public RandomVariableInterface call() {
 						if(scheme == Scheme.EULER_FUNCTIONAL) {
 							currentState[componentIndex] = applyStateSpaceTransformInverse(componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
 						}
@@ -229,12 +228,14 @@ public class ProcessEulerScheme extends AbstractProcess {
 				 * Optional multi-threadding (asyncronous calculation of the components)
 				 */
 				Future<RandomVariableInterface> result = null;
-				if(isUseMultiThreadding) {
-					result = executor.submit(worker);
-				} else {
-					try {
-						result = new FutureWrapper<RandomVariableInterface>(worker.call());
-					} catch (Exception e) {}
+				try {
+					if(isUseMultiThreadding) {
+						result = executor.submit(worker);
+					} else {
+						result = new FutureWrapper<>(worker.call());
+					}
+				} catch (Exception e) {
+					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				}
 
 				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
@@ -251,11 +252,9 @@ public class ProcessEulerScheme extends AbstractProcess {
 						discreteProcess[timeIndex][componentIndex] = null;
 					}
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				}
 			}
 
@@ -294,7 +293,6 @@ public class ProcessEulerScheme extends AbstractProcess {
 			// @TODO Improve exception handling here
 		}
 	}
-
 
 	/**
 	 * Reset all precalculated values

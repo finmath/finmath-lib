@@ -180,7 +180,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 			}
 			catch(Exception e) {
-				throw new RuntimeException("Drift calculaton failed at time " + getTime(timeIndex - 1) + ". See cause for details.", e);
+				throw new RuntimeException("Drift calculaton failed at time index " + timeIndex + " (time=" + getTime(timeIndex - 1) + ") . See cause of this exception for details.", e);
 			}
 
 			// Calculate new realization
@@ -228,12 +228,14 @@ public class ProcessEulerScheme extends AbstractProcess {
 				 * Optional multi-threadding (asyncronous calculation of the components)
 				 */
 				Future<RandomVariableInterface> result = null;
-				if(isUseMultiThreadding) {
-					result = executor.submit(worker);
-				} else {
-					try {
+				try {
+					if(isUseMultiThreadding) {
+						result = executor.submit(worker);
+					} else {
 						result = new FutureWrapper<>(worker.call());
-					} catch (Exception e) {}
+					}
+				} catch (Exception e) {
+					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				}
 
 				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
@@ -250,11 +252,9 @@ public class ProcessEulerScheme extends AbstractProcess {
 						discreteProcess[timeIndex][componentIndex] = null;
 					}
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				}
 			}
 
@@ -293,7 +293,6 @@ public class ProcessEulerScheme extends AbstractProcess {
 			// @TODO Improve exception handling here
 		}
 	}
-
 
 	/**
 	 * Reset all precalculated values
