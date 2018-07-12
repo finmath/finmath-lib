@@ -232,7 +232,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 					if(isUseMultiThreadding) {
 						result = executor.submit(worker);
 					} else {
-						result = new FutureWrapper<>(worker.call());
+						result = new FutureWrapper<RandomVariableInterface>(worker.call());
 					}
 				} catch (Exception e) {
 					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
