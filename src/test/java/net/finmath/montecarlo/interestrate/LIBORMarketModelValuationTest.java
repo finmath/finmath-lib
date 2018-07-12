@@ -744,8 +744,8 @@ public class LIBORMarketModelValuationTest {
 
 		// Set calibration properties
 		Map<String, Object> calibrationParameters = new HashMap<>();
-		calibrationParameters.put("accuracy", new Double(1E-6));
-		calibrationParameters.put("numberOfPaths", new Integer(20000));
+		calibrationParameters.put("accuracy", Double.valueOf(1E-6));
+		calibrationParameters.put("numberOfPaths", Integer.valueOf(20000));
 		properties.put("calibrationParameters", calibrationParameters);
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
