@@ -44,7 +44,7 @@ public class OptionSurfaceData{
 	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
 	 */
 	public OptionSurfaceData(String underlying, LocalDate referenceDate, double[] strikes,
-			double[] maturities, double[][] values, QuotingConvention convention,DiscountCurveInterface discountCurve,
+			double[] maturities, double[][] values, QuotingConvention convention, DiscountCurveInterface discountCurve,
 			DiscountCurveInterface equityForwardCurve) {
 		if(strikes.length != values.length || maturities.length != values[0].length ) {
 			throw new IllegalArgumentException("Inconsistent number of strikes, maturities or values");
