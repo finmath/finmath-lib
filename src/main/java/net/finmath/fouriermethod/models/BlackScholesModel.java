@@ -15,7 +15,6 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 
 /**

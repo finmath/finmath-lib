@@ -10,7 +10,6 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
-import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 

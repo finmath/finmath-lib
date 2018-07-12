@@ -17,7 +17,6 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;

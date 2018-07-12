@@ -5,7 +5,6 @@ import net.finmath.modelling.InterestRateProductDescriptor;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
-import net.finmath.modelling.descriptor.InterestRateModelDescriptor;
 
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 

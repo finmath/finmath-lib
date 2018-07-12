@@ -7,11 +7,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;

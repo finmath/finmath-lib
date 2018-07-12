@@ -3,11 +3,9 @@ package net.finmath.modelling.productfactory;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
-import net.finmath.modelling.descriptor.AssetModelDescriptor;
 
 /**
  * Implements a product factory based on a cascade of given factories.
