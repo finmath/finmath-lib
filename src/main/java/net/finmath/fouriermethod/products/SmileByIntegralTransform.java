@@ -41,10 +41,11 @@ public interface SmileByIntegralTransform extends CharacteristicFunctionInterfac
 	
 	
 	/**
-	 * Return the price of a family of options with the same maturity for different strikes
-	 * @param model
-	 * @return
-	 * @throws CalculationException
+	 * Return the value of a family of options with the same maturity for different strikes.
+	 * 
+	 * @param model The model agains which the product should be values.
+	 * @return The map of product values mapping from strike to value.
+	 * @throws CalculationException Thrown if the valuation failed.
 	 */
 	public Map<Double, Double> getValue(ProcessCharacteristicFunctionInterface model) throws CalculationException;
 
