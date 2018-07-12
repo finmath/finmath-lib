@@ -33,9 +33,15 @@ public class OptionSurfaceData{
 		
 	/**
 	 * This is a very restrictive constructor that assumes that for each maturity we have the same number of option quotes.
-	 * @param underlying
-	 * @param strikes
-	 * @param maturity
+	 * 
+	 * @param underlying The name of the underlying of this surface.
+	 * @param referenceDate The reference date for this market data (t=0).
+	 * @param strikes The vector of strikes.
+	 * @param maturities The vector of maturities.
+	 * @param values The matrix of values per (strike, maturity)
+	 * @param convention The quoting convention (@see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention).
+	 * @param discountCurve A discount curve for discounting (funding/collateral rate).
+	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
 	 */
 	public OptionSurfaceData(String underlying, LocalDate referenceDate, double[] strikes,
 			double[] maturities, double[][] values, QuotingConvention convention,DiscountCurveInterface discountCurve,
