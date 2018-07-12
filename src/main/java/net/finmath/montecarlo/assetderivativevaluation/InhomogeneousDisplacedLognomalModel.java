@@ -40,9 +40,9 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractModel {
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double displacement;
 	private final double volatility;
-	
+
 	private final boolean isUseMilsteinCorrection;
-	
+
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
@@ -92,8 +92,10 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractModel {
 
 	@Override
 	public RandomVariableInterface[] getInitialState() {
-		if(initialValueVector[0] == null) 	initialValueVector[0] = getRandomVariableForConstant(initialValue);
-		
+		if(initialValueVector[0] == null) {
+			initialValueVector[0] = getRandomVariableForConstant(initialValue);
+		}
+
 		return initialValueVector;
 	}
 

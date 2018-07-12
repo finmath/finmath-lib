@@ -49,7 +49,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	private RandomVariableInterface displacement;
 
 	private ForwardCurveInterface forwardCurve;
-	
+
 	private boolean isCalibrateable = false;
 
 	/**
@@ -74,7 +74,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 */
 	public BlendedLocalVolatilityModel(AbstractRandomVariableFactory randomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurveInterface forwardCurve, double displacement, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
-		
+
 		this.randomVariableFactory = randomVariableFactory;
 		this.covarianceModel	= covarianceModel;
 		this.forwardCurve		= forwardCurve;
@@ -137,7 +137,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	public Object clone() {
 		return new BlendedLocalVolatilityModel(randomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement.doubleValue(), isCalibrateable);
 	}
-	
+
 	/**
 	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>
 	 * such that this model's <i>i</i>-th factor loading is
@@ -156,11 +156,15 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return covarianceModel.getParameter();
+		if(!isCalibrateable) {
+			return covarianceModel.getParameter();
+		}
 
 		double[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new double[] { displacement.doubleValue() };
-		
+		if(covarianceParameters == null) {
+			return new double[] { displacement.doubleValue() };
+		}
+
 		// Append displacement to the end of covarianceParameters
 		double[] jointParameters = new double[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
@@ -170,7 +174,9 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	}
 
 	private void setParameter(double[] parameter) {
-		if(parameter == null || parameter.length == 0) return;
+		if(parameter == null || parameter.length == 0) {
+			return;
+		}
 
 		if(!isCalibrateable) {
 			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);

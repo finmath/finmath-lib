@@ -20,10 +20,10 @@ public class FloatingpointDateTest {
 		LocalDate referenceDate = LocalDate.of(2016, 01, 01);
 		for(int i=0; i<1000; i++) {
 			LocalDate date = referenceDate.plusDays(i);
-			
+
 			double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
 			LocalDate dateFromFloat	= FloatingpointDate.getDateFromFloatingPointDate(referenceDate, floatingPointDate);
-			
+
 			Assert.assertTrue("Roundtrip with date offset of " + i + " days.", dateFromFloat.isEqual(date));
 		}
 	}

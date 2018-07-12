@@ -136,7 +136,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		RandomVariableInterface discountFactor	= discountCurve.getDiscountFactor(model, payment);
 
 		RandomVariableInterface floatLeg = forward.mult(discountFactor).mult(periodLength);
-		
+
 		for(int periodIndex=1; periodIndex<floatSchedule.getNumberOfPeriods(); periodIndex++) {
 			fixing			= floatSchedule.getFixing(periodIndex);
 			payment			= floatSchedule.getPayment(periodIndex);

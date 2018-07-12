@@ -94,7 +94,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 		long end = System.currentTimeMillis();
 
-		System.out.println("\nCalculation time required: " + ((double)(end-start))/1000.0 + " seconds.");
+		System.out.println("\nCalculation time required: " + (end-start)/1000.0 + " seconds.");
 	}
 
 	public BlackScholesMonteCarloValuationTest() {
@@ -398,12 +398,12 @@ public class BlackScholesMonteCarloValuationTest {
 			// Value the product with Monte Carlo
 			double shift = initialValue * 1E-6;
 
-			Map<String,Object> dataUpShift = new HashMap<String,Object>();
+			Map<String,Object> dataUpShift = new HashMap<>();
 			dataUpShift.put("initialValue", initialValue + shift);
 
 			double valueUpShift	= (Double)(callOption.getValuesForModifiedData(model, dataUpShift).get("value"));
 
-			Map<String,Object> dataDownShift = new HashMap<String,Object>();
+			Map<String,Object> dataDownShift = new HashMap<>();
 			dataDownShift.put("initialValue", initialValue - shift);
 			double valueDownShift	= (Double)(callOption.getValuesForModifiedData(model, dataDownShift).get("value"));
 
@@ -471,12 +471,12 @@ public class BlackScholesMonteCarloValuationTest {
 			// Value the product with Monte Carlo
 			double shift = volatility * 1E-6;
 
-			Map<String,Object> dataUpShift = new HashMap<String,Object>();
+			Map<String,Object> dataUpShift = new HashMap<>();
 			dataUpShift.put("volatility", volatility + shift);
 
 			double valueUpShift	= (Double)(callOption.getValuesForModifiedData(model, dataUpShift).get("value"));
 
-			Map<String,Object> dataDownShift = new HashMap<String,Object>();
+			Map<String,Object> dataDownShift = new HashMap<>();
 			dataDownShift.put("volatility", volatility - shift);
 			double valueDownShift	= (Double)(callOption.getValuesForModifiedData(model, dataDownShift).get("value"));
 

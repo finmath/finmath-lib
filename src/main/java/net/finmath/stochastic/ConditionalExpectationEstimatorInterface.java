@@ -12,13 +12,13 @@ package net.finmath.stochastic;
  * @author Christian Fries
  */
 public interface ConditionalExpectationEstimatorInterface {
-	
-    /**
-     * Return the conditional expectation of a given random variable.
-     * The definition of the filtration time is part of the object implementing this interface.
-     * 
-     * @param randomVariable Given random variable.
-     * @return The conditional expectation of <code>randomVariable</code>.
-     */
-    RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable);
+
+	/**
+	 * Return the conditional expectation of a given random variable.
+	 * The definition of the filtration time is part of the object implementing this interface.
+	 * 
+	 * @param randomVariable Given random variable.
+	 * @return The conditional expectation of <code>randomVariable</code>.
+	 */
+	RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable);
 }

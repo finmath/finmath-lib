@@ -48,7 +48,7 @@ public class HestonModelTest {
 	@Parameters(name="xi={0}}")
 	public static Collection<Object[]> generateData()
 	{
-		ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+		ArrayList<Object[]> parameters = new ArrayList<>();
 		parameters.add(new Object[] { 0.0 });
 		parameters.add(new Object[] { 0.5 });
 		return parameters;

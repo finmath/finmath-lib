@@ -52,10 +52,14 @@ public class LIBORIndex extends AbstractIndex {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Check if model provides this index
-		if(model.getModel().getForwardRateCurve().getName() != null && getName() != null && !model.getModel().getForwardRateCurve().getName().contains(getName())) throw new IllegalArgumentException("No curve for index " + getName() + " found in model.");
+		if(model.getModel().getForwardRateCurve().getName() != null && getName() != null && !model.getModel().getForwardRateCurve().getName().contains(getName())) {
+			throw new IllegalArgumentException("No curve for index " + getName() + " found in model.");
+		}
 
 		// If evaluationTime < 0 take fixing from curve (note: this is a fall-back, fixing should be provided by product, if possible).
-		if(evaluationTime < 0) return model.getRandomVariableForConstant(model.getModel().getForwardRateCurve().getForward(model.getModel().getAnalyticModel(), periodStartOffset));
+		if(evaluationTime < 0) {
+			return model.getRandomVariableForConstant(model.getModel().getForwardRateCurve().getForward(model.getModel().getAnalyticModel(), periodStartOffset));
+		}
 
 		RandomVariableInterface forwardRate = model.getLIBOR(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
 
@@ -82,7 +86,7 @@ public class LIBORIndex extends AbstractIndex {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		Set<String> underlyingNames = new HashSet<String>();
+		Set<String> underlyingNames = new HashSet<>();
 		underlyingNames.add(getName());
 		return underlyingNames;
 	}

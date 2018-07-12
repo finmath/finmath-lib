@@ -71,6 +71,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 * @deprecated This constructor is deprecated. If you like to create a payer swap from fixingDates, paymentDates and swaprates use {@link net.finmath.montecarlo.interestrate.products.SimpleSwap}.
 	 */
+	@Deprecated
 	public Swap(
 			double[] fixingDates,
 			double[] paymentDates,
@@ -83,8 +84,10 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface value = legReceiver.getValue(evaluationTime, model);
-		if(legPayer != null) value = value.sub(legPayer.getValue(evaluationTime, model));
-		
+		if(legPayer != null) {
+			value = value.sub(legPayer.getValue(evaluationTime, model));
+		}
+
 		return value;
 	}
 }

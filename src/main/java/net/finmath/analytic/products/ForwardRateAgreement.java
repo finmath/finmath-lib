@@ -45,9 +45,11 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		this.spread = spread;
 		this.discountCurveName = discountCurveName;
 		this.isPayer = isPayer;
-		
+
 		// Check schedule
-		if(schedule.getNumberOfPeriods() > 1) throw new IllegalArgumentException("Number of periods has to be 1: Change frequency to 'tenor'!");
+		if(schedule.getNumberOfPeriods() > 1) {
+			throw new IllegalArgumentException("Number of periods has to be 1: Change frequency to 'tenor'!");
+		}
 	}
 
 	/**
@@ -67,21 +69,21 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
-		
+
 		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve==null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
-		
+
 		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve==null && forwardCurveName!=null && forwardCurveName.length()>0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
-		
+
 		double fixingDate = schedule.getFixing(0);
 		double paymentDate = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
-		
+
 		RandomVariableInterface forward = new RandomVariable(0.0);
 		if(forwardCurve != null) {
 			forward = forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
@@ -100,12 +102,14 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @return The par FRA rate.
 	 */
 	public RandomVariableInterface getRate(AnalyticModelInterface model) {	
-		if(model==null) 
+		if(model==null) {
 			throw new IllegalArgumentException("model==null");
-		
+		}
+
 		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
-		if(forwardCurve==null) 
+		if(forwardCurve==null) {
 			throw new IllegalArgumentException("No forward curve of name '" + forwardCurveName + "' found in given model:\n" + model.toString());
+		}
 
 		double fixingDate = schedule.getFixing(0);
 		return forwardCurve.getForward(model,fixingDate);

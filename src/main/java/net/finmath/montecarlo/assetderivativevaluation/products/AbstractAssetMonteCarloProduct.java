@@ -23,11 +23,11 @@ public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloP
 		super();
 	}
 
-    public abstract RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException;
+	public abstract RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException;
 
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
-    	// This product requires an AssetModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
+		// This product requires an AssetModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
 		if(model instanceof AssetModelMonteCarloSimulationInterface) {
 			return getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface)model);
 		}
@@ -36,5 +36,5 @@ public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloP
 			+ " cannot be valued against a model " + model.getClass() + "."
 			+ "It requires a model of type " + AssetModelMonteCarloSimulationInterface.class + ".");
 		}
-    }
+	}
 }

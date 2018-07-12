@@ -175,14 +175,14 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		double	newJumpSizeMean		= dataModified.get("jumpSizeMean") != null	? ((Number)dataModified.get("jumpSizeMean")).doubleValue()	: model.getVolatility();
 		double	newJumpSizeStdDev	= dataModified.get("jumpSizeStdDev") != null	? ((Number)dataModified.get("jumpSizeStdDev")).doubleValue()	: model.getVolatility();
 		int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
-		
+
 		return new MonteCarloMertonModel(model.getProcess().getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), model.getProcess().getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newVolatility, newJumpIntensity, newJumpSizeMean, newJumpSizeStdDev);
 
 	}
 
 	@Override
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
-		Map<String, Object> dataModified = new HashMap<String, Object>();
+		Map<String, Object> dataModified = new HashMap<>();
 		dataModified.put("seed", new Integer(seed));
 		return getCloneWithModifiedData(dataModified);
 	}

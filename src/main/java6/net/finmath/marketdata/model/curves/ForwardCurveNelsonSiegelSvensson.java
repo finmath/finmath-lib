@@ -9,7 +9,6 @@ import java.io.Serializable;
 
 import org.threeten.bp.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
@@ -39,9 +38,9 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	private double periodOffset = 0.0;
 
 	private DiscountCurveNelsonSiegelSvensson discountCurve;
-	
+
 	/**
-	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link AnalyticModel}.
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModel}.
 	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
 	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
 	 * @param paymentBusinessdayCalendar The payment businessday calendar.
@@ -63,7 +62,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	/**
-	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link AnalyticModel}.
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModel}.
 	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
 	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
 	 * @param paymentBusinessdayCalendar The payment businessday calendar.
@@ -75,7 +74,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	public ForwardCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
 		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, parameter, timeScaling, 0.0);
 	}
-	
+
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime) {
 		return getForward(model, fixingTime, getPaymentOffset(fixingTime+periodOffset));
@@ -87,7 +86,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		if(daycountConvention != null) {
 			LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
 			LocalDate paymentDate		= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);
-            daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
+			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);
 		}
 
 		return (discountCurve.getDiscountFactor(model, fixingTime+periodOffset) / discountCurve.getDiscountFactor(model, fixingTime+periodOffset + paymentOffset) - 1.0) / daycountFraction;
@@ -144,7 +143,9 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	{
 		double[] values = new double[fixingTimes.length];
 
-		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
+		for(int i=0; i<fixingTimes.length; i++) {
+			values[i] = getForward(model, fixingTimes[i]);
+		}
 
 		return values;
 	}
@@ -165,7 +166,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), paymentDate);
 		return paymentTime-fixingTime;
 	}
-	
+
 	private LocalDate getDateFromModelTime(double fixingTime) {
 		return getReferenceDate().plusDays((int)Math.round(fixingTime*365.0));
 	}

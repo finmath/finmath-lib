@@ -16,9 +16,9 @@ package net.finmath.stochastic;
  */
 public interface RandomVariableAccumulatorInterface extends RandomVariableInterface {
 
-    void accumulate(RandomVariableInterface randomVariable);
-    void accumulate(double time, RandomVariableInterface randomVariable);
-    
-    RandomVariableInterface get();
-    RandomVariableInterface get(double fromTime, double toTime);
+	void accumulate(RandomVariableInterface randomVariable);
+	void accumulate(double time, RandomVariableInterface randomVariable);
+
+	RandomVariableInterface get();
+	RandomVariableInterface get(double fromTime, double toTime);
 }

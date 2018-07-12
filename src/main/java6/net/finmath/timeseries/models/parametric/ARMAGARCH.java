@@ -74,7 +74,9 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 		double volScaling	= 1;
 		double evalPrev		= 0.0;
 		double eval			= volScaling * (Math.log((timeSeries.getValue(1))/(timeSeries.getValue(0))));
-		if(Double.isInfinite(eval) || Double.isNaN(eval)) eval = 0;
+		if(Double.isInfinite(eval) || Double.isNaN(eval)) {
+			eval = 0;
+		}
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0; // xxx how to init?
 
@@ -89,7 +91,9 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 			double value2 = timeSeries.getValue(i+1);
 
 			double evalNext	= volScaling * (Math.log((value2)/(value1)));
-			if(Double.isInfinite(evalNext) || Double.isNaN(evalNext)) evalNext = 0;
+			if(Double.isInfinite(evalNext) || Double.isNaN(evalNext)) {
+				evalNext = 0;
+			}
 			double mNext = -mu - theta * m + evalNext - phi * eval;
 
 			// We need to take abs here, which corresponds to the assumption that -x is lognormal, given that we encounter a negative values.
@@ -98,7 +102,7 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 			evalPrev = eval;
 			eval = evalNext;
 		}
-		logLikelihood += - Math.log(2 * Math.PI) * (double)(length-1);
+		logLikelihood += - Math.log(2 * Math.PI) * (length-1);
 		logLikelihood *= 0.5;
 
 		return logLikelihood;
@@ -120,7 +124,9 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 		int length = timeSeries.getNumberOfTimePoints();
 		for (int i = 1; i < length-1; i++) {
 			double eval	= volScaling * (Math.log((timeSeries.getValue(i))/(timeSeries.getValue(i-1))));
-			if(Double.isInfinite(eval) || Double.isNaN(eval)) eval = 0;
+			if(Double.isInfinite(eval) || Double.isNaN(eval)) {
+				eval = 0;
+			}
 
 			m = -mu -theta * m + eval - phi * evalPrev;
 			h = (omega + alpha * m * m) + beta * h;
@@ -149,7 +155,9 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 		for (int i = 1; i <= timeSeries.getNumberOfTimePoints()-1; i++) {
 			double y = Math.log((timeSeries.getValue(i))/(timeSeries.getValue(i-1)));
 
-			if(Double.isInfinite(y) || Double.isNaN(y)) y = 0;
+			if(Double.isInfinite(y) || Double.isNaN(y)) {
+				y = 0;
+			}
 
 			// y = sqrt(h) * eps + sqrt(h_prev) epsprev + mu yprev
 			// h = omega + alpha y^2 + beta h
@@ -168,7 +176,9 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 
 		// Get szenarios on current vol
 		double[] szenariosArray = new double[szenarios.size()];
-		for(int i=0; i<szenarios.size(); i++) szenariosArray[i] = szenarios.get(i) * vol;
+		for(int i=0; i<szenarios.size(); i++) {
+			szenariosArray[i] = szenarios.get(i) * vol;
+		}
 
 		return szenariosArray;
 	}
@@ -329,7 +339,7 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 
 			try {
 				org.apache.commons.math3.optim.PointValuePair result = optimizer2.optimize(
-						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log((double)guessParameters.length))),
+						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(guessParameters.length))),
 						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(parameterStep)
 						);
 				bestParameters = result.getPoint();

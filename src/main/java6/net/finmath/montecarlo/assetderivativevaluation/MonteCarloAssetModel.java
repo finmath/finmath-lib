@@ -25,7 +25,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
  */
 public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInterface {
-	
+
 	private final AbstractModelInterface model;
 
 	/**
@@ -38,7 +38,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 			AbstractModelInterface model,
 			AbstractProcessInterface process) {
 		super();
-		
+
 		this.model = model;
 
 		// Link model and process for delegation
@@ -104,7 +104,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 		AbstractProcessInterface process = model.getProcess();
 
 		AbstractModelInterface		newModel	= model.getCloneWithModifiedData(dataModified);
-		
+
 		AbstractProcessInterface	newProcess;
 		try {
 			newProcess = process.getCloneWithModifiedData(dataModified);
@@ -112,7 +112,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 		catch(UnsupportedOperationException e) {
 			newProcess = process;
 		}
-		
+
 		// In the case where the model has changed we need a new process anyway
 		if(newModel != model && newProcess == process) {
 			newProcess = process.clone();			

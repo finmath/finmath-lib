@@ -17,7 +17,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 public class BlackScholesModelDescriptor implements AssetModelDescriptor {
 
 	private final LocalDate referenceDate;
-	
+
 	private final Double initialValue;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
@@ -35,7 +35,7 @@ public class BlackScholesModelDescriptor implements AssetModelDescriptor {
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
 		this.volatility = volatility;
 	}
-	
+
 	@Override
 	public Integer version() {
 		return 1;

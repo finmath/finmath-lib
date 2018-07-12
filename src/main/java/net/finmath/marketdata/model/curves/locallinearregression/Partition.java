@@ -33,7 +33,9 @@ public class Partition {
 		this.weight=weight;
 		Arrays.sort(this.points);
 		this.referencePoints=new double[points.length-1];
-		for(int i=0; i<referencePoints.length;i++) this.referencePoints[i]=(1-weight)*points[i]+weight*points[i+1];
+		for(int i=0; i<referencePoints.length;i++) {
+			this.referencePoints[i]=(1-weight)*points[i]+weight*points[i+1];
+		}
 	}
 
 	/**
@@ -58,9 +60,16 @@ public class Partition {
 	 * @return The number of the intervals which contains x.
 	 */
 	public int getIntervalNumber(double x) {
-		if (x<points[0])return 0;
-		else if (x>=points[points.length-1]) return points.length;
-		for(int i=0; i<points.length-2;i++) if ( x< points[i+1]) return i+1;
+		if (x<points[0]) {
+			return 0;
+		} else if (x>=points[points.length-1]) {
+			return points.length;
+		}
+		for(int i=0; i<points.length-2;i++) {
+			if ( x< points[i+1]) {
+				return i+1;
+			}
+		}
 		return points.length-1;
 	}
 
@@ -73,7 +82,9 @@ public class Partition {
 	 */
 	public double d(double x){
 		int intervalNumber =getIntervalNumber(x);
-		if (intervalNumber==0 || intervalNumber==points.length) return x;
+		if (intervalNumber==0 || intervalNumber==points.length) {
+			return x;
+		}
 		return getIntervalReferencePoint(intervalNumber-1);
 	}
 

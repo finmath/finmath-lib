@@ -33,9 +33,13 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1551367852009541732L;
 	private final AbstractRandomVariableFactory			randomVariableFactory;
-	private final Map<String, CurveInterface>			curvesMap					= new HashMap<String, CurveInterface>();
-	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap	= new HashMap<String, VolatilitySurfaceInterface>();
+	private final Map<String, CurveInterface>			curvesMap					= new HashMap<>();
+	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap	= new HashMap<>();
 
 	/**
 	 * Create an empty analytic model.
@@ -52,7 +56,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	public AnalyticModel(AbstractRandomVariableFactory randomVariableFactory) {
 		this.randomVariableFactory = randomVariableFactory;
 	}
-  
+
 	/**
 	 * Create an analytic model with the given curves.
 	 * 
@@ -60,9 +64,11 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 */
 	public AnalyticModel(CurveInterface[] curves) {
 		this();
-        for (CurveInterface curve : curves) curvesMap.put(curve.getName(), curve);
+		for (CurveInterface curve : curves) {
+			curvesMap.put(curve.getName(), curve);
+		}
 	}
-	
+
 	/**
 	 * Create an analytic model with the given curves  using a given AbstractRandomVariableFactory for construction of result types.
 	 * 
@@ -71,7 +77,9 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 */
 	public AnalyticModel(AbstractRandomVariableFactory randomVariableFactory, CurveInterface[] curves) {
 		this(randomVariableFactory);
-        for (CurveInterface curve : curves) curvesMap.put(curve.getName(), curve);
+		for (CurveInterface curve : curves) {
+			curvesMap.put(curve.getName(), curve);
+		}
 	}
 
 	/**
@@ -81,13 +89,15 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 */
 	public AnalyticModel(Collection<CurveInterface> curves) {
 		this();
-		for(CurveInterface curve : curves) curvesMap.put(curve.getName(), curve);
+		for(CurveInterface curve : curves) {
+			curvesMap.put(curve.getName(), curve);
+		}
 	}
 
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
-	
+
 	@Override
 	public CurveInterface getCurve(String name)
 	{
@@ -115,14 +125,18 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	@Override
 	public AnalyticModelInterface addCurves(CurveInterface... curves) {
 		AnalyticModel newModel = clone();
-		for(CurveInterface curve : curves) newModel.curvesMap.put(curve.getName(), curve);
+		for(CurveInterface curve : curves) {
+			newModel.curvesMap.put(curve.getName(), curve);
+		}
 		return newModel;
 	}
 
 	@Override
 	public AnalyticModelInterface addCurves(Set<CurveInterface> curves) {
 		AnalyticModel newModel = clone();
-		for(CurveInterface curve : curves) newModel.curvesMap.put(curve.getName(), curve);
+		for(CurveInterface curve : curves) {
+			newModel.curvesMap.put(curve.getName(), curve);
+		}
 		return newModel;
 	}
 
@@ -131,7 +145,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 */
 	@Override
 	@Deprecated
-    public void setCurve(CurveInterface curve)
+	public void setCurve(CurveInterface curve)
 	{
 		curvesMap.put(curve.getName(), curve);
 	}
@@ -144,15 +158,18 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 */
 	@Deprecated
 	public void setCurves(CurveInterface[] curves) {
-		for(CurveInterface curve : curves) setCurve(curve);
+		for(CurveInterface curve : curves) {
+			setCurve(curve);
+		}
 	}
-	
+
 	@Override
 	public DiscountCurveInterface getDiscountCurve(String discountCurveName) {
 		DiscountCurveInterface discountCurve = null;
 		CurveInterface curve = getCurve(discountCurveName);
-		if(DiscountCurveInterface.class.isInstance(curve))
+		if(DiscountCurveInterface.class.isInstance(curve)) {
 			discountCurve = (DiscountCurveInterface)curve;
+		}
 
 		return discountCurve;
 	}
@@ -161,8 +178,9 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	public ForwardCurveInterface getForwardCurve(String forwardCurveName) {
 		ForwardCurveInterface forwardCurve = null;
 		CurveInterface curve = getCurve(forwardCurveName);
-		if(ForwardCurveInterface.class.isInstance(curve))
+		if(ForwardCurveInterface.class.isInstance(curve)) {
 			forwardCurve = (ForwardCurveInterface)curve;
+		}
 
 		return forwardCurve;
 	}
@@ -171,7 +189,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	public VolatilitySurfaceInterface getVolatilitySurface(String name) {
 		return volatilitySurfaceMap.get(name);
 	}
-	
+
 	public AnalyticModelInterface addVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
 	{
 		AnalyticModel newModel = clone();
@@ -183,14 +201,18 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	public AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces)
 	{
 		AnalyticModel newModel = clone();
-		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) {
+			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		}
 		return newModel;
 	}
 
 	@Override
 	public AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces) {
 		AnalyticModel newModel = clone();
-		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) {
+			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
+		}
 		return newModel;
 	}
 
@@ -198,11 +220,15 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	{
 		volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 	}
-	
+
 	private void set(Object marketDataObject) {
-		if(marketDataObject instanceof CurveInterface)					setCurve((CurveInterface)marketDataObject);
-		else if(marketDataObject instanceof VolatilitySurfaceInterface)	setVolatilitySurface((VolatilitySurfaceInterface)marketDataObject);
-		else throw new IllegalArgumentException("Provided object is not of supported type.");
+		if(marketDataObject instanceof CurveInterface) {
+			setCurve((CurveInterface)marketDataObject);
+		} else if(marketDataObject instanceof VolatilitySurfaceInterface) {
+			setVolatilitySurface((VolatilitySurfaceInterface)marketDataObject);
+		} else {
+			throw new IllegalArgumentException("Provided object is not of supported type.");
+		}
 	}
 
 	@Override
@@ -215,7 +241,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	}
 
 	@Override
-    public AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, RandomVariableInterface[]> curveParameterPairs) throws CloneNotSupportedException {
+	public AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, RandomVariableInterface[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
 		AnalyticModel modelClone = clone();
@@ -227,7 +253,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 				modelClone.set(newCurve);
 			}
 		}
-		
+
 		return modelClone;
 	}
 

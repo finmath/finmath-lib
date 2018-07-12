@@ -21,7 +21,7 @@ import org.apache.commons.math3.analysis.integration.RombergIntegrator;
 public class RombergRealIntegration extends AbstractRealIntegral {
 
 	private int numberOfEvaluationPoints;
-	
+
 	/**
 	 * Create a Romberg integrator.
 	 * 
@@ -39,7 +39,7 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 	 */
 	@Override
 	public double integrate(DoubleUnaryOperator integrand) {
-		
+
 		// We use commons-math RombergIntegrator
 		return new RombergIntegrator().integrate(numberOfEvaluationPoints, new UnivariateFunction() {
 			public double value(double argument) {

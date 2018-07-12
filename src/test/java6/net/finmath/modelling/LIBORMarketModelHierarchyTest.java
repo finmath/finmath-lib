@@ -87,10 +87,10 @@ public class LIBORMarketModelHierarchyTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		Map<String, Object> valueLIBORModelMonteCarloSimulation = leg.getValues(0.0, (LIBORModelMonteCarloSimulation)model);
+		Map<String, Object> valueLIBORModelMonteCarloSimulation = leg.getValues(0.0, model);
 		Map<String, Object> valueLIBORModelMonteCarloSimulationInterface = leg.getValues(0.0, model);
-		Map<String, Object> valueTermStructureModelMonteCarloSimulationInterface = leg.getValues(0.0, (TermStructureModelMonteCarloSimulationInterface)model);
-		Map<String, Object> valueMonteCarloSimulationInterface = leg.getValues(0.0, (MonteCarloSimulationInterface)model);
+		Map<String, Object> valueTermStructureModelMonteCarloSimulationInterface = leg.getValues(0.0, model);
+		Map<String, Object> valueMonteCarloSimulationInterface = leg.getValues(0.0, model);
 		Map<String, Object> valueModelInterface = leg.getValues(0.0, (ModelInterface)model);
 
 		System.out.println(valueLIBORModelMonteCarloSimulation);
@@ -171,10 +171,11 @@ public class LIBORMarketModelHierarchyTest {
 				double timeToMaturity = maturity - time;
 
 				double instVolatility;
-				if(timeToMaturity <= 0)
+				if(timeToMaturity <= 0) {
 					instVolatility = 0;				// This forward rate is already fixed, no volatility
-				else
+				} else {
 					instVolatility = 0.3 + 0.2 * Math.exp(-0.25 * timeToMaturity);
+				}
 
 				// Store
 				volatility[timeIndex][liborIndex] = instVolatility;

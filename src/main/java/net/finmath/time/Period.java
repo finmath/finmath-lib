@@ -72,32 +72,43 @@ public class Period implements Comparable<Period> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Period other = (Period) obj;
 		if (fixing == null) {
-			if (other.fixing != null)
+			if (other.fixing != null) {
 				return false;
-		} else if (!fixing.equals(other.fixing))
+			}
+		} else if (!fixing.equals(other.fixing)) {
 			return false;
+		}
 		if (payment == null) {
-			if (other.payment != null)
+			if (other.payment != null) {
 				return false;
-		} else if (!payment.equals(other.payment))
+			}
+		} else if (!payment.equals(other.payment)) {
 			return false;
+		}
 		if (periodEnd == null) {
-			if (other.periodEnd != null)
+			if (other.periodEnd != null) {
 				return false;
-		} else if (!periodEnd.equals(other.periodEnd))
+			}
+		} else if (!periodEnd.equals(other.periodEnd)) {
 			return false;
+		}
 		if (periodStart == null) {
-            return other.periodStart == null;
-		} else return periodStart.equals(other.periodStart);
-    }
+			return other.periodStart == null;
+		} else {
+			return periodStart.equals(other.periodStart);
+		}
+	}
 
 	@Override
 	public String toString() {

@@ -32,14 +32,18 @@ public class MinIndex extends AbstractIndex {
 	 */
 	public MinIndex(AbstractProductComponent... indexArguments) {
 		super();
-		if(indexArguments.length < 1) throw new IllegalArgumentException("Missing arguments. Please provide one or more arguments.");
+		if(indexArguments.length < 1) {
+			throw new IllegalArgumentException("Missing arguments. Please provide one or more arguments.");
+		}
 		this.indexArguments = indexArguments;
 	}
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface value = indexArguments[0].getValue(evaluationTime, model);
-		for(AbstractProductComponent index : indexArguments) value = value.cap(index.getValue(evaluationTime, model));
+		for(AbstractProductComponent index : indexArguments) {
+			value = value.cap(index.getValue(evaluationTime, model));
+		}
 		return value;
 	}
 
@@ -49,8 +53,11 @@ public class MinIndex extends AbstractIndex {
 		for(AbstractProductComponent product : indexArguments) {
 			Set<String> productUnderlyingNames = product.queryUnderlyings();
 			if(productUnderlyingNames != null) {
-				if(underlyingNames == null)	underlyingNames = productUnderlyingNames;
-				else						underlyingNames.addAll(productUnderlyingNames);
+				if(underlyingNames == null) {
+					underlyingNames = productUnderlyingNames;
+				} else {
+					underlyingNames.addAll(productUnderlyingNames);
+				}
 			}
 		}
 		return underlyingNames;
@@ -59,6 +66,6 @@ public class MinIndex extends AbstractIndex {
 	@Override
 	public String toString() {
 		return "MinIndex [indexArguments=" + Arrays.toString(indexArguments)
-				+ "]";
+		+ "]";
 	}
 }

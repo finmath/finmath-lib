@@ -104,7 +104,9 @@ public class Period extends AbstractPeriod {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 
-		if(evaluationTime >= this.getPaymentDate()) return new RandomVariable(0.0);
+		if(evaluationTime >= this.getPaymentDate()) {
+			return new RandomVariable(0.0);
+		}
 
 		// Get random variables
 		RandomVariableInterface	notionalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
@@ -144,7 +146,9 @@ public class Period extends AbstractPeriod {
 			}
 		}
 
-		if(payer) values = values.mult(-1.0);
+		if(payer) {
+			values = values.mult(-1.0);
+		}
 
 		values = values.mult(numeraireAtEval);
 

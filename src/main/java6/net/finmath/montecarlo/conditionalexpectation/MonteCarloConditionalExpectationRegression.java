@@ -28,7 +28,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
 	private RandomVariableInterface[]    basisFunctionsPredictor		= null;
-    
+
 	/**
 	 * Creates a class for conditional expectation estimation.
 	 * 
@@ -66,7 +66,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 		return conditionalExpectation;
 	}
-    
+
 	/**
 	 * Return the solution x of XTX x = XT y for a given y.
 	 * @TODO Performance upon repeated call can be optimized by caching XTX.

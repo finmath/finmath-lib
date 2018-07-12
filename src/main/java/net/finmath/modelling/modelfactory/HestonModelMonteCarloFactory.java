@@ -63,20 +63,13 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			@Override
 			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
-					return productFactory.getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+					return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 				}
 				else {
 					String name = modelDescriptor.name();
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
 			}
-
-			@Override
-			public DescribedModel<HestonModelDescriptor> getModelWithProductFactory(
-					ProductFactory<? extends ProductDescriptor, HestonModelDescriptor> productFactory, boolean append) {
-				// TODO Auto-generated method stub
-				return null;
-			}	
 		}
 
         return new HestonMonteCarloModel(

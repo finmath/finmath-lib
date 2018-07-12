@@ -20,7 +20,7 @@ import org.junit.Test;
 public class SimpsonRealIntegratorTest {
 
 	private AbstractRealIntegral integral;
-	
+
 	@Before
 	public void setUp() {
 		final double	lowerBound = 1.0;
@@ -32,18 +32,18 @@ public class SimpsonRealIntegratorTest {
 
 	@Test
 	public void testCos() {
-		
+
 		DoubleUnaryOperator integrand			= x -> Math.cos(x);
 		DoubleUnaryOperator integralAnalytic	= x -> Math.sin(x);
-		
+
 		double value = integral.integrate(integrand);
-		
+
 		double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
-		
+
 		double error = value-valueAnalytic;
 
 		System.out.println("Result: " + value + ". \tError: " + error);
-		
+
 		Assert.assertEquals("Integreation error.", 0.0, error, 1E-7);
 	}
 
@@ -52,15 +52,15 @@ public class SimpsonRealIntegratorTest {
 
 		DoubleUnaryOperator integrand			= x -> 2 * x * x - x;
 		DoubleUnaryOperator integralAnalytic	= x -> 2 * x * x * x / 3 - x * x / 2;
-		
+
 		double value = integral.integrate(integrand);
-		
+
 		double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
-		
+
 		double error = value-valueAnalytic;
 
 		System.out.println("Result: " + value + ". \tError: " + error);
-		
+
 		Assert.assertEquals("Integreation error.", 0.0, error, 1E-13);
 	}
 }

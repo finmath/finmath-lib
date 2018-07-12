@@ -151,7 +151,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 		double[] fixingTimes = new double[indexFixings.size()];								// Not needed: remove
 		double[] realizedCPIValues = new double[indexFixings.size()];
 		int i = 0;
-		List<LocalDate> fixingDates = new ArrayList<LocalDate>(indexFixings.keySet());
+		List<LocalDate> fixingDates = new ArrayList<>(indexFixings.keySet());
 		Collections.sort(fixingDates);
 		for(LocalDate fixingDate : fixingDates) {
 			fixingTimes[i] = modelDcc.getDaycountFraction(referenceDate, fixingDate);

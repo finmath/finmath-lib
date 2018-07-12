@@ -20,7 +20,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public interface MonteCarloSimulationInterface extends ModelInterface {
-	
+
 	/**
 	 * Returns the numberOfPaths.
 	 * 

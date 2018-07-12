@@ -68,26 +68,26 @@ public class BrownianMotionTest {
 					numberOfPaths,
 					seed,
 					randomVariableFactory
-			);
-			
+					);
+
 			System.out.print("\tNumber of path = " + formatterSci1.format(numberOfPaths) + "\t ");
 
 			RandomVariableInterface brownianRealization = brownian.getBrownianIncrement(0, 0);
-			
+
 			double mean		= brownianRealization.getAverage();
 			double variance	= brownianRealization.getVariance();
-			
+
 			System.out.print("error of mean = " + formatterSci4.format(mean) + "\t error of variance = " + formatterSci4.format(variance-dt));
 
 			Assert.assertTrue(Math.abs(mean         ) < 3.0 * Math.pow(dt,0.5) / Math.pow(numberOfPaths,0.5));
 			Assert.assertTrue(Math.abs(variance - dt) < 3.0 * Math.pow(dt,1.0) / Math.pow(numberOfPaths,0.5));
-			
+
 			System.out.println(" - OK");
 		}
 
 		System.out.println("");
 	}
-	
+
 	@Test
 	public void testScalarValuedBrownianMotionWithJarqueBeraTest() {
 		// The parameters
@@ -108,8 +108,8 @@ public class BrownianMotionTest {
 				numberOfPaths,
 				seed,
 				randomVariableFactory
-		);
-		
+				);
+
 		JarqueBeraTest jb = new JarqueBeraTest();
 		int fail = 0;
 		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
@@ -138,7 +138,7 @@ public class BrownianMotionTest {
 		// The parameters
 		int numberOfPaths	= 10000;
 		int seed			= 53252;
-		
+
 		double lastTime = 4.0;
 		double dt = 0.001;
 
@@ -152,8 +152,8 @@ public class BrownianMotionTest {
 				numberOfPaths,
 				seed,
 				randomVariableFactory
-		);
-		
+				);
+
 		System.out.println("Test of average and variance of the integral of (Delta W)^2.");
 		System.out.println("Time step size: " + dt + "  Number of path: " + numberOfPaths);
 
@@ -183,12 +183,12 @@ public class BrownianMotionTest {
 		Assert.assertTrue(Math.abs(meanOfSumOfCrossIncrements) < 1.0E-3);
 		Assert.assertTrue(Math.abs(varianceOfSumOfCrossIncrements) < 1.0E-2);
 
-		
+
 		System.out.println("\t              t = " + formatterReal2.format(time));
 		System.out.println("\tint_0^t dW1 dW1 = " + formatterSci4.format(meanOfSumOfSquaredIncrements)
-				+ "\t (Monte-Carlo variance: " + formatterSci4.format(varianceOfSumOfSquaredIncrements) + ")");
+		+ "\t (Monte-Carlo variance: " + formatterSci4.format(varianceOfSumOfSquaredIncrements) + ")");
 		System.out.println("\tint_0^t dW1 dW2 = " + formatterSci4.format(meanOfSumOfCrossIncrements)
-				+ "\t (Monte-Carlo variance: " + formatterSci4.format(varianceOfSumOfCrossIncrements) + ")");
+		+ "\t (Monte-Carlo variance: " + formatterSci4.format(varianceOfSumOfCrossIncrements) + ")");
 
 		System.out.println("");
 	}

@@ -130,7 +130,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 			) {
 		this(new BrownianMotion(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
 	}
-	
+
 	@Override
 	public RandomVariableInterface[] getInitialState() {
 		return initialStates;
@@ -159,7 +159,9 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	@Override
 	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
-		if(timeIndex < 0) timeIndex = -timeIndex-1;
+		if(timeIndex < 0) {
+			timeIndex = -timeIndex-1;
+		}
 		return getAssetValue(timeIndex, assetIndex);
 	}
 
@@ -240,16 +242,24 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 
 	@Override
 	public MonteCarloMultiAssetBlackScholesModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		
+
 		double[]	newInitialValues = initialValues;
 		double		newRiskFreeRate = riskFreeRate;
 		double[]	newVolatilities = volatilities;
 		double[][]	newCorrelations = null;// = correlations;
 
-		if(dataModified.containsKey("initialValues"))	newInitialValues = (double[]) dataModified.get("initialValues");
-		if(dataModified.containsKey("riskFreeRate"))	newRiskFreeRate = ((Double)dataModified.get("riskFreeRate")).doubleValue();
-		if(dataModified.containsKey("volatilities"))	newVolatilities = (double[]) dataModified.get("volatilities");
-		if(dataModified.containsKey("correlations"))	newCorrelations = (double[][]) dataModified.get("correlations");
+		if(dataModified.containsKey("initialValues")) {
+			newInitialValues = (double[]) dataModified.get("initialValues");
+		}
+		if(dataModified.containsKey("riskFreeRate")) {
+			newRiskFreeRate = ((Double)dataModified.get("riskFreeRate")).doubleValue();
+		}
+		if(dataModified.containsKey("volatilities")) {
+			newVolatilities = (double[]) dataModified.get("volatilities");
+		}
+		if(dataModified.containsKey("correlations")) {
+			newCorrelations = (double[][]) dataModified.get("correlations");
+		}
 
 		return new MonteCarloMultiAssetBlackScholesModel(getTimeDiscretization(), getNumberOfPaths(), newInitialValues, newRiskFreeRate, newVolatilities, newCorrelations);
 	}

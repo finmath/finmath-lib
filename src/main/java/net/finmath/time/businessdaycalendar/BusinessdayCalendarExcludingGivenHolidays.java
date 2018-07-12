@@ -17,7 +17,7 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Business
 	private final String name;
 	private final BusinessdayCalendarInterface baseCalendar;
 	private final boolean isExcludeWeekends;
-	
+
 	public BusinessdayCalendarExcludingGivenHolidays(String name, BusinessdayCalendarInterface baseCalendar, boolean isExcludeWeekends) {
 		super();
 		this.name = name;
@@ -31,7 +31,7 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Business
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * @return A base calendar, if any. May be null.
 	 */

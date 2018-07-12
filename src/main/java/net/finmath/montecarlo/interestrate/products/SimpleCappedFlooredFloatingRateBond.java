@@ -48,13 +48,19 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 			RandomVariableInterface coupon = model.getLIBOR(fixingDate, fixingDate, paymentDate);
 
 			// Apply spread, if any
-			if(spreads != null)	coupon = coupon.sub(spreads[periodIndex]);
+			if(spreads != null) {
+				coupon = coupon.sub(spreads[periodIndex]);
+			}
 
 			// Apply floor, if any
-			if(floors != null)	coupon = coupon.floor(floors[periodIndex]);
+			if(floors != null) {
+				coupon = coupon.floor(floors[periodIndex]);
+			}
 
 			// Apply cap, if any
-			if(caps != null)	coupon = coupon.cap(caps[periodIndex]);
+			if(caps != null) {
+				coupon = coupon.cap(caps[periodIndex]);
+			}
 
 			coupon = coupon.mult(periodLength);
 

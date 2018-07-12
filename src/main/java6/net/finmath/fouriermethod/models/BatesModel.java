@@ -302,6 +302,6 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 
 				return characteristicFunction;
 			}
-        };
+		};
 	}
 }

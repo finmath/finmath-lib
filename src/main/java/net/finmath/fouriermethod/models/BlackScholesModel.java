@@ -12,6 +12,10 @@ import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 
 /**
@@ -20,7 +24,7 @@ import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
  * @author Christian Fries
  * @author Alessandro Gnoatto
  */
-public class BlackScholesModel extends AbstractFourierModel<BlackScholesModelDescriptor> {
+public class BlackScholesModel implements ProcessCharacteristicFunctionInterface, DescribedModel<BlackScholesModelDescriptor> {
 
 	private final LocalDate referenceDate;
 
@@ -119,8 +123,9 @@ public class BlackScholesModel extends AbstractFourierModel<BlackScholesModelDes
 		return new BlackScholesModelDescriptor(referenceDate, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility);
 	}
 
-//	@Override
-//	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-//		return (new SingleAssetFourierProductFactory<BlackScholesModelDescriptor>()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
-//	}
+	@Override
+	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

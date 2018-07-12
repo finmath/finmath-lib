@@ -19,12 +19,17 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatilityModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1508940332674724348L;
+
 	private final AbstractRandomVariableFactory	randomVariableFactory;
 
 	private final TimeDiscretizationInterface	simulationTimeDiscretization;
 	private final TimeDiscretizationInterface	timeToMaturityDiscretization;
 
-	private Map<Integer, HashMap<Integer, Integer>> 	indexMap = new HashMap<Integer, HashMap<Integer, Integer>>();
+	private Map<Integer, HashMap<Integer, Integer>> 	indexMap = new HashMap<>();
 	private double[] volatility;
 	private final	boolean		isCalibrateable;
 
@@ -42,9 +47,11 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 		double maxMaturity = timeToMaturityDiscretization.getTime(timeToMaturityDiscretization.getNumberOfTimes()-1);
 		int volatilityIndex = 0;
 		for(int simulationTime=0; simulationTime<simulationTimeDiscretization.getNumberOfTimes(); simulationTime++) {
-			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<Integer, Integer>();
+			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<>();
 			for(int timeToMaturity=0; timeToMaturity<timeToMaturityDiscretization.getNumberOfTimes(); timeToMaturity++) {
-				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) continue;
+				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) {
+					continue;
+				}
 
 				timeToMaturityIndexing.put(timeToMaturity,volatilityIndex++);
 			}
@@ -76,9 +83,11 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 		double maxMaturity = timeToMaturityDiscretization.getTime(timeToMaturityDiscretization.getNumberOfTimes()-1);
 		int volatilityIndex = 0;
 		for(int simulationTime=0; simulationTime<simulationTimeDiscretization.getNumberOfTimes(); simulationTime++) {
-			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<Integer, Integer>();
+			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<>();
 			for(int timeToMaturity=0; timeToMaturity<timeToMaturityDiscretization.getNumberOfTimes(); timeToMaturity++) {
-				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) continue;
+				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) {
+					continue;
+				}
 
 				timeToMaturityIndexing.put(timeToMaturity,volatilityIndex++);
 			}
@@ -93,7 +102,9 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 			this.volatility = volatility;
 		}
 
-		if(volatilityIndex != this.volatility.length) throw new IllegalArgumentException("volatility.length should equal simulationTimeDiscretization.getNumberOfTimes()*timeToMaturityDiscretization.getNumberOfTimes().");
+		if(volatilityIndex != this.volatility.length) {
+			throw new IllegalArgumentException("volatility.length should equal simulationTimeDiscretization.getNumberOfTimes()*timeToMaturityDiscretization.getNumberOfTimes().");
+		}
 		this.simulationTimeDiscretization = simulationTimeDiscretization;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.isCalibrateable = isCalibrateable;
@@ -118,8 +129,11 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 
 	@Override
 	public double[] getParameter() {
-		if(isCalibrateable)	return volatility;
-		else return null;
+		if(isCalibrateable) {
+			return volatility;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -152,14 +166,26 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 		else
 		{
 			int timeIndexSimulationTime = simulationTimeDiscretization.getTimeIndex(time);
-			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = -timeIndexSimulationTime-1-1;
-			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = 0;
-			if(timeIndexSimulationTime >= simulationTimeDiscretization.getNumberOfTimes()) timeIndexSimulationTime--;
+			if(timeIndexSimulationTime < 0) {
+				timeIndexSimulationTime = -timeIndexSimulationTime-1-1;
+			}
+			if(timeIndexSimulationTime < 0) {
+				timeIndexSimulationTime = 0;
+			}
+			if(timeIndexSimulationTime >= simulationTimeDiscretization.getNumberOfTimes()) {
+				timeIndexSimulationTime--;
+			}
 
 			int timeIndexTimeToMaturity = timeToMaturityDiscretization.getTimeIndex(timeToMaturity);
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = 0;
-			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) timeIndexTimeToMaturity--;
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
+			}
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = 0;
+			}
+			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) {
+				timeIndexTimeToMaturity--;
+			}
 
 			RandomVariableInterface volatilityRandomVariable = volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity];
 

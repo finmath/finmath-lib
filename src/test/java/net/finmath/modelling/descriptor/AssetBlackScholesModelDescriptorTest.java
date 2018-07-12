@@ -92,7 +92,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		BrownianMotionInterface brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
-		// Create Fourier implementation of Black-Scholes model
+		// Create Monte Carlo implementation of Black-Scholes model
 		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model

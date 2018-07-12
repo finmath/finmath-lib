@@ -35,7 +35,9 @@ public class ModelFactory {
 	}
 
 	public static synchronized ModelFactory getInstance() {
-		if(modelFactory == null) modelFactory = new ModelFactory();
+		if(modelFactory == null) {
+			modelFactory = new ModelFactory();
+		}
 
 		return modelFactory;
 	}
@@ -84,12 +86,15 @@ public class ModelFactory {
 		try {
 			optimizer.run();
 		} catch (SolverException e) {
-			if(e.getCause() instanceof CalculationException)	throw (CalculationException)e.getCause();
-			else												throw new CalculationException(e);
+			if(e.getCause() instanceof CalculationException) {
+				throw (CalculationException)e.getCause();
+			} else {
+				throw new CalculationException(e);
+			}
 		}
 
 		AssetModelMonteCarloSimulationInterface model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);
-		
+
 		/*
 		 * Test calibration
 		 */
@@ -100,7 +105,9 @@ public class ModelFactory {
 			EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);
 			double valueOptoin = option.getValue(hybridModelWithoutDiscountAdjustment);
 			double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);
-			if(Math.abs(impliedVol - volatilities[assetIndex]) > 0.01) throw new CalculationException("Calibration failed");
+			if(Math.abs(impliedVol - volatilities[assetIndex]) > 0.01) {
+				throw new CalculationException("Calibration failed");
+			}
 		}
 
 		/*

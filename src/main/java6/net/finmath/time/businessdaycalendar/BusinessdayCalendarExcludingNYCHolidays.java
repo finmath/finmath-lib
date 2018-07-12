@@ -111,10 +111,12 @@ public class BusinessdayCalendarExcludingNYCHolidays extends BusinessdayCalendar
 	static {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		Set<LocalDate> holidaysSet = new TreeSet<LocalDate>();
-		for(String holidayAsString : HOLIDAYLISTASSTRINGS) holidaysSet.add(LocalDate.parse(holidayAsString, formatter));
+		for(String holidayAsString : HOLIDAYLISTASSTRINGS) {
+			holidaysSet.add(LocalDate.parse(holidayAsString, formatter));
+		}
 		HOLIDAYS = Collections.unmodifiableSet(holidaysSet);
 	}
-	
+
 	/**
 	 * Create NEW YORK business day calendar.
 	 */

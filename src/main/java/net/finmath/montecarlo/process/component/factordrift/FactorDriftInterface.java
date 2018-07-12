@@ -26,13 +26,13 @@ public interface FactorDriftInterface {
 	 */
 	RandomVariableInterface[]	getFactorDrift(int timeIndex, RandomVariableInterface[] realizationPredictor) throws CalculationException;
 
-    /**
-     * The interface describes how an additional factor drift may be specified for the generation of a process (see e.g. LogNormalProcess).
-     * The factor drift may be used to implement importance sampling or proxy simulation on the level of the discrete process.
-     * 
+	/**
+	 * The interface describes how an additional factor drift may be specified for the generation of a process (see e.g. LogNormalProcess).
+	 * The factor drift may be used to implement importance sampling or proxy simulation on the level of the discrete process.
+	 * 
 	 * @param timeIndex The time index (associated with the process time discretization).
 	 * @param realizationPredictor The realization predictor (in case we use a predictor corrector scheme).
-     * @return The determinant of the factor drift.
-     */
+	 * @return The determinant of the factor drift.
+	 */
 	RandomVariableInterface    getFactorDriftDeterminant(int timeIndex, RandomVariableInterface[] realizationPredictor);
 }

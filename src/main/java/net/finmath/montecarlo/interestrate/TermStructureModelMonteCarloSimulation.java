@@ -59,7 +59,9 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	@Override
 	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
-		if(timeIndex < 0) timeIndex = (-timeIndex-1)-1;
+		if(timeIndex < 0) {
+			timeIndex = (-timeIndex-1)-1;
+		}
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 
@@ -182,7 +184,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	 */
 	public TermStructureModelMonteCarloSimulationInterface getCloneWithModifiedData(String entityKey, Object dataModified) throws CalculationException
 	{
-		Map<String, Object> dataModifiedMap = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedMap = new HashMap<>();
 		dataModifiedMap.put(entityKey, dataModified);
 		return getCloneWithModifiedData(dataModifiedMap);
 	}

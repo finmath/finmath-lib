@@ -52,7 +52,9 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycountFraction(endDate,startDate);
+		}
 
 
 		/*
@@ -93,17 +95,17 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 				{
 					// Get February 29th of the respective leap year
 					LocalDate leapYearsFeb29th = isStartLeapYear ? 
-								LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29) : 
+							LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29) : 
 								LocalDate.of(endDate.getYear(), Month.FEBRUARY, 29); 
-					
 
-					// Check position of February 29th
-					if(startDate.compareTo(leapYearsFeb29th) <= 0 && endDate.compareTo(leapYearsFeb29th) >= 0) {
-						denominator = 366.0;
-					}
-					else {
-						denominator = 365.0;
-					}
+
+							// Check position of February 29th
+							if(startDate.compareTo(leapYearsFeb29th) <= 0 && endDate.compareTo(leapYearsFeb29th) >= 0) {
+								denominator = 366.0;
+							}
+							else {
+								denominator = 365.0;
+							}
 				}
 				else {
 					/*

@@ -27,7 +27,7 @@ public interface AbstractSwaptionMarketData {
 	 * @param strike The strike (swap) rate.
 	 * @return The option price.
 	 */
-    double getValue(double optionMaturity, double tenorLength, double periodLength, double strike);
+	double getValue(double optionMaturity, double tenorLength, double periodLength, double strike);
 
 	/**
 	 * Returns the option implied volatility of a swaption for a given option maturity and tenor length.
@@ -38,5 +38,5 @@ public interface AbstractSwaptionMarketData {
 	 * @param strike The strike (swap) rate.
 	 * @return The implied volatility.
 	 */
-    double getVolatility(double optionMaturity, double tenorLength, double periodLength, double strike);
+	double getVolatility(double optionMaturity, double tenorLength, double periodLength, double strike);
 }

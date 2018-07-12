@@ -40,11 +40,11 @@ public class BlackScholesCallOptionTest {
 		AbstractProductFourierTransform product = new EuropeanOption(maturity, strike);
 
 		long startMillis	= System.currentTimeMillis();
-		
+
 		double value			= product.getValue(model);
-		
+
 		long endMillis		= System.currentTimeMillis();
-		
+
 		double valueAnalytic	= AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
 		double error			= value-valueAnalytic;
 
@@ -61,11 +61,11 @@ public class BlackScholesCallOptionTest {
 		AbstractProductFourierTransform product = new DigitalOption(maturity, strike);
 
 		long startMillis	= System.currentTimeMillis();
-		
+
 		double value			= product.getValue(model);
-		
+
 		long endMillis		= System.currentTimeMillis();
-		
+
 		double valueAnalytic	= AnalyticFormulas.blackScholesDigitalOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
 		double error			= value-valueAnalytic;
 

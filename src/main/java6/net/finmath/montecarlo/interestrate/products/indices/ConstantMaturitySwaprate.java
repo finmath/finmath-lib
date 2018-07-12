@@ -73,7 +73,9 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 		this.fixingOffset = fixingOffset;
 
 		int numberOfPeriods = (int) (maturity / periodLength + 0.5);
-		if(numberOfPeriods * periodLength != maturity) throw new IllegalArgumentException("matruity not divisible by periodLength");
+		if(numberOfPeriods * periodLength != maturity) {
+			throw new IllegalArgumentException("matruity not divisible by periodLength");
+		}
 		this.periodLengths = new double[numberOfPeriods];
 		Arrays.fill(this.periodLengths,periodLength);
 	}

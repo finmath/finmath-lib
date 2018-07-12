@@ -52,18 +52,18 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
-		
+
 		DiscountCurveInterface	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			// User might like to get forward from discount curve.
 			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
-			
+
 			if(discountCurveForForward == null) {
 				// User specified a name for the forward curve, but no curve was found.
 				throw new IllegalArgumentException("No curve of the name " + forwardCurveName + " was found in the model.");
 			}
 		}
-		
+
 		double forward		= spread;
 		if(forwardCurve != null) {
 			forward			+= forwardCurve.getForward(model, maturity);

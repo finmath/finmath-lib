@@ -59,7 +59,7 @@ public class DayCountConventionFactory {
 		else if(convention.compareToIgnoreCase("act/act yearfrac") == 0) {
 			return new DayCountConvention_ACT_ACT_YEARFRAC();
 		}
-		
+
 		throw new IllegalArgumentException("Unknow day count convention: " + convention);
 	}
 
@@ -90,5 +90,5 @@ public class DayCountConventionFactory {
 		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycountFraction(startDate, endDate);
 	}	
-	
+
 }

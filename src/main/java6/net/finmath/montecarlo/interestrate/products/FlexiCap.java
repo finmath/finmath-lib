@@ -22,12 +22,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.0
  */
 public class FlexiCap extends AbstractLIBORMonteCarloProduct {
-	
+
 	private final double[]	fixingDates;					// Vector of fixing dates (must be sorted)
 	private final double[]	paymentDates;					// Vector of payment dates (same length as fixing dates)
 	private final double[]	strikes;						// Vector of strikes
 	private final int		maximumNumberOfExercises;		// The maximum number of exercises
-	
+
 	/**
 	 * Create a Flexi Cap (aka Auto Cap).
 	 * If <code>maximumNumberOfExercises = fixingDates.length</code> then this is a Cap.
@@ -48,39 +48,41 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 		this.strikes					= strikes;
 		this.maximumNumberOfExercises	= maximumNumberOfExercises;
 	}
-	
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-     */
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-    	// Allocate accumulator for values
-        RandomVariableInterface values = new RandomVariable(0.0);
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-        /*
+		// Allocate accumulator for values
+		RandomVariableInterface values = new RandomVariable(0.0);
+
+		/*
 		 * We go forward in time and on each path we remember the number of exercises so far.
 		 */
-        RandomVariableInterface numberOfExcercises = new RandomVariable(maximumNumberOfExercises-0.5);
-		
+		RandomVariableInterface numberOfExcercises = new RandomVariable(maximumNumberOfExercises-0.5);
+
 		for(int period=0; period<fixingDates.length; period++)
 		{
 			double fixingDate	= fixingDates[period];
 			double paymentDate	= paymentDates[period];
-			
+
 			// evaluationTime > fixingDate is allowed. Negative fixing date is allowed too (but likely not supported by the model)
-			if(evaluationTime > paymentDate) continue;
-			
+			if(evaluationTime > paymentDate) {
+				continue;
+			}
+
 			double strike	 	= strikes[period];
 			double periodLength	= paymentDate - fixingDate;
-			
+
 			// Get random variables
 			RandomVariableInterface	libor					= model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
@@ -90,23 +92,23 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 			RandomVariableInterface payoff = libor.sub(strike).mult(periodLength);
 			RandomVariableInterface indicator = new RandomVariable(1.0).barrier(payoff, new RandomVariable(1.0), new RandomVariable(0.0));
 			indicator = indicator.barrier(numberOfExcercises, indicator, 0.0);
-			
+
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			// Accumulate numeraire relative values
 			values = values.addProduct(indicator, payoff);
 
 			// Update exercise counter
-            numberOfExcercises = numberOfExcercises.sub(indicator);
+			numberOfExcercises = numberOfExcercises.sub(indicator);
 		}
 
 		RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
-				
+
 		return values;	
 	}
-	
+
 	/**
 	 * @return Returns the strikes.
 	 */

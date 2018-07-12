@@ -26,7 +26,7 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 	private final double[] swaprates;		// Vector of strikes
 	private final AbstractIndex floatIndex;	// The float index. If null, LIBOR will be used.
 	private final boolean isPayFix;
-	
+
 	/**
 	 * Create a swap.
 	 * 
@@ -102,12 +102,16 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 			double swaprate 		= swaprates[period];
 			double periodLength		= paymentDate - fixingDate;
 
-			if(paymentDate < evaluationTime) continue;
+			if(paymentDate < evaluationTime) {
+				continue;
+			}
 
 			// Get random variables
 			RandomVariableInterface index	= floatIndex != null ? floatIndex.getValue(fixingDate, model) : model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariableInterface payoff	= index.sub(swaprate).mult(periodLength).mult(notional);
-			if(!isPayFix) payoff = payoff.mult(-1.0);
+			if(!isPayFix) {
+				payoff = payoff.mult(-1.0);
+			}
 
 			RandomVariableInterface numeraire				= model.getNumeraire(paymentDate);
 			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);

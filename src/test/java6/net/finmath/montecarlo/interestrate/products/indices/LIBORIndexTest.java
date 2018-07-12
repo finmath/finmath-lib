@@ -130,11 +130,13 @@ public class LIBORIndexTest {
 			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new Notional(1.0), index, periodLength, true, true, false);
 			double value = period.getValue(liborMarketModel);
 
-			double toleranceThisTest = tolerance[iTestCase] * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
-			
+			double toleranceThisTest = tolerance[iTestCase] * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
+
 			// @TODO Add correct benchmark for case CurveSetup.DISCRETE_FORWARDCURVE
 			// The setup DISCRETE_FORWARDCURVE has a different behaviour for interpolated forwards, so we will see deviations on unaligned periods:
-			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) toleranceThisTest += 5.0/100.0/100.0 * (periodEnd-periodStart);
+			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) {
+				toleranceThisTest += 5.0/100.0/100.0 * (periodEnd-periodStart);
+			}
 
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
@@ -163,7 +165,7 @@ public class LIBORIndexTest {
 		AbstractProductComponent floater = new ProductCollection(periods);
 		double value = floater.getValue(liborMarketModel);
 
-		double toleranceThisTest = tolerance * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
+		double toleranceThisTest = tolerance * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
 		System.out.println("Multi period floater: " +
@@ -197,10 +199,12 @@ public class LIBORIndexTest {
 			double value = period.getValue(liborMarketModel);
 
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
-			
+			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
+
 			// The setup DISCRETE_FORWARDCURVE has a different behaviour for interpolated forwards, so we will see deviations on unaligned periods:
-			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) toleranceThisTest += 1.0/100.0/100.0 * (periodEnd-periodStart);
+			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) {
+				toleranceThisTest += 1.0/100.0/100.0 * (periodEnd-periodStart);
+			}
 
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
@@ -233,7 +237,7 @@ public class LIBORIndexTest {
 			double valueAnalytic = liborMarketModel.getModel().getForwardRateCurve().getForward(liborMarketModel.getModel().getAnalyticModel(), periodStart, periodEnd-periodStart) * liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(periodEnd) * periodLength;
 
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
+			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
@@ -270,10 +274,12 @@ public class LIBORIndexTest {
 			double valueAnalytic = liborMarketModel.getModel().getForwardRateCurve().getForward(liborMarketModel.getModel().getAnalyticModel(), periodStart, periodEnd-periodStart) * liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(periodEnd) * periodLength;
 
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
-			
+			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
+
 			// The setup DISCRETE_FORWARDCURVE has a different behaviour for interpolated forwards, so we will see deviations on unaligned periods:
-			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) toleranceThisTest += 1.0/100.0/100.0;
+			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) {
+				toleranceThisTest += 1.0/100.0/100.0;
+			}
 
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
@@ -310,8 +316,8 @@ public class LIBORIndexTest {
 			double valueAnalytic = liborMarketModel.getModel().getForwardRateCurve().getForward(liborMarketModel.getModel().getAnalyticModel(), periodStart, periodEnd-periodStart) * liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(periodEnd) * periodLength;
 
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
-			
+			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
+
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );
@@ -348,8 +354,8 @@ public class LIBORIndexTest {
 			double valueAnalytic = liborMarketModel.getModel().getForwardRateCurve().getForward(liborMarketModel.getModel().getAnalyticModel(), periodStart, periodEnd-periodStart) * liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(periodEnd) * periodLength;
 
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt(((double)liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
-			
+			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
+
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );
@@ -448,10 +454,11 @@ public class LIBORIndexTest {
 				double timeToMaturity = maturity - time;
 
 				double instVolatility;
-				if(timeToMaturity <= 0)
+				if(timeToMaturity <= 0) {
 					instVolatility = 0;				// This forward rate is already fixed, no volatility
-				else
+				} else {
 					instVolatility = volatilityScaling * (0.10 + 0.35 * Math.exp(-0.5 * timeToMaturity));
+				}
 
 				// Store
 				volatility[timeIndex][liborIndex] = instVolatility;

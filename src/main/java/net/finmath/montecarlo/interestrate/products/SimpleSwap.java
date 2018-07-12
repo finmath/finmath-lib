@@ -23,7 +23,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	private final double[] swaprates;		// Vector of strikes
 
 	private final boolean isPayFix;
-	
+
 	/**
 	 * Create a swap.
 	 * 
@@ -79,12 +79,16 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 			double swaprate 		= swaprates[period];
 			double periodLength		= paymentDate - fixingDate;
 
-			if(paymentDate < evaluationTime) continue;
+			if(paymentDate < evaluationTime) {
+				continue;
+			}
 
 			// Get random variables
 			RandomVariableInterface libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariableInterface payoff	= libor.sub(swaprate).mult(periodLength);
-			if(!isPayFix) payoff = payoff.mult(-1.0);
+			if(!isPayFix) {
+				payoff = payoff.mult(-1.0);
+			}
 
 			RandomVariableInterface numeraire				= model.getNumeraire(paymentDate);
 			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);

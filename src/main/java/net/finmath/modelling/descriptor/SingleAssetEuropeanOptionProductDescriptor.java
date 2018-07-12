@@ -15,11 +15,11 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
 public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetProductDescriptor {
 
 	private static final String productName = "Single asset European option";
-	
+
 	private final String underlyingName;
 	private final Double maturity;
 	private final Double strike;
-	
+
 	public SingleAssetEuropeanOptionProductDescriptor(String underlyingName, Double maturity, Double strike) {
 		super();
 		this.underlyingName = underlyingName;

@@ -88,7 +88,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
 	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
-	
+
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
 	}
@@ -115,7 +115,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 */
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
-		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
+		if(calibrationParameters == null) {
+			calibrationParameters = new HashMap<>();
+		}
 		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
 		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
@@ -164,7 +166,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 				final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
-				ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
+				ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<Double> worker = new  Callable<Double>() {
@@ -185,7 +187,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<Double> valueFutureTask = new FutureTask<Double>(worker);
+						FutureTask<Double> valueFutureTask = new FutureTask<>(worker);
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}

@@ -16,11 +16,4 @@ public interface DescribedModel<M extends ModelDescriptor> extends ModelInterfac
 	 * @return An instance of a product implementation.
 	 */
 	DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor);
-	
-	/**
-	 * An additional product factory may registered with a model.
-	 * The parameter append indicated if the models own factory should by queried before (or after) the given one.
-	 */
-	DescribedModel<? extends M> getModelWithProductFactory(ProductFactory< ? extends ProductDescriptor, M > productFactory, boolean append);
-
 }

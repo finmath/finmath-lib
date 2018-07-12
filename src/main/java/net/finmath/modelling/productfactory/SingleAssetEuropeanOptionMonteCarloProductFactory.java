@@ -15,7 +15,7 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
 /**
  * @author Christian Fries
  */
-public class SingleAssetEuropeanOptionMonteCarloProductFactory implements ProductFactory<SingleAssetEuropeanOptionProductDescriptor, AssetModelDescriptor> {
+public class SingleAssetEuropeanOptionMonteCarloProductFactory implements ProductFactory<SingleAssetEuropeanOptionProductDescriptor> {
 
 	/**
 	 * Create factory.
@@ -24,17 +24,9 @@ public class SingleAssetEuropeanOptionMonteCarloProductFactory implements Produc
 	}
 
 	@Override
-	public DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> getProductFromDescription(ProductDescriptor descriptor) {
+	public DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 
 		DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
 		return product;
-	}
-
-	@Override
-	public boolean supportsProduct(ProductDescriptor descriptor) {
-		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor)
-			return true;
-		else
-			return false;
 	}
 }

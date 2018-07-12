@@ -126,8 +126,12 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		@Override
 		public int compareTo(Point point) {
 			// Ordering of the curve points with respect to time.
-			if(this.time < point.time) return -1;
-			if(this.time > point.time) return +1;
+			if(this.time < point.time) {
+				return -1;
+			}
+			if(this.time > point.time) {
+				return +1;
+			}
 
 			return 0;
 		}
@@ -171,7 +175,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 		 */
 		public CurveBuilder(Curve curve) throws CloneNotSupportedException {
-			this.curve = (Curve)curve.clone();
+			this.curve = curve.clone();
 		}
 
 		/* (non-Javadoc)
@@ -257,8 +261,12 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
 		this.interpolationEntity	= interpolationEntity;
-		if(times.length != values.length) throw new IllegalArgumentException("Length of times not equal to length of values.");
-		for(int i=0; i<times.length; i++) this.addPoint(times[i], values[i], false);
+		if(times.length != values.length) {
+			throw new IllegalArgumentException("Length of times not equal to length of values.");
+		}
+		for(int i=0; i<times.length; i++) {
+			this.addPoint(times[i], values[i], false);
+		}
 	}
 
 	/**
@@ -302,7 +310,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			curveCacheReference = new SoftReference<Map<Double,Double>>(curveCache);
 		}
 		Double valueFromCache = curveCache.get(time);
-		if(valueFromCache != null) return valueFromCache.doubleValue();
+		if(valueFromCache != null) {
+			return valueFromCache.doubleValue();
+		}
 
 		double value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
 		curveCache.put(time, value);
@@ -343,17 +353,24 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	protected void addPoint(double time, double value, boolean isParameter) {
 		synchronized (rationalFunctionInterpolationLazyInitLock) {
 			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
-				if(value == 1.0 && isParameter == false) return;
-				else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");
+				if(value == 1.0 && isParameter == false) {
+					return;
+				} else {
+					throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");
+				}
 			}
 
 			double interpolationEntityValue = interpolationEntityFromValue(value, time);
 
 			int index = getTimeIndex(time);
 			if(index >= 0) {
-				if(points.get(index).value == interpolationEntityValue) return;			// Already in list
-				else if(isParameter) return;
-				else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+				if(points.get(index).value == interpolationEntityValue) {
+					return;			// Already in list
+				} else if(isParameter) {
+					return;
+				} else {
+					throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+				}
 			}
 			else {
 				// Insert the new point, retain ordering.
@@ -363,7 +380,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 				if(isParameter) {
 					// Add this point also to the list of parameters
 					int parameterIndex = getParameterIndex(time);
-					if(parameterIndex >= 0) new RuntimeException("Curve inconsistent.");
+					if(parameterIndex >= 0) {
+						new RuntimeException("Curve inconsistent.");
+					}
 					pointsBeingParameters.add(-parameterIndex-1, point);
 				}
 			}
@@ -439,8 +458,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		case LOG_OF_VALUE:
 			return Math.log(Math.max(value,0));
 		case LOG_OF_VALUE_PER_TIME:
-			if(time == 0)	throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
-			else			return Math.log(Math.max(value,0)) / time;
+			if(time == 0) {
+				throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
+			} else {
+				return Math.log(Math.max(value,0)) / time;
+			}
 		}
 	}
 
@@ -467,7 +489,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		for(Point point : points) {
 			Point newPoint = (Point) point.clone();
 			newCurve.points.add(newPoint);
-			if(point.isParameter) newCurve.pointsBeingParameters.add(newPoint);
+			if(point.isParameter) {
+				newCurve.pointsBeingParameters.add(newPoint);
+			}
 		}
 
 		return newCurve;
@@ -475,8 +499,10 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	@Override
 	public CurveInterface getCloneForParameter(double[] parameter) throws CloneNotSupportedException {
-		if(Arrays.equals(parameter, getParameter())) return this;
-		Curve newCurve = (Curve) this.clone();
+		if(Arrays.equals(parameter, getParameter())) {
+			return this;
+		}
+		Curve newCurve = this.clone();
 		newCurve.setParameterPrivate(parameter);
 
 		return newCurve;
@@ -500,11 +526,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			curveTableString.append(FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), point.time) + "\t");
 			curveTableString.append(valueFromInterpolationEntity(point.value, point.time) + "\n");
 		}
-		
+
 		return "Curve [points=" + points + ", pointsBeingParameters=" + pointsBeingParameters + ", interpolationMethod="
-				+ interpolationMethod + ", extrapolationMethod=" + extrapolationMethod + ", interpolationEntity="
-				+ interpolationEntity + ", rationalFunctionInterpolation=" + rationalFunctionInterpolation
-				+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
+		+ interpolationMethod + ", extrapolationMethod=" + extrapolationMethod + ", interpolationEntity="
+		+ interpolationEntity + ", rationalFunctionInterpolation=" + rationalFunctionInterpolation
+		+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {

@@ -26,7 +26,7 @@ import org.threeten.bp.Month;
 public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterface {
 
 	private final boolean isTreatEndDateAsTerminationDate;
-	
+
 	/**
 	 * Create a 30E/360 ISDA daycount convention.
 	 * 
@@ -48,7 +48,9 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycount(endDate,startDate);
+		}
 
 		int startDateDay 	= startDate.getDayOfMonth();
 		int startDateMonth 	= startDate.getMonthValue();
@@ -64,8 +66,12 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 		boolean isEndDateLastDayOfFebruary = (endDateMonth == Month.FEBRUARY.getValue() && endDateDay == endDate.lengthOfMonth());
 
 		// Last day of February and 31st of a month are both treated as "30".
-		if(isStartDateLastDayOfFebruary || startDateDay == 31) startDateDay = 30;
-		if((isEndDateLastDayOfFebruary && !isTreatEndDateAsTerminationDate) || endDateDay == 31) endDateDay = 30;
+		if(isStartDateLastDayOfFebruary || startDateDay == 31) {
+			startDateDay = 30;
+		}
+		if((isEndDateLastDayOfFebruary && !isTreatEndDateAsTerminationDate) || endDateDay == 31) {
+			endDateDay = 30;
+		}
 
 		return (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (endDateDay - Math.min(startDateDay, 30.0));
 	}

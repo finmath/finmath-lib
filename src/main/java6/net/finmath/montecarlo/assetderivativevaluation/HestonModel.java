@@ -77,7 +77,7 @@ public class HestonModel extends AbstractModel {
 		 * Reflection scheme, that is V is replaced by Math.abs(V), where V denotes the current realization of V(t).
 		 */
 		REFLECTION,
-		
+
 		/**
 		 * Full truncation scheme, that is V is replaced by Math.max(V,0), where V denotes the current realization of V(t).
 		 */
@@ -142,7 +142,7 @@ public class HestonModel extends AbstractModel {
 		this.xi				= xi;
 		this.rho			= rho;
 		this.rhoBar			= rho.squared().sub(1).mult(-1).sqrt();
-		
+
 		this.scheme			= scheme;
 
 		this.randomVariableFactory = randomVariableFactory;
@@ -253,9 +253,13 @@ public class HestonModel extends AbstractModel {
 	@Override
 	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
 		RandomVariableInterface stochasticVariance;
-		if(scheme == Scheme.FULL_TRUNCATION)	stochasticVariance = realizationAtTimeIndex[1].floor(0.0);
-		else if(scheme == Scheme.REFLECTION)	stochasticVariance = realizationAtTimeIndex[1].abs();
-		else throw new UnsupportedOperationException("Scheme " + scheme.name() + " not supported.");
+		if(scheme == Scheme.FULL_TRUNCATION) {
+			stochasticVariance = realizationAtTimeIndex[1].floor(0.0);
+		} else if(scheme == Scheme.REFLECTION) {
+			stochasticVariance = realizationAtTimeIndex[1].abs();
+		} else {
+			throw new UnsupportedOperationException("Scheme " + scheme.name() + " not supported.");
+		}
 
 		RandomVariableInterface[] drift = new RandomVariableInterface[2];
 
@@ -268,9 +272,13 @@ public class HestonModel extends AbstractModel {
 	@Override
 	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
 		RandomVariableInterface stochasticVolatility;
-		if(scheme == Scheme.FULL_TRUNCATION)	stochasticVolatility = realizationAtTimeIndex[1].floor(0.0).sqrt();
-		else if(scheme == Scheme.REFLECTION)	stochasticVolatility = realizationAtTimeIndex[1].abs().sqrt();
-		else throw new UnsupportedOperationException("Scheme " + scheme.name() + " not supported.");
+		if(scheme == Scheme.FULL_TRUNCATION) {
+			stochasticVolatility = realizationAtTimeIndex[1].floor(0.0).sqrt();
+		} else if(scheme == Scheme.REFLECTION) {
+			stochasticVolatility = realizationAtTimeIndex[1].abs().sqrt();
+		} else {
+			throw new UnsupportedOperationException("Scheme " + scheme.name() + " not supported.");
+		}
 
 		RandomVariableInterface[] factorLoadings = new RandomVariableInterface[2];
 
@@ -358,10 +366,13 @@ public class HestonModel extends AbstractModel {
 	}
 
 	private RandomVariableInterface getRandomVariableForValue(Object value) {
-		if(value instanceof RandomVariableInterface) return (RandomVariableInterface) value;
-		else return getRandomVariableForConstant(((Number) value).doubleValue());
+		if(value instanceof RandomVariableInterface) {
+			return (RandomVariableInterface) value;
+		} else {
+			return getRandomVariableForConstant(((Number) value).doubleValue());
+		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "HestonModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="

@@ -41,7 +41,7 @@ public class Solver {
 	private final ParameterTransformation			parameterTransformation;
 
 	private StochasticOptimizerFactoryInterface		optimizerFactory;
-	
+
 	private	final	double	evaluationTime;
 	private final	int		maxIterations	= 1000;
 
@@ -144,14 +144,17 @@ public class Solver {
 	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
 	 */
 	public AnalyticModelInterface getCalibratedModel(Set<ParameterObjectInterface> objectsToCalibrate) throws SolverException {
-		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<ParameterObjectInterface>(objectsToCalibrate);
+		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<>(objectsToCalibrate);
 
 		// Set solver parameters
 		final RandomVariableInterface[] initialParameters;
 
 		// Apply parameter transformation to solver parameter space
-		if(parameterTransformation != null) initialParameters = parameterTransformation.getSolverParameter(parameterAggregate.getParameter());
-		else								initialParameters = parameterAggregate.getParameter();
+		if(parameterTransformation != null) {
+			initialParameters = parameterTransformation.getSolverParameter(parameterAggregate.getParameter());
+		} else {
+			initialParameters = parameterAggregate.getParameter();
+		}
 
 		final RandomVariableInterface[] zeros				= new RandomVariableInterface[calibrationProducts.size()];
 		final RandomVariableInterface[] ones				= new RandomVariableInterface[calibrationProducts.size()];
@@ -161,7 +164,7 @@ public class Solver {
 		java.util.Arrays.fill(ones, new RandomVariable(1.0));
 		java.util.Arrays.fill(lowerBound, new RandomVariable(Double.NEGATIVE_INFINITY));
 		java.util.Arrays.fill(upperBound, new RandomVariable(Double.POSITIVE_INFINITY));
-		
+
 		StochasticOptimizerInterface.ObjectiveFunction objectiveFunction = new StochasticOptimizerInterface.ObjectiveFunction() {
 			public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
 				RandomVariableInterface[] modelParameters = parameters;
@@ -199,7 +202,9 @@ public class Solver {
 		iterations = optimizer.getIterations();
 
 		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
-		if(parameterTransformation != null) bestParameters = parameterTransformation.getParameter(bestParameters);
+		if(parameterTransformation != null) {
+			bestParameters = parameterTransformation.getParameter(bestParameters);
+		}
 
 		AnalyticModelInterface calibratedModel = null;
 		try {
@@ -213,7 +218,9 @@ public class Solver {
 		accuracy = 0.0;
 		for(int i=0; i<calibrationProducts.size(); i++) {
 			double error = calibrationProducts.get(i).getValue(evaluationTime, calibratedModel).getStandardDeviation();
-			if(calibrationTargetValues != null) error -= calibrationTargetValues.get(i);
+			if(calibrationTargetValues != null) {
+				error -= calibrationTargetValues.get(i);
+			}
 			accuracy += error * error;
 		}
 		accuracy = Math.sqrt(accuracy/calibrationProducts.size());

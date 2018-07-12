@@ -26,9 +26,9 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 
 	/**
 	 * @param firstGuess
-     *      The first guess for the solver to use.
+	 *      The first guess for the solver to use.
 	 * @param secondGuess
-     *      A second guess for the solver to use (different from first guess).
+	 *      A second guess for the solver to use (different from first guess).
 	 */
 	public SecantMethod(double firstGuess, double secondGuess) {
 		super(firstGuess);
@@ -36,25 +36,25 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 	}
 
 	@Override
-    public double getNextPoint() {
+	public double getNextPoint() {
 		// Ask NewtonsMethods for next point and rember it as current point
 		currentPoint = super.getNextPoint();
 		return currentPoint;
 	}
 
-    /**
+	/**
 	 * @param value
-     *      The value corresponding to the point returned
-     *      by previous <code>getNextPoint</code> call.
+	 *      The value corresponding to the point returned
+	 *      by previous <code>getNextPoint</code> call.
 	 */
 	@Override
-    public void setValue(double value) {
+	public void setValue(double value) {
 		// Calculate approximation for derivative
 		double derivative;
 		if (getNumberOfIterations() == 0) {
 			/* Trick: This derivative will let Newton's method
-             * propose the second guess as next point
-             */
+			 * propose the second guess as next point
+			 */
 			derivative = value / (secondGuess - currentPoint);
 		} else {
 			derivative = (value - lastValue) / (currentPoint - lastPoint);
@@ -66,7 +66,7 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 
 		super.setValueAndDerivative(value, derivative);
 
-    }
+	}
 
 	/**
 	 * @param value
@@ -77,12 +77,12 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 	 *     <code>getNextPoint</code> call.
 	 */
 	@Override
-    public void setValueAndDerivative(double value, double derivative) {
+	public void setValueAndDerivative(double value, double derivative) {
 		// Remember last point
 		lastPoint = super.getNextPoint();
 		lastValue = value;
 
 		super.setValueAndDerivative(value, derivative);
 
-    }
+	}
 }

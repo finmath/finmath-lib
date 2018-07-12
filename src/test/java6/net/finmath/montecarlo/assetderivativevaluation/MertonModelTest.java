@@ -55,7 +55,7 @@ public class MertonModelTest {
 
 	@Test
 	public void test() throws CalculationException {
-		
+
 		long start = System.currentTimeMillis();
 
 		// Create a time discretization
@@ -87,12 +87,12 @@ public class MertonModelTest {
 			monteCarloHestonModel = new MonteCarloAssetModel(model, process);
 		}
 
-		
+
 		AssetModelMonteCarloSimulationInterface monteCarloMertonModel;
 		{
 			double m = 1.0;
 			double nu = 0.15;
-				
+
 			double lambda = 0.4;
 			double jumpSizeStdDev = nu;
 			double jumpSizeMean = Math.log(m);
@@ -120,13 +120,13 @@ public class MertonModelTest {
 			DecimalFormat formatter2 = new DecimalFormat("0.00");
 			DecimalFormat formatter4 = new DecimalFormat("0.00%");
 			System.out.print(formatter2.format(optionStrike * moneyness) + "\t" + formatter4.format(impliedVol1));
-//			System.out.println("\t " + value2 + "\t " + impliedVol2);
+			//			System.out.println("\t " + value2 + "\t " + impliedVol2);
 			System.out.println("\t " + formatter4.format(value3) + "\t " + formatter4.format(impliedVol3));
 		}
 
 		long end = System.currentTimeMillis();
-		
+
 		System.out.print("Test took " + (end-start) / 1000.0 + " sec.");
-		
+
 	}
 }

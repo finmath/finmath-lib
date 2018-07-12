@@ -9,7 +9,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  *
  */
 public interface HazardCurveInterface extends CurveInterface{
-	
+
 
 	/**
 	 * Return the survival probability for a given maturity.

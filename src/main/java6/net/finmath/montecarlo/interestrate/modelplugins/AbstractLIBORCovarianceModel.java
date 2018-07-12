@@ -17,7 +17,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  */
 public abstract class AbstractLIBORCovarianceModel implements Serializable {
-	
+
 	private static final long serialVersionUID = 5364544247367259329L;
 
 	private	TimeDiscretizationInterface		timeDiscretization;
@@ -61,7 +61,9 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 */
 	public	RandomVariableInterface[]	getFactorLoading(double time, double component, RandomVariableInterface[] realizationAtTimeIndex) {
 		int componentIndex = liborPeriodDiscretization.getTimeIndex(component);
-		if(componentIndex < 0) componentIndex = -componentIndex - 2;
+		if(componentIndex < 0) {
+			componentIndex = -componentIndex - 2;
+		}
 		return getFactorLoading(time, componentIndex, realizationAtTimeIndex);
 	}
 
@@ -82,10 +84,12 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 */
 	public	RandomVariableInterface[]	getFactorLoading(double time, int component, RandomVariableInterface[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
-		if(timeIndex < 0) timeIndex = -timeIndex - 2;
+		if(timeIndex < 0) {
+			timeIndex = -timeIndex - 2;
+		}
 		return getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 	}
-	
+
 	/**
 	 * Return the factor loading for a given time index and component index.
 	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
@@ -121,7 +125,9 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 */
 	public RandomVariableInterface getCovariance(double time, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
-		if(timeIndex < 0) timeIndex = Math.abs(timeIndex)-2;
+		if(timeIndex < 0) {
+			timeIndex = Math.abs(timeIndex)-2;
+		}
 
 		return getCovariance(timeIndex, component1, component2, realizationAtTimeIndex);
 	}
@@ -136,13 +142,13 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
 	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
-		
+
 		RandomVariableInterface[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
 		RandomVariableInterface[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
 
 		// Multiply first factor loading (this avoids that we have to init covariance to 0).
 		RandomVariableInterface covariance = factorLoadingOfComponent1[0].mult(factorLoadingOfComponent2[0]);
-		
+
 		// Add others, if any
 		for(int factorIndex=1; factorIndex<this.getNumberOfFactors(); factorIndex++) {
 			covariance = covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);

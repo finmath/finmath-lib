@@ -62,16 +62,16 @@ public class CapletVolatilitiesParametricCalibrationTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ QuotingConvention.VOLATILITYLOGNORMAL },
-				{ QuotingConvention.VOLATILITYNORMAL },
+			{ QuotingConvention.VOLATILITYLOGNORMAL },
+			{ QuotingConvention.VOLATILITYNORMAL },
 		});
 	}
 
 
-    public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
+	public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
 		super();
 		this.calibrationTargetValueQuotingConvention = calibrationTargetValueQuotingConvention;
-		
+
 		System.out.println("Running calibration test using quoting convention " + calibrationTargetValueQuotingConvention.name() + " for calibration objective function.");
 	}
 
@@ -150,8 +150,8 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		/*
 		 * Convert given market products (which are in VOLATILITYLOGNORMAL) to the calibration (objective function) quoting conventions
 		 */
-		Vector<AnalyticProductInterface>	marketProducts = new Vector<AnalyticProductInterface>();
-		ArrayList<Double>					marketTargetValues = new ArrayList<Double>();
+		Vector<AnalyticProductInterface>	marketProducts = new Vector<>();
+		ArrayList<Double>					marketTargetValues = new ArrayList<>();
 		LocalDate referenceDate = LocalDate.of(2014,  Month.JULY,  15);
 		DaycountConvention capDayCountConvention = DaycountConvention.ACT_360;
 		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays(new BusinessdayCalendarExcludingWeekends());
@@ -182,8 +182,8 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		/*
 		 * Calibrate a surface to given marketTargetValues using the calibrationTargetValueQuotingConvention
 		 */
-		Vector<AnalyticProductInterface>	calibrationProducts = new Vector<AnalyticProductInterface>();
-		ArrayList<Double>					calibrationTargetValues = new ArrayList<Double>();
+		Vector<AnalyticProductInterface>	calibrationProducts = new Vector<>();
+		ArrayList<Double>					calibrationTargetValues = new ArrayList<>();
 		for(int i=0; i<maturities.length; i++) {
 			LocalDate	tradeDate		= referenceDate;
 			LocalDate	maturityDate	= businessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);

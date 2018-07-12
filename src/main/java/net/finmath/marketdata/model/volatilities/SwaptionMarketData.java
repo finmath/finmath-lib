@@ -64,31 +64,35 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 	}
 
 	@Override
-    public TimeDiscretizationInterface getOptionMaturities() {
+	public TimeDiscretizationInterface getOptionMaturities() {
 		return optionMaturities;
 	}
 
 	@Override
-    public TimeDiscretizationInterface getTenor() {
+	public TimeDiscretizationInterface getTenor() {
 		return tenor;
 	}
-	
+
 	@Override
-    public double getSwapPeriodLength() {
+	public double getSwapPeriodLength() {
 		return swapPeriodLength;
 	}
-	
+
 	@Override
-    public double getValue(double optionMatruity, double tenorLength, double periodLength, double strike) {
+	public double getValue(double optionMatruity, double tenorLength, double periodLength, double strike) {
 		throw new RuntimeException("Method not implemented.");
 	}
 
 	public double getVolatility(double optionMatruity, double tenorLength) {
 		int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
 		int indexTenorIndex = tenor.getTimeIndex(tenorLength);
-		if(indexOptionMaturity < 0)	throw new IllegalArgumentException("Option maturity not part of data.");
-		if(indexTenorIndex < 0)		throw new IllegalArgumentException("Tenor maturity not part of data.");
-		
+		if(indexOptionMaturity < 0) {
+			throw new IllegalArgumentException("Option maturity not part of data.");
+		}
+		if(indexTenorIndex < 0) {
+			throw new IllegalArgumentException("Tenor maturity not part of data.");
+		}
+
 		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];
 	}
 
@@ -96,12 +100,16 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 	 * @see net.finmath.marketdata.AbstractSwaptionMarketData#getVolatility(double, double, double, double)
 	 */
 	@Override
-    public double getVolatility(double optionMatruity, double tenorLength, double periodLength, double strike) {
+	public double getVolatility(double optionMatruity, double tenorLength, double periodLength, double strike) {
 		int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
 		int indexTenorIndex = tenor.getTimeIndex(tenorLength);
-		if(indexOptionMaturity < 0)	throw new IllegalArgumentException("Option maturity not part of data.");
-		if(indexTenorIndex < 0)		throw new IllegalArgumentException("Tenor maturity not part of data.");
-		
+		if(indexOptionMaturity < 0) {
+			throw new IllegalArgumentException("Option maturity not part of data.");
+		}
+		if(indexTenorIndex < 0) {
+			throw new IllegalArgumentException("Tenor maturity not part of data.");
+		}
+
 		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];
 	}
 }

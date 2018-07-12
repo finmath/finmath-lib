@@ -21,9 +21,9 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class FowardCurveIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 5375406324063846793L;
-	
+
 	private final ForwardCurveInterface fowardCurve;
-	
+
 	/**
 	 * Creates a forward curve index.
 	 * 

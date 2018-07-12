@@ -13,13 +13,13 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 	}
 
 	public double[][] getValue(double evaluationTime, FiniteDifference1DModel model) {
-		
+
 		/*
 		 * The FDM algorithm requires the boundary conditions of the product.
 		 * This product implements the boundary interface
 		 */
 		FiniteDifference1DBoundary boundary = this;
-		
+
 		return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(assetValue - strike, 0), boundary);
 	}
 

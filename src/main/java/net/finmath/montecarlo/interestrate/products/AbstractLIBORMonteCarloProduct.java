@@ -47,7 +47,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public abstract RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
-	
+
 	public RandomVariableInterface getValueForModifiedData(double evaluationTime, MonteCarloSimulationInterface monteCarloSimulationInterface, Map<String, Object> dataModified) throws CalculationException
 	{
 		return this.getValue(evaluationTime, monteCarloSimulationInterface.getCloneWithModifiedData(dataModified));
@@ -66,15 +66,15 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	 */
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface value = getValue(evaluationTime, model);
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put("value", value.getAverage());
 		result.put("error", value.getStandardError());
 		return result;
 	}
 
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
-    	// This product requires an LIBORModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
+		// This product requires an LIBORModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
 		if(model instanceof LIBORModelMonteCarloSimulationInterface) {
 			return getValue(evaluationTime, (LIBORModelMonteCarloSimulationInterface)model);
 		}
@@ -83,7 +83,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 			+ " cannot be valued against a model " + model.getClass() + "."
 			+ "It requires a model of type " + LIBORModelMonteCarloSimulationInterface.class + ".");
 		}
-    }
+	}
 
 	/**
 	 * Overwrite this method if the product supplies a custom FactorDriftInterface to be used in proxy simulation.

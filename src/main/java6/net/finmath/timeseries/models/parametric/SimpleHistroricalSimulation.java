@@ -50,11 +50,11 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 
 	public double[] getSzenarios(int relAbsFlag) {
 		double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
-		
+
 		double y;
-		
+
 		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
-			
+
 			if (relAbsFlag==1) {
 				y = Math.log(values[i]/values[i-1]);
 				//double y = (values[i]-values[i-1]))/values[i-1]);
@@ -65,7 +65,7 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 			szenarios[i-windowIndexStart-1]	= y;
 		}
 		java.util.Arrays.sort(szenarios);
-		
+
 		return szenarios;
 	}
 	public double[] getQuantilPredictions(int relAbsFlag,  double[] quantiles) {
@@ -80,30 +80,30 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 
 			double evalLo = szenarios[Math.max(quantileIndexLo,0               )];
 			double evalHi = szenarios[Math.max(quantileIndexHi,0               )];
-			
+
 			if (relAbsFlag==1) {
 				double szenarioChange =
 						(quantileIndexHi-quantileIndex) * Math.exp(evalLo)  // ?????????????????????
 						+ (quantileIndex-quantileIndexLo) * Math.exp(evalHi);
-				
+
 				double quantileValue = values[windowIndexEnd] * szenarioChange;
 				quantileValues[i] = quantileValue;
-				
+
 			} else {
 				double szenarioChange =
 						(quantileIndexHi-quantileIndex) * evalLo  // ?????????????????????
 						+ (quantileIndex-quantileIndexLo) * evalHi;
-				
+
 				double quantileValue = values[windowIndexEnd] + szenarioChange;
 				quantileValues[i] = quantileValue;
 
 			}
-			
+
 		}
 
 		return quantileValues;
 	}
-	
+
 
 	/* (non-Javadoc)
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters()
@@ -113,7 +113,7 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 		return getBestParameters(null);
 	}
 
-	
+
 	@Override
 	public Map<String, Object> getBestParameters(Map<String, Object> guess) {
 		int relAbsFlag = 1;

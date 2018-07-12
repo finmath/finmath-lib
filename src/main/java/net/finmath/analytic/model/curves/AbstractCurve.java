@@ -58,8 +58,10 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	public RandomVariableInterface[] getValues(double[] times) {
 		RandomVariableInterface[] values = new RandomVariableInterface[times.length];
 
-		for(int i=0; i<times.length; i++) values[i] = getValue(null, times[i]);
-		
+		for(int i=0; i<times.length; i++) {
+			values[i] = getValue(null, times[i]);
+		}
+
 		return values;
 	}
 
@@ -68,11 +70,11 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 		return (AbstractCurve)super.clone();
 	}
 
-	
+
 	public CurveInterface getCloneForParameter(RandomVariableInterface[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "AbstractCurve [name=" + name + ", referenceDate=" + referenceDate + "]";

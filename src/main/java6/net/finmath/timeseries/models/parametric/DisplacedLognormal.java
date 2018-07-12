@@ -112,8 +112,8 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 			double eval	= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));
 			volSquaredEstimate += eval*eval;			
 		}
-		volSquaredEstimate /= (double)(windowIndexEnd-windowIndexStart);
-		
+		volSquaredEstimate /= windowIndexEnd-windowIndexStart;
+
 		double eval			= volScaling * (Math.log((values[windowIndexStart+1]+displacement)/(values[windowIndexStart+1-1]+displacement)));
 		for (int i = windowIndexStart+1; i <= windowIndexEnd-1; i++) {
 			double evalNext	= volScaling * (Math.log((values[i+1]+displacement)/(values[i]+displacement)));
@@ -123,7 +123,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 			logLikelihood += - Math.log(volSquaredEstimate) - 2 * Math.log((values[i+1]+displacement)/volScaling) - evalNext*evalNext / volSquaredEstimate;
 			eval = evalNext;
 		}
-		logLikelihood += - Math.log(2 * Math.PI) * (double)(windowIndexEnd-windowIndexStart);
+		logLikelihood += - Math.log(2 * Math.PI) * (windowIndexEnd-windowIndexStart);
 		logLikelihood *= 0.5;
 
 		return logLikelihood;
@@ -151,7 +151,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 			double eval	= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));
 			volSquaredEstimate += eval*eval;			
 		}
-		volSquaredEstimate /= (double)(windowIndexEnd-windowIndexStart);
+		volSquaredEstimate /= windowIndexEnd-windowIndexStart;
 
 		double vol = Math.sqrt(volSquaredEstimate) / volScaling;
 		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
@@ -218,8 +218,8 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 				double muema	= Math.exp(-Math.exp(-variables[2]));
 				double beta		= mucorr * muema;
 				double alpha	= mucorr - beta;
-//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
-//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
+				//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
+				//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
 				double displacementNormed = 1.0/(1.0+Math.exp(-variables[3]));
 				double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;
 
@@ -270,7 +270,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		guessParameters[3] = -Math.log(1.0/((guessDisplacement-lowerBoundDisplacement)/(upperBoundDisplacement-lowerBoundDisplacement))-1.0);
 
 		// Seek optimal parameter configuration
-//		org.apache.commons.math3.optimization.direct.BOBYQAOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.BOBYQAOptimizer(6);
+		//		org.apache.commons.math3.optimization.direct.BOBYQAOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.BOBYQAOptimizer(6);
 		org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();
 
 		double[] bestParameters = null;

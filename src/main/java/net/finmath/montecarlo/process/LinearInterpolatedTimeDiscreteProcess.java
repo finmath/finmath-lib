@@ -42,10 +42,10 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	public LinearInterpolatedTimeDiscreteProcess(Map<Double, RandomVariableInterface> realizations) {
 		super();
 		this.timeDiscretization = new TimeDiscretization(realizations.keySet());
-		this.realizations = new HashMap<Double, RandomVariableInterface>();
+		this.realizations = new HashMap<>();
 		this.realizations.putAll(realizations);
 	}
-	
+
 	/**
 	 * Private constructor. Note: The arguments are not cloned.
 	 * 
@@ -67,9 +67,11 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @throws CalculationException Thrown if the given process fails to evaluate at a certain time point.
 	 */
 	public LinearInterpolatedTimeDiscreteProcess add(LinearInterpolatedTimeDiscreteProcess process) throws CalculationException {
-		Map<Double, RandomVariableInterface> sum = new HashMap<Double, RandomVariableInterface>();
+		Map<Double, RandomVariableInterface> sum = new HashMap<>();
 
-		for(double time: timeDiscretization) sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));
+		for(double time: timeDiscretization) {
+			sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));
+		}
 
 		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, sum);
 	}
@@ -88,9 +90,11 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @return A new process consisting of the interpolation of the random variables obtained by applying the given function to this process discrete set of random variables.
 	 */
 	public LinearInterpolatedTimeDiscreteProcess apply(DoubleUnaryOperator function) {
-		Map<Double, RandomVariableInterface> result = new HashMap<Double, RandomVariableInterface>();
+		Map<Double, RandomVariableInterface> result = new HashMap<>();
 
-		for(double time: timeDiscretization) result.put(time, realizations.get(time).apply(function));
+		for(double time: timeDiscretization) {
+			result.put(time, realizations.get(time).apply(function));
+		}
 
 		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, result);
 	}
@@ -101,15 +105,17 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @param time The time \( t \).
 	 * @param component The component to be returned (if this is a vector valued process), otherwise 0.
 	 * @return The random variable \( X(t) \).
-     */
+	 */
 	public RandomVariableInterface getProcessValue(double time, int component) {
 		double timeLower = timeDiscretization.getTimeIndexNearestLessOrEqual(time);
 		double timeUpper = timeDiscretization.getTimeIndexNearestGreaterOrEqual(time);
-		if(timeLower == timeUpper) return realizations.get(timeLower);
-		
+		if(timeLower == timeUpper) {
+			return realizations.get(timeLower);
+		}
+
 		RandomVariableInterface valueLower	= realizations.get(timeLower);
 		RandomVariableInterface valueUpper	= realizations.get(timeUpper);
-		
+
 		return valueUpper.mult((time-timeLower)/(timeUpper-timeLower)).add(valueLower.mult((timeUpper-time)/(timeUpper-timeLower)));
 	}
 

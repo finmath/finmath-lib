@@ -74,16 +74,20 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		this.brownianMotion = brownianMotion;
 		this.nu		= nu;
 		this.rho	= rho;
-		
+
 		this.isCalibrateable = isCalibrateable;
 	}
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return covarianceModel.getParameter();
+		if(!isCalibrateable) {
+			return covarianceModel.getParameter();
+		}
 
 		double[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new double[] { nu, rho };
+		if(covarianceParameters == null) {
+			return new double[] { nu, rho };
+		}
 
 		// Append nu and rho to the end of covarianceParameters
 		double[] jointParameters = new double[covarianceParameters.length+2];
@@ -94,9 +98,11 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		return jointParameters;
 	}
 
-//	@Override
+	//	@Override
 	private void setParameter(double[] parameter) {
-		if(parameter == null || parameter.length == 0) return;
+		if(parameter == null || parameter.length == 0) {
+			return;
+		}
 
 		if(!isCalibrateable) {
 			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);
@@ -107,7 +113,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
-		
+
 		nu	= parameter[covarianceParameters.length + 0];
 		rho	= parameter[covarianceParameters.length + 1];
 

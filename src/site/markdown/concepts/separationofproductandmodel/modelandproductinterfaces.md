@@ -14,7 +14,7 @@ The library structures the problem of valuation of financial products with respe
 |Analytic valuation          |``AnalyticModelInterface``                         |``AbstractAnalyticProduct``        |
 |Monte Carlo / Equity        |``AssetModelMonteCarloSimulationInterface``        |``AbstractAssetMonteCarloProduct`` |
 |Monte Carlo / Interest Rates|``TermStructureModelMonteCarloSimulationInterface``|``AbstractLIBORMonteCarloProduct`` |
-|Fourtier Transform / 1D     |``ProcessCharacteristicFunctionInterface``         |``AbstractProductFourierTransform``|
+|Fourier Transform / 1D      |``ProcessCharacteristicFunctionInterface``         |``AbstractProductFourierTransform``|
 |Finite Difference / 1D      |``FiniteDifference1DModel``                        |``FiniteDifference1DProduct``      |
 
 ## Models

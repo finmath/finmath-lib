@@ -22,17 +22,19 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	 */
 	public DayCountConvention_ACT() {
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycount(endDate,startDate);
+		}
 
 		return daysBetween(startDate, endDate);
 	}
-	
+
 	/**
 	 * Returns the number of days, between two dates.
 	 * 

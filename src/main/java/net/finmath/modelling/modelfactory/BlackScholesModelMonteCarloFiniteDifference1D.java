@@ -102,15 +102,6 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
 			}
-
-
-			@Override
-			public DescribedModel<BlackScholesModelDescriptor> getModelWithProductFactory(
-					ProductFactory<? extends ProductDescriptor, BlackScholesModelDescriptor> productFactory,
-					boolean append) {
-				// TODO Auto-generated method stub
-				return null;
-			}	
 		}
 
 		return new BlackScholesFDModel();

@@ -178,7 +178,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 
 		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
 
 		/*
@@ -215,7 +217,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 
 		if(weights == null) {
 			this.weights = new RandomVariableInterface[targetValues.length];
-			for(int i=0; i<targetValues.length; i++) this.weights[i] = new RandomVariable(1.0);
+			for(int i=0; i<targetValues.length; i++) {
+				this.weights[i] = new RandomVariable(1.0);
+			}
 		}
 
 		this.executor = executorService;
@@ -266,7 +270,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 */
 	private static RandomVariableInterface[] numberListToDoubleArray(List<RandomVariableInterface> listOfNumbers) {
 		RandomVariableInterface[] array	= new RandomVariableInterface[listOfNumbers.size()];
-		for(int i=0; i<array.length; i++) array[i] = listOfNumbers.get(i);
+		for(int i=0; i<array.length; i++) {
+			array[i] = listOfNumbers.get(i);
+		}
 		return array;
 	}
 
@@ -309,7 +315,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &gt; 1.
 	 */
 	public void setLambdaMultiplicator(double lambdaMultiplicator) {
-		if(lambdaMultiplicator <= 1.0) throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
+		if(lambdaMultiplicator <= 1.0) {
+			throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
+		}
 		this.lambdaMultiplicator = lambdaMultiplicator;
 	}
 
@@ -332,7 +340,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param lambdaDivisor the lambdaDivisor to set. Should be &gt; 1.
 	 */
 	public void setLambdaDivisor(double lambdaDivisor) {
-		if(lambdaDivisor <= 1.0) throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
+		if(lambdaDivisor <= 1.0) {
+			throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
+		}
 		this.lambdaDivisor = lambdaDivisor;
 	}
 
@@ -388,67 +398,67 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		// Calculate new derivatives. Note that this method is called only with
 		// parameters = parameterTest, so we may use valueTest.
 
-			parameters = parameterCurrent;
-			Vector<Future<RandomVariableInterface[]>> valueFutures = new Vector<Future<RandomVariableInterface[]>>(parameterCurrent.length);
-			for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
-				final RandomVariableInterface[] parametersNew	= parameters.clone();
-				final RandomVariableInterface[] derivative		= derivatives[parameterIndex];
+		parameters = parameterCurrent;
+		Vector<Future<RandomVariableInterface[]>> valueFutures = new Vector<>(parameterCurrent.length);
+		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
+			final RandomVariableInterface[] parametersNew	= parameters.clone();
+			final RandomVariableInterface[] derivative		= derivatives[parameterIndex];
 
-				final int workerParameterIndex = parameterIndex;
-				Callable<RandomVariableInterface[]> worker = new  Callable<RandomVariableInterface[]>() {
-					public RandomVariableInterface[] call() {
-						RandomVariableInterface parameterFiniteDifference;
-						if(parameterSteps != null) {
-							parameterFiniteDifference = parameterSteps[workerParameterIndex];
-						}
-						else {
-							/*
-							 * Try to adaptively set a parameter shift. Note that in some
-							 * applications it may be important to set parameterSteps.
-							 * appropriately.
-							 */
-							parameterFiniteDifference = parametersNew[workerParameterIndex].abs().add(1.0).mult(1E-8);
-						}
-
-						// Shift parameter value
-						parametersNew[workerParameterIndex] = parametersNew[workerParameterIndex].add(parameterFiniteDifference);
-
-						// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
-						try {
-							prepareAndSetValues(parametersNew, derivative);
-						} catch (Exception e) {
-							// We signal an exception to calculate the derivative as NaN
-							Arrays.fill(derivative, new RandomVariable(Double.NaN));
-						}
-						for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
-							derivative[valueIndex] = derivative[valueIndex].sub(valueCurrent[valueIndex]).div(parameterFiniteDifference);
-							derivative[valueIndex] = derivative[valueIndex].barrier(derivative[valueIndex].isNaN().sub(0.5).mult(-1), derivative[valueIndex], 0.0);
-						}
-						return derivative;
+			final int workerParameterIndex = parameterIndex;
+			Callable<RandomVariableInterface[]> worker = new  Callable<RandomVariableInterface[]>() {
+				public RandomVariableInterface[] call() {
+					RandomVariableInterface parameterFiniteDifference;
+					if(parameterSteps != null) {
+						parameterFiniteDifference = parameterSteps[workerParameterIndex];
 					}
-				};
-				if(executor != null) {
-					Future<RandomVariableInterface[]> valueFuture = executor.submit(worker);
-					valueFutures.add(parameterIndex, valueFuture);
-				}
-				else {
-					FutureTask<RandomVariableInterface[]> valueFutureTask = new FutureTask<RandomVariableInterface[]>(worker);
-					valueFutureTask.run();
-					valueFutures.add(parameterIndex, valueFutureTask);
-				}
-			}
+					else {
+						/*
+						 * Try to adaptively set a parameter shift. Note that in some
+						 * applications it may be important to set parameterSteps.
+						 * appropriately.
+						 */
+						parameterFiniteDifference = parametersNew[workerParameterIndex].abs().add(1.0).mult(1E-8);
+					}
 
-			for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
-				try {
-					derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
+					// Shift parameter value
+					parametersNew[workerParameterIndex] = parametersNew[workerParameterIndex].add(parameterFiniteDifference);
+
+					// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
+					try {
+						prepareAndSetValues(parametersNew, derivative);
+					} catch (Exception e) {
+						// We signal an exception to calculate the derivative as NaN
+						Arrays.fill(derivative, new RandomVariable(Double.NaN));
+					}
+					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
+						derivative[valueIndex] = derivative[valueIndex].sub(valueCurrent[valueIndex]).div(parameterFiniteDifference);
+						derivative[valueIndex] = derivative[valueIndex].barrier(derivative[valueIndex].isNaN().sub(0.5).mult(-1), derivative[valueIndex], 0.0);
+					}
+					return derivative;
 				}
-				catch (InterruptedException e) {
-					throw new SolverException(e);
-				} catch (ExecutionException e) {
-					throw new SolverException(e);
-				}
+			};
+			if(executor != null) {
+				Future<RandomVariableInterface[]> valueFuture = executor.submit(worker);
+				valueFutures.add(parameterIndex, valueFuture);
+			}
+			else {
+				FutureTask<RandomVariableInterface[]> valueFutureTask = new FutureTask<>(worker);
+				valueFutureTask.run();
+				valueFutures.add(parameterIndex, valueFutureTask);
 			}
 		}
+
+		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
+			try {
+				derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
+			}
+			catch (InterruptedException e) {
+				throw new SolverException(e);
+			} catch (ExecutionException e) {
+				throw new SolverException(e);
+			}
+		}
+	}
 
 	/**
 	 * You may override this method to implement a custom stop condition.
@@ -511,9 +521,11 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 				errorMeanSquaredCurrent = errorMeanSquaredTest.cap(errorMeanSquaredCurrent);
 
 				// Check if we are done
-				if (done()) break;
+				if (done()) {
+					break;
+				}
 
-				
+
 				// Lazy init of lambda and isParameterCurrentDerivativeValid
 				this.numberOfPaths = isPointAccepted.size();		// @TODO: check for parameter and target value sizes!
 				if(lambda == null) {
@@ -558,10 +570,11 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 									alphaElement += weights[valueIndex].get(pathIndex) * derivativeCurrent[i][valueIndex].get(pathIndex) * derivativeCurrent[j][valueIndex].get(pathIndex);
 								}
 								if (i == j) {
-									if (alphaElement == 0.0)
+									if (alphaElement == 0.0) {
 										alphaElement = 1.0;
-									else
+									} else {
 										alphaElement *= 1 + lambda[pathIndex];
+									}
 								}
 
 								hessianMatrix[i][j] = alphaElement;
@@ -675,7 +688,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
 		clonedOptimizer.weights = newWeights.clone();				// Defensive copy
 
-		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+		if(isUseBestParametersAsInitialParameters && this.done()) {
+			clonedOptimizer.initialParameters = this.getBestFitParameters();
+		}
 
 		return clonedOptimizer;
 	}
@@ -703,7 +718,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);
 		clonedOptimizer.weights = numberListToDoubleArray(newWeights);
 
-		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+		if(isUseBestParametersAsInitialParameters && this.done()) {
+			clonedOptimizer.initialParameters = this.getBestFitParameters();
+		}
 
 		return clonedOptimizer;
 	}

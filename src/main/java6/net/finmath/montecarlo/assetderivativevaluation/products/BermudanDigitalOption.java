@@ -79,7 +79,9 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		this.strikes = strikes;
 		this.exerciseMethod = exerciseMethod;
 		orderOfRegressionPolynomial = (Integer)properties.get("orderOfRegressionPolynomial");
-		if(orderOfRegressionPolynomial == null) orderOfRegressionPolynomial = 4;
+		if(orderOfRegressionPolynomial == null) {
+			orderOfRegressionPolynomial = 4;
+		}
 	}
 
 	/**
@@ -123,7 +125,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		RandomVariableInterface	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
 
 		RandomVariableInterface one				= model.getRandomVariableForConstant(1.0);
-		
+
 		for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex>=0; exerciseDateIndex--)
 		{
 			double exerciseDate = exerciseDates[exerciseDateIndex];
@@ -166,7 +168,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 				underlying	= valueOfPaymentsIfExercised.sub(martingale);
 				trigger		= value.sub(underlying);
 				break;
-				*/
+				 */
 			}
 
 			// If trigger is positive keep value, otherwise take underlying
@@ -176,13 +178,12 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 
 		// Uncomment the following if you like to check exercise probabilities
 		/*
-    	double[] probabilities = exerciseTime.getHistogram(exerciseDates);
-        for(int exerciseDateIndex=0; exerciseDateIndex<exerciseDates.length; exerciseDateIndex++)
-        {
-        	double time = exerciseDates[exerciseDateIndex];
-        	System.out.println(time + "\t" + probabilities[exerciseDateIndex]);
-        }
-    	System.out.println("NEVER" + "\t" + probabilities[exerciseDates.length]);
+		double[] probabilities = exerciseTime.getHistogram(exerciseDates);
+		for(int exerciseDateIndex=0; exerciseDateIndex<exerciseDates.length; exerciseDateIndex++) {
+			double time = exerciseDates[exerciseDateIndex];
+			System.out.println(time + "\t" + probabilities[exerciseDateIndex]);
+		}
+		System.out.println("NEVER" + "\t" + probabilities[exerciseDates.length]);
 		 */
 
 		// Note that values is a relative price - no numeraire division is required

@@ -117,32 +117,35 @@ public class Schedule implements ScheduleInterface {
 	public Iterator<Period> iterator() {
 		return periods.iterator();
 	}
-	
+
 	@Override
 	public int getPeriodIndex(double time) {
 		if(time< getPeriodStart(0)|| time>= getPeriodEnd(getNumberOfPeriods()-1)) {
 			throw new IllegalArgumentException("Time point not included");
 		}
 		for(int i=0; i<getNumberOfPeriods()-1;i++) {
-		if(time<=getPeriodEnd(i)) return i;
+			if(time<=getPeriodEnd(i)) {
+				return i;
+			}
 		}
 		return getNumberOfPeriods()-1;
 	}
-	
+
 	@Override
 	public int getPeriodIndex(LocalDate date) {
-	double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(),date);
-	return getPeriodIndex(floatingDate);
+		double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(),date);
+		return getPeriodIndex(floatingDate);
 	}
 
 	@Override
 	public String toString() {
 		String periodOutputString = "Periods (fixing, periodStart, periodEnd, payment):";
-		for(int periodIndex=0; periodIndex<periods.size(); periodIndex++) 
+		for(int periodIndex=0; periodIndex<periods.size(); periodIndex++) {
 			periodOutputString += "\n" + periods.get(periodIndex).getFixing() + ", " +
-									periods.get(periodIndex).getPeriodStart() + ", " +
-									periods.get(periodIndex).getPeriodEnd() + ", " +
-									periods.get(periodIndex).getPayment();
+					periods.get(periodIndex).getPeriodStart() + ", " +
+					periods.get(periodIndex).getPeriodEnd() + ", " +
+					periods.get(periodIndex).getPayment();
+		}
 		return "Schedule [referenceDate=" + referenceDate + ", daycountconvention=" + daycountconvention + "\n" + periodOutputString + "]";
 	}
 }

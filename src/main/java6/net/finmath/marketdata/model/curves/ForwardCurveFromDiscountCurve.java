@@ -31,6 +31,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implements Serializable {
 
 	private static final long serialVersionUID = -4126228588123963885L;
+
 	private final String referenceDiscountCurveForForwardsName; // The (pseudo-)discount curve that the forwards are calculated from. Note that this is in general different from the discount curve associated with the forwards
 
 	private final double daycountScaling;
@@ -56,7 +57,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		this.daycountScaling = daycountScaling;
 		this.periodOffset = periodOffset;
 	}
-	
+
 	/**
 	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
 	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
@@ -133,13 +134,16 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	@Override
 	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
-		if(model==null)
+		if(model == null) {
 			throw new IllegalArgumentException(this.getName() + ": model==null");
+		}
 		DiscountCurveInterface referenceDiscountCurveForForwards = model.getDiscountCurve(referenceDiscountCurveForForwardsName); // do not use discountCurveName here (usually this is an OIS curve)
-		if(referenceDiscountCurveForForwards==null)
+		if(referenceDiscountCurveForForwards == null) {
 			throw new IllegalArgumentException(this.getName() + ": referenceDiscountCurveForForwards " + referenceDiscountCurveForForwardsName + " not found in the model:\n" + model.toString());
-		if(Double.isNaN(paymentOffset) || paymentOffset<=0.0)
+		}
+		if(Double.isNaN(paymentOffset) || paymentOffset<=0.0) {
 			throw new IllegalArgumentException(this.getName() + ": Requesting forward with paymentOffset " + paymentOffset + " not allowed.");
+		}
 
 		double daycount = paymentOffset * daycountScaling;
 		return (referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+periodOffset) / referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;
@@ -166,7 +170,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ForwardCurveFromDiscountCurve [" + super.toString() + ", referenceDiscountCurveForForwardsName=" + referenceDiscountCurveForForwardsName + ", daycountScaling=" + daycountScaling + ", periodOffset=" + periodOffset + "]";

@@ -75,16 +75,20 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		this.kappa = kappa;
 		this.theta = theta;
 		this.xi = xi;
-		
+
 		this.isCalibrateable = isCalibrateable;
 	}
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return covarianceModel.getParameter();
+		if(!isCalibrateable) {
+			return covarianceModel.getParameter();
+		}
 
 		double[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new double[] { theta, kappa, xi };
+		if(covarianceParameters == null) {
+			return new double[] { theta, kappa, xi };
+		}
 
 		// Append nu and rho to the end of covarianceParameters
 		double[] jointParameters = new double[covarianceParameters.length+3];
@@ -96,9 +100,11 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		return jointParameters;
 	}
 
-//	@Override
+	//	@Override
 	private void setParameter(double[] parameter) {
-		if(parameter == null || parameter.length == 0) return;
+		if(parameter == null || parameter.length == 0) {
+			return;
+		}
 
 		if(!isCalibrateable) {
 			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);
@@ -109,7 +115,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
-		
+
 		kappa	= parameter[covarianceParameters.length + 0];
 		theta	= parameter[covarianceParameters.length + 1];
 		xi		= parameter[covarianceParameters.length + 2];

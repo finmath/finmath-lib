@@ -49,13 +49,13 @@ public class TestCurvesFromLIBORModel {
 	private static final int numberOfFactors	= 1;
 
 	static LIBORVolatilityModel volatilityModel;
-	
-	
+
+
 	@Test
 	/*
 	 * We value a forward starting swap with LMM and using curves built from the LMM. The curves' time 0 is the forward starting date of the swap. 
 	 */
-    public void testStochasticCurves() throws CalculationException{
+	public void testStochasticCurves() throws CalculationException{
 		// Create Random Variable Factory
 		AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
@@ -65,23 +65,25 @@ public class TestCurvesFromLIBORModel {
 		AbstractAnalyticProduct swapAnalytic = createSwapAnalytic(maturityInYears,forwardStartTimeInYears);
 		// Create Monte Carlo Swap
 		AbstractLIBORMonteCarloProduct swapMonteCarlo = createSwap(maturityInYears,forwardStartTimeInYears,randomVariableFactory);
-		
+
 		// Create a Libor market model 
 		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactory,
-				                                                                          numberOfPaths, 
-				                                                                          numberOfFactors, 
-				                                                                          //(ForwardCurve)curves.getModel().getForwardCurve("forwardCurve"),
-				                                                                          0.0 /* Correlation */);
-        double evaluationTime = forwardStartTimeInYears;
-        
-        int timeIndex = liborMarketModel.getTimeIndex(evaluationTime);
+				numberOfPaths, 
+				numberOfFactors, 
+				//(ForwardCurve)curves.getModel().getForwardCurve("forwardCurve"),
+				0.0 /* Correlation */);
+		double evaluationTime = forwardStartTimeInYears;
+
+		int timeIndex = liborMarketModel.getTimeIndex(evaluationTime);
 		// Get all Libors at timeIndex which are not yet fixed (others null) and times for the timeDiscretization of the curves
-		ArrayList<RandomVariableInterface> liborsAtTimeIndex = new ArrayList<RandomVariableInterface>();
+		ArrayList<RandomVariableInterface> liborsAtTimeIndex = new ArrayList<>();
 		int firstLiborIndex = liborMarketModel.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(evaluationTime);
 		double firstLiborTime = liborMarketModel.getLiborPeriodDiscretization().getTime(firstLiborIndex);
-		if(firstLiborTime>evaluationTime) liborsAtTimeIndex.add(liborMarketModel.getLIBOR(evaluationTime, evaluationTime, firstLiborTime));
+		if(firstLiborTime>evaluationTime) {
+			liborsAtTimeIndex.add(liborMarketModel.getLIBOR(evaluationTime, evaluationTime, firstLiborTime));
+		}
 		for(int i=firstLiborIndex;i<liborMarketModel.getNumberOfLibors();i++) {
-					    liborsAtTimeIndex.add(liborMarketModel.getLIBOR(timeIndex,i));
+			liborsAtTimeIndex.add(liborMarketModel.getLIBOR(timeIndex,i));
 		}
 		//times[times.length-1]= model.getLiborPeriodDiscretization().getTime(model.getNumberOfLibors())-evaluationTime;
 		RandomVariableInterface[] libors = liborsAtTimeIndex.toArray(new RandomVariableInterface[liborsAtTimeIndex.size()]);
@@ -90,33 +92,33 @@ public class TestCurvesFromLIBORModel {
 		ConditionalExpectationEstimatorInterface conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariableInterface[0]));
 		// Get value with Monte Carlo
 		double valueMonteCarlo = swapMonteCarlo.getValue(evaluationTime, liborMarketModel).getConditionalExpectation(conditionalExpectationOperator).getAverage();
-        
+
 		// Create Forward Curve from the LIBORMonteCarloModel
 		net.finmath.analytic.model.curves.ForwardCurve forwardCurve = net.finmath.analytic.model.curves.ForwardCurve.createForwardCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
-        // Get value of analytic swap
+		// Get value of analytic swap
 		net.finmath.analytic.model.curves.DiscountCurveInterface discountCurve = new net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve(net.finmath.analytic.model.curves.ForwardCurve.createForwardCurveFromMonteCarloLiborModel(forwardCurve.getName(), liborMarketModel, 0));
-				//net.finmath.analytic.model.curves.DiscountCurve.createDiscountCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
-		
+		//net.finmath.analytic.model.curves.DiscountCurve.createDiscountCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
+
 		double valueWithCurves = swapAnalytic.getValue(0.0, new AnalyticModel(randomVariableFactory, new CurveInterface[]{forwardCurve,discountCurve})).getAverage();
-		
+
 		System.out.println("" + valueMonteCarlo + "\t" + valueWithCurves);
-		
+
 		Assert.assertEquals(valueMonteCarlo,valueWithCurves,1E-4); //True if forwardStartTimeInYears = 0;		
 	}
-	
+
 	private static ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface[] libors) {
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
 
 		// Create basis functions - here: 1, L
 		for(int liborIndex=0; liborIndex<libors.length;liborIndex++){
-		  for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=1; powerOfRegressionMonomial++) {
-			  basisFunctions.add(libors[liborIndex].pow(powerOfRegressionMonomial));
-		  }
+			for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=1; powerOfRegressionMonomial++) {
+				basisFunctions.add(libors[liborIndex].pow(powerOfRegressionMonomial));
+			}
 		}
 		return basisFunctions;
 	}
 
-	
+
 	public static  LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
 			AbstractRandomVariableFactory randomVariableFactory,
 			int numberOfPaths, int numberOfFactors, /*ForwardCurve forwardCurve,*/ double correlationDecayParam) throws CalculationException {
@@ -129,7 +131,7 @@ public class TestCurvesFromLIBORModel {
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		LocalDate referenceDate = LocalDate.of(2017, 8, 20);
-		
+
 		// Create the forward curve (initial value of the LIBOR market model). This curve is still double!
 		net.finmath.marketdata.model.curves.DiscountCurve discountCurve = net.finmath.marketdata.model.curves.DiscountCurve.createDiscountCurveFromZeroRates(
 				"discountCurve"								/* name of the curve */,
@@ -138,13 +140,13 @@ public class TestCurvesFromLIBORModel {
 				);
 
 		net.finmath.marketdata.model.curves.ForwardCurveInterface forwardCurve = new net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve(discountCurve.getName(), referenceDate, "6M");
-//		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
-//				"forwardCurve"								/* name of the curve */,
-//				new double[] {0.5 , 1.0, 2.0, 5.0, 30.0}	/* fixings of the forward */,
-//				new double[] {0.01, 0.02, 0.02, 0.03, 0.04}	/* forwards */,
-//				liborPeriodLength							/* tenor / period length */
-//				);
-		
+		//		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		//				"forwardCurve"								/* name of the curve */,
+		//				new double[] {0.5 , 1.0, 2.0, 5.0, 30.0}	/* fixings of the forward */,
+		//				new double[] {0.01, 0.02, 0.02, 0.03, 0.04}	/* forwards */,
+		//				liborPeriodLength							/* tenor / period length */
+		//				);
+
 
 		/*
 		 * Create a simulation time discretization
@@ -161,7 +163,9 @@ public class TestCurvesFromLIBORModel {
 		//LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);		
 		volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
 		double[][] volatilityMatrix = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
-		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) Arrays.fill(volatilityMatrix[timeIndex], d);
+		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
+			Arrays.fill(volatilityMatrix[timeIndex], d);
+		}
 		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatilityMatrix);
 
 		/*
@@ -180,7 +184,7 @@ public class TestCurvesFromLIBORModel {
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
@@ -202,20 +206,20 @@ public class TestCurvesFromLIBORModel {
 
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
-	
+
 
 	public static AbstractLIBORMonteCarloProduct createSwap(int maturityInYears, int forwardStartTimeInYears, AbstractRandomVariableFactory factory){
-	   
-	    
+
+
 		//1)   Construct payer and receiver leg
-	    //1.1) Generate a schedule
+		//1.1) Generate a schedule
 		// 1.1.1) Set reference Date
 		Calendar calRef = Calendar.getInstance();
 		calRef.set(Calendar.YEAR, 2017);
 		calRef.set(Calendar.MONTH, Calendar.AUGUST);
 		calRef.set(Calendar.DAY_OF_MONTH, 20);
 		Date referenceDate = calRef.getTime();
-		    	
+
 		// 1.1.2) Set Start Date
 		Calendar calStart = Calendar.getInstance();
 		calStart.set(Calendar.YEAR, 2017+forwardStartTimeInYears);
@@ -224,105 +228,105 @@ public class TestCurvesFromLIBORModel {
 		Date startDate = calStart.getTime();
 		//Maturity Date prepare calendar
 		Calendar calMat = calStart;
-		    	
+
 		//1.1.3) Set further schedule parameters
-	    int fixingOffsetDays = 0;
-	    int paymentOffsetDays = 1; //error if = 0;
+		int fixingOffsetDays = 0;
+		int paymentOffsetDays = 1; //error if = 0;
 		String shortPeriodConvention = "first";
 		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		String		frequency = "semiannual";
 		String		daycountConvention = "act/365";	
-						
+
 		calMat.add(Calendar.YEAR, maturityInYears);
 		Date maturityDate = calMat.getTime();
-				
-	    ScheduleInterface schedulePayer = ScheduleGenerator.createScheduleFromConventions(
-			    		                                                       referenceDate, 
-					                                                           startDate,
-					                                                           maturityDate, 
-					                                                           frequency,
-					                                                           daycountConvention,
-					                                                           shortPeriodConvention,
-						 "modified_following", businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
-			   	    
-	    ScheduleInterface scheduleReceiver = schedulePayer;
-		
+
+		ScheduleInterface schedulePayer = ScheduleGenerator.createScheduleFromConventions(
+				referenceDate, 
+				startDate,
+				maturityDate, 
+				frequency,
+				daycountConvention,
+				shortPeriodConvention,
+				"modified_following", businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+
+		ScheduleInterface scheduleReceiver = schedulePayer;
+
 		//Create Monte-Carlo payer leg (float)
 		AbstractNotional notional = new Notional(1.0); // equal Notional as for analytic Swap.
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		double spread = 0.0;
 		net.finmath.montecarlo.interestrate.products.SwapLeg leg = 
 				new net.finmath.montecarlo.interestrate.products.SwapLeg(schedulePayer, notional, index, spread, false /* isNotionalExchanged */);
-		
+
 		//Create Monte-Carlo receiver leg (fixed)
 		AbstractNotional notionalF = notional;
 		AbstractIndex indexF = null;
 		double spreadF = 0.01;
 		net.finmath.montecarlo.interestrate.products.SwapLeg legF = 
 				new net.finmath.montecarlo.interestrate.products.SwapLeg(scheduleReceiver, notionalF, indexF, spreadF, false /* isNotionalExchanged */);
-		
+
 		return new net.finmath.montecarlo.interestrate.products.Swap(legF,leg);
 
-	    }
-	
-	
-	
-	
+	}
+
+
+
+
 	public static AbstractAnalyticProduct createSwapAnalytic(int maturityInYears, int forwardStartTimeInYears){
-		
-	//1)   Construct payer and receiver leg
-    //1.1) Generate a schedule
-		    // 1.1.1) Set reference Date
-			Calendar calRef = Calendar.getInstance();
-	    	calRef.set(Calendar.YEAR, 2017);
-	    	calRef.set(Calendar.MONTH, Calendar.AUGUST);
-	    	calRef.set(Calendar.DAY_OF_MONTH, 20);
-	    	Date referenceDate = calRef.getTime();
-	    	
-	     	// 1.1.2) Set Start Date
-	    	Calendar calStart = Calendar.getInstance();
-	    	calStart.set(Calendar.YEAR, 2017+forwardStartTimeInYears);
-	    	calStart.set(Calendar.MONTH, Calendar.AUGUST);
-	    	calStart.set(Calendar.DAY_OF_MONTH, 20);
-	    	Date startDate = calStart.getTime();
-	    	//Maturity Date prepare calendar
-	    	Calendar calMat = calStart;
-	    	
-	    	//1.1.3) Set further schedule parameters
-			int fixingOffsetDays = 0;
-			int paymentOffsetDays = 1; //error if = 0;
-			String shortPeriodConvention = "first";
-			BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
-			String		frequency = "semiannual";
-			String		daycountConvention = "act/365";	
-			
-			
-			
-			calMat.add(Calendar.YEAR, maturityInYears);
-			Date maturityDate = calMat.getTime();
-			
-		    ScheduleInterface schedulePayer = ScheduleGenerator.createScheduleFromConventions(
-		    		                                                       referenceDate, 
-				                                                           startDate,
-				                                                           maturityDate, 
-				                                                           frequency,
-				                                                           daycountConvention,
-				                                                           shortPeriodConvention,
-					 "modified_following", businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
-		   
-			
-		    
-		    ScheduleInterface scheduleReceiver = schedulePayer;
-		    
-   //1.2) Set spreads
-		    double spreadPayer     = 0.0;
-			double spreadReceiver  = 0.01;
-   //1.3) Create legs: receive fixed, pay float
-			SwapLeg legPayer    = new SwapLeg(schedulePayer, "forwardCurve", spreadPayer, "DiscountCurveFromForwardCurveforwardCurve)");
-			SwapLeg legReceiver = new SwapLeg(scheduleReceiver, null, spreadReceiver, "DiscountCurveFromForwardCurveforwardCurve)");
-   //2)  Create Swap
-			Swap swap = new Swap(legReceiver, legPayer);
-		  
-			return swap;
+
+		//1)   Construct payer and receiver leg
+		//1.1) Generate a schedule
+		// 1.1.1) Set reference Date
+		Calendar calRef = Calendar.getInstance();
+		calRef.set(Calendar.YEAR, 2017);
+		calRef.set(Calendar.MONTH, Calendar.AUGUST);
+		calRef.set(Calendar.DAY_OF_MONTH, 20);
+		Date referenceDate = calRef.getTime();
+
+		// 1.1.2) Set Start Date
+		Calendar calStart = Calendar.getInstance();
+		calStart.set(Calendar.YEAR, 2017+forwardStartTimeInYears);
+		calStart.set(Calendar.MONTH, Calendar.AUGUST);
+		calStart.set(Calendar.DAY_OF_MONTH, 20);
+		Date startDate = calStart.getTime();
+		//Maturity Date prepare calendar
+		Calendar calMat = calStart;
+
+		//1.1.3) Set further schedule parameters
+		int fixingOffsetDays = 0;
+		int paymentOffsetDays = 1; //error if = 0;
+		String shortPeriodConvention = "first";
+		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		String		frequency = "semiannual";
+		String		daycountConvention = "act/365";	
+
+
+
+		calMat.add(Calendar.YEAR, maturityInYears);
+		Date maturityDate = calMat.getTime();
+
+		ScheduleInterface schedulePayer = ScheduleGenerator.createScheduleFromConventions(
+				referenceDate, 
+				startDate,
+				maturityDate, 
+				frequency,
+				daycountConvention,
+				shortPeriodConvention,
+				"modified_following", businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+
+
+
+		ScheduleInterface scheduleReceiver = schedulePayer;
+
+		//1.2) Set spreads
+		double spreadPayer     = 0.0;
+		double spreadReceiver  = 0.01;
+		//1.3) Create legs: receive fixed, pay float
+		SwapLeg legPayer    = new SwapLeg(schedulePayer, "forwardCurve", spreadPayer, "DiscountCurveFromForwardCurveforwardCurve)");
+		SwapLeg legReceiver = new SwapLeg(scheduleReceiver, null, spreadReceiver, "DiscountCurveFromForwardCurveforwardCurve)");
+		//2)  Create Swap
+		Swap swap = new Swap(legReceiver, legPayer);
+
+		return swap;
 	}
 }

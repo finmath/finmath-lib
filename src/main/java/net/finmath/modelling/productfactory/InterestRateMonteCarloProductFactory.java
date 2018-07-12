@@ -7,19 +7,10 @@ import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateModelDescriptor;
 
-public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor, InterestRateModelDescriptor> {
+public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
 	@Override
-	public boolean supportsProduct(ProductDescriptor descriptor) {
-		
-		if(descriptor instanceof InterestRateSwapLegProductDescriptor)
-			return true;
-		else
-			return false;
-	}
-	
-	@Override
-	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescription(ProductDescriptor descriptor) {
+	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 		
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
 			DescribedProduct<InterestRateSwapLegProductDescriptor> product = 

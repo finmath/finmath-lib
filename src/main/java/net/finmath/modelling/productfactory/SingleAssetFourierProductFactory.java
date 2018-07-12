@@ -16,7 +16,7 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
 /**
  * @author Christian Fries
  */
-public class SingleAssetFourierProductFactory<M extends AssetModelDescriptor> implements ProductFactory<SingleAssetProductDescriptor, M > {
+public class SingleAssetFourierProductFactory implements ProductFactory<SingleAssetProductDescriptor> {
 
 	/**
 	 * Create factory.
@@ -25,15 +25,7 @@ public class SingleAssetFourierProductFactory<M extends AssetModelDescriptor> im
 	}
 	
 	@Override
-	public boolean supportsProduct(ProductDescriptor descriptor) {
-		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) 
-			return true;
-		else 
-			return false;
-	}
-
-	@Override
-	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescription(ProductDescriptor descriptor) {
+	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
 			final DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.fouriermethod.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);

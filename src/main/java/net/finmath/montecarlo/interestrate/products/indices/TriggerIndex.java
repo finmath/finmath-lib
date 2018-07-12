@@ -54,13 +54,19 @@ public class TriggerIndex extends AbstractIndex {
 		Set<String> underlyingNames			= trigger.queryUnderlyings();
 		Set<String>	underlyingNamesPositive	= indexIfTriggerIsPositive.queryUnderlyings();
 		if(underlyingNamesPositive != null) {
-			if(underlyingNames != null)	underlyingNames.addAll(underlyingNamesPositive);
-			else						underlyingNames = underlyingNamesPositive;
+			if(underlyingNames != null) {
+				underlyingNames.addAll(underlyingNamesPositive);
+			} else {
+				underlyingNames = underlyingNamesPositive;
+			}
 		}
 		Set<String>	underlyingNamesNegative	= indexIfTriggerIsNegative.queryUnderlyings();
 		if(underlyingNamesNegative != null) {
-			if(underlyingNames != null)	underlyingNames.addAll(underlyingNamesNegative);
-			else						underlyingNames = underlyingNamesNegative;
+			if(underlyingNames != null) {
+				underlyingNames.addAll(underlyingNamesNegative);
+			} else {
+				underlyingNames = underlyingNamesNegative;
+			}
 		}
 		return underlyingNames;
 	}

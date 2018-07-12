@@ -123,13 +123,17 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 
 	private float[] getFloatArray(double[] arrayOfDouble) {
 		float[] arrayOfFloat = new float[arrayOfDouble.length];
-		for(int i=0; i<arrayOfDouble.length; i++) arrayOfFloat[i] = (float)arrayOfDouble[i];
+		for(int i=0; i<arrayOfDouble.length; i++) {
+			arrayOfFloat[i] = (float)arrayOfDouble[i];
+		}
 		return arrayOfFloat;
 	}
 
 	private double[] getDoubleArray(float[] arrayOfFloat) {
 		double[] arrayOfDouble = new double[arrayOfFloat.length];
-		for(int i=0; i<arrayOfFloat.length; i++) arrayOfDouble[i] = arrayOfFloat[i];
+		for(int i=0; i<arrayOfFloat.length; i++) {
+			arrayOfDouble[i] = arrayOfFloat[i];
+		}
 		return arrayOfDouble;
 	}
 
@@ -148,14 +152,22 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public boolean equals(RandomVariableInterface randomVariable) {
-		if(this.time != randomVariable.getFiltrationTime()) return false;
+		if(this.time != randomVariable.getFiltrationTime()) {
+			return false;
+		}
 		if(this.isDeterministic() && randomVariable.isDeterministic()) {
 			return this.valueIfNonStochastic == randomVariable.get(0);
 		}
 
-		if(this.isDeterministic() != randomVariable.isDeterministic()) return false;
+		if(this.isDeterministic() != randomVariable.isDeterministic()) {
+			return false;
+		}
 
-		for(int i=0; i<realizations.length; i++) if(realizations[i] != randomVariable.get(i)) return false;
+		for(int i=0; i<realizations.length; i++) {
+			if(realizations[i] != randomVariable.get(i)) {
+				return false;
+			}
+		}
 
 		return true;
 	}
@@ -173,8 +185,11 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double get(int pathOrState) {
-		if(isDeterministic())   return valueIfNonStochastic;
-		else               		return realizations[pathOrState];
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		} else {
+			return realizations[pathOrState];
+		}
 	}
 
 	/* (non-Javadoc)
@@ -182,8 +197,11 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public int size() {
-		if(isDeterministic())    return 1;
-		else                     return realizations.length;
+		if(isDeterministic()) {
+			return 1;
+		} else {
+			return realizations.length;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -191,10 +209,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getMin() {
-		if(isDeterministic()) return valueIfNonStochastic;
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		}
 		double min = Double.MAX_VALUE;
-		if(realizations.length != 0) min = realizations[0];     /// @see getMax()
-		for(int i=0; i<realizations.length; i++) min = Math.min(realizations[i],min);
+		if(realizations.length != 0) {
+			min = realizations[0];     /// @see getMax()
+		}
+		for(int i=0; i<realizations.length; i++) {
+			min = Math.min(realizations[i],min);
+		}
 		return min;
 	}
 
@@ -203,10 +227,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getMax() {
-		if(isDeterministic()) return valueIfNonStochastic;
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		}
 		double max = -Double.MAX_VALUE;
-		if(realizations.length != 0) max = realizations[0];
-		for(int i=0; i<realizations.length; i++) max = Math.max(realizations[i],max);
+		if(realizations.length != 0) {
+			max = realizations[0];
+		}
+		for(int i=0; i<realizations.length; i++) {
+			max = Math.max(realizations[i],max);
+		}
 		return max;
 	}
 
@@ -214,8 +244,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage()
 	 */
 	public double getAverage() {
-		if(isDeterministic())	return valueIfNonStochastic;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		double sum = 0.0;								// Running sum
 		double error = 0.0;								// Running error compensation
@@ -233,13 +267,17 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
-		if(isDeterministic())	return valueIfNonStochastic;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		double sum = 0.0;
 		double error = 0.0;														// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
-			double value = ((double)realizations[i]) * probabilities.get(i) - error;		// Error corrected value
+			double value = (realizations[i]) * probabilities.get(i) - error;		// Error corrected value
 			double newSum = sum + value;				// New sum
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;
@@ -252,8 +290,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getVariance() {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return 0.0;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		double sum			= 0.0;
 		double sumOfSquared = 0.0;
@@ -275,8 +317,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 
 	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return 0.0;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		double sum			= 0.0;
 		double sumOfSquared = 0.0;
@@ -298,32 +344,48 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 
 	@Override
 	public double getSampleVariance() {
-		if(isDeterministic() || size() == 1)	return 0.0;
-		if(size() == 0)							return Double.NaN;
+		if(isDeterministic() || size() == 1) {
+			return 0.0;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		return getVariance() * size()/(size()-1);
 	}
 
 	@Override
 	public double getStandardDeviation() {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return 0.0;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		return Math.sqrt(getVariance());
 	}
 
 	@Override
 	public double getStandardDeviation(RandomVariableInterface probabilities) {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return 0.0;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		return Math.sqrt(getVariance(probabilities));
 	}
 
 	@Override
 	public double getStandardError() {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return 0.0;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		return getStandardDeviation()/Math.sqrt(size());
 	}
@@ -333,8 +395,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getStandardError(RandomVariableInterface probabilities) {
-		if(isDeterministic())	return 0.0;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return 0.0;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		return getStandardDeviation(probabilities)/Math.sqrt(size());
 	}
@@ -344,8 +410,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getQuantile(double quantile) {
-		if(isDeterministic())	return valueIfNonStochastic;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		float[] realizationsSorted = realizations.clone();
 		java.util.Arrays.sort(realizationsSorted);
@@ -360,8 +430,12 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
-		if(isDeterministic())	return valueIfNonStochastic;
-		if(size() == 0)			return Double.NaN;
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
 
 		throw new RuntimeException("Method not implemented.");
 	}
@@ -371,9 +445,15 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
-		if(isDeterministic())	return valueIfNonStochastic;
-		if(size() == 0)			return Double.NaN;
-		if(quantileStart > quantileEnd) return getQuantileExpectation(quantileEnd, quantileStart);
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
+		if(quantileStart > quantileEnd) {
+			return getQuantileExpectation(quantileEnd, quantileStart);
+		}
 
 		float[] realizationsSorted = realizations.clone();
 		java.util.Arrays.sort(realizationsSorted);
@@ -439,7 +519,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 
 			// Normalize histogramValues
 			if(realizationsSorted.length > 0) {
-				for(int i=0; i<histogramValues.length; i++) histogramValues[i] /= realizationsSorted.length;
+				for(int i=0; i<histogramValues.length; i++) {
+					histogramValues[i] /= realizationsSorted.length;
+				}
 			}
 		}
 
@@ -455,9 +537,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		double[] anchorPoints	= new double[numberOfPoints+1];
 		double center	= getAverage();
 		double radius	= standardDeviations * getStandardDeviation();
-		double stepSize	= (double) (numberOfPoints-1) / 2.0;
+		double stepSize	= (numberOfPoints-1) / 2.0;
 		for(int i=0; i<numberOfPoints;i++) {
-			double alpha = (-(double)(numberOfPoints-1) / 2.0 + (double)i) / stepSize;
+			double alpha = (-(double)(numberOfPoints-1) / 2.0 + i) / stepSize;
 			intervalPoints[i]	= center + alpha * radius;
 			anchorPoints[i]		= center + alpha * radius - radius / (2 * stepSize);
 		}
@@ -512,8 +594,11 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 
 	@Override
 	public Double doubleValue() {
-		if(isDeterministic()) return valueIfNonStochastic;
-		else throw new UnsupportedOperationException("The random variable is non-deterministic");
+		if(isDeterministic()) {
+			return valueIfNonStochastic;
+		} else {
+			throw new UnsupportedOperationException("The random variable is non-deterministic");
+		}
 	}
 
 	@Override
@@ -546,7 +631,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		{
 			// Still faster than a parallel stream (2014.04)
 			double[] result = new double[this.realizations.length];
-			for(int i=0; i<result.length; i++) result[i] = operator.applyAsDouble(realizations[i]);
+			for(int i=0; i<result.length; i++) {
+				result[i] = operator.applyAsDouble(realizations[i]);
+			}
 			return new RandomVariable(time, result);
 		}
 	}
@@ -587,7 +674,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.min(realizations[i],cap);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = Math.min(realizations[i],cap);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -600,7 +689,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.max(realizations[i],floor);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = Math.max(realizations[i],floor);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -613,7 +704,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + value;
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] + value;
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -626,7 +719,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] - value;
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] - value;
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -639,7 +734,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			float[] newRealizations = new float[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = (float) (realizations[i] * value);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = (float) (realizations[i] * value);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -652,7 +749,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / value;
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] / value;
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -665,7 +764,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.pow(realizations[i],exponent);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = Math.pow(realizations[i],exponent);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -686,7 +787,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * realizations[i];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] * realizations[i];
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -699,7 +802,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.sqrt(realizations[i]);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = Math.sqrt(realizations[i]);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -714,7 +819,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.exp(realizations[i]);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.exp(realizations[i]);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -729,7 +836,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.log(realizations[i]);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.log(realizations[i]);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -744,7 +853,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.sin(realizations[i]);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.sin(realizations[i]);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -759,7 +870,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.cos(realizations[i]);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.cos(realizations[i]);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -775,10 +888,13 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			double newValueIfNonStochastic = valueIfNonStochastic + randomVariable.get(0);
 			return new RandomVariableLowMemory(newTime, newValueIfNonStochastic);
 		}
-		else if(isDeterministic()) return randomVariable.add(this);
-		else {
+		else if(isDeterministic()) {
+			return randomVariable.add(this);
+		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + randomVariable.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] + randomVariable.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -796,12 +912,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic - randomVariable.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic - randomVariable.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] - randomVariable.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] - randomVariable.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -819,12 +939,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else if(isDeterministic()) {
 			float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = (float) (valueIfNonStochastic * randomVariable.get(i));
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = (float) (valueIfNonStochastic * randomVariable.get(i));
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else {
 			float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = (float) (realizations[i] * randomVariable.get(i));
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = (float) (realizations[i] * randomVariable.get(i));
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -842,12 +966,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic / randomVariable.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic / randomVariable.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / randomVariable.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] / randomVariable.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -863,10 +991,13 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			double newValueIfNonStochastic = FastMath.min(valueIfNonStochastic, randomVariable.get(0));
 			return new RandomVariableLowMemory(newTime, newValueIfNonStochastic);
 		}
-		else if(isDeterministic()) return randomVariable.cap(this);
-		else {
+		else if(isDeterministic()) {
+			return randomVariable.cap(this);
+		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.min(realizations[i], randomVariable.get(i));
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.min(realizations[i], randomVariable.get(i));
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -882,10 +1013,13 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			double newValueIfNonStochastic = FastMath.max(valueIfNonStochastic, randomVariable.get(0));
 			return new RandomVariableLowMemory(newTime, newValueIfNonStochastic);
 		}
-		else if(isDeterministic()) return randomVariable.floor(this);
-		else {
+		else if(isDeterministic()) {
+			return randomVariable.floor(this);
+		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = FastMath.max(realizations[i], randomVariable.get(i));
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.max(realizations[i], randomVariable.get(i));
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -904,19 +1038,25 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		else if(isDeterministic() && !rate.isDeterministic()) {
 			double[] rateRealizations = rate.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), rate.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic * (1 + rateRealizations[i] * periodLength);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic * (1 + rateRealizations[i] * periodLength);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && rate.isDeterministic()) {
 			double rateValue = rate.get(0);
 			double[] newRealizations = new double[Math.max(size(), rate.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * (1 + rateValue * periodLength);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] * (1 + rateValue * periodLength);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else {
 			double[] rateRealizations = rate.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), rate.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] * (1 + rateRealizations[i] * periodLength);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] * (1 + rateRealizations[i] * periodLength);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -935,19 +1075,25 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		else if(isDeterministic() && !rate.isDeterministic()) {
 			double[] rateRealizations = rate.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), rate.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic / (1.0 + rateRealizations[i] * periodLength);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic / (1.0 + rateRealizations[i] * periodLength);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && rate.isDeterministic()) {
 			double rateValue = rate.get(0);
 			double[] newRealizations = new double[Math.max(size(), rate.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / (1.0 + rateValue * periodLength);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] / (1.0 + rateValue * periodLength);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else {
 			double[] rateRealizations = rate.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), rate.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] / (1.0 + rateRealizations[i] * periodLength);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] / (1.0 + rateRealizations[i] * periodLength);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -989,7 +1135,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = 1.0/realizations[i];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = 1.0/realizations[i];
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -1004,7 +1152,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Math.abs(realizations[i]);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = Math.abs(realizations[i]);
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}
@@ -1023,19 +1173,25 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		else if(isDeterministic() && !factor1.isDeterministic()) {
 			double[] factor1Realizations = factor1.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), factor1.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2;
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2;
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && factor1.isDeterministic()) {
 			double factor1Value = factor1.get(0);
 			double[] newRealizations = new double[Math.max(size(), factor1.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + factor1Value * factor2;
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] + factor1Value * factor2;
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else {
 			double[] factor1Realizations = factor1.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), factor1.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2;
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2;
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -1055,19 +1211,25 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			double[] factor1Realizations = factor1.getRealizations();
 			double[] factor2Realizations = factor2.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), factor1.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2Realizations[i];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2Realizations[i];
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && !factor1.isDeterministic() && !factor2.isDeterministic()) {
 			double[] factor1Realizations = factor1.getRealizations();
 			double[] factor2Realizations = factor2.getRealizations();
 			double[] newRealizations = new double[Math.max(size(), factor1.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2Realizations[i];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2Realizations[i];
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(Math.max(size(), factor1.size()), factor2.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = get(i) + factor1.get(i) * factor2.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = get(i) + factor1.get(i) * factor2.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -1085,7 +1247,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = get(i) + numerator.get(i) / denominator.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = get(i) + numerator.get(i) / denominator.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -1103,7 +1267,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = get(i) - numerator.get(i) / denominator.get(i);
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = get(i) - numerator.get(i) / denominator.get(i);
+			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
@@ -1118,7 +1284,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			float[] newRealizations = new float[size()];
-			for(int i=0; i<newRealizations.length; i++) newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0f : 0.0f;
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0f : 0.0f;
+			}
 			return new RandomVariableLowMemory(time, newRealizations);
 		}
 	}

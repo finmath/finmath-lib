@@ -74,7 +74,9 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 
 	@Override
 	public double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention) {
-		if(maturity == 0) return 0;
+		if(maturity == 0) {
+			return 0;
+		}
 
 		double T = maturity * timeScaling;
 
@@ -104,8 +106,12 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 
 		double value = Math.sqrt(integratedVariance/maturity);
 
-		if(discountCurve == null)	throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
-		if(forwardCurve == null)	throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		if(discountCurve == null) {
+			throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		}
+		if(forwardCurve == null) {
+			throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		}
 
 		double periodStart = maturity;
 		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);

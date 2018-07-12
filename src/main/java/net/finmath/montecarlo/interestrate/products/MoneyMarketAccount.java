@@ -54,7 +54,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	public MoneyMarketAccount(double inceptionTime, double accrualPeriod) {
 		this(inceptionTime, 1.0, accrualPeriod);
 	}
-	
+
 	/**
 	 * Create a default money market account. The money market account will use the
 	 * models tenor discretization as the accrual period and its inception time is 0.
@@ -69,9 +69,13 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		if(inceptionTime > evaluationTime) return new RandomVariable(0.0);
-		if(accrualPeriod <= 0) return new RandomVariable(Double.MAX_VALUE);
-		
+		if(inceptionTime > evaluationTime) {
+			return new RandomVariable(0.0);
+		}
+		if(accrualPeriod <= 0) {
+			return new RandomVariable(Double.MAX_VALUE);
+		}
+
 		// Initialize the value of the account to 1.0
 		RandomVariableInterface value = new RandomVariable(initialValue);
 
@@ -80,11 +84,11 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 			// Get the forward fixed at the beginning of the period
 			RandomVariableInterface	forwardRate				= model.getLIBOR(time, time, time+accrualPeriod);
 			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
-			
+
 			// Accrue the value using the current forward rate
 			value = value.accrue(forwardRate, currentAccrualPeriod);
 		}
-		
+
 		return value;
 	}
 }

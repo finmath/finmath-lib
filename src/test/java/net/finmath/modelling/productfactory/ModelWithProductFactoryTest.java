@@ -38,7 +38,7 @@ public class ModelWithProductFactoryTest {
 	private final double initialValue   = 1.0;
 	private final double riskFreeRate   = 0.05;
 	private final double volatility     = 0.30;
-	
+
 	private final double theta = volatility*volatility;
 	private final double kappa = 0.1;
 	private final double xi = 0.50;
@@ -53,8 +53,8 @@ public class ModelWithProductFactoryTest {
 	private final int		numberOfTimeSteps	= 10;
 	private final double 	deltaT				= 0.5;
 	private final int		seed				= 31415;
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void bsTest() {
@@ -75,21 +75,12 @@ public class ModelWithProductFactoryTest {
 
 		// Create base Fourier implementation of Black-Scholes model
 		DescribedModel<BlackScholesModelDescriptor> blackScholesModelFourier = (new BlackScholesModelFourierFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
-		
+
 		// Add custom product factory
-		blackScholesModelFourier = (DescribedModel<BlackScholesModelDescriptor>) blackScholesModelFourier.getModelWithProductFactory(new ProductFactory<SingleAssetDigitalOptionProductDescriptor, BlackScholesModelDescriptor>() {
+		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
 
 			@Override
-			public boolean supportsProduct(ProductDescriptor descriptor) {
-				if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) 
-					return true;
-				else 
-					return false;
-			}
-
-			@Override
-			public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescription(
-					ProductDescriptor descriptor) {
+			public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 				if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
 					final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new net.finmath.fouriermethod.products.DigitalOption((SingleAssetDigitalOptionProductDescriptor) descriptor);
 					return product;
@@ -99,10 +90,10 @@ public class ModelWithProductFactoryTest {
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
 			}
-		}, true);
+		};
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface digitalOptionFourier = blackScholesModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
+		ProductInterface digitalOptionFourier = fourierProductFactory.getProductFromDescriptor(digitalOptionDescriptor);
 
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -132,23 +123,23 @@ public class ModelWithProductFactoryTest {
 		 * Create Finite Difference implementation of model and product
 		 */
 
-//		// Create finite difference implementation of Black-Scholes model
-//		DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
-//
-//		// Create product implementation compatible with Black-Scholes model
-//		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(digitalOptionDescriptor);
-//
-//		Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
-//
-//		System.out.println("Finite difference implementation..:" + valueFiniteDifference);
+		//		// Create finite difference implementation of Black-Scholes model
+		//		DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
+		//
+		//		// Create product implementation compatible with Black-Scholes model
+		//		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(digitalOptionDescriptor);
+		//
+		//		Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
+		//
+		//		System.out.println("Finite difference implementation..:" + valueFiniteDifference);
 
 		/*
 		 * Calculate analytic benchmark.
 		 */
 
 		double optionMaturity = ((SingleAssetDigitalOptionProductDescriptor) digitalOptionDescriptor).getMaturity();
-//		double forward = blackScholesModelDescriptor.getInitialValue() / blackScholesModelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(optionMaturity);
-//		double payOffUnit = blackScholesModelDescriptor.getDiscountCurveForDiscountRate().getDiscountFactor(optionMaturity);
+		//		double forward = blackScholesModelDescriptor.getInitialValue() / blackScholesModelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(optionMaturity);
+		//		double payOffUnit = blackScholesModelDescriptor.getDiscountCurveForDiscountRate().getDiscountFactor(optionMaturity);
 		double volatility = blackScholesModelDescriptor.getVolatility();
 		double optionStrike = ((SingleAssetDigitalOptionProductDescriptor) digitalOptionDescriptor).getStrike();
 
@@ -162,10 +153,10 @@ public class ModelWithProductFactoryTest {
 
 		Assert.assertEquals("Deviation of Fourier method from analytic", valueAnalytic, ((Double)valueFourier.get("value")).doubleValue(), 1E-3);
 		Assert.assertEquals("Deviation of Monte-Carlo method from analytic", valueAnalytic, ((Double)valueMonteCarlo.get("value")).doubleValue(), 1E-3);
-//		Assert.assertEquals("Deviation of finite difference method from analytic", valueAnalytic, ((Double)valueFiniteDifference.get("value")).doubleValue(), 1E-3);
+		//		Assert.assertEquals("Deviation of finite difference method from analytic", valueAnalytic, ((Double)valueFiniteDifference.get("value")).doubleValue(), 1E-3);
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void hTest() {
@@ -186,35 +177,25 @@ public class ModelWithProductFactoryTest {
 
 		// Create base Fourier implementation of Heston model
 		DescribedModel<HestonModelDescriptor> hestonModelFourier = (new HestonModelFourierFactory()).getModelFromDescriptor(hestonModelDescriptor);
-		
-		// Add custom product factory
-		hestonModelFourier = (DescribedModel<HestonModelDescriptor>) hestonModelFourier.getModelWithProductFactory(new ProductFactory<SingleAssetDigitalOptionProductDescriptor, HestonModelDescriptor>() {
 
-					@Override
-					public boolean supportsProduct(ProductDescriptor descriptor) {
-						if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) 
-							return true;
-						else 
-							return false;
-					}
-
-					@Override
-					public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescription(
-							ProductDescriptor descriptor) {
-						if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
-							final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new net.finmath.fouriermethod.products.DigitalOption((SingleAssetDigitalOptionProductDescriptor) descriptor);
-							return product;
-						}
-						else {
-							String name = descriptor.name();
-							throw new IllegalArgumentException("Unsupported product type " + name);
-						}
-					}
-				}, false);
+		// Create custom product factory
+		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
+			@Override
+			public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
+				if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
+					final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new net.finmath.fouriermethod.products.DigitalOption((SingleAssetDigitalOptionProductDescriptor) descriptor);
+					return product;
+				}
+				else {
+					String name = descriptor.name();
+					throw new IllegalArgumentException("Unsupported product type " + name);
+				}
+			}
+		};
 
 		// Create product implementation compatible with Heston model
-		ProductInterface digitalOptionFourier = hestonModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
-		
+		ProductInterface digitalOptionFourier = fourierProductFactory.getProductFromDescriptor(digitalOptionDescriptor);
+
 		// Evaluate product
 		double evaluationTime = 0.0;
 		Map<String, Object> valueFourier = digitalOptionFourier.getValues(evaluationTime, hestonModelFourier);
@@ -228,7 +209,7 @@ public class ModelWithProductFactoryTest {
 		// Create a time discretization
 		BrownianMotionInterface brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
-		
+
 		// Create Fourier implementation of Heston model
 		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
 
@@ -238,15 +219,15 @@ public class ModelWithProductFactoryTest {
 		Map<String, Object> valueMonteCarlo = digitalOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 
 		System.out.println(valueMonteCarlo);
-		
+
 		double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
 		Assert.assertEquals("Difference of Fourier and Monte-Carlo valuation", 0.0, deviation, 5E-2);
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	/**
 	 * Get the discount curve using the riskFreeRate.
 	 * 

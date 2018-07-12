@@ -27,7 +27,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	private static final long serialVersionUID = 3735595267579329042L;
 
 	protected final String discountCurveName; // The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards)
-	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<Double, Double>();
+	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<>();
 
 	protected final String paymentOffsetCode;
 	protected final BusinessdayCalendarInterface paymentBusinessdayCalendar;
@@ -49,15 +49,15 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
 	public AbstractForwardCurve(String name, 
-			                    LocalDate referenceDate, 
-			                    String paymentOffsetCode, 
-			                    BusinessdayCalendarInterface paymentBusinessdayCalendar, 
-			                    BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
-			                    InterpolationMethod interpolationMethod, 
-			                    ExtrapolationMethod extrapolationMethod, 
-			                    InterpolationEntity interpolationEntity, 
-			                    String discountCurveName) {
-		
+			LocalDate referenceDate, 
+			String paymentOffsetCode, 
+			BusinessdayCalendarInterface paymentBusinessdayCalendar, 
+			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
+			InterpolationMethod interpolationMethod, 
+			ExtrapolationMethod extrapolationMethod, 
+			InterpolationEntity interpolationEntity, 
+			String discountCurveName) {
+
 		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -79,11 +79,11 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
 	public AbstractForwardCurve(String name, 
-			                    LocalDate referenceDate, 
-			                    String paymentOffsetCode, 
-			                    BusinessdayCalendarInterface paymentBusinessdayCalendar, 
-			                    BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
-			                    String discountCurveName) {
+			LocalDate referenceDate, 
+			String paymentOffsetCode, 
+			BusinessdayCalendarInterface paymentBusinessdayCalendar, 
+			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, 
+			String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, discountCurveName);
 	}
 
@@ -118,7 +118,9 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 */
 	@Override
 	public double getPaymentOffset(double fixingTime) {
-		if(paymentOffsetCode == null) return paymentOffset;
+		if(paymentOffsetCode == null) {
+			return paymentOffset;
+		}
 
 		if(paymentOffsets.containsKey(fixingTime)) {
 			return paymentOffsets.get(fixingTime);
@@ -149,11 +151,13 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	{
 		RandomVariableInterface[] values = new RandomVariableInterface[fixingTimes.length];
 
-		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
+		for(int i=0; i<fixingTimes.length; i++) {
+			values[i] = getForward(model, fixingTimes[i]);
+		}
 
 		return values;
 	}
-	
+
 	public String toString() {
 		return "AbstractForwardCurve [" + super.toString() + ", discountCurveName=" + discountCurveName + ", paymentOffsetCode=" + paymentOffsetCode + ", paymentBusinessdayCalendar=" + paymentBusinessdayCalendar + ", paymentDateRollConvention=" + paymentDateRollConvention + "]";
 	}

@@ -11,15 +11,13 @@ package net.finmath.modelling;
  * @author Christian Fries
  * @author Luca Del Re
  */
-public interface ProductFactory<P extends ProductDescriptor, M extends ModelDescriptor> {
+public interface ProductFactory<P extends ProductDescriptor> {
 
-	boolean supportsProduct(ProductDescriptor descriptor);
-	
 	/**
 	 * Constructs the product from a given product descriptor.
 	 * 
 	 * @param descriptor A product descriptor.
 	 * @return An instance of the product describable by this descriptor.
 	 */
-	DescribedProduct<? extends P> getProductFromDescription(ProductDescriptor descriptor);
+	DescribedProduct<? extends P> getProductFromDescriptor(ProductDescriptor descriptor);
 }

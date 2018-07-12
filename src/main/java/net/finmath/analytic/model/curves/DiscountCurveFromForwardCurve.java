@@ -38,7 +38,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	private ForwardCurveInterface	forwardCurve;
 
 	private final double			timeScaling;
-	
+
 	/**
 	 * Create a discount curve using a given forward curve.
 	 * The discount factors df(t) are defined at t = k * d for integers k
@@ -74,7 +74,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		this.forwardCurve	= forwardCurve;
 		this.timeScaling	= periodLengthTimeScaling;
 	}
-   
+
 	/**
 	 * Create a discount curve using a given forward curve.
 	 * The discount factors df(t) are defined at t = k * d for integers k
@@ -117,20 +117,27 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	@Override
 	public RandomVariableInterface getDiscountFactor(AnalyticModelInterface model, double maturity) {
 		ForwardCurveInterface	forwardCurve;
-		if(this.forwardCurve != null)	forwardCurve = this.forwardCurve;
-		else							forwardCurve = model.getForwardCurve(forwardCurveName);
+		if(this.forwardCurve != null) {
+			forwardCurve = this.forwardCurve;
+		} else {
+			forwardCurve = model.getForwardCurve(forwardCurveName);
+		}
 
-		if(forwardCurve == null) throw new IllegalArgumentException("No forward curve given and no forward curve found in the model under the name " + forwardCurveName + ".");
-        RandomVariableInterface discountFactor = new RandomVariable(1.0);
+		if(forwardCurve == null) {
+			throw new IllegalArgumentException("No forward curve given and no forward curve found in the model under the name " + forwardCurveName + ".");
+		}
+		RandomVariableInterface discountFactor = new RandomVariable(1.0);
 		double	time			= 0;
 		double paymentOffset = 0;
 		while(time < maturity) {
 			paymentOffset	= forwardCurve.getPaymentOffset(time);
-			if(paymentOffset <= 0) throw new RuntimeException("Trying to calculate a discount curve from a forward curve with non-positive payment offset.");
+			if(paymentOffset <= 0) {
+				throw new RuntimeException("Trying to calculate a discount curve from a forward curve with non-positive payment offset.");
+			}
 			discountFactor = forwardCurve.getForward(model, time).mult(Math.min(paymentOffset, maturity-time) * timeScaling).add(1.0).pow(-1.0).mult(discountFactor);
 			time += paymentOffset;
 		}
-		
+
 		return discountFactor;
 	}
 
@@ -176,24 +183,31 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		DiscountCurveFromForwardCurve other = (DiscountCurveFromForwardCurve) obj;
 		if (forwardCurve == null) {
-			if (other.forwardCurve != null)
+			if (other.forwardCurve != null) {
 				return false;
-		} else if (!forwardCurve.equals(other.forwardCurve))
+			}
+		} else if (!forwardCurve.equals(other.forwardCurve)) {
 			return false;
+		}
 		if (forwardCurveName == null) {
-			if (other.forwardCurveName != null)
+			if (other.forwardCurveName != null) {
 				return false;
-		} else if (!forwardCurveName.equals(other.forwardCurveName))
+			}
+		} else if (!forwardCurveName.equals(other.forwardCurveName)) {
 			return false;
-        return Double.doubleToLongBits(timeScaling) == Double
-                .doubleToLongBits(other.timeScaling);
-    }
+		}
+		return Double.doubleToLongBits(timeScaling) == Double
+				.doubleToLongBits(other.timeScaling);
+	}
 }

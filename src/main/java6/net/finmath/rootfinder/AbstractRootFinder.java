@@ -10,8 +10,8 @@ package net.finmath.rootfinder;
  */
 public abstract class AbstractRootFinder implements RootFinder, RootFinderWithDerivative {
 
-    @Override
-    public void setValueAndDerivative(double value, double derivative) {
-        setValue(value);
-    }
+	@Override
+	public void setValueAndDerivative(double value, double derivative) {
+		setValue(value);
+	}
 }

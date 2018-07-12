@@ -43,8 +43,8 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
-			&& date.getDayOfWeek() != DayOfWeek.SATURDAY 
-			&& date.getDayOfWeek() != DayOfWeek.SUNDAY;  
+				&& date.getDayOfWeek() != DayOfWeek.SATURDAY 
+				&& date.getDayOfWeek() != DayOfWeek.SUNDAY;  
 	}
 
 	@Override

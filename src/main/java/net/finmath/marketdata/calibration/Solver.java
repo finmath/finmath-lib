@@ -39,7 +39,7 @@ public class Solver {
 	private final ParameterTransformation			parameterTransformation;
 
 	private OptimizerFactoryInterface			optimizerFactory;
-	
+
 	private	final	double	evaluationTime;
 	private final	int		maxIterations	= 1000;
 
@@ -142,14 +142,17 @@ public class Solver {
 	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
 	 */
 	public AnalyticModelInterface getCalibratedModel(Set<ParameterObjectInterface> objectsToCalibrate) throws SolverException {
-		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<ParameterObjectInterface>(objectsToCalibrate);
+		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<>(objectsToCalibrate);
 
 		// Set solver parameters
 		final double[] initialParameters;
 
 		// Apply parameter transformation to solver parameter space
-		if(parameterTransformation != null) initialParameters = parameterTransformation.getSolverParameter(parameterAggregate.getParameter());
-		else								initialParameters = parameterAggregate.getParameter();
+		if(parameterTransformation != null) {
+			initialParameters = parameterTransformation.getSolverParameter(parameterAggregate.getParameter());
+		} else {
+			initialParameters = parameterAggregate.getParameter();
+		}
 
 		final double[] zeros				= new double[calibrationProducts.size()];
 		final double[] ones					= new double[calibrationProducts.size()];
@@ -196,7 +199,9 @@ public class Solver {
 		iterations = optimizer.getIterations();
 
 		double[] bestParameters = optimizer.getBestFitParameters();
-		if(parameterTransformation != null) bestParameters = parameterTransformation.getParameter(bestParameters);
+		if(parameterTransformation != null) {
+			bestParameters = parameterTransformation.getParameter(bestParameters);
+		}
 
 		AnalyticModelInterface calibratedModel = null;
 		try {
@@ -210,7 +215,9 @@ public class Solver {
 		accuracy = 0.0;
 		for(int i=0; i<calibrationProducts.size(); i++) {
 			double error = calibrationProducts.get(i).getValue(evaluationTime, calibratedModel);
-			if(calibrationTargetValues != null) error -= calibrationTargetValues.get(i);
+			if(calibrationTargetValues != null) {
+				error -= calibrationTargetValues.get(i);
+			}
 			accuracy += error * error;
 		}
 		accuracy = Math.sqrt(accuracy/calibrationProducts.size());

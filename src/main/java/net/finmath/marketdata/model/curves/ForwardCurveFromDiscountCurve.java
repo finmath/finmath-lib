@@ -56,7 +56,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		this.daycountScaling = daycountScaling;
 		this.periodOffset = periodOffset;
 	}
-	
+
 	/**
 	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
 	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
@@ -169,7 +169,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ForwardCurveFromDiscountCurve [" + super.toString() + ", referenceDiscountCurveForForwardsName=" + referenceDiscountCurveForForwardsName + ", daycountScaling=" + daycountScaling + ", periodOffset=" + periodOffset + "]";

@@ -68,7 +68,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 		 * constitutes the (traditional) pricing algorithms (e.g., loop over all periods).
 		 * Hence, the definition of the product is the definition of the pricing algorithm.
 		 */
-		Collection<AbstractProductComponent> periods = new ArrayList<AbstractProductComponent>();
+		Collection<AbstractProductComponent> periods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixingDate	= legSchedule.getFixing(periodIndex);
 			double paymentDate	= legSchedule.getPayment(periodIndex);
@@ -79,12 +79,17 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 			 * Since empty periods are an indication for a ill-specified
 			 * product, it might be reasonable to throw an illegal argument exception instead.
 			 */
-			if(periodLength == 0) continue;
+			if(periodLength == 0) {
+				continue;
+			}
 
 			AbstractIndex coupon;
 			if(index != null) {
-				if(spread != 0)	coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));
-				else			coupon = index;
+				if(spread != 0) {
+					coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));
+				} else {
+					coupon = index;
+				}
 			}
 			else {
 				coupon = new FixedCoupon(spread);
@@ -93,7 +98,9 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false);
 			periods.add(period);
 
-			if(isNotionalAccruing) notional = new AccruingNotional(notional, period);
+			if(isNotionalAccruing) {
+				notional = new AccruingNotional(notional, period);
+			}
 		}
 
 		components = new ProductCollection(periods);

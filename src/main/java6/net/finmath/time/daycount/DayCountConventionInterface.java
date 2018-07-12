@@ -40,5 +40,5 @@ public interface DayCountConventionInterface {
 	 * @return The daycount fraction corresponding to the given period.
 	 */
 	public abstract double getDaycountFraction(LocalDate startDate, LocalDate endDate);	
-	
+
 }

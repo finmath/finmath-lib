@@ -65,7 +65,7 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 			results = new HashMap<String, Object>();
 			results.put("exception", e);
 		}
-		
+
 		return results;
 	}
 
@@ -113,7 +113,9 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 	{
 		RandomVariableInterface values = getValue(evaluationTime, model);
 
-		if(values == null) return null;
+		if(values == null) {
+			return null;
+		}
 
 		// Sum up values on path
 		double value = values.getAverage();

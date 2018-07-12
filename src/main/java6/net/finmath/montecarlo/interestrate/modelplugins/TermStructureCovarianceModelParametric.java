@@ -74,7 +74,9 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 */
 	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, final double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
 
-		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
+		if(calibrationParameters == null) {
+			calibrationParameters = new HashMap<String,Object>();
+		}
 		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
 		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
@@ -100,7 +102,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		 */
 		int numberOfThreads = 2;
 		OptimizerFactoryInterface optimizerFactoryParameter = (OptimizerFactoryInterface)calibrationParameters.get("optimizerFactory");
-		
+
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;

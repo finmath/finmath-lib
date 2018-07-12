@@ -154,21 +154,25 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 
 				// If we do not perform a gamma hedge, set gamma to zero here, otherwise set it to the gamma of option to replicate.
 				double gamma = 0.0;
-				if(hedgeOptionStrike != 0) gamma = AnalyticFormulas.blackScholesOptionGamma(
-						underlyingValue,						// current underlying value
-						riskFreeRate,
-						volatility,
-						maturity-model.getTime(timeIndex),	// remaining time
-						strike);
+				if(hedgeOptionStrike != 0) {
+					gamma = AnalyticFormulas.blackScholesOptionGamma(
+							underlyingValue,						// current underlying value
+							riskFreeRate,
+							volatility,
+							maturity-model.getTime(timeIndex),	// remaining time
+							strike);
+				}
 
 				// If we do not perform a vega hedge, set vega to zero here, otherwise set it to the gamma of option to replicate.
 				double vega = 0.0;
-				if(hedgeOptionStrike != 0) vega = AnalyticFormulas.blackScholesOptionVega(
-						underlyingValue,						// current underlying value
-						riskFreeRate,
-						volatility,
-						maturity-model.getTime(timeIndex),	// remaining time
-						strike) / (maturity-model.getTime(timeIndex));
+				if(hedgeOptionStrike != 0) {
+					vega = AnalyticFormulas.blackScholesOptionVega(
+							underlyingValue,						// current underlying value
+							riskFreeRate,
+							volatility,
+							maturity-model.getTime(timeIndex),	// remaining time
+							strike) / (maturity-model.getTime(timeIndex));
+				}
 
 				/*
 				 * If our hedge portfolio consist of a second option (gamma hedge), calculate its price, delta and gamma
@@ -221,7 +225,9 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 					newNumberOfHedgeOptions	= 0.0;
 					break;
 				}
-				if(Double.isNaN(newNumberOfHedgeOptions) || Double.isInfinite(newNumberOfHedgeOptions) || maturity-model.getTime(timeIndex) < 0.15) newNumberOfHedgeOptions = 0.0;
+				if(Double.isNaN(newNumberOfHedgeOptions) || Double.isInfinite(newNumberOfHedgeOptions) || maturity-model.getTime(timeIndex) < 0.15) {
+					newNumberOfHedgeOptions = 0.0;
+				}
 
 				double hedgeOptionsToBuy		= newNumberOfHedgeOptions	- amountOfHedgeOptions[path];
 				// Adjust delta

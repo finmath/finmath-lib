@@ -36,23 +36,23 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 	 * 
 	 */
 	private static final long serialVersionUID = -916286619811716575L;
-	
+
 	protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(
 			10 + Runtime.getRuntime().availableProcessors(),
 			100 + 2*Runtime.getRuntime().availableProcessors(),
 			10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new ThreadFactory() {
-		@Override
-		public Thread newThread(Runnable runnable) {
-			Thread thread = Executors.defaultThreadFactory().newThread(runnable);
-			thread.setDaemon(true);
-			return thread;
-		}
-	});
+				@Override
+				public Thread newThread(Runnable runnable) {
+					Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+					thread.setDaemon(true);
+					return thread;
+				}
+			});
 
 	public AbstractProductComponent(String currency) {
 		super(currency);
 	}
-	
+
 	public AbstractProductComponent() {
 		this(null);
 	}
@@ -66,7 +66,7 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface value = this.getValue(evaluationTime, model);
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put("value", value);
 		return result;
 	}

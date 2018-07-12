@@ -40,13 +40,15 @@ public class LevenbergMarquardtTest {
 
 		double[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. Accuracy is " + optimizer.getRootMeanSquaredError() + ". The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 
 		System.out.println();
 
 		Assert.assertTrue(Math.abs(bestParameters[0] - 2.5) < 1E-12);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 5.0) < 1E-12);
-		
+
 		/*
 		 * Creating a clone, continuing the search with new target values.
 		 * Note that we do not re-define the setValues method.
@@ -56,7 +58,9 @@ public class LevenbergMarquardtTest {
 
 		double[] bestParameters2 = optimizer2.getBestFitParameters();
 		System.out.println("The solver for problem 2 required " + optimizer2.getIterations() + " iterations. Accuracy is " + optimizer2.getRootMeanSquaredError() + ". The best fit parameters are:");
-		for (int i = 0; i < bestParameters2.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters2[i]);
+		for (int i = 0; i < bestParameters2.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters2[i]);
+		}
 
 		System.out.println("________________________________________________________________________________");
 		System.out.println();
@@ -88,18 +92,22 @@ public class LevenbergMarquardtTest {
 
 		double[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 3 required " + optimizer.getIterations() + " iterations. Accuracy is " + optimizer.getRootMeanSquaredError() + ". The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 
 		double[] values = new double[3];
 		optimizer.setValues(bestParameters, values);
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
-		
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tvalue[" + i + "]: " + values[i]);
+		}
+
 		System.out.println("________________________________________________________________________________");
 		System.out.println();
 
 		Assert.assertTrue(optimizer.getRootMeanSquaredError() < 1E-1);
 	}
-	
+
 	@Test
 	public void testRosenbrockFunction() throws SolverException {
 		LevenbergMarquardt optimizer = new LevenbergMarquardt(
@@ -122,15 +130,19 @@ public class LevenbergMarquardtTest {
 
 		double[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 'Rosebrock' required " + optimizer.getIterations() + " iterations. Accuracy is " + optimizer.getRootMeanSquaredError() + ". The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 
 		double[] values = new double[2];
 		optimizer.setValues(bestParameters, values);
-		for (int i = 0; i < values.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
+		for (int i = 0; i < values.length; i++) {
+			System.out.println("\tvalue[" + i + "]: " + values[i]);
+		}
 
 		System.out.println("________________________________________________________________________________");
 		System.out.println();
-		
+
 		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) < 1E-10);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 1.0) < 1E-10);
 	}
@@ -165,15 +177,19 @@ public class LevenbergMarquardtTest {
 
 		double[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 'Rosebrock' required " + optimizer.getIterations() + " iterations. Accuracy is " + optimizer.getRootMeanSquaredError() + ". The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 
 		double[] values = new double[2];
 		optimizer.setValues(bestParameters, values);
-		for (int i = 0; i < values.length; i++) System.out.println("\tvalue[" + i + "]: " + values[i]);
+		for (int i = 0; i < values.length; i++) {
+			System.out.println("\tvalue[" + i + "]: " + values[i]);
+		}
 
 		System.out.println("________________________________________________________________________________");
 		System.out.println();
-		
+
 		Assert.assertTrue(Math.abs(bestParameters[0] - 1.0) < 1E-10);
 		Assert.assertTrue(Math.abs(bestParameters[1] - 1.0) < 1E-10);
 	}
@@ -215,12 +231,14 @@ public class LevenbergMarquardtTest {
 
 		double[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for Booth's function required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
 
 		System.out.println("________________________________________________________________________________");
 		System.out.println();
-		
+
 		Assert.assertEquals(0.0, optimizer.getRootMeanSquaredError(), 2E-4);
 	}
 
@@ -264,7 +282,9 @@ public class LevenbergMarquardtTest {
 
 		double[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for Booth's function with analytic derivative required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
 
 		System.out.println("________________________________________________________________________________");

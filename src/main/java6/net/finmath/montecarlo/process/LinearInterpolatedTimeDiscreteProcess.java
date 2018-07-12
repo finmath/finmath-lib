@@ -70,7 +70,9 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	public LinearInterpolatedTimeDiscreteProcess add(LinearInterpolatedTimeDiscreteProcess process) throws CalculationException {
 		Map<Double, RandomVariableInterface> sum = new HashMap<Double, RandomVariableInterface>();
 
-		for(double time : timeDiscretization) sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));
+		for(double time : timeDiscretization) {
+			sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));
+		}
 
 		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, sum);
 	}
@@ -91,7 +93,9 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	public LinearInterpolatedTimeDiscreteProcess apply(UnivariateFunction function) {
 		Map<Double, RandomVariableInterface> result = new HashMap<Double, RandomVariableInterface>();
 
-		for(double time: timeDiscretization) result.put(time, realizations.get(time).apply(function));
+		for(double time: timeDiscretization) {
+			result.put(time, realizations.get(time).apply(function));
+		}
 
 		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, result);
 	}
@@ -107,7 +111,9 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	public RandomVariableInterface getProcessValue(double time, int component) throws CalculationException {
 		double timeLower = timeDiscretization.getTimeIndexNearestLessOrEqual(time);
 		double timeUpper = timeDiscretization.getTimeIndexNearestGreaterOrEqual(time);
-		if(timeLower == timeUpper) return realizations.get(timeLower);
+		if(timeLower == timeUpper) {
+			return realizations.get(timeLower);
+		}
 
 		RandomVariableInterface valueLower	= realizations.get(timeLower);
 		RandomVariableInterface valueUpper	= realizations.get(timeUpper);

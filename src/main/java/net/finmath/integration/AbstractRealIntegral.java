@@ -17,7 +17,7 @@ public abstract class AbstractRealIntegral implements RealIntegralInterface {
 
 	private double lowerBound;
 	private double upperBound;
-	
+
 
 	/**
 	 * Create a real integral with lower and upper integration bounds.

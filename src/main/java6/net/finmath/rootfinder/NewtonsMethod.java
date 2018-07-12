@@ -16,12 +16,12 @@ package net.finmath.rootfinder;
 public class NewtonsMethod implements RootFinderWithDerivative {
 
 	private double	nextPoint;						// Stores the next point to be returned by getPoint()
-	
+
 	private int		numberOfIterations	= 0;               		// Number of numberOfIterations
 	private double	bestPoint;				              		// Best point so far
 	private double	accuracy			= Double.MAX_VALUE;		// Current accuracy of solution
 	private boolean	isDone				= false;             	// Will be true if machine accuracy has been reached
-	
+
 	/**
 	 * @param guess initial guess where the solver will start
 	 */
@@ -29,23 +29,23 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 		nextPoint	= guess;
 		bestPoint	= guess;
 	}
-	
+
 	/**
 	 * @return Returns the best point optained so far
 	 */
 	@Override
-    public double getBestPoint() {
+	public double getBestPoint() {
 		return bestPoint;
 	}
-	
+
 	/**
 	 * @return Next point for which a value should be set using <code>setValue</code>.
 	 */
 	@Override
-    public double getNextPoint() {
+	public double getNextPoint() {
 		return nextPoint;
 	}
-	
+
 	/**
 	 * @param value
 	 *     The value corresponding to the point returned by previous
@@ -55,7 +55,7 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 	 *     <code>getNextPoint</code> call.
 	 */
 	@Override
-    public void setValueAndDerivative(double value, double derivative) {
+	public void setValueAndDerivative(double value, double derivative) {
 
 		if(Math.abs(value) < accuracy)
 		{
@@ -64,16 +64,16 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 		}
 
 		// Calculate next point
-        nextPoint -= value / derivative;
+		nextPoint -= value / derivative;
 
 		numberOfIterations++;
-    }
-	
+	}
+
 	/**
 	 * @return Returns the number of iterations.
 	 */
 	@Override
-    public int getNumberOfIterations() {
+	public int getNumberOfIterations() {
 		return numberOfIterations;
 	}
 
@@ -81,7 +81,7 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 	 * @return Returns the accuracy.
 	 */
 	@Override
-    public double getAccuracy() {
+	public double getAccuracy() {
 		return accuracy;
 	}
 
@@ -89,7 +89,7 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 	 * @return Returns true if the solver is done (accuracy achieved or unable to improve)
 	 */
 	@Override
-    public boolean isDone() {
+	public boolean isDone() {
 		return isDone;
 	}
 }

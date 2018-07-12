@@ -33,15 +33,17 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			if (adjustedDate.getMonth() != date.getMonth()){
 				return getAdjustedDate(date, DateRollConvention.PRECEDING);
+			} else {
+				return adjustedDate;
 			}
-			else return adjustedDate;
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_PRECEDING) {
 			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.PRECEDING);
 			if (adjustedDate.getMonth() != date.getMonth()) {
 				return getAdjustedDate(date, DateRollConvention.FOLLOWING);
+			} else {
+				return adjustedDate;
 			}
-			else return adjustedDate;
 		}
 		else if(dateRollConvention == DateRollConvention.FOLLOWING || dateRollConvention == DateRollConvention.PRECEDING) {
 			int adjustment = dateRollConvention == DateRollConvention.FOLLOWING ? 1 : -1;

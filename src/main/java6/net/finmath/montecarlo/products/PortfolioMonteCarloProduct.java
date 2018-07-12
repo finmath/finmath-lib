@@ -66,14 +66,16 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 		Arrays.fill(weightsOfOne, 1.0);
 		return weightsOfOne;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
 	 */
 	@Override
 	public RandomVariableInterface getValue(final double evaluationTime, final MonteCarloSimulationInterface model) throws CalculationException {
-		
-		if(products == null || products.length == 0) return null;
+
+		if(products == null || products.length == 0) {
+			return null;
+		}
 
 		// We do not allocate more threads the twice the number of processors.
 		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1),products.length);
@@ -86,7 +88,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 			for(int i=0; i<products.length; i++) {
 				final AbstractMonteCarloProduct product = products[i];
 				final double weight = weights[i];
-				
+
 				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
 					public RandomVariableInterface call() throws CalculationException {
 						return product.getValue(evaluationTime, model).mult(weight);
@@ -107,7 +109,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 		} finally {
 			executor.shutdown();
 		}
-		
+
 		return value;
 	}
 }

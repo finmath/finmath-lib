@@ -50,7 +50,7 @@ public interface TermStructureModelInterface extends AbstractModelInterface {
 	 * 
 	 * @return the term structure covariance model.
 	 */
-//	TermStructureCovarianceModelInterface getCovarianceModel();
+	//	TermStructureCovarianceModelInterface getCovarianceModel();
 
 	/**
 	 * Create a new object implementing TermStructureModelInterface, using the new data.

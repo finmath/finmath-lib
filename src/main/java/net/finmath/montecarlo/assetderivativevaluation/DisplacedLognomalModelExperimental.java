@@ -70,7 +70,9 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 
 	@Override
 	public RandomVariableInterface[] getInitialState() {
-		if(initialValueVector[0] == null) 	initialValueVector[0] = getRandomVariableForConstant(Math.log(initialValue+displacement));
+		if(initialValueVector[0] == null) {
+			initialValueVector[0] = getRandomVariableForConstant(Math.log(initialValue+displacement));
+		}
 
 		return initialValueVector;
 	}

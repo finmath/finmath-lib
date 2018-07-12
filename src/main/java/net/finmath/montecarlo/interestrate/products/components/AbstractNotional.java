@@ -21,7 +21,7 @@ public interface AbstractNotional {
 	 * 
 	 * @return the currency
 	 */
-    String getCurrency();
+	String getCurrency();
 
 	/**
 	 * Calculates the notional at the start of a period, given a period.
@@ -32,7 +32,7 @@ public interface AbstractNotional {
 	 * @return The notional for the given period as of period start.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 */
-    RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
+	RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
 	/**
 	 * Calculates the notional at the end of a period, given a period.
@@ -43,5 +43,5 @@ public interface AbstractNotional {
 	 * @return The notional for the given period as of period end.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
 	 */
-    RandomVariableInterface getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
+	RandomVariableInterface getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 }

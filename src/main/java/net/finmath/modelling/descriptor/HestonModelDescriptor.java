@@ -17,7 +17,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 public class HestonModelDescriptor implements AssetModelDescriptor {
 
 	private final LocalDate referenceDate;
-	
+
 	private final Double initialValue;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
@@ -44,7 +44,7 @@ public class HestonModelDescriptor implements AssetModelDescriptor {
 		this.xi = xi;
 		this.rho = rho;
 	}
-	
+
 	@Override
 	public Integer version() {
 		return 1;
