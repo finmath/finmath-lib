@@ -12,6 +12,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -114,11 +115,23 @@ public class Option extends AbstractProductComponent {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		if(underlying instanceof AbstractProductComponent) {
-			return ((AbstractProductComponent)underlying).queryUnderlyings();
-		} else {
-			throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+		Set<String> underlyingNames = null;
+		for(AbstractLIBORMonteCarloProduct product : new AbstractLIBORMonteCarloProduct[] {underlying, strikeProduct}) {
+			if(product instanceof AbstractProductComponent) {
+				Set<String> productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
+				if(productUnderlyingNames != null) {
+					if(underlyingNames == null) {
+						underlyingNames = productUnderlyingNames;
+					} else {
+						underlyingNames.addAll(productUnderlyingNames);
+					}
+				}
+				else {
+					throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+				}
+			}
 		}
+		return underlyingNames;
 	}
 
 	/**
@@ -177,10 +190,10 @@ public class Option extends AbstractProductComponent {
 			}
 
 			// Remove foresight through conditional expectation
-			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
+			ConditionalExpectationEstimatorInterface conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
-			exerciseTrigger         = condExpEstimator.getConditionalExpectation(exerciseTrigger);
+			exerciseTrigger         = exerciseTrigger.getConditionalExpectation(conditionalExpectationOperator);
 		}
 
 		// Apply exercise criteria
