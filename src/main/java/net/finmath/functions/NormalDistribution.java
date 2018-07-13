@@ -44,7 +44,7 @@ public class NormalDistribution {
 	 * @return The quantile
 	 */
 	public static double inverseCumulativeDistribution(double p) {
-		return inverseCumulativeNormalDistribution_Wichura(p);
+		return inverseCumulativeNormalDistributionWichura(p);
 		//        return normalDistribution.inverseCumulativeProbability(p);
 	}
 
@@ -63,7 +63,7 @@ public class NormalDistribution {
 	 * @param p The probablity (quantile).
 	 * @return The argument of the cumulative distribution function being assigned to p.
 	 */
-	public static double inverseCumulativeNormalDistribution_Wichura(double p) {
+	public static double inverseCumulativeNormalDistributionWichura(double p) {
 		double zero = 0.e+00, one = 1.e+00, half = 0.5e+00;
 		double split1 = 0.425e+00, split2 = 5.e+00;
 		double const1 = 0.180625e+00, const2 = 1.6e+00;
