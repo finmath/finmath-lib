@@ -6,21 +6,19 @@
 
 package net.finmath.fourier.calibration.models;
 
-
 import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.modelling.ModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 
-
 /**
- * This class is creates new istances of HestonModel and communicates with the optimization algorithm.
- * @author Alessandro
- *
+ * This class is creates new instances of HestonModel and communicates with the optimization algorithm.
+ * 
+ * @author Alessandro Gnoatto
  */
 public class CalibrableHestonModel implements  CalibrableProcessInterface {
 	private final HestonModelDescriptor descriptor;
-	
+
 	public CalibrableHestonModel(HestonModelDescriptor descriptor) {
 		super();
 		this.descriptor = descriptor;
@@ -34,8 +32,8 @@ public class CalibrableHestonModel implements  CalibrableProcessInterface {
 		double xi = parameters[3];
 		double rho = parameters[4];
 		return new HestonModel(descriptor.getInitialValue(), 
-							  descriptor.getDiscountCurveForForwardRate(),
-							  volatility,descriptor.getDiscountCurveForForwardRate(),theta,kappa,xi,rho);
+				descriptor.getDiscountCurveForForwardRate(),
+				volatility, descriptor.getDiscountCurveForForwardRate(), theta, kappa, xi, rho);
 	}
 
 	@Override
