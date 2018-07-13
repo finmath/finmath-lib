@@ -3,21 +3,18 @@ package net.finmath.fourier.calibration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import org.junit.Assert;
 import net.finmath.exception.CalculationException;
-import net.finmath.fourier.calibration.CalibrationProblem;
 import net.finmath.fourier.calibration.CalibrationProblem.OptimizationResult;
 import net.finmath.fourier.calibration.models.CalibrableHestonModel;
 import net.finmath.fouriermethod.products.EuropeanOptionSmileByCarrMadan;
-
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-
 import net.finmath.marketdata.model.volatilities.OptionSmileData;
 import net.finmath.marketdata.model.volatilities.OptionSurfaceData;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;

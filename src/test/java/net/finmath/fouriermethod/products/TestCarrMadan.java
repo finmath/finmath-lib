@@ -8,8 +8,6 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.fouriermethod.products.EuropeanOptionSmile;
-import net.finmath.fouriermethod.products.EuropeanOptionSmileByCarrMadan;
 import net.finmath.functions.AnalyticFormulas;
 
 /**
