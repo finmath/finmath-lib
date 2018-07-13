@@ -78,8 +78,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 		private static final long serialVersionUID = -1596026703859403853L;
 
-		public final double[] coefficientsNumerator;
-		public final double[] coefficientsDenominator;
+		private final double[] coefficientsNumerator;
+		private final double[] coefficientsDenominator;
 
 		/**
 		 * Create a rational interpolation function.

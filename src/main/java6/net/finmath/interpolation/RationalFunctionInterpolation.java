@@ -5,6 +5,8 @@
  */
 package net.finmath.interpolation;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 
 import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
@@ -30,7 +32,9 @@ import net.finmath.functions.LinearAlgebra;
  * @author Christian Fries
  * @version 1.3
  */
-public class RationalFunctionInterpolation implements DoubleUnaryOperator {
+public class RationalFunctionInterpolation implements DoubleUnaryOperator, Serializable {
+
+	private static final long serialVersionUID = -3214160594013393575L;
 
 	public enum InterpolationMethod {
 		/** Constant interpolation. Synonym of PIECEWISE_CONSTANT_LEFTPOINT. **/
@@ -70,9 +74,12 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 	private InterpolationMethod	interpolationMethod = InterpolationMethod.LINEAR;
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.DEFAULT;
 
-	private class RationalFunction {
-		public final double[] coefficientsNumerator;
-		public final double[] coefficientsDenominator;
+	private class RationalFunction implements Serializable {
+
+		private static final long serialVersionUID = -1596026703859403853L;
+
+		private final double[] coefficientsNumerator;
+		private final double[] coefficientsDenominator;
 
 		/**
 		 * Create a rational interpolation function.
@@ -80,7 +87,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
-		public RationalFunction(double[] coefficientsNumerator, double[] coefficientsDenominator) {
+		RationalFunction(double[] coefficientsNumerator, double[] coefficientsDenominator) {
 			super();
 			this.coefficientsNumerator = coefficientsNumerator;
 			this.coefficientsDenominator = coefficientsDenominator;
@@ -91,7 +98,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 		 * 
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
-		public RationalFunction(double[] coefficients) {
+		RationalFunction(double[] coefficients) {
 			super();
 			this.coefficientsNumerator = coefficients;
 			this.coefficientsDenominator = null;
@@ -130,7 +137,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 
 	// The interpolated curve - a rational function for each interval (one less than number of points)
 	private RationalFunction[]	interpolatingRationalFunctions;
-	private final Object		interpolatingRationalFunctionsLazyInitLock = new Object();
+	private transient Object		interpolatingRationalFunctionsLazyInitLock = new Object();
 
 	/**
 	 * Generate a rational function interpolation from a given set of points.
@@ -536,7 +543,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 		System.out.println("Interplation of given input points (x,y):");
 		System.out.println("  x: " + Arrays.toString(givenPoints));
 		System.out.println("  y: " + Arrays.toString(givenValues));
-		System.out.println("");
+		System.out.println();
 
 
 		// Create interpolated curve
@@ -548,7 +555,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.AKIMA, ExtrapolationMethod.CONSTANT);
@@ -558,7 +565,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.CUBIC_SPLINE, ExtrapolationMethod.CONSTANT);
@@ -568,7 +575,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.PIECEWISE_CONSTANT, ExtrapolationMethod.CONSTANT);
@@ -578,7 +585,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 
 		// Create interpolated curve
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.HARMONIC_SPLINE, ExtrapolationMethod.CONSTANT);
@@ -588,11 +595,17 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator {
 			double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
-		System.out.println("");
+		System.out.println();
 	}
 
 	@Override
 	public double applyAsDouble(double operand) {
 		return getValue(operand);
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		interpolatingRationalFunctionsLazyInitLock = new Object();
 	}
 }

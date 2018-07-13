@@ -72,8 +72,8 @@ public class RationalFunctionInterpolation  {
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.DEFAULT;
 
 	private class RationalFunction {
-		public final RandomVariableInterface[] coefficientsNumerator; 
-		public final RandomVariableInterface[] coefficientsDenominator;
+		private final RandomVariableInterface[] coefficientsNumerator; 
+		private final RandomVariableInterface[] coefficientsDenominator;
 
 		/**
 		 * Create a rational interpolation function.
@@ -81,7 +81,7 @@ public class RationalFunctionInterpolation  {
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
-		public RationalFunction(RandomVariableInterface[] coefficientsNumerator, RandomVariableInterface[]coefficientsDenominator) {
+		RationalFunction(RandomVariableInterface[] coefficientsNumerator, RandomVariableInterface[]coefficientsDenominator) {
 			super();
 			this.coefficientsNumerator = coefficientsNumerator;
 			this.coefficientsDenominator = coefficientsDenominator;
@@ -92,7 +92,7 @@ public class RationalFunctionInterpolation  {
 		 * 
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
-		public RationalFunction(RandomVariableInterface[] coefficients) {
+		RationalFunction(RandomVariableInterface[] coefficients) {
 			super();
 			this.coefficientsNumerator = coefficients;
 			this.coefficientsDenominator = null;
