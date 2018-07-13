@@ -8,7 +8,7 @@ import net.finmath.time.ScheduleInterface;
 public class InterestRateSwapLegProductDescriptor implements InterestRateProductDescriptor {
 
 	private static final String productName = "Interest Rate Swap Leg";
-	
+
 	private final ScheduleInterface				legSchedule;
 	private final AbstractNotional				notional;
 	private final AbstractIndex					index;
@@ -17,7 +17,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	private final boolean						isNotionalExchanged;
 	private final boolean						isNotionalAccruing;
 
-	
+
 	public InterestRateSwapLegProductDescriptor(ScheduleInterface legSchedule, AbstractNotional notional,
 			AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged,
 			boolean isNotionalAccruing) {
@@ -30,7 +30,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 		this.isNotionalExchanged = isNotionalExchanged;
 		this.isNotionalAccruing = isNotionalAccruing;
 	}
-	
+
 	public static String getProductname() {
 		return productName;
 	}

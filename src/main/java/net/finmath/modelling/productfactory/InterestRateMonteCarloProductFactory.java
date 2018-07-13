@@ -10,7 +10,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 
 	@Override
 	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
-		
+
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
 			DescribedProduct<InterestRateSwapLegProductDescriptor> product = 
 					new net.finmath.montecarlo.interestrate.products.SwapLeg((InterestRateSwapLegProductDescriptor) descriptor);

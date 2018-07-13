@@ -46,7 +46,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 		class BlackScholesFDModel extends FDMBlackScholesModel implements DescribedModel<BlackScholesModelDescriptor> {
 
-			public BlackScholesFDModel() {
+			BlackScholesFDModel() {
 				super(numTimesteps, numSpacesteps, numStandardDeviations, center, theta, initialValue, riskFreeRate, volatility);
 				// TODO Auto-generated constructor stub
 			}
@@ -63,9 +63,8 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 					class FDCallOptionProduct extends FDMEuropeanCallOption implements DescribedProduct<SingleAssetProductDescriptor> {
 
-						public FDCallOptionProduct() {
+						FDCallOptionProduct() {
 							super(((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getMaturity(), ((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getStrike());
-							// TODO Auto-generated constructor stub
 						}
 
 						@Override

@@ -20,18 +20,20 @@ public class BlackScholesThetaTest {
 		double optionMaturity = 1;
 		double optionStrike = 50;
 
-		/*BlackScholesTheta blackScholesFD = new BlackScholesTheta();
-        double[][] stockAndOptionPrice = blackScholesFD.solve();
-        double[] initialStockPrice = stockAndOptionPrice[0];
-        double[] optionValue = stockAndOptionPrice[1];
+		/*
+		BlackScholesTheta blackScholesFD = new BlackScholesTheta();
+		double[][] stockAndOptionPrice = blackScholesFD.solve();
+		double[] initialStockPrice = stockAndOptionPrice[0];
+		double[] optionValue = stockAndOptionPrice[1];
 
-        double[] analyticalOptionValue = new double[stockAndOptionPrice[0].length];
-        for (int i =0; i < analyticalOptionValue.length; i++) {
-            analyticalOptionValue[i] = AnalyticFormulas.blackScholesOptionValue(initialStockPrice[i], riskFreeRate,
-                    volatility, optionMaturity, optionStrike, true);
-        }
+		double[] analyticalOptionValue = new double[stockAndOptionPrice[0].length];
+		for (int i =0; i < analyticalOptionValue.length; i++) {
+			analyticalOptionValue[i] = AnalyticFormulas.blackScholesOptionValue(initialStockPrice[i], riskFreeRate,
+					volatility, optionMaturity, optionStrike, true);
+		}
 
-        Assert.assertArrayEquals(optionValue, analyticalOptionValue, 2e-2);*/
+		Assert.assertArrayEquals(optionValue, analyticalOptionValue, 2e-2);
+		*/
 
 		// First refactoring attempt
 		int numTimesteps = 35;

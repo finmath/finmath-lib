@@ -38,7 +38,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 
 	@Override
 	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(BlackScholesModelDescriptor modelDescriptor) {
-		
+
 		/*
 		 * Build model from description.
 		 * Adding product factory.
@@ -57,11 +57,11 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
-			
+
 			BlackScholesMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);
 			}
-			
+
 			@Override
 			public BlackScholesModelDescriptor getDescriptor() {
 				return modelDescriptor;
@@ -79,7 +79,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 			}
 		}
 
-        return new BlackScholesMonteCarloModel(model, new ProcessEulerScheme(brownianMotion));
+		return new BlackScholesMonteCarloModel(model, new ProcessEulerScheme(brownianMotion));
 	}
 
 }

@@ -49,7 +49,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			 * @param model
 			 * @param process
 			 */
-			public HestonMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
+			HestonMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);
 			}
 

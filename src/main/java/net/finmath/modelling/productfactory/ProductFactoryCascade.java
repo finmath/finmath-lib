@@ -14,14 +14,14 @@ import net.finmath.modelling.ProductFactory;
  * @author Roland Bachl
  */
 public abstract class ProductFactoryCascade<T extends ProductDescriptor> implements ProductFactory<T> {
-	
+
 	private ArrayList<ProductFactory<T>> factories;
-	
+
 	public ProductFactoryCascade() {
 		super();
 		factories = new ArrayList<ProductFactory<T>>(1);
 	}
-	
+
 	public ProductFactoryCascade(Collection<ProductFactory<T>> factories) {
 		super();
 		this.factories = new ArrayList<ProductFactory<T>>();
@@ -38,7 +38,7 @@ public abstract class ProductFactoryCascade<T extends ProductDescriptor> impleme
 			product = (DescribedProduct<T>) factory.getProductFromDescriptor(productDescriptor);
 			if(product != null) return product;
 		}
-		
+
 		// Product not found
 		throw new IllegalArgumentException("Unsupported product type " + productDescriptor.name());
 	}

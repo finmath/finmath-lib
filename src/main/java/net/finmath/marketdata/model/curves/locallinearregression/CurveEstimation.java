@@ -47,8 +47,8 @@ public class CurveEstimation{
 
 	private LocalDate referenceDate;
 	private double bandwidth;
-	private double[] X;
-	private double[] Y;
+	private double[] independentValues;
+	private double[] dependentValues;
 	private Partition partition;
 	private DiscountCurve regressionCurve=null;
 	private AbstractRealDistribution kernel;
@@ -58,8 +58,8 @@ public class CurveEstimation{
 	 * 
 	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.     
 	 * @param bandwidth The bandwidth parameter of the regression.
-	 * @param X The realization of a random variable X.
-	 * @param Y The realization of a random variable Y.
+	 * @param independentValues The realization of a random variable X.
+	 * @param dependentValues The realization of a random variable Y.
 	 * @param partitionValues The values to create a partition. It is important that min(partition) &le; min(X) and max(partition) &ge; max(X).
 	 * @param weight The weight needed to create a partition.
 	 * @param distribution The kernel type. 
@@ -67,15 +67,15 @@ public class CurveEstimation{
 	public CurveEstimation(
 			LocalDate referenceDate,
 			double bandwidth,
-			double[] X,
-			double[] Y,
+			double[] independentValues,
+			double[] dependentValues,
 			double[] partitionValues,
 			double weight,
 			Distribution distribution){
 		this.referenceDate = referenceDate;
 		this.bandwidth = bandwidth;
-		this.X = X;
-		this.Y = Y;
+		this.independentValues = independentValues;
+		this.dependentValues = dependentValues;
 		this.partition = new Partition(partitionValues.clone(), weight);
 
 
@@ -99,19 +99,19 @@ public class CurveEstimation{
 	 * 
 	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.     
 	 * @param bandwidth The bandwidth parameter of the regression.
-	 * @param X The realization of a random variable X.
-	 * @param Y The realization of a random variable Y.
+	 * @param independentValues The realization of a random variable X.
+	 * @param dependentValues The realization of a random variable Y.
 	 * @param partitionValues The values to create a partition. It is important that min(partition) &le; min(X) and max(partition) &ge; max(X).
 	 * @param weight The weight needed to create a partition.
 	 */
 	public CurveEstimation(
 			LocalDate referenceDate,
 			double bandwidth,
-			double[] X,
-			double[] Y,
+			double[] independentValues,
+			double[] dependentValues,
 			double[] partitionValues,
 			double weight) {
-		this(referenceDate,bandwidth,X,Y,partitionValues,weight,Distribution.NORMAL);
+		this(referenceDate,bandwidth,independentValues,dependentValues,partitionValues,weight,Distribution.NORMAL);
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class CurveEstimation{
 		DoubleMatrix MSubMatrix= new DoubleMatrix(partition.getLength()-1,partition.getLength()-1);
 		DoubleMatrix MSubMatrixSum= new DoubleMatrix(partition.getLength()-1);
 
-		for(int i=0;i<X.length;i++){
+		for(int i=0;i<independentValues.length;i++){
 
 			DoubleMatrix oneZeroVector= new DoubleMatrix(partition.getLength());
 			DoubleMatrix kernelSum= new DoubleMatrix(partition.getLength());
@@ -171,32 +171,32 @@ public class CurveEstimation{
 
 			for(int r=0;r<partition.getLength()-1;r++){
 				oneZeroVector.put(r, 1);
-				kernelValues.put( r,kernel.density((partition.getIntervalReferencePoint(r)-X[i])/bandwidth));
+				kernelValues.put( r,kernel.density((partition.getIntervalReferencePoint(r)-independentValues[i])/bandwidth));
 				shiftedKernelVector.put(r+1,kernelValues.get( r) );
 				kernelSum=kernelSum.add(oneZeroVector.mmul(kernelValues.get(r)));
 			}
 
-			R=R.add(shiftedPartition.neg().add(X[i]).mul(shiftedKernelVector)
-					.add(partitionIncrements.mul(kernelSum)).mul(Y[i]));
+			R=R.add(shiftedPartition.neg().add(independentValues[i]).mul(shiftedKernelVector)
+					.add(partitionIncrements.mul(kernelSum)).mul(dependentValues[i]));
 
 			M1_1=M1_1.add( kernelSum.get(0));
 
 			MFirstCol=MFirstCol.add(
-					partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(X[i])
+					partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(independentValues[i])
 					.mul(kernelValues).add(
 							partitionIncrements.getRange(1,partitionAsVector.length)
 							.mul(kernelSum.getRange(1, kernelSum.length))));
 
 			MSubDiagonal=MSubDiagonal.add(
-					partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(X[i])
-					.mul(partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(X[i]))
+					partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(independentValues[i])
+					.mul(partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(independentValues[i]))
 					.mul(kernelValues).add(
 							partitionIncrements.getRange(1,partitionAsVector.length)
 							.mul(partitionIncrements.getRange(1,partitionAsVector.length)
 									.mul(kernelSum.getRange(1, kernelSum.length)))));
 
 			MSubMatrixSum=MSubMatrixSum.add(
-					partitionAsVector.getRange(0, partitionAsVector.length-1).neg().add(X[i])
+					partitionAsVector.getRange(0, partitionAsVector.length-1).neg().add(independentValues[i])
 					.mul(kernelValues).add(
 							partitionIncrements.getRange(1, partitionIncrements.length)
 							.mul(kernelSum.getRange(1, kernelSum.length))));

@@ -58,7 +58,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct implements Des
 	public DigitalOption(double maturity, double strike) {
 		this(maturity, strike, 0);
 	}
-	
+
 	public DigitalOption(String nameOfUnderlying, double maturity, double strike) {
 		super();
 		this.nameOfUnderlying = nameOfUnderlying;

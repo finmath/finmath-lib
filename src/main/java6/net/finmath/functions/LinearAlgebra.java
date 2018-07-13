@@ -218,7 +218,7 @@ public class LinearAlgebra {
 			private int index;
 			Double value;
 
-			public EigenValueIndex(int index, double value) {
+			EigenValueIndex(int index, double value) {
 				this.index = index; this.value = value;
 			}
 

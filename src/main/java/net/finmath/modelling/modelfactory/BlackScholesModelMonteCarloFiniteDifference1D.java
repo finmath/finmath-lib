@@ -48,7 +48,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 		class BlackScholesFDModel extends FDMBlackScholesModel implements DescribedModel<BlackScholesModelDescriptor> {
 
-			public BlackScholesFDModel() {
+			BlackScholesFDModel() {
 				super(numTimesteps, numSpacesteps, numStandardDeviations, center, theta, initialValue, riskFreeRate, volatility);
 				// TODO Auto-generated constructor stub
 			}
@@ -65,7 +65,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 					class FDCallOptionProduct extends FDMEuropeanCallOption implements DescribedProduct<SingleAssetProductDescriptor> {
 
-						public FDCallOptionProduct() {
+						FDCallOptionProduct() {
 							super(((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getMaturity(), ((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getStrike());
 							// TODO Auto-generated constructor stub
 						}
@@ -80,10 +80,10 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 							double[][] valueFDM = this.getValue(0.0, (FiniteDifference1DModel)model);
 							double[] initialStockPrice = valueFDM[0];
 							double[] optionValue = valueFDM[1];
-							
+
 							int indexOfSpot = Arrays.binarySearch(initialStockPrice, initialValue);
 							if(indexOfSpot < 0) indexOfSpot = -indexOfSpot-1;
-							
+
 							Map<String, Object> results = new HashMap<String, Object>();
 							results.put("value", optionValue[indexOfSpot]);
 							return results;

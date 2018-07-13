@@ -22,7 +22,7 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 	 */
 	public SingleAssetFourierProductFactory() {
 	}
-	
+
 	@Override
 	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 

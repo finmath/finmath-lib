@@ -16,8 +16,8 @@ public class BlackScholesTheta {
 	private double optionMaturity = 1;
 
 	// Mesh Parameters
-	private int N_neg = -100;
-	private int N_pos = 20;
+	private int numberOfPointsNegative = -100;
+	private int numberOfPointsPositive = 20;
 	private int numTimesteps = 35;
 	private double dx = 0.06;
 
@@ -49,8 +49,8 @@ public class BlackScholesTheta {
 	private double f_t(double tau) {
 		return optionMaturity - (2 * tau) / Math.pow(volatility, 2);
 	}
-	private double f(double V, double x, double tau) {
-		return (V / optionStrike) * Math.exp(-alpha * x - beta * tau);
+	private double f(double value, double x, double tau) {
+		return (value / optionStrike) * Math.exp(-alpha * x - beta * tau);
 	}
 
 	// Heat Equation Boundary Conditions
@@ -66,10 +66,10 @@ public class BlackScholesTheta {
 
 	public double[][] solve() {
 		// Create interior spatial vector for heat equation
-		int len = N_pos - N_neg - 1;
+		int len = numberOfPointsPositive - numberOfPointsNegative - 1;
 		double[] x = new double[len];
 		for (int i = 0; i < len; i++) {
-			x[i] = (N_neg + 1) * dx + dx * i;
+			x[i] = (numberOfPointsNegative + 1) * dx + dx * i;
 		}
 
 		// Create time vector for heat equation
@@ -113,10 +113,10 @@ public class BlackScholesTheta {
 
 		// Solve system
 		for (int m = 0; m < numTimesteps; m++) {
-			b[0] = (u_neg_inf(N_neg * dx, tau[m]) * (1 - theta) * kappa)
-					+ (u_neg_inf(N_neg * dx, tau[m + 1]) * theta * kappa);
-			b[len-1] = (u_pos_inf(N_pos * dx, tau[m]) * (1 - theta) * kappa)
-					+ (u_pos_inf(N_pos * dx, tau[m + 1]) * theta * kappa);
+			b[0] = (u_neg_inf(numberOfPointsNegative * dx, tau[m]) * (1 - theta) * kappa)
+					+ (u_neg_inf(numberOfPointsNegative * dx, tau[m + 1]) * theta * kappa);
+			b[len-1] = (u_pos_inf(numberOfPointsPositive * dx, tau[m]) * (1 - theta) * kappa)
+					+ (u_pos_inf(numberOfPointsPositive * dx, tau[m + 1]) * theta * kappa);
 
 			RealMatrix bVector = MatrixUtils.createColumnRealMatrix(b);
 			RealMatrix constantsMatrix = (DMatrix.multiply(UVector)).add(bVector);

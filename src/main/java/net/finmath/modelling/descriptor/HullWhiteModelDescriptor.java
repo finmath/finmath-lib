@@ -7,7 +7,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelI
 import net.finmath.time.TimeDiscretizationInterface;
 
 public class HullWhiteModelDescriptor implements InterestRateModelDescriptor {
-	
+
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;
 	private final String							forwardCurveName;
 	// replace with descriptor?
@@ -31,7 +31,7 @@ public class HullWhiteModelDescriptor implements InterestRateModelDescriptor {
 		this.discountCurveFromForwardCurve = discountCurveFromForwardCurve;
 		this.volatilityModel = volatilityModel;
 	}
-	
+
 	@Override
 	public Integer version() {
 		return 1;

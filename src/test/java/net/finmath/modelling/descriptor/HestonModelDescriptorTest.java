@@ -80,7 +80,7 @@ public class HestonModelDescriptorTest {
 
 		// Create product implementation compatible with Heston model
 		ProductInterface europeanOptionFourier = hestonModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
-		
+
 		// Evaluate product
 		double evaluationTime = 0.0;
 		Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, hestonModelFourier);

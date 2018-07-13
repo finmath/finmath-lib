@@ -83,19 +83,18 @@ public class StochasticPathwiseLevenbergMarquardtTestInverse {
 		return inverse;
 	}
 
-	public RandomVariableInterface[][] multiply(RandomVariableInterface[][] A,RandomVariableInterface[][] B){
-		RandomVariableInterface[][] AB = new RandomVariableInterface[A.length][B.length];
-		RandomVariableInterface ABproduct;
-		for(int i=0;i<A.length;i++){
-			for(int j=0; j<B.length; j++){
-				AB[i][j] = new RandomVariable(0.0);
-				for(int k=0;k<B.length;k++) {
-					if(A[i][k]==null || B[k][j]==null) {ABproduct = new RandomVariable(0.0);}
-					else {ABproduct = A[i][k].mult(B[k][j]);}
-					AB[i][j]=AB[i][j].add(ABproduct);
+	public RandomVariableInterface[][] multiply(RandomVariableInterface[][] matrixA, RandomVariableInterface[][] matrixB){
+		RandomVariableInterface[][] productAB = new RandomVariableInterface[matrixA.length][matrixB.length];
+		for(int i=0;i<matrixA.length;i++) {
+			for(int j=0; j<matrixB.length; j++) {
+				productAB[i][j] = new RandomVariable(0.0);
+				for(int k=0;k<matrixB.length;k++) {
+					if(matrixA[i][k] != null && matrixB[k][j] != null) {
+						productAB[i][j] = productAB[i][j].add(matrixA[i][k].mult(matrixB[k][j]));
+					}
 				}
 			}
 		}
-		return AB;
+		return productAB;
 	}
 }
