@@ -92,12 +92,30 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	TimeDiscretizationInterface getTimeShiftedTimeDiscretization(double timeShift);
 
 	/**
+     * Returns the union of this time discretization with another one. This means that the times of the other time discretization will be added.
+     * In case the tick sizes differ the union will have the smaller tick size, i. e. the finer precision.
+     * Note that when the differing tick sizes are not integer multiples of each other time points might get shifted due to rounding;
+     * for example <code>a.intersect(a.union(b))</code> might not be equal to <code>a</code>.
+     *
 	 * @param that Another time discretization containing points to add to the time discretization.
 	 * @return A new time discretization containing both the time points of this and the other discretization.
 	 */
 	TimeDiscretizationInterface union(TimeDiscretizationInterface that);
 
-	TimeDiscretizationInterface intersect(TimeDiscretizationInterface that);
+    /**
+     * Returns the intersection of this time discretization with another one. This means that all times not contained in the other time discretization will be removed.
+     * In case the tick sizes differ the intersection will have the greater tick size, i. e. the coarser precision.
+     * Note that when the differing tick sizes are not integer multiples of each other time points might get shifted due to rounding;
+     * for example <code>a.intersect(a.union(b))</code> might not be equal to <code>a</code>.
+     *
+     * @param that Another time discretization containing points to add to the time discretization.
+     * @return A new time discretization containing both the time points of this and the other discretization.
+     */
+    TimeDiscretizationInterface intersect(TimeDiscretizationInterface that);
 
-	double getTickSize();
+    /**
+     * Returns the smallest time span distinguishable in this time discretization.
+     * @return A non-negative double containing the tick size.
+     */
+    double getTickSize();
 }

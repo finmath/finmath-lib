@@ -194,7 +194,7 @@ public class TimeDiscretizationTest {
 
         TimeDiscretizationInterface union = new TimeDiscretization(leftTimes, 0.1).union(new TimeDiscretization(rightTimes, 1.0));
 
-        assertThat(union.getTickSize(), is(equalTo(1.0)));
+        assertThat(union.getTickSize(), is(equalTo(0.1)));
     }
 
     @Test
