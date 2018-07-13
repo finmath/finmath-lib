@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import net.finmath.marketdata.model.volatilities.OptionData;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 
 /**

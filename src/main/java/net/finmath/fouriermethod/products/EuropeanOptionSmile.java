@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.math3.complex.Complex;
 
-
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;

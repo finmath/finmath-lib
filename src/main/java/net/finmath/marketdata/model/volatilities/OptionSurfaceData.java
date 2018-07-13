@@ -3,9 +3,9 @@ package net.finmath.marketdata.model.volatilities;
 import java.time.LocalDate;
 import java.util.HashMap;
 
+import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
-import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * An option quote surface with the ability to query option quotes for different strikes and maturities.
