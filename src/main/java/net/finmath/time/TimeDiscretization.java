@@ -98,15 +98,15 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs a time discretization from a given set of doubles.
 	 * The given array does not need to be sorted.
-	 * 
-	 * @param times Given array or arguments list of discretization points.
+	 *
+     * @param times Given array or arguments list of discretization points.
      */
     public TimeDiscretization(double... times) {
-        this(Arrays.stream(times));
+		this(Arrays.stream(times));
 	}
 
-	/**
-	 * Constructs a time discretization from a given set of Doubles.
+    /**
+     * Constructs a time discretization from a given set of Doubles.
      * The given array does not need to be sorted.
      *
      * @param times Given boxed array of discretization points.
@@ -122,7 +122,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
      * @param times Given boxed array of discretization points.
      */
     public TimeDiscretization(Double[] times, double tickSize) {
-        this(Arrays.stream(times), tickSize);
+		this(Arrays.stream(times), tickSize);
 	}
 
 	/**
@@ -132,9 +132,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	 * @param initial First discretization point.
 	 * @param numberOfTimeSteps Number of time steps.
 	 * @param deltaT Time step size.
-	 */
-	public TimeDiscretization(double initial, int numberOfTimeSteps, double deltaT) {
-        this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(n -> initial + n * deltaT));
+     */
+    public TimeDiscretization(double initial, int numberOfTimeSteps, double deltaT) {
+		this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(n -> initial + n * deltaT));
 	}
 
 	/**
@@ -142,9 +142,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	 * 
 	 * @param initial First discretization point.
 	 * @param last Last time steps.
-	 * @param deltaT Time step size.
-	 * @param shortPeriodLocation Placement of the stub period.
-	 */
+     * @param deltaT Time step size.
+     * @param shortPeriodLocation Placement of the stub period.
+     */
     public TimeDiscretization(double initial, double last, double deltaT, ShortPeriodLocation shortPeriodLocation) {
         this(getEquidistantStreamWithStub(initial, last, deltaT, shortPeriodLocation));
     }
@@ -157,7 +157,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
         }
 
         return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(n -> Math.max(initial, last - n * deltaT));
-    }
+	}
 
 	@Override
 	public int getNumberOfTimes() {
@@ -176,12 +176,12 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	@Override
 	public double getTimeStep(int timeIndex) {
-		return timeDiscretization[timeIndex+1]-timeDiscretization[timeIndex];
+        return timeDiscretization[timeIndex + 1] - timeDiscretization[timeIndex];
     }
 
     @Override
     public int getTimeIndex(double time) {
-        return Arrays.binarySearch(timeDiscretization, roundToTimeTickSize(time));
+		return Arrays.binarySearch(timeDiscretization, roundToTimeTickSize(time));
 	}
 
 	@Override
@@ -212,12 +212,12 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	public ArrayList<Double> getAsArrayList() {
 		ArrayList<Double>	times = new ArrayList<>(timeDiscretization.length);
 		for (double aTimeDiscretization : timeDiscretization) {
-			times.add(aTimeDiscretization);
-		}
-		return times;
-	}
+            times.add(aTimeDiscretization);
+        }
+        return times;
+    }
 
-	@Override
+    @Override
     public TimeDiscretizationInterface getTimeShiftedTimeDiscretization(double timeShift) {
         double[] newTimeDiscretization = new double[timeDiscretization.length];
 
@@ -236,7 +236,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
     public TimeDiscretizationInterface union(TimeDiscretizationInterface that) {
         return new TimeDiscretization(
                 Stream.concat(Arrays.stream(timeDiscretization).boxed(), Arrays.stream(that.getAsDoubleArray()).boxed()),
-                Math.max(timeTickSize, that.getTickSize()));
+                Math.min(timeTickSize, that.getTickSize()));
     }
 
     @Override
@@ -245,12 +245,12 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
         intersectionSet.retainAll(that.getAsArrayList());
 
         return new TimeDiscretization(intersectionSet, Math.max(timeTickSize, that.getTickSize()));
-    }
+	}
 
-    @Override
-    public double getTickSize() {
-        return timeTickSize;
-    }
+	@Override
+	public double getTickSize() {
+		return timeTickSize;
+	}
 
 	@Override
 	public Iterator<Double> iterator() {
