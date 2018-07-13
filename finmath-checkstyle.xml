@@ -80,15 +80,33 @@
 
 		<!-- Checks for Naming Conventions. -->
 		<!-- See http://checkstyle.sf.net/config_naming.html -->
+		<!-- 
 		<module name="ConstantName" />
+		-->
 		<module name="LocalFinalVariableName" />
-		<module name="LocalVariableName" />
+
+		<!-- THE FOLLOWING WILL BECOME ACTIVE SOON. -->
+		<!--
+		<module name="LocalVariableName">
+			<property name="allowOneCharVarInForLoop" value="true"/>
+		</module>
+		-->
+
 		<module name="MemberName" />
+
+		<!-- THE FOLLOWING WILL BECOME ACTIVE SOON. -->
+		<!--
 		<module name="MethodName" />
+		-->
+
 		<module name="PackageName" />
 		<module name="ParameterName" />
 		<module name="StaticVariableName" />
+
+		<!-- THE FOLLOWING WILL BECOME ACTIVE SOON. -->
+		<!--
 		<module name="TypeName" />
+		-->
 
 		<!-- Checks for imports -->
 		<!-- See http://checkstyle.sf.net/config_import.html -->
@@ -96,7 +114,7 @@
 		<module name="IllegalImport" /> <!-- defaults to sun.* packages -->
 		<module name="RedundantImport" />
 		<module name="UnusedImports">
-			<property name="processJavadoc" value="false" />
+			<property name="processJavadoc" value="true" />
 		</module>
 
 		<!-- Checks for Size Violations. -->
@@ -106,7 +124,7 @@
 		</module>
 		<module name="MethodLength">
 			<property name="tokens" value="METHOD_DEF"/>
-  			<property name="max" value="250" />
+  			<property name="max" value="350" />
 		</module>
 		<module name="ParameterNumber">
 			<property name="max" value="15" />
@@ -176,6 +194,9 @@
 		<module name="UpperEll" />
 		-->
 
+		<module name="RegexpSinglelineJava">
+		    <property name="format" value="^\t*(?! \*) "/>
+    		<property name="message" value="Indent must use tab characters"/>
+		</module>
 	</module>
-
 </module>

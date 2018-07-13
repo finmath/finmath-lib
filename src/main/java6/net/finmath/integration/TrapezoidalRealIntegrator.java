@@ -42,7 +42,9 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 	public TrapezoidalRealIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints) {
 		super(lowerBound, upperBound);
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
-		if(numberOfEvaluationPoints < 2) throw new IllegalArgumentException("Invalid numberOfEvaluationPoints (minumum admissible value is 2).");
+		if(numberOfEvaluationPoints < 2) {
+			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints (minumum admissible value is 2).");
+		}
 	}
 
 	@Override
@@ -56,7 +58,9 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 			 * Trapezoidal integration on a possibly non-equi-distant grid. 
 			 */
 			int i = 0;
-			while(i<evaluationPoints.length && evaluationPoints[i] < lowerBound) i++;
+			while(i<evaluationPoints.length && evaluationPoints[i] < lowerBound) {
+				i++;
+			}
 
 			double pointLeft = lowerBound;
 			double valueLeft = integrand.applyAsDouble(lowerBound);

@@ -66,7 +66,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		this.isFloorlet = isFloorlet;
 		this.valueUnit = valueUnit;
 	}
-	
+
 	/**
 	 * Create a caplet or a floorlet.
 	 * 
@@ -115,20 +115,23 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 		// This is on the LIBOR discretization
 		double	paymentDate	= maturity+periodLength;
-				
+
 		// Get random variables
 		RandomVariableInterface	libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
 		RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
 		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
-	
+
 		/*
 		 * Calculate the payoff, which is
 		 *    max(L-K,0) * periodLength         for caplet or
 		 *   -min(L-K,0) * periodLength         for floorlet.
 		 */
 		RandomVariableInterface values = libor;		
-		if(!isFloorlet)	values = values.sub(strike).floor(0.0).mult(daycountFraction);
-		else			values = values.sub(strike).cap(0.0).mult(-1.0 * daycountFraction);
+		if(!isFloorlet) {
+			values = values.sub(strike).floor(0.0).mult(daycountFraction);
+		} else {
+			values = values.sub(strike).cap(0.0).mult(-1.0 * daycountFraction);
+		}
 
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 

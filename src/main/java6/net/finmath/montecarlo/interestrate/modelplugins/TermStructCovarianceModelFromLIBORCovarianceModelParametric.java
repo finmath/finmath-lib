@@ -18,7 +18,7 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 
 	private final TermStructureTenorTimeScalingInterface tenorTimeScalingModel;
 	private final AbstractLIBORCovarianceModelParametric covarianceModel;
-	
+
 	/**
 	 * @param tenorTimeScalingModel The model used for the tenor time re-scaling (providing the scaling coefficients).
 	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
@@ -30,7 +30,9 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 
 	@Override
 	public double getScaledTenorTime(double periodStart, double periodEnd) {
-		if(tenorTimeScalingModel == null) return periodEnd-periodStart;
+		if(tenorTimeScalingModel == null) {
+			return periodEnd-periodStart;
+		}
 		return tenorTimeScalingModel.getScaledTenorTime(periodStart, periodEnd);
 	}
 
@@ -46,7 +48,7 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 			for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
 				factorLoadings[factorIndex] = factorLoadings[factorIndex].mult(liborPeriodDiscretization.getTimeStep(periodStartIndex));
 			}
-			
+
 			for(int periodIndex = periodStartIndex+1; periodIndex<periodEndIndex; periodIndex++) {
 				RandomVariableInterface[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, null);
 				double periodLength = liborPeriodDiscretization.getTimeStep(periodIndex);
@@ -61,18 +63,22 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 		}
 
 		int componentIndex = periodDiscretization.getTimeIndex(periodStart);
-		if(componentIndex < 0) componentIndex = -componentIndex-1-1;
+		if(componentIndex < 0) {
+			componentIndex = -componentIndex-1-1;
+		}
 		int componentIndex2 = periodDiscretization.getTimeIndex(periodEnd);
-		if(componentIndex2 < 0) componentIndex2 = -componentIndex2-1;
+		if(componentIndex2 < 0) {
+			componentIndex2 = -componentIndex2-1;
+		}
 		if(componentIndex != componentIndex2-1) {
 			throw new IllegalArgumentException();
 		}
-		
-/*
- * 		for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
+
+		/*
+		 * 		for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
 			factorLoadings[factorIndex] = factorLoadings[factorIndex].div(realizationAtTimeIndex[componentIndex].mult(periodDiscretization.getTimeStep(componentIndex)).exp());
 		}
-		*/
+		 */
 
 		return factorLoadings;
 	}
@@ -84,7 +90,9 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 
 	@Override
 	public double[] getParameter() {
-		if(tenorTimeScalingModel == null) return covarianceModel.getParameter();
+		if(tenorTimeScalingModel == null) {
+			return covarianceModel.getParameter();
+		}
 
 		double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
 		double[] covarianceParameter = covarianceModel.getParameter();
@@ -96,7 +104,9 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 
 	@Override
 	public TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		if(tenorTimeScalingModel == null) return new TermStructCovarianceModelFromLIBORCovarianceModelParametric(null, covarianceModel.getCloneWithModifiedParameters(parameters));
+		if(tenorTimeScalingModel == null) {
+			return new TermStructCovarianceModelFromLIBORCovarianceModelParametric(null, covarianceModel.getCloneWithModifiedParameters(parameters));
+		}
 
 		double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
 		double[] covarianceParameter = covarianceModel.getParameter();

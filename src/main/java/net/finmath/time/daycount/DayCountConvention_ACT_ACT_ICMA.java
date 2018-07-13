@@ -50,7 +50,7 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT {
 
 	private final ArrayList<Period>	periods;
 	private final int				frequency;
-	
+
 	/**
 	 * Create an ACT/ACT ICMA day count convention.
 	 * 
@@ -68,14 +68,21 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT {
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycountFraction(endDate,startDate);
+		}
 
 		int periodIndexEndDate = Collections.binarySearch(periods, new Period(endDate, endDate, endDate, endDate));
 		int periodIndexStartDate = Collections.binarySearch(periods, new Period(startDate, startDate, startDate, startDate));
 
-		if(periodIndexEndDate < 0)		periodIndexEndDate		= -periodIndexEndDate-1;
-		if(periodIndexStartDate < 0)	periodIndexStartDate	= -periodIndexStartDate-1;
-		else							periodIndexStartDate	= periodIndexStartDate+1;
+		if(periodIndexEndDate < 0) {
+			periodIndexEndDate		= -periodIndexEndDate-1;
+		}
+		if(periodIndexStartDate < 0) {
+			periodIndexStartDate	= -periodIndexStartDate-1;
+		} else {
+			periodIndexStartDate	= periodIndexStartDate+1;
+		}
 
 		Period startDatePeriod = periods.get(periodIndexStartDate);
 		Period endDatePeriod = periods.get(periodIndexEndDate);

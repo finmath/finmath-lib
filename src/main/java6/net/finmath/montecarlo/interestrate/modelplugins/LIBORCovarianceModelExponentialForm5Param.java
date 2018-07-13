@@ -25,10 +25,10 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 
 	private LIBORVolatilityModel	volatilityModel;
 	private LIBORCorrelationModel	correlationModel;
-	
+
 	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double[] parameters) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
-		
+
 		this.parameter = parameters.clone();
 		volatilityModel		= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3], false);
 		correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4], false);
@@ -46,11 +46,11 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		model.correlationModel = this.correlationModel;
 		return model;
 	}
-	
+
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		LIBORCovarianceModelExponentialForm5Param model = (LIBORCovarianceModelExponentialForm5Param)this.clone();
-		
+
 		model.parameter = parameters;
 		if(parameters[0] != this.parameter[0] || parameters[1] != this.parameter[1] || parameters[2] != this.parameter[2] || parameters[3] != this.parameter[3]) {
 			model.volatilityModel	= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameters[0], parameters[1], parameters[2], parameters[3], false);
@@ -68,14 +68,14 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-    public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
 		RandomVariableInterface[] factorLoading = new RandomVariableInterface[correlationModel.getNumberOfFactors()];
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 			RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, component);
 			factorLoading[factorIndex] = volatility
-                    .mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
+					.mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
-		
+
 		return factorLoading;
 	}
 

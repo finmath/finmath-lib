@@ -66,17 +66,17 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		PIECEWISE_CONSTANT_RIGHTPOINT,
 		/** Linear interpolation. **/
 		LINEAR,
-	//	/** Cubic spline interpolation. **/
-	//	CUBIC_SPLINE,
-	//	/** Akima interpolation (C1 sub-spline interpolation). **/
-	//	AKIMA,
-	//	/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
-	//	AKIMA_CONTINUOUS,
+		//	/** Cubic spline interpolation. **/
+		//	CUBIC_SPLINE,
+		//	/** Akima interpolation (C1 sub-spline interpolation). **/
+		//	AKIMA,
+		//	/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
+		//	AKIMA_CONTINUOUS,
 		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
 		HARMONIC_SPLINE,
 		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/	
 		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING
-       
+
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @param value The value (or y-value) of the point.
 		 * @param isParameter A boolean specifying if this point is considered a "degree of freedom", e.g., in a calibration.
 		 */
-		public Point(double time, RandomVariableInterface value, boolean isParameter) {
+		Point(double time, RandomVariableInterface value, boolean isParameter) {
 			super();
 			this.time = time;
 			this.value = value;
@@ -128,8 +128,12 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		@Override
 		public int compareTo(Point point) {
 			// Ordering of the curve points with respect to time.
-			if(this.time < point.time) return -1;
-			if(this.time > point.time) return +1;
+			if(this.time < point.time) {
+				return -1;
+			}
+			if(this.time > point.time) {
+				return +1;
+			}
 
 			return 0;
 		}
@@ -229,8 +233,8 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 	}
 
-	private ArrayList<Point>	points					= new ArrayList<Point>();
-	private ArrayList<Point>	pointsBeingParameters	= new ArrayList<Point>();
+	private ArrayList<Point>	points					= new ArrayList<>();
+	private ArrayList<Point>	pointsBeingParameters	= new ArrayList<>();
 	private InterpolationMethod	interpolationMethod	= InterpolationMethod.LINEAR; //CUBIC_SPLINE;
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.CONSTANT;
 	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;
@@ -239,7 +243,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private transient Object					rationalFunctionInterpolationLazyInitLock = new Object();
 	private SoftReference<Map<Double, RandomVariableInterface>> curveCacheReference = null;
 	//private LIBORModelMonteCarloSimulationInterface model;
-	
+
 
 	private static final long serialVersionUID = -4126228588123963885L;
 	static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
@@ -257,18 +261,22 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param values A vector of corresponding values.
 	 */
 	public Curve(String name, 
-			     LocalDate referenceDate,
-			     InterpolationMethod interpolationMethod, 
-			     ExtrapolationMethod extrapolationMethod, 
-			     InterpolationEntity interpolationEntity, 
-			     double[] times, 
-			     RandomVariableInterface[] values) {
+			LocalDate referenceDate,
+			InterpolationMethod interpolationMethod, 
+			ExtrapolationMethod extrapolationMethod, 
+			InterpolationEntity interpolationEntity, 
+			double[] times, 
+			RandomVariableInterface[] values) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
 		this.interpolationEntity	= interpolationEntity;
-		if(times.length != values.length) throw new IllegalArgumentException("Length of times not equal to length of values.");
-		for(int i=0; i<times.length; i++) this.addPoint(times[i], values[i], false);
+		if(times.length != values.length) {
+			throw new IllegalArgumentException("Length of times not equal to length of values.");
+		}
+		for(int i=0; i<times.length; i++) {
+			this.addPoint(times[i], values[i], false);
+		}
 	}
 
 	/**
@@ -280,13 +288,13 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
-	
+
 	protected Curve(String name, 
-			        LocalDate referenceDate, 
-			        InterpolationMethod interpolationMethod, 
-			        ExtrapolationMethod extrapolationMethod, 
-			        InterpolationEntity interpolationEntity) {
-		
+			LocalDate referenceDate, 
+			InterpolationMethod interpolationMethod, 
+			ExtrapolationMethod extrapolationMethod, 
+			InterpolationEntity interpolationEntity) {
+
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
@@ -303,7 +311,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private Curve(String name, LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
-	
+
 
 	@Override
 	public RandomVariableInterface getValue(double time)
@@ -316,11 +324,13 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	{
 		Map<Double, RandomVariableInterface> curveCache = curveCacheReference != null ? curveCacheReference.get() : null;
 		if(curveCache == null) {
-			curveCache = new ConcurrentHashMap<Double, RandomVariableInterface>();
-			curveCacheReference = new SoftReference<Map<Double,RandomVariableInterface>>(curveCache);
+			curveCache = new ConcurrentHashMap<>();
+			curveCacheReference = new SoftReference<>(curveCache);
 		}
 		RandomVariableInterface valueFromCache = curveCache.get(time);
-		if(valueFromCache != null) return valueFromCache;
+		if(valueFromCache != null) {
+			return valueFromCache;
+		}
 
 		RandomVariableInterface value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
 		curveCache.put(time, value);
@@ -363,17 +373,24 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
 				boolean containsOne = false; int index=0;
 				for(int i = 0; i< value.size(); i++){if(value.get(i)==1.0) {containsOne = true; index=i; break;}}
-				if(containsOne && isParameter == false) return;
-				else throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received 1 at index" + index + ").");
+				if(containsOne && isParameter == false) {
+					return;
+				} else {
+					throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received 1 at index" + index + ").");
+				}
 			}
 
 			RandomVariableInterface interpolationEntityValue = interpolationEntityFromValue(value, time);
 
 			int index = getTimeIndex(time);
 			if(index >= 0) {
-				if(points.get(index).value == interpolationEntityValue) return;			// Already in list
-				else if(isParameter) return;
-				else throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+				if(points.get(index).value == interpolationEntityValue) {
+					return;			// Already in list
+				} else if(isParameter) {
+					return;
+				} else {
+					throw new RuntimeException("Trying to add a value for a time for which another value already exists.");
+				}
 			}
 			else {
 				// Insert the new point, retain ordering.
@@ -383,7 +400,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 				if(isParameter) {
 					// Add this point also to the list of parameters
 					int parameterIndex = getParameterIndex(time);
-					if(parameterIndex >= 0) new RuntimeException("Curve inconsistent.");
+					if(parameterIndex >= 0) {
+						new RuntimeException("Curve inconsistent.");
+					}
 					pointsBeingParameters.add(-parameterIndex-1, point);
 				}
 			}
@@ -430,7 +449,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		return java.util.Collections.binarySearch(pointsBeingParameters, point);
 	}
 
-	
+
 	public  RandomVariableInterface[] getParameter() {
 		RandomVariableInterface[] parameters = new RandomVariableInterface[pointsBeingParameters.size()];
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
@@ -439,7 +458,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		return parameters;
 	}
 
-	
+
 	public void setParameter(RandomVariableInterface[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable. Use getCloneForParameter(double[]) instead.");
 	}
@@ -460,8 +479,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		case LOG_OF_VALUE:
 			return value.floor(0.0).log();
 		case LOG_OF_VALUE_PER_TIME:
-			if(time == 0)	throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
-			else			return  value.floor(0.0).log().div(time);
+			if(time == 0) {
+				throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.");
+			} else {
+				return  value.floor(0.0).log().div(time);
+			}
 		}
 	}
 
@@ -481,14 +503,16 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	public Curve clone() throws CloneNotSupportedException {
 		Curve newCurve = (Curve) super.clone();
 
-		newCurve.points					= new ArrayList<Point>();
-		newCurve.pointsBeingParameters	= new ArrayList<Point>();
+		newCurve.points					= new ArrayList<>();
+		newCurve.pointsBeingParameters	= new ArrayList<>();
 		newCurve.rationalFunctionInterpolation = null;
 		newCurve.curveCacheReference = null;
 		for(Point point : points) {
 			Point newPoint = (Point) point.clone();
 			newCurve.points.add(newPoint);
-			if(point.isParameter) newCurve.pointsBeingParameters.add(newPoint);
+			if(point.isParameter) {
+				newCurve.pointsBeingParameters.add(newPoint);
+			}
 		}
 
 		return newCurve;
@@ -496,7 +520,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	@Override
 	public CurveInterface getCloneForParameter(RandomVariableInterface[] parameter) throws CloneNotSupportedException {
-		if(Arrays.equals(parameter, getParameter())) return this;
+		if(Arrays.equals(parameter, getParameter())) {
+			return this;
+		}
 		Curve newCurve = this.clone();
 		newCurve.setParameterPrivate(parameter);
 
@@ -521,11 +547,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			curveTableString.append(FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), point.time) + "\t");
 			curveTableString.append(valueFromInterpolationEntity(point.value, point.time) + "\n");
 		}
-		
+
 		return "Curve [points=" + points + ", pointsBeingParameters=" + pointsBeingParameters + ", interpolationMethod="
-				+ interpolationMethod + ", extrapolationMethod=" + extrapolationMethod + ", interpolationEntity="
-				+ interpolationEntity + ", rationalFunctionInterpolation=" + rationalFunctionInterpolation
-				+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
+		+ interpolationMethod + ", extrapolationMethod=" + extrapolationMethod + ", interpolationEntity="
+		+ interpolationEntity + ", rationalFunctionInterpolation=" + rationalFunctionInterpolation
+		+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {

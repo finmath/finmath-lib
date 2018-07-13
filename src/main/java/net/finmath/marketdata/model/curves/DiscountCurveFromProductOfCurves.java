@@ -17,23 +17,23 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  */
 public class DiscountCurveFromProductOfCurves extends AbstractCurve implements Serializable, DiscountCurveInterface {
-	
+
 	private static final long serialVersionUID = 8850409340966149755L;
 
 	private DiscountCurveInterface[] curves;
 
 	/**
-     * Create a discount curve using one or more curves.
-     * 
+	 * Create a discount curve using one or more curves.
+	 * 
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date of this curve.
-     * @param curves Argument list or array of curves.
-     */
-    public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, DiscountCurveInterface... curves) {
-    	super(name, referenceDate);
+	 * @param curves Argument list or array of curves.
+	 */
+	public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, DiscountCurveInterface... curves) {
+		super(name, referenceDate);
 
-    	this.curves = curves;
-    }
+		this.curves = curves;
+	}
 
 	@Override
 	public double getDiscountFactor(double maturity) {
@@ -44,8 +44,10 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	public double getDiscountFactor(AnalyticModelInterface model, double maturity) {
 		double discountFactor = 1.0;
 
-		for(DiscountCurveInterface curve : curves) discountFactor *= curve.getDiscountFactor(model, maturity);
-		
+		for(DiscountCurveInterface curve : curves) {
+			discountFactor *= curve.getDiscountFactor(model, maturity);
+		}
+
 		return discountFactor;
 	}
 

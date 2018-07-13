@@ -24,7 +24,7 @@ public interface ShortRateVolailityModelInterface {
 	 * @return the time discretization \( \{ t_{i} \} \)
 	 */
 	TimeDiscretizationInterface getTimeDiscretization();
-	
+
 	/**
 	 * Returns the value of \( \sigma(t) \) for \( t_{i} \leq t &lt; t_{i+1} \).
 	 * 
@@ -32,7 +32,7 @@ public interface ShortRateVolailityModelInterface {
 	 * @return the value of \( \sigma(t) \) for \( t_{i} \leq t &lt; t_{i+1} \)
 	 */
 	double getVolatility(int timeIndex);
-	
+
 	/**
 	 * Returns the value of \( a(t) \) for \( t_{i} \leq t &lt; t_{i+1} \).
 	 * 

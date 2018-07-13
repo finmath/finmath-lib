@@ -45,8 +45,12 @@ public class FDMThetaMethod {
 	}
 
 	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator valueAtMaturity) {
-		if(evaluationTime != 0) throw new IllegalArgumentException("Evaluation time != 0 not supported.");
-		if(time != timeHorizon) throw new IllegalArgumentException("Given time != timeHorizonn not supported.");
+		if(evaluationTime != 0) {
+			throw new IllegalArgumentException("Evaluation time != 0 not supported.");
+		}
+		if(time != timeHorizon) {
+			throw new IllegalArgumentException("Given time != timeHorizonn not supported.");
+		}
 
 		// Grid Generation
 		double maximumStockPriceOnGrid = model.getForwardValue(timeHorizon)
@@ -136,10 +140,10 @@ public class FDMThetaMethod {
 	}
 
 	// State Space Transformations
-	private double f_x(double S) {return Math.log(S / center); }
+	private double f_x(double value) {return Math.log(value / center); }
 	private double f_s(double x) { return center * Math.exp(x); }
 	private double f_t(double tau) { return timeHorizon - (2 * tau) / Math.pow(model.getVolatility(), 2); }
-	private double f(double V, double x, double tau) { return (V / center) * Math.exp(-alpha * x - beta * tau); }
+	private double f(double value, double x, double tau) { return (value / center) * Math.exp(-alpha * x - beta * tau); }
 
 	// Heat Equation Boundary Conditions
 	private double u_neg_inf(double x, double tau) {

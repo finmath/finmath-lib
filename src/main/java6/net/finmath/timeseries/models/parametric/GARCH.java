@@ -64,7 +64,7 @@ public class GARCH implements HistoricalSimulationModel {
 		this.windowIndexStart	= windowIndexStart;
 		this.windowIndexEnd		= windowIndexEnd;
 	}
-	
+
 	public GARCH getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
 		return new GARCH(this.values, windowIndexStart, windowIndexEnd);
 	}
@@ -85,17 +85,17 @@ public class GARCH implements HistoricalSimulationModel {
 		double h			= omega / (1.0 - alpha - beta);
 		for (int i = windowIndexStart+1; i <= windowIndexEnd-1; i++) {
 			double eval		= volScaling * (Math.log((values[i])/(values[i-1])));
-	        h = (omega + alpha * eval * eval) + beta * h;
+			h = (omega + alpha * eval * eval) + beta * h;
 			double evalNext	= volScaling * (Math.log((values[i+1])/(values[i])));
 
-	        logLikelihood += - Math.log(h) - evalNext*evalNext / h;
+			logLikelihood += - Math.log(h) - evalNext*evalNext / h;
 		}
-		logLikelihood += - Math.log(2 * Math.PI) * (double)(windowIndexEnd-windowIndexStart);
+		logLikelihood += - Math.log(2 * Math.PI) * (windowIndexEnd-windowIndexStart);
 		logLikelihood *= 0.5;
-		
+
 		return logLikelihood;
 	}
-	
+
 	/**
 	 * Returns the last estimate of the time series volatility.
 	 * 
@@ -109,12 +109,12 @@ public class GARCH implements HistoricalSimulationModel {
 		double h = omega / (1.0 - alpha - beta);
 		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
 			double eval		= volScaling * (Math.log((values[i])/(values[i-1])));
-	        h = omega + alpha * eval * eval + beta * h;
+			h = omega + alpha * eval * eval + beta * h;
 		}
-		
+
 		return h;
 	}
-	
+
 	public double[] getSzenarios(double omega, double alpha, double beta) {
 		double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
 
@@ -125,8 +125,8 @@ public class GARCH implements HistoricalSimulationModel {
 			szenarios[i-windowIndexStart-1]	= Math.log((values[i])/(values[i-1])) / vol;
 
 			double eval		= volScaling * (Math.log((values[i])/(values[i-1])));
-	        h = omega + alpha * eval * eval + beta * h;
-	        vol = Math.sqrt(h) * volScaling;
+			h = omega + alpha * eval * eval + beta * h;
+			vol = Math.sqrt(h) * volScaling;
 		}
 		java.util.Arrays.sort(szenarios);
 		return szenarios;
@@ -147,13 +147,13 @@ public class GARCH implements HistoricalSimulationModel {
 			int quantileIndexHi = quantileIndexLo+1;
 
 			double szenarioRelativeChange =
-				    (quantileIndexHi-quantileIndex) * Math.exp(szenarios[Math.max(quantileIndexLo,0               )] * vol)
-				  + (quantileIndex-quantileIndexLo) * Math.exp(szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);
+					(quantileIndexHi-quantileIndex) * Math.exp(szenarios[Math.max(quantileIndexLo,0               )] * vol)
+					+ (quantileIndex-quantileIndexLo) * Math.exp(szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);
 
 			double quantileValue = (values[windowIndexEnd]) * szenarioRelativeChange; 
 			quantileValues[i] = quantileValue;
 		}
-		
+
 		return quantileValues;
 	}
 
@@ -163,7 +163,7 @@ public class GARCH implements HistoricalSimulationModel {
 	public Map<String, Object> getBestParameters() {
 		return getBestParameters(null);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
 	 */
@@ -174,7 +174,7 @@ public class GARCH implements HistoricalSimulationModel {
 
 			private static final long serialVersionUID = 7072187082052755854L;
 
-		    public double value(double[] variables) {
+			public double value(double[] variables) {
 				/*
 				 * Transform variables: The solver variables are in (-\infty, \infty).
 				 * We transform the variable to the admissible domain for GARCH, that is
@@ -186,17 +186,17 @@ public class GARCH implements HistoricalSimulationModel {
 				double beta		= mucorr * muema;
 				double alpha	= mucorr - beta;
 
-		    	double logLikelihood = getLogLikelihoodForParameters(omega,alpha,beta);
-		    	
+				double logLikelihood = getLogLikelihoodForParameters(omega,alpha,beta);
+
 				// Penalty to prevent solver from hitting the bounds
-		    	logLikelihood -= Math.max(1E-30-omega,0)/1E-30;
+				logLikelihood -= Math.max(1E-30-omega,0)/1E-30;
 				logLikelihood -= Math.max(1E-30-alpha,0)/1E-30;
 				logLikelihood -= Math.max((alpha-1)+1E-30,0)/1E-30;
 				logLikelihood -= Math.max(1E-30-beta,0)/1E-30;
 				logLikelihood -= Math.max((beta-1)+1E-30,0)/1E-30;
 
 				return logLikelihood;
-		    }
+			}
 
 		}
 		final GARCHMaxLikelihoodFunction objectiveFunction = new GARCHMaxLikelihoodFunction();
@@ -236,7 +236,7 @@ public class GARCH implements HistoricalSimulationModel {
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};
-		
+
 		double[] bestParameters = null;
 
 		boolean isUseLM = false;
@@ -266,7 +266,7 @@ public class GARCH implements HistoricalSimulationModel {
 				bestParameters = guessParameters;
 			}
 		}
-		
+
 		// Transform parameters to GARCH parameters
 		double omega	= Math.exp(bestParameters[0]);
 		double mucorr	= Math.exp(-Math.exp(-bestParameters[1]));
@@ -287,7 +287,7 @@ public class GARCH implements HistoricalSimulationModel {
 		results.put("Quantile=1%", quantileValues[0]);
 		results.put("Quantile=5%", quantileValues[1]);
 		results.put("Quantile=50%", quantileValues[2]);
-//		System.out.println(results.get("Likelihood") + "\t" + Arrays.toString(bestParameters));
+		//		System.out.println(results.get("Likelihood") + "\t" + Arrays.toString(bestParameters));
 		return results;
 	}
 

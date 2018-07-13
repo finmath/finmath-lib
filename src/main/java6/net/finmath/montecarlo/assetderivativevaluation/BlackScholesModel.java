@@ -41,14 +41,14 @@ public class BlackScholesModel extends AbstractModel {
 	private final RandomVariableInterface initialValue;
 	private final RandomVariableInterface riskFreeRate;
 	private final RandomVariableInterface volatility;
-	
+
 	private final AbstractRandomVariableFactory randomVariableFactory;
 
 	// Cache for arrays provided though AbstractModel
 	private final RandomVariableInterface[]	initialState;
 	private final RandomVariableInterface[]	drift;
 	private final RandomVariableInterface[]	factorLoadings;
-	
+
 	/**
 	 * Create a Black-Scholes specification implementing AbstractModel.
 	 * 
@@ -99,6 +99,7 @@ public class BlackScholesModel extends AbstractModel {
 	 * @param volatility The log volatility.
 	 * @deprecated
 	 */
+	@Deprecated
 	public BlackScholesModel(
 			double initialValue,
 			double riskFreeRate,

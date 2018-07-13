@@ -26,8 +26,8 @@ public class AnalyticFormulasTest {
 		double spot = 100;
 		double riskFreeRate = 0.05;
 		for(double volatilityNormal = 5.0 / 100.0 * spot; volatilityNormal < 1.0 * spot; volatilityNormal += 5.0 / 100.0 * spot) {
-		for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
-			for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
+			for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
+				for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
 
 					double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
 
@@ -77,7 +77,7 @@ public class AnalyticFormulasTest {
 				private static final long serialVersionUID = -4799790311777696204L;
 
 				@Override
-				public void setValues(double[] parameters, double[] values) throws SolverException {
+				public void setValues(double[] parameters, double[] values) {
 					for(int strikeIndex = 0; strikeIndex < givenStrikes.length; strikeIndex++) {
 						double strike = givenStrikes[strikeIndex];
 						values[strikeIndex] = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(parameters[0] /* alpha */, parameters[1] /* beta */, parameters[2] /* rho */, parameters[3] /* nu */, parameters[4] /* displacement */, underlying, strike, maturity);
@@ -217,6 +217,19 @@ public class AnalyticFormulasTest {
 		Assert.assertEquals(valueCall, valuePut, 1E-15);
 	}
 
+	@Test
+	public void testBlackScholesNegativeForward() {
+		double initialStockValue = 100.0;
+		double riskFreeRate = 0.02;
+		double volatility = 0.20;
+		double optionMaturity = 8.0;
+		double optionStrike = -10;
+
+		double valueExpected = initialStockValue -optionStrike * Math.exp(- riskFreeRate * optionMaturity);
+		double valueCall = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+
+		Assert.assertEquals(valueExpected, valueCall, 1E-12);
+	}
 
 	/**
 	 * This test shows the Bachelier risk neutral probabilities

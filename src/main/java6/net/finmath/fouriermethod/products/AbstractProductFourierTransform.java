@@ -31,16 +31,16 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	public double getValue(ProcessCharacteristicFunctionInterface model) {
 
 		final CharacteristicFunctionInterface modelCF   = model.apply(getMaturity());
-        final CharacteristicFunctionInterface productCF = this;
+		final CharacteristicFunctionInterface productCF = this;
 
 		final double lineOfIntegration = 0.5 * getIntegrationDomainImagUpperBound()+getIntegrationDomainImagLowerBound();
 		DoubleUnaryOperator integrand = new DoubleUnaryOperator() {
-            @Override
-            public double applyAsDouble(double real) {
-                Complex z = new Complex(real,lineOfIntegration);
-                return modelCF.apply(z.negate()).multiply(productCF.apply(z)).getReal();
-            }
-        };
+			@Override
+			public double applyAsDouble(double real) {
+				Complex z = new Complex(real,lineOfIntegration);
+				return modelCF.apply(z.negate()).multiply(productCF.apply(z)).getReal();
+			}
+		};
 
 		RealIntegralInterface integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);
 
@@ -53,7 +53,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	 * @return The maturity of the associated payoff.
 	 */
 	public abstract double getMaturity();
-	
+
 	/**
 	 * Return the lower bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.
@@ -61,7 +61,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	 * @return the lower bound of the imaginary part of the domain of integration.
 	 */
 	public abstract double getIntegrationDomainImagLowerBound();
-	
+
 	/**
 	 * Return the upper bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.

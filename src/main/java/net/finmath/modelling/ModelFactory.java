@@ -13,5 +13,5 @@ package net.finmath.modelling;
  */
 public interface ModelFactory<T extends ModelDescriptor> {
 
-	DescribedModel<T> getModelFromDescriptor(T description);
+	DescribedModel<? extends T> getModelFromDescriptor(T description);
 }

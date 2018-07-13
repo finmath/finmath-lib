@@ -62,16 +62,16 @@ public class CapletVolatilitiesParametricCalibrationTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ QuotingConvention.VOLATILITYLOGNORMAL },
-				{ QuotingConvention.VOLATILITYNORMAL },
+			{ QuotingConvention.VOLATILITYLOGNORMAL },
+			{ QuotingConvention.VOLATILITYNORMAL },
 		});
 	}
 
 
-    public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
+	public CapletVolatilitiesParametricCalibrationTest(QuotingConvention calibrationTargetValueQuotingConvention) {
 		super();
 		this.calibrationTargetValueQuotingConvention = calibrationTargetValueQuotingConvention;
-		
+
 		System.out.println("Running calibration test using quoting convention " + calibrationTargetValueQuotingConvention.name() + " for calibration objective function.");
 	}
 

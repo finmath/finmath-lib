@@ -28,7 +28,9 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 	 */
 	public MonteCarloIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints, boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
-		if(numberOfEvaluationPoints < 3) throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
+		if(numberOfEvaluationPoints < 3) {
+			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
+		}
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 	}
 

@@ -41,8 +41,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(List<AnalyticProductInterface> products, List<Double> weights) {
 		super();
-		this.products = new ArrayList<AnalyticProductInterface>();
-		this.weights = new ArrayList<Double>();
+		this.products = new ArrayList<>();
+		this.weights = new ArrayList<>();
 		this.products.addAll(products);
 		this.weights.addAll(weights);
 	}
@@ -65,8 +65,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(Portfolio portfolio, List<AnalyticProductInterface> products, List<Double> weights) {
 		super();
-		this.products = new ArrayList<AnalyticProductInterface>();
-		this.weights = new ArrayList<Double>();
+		this.products = new ArrayList<>();
+		this.weights = new ArrayList<>();
 		this.products.addAll(portfolio.getProducts());
 		this.weights.addAll(portfolio.getWeights());
 		this.products.addAll(products);
@@ -81,8 +81,8 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(AnalyticProductInterface product, double weight) {
 		super();
-		this.products = new ArrayList<AnalyticProductInterface>();
-		this.weights = new ArrayList<Double>();
+		this.products = new ArrayList<>();
+		this.weights = new ArrayList<>();
 		this.products.add(product);
 		this.weights.add(weight);
 	}

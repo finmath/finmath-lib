@@ -49,17 +49,17 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 		this.swaprates = swaprates;
 	}
 
-    /**
-     * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-     * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-     * Cashflows prior evaluationTime are not considered.
-     * 
-     * @param evaluationTime The time on which this products value should be observed.
-     * @param model The model used to price the product.
-     * @return The random variable representing the value of the product discounted to evaluation time
-     * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-     */
-    @Override
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 */
+	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
 
 		// After the last period the product has value zero: Initialize values to zero.
@@ -89,7 +89,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 
 			if(isPeriodStartDateExerciseDate[period]) {
 				// Remove foresight through condition expectation
-		    	ConditionalExpectationEstimatorInterface condExpEstimator = getConditionalExpectationEstimator(period, model);
+				ConditionalExpectationEstimatorInterface condExpEstimator = getConditionalExpectationEstimator(period, model);
 
 				// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
 				RandomVariableInterface valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);
@@ -108,15 +108,15 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	}
 
 	/**
-     * @param fixingDateIndex
-     * @param model
-     * @return
+	 * @param fixingDateIndex
+	 * @param model
+	 * @return
 	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
-     */
-    private ConditionalExpectationEstimatorInterface getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-    	ConditionalExpectationEstimatorInterface condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(fixingDates[fixingDateIndex], model));
+	 */
+	private ConditionalExpectationEstimatorInterface getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		ConditionalExpectationEstimatorInterface condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(fixingDates[fixingDateIndex], model));
 		return condExpEstimator;
-    }
+	}
 
 	/**
 	 * Return the basis functions for the regression suitable for this product.
@@ -128,7 +128,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
 
 		// Constant
 		// @TODO Use non differentiable
@@ -136,8 +136,12 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 		basisFunctions.add(basisFunction);
 
 		int fixingDateIndex = Arrays.binarySearch(fixingDates, fixingDate);
-		if(fixingDateIndex < 0) fixingDateIndex = -fixingDateIndex;
-		if(fixingDateIndex >= fixingDates.length) fixingDateIndex = fixingDates.length-1;
+		if(fixingDateIndex < 0) {
+			fixingDateIndex = -fixingDateIndex;
+		}
+		if(fixingDateIndex >= fixingDates.length) {
+			fixingDateIndex = fixingDates.length-1;
+		}
 
 		// forward rate to the next period
 		RandomVariableInterface rateShort = model.getLIBOR(fixingDate, fixingDate, paymentDates[fixingDateIndex+1]);

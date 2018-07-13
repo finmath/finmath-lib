@@ -32,7 +32,7 @@ public class DateIndex extends AbstractIndex {
 	}
 
 	private DateIndexType dateIndexType;
-	
+
 	/**
 	 * Construct a date index.
 	 * 
@@ -60,7 +60,7 @@ public class DateIndex extends AbstractIndex {
 	public RandomVariableInterface getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate()
 				.plusDays((int)Math.round(fixingTime*365));
-		
+
 		double value = 0;
 		switch(dateIndexType) {
 		case DAY:

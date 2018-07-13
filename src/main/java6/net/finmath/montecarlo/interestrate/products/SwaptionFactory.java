@@ -34,7 +34,8 @@ public class SwaptionFactory {
 		else if(className.equals("SwaptionAnalyticApproximationRebonato")) {
 			SwaptionAnalyticApproximationRebonato.ValueUnit valueUnit = SwaptionAnalyticApproximationRebonato.ValueUnit.valueOf(valueUnitAsString);
 			return new SwaptionAnalyticApproximationRebonato(swaprate, swapTenor.getAsDoubleArray(), valueUnit);
+		} else {
+			throw new RuntimeException("Unknown class: " + className);
 		}
-		else throw new RuntimeException("Unknown class: " + className);
 	}
 }

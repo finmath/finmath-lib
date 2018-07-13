@@ -11,9 +11,9 @@ package net.finmath.exception;
 public class CalculationException extends Exception {
 
 	/**
-     * 
-     */
-    private static final long serialVersionUID = 6848163003188948320L;
+	 * 
+	 */
+	private static final long serialVersionUID = 6848163003188948320L;
 
 	/**
 	 * A wrapper for exceptions associated with numerical algorithm of finmath lib

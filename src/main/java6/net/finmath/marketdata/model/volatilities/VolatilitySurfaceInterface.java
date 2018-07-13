@@ -24,7 +24,7 @@ public interface VolatilitySurfaceInterface {
 	 * 
 	 * @author Christian Fries
 	 */
-	public enum QuotingConvention {
+	enum QuotingConvention {
 		VOLATILITYLOGNORMAL,
 		VOLATILITYNORMAL,
 		PRICE

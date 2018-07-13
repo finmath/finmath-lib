@@ -149,7 +149,7 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 
-		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
+		numeraires = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -179,7 +179,9 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
-		if(time == getTime(0)) return new RandomVariable(1.0);
+		if(time == getTime(0)) {
+			return new RandomVariable(1.0);
+		}
 
 		int timeIndex = getProcess().getTimeIndex(time);
 		if(timeIndex < 0) {
@@ -189,7 +191,9 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 
 			// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
 			int previousTimeIndex = getProcess().getTimeIndex(time);
-			if(previousTimeIndex < 0) previousTimeIndex = -previousTimeIndex-1;
+			if(previousTimeIndex < 0) {
+				previousTimeIndex = -previousTimeIndex-1;
+			}
 			previousTimeIndex--;
 			double previousTime = getProcess().getTime(previousTimeIndex);
 
@@ -215,21 +219,21 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		 */
 		RandomVariableInterface numeraire = numeraires.get(timeIndex);
 		if(numeraire == null) {
-		/*
+			/*
 			 * Calculate the numeraire for timeIndex
-		 */
+			 */
 			RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 			RandomVariableInterface integratedRate = zero;
-		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
-		for(int i=0; i<timeIndex; i++) {
-			RandomVariableInterface rate = getShortRate(i);
+			// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
+			for(int i=0; i<timeIndex; i++) {
+				RandomVariableInterface rate = getShortRate(i);
 				double dt = getProcess().getTimeDiscretization().getTimeStep(i);
 				//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
 				integratedRate = integratedRate.addProduct(rate, dt);
 
-			numeraire = integratedRate.exp();
-			numeraires.put(i+1, numeraire);
-		}
+				numeraire = integratedRate.exp();
+				numeraires.put(i+1, numeraire);
+			}
 		}
 
 		/*
@@ -263,13 +267,15 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		double forwardChange = (forwardNext-forward) / ((t1-t0));
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexVolatility < 0) timeIndexVolatility = -timeIndexVolatility-2;
+		if(timeIndexVolatility < 0) {
+			timeIndexVolatility = -timeIndexVolatility-2;
+		}
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double meanReversionEffective = meanReversion*getB(time,timeNext)/(timeNext-time);
 
-//		double phi = getShortRateConditionalVariance(0, timeNext) * getB(time,timeNext)/(timeNext-time);
+		//		double phi = getShortRateConditionalVariance(0, timeNext) * getB(time,timeNext)/(timeNext-time);
 		double phi = (getDV(0, timeNext) - Math.exp(-meanReversion * (timeNext-time)) *  getDV(0, time)) / (timeNext-time);
-		
+
 		/*
 		 * The +meanReversionEffective * forwardPrev removes the previous forward from the mean-reversion part.
 		 * The +forwardChange updates the forward to the next period.
@@ -293,7 +299,9 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		double timeNext = getProcess().getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexVolatility < 0) timeIndexVolatility = -timeIndexVolatility-2;
+		if(timeIndexVolatility < 0) {
+			timeIndexVolatility = -timeIndexVolatility-2;
+		}
 
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
@@ -401,10 +409,16 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	 */
 	private double getMRTime(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -432,10 +446,16 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	 */
 	private double getB(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -464,12 +484,20 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	 * @return The integral \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \).
 	 */
 	private double getV(double time, double maturity) {
-		if(time==maturity) return 0;
+		if(time==maturity) {
+			return 0;
+		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -494,12 +522,20 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	}
 
 	private double getDV(double time, double maturity) {
-		if(time==maturity) return 0;
+		if(time==maturity) {
+			return 0;
+		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -533,10 +569,16 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	 */
 	public double getShortRateConditionalVariance(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;

@@ -46,8 +46,8 @@ public class HestonModelCallOptionTest {
 		});
 	}
 
-    private final AbstractProductFourierTransform product;
-	
+	private final AbstractProductFourierTransform product;
+
 	// Model properties
 	private final double	initialValue   = 1.0;
 	private final double	riskFreeRate   = 0.05;

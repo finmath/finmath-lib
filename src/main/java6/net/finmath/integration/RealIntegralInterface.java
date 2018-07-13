@@ -19,5 +19,5 @@ import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 public interface RealIntegralInterface {
 
 	double integrate(DoubleUnaryOperator integrand);
-	
+
 }

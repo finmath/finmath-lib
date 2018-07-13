@@ -11,6 +11,7 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
@@ -36,7 +37,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 
 	@Override
 	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(BlackScholesModelDescriptor modelDescriptor) {
-		
+
 		/*
 		 * Build model from description.
 		 * Adding product factory.
@@ -55,29 +56,29 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
-			
+
 			BlackScholesMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);
 			}
-			
+
 			@Override
 			public BlackScholesModelDescriptor getDescriptor() {
 				return modelDescriptor;
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
-					return productFactory.getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+					return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 				}
 				else {
 					String name = modelDescriptor.name();
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
-			}	
+			}
 		}
 
-        return new BlackScholesMonteCarloModel(model, new ProcessEulerScheme(brownianMotion));
+		return new BlackScholesMonteCarloModel(model, new ProcessEulerScheme(brownianMotion));
 	}
 
 }

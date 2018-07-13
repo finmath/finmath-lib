@@ -46,9 +46,9 @@ public class WorstOfExpressCertificate implements ProductInterface {
 	public Object getValue(double evaluationTime, ModelInterface model) {
 		return null;
 	}
-	
+
 	public double getValue(double evaluationTime, HybridAssetLIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		
+
 		RandomVariableInterface zero				= model.getRandomVariableForConstant(0.0);
 		RandomVariableInterface values				= model.getRandomVariableForConstant(0.0);
 		RandomVariableInterface exerciseIndicator	= model.getRandomVariableForConstant(1.0);
@@ -57,18 +57,18 @@ public class WorstOfExpressCertificate implements ProductInterface {
 
 			// get worst performance
 			RandomVariableInterface worstPerformance = getWorstPerformance(model, exerciseDates[triggerIndex], strikeLevels);
-			
+
 			// exercise if worstPerformance >= triggerPerformanceLevel[triggerIndex]
 			RandomVariableInterface trigger = worstPerformance.sub(triggerPerformanceLevel[triggerIndex]);
-			
+
 			RandomVariableInterface payment = exerciseIndicator.mult(redemption[triggerIndex]);
 			payment = payment.div(model.getNumeraire(exerciseDates[triggerIndex]));
-			
+
 			// if trigger >= 0 we have a payment and set the exerciseIndicator to 0.
 			values = values.add(trigger.barrier(trigger, payment, 0.0));
 			exerciseIndicator = exerciseIndicator.barrier(trigger, zero, exerciseIndicator);				
 		}
-		
+
 		/*
 		 * final redemption
 		 */
@@ -78,7 +78,7 @@ public class WorstOfExpressCertificate implements ProductInterface {
 
 		payment = payment.div(model.getNumeraire(maturity));
 		values = values.add(payment);
-		
+
 		/*
 		 * numeraire at evaluationTime
 		 */
@@ -92,7 +92,7 @@ public class WorstOfExpressCertificate implements ProductInterface {
 		results.put("value", getValue(evaluationTime, model));
 		return results;
 	}
-	
+
 	/**
 	 * @param model
 	 * @param exerciseDate
@@ -107,7 +107,7 @@ public class WorstOfExpressCertificate implements ProductInterface {
 			RandomVariableInterface performance = underlying.div(baseLevels[assetIndex]);
 			worstPerformance = worstPerformance != null ? worstPerformance.cap(performance) : performance;
 		}
-		
+
 		return worstPerformance;
 	}
 }

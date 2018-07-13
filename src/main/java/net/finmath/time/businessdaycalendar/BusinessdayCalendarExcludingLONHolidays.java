@@ -102,8 +102,10 @@ public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendar
 	private static final Set<LocalDate> HOLIDAYS;
 	static {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		Set<LocalDate> holidaysSet = new TreeSet<LocalDate>();
-		for(String holidayAsString : HOLIDAYLISTASSTRINGS) holidaysSet.add(LocalDate.parse(holidayAsString, formatter));
+		Set<LocalDate> holidaysSet = new TreeSet<>();
+		for(String holidayAsString : HOLIDAYLISTASSTRINGS) {
+			holidaysSet.add(LocalDate.parse(holidayAsString, formatter));
+		}
 		HOLIDAYS = Collections.unmodifiableSet(holidaysSet);
 	}
 

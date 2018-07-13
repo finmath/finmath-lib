@@ -33,13 +33,13 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 			value = getValue((ProcessCharacteristicFunctionInterface) model);
 		} catch (CalculationException e) {
 		}
-		
+
 		return value;
 	}
 
 	@Override
 	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
-		Map<String, Object>  result = new HashMap<String, Object>();
+		Map<String, Object>  result = new HashMap<>();
 
 		try {
 			double value = getValue((ProcessCharacteristicFunctionInterface) model);
@@ -47,7 +47,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 		} catch (CalculationException e) {
 			result.put("exception", e);
 		}
-		
+
 		return result;
 	}
 
@@ -81,7 +81,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	 * @return The maturity of the associated payoff.
 	 */
 	public abstract double getMaturity();
-	
+
 	/**
 	 * Return the lower bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.
@@ -89,7 +89,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	 * @return the lower bound of the imaginary part of the domain of integration.
 	 */
 	public abstract double getIntegrationDomainImagLowerBound();
-	
+
 	/**
 	 * Return the upper bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.

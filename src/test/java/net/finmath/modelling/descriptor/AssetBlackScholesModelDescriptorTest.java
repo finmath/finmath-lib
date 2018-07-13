@@ -21,6 +21,9 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.modelfactory.BlackScholesModelFourierFactory;
+import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFactory;
+import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFiniteDifference1D;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -73,7 +76,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelFourier = (new BlackScholesModelFourierFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionFourier = blackScholesModelFourier.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionFourier = blackScholesModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
 
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -89,11 +92,11 @@ public class AssetBlackScholesModelDescriptorTest {
 		BrownianMotionInterface brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
-		// Create Fourier implementation of Black-Scholes model
+		// Create Monte Carlo implementation of Black-Scholes model
 		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
 
@@ -107,7 +110,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDesciptor(europeanOptionDescriptor);
+		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
 

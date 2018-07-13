@@ -47,6 +47,16 @@ public class CalibrationMultiCurveTest {
 		/*
 		 * Define the calibration spec generators for our calibration products
 		 */
+		Function<String,String> frequencyForTenor = (tenor) -> {
+			switch(tenor) {
+			case "3M":
+				return "quarterly";
+			case "6M":
+				return "semiannual";
+			}
+			throw new IllegalArgumentException("Unkown tenor " + tenor);
+		};
+
 		BiFunction<String, Double, CalibrationSpec> deposit = (maturity, rate) -> {
 			ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
 			ScheduleInterface scheduleInterfacePay = null;
@@ -75,7 +85,9 @@ public class CalibrationMultiCurveTest {
 
 		Function<String,BiFunction<String, Double, CalibrationSpec>> swap = (tenor) -> {
 			return (maturity, rate) -> {
-				ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "quarterly", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				String frequencyRec = frequencyForTenor.apply(tenor);
+
+				ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
 				ScheduleInterface scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
 				double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
 				String curveName = "forward-EUR-" + tenor;
@@ -84,18 +96,36 @@ public class CalibrationMultiCurveTest {
 			};
 		};
 
+		BiFunction<String,String,BiFunction<String, Double, CalibrationSpec>> swapBasis = (tenorRec,tenorPay) -> {
+			return (maturity, rate) -> {
+				String curveNameRec = "forward-EUR-" + tenorRec;
+				String curveNamePay = "forward-EUR-" + tenorPay;
+
+				String frequencyRec = frequencyForTenor.apply(tenorRec);
+				String frequencyPay = frequencyForTenor.apply(tenorPay);
+
+				ScheduleInterface scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				ScheduleInterface scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyPay, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+
+				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenorRec + "-" + tenorPay + maturity, "Swap", scheduleInterfaceRec, curveNameRec, 0.0, "discount-EUR-OIS", scheduleInterfacePay, curveNamePay, rate, "discount-EUR-OIS", curveNameRec, calibrationTime);
+				return calibrationSpec;
+			};
+		};
+
 		/*
 		 * Generate empty curve template (for cloning during calibration)
 		 */
 		double[] times = { 0.0 };
-		double[]	 discountFactors = { 1.0 };
+		double[] discountFactors = { 1.0 };
 		boolean[] isParameter = { false };
 
 		DiscountCurve discountCurveOIS = DiscountCurve.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
 		ForwardCurveInterface forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
 		ForwardCurveInterface forwardCurve3M = new ForwardCurve("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
+		ForwardCurveInterface forwardCurve6M = new ForwardCurve("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
 
-		AnalyticModel forwardCurveModel = new AnalyticModel(new CurveInterface[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M });
+		AnalyticModel forwardCurveModel = new AnalyticModel(new CurveInterface[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
 
 		List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
 
@@ -176,9 +206,42 @@ public class CalibrationMultiCurveTest {
 		calibrationSpecs.add(swap.apply("3M").apply("50Y", 2.286 / 100.0));
 
 		/*
+		 * Calibration products for 6M curve: FRAs
+		 */
+
+		calibrationSpecs.add(fra.apply("6M").apply("0D", 0.590 / 100.0));
+		calibrationSpecs.add(fra.apply("6M").apply("1M", 0.597 / 100.0));
+		calibrationSpecs.add(fra.apply("6M").apply("2M", 0.596 / 100.0));
+		calibrationSpecs.add(fra.apply("6M").apply("3M", 0.594 / 100.0));
+		calibrationSpecs.add(fra.apply("6M").apply("6M", 0.591 / 100.0));
+		calibrationSpecs.add(fra.apply("6M").apply("9M", 0.584 / 100.0));
+		calibrationSpecs.add(fra.apply("6M").apply("12M", 0.584 / 100.0));
+
+		/*
+		 * Calibration products for 6M curve: tenor basis swaps
+		 * Note: the fixed bases is added to the second argument tenor (here 3M).
+		 */
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("2Y", 0.255 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("3Y", 0.245 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("4Y", 0.227 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("5Y", 0.210 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("6Y", 0.199 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("7Y", 0.189 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("8Y", 0.177 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("9Y", 0.170 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("10Y", 0.164 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("12Y", 0.156 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("15Y", 0.135 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("20Y", 0.125 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("25Y", 0.117 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("30Y", 0.107 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("40Y", 0.095 / 100.0));
+		calibrationSpecs.add(swapBasis.apply("6M","3M").apply("50Y", 0.088 / 100.0));
+
+		/*
 		 * Calibrate
 		 */
-		CalibratedCurves calibratedCurves = new CalibratedCurves(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), forwardCurveModel, 1E-12);
+		CalibratedCurves calibratedCurves = new CalibratedCurves(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), forwardCurveModel, 1E-15);
 
 		/*
 		 * Get the calibrated model
@@ -201,13 +264,17 @@ public class CalibrationMultiCurveTest {
 		 * Print calibrated curves
 		 */
 		DiscountCurveInterface discountCurveCalibrated = calibratedModel.getDiscountCurve("discount-EUR-OIS");
-		ForwardCurveInterface forwardCurveCalibrated = calibratedModel.getForwardCurve("forward-EUR-3M");
+		ForwardCurveInterface forwardCurve3MCalibrated = calibratedModel.getForwardCurve("forward-EUR-3M");
+		ForwardCurveInterface forwardCurve6MCalibrated = calibratedModel.getForwardCurve("forward-EUR-6M");
 
 		System.out.println("\nCalibrated discount curve:");
 		System.out.println(discountCurveCalibrated);
 
 		System.out.println("\nCalibrated forward curve:");
-		System.out.println(forwardCurveCalibrated);
+		System.out.println(forwardCurve3MCalibrated);
+
+		System.out.println("\nCalibrated forward curve:");
+		System.out.println(forwardCurve6MCalibrated);
 
 		Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors)/calibrationSpecs.size(), 1E-10);
 	}	

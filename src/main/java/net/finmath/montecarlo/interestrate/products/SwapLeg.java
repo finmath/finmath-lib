@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
@@ -26,7 +28,7 @@ import net.finmath.time.ScheduleInterface;
  * @author Christian Fries
  *
  */
-public class SwapLeg extends AbstractLIBORMonteCarloProduct {
+public class SwapLeg extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapLegProductDescriptor> {
 
 	private final ScheduleInterface				legSchedule;
 	private final AbstractNotional				notional;
@@ -66,7 +68,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 		 * constitutes the (traditional) pricing algorithms (e.g., loop over all periods).
 		 * Hence, the definition of the product is the definition of the pricing algorithm.
 		 */
-		Collection<AbstractProductComponent> periods = new ArrayList<AbstractProductComponent>();
+		Collection<AbstractProductComponent> periods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixingDate	= legSchedule.getFixing(periodIndex);
 			double paymentDate	= legSchedule.getPayment(periodIndex);
@@ -77,12 +79,17 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 			 * Since empty periods are an indication for a ill-specified
 			 * product, it might be reasonable to throw an illegal argument exception instead.
 			 */
-			if(periodLength == 0) continue;
+			if(periodLength == 0) {
+				continue;
+			}
 
 			AbstractIndex coupon;
 			if(index != null) {
-				if(spread != 0)	coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));
-				else			coupon = index;
+				if(spread != 0) {
+					coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));
+				} else {
+					coupon = index;
+				}
 			}
 			else {
 				coupon = new FixedCoupon(spread);
@@ -91,7 +98,9 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false);
 			periods.add(period);
 
-			if(isNotionalAccruing) notional = new AccruingNotional(notional, period);
+			if(isNotionalAccruing) {
+				notional = new AccruingNotional(notional, period);
+			}
 		}
 
 		components = new ProductCollection(periods);
@@ -110,8 +119,18 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 		this(legSchedule, notional, index, spread, true, isNotionalExchanged, false);
 	}
 
+	public SwapLeg(InterestRateSwapLegProductDescriptor descriptor) {
+		this(descriptor.getLegSchedule(), descriptor.getNotional(), descriptor.getIndex(), descriptor.getSpread(), descriptor.isCouponFlow(), 
+				descriptor.isNotionalExchanged(), descriptor.isNotionalAccruing());
+	}
+
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		return components.getValue(evaluationTime, model);
+	}
+
+	@Override
+	public InterestRateSwapLegProductDescriptor getDescriptor() {
+		return new InterestRateSwapLegProductDescriptor(legSchedule, notional, index, spread, couponFlow, isNotionalExchanged, isNotionalAccruing);
 	}
 }

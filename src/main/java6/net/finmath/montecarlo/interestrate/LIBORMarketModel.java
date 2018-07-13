@@ -261,12 +261,20 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			) throws CalculationException {
 
 		// Set some properties
-		if(properties != null && properties.containsKey("measure"))					measure		= Measure.valueOf(((String)properties.get("measure")).toUpperCase());
-		if(properties != null && properties.containsKey("stateSpace"))				stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
-		if(properties != null && properties.containsKey("liborCap"))				liborCap	= (Double)properties.get("liborCap");
+		if(properties != null && properties.containsKey("measure")) {
+			measure		= Measure.valueOf(((String)properties.get("measure")).toUpperCase());
+		}
+		if(properties != null && properties.containsKey("stateSpace")) {
+			stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
+		}
+		if(properties != null && properties.containsKey("liborCap")) {
+			liborCap	= (Double)properties.get("liborCap");
+		}
 
 		Map<String,Object> calibrationParameters = null;
-		if(properties != null && properties.containsKey("calibrationParameters"))	calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
+		if(properties != null && properties.containsKey("calibrationParameters")) {
+			calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
+		}
 
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
 		this.curveModel					= analyticModel;
@@ -276,7 +284,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		this.covarianceModel		= covarianceModel;
 
 		double[] times = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
-		for(int i=0; i<times.length; i++) times[i] = liborPeriodDiscretization.getTime(i);
+		for(int i=0; i<times.length; i++) {
+			times[i] = liborPeriodDiscretization.getTime(i);
+		}
 
 		// Perform calibration, if data is given
 		if(calibrationItems != null && calibrationItems.length > 0) {
@@ -566,7 +576,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	}
 
 	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData, boolean isUseAnalyticApproximation) {
-		if(swaptionMarketData == null) return null;
+		if(swaptionMarketData == null) {
+			return null;
+		}
 
 		TimeDiscretizationInterface	optionMaturities		= swaptionMarketData.getOptionMaturities();
 		TimeDiscretizationInterface	tenor					= swaptionMarketData.getTenor();
@@ -580,8 +592,12 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				double exerciseDate	= optionMaturities.getTime(exerciseIndex);
 				double swapLength	= tenor.getTime(tenorIndex);
 
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate) < 0) continue;
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate+swapLength) <= liborPeriodDiscretization.getTimeIndex(exerciseDate)) continue;
+				if(liborPeriodDiscretization.getTimeIndex(exerciseDate) < 0) {
+					continue;
+				}
+				if(liborPeriodDiscretization.getTimeIndex(exerciseDate+swapLength) <= liborPeriodDiscretization.getTimeIndex(exerciseDate)) {
+					continue;
+				}
 
 				int numberOfPeriods = (int)(swapLength / swapPeriodLength);
 
@@ -649,7 +665,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			// Interpolation of Numeraire: log linear interpolation.
 			int upperIndex = -timeIndex-1;
 			int lowerIndex = upperIndex-1;
-			if(lowerIndex < 0) throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
+			if(lowerIndex < 0) {
+				throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
+			}
 
 			double alpha = (time-getLiborPeriod(lowerIndex)) / (getLiborPeriod(upperIndex) - getLiborPeriod(lowerIndex));
 			RandomVariableInterface numeraire = getNumeraire(getLiborPeriod(upperIndex)).log().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).log().mult(1.0-alpha)).exp();
@@ -786,7 +804,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
 		double	time				= getTime(timeIndex);
 		int		firstLiborIndex		= this.getLiborPeriodIndex(time)+1;
-		if(firstLiborIndex<0) firstLiborIndex = -firstLiborIndex-1 + 1;
+		if(firstLiborIndex<0) {
+			firstLiborIndex = -firstLiborIndex-1 + 1;
+		}
 
 		RandomVariableInterface		zero	= getRandomVariableForConstant(0.0);
 
@@ -808,7 +828,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				RandomVariableInterface		libor			= realizationAtTimeIndex[componentIndex];
 				RandomVariableInterface		oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(libor, periodLength);
 
-				if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+				if(stateSpace == StateSpace.LOGNORMAL) {
+					oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+				}
 
 				RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 				for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
@@ -824,7 +846,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				RandomVariableInterface libor			= realizationAtTimeIndex[componentIndex];
 				RandomVariableInterface oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(libor, periodLength);
 
-				if(stateSpace == StateSpace.LOGNORMAL) oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+				if(stateSpace == StateSpace.LOGNORMAL) {
+					oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+				}
 
 				RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 				for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
@@ -855,9 +879,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
 		RandomVariableInterface value = randomVariable;
 
-		if(stateSpace == StateSpace.LOGNORMAL)	value = value.exp();
+		if(stateSpace == StateSpace.LOGNORMAL) {
+			value = value.exp();
+		}
 
-		if(!Double.isInfinite(liborCap)) value = value.cap(liborCap);
+		if(!Double.isInfinite(liborCap)) {
+			value = value.cap(liborCap);
+		}
 
 		return value;
 	}
@@ -866,7 +894,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
 		RandomVariableInterface value = randomVariable;
 
-		if(stateSpace == StateSpace.LOGNORMAL)	value = value.log();
+		if(stateSpace == StateSpace.LOGNORMAL) {
+			value = value.log();
+		}
 
 		return value;
 	}
@@ -945,7 +975,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			return libor;
 		}
 
-		if(periodStartIndex < 0 || periodEndIndex < 0) throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
+		if(periodStartIndex < 0 || periodEndIndex < 0) {
+			throw new AssertionError("LIBOR requested outside libor discretization points and interpolation was not performed.");
+		}
 
 		// If time is beyond fixing, use the fixing time.
 		time = Math.min(time, periodStart);
@@ -959,7 +991,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 
 		// If this is a model primitive then return it
-		if(periodStartIndex+1==periodEndIndex) return getLIBOR(timeIndex, periodStartIndex);
+		if(periodStartIndex+1==periodEndIndex) {
+			return getLIBOR(timeIndex, periodStartIndex);
+		}
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
 		RandomVariableInterface accrualAccount = null; //=randomVariableFactory.createRandomVariable(1.0);

@@ -17,10 +17,10 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 
 	private LIBORVolatilityModelMaturityDependentFourParameterExponentialForm	volatilityModel;
 	private LIBORCorrelationModelThreeParameterExponentialDecay					correlationModel;
-	
+
 	public LIBORCovarianceModelExponentialForm7Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
-		
+
 		parameter[0] = 0.1;
 		parameter[1] = 0.1;
 		parameter[2] = 0.1;
@@ -28,7 +28,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 		parameter[4] = 0.1;
 		parameter[5] = 0.1;
 		parameter[6] = 0.1;
-		
+
 		volatilityModel	= new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3]);
 		correlationModel	= new LIBORCorrelationModelThreeParameterExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4], parameter[5], parameter[6], false);
 	}
@@ -41,7 +41,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 		model.correlationModel = correlationModel;
 		return model;
 	}
-	
+
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		LIBORCovarianceModelExponentialForm7Param model = (LIBORCovarianceModelExponentialForm7Param)this.clone();
@@ -70,7 +70,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 			factorLoading[factorIndex] = volatility;
 			factorLoading[factorIndex] = factorLoading[factorIndex].mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
-		
+
 		return factorLoading;
 	}
 

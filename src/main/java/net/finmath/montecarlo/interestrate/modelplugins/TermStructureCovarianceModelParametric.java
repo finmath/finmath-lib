@@ -74,7 +74,9 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 */
 	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, final double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
 
-		if(calibrationParameters == null) calibrationParameters = new HashMap<String,Object>();
+		if(calibrationParameters == null) {
+			calibrationParameters = new HashMap<>();
+		}
 		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
 		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
@@ -100,7 +102,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		 */
 		int numberOfThreads = 2;
 		OptimizerFactoryInterface optimizerFactoryParameter = (OptimizerFactoryInterface)calibrationParameters.get("optimizerFactory");
-		
+
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
@@ -119,7 +121,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 				TermStructureCovarianceModelParametric calibrationCovarianceModel = TermStructureCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
 
 				// Create a term structure model with the new covariance structure.
-				HashMap<String, Object> data = new HashMap<String, Object>();
+				HashMap<String, Object> data = new HashMap<>();
 				data.put("covarianceModel", calibrationCovarianceModel);
 				TermStructureModelInterface model;
 				try {
@@ -130,7 +132,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 				final TermStructureModelMonteCarloSimulation termStructureModelMonteCarloSimulation =  new TermStructureModelMonteCarloSimulation(model, process);
 
-				ArrayList<Future<Double>> valueFutures = new ArrayList<Future<Double>>(calibrationProducts.length);
+				ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<Double> worker = new  Callable<Double>() {
@@ -151,7 +153,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<Double> valueFutureTask = new FutureTask<Double>(worker);
+						FutureTask<Double> valueFutureTask = new FutureTask<>(worker);
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}

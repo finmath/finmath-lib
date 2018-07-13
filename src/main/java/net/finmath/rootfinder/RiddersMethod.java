@@ -201,8 +201,8 @@ public class RiddersMethod implements RootFinder {
 		return isDone;
 	}
 
-	private static final double sign(double a, double b) 
+	private static double sign(double a, double b) 
 	{
-		return b>= 0.0 ? a>=0 ? a : -a : a>0 ? -a : a;
+		return b>= 0.0 ? (a>=0 ? a : -a) : (a>0 ? -a : a);
 	}
 }

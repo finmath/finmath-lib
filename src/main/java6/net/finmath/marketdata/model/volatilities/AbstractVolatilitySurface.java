@@ -73,10 +73,16 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	 */
 	public double convertFromTo(AnalyticModelInterface model, double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
 
-		if(fromQuotingConvention.equals(toQuotingConvention)) return value;
+		if(fromQuotingConvention.equals(toQuotingConvention)) {
+			return value;
+		}
 
-		if(discountCurve == null)	throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
-		if(forwardCurve == null)	throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		if(discountCurve == null) {
+			throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		}
+		if(forwardCurve == null) {
+			throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
+		}
 
 		double periodStart = optionMaturity;
 		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);

@@ -25,7 +25,9 @@ public class CurveEstimationTest {
 		 */
 		try {
 			double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
-			if(x[0] != 1.0 || x[1] != 0.0) isJBLASPresent = true;
+			if(x[0] != 1.0 || x[1] != 0.0) {
+				isJBLASPresent = true;
+			}
 		}
 		catch(java.lang.UnsatisfiedLinkError e) {
 			isJBLASPresent = false;

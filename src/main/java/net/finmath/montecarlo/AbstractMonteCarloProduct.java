@@ -54,7 +54,7 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 			try {
 				results = getValues(evaluationTime, (MonteCarloSimulationInterface)model);
 			} catch (CalculationException e) {
-				results = new HashMap<String, Object>();
+				results = new HashMap<>();
 				results.put("exception", e);
 			}
 		}
@@ -62,10 +62,10 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 			Exception e = new IllegalArgumentException("The product " + this.getClass()
 			+ " cannot be valued against a model " + model.getClass() + "."
 			+ "It requires a model of type " + MonteCarloSimulationInterface.class + ".");
-			results = new HashMap<String, Object>();
+			results = new HashMap<>();
 			results.put("exception", e);
 		}
-		
+
 		return results;
 	}
 
@@ -113,13 +113,15 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 	{
 		RandomVariableInterface values = getValue(evaluationTime, model);
 
-		if(values == null) return null;
+		if(values == null) {
+			return null;
+		}
 
 		// Sum up values on path
 		double value = values.getAverage();
 		double error = values.getStandardError();
 
-		Map<String, Object> results = new HashMap<String, Object>();
+		Map<String, Object> results = new HashMap<>();
 		results.put("value", value);
 		results.put("error", error);
 
@@ -160,7 +162,7 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 	 */
 	public Map<String, Object> getValuesForModifiedData(double evaluationTime, MonteCarloSimulationInterface model, String entityKey, Object dataModified) throws CalculationException
 	{
-		Map<String, Object> dataModifiedMap = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedMap = new HashMap<>();
 		dataModifiedMap.put(entityKey, dataModified);
 		return getValuesForModifiedData(evaluationTime, model, dataModifiedMap);
 	}

@@ -190,7 +190,9 @@ public class AnalyticFormulas {
 			double forward,
 			double payoffUnit)
 	{
-		if(optionMaturity < 0) return 0.0;
+		if(optionMaturity < 0) {
+			return 0.0;
+		}
 
 		// Calculate analytic value
 		double dPlus = 0.5 * volatility * Math.sqrt(optionMaturity);
@@ -232,9 +234,14 @@ public class AnalyticFormulas {
 		else if(initialStockValue == 0)
 		{
 			// Limit case (where dPlus = +/- infty)
-			if(optionStrike < 0)		return 1.0;					// dPlus = +infinity
-			else if(optionStrike > 0)	return 0.0;					// dPlus = -infinity
-			else						return 1.0;					// Matter of definition of continuity of the payoff function
+			if(optionStrike < 0) {
+				return 1.0;					// dPlus = +infinity
+			} else if(optionStrike > 0) {
+				return 0.0;					// dPlus = -infinity
+			}
+			else {
+				return 1.0;					// Matter of definition of continuity of the payoff function
+			}
 		}
 		else if((optionStrike <= 0.0) || (volatility <= 0.0) || (optionMaturity <= 0.0))		// (and initialStockValue > 0)
 		{	
@@ -499,7 +506,9 @@ public class AnalyticFormulas {
 			double volatilityUpperBound = p + Math.sqrt(         p * p + q      );
 
 			// If strike is close to forward the two bounds are close to the analytic solution
-			if(Math.abs(volatilityLowerBound - volatilityUpperBound) < maxAccuracy) return (volatilityLowerBound+volatilityUpperBound) / 2.0;
+			if(Math.abs(volatilityLowerBound - volatilityUpperBound) < maxAccuracy) {
+				return (volatilityLowerBound+volatilityUpperBound) / 2.0;
+			}
 
 			// Solve for implied volatility
 			NewtonsMethod solver = new NewtonsMethod(0.5*(volatilityLowerBound+volatilityUpperBound) /* guess */);
@@ -1089,8 +1098,11 @@ public class AnalyticFormulas {
 		double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here
 
 		double z;		
-		if(beta < 1.0)	z = nu / alpha * (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);
-		else			z = nu / alpha * Math.log(underlying/strike);
+		if(beta < 1.0) {
+			z = nu / alpha * (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);
+		} else {
+			z = nu / alpha * Math.log(underlying/strike);
+		}
 
 		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
 

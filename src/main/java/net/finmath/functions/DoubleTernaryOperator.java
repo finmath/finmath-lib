@@ -13,13 +13,13 @@ package net.finmath.functions;
  */
 @FunctionalInterface
 public interface DoubleTernaryOperator {
-    /**
-     * Applies this operator to the given operands.
-     *
-     * @param x the first operand
-     * @param y the second operand
-     * @param z the third operand
-     * @return the operator result
-     */
-    double applyAsDouble(double x, double y, double z);
+	/**
+	 * Applies this operator to the given operands.
+	 *
+	 * @param x the first operand
+	 * @param y the second operand
+	 * @param z the third operand
+	 * @return the operator result
+	 */
+	double applyAsDouble(double x, double y, double z);
 }

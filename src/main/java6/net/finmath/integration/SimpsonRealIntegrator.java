@@ -16,7 +16,7 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 
 	private int		numberOfEvaluationPoints;
 	private boolean	useParallelEvaluation = false;
-	
+
 
 	/**
 	 * Create an integrator using Simpson's rule.
@@ -28,7 +28,9 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 	 */
 	public SimpsonRealIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints, boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
-		if(numberOfEvaluationPoints < 3) throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
+		if(numberOfEvaluationPoints < 3) {
+			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
+		}
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 		this.useParallelEvaluation = useParallelEvaluation;
 	}
@@ -57,10 +59,10 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		double fullIntervall = range / numberOfIntervalls;
 		double halfIntervall = 0.5 * fullIntervall;
 
-        double sum = 0.0;
-        for(int i=1; i<numberOfIntervalls; i++) {
-            sum += 2 * integrand.applyAsDouble(lowerBound + i * fullIntervall + halfIntervall) + integrand.applyAsDouble(lowerBound + i * fullIntervall);
-        }
+		double sum = 0.0;
+		for(int i=1; i<numberOfIntervalls; i++) {
+			sum += 2 * integrand.applyAsDouble(lowerBound + i * fullIntervall + halfIntervall) + integrand.applyAsDouble(lowerBound + i * fullIntervall);
+		}
 
 		sum += 2.0 * integrand.applyAsDouble(lowerBound + halfIntervall);
 

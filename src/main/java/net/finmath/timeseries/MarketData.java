@@ -32,5 +32,5 @@ public class MarketData {
 	public double getValue(String symbol) {
 		return valuesForSymbols.get(symbol);
 	}
-	
+
 }

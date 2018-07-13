@@ -32,7 +32,9 @@ public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycount(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycount(endDate,startDate);
+		}
 
 		// Get actual number of days
 		double daycount = DayCountConvention_ACT.daysBetween(startDate, endDate);
@@ -43,18 +45,24 @@ public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 		for(int year = startDate.getYear() ; year <= endDate.getYear(); year++) {
 			if (IsoChronology.INSTANCE.isLeapYear(year)) {
 				LocalDate leapDay = LocalDate.of(year,Month.FEBRUARY, 29);
-				if(startDate.isBefore(leapDay) && !endDate.isBefore(leapDay)) daycount -= 1.0;
+				if(startDate.isBefore(leapDay) && !endDate.isBefore(leapDay)) {
+					daycount -= 1.0;
+				}
 			}
 		}
 
-		if(daycount < 0.0) throw new AssertionError("Daycount is negative for startDate not after endDate.");
+		if(daycount < 0.0) {
+			throw new AssertionError("Daycount is negative for startDate not after endDate.");
+		}
 
 		return daycount;
 	}
 
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycountFraction(endDate,startDate);
+		}
 
 		double daycountFraction = getDaycount(startDate, endDate) / 365.0;
 

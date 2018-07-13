@@ -74,7 +74,9 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return null;
+		if(!isCalibrateable) {
+			return null;
+		}
 
 		double[] parameter = new double[4];
 		parameter[0] = a;
@@ -87,7 +89,9 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 
 	@Override
 	public LIBORVolatilityModelFourParameterExponentialFormIntegrated getCloneWithModifiedParameter(double[] parameter) {
-		if(!isCalibrateable) return this;
+		if(!isCalibrateable) {
+			return this;
+		}
 
 		return new LIBORVolatilityModelFourParameterExponentialFormIntegrated(
 				super.getTimeDiscretization(),

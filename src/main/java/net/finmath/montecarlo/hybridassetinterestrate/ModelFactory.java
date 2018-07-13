@@ -35,7 +35,9 @@ public class ModelFactory {
 	}
 
 	public static synchronized ModelFactory getInstance() {
-		if(modelFactory == null) modelFactory = new ModelFactory();
+		if(modelFactory == null) {
+			modelFactory = new ModelFactory();
+		}
 
 		return modelFactory;
 	}
@@ -56,7 +58,7 @@ public class ModelFactory {
 	 * @return An object implementing {@link HybridAssetLIBORModelMonteCarloSimulationInterface}, where each asset process is calibrated to a given option.
 	 * @throws CalculationException Thrown if calibration fails.
 	 */
-	public HybridAssetLIBORModelMonteCarloSimulationInterface getHybridAssetLIBORModel(final LIBORModelMonteCarloSimulationInterface baseModel, final BrownianMotionInterface brownianMotion, final double[] initialValues, final double riskFreeRate, final double[][] correlations, final double[] maturities, final double[] strikes, final double[] volatilities, final DiscountCurveInterface discountCurve) throws CalculationException {
+	public HybridAssetLIBORModelMonteCarloSimulationInterface getHybridAssetLIBORModel(LIBORModelMonteCarloSimulationInterface baseModel, BrownianMotionInterface brownianMotion, double[] initialValues, double riskFreeRate, double[][] correlations, double[] maturities, double[] strikes, double[] volatilities, DiscountCurveInterface discountCurve) throws CalculationException {
 
 		OptimizerInterface optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
 			private static final long serialVersionUID = -9199565564991442848L;
@@ -84,12 +86,15 @@ public class ModelFactory {
 		try {
 			optimizer.run();
 		} catch (SolverException e) {
-			if(e.getCause() instanceof CalculationException)	throw (CalculationException)e.getCause();
-			else												throw new CalculationException(e);
+			if(e.getCause() instanceof CalculationException) {
+				throw (CalculationException)e.getCause();
+			} else {
+				throw new CalculationException(e);
+			}
 		}
 
 		AssetModelMonteCarloSimulationInterface model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);
-		
+
 		/*
 		 * Test calibration
 		 */
@@ -100,7 +105,9 @@ public class ModelFactory {
 			EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);
 			double valueOptoin = option.getValue(hybridModelWithoutDiscountAdjustment);
 			double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);
-			if(Math.abs(impliedVol - volatilities[assetIndex]) > 0.01) throw new CalculationException("Calibration failed");
+			if(Math.abs(impliedVol - volatilities[assetIndex]) > 0.01) {
+				throw new CalculationException("Calibration failed");
+			}
 		}
 
 		/*

@@ -34,7 +34,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	 * Create a collection of parametrized objects.
 	 */
 	public ParameterAggregation() {
-		this.parameters = new LinkedHashSet<ParameterObjectInterface>();
+		this.parameters = new LinkedHashSet<>();
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	 * @param parameters A set of objects implementing ParameterObjectInterface to be combined to a single object.
 	 */
 	public ParameterAggregation(Set<E> parameters) {
-		this.parameters = new LinkedHashSet<ParameterObjectInterface>(parameters);
+		this.parameters = new LinkedHashSet<>(parameters);
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	 * @param parameters A set of objects implementing ParameterObjectInterface to be combined to a single object.
 	 */
 	public ParameterAggregation(E[] parameters) {
-		this.parameters = new LinkedHashSet<ParameterObjectInterface>(Arrays.asList(parameters));
+		this.parameters = new LinkedHashSet<>(Arrays.asList(parameters));
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	}
 
 	public Map<E, double[]> getObjectsToModifyForParameter(double[] parameter) {
-		Map<E, double[]> result = new HashMap<E, double[]>();
+		Map<E, double[]> result = new HashMap<>();
 		int parameterIndex = 0;
 		for(ParameterObjectInterface parametrizedObject : parameters) {
 			double[] parameterVectorOfDouble = parametrizedObject.getParameter().clone();

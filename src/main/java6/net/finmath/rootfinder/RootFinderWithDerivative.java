@@ -17,31 +17,31 @@ public interface RootFinderWithDerivative {
 	/**
 	 * @return Next point for which a value should be set using <code>setValue</code>.
 	 */
-    double getNextPoint();
-	
+	double getNextPoint();
+
 	/**
 	 * @param value The value corresponding to the point returned by previous <code>getNextPoint</code> call.
 	 * @param derivative The derivative corresponding to the point returned by previous <code>getNextPoint</code> call.
 	 */
-    void setValueAndDerivative(double value, double derivative);
+	void setValueAndDerivative(double value, double derivative);
 
 	/**
 	 * @return Returns the numberOfIterations.
 	 */
-    int getNumberOfIterations();
-	
+	int getNumberOfIterations();
+
 	/**
 	 * @return Returns the accuracy.
 	 */
-    double getAccuracy();
-	
+	double getAccuracy();
+
 	/**
 	 * @return Returns the isDone.
 	 */
-    boolean isDone();
+	boolean isDone();
 
 	/**
 	 * @return Best point optained so far
 	 */
-    double getBestPoint();
+	double getBestPoint();
 }

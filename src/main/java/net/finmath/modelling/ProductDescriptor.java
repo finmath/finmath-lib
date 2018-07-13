@@ -13,19 +13,19 @@ package net.finmath.modelling;
  * @author Christian Fries
  */
 public interface ProductDescriptor {
-	
+
 	/**
 	 * Return the version of the model description.
 	 * 
 	 * @return Version number.
 	 */
 	Integer version();
-	
+
 	/**
 	 * Return the name of the model represented by this descriptor.
 	 * 
 	 * @return Name of the model.
 	 */
 	String name();
-	
+
 }

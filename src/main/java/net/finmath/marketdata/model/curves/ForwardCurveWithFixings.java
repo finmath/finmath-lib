@@ -59,7 +59,9 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 	{
 		double[] values = new double[fixingTimes.length];
 
-		for(int i=0; i<fixingTimes.length; i++) values[i] = getForward(model, fixingTimes[i]);
+		for(int i=0; i<fixingTimes.length; i++) {
+			values[i] = getForward(model, fixingTimes[i]);
+		}
 
 		return values;
 	}

@@ -27,7 +27,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.2
  */
 public class Portfolio extends AbstractProductComponent {
-	
+
 	private static final long serialVersionUID = -1360506093081238482L;
 
 	private AbstractLIBORMonteCarloProduct[]	products;
@@ -58,8 +58,11 @@ public class Portfolio extends AbstractProductComponent {
 	public Portfolio(AbstractLIBORMonteCarloProduct[] products, double[] weights) {
 		super();
 		String currency = products[0].getCurrency();
-		for(AbstractLIBORMonteCarloProduct product : products) if(!currency.equals(product.getCurrency()))
-			throw new IllegalArgumentException("Product currencies do not match. Please use a constructor providing the currency of the result.");
+		for(AbstractLIBORMonteCarloProduct product : products) {
+			if(!currency.equals(product.getCurrency())) {
+				throw new IllegalArgumentException("Product currencies do not match. Please use a constructor providing the currency of the result.");
+			}
+		}
 
 		this.products = products;
 		this.weights = weights;
@@ -77,8 +80,11 @@ public class Portfolio extends AbstractProductComponent {
 	public Portfolio(String currency, AbstractLIBORMonteCarloProduct[] products, double[] weights) {
 		super(currency);
 
-		for(AbstractLIBORMonteCarloProduct product : products) if(!currency.equals(product.getCurrency()))
-			throw new IllegalArgumentException("Product currencies do not match. Currency conversion (via model FX) is not supported yet.");
+		for(AbstractLIBORMonteCarloProduct product : products) {
+			if(!currency.equals(product.getCurrency())) {
+				throw new IllegalArgumentException("Product currencies do not match. Currency conversion (via model FX) is not supported yet.");
+			}
+		}
 
 		this.products = products;
 		this.weights = weights;
@@ -95,12 +101,18 @@ public class Portfolio extends AbstractProductComponent {
 		Set<String> underlyingNames = null;
 		for(AbstractLIBORMonteCarloProduct product : products) {
 			Set<String> productUnderlyingNames;
-			if(product instanceof AbstractProductComponent)		productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
-			else												throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+			if(product instanceof AbstractProductComponent) {
+				productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
+			} else {
+				throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+			}
 
 			if(productUnderlyingNames != null) {
-				if(underlyingNames == null)	underlyingNames = productUnderlyingNames;
-				else						underlyingNames.addAll(productUnderlyingNames);
+				if(underlyingNames == null) {
+					underlyingNames = productUnderlyingNames;
+				} else {
+					underlyingNames.addAll(productUnderlyingNames);
+				}
 			}
 		}
 		return underlyingNames;

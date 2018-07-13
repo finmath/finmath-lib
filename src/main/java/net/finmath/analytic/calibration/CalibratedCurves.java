@@ -280,11 +280,11 @@ public class CalibratedCurves {
 	}
 
 	private AnalyticModelInterface				model				= new AnalyticModel();
-	private Set<ParameterObjectInterface>		objectsToCalibrate	= new LinkedHashSet<ParameterObjectInterface>();
-	private Vector<AnalyticProductInterface>	calibrationProducts			= new Vector<AnalyticProductInterface>();
-	private Vector<String>						calibrationProductsSymbols	= new Vector<String>();
+	private Set<ParameterObjectInterface>		objectsToCalibrate	= new LinkedHashSet<>();
+	private Vector<AnalyticProductInterface>	calibrationProducts			= new Vector<>();
+	private Vector<String>						calibrationProductsSymbols	= new Vector<>();
 
-	private List<CalibrationSpec>				calibrationSpecs	= new ArrayList<CalibrationSpec>();
+	private List<CalibrationSpec>				calibrationSpecs	= new ArrayList<>();
 
 	private final double evaluationTime;
 	private final double calibrationAccuracy;
@@ -314,7 +314,9 @@ public class CalibratedCurves {
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(List<CalibrationSpec> calibrationSpecs, AnalyticModelInterface calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
-		if(calibrationModel != null)	model	= calibrationModel.getCloneForParameter(null);
+		if(calibrationModel != null) {
+			model	= calibrationModel.getCloneForParameter(null);
+		}
 		this.evaluationTime = evaluationTime;
 		this.calibrationAccuracy = calibrationAccuracy;
 
@@ -347,7 +349,9 @@ public class CalibratedCurves {
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
-		if(calibrationModel != null)	model	= calibrationModel.getCloneForParameter(null);
+		if(calibrationModel != null) {
+			model	= calibrationModel.getCloneForParameter(null);
+		}
 		this.evaluationTime = evaluationTime;
 		this.calibrationAccuracy = calibrationAccuracy;
 
@@ -439,19 +443,27 @@ public class CalibratedCurves {
 		if(isCreateDefaultCurvesForMissingCurves) {
 			createDiscountCurve(calibrationSpec.discountCurveReceiverName);
 			createDiscountCurve(calibrationSpec.discountCurvePayerName);
-	
+
 			forwardCurveReceiverName	= createForwardCurve(calibrationSpec.swapTenorDefinitionReceiver, calibrationSpec.forwardCurveReceiverName);
 			forwardCurvePayerName		= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
 		}
 		else {
 			Predicate<String> discountCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getDiscountCurve(curveName) == null;
 			Predicate<String> forwardCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getForwardCurve(curveName) == null;
-			if(discountCurveMissing.test(calibrationSpec.discountCurveReceiverName)) throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurveReceiverName + " missing. Needs to be part of model " + model + ".");
-			if(discountCurveMissing.test(calibrationSpec.discountCurvePayerName)) throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurvePayerName + " missing. Needs to be part of model " + model + ".");
-			if(forwardCurveMissing.test(calibrationSpec.forwardCurveReceiverName)) throw new IllegalArgumentException("Forward curve " + calibrationSpec.forwardCurveReceiverName + " missing. Needs to be part of model " + model + ".");
-			if(forwardCurveMissing.test(calibrationSpec.forwardCurvePayerName)) throw new IllegalArgumentException("Forward curve " + calibrationSpec.forwardCurvePayerName + " missing. Needs to be part of model " + model + ".");
+			if(discountCurveMissing.test(calibrationSpec.discountCurveReceiverName)) {
+				throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurveReceiverName + " missing. Needs to be part of model " + model + ".");
+			}
+			if(discountCurveMissing.test(calibrationSpec.discountCurvePayerName)) {
+				throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurvePayerName + " missing. Needs to be part of model " + model + ".");
+			}
+			if(forwardCurveMissing.test(calibrationSpec.forwardCurveReceiverName)) {
+				throw new IllegalArgumentException("Forward curve " + calibrationSpec.forwardCurveReceiverName + " missing. Needs to be part of model " + model + ".");
+			}
+			if(forwardCurveMissing.test(calibrationSpec.forwardCurvePayerName)) {
+				throw new IllegalArgumentException("Forward curve " + calibrationSpec.forwardCurvePayerName + " missing. Needs to be part of model " + model + ".");
+			}
 		}
-		
+
 		ScheduleInterface tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
 		ScheduleInterface tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
 
@@ -487,7 +499,7 @@ public class CalibratedCurves {
 			SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, discountCurveForNotionalResetName, true);
 			product = new Swap(legReceiver, legPayer);
 		}
-		
+
 		else {
 			throw new RuntimeException("Product of type " + calibrationSpec.type + " unknown.");
 		}
@@ -537,7 +549,7 @@ public class CalibratedCurves {
 	 */
 	public CalibratedCurves getCloneShifted(String symbol, double shift) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
-		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
+		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
 		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
 			if(calibrationSpec.symbol.equals(symbol)) {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
@@ -562,7 +574,7 @@ public class CalibratedCurves {
 	 */
 	public CalibratedCurves getCloneShifted(Map<String,Double> shifts) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
-		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
+		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
 		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
 			if(shifts.containsKey(calibrationSpec)) {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shifts.get(calibrationSpec)));
@@ -592,7 +604,7 @@ public class CalibratedCurves {
 	 */
 	public CalibratedCurves getCloneShifted(Pattern symbolRegExp, double shift) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
-		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<CalibrationSpec>();
+		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
 
 		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
 			Matcher matcher = symbolRegExp.matcher(calibrationSpec.symbol);
@@ -634,7 +646,7 @@ public class CalibratedCurves {
 	public double getLastAccuracy() {
 		return lastAccuracy;
 	}
-	
+
 	/**
 	 * Returns the first product found in the vector of calibration products
 	 * which matches the given symbol, where symbol is the String set in
@@ -644,7 +656,7 @@ public class CalibratedCurves {
 	 * @return The product associated with that symbol.
 	 */
 	public AnalyticProductInterface getCalibrationProductForSymbol(String symbol) {
-		
+
 		/*
 		 * The internal data structure is not optimal here (a map would make more sense here),
 		 * if the user does not require access to the products, we would allow non-unique symbols.
@@ -652,9 +664,11 @@ public class CalibratedCurves {
 		 */
 		for(int i=0; i<calibrationProductsSymbols.size(); i++) {
 			String calibrationProductSymbol = calibrationProductsSymbols.get(i);
-			if(calibrationProductSymbol.equals(symbol)) return calibrationProducts.get(i);
+			if(calibrationProductSymbol.equals(symbol)) {
+				return calibrationProducts.get(i);
+			}
 		}
-		
+
 		return null;
 	}
 
@@ -689,7 +703,9 @@ public class CalibratedCurves {
 
 		// Fetch old curve
 		CurveInterface calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
-		if(calibrationCurveOld == null) throw new IllegalArgumentException("Calibration curve " + calibrationSpec.calibrationCurveName + " does not exist. This should not happen. Possible reason: The given calibration product does not depend on the given calibration curve.");
+		if(calibrationCurveOld == null) {
+			throw new IllegalArgumentException("Calibration curve " + calibrationSpec.calibrationCurveName + " does not exist. This should not happen. Possible reason: The given calibration product does not depend on the given calibration curve.");
+		}
 
 		// Remove old curve
 		objectsToCalibrate.remove(calibrationCurveOld);
@@ -755,12 +771,22 @@ public class CalibratedCurves {
 		 * Temporary "hack" - we try to infer index maturity codes from curve name.
 		 */
 		String indexMaturityCode = null;
-		if(forwardCurveName.contains("_12M") || forwardCurveName.contains("-12M") || forwardCurveName.contains(" 12M"))	indexMaturityCode = "12M";
-		if(forwardCurveName.contains("_1M")	|| forwardCurveName.contains("-1M")	|| forwardCurveName.contains(" 1M"))	indexMaturityCode = "1M";
-		if(forwardCurveName.contains("_6M")	|| forwardCurveName.contains("-6M")	|| forwardCurveName.contains(" 6M"))	indexMaturityCode = "6M";
-		if(forwardCurveName.contains("_3M") || forwardCurveName.contains("-3M") || forwardCurveName.contains(" 3M"))	indexMaturityCode = "3M";
+		if(forwardCurveName.contains("_12M") || forwardCurveName.contains("-12M") || forwardCurveName.contains(" 12M")) {
+			indexMaturityCode = "12M";
+		}
+		if(forwardCurveName.contains("_1M")	|| forwardCurveName.contains("-1M")	|| forwardCurveName.contains(" 1M")) {
+			indexMaturityCode = "1M";
+		}
+		if(forwardCurveName.contains("_6M")	|| forwardCurveName.contains("-6M")	|| forwardCurveName.contains(" 6M")) {
+			indexMaturityCode = "6M";
+		}
+		if(forwardCurveName.contains("_3M") || forwardCurveName.contains("-3M") || forwardCurveName.contains(" 3M")) {
+			indexMaturityCode = "3M";
+		}
 
-		if(forwardCurveName == null || forwardCurveName.isEmpty()) return null;
+		if(forwardCurveName == null || forwardCurveName.isEmpty()) {
+			return null;
+		}
 
 		// Check if the curves exists, if not create it
 		CurveInterface	curve = model.getCurve(forwardCurveName);

@@ -36,8 +36,12 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 		int timeStartIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(periodStart);
 		int timeEndIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(periodEnd);
 
-		if(timeDiscretization.getTime(timeStartIndex) != periodStart) System.out.println("*****S" + (periodStart));
-		if(timeDiscretization.getTime(timeEndIndex) != periodEnd) System.out.println("*****E" + (periodStart));
+		if(timeDiscretization.getTime(timeStartIndex) != periodStart) {
+			System.out.println("*****S" + (periodStart));
+		}
+		if(timeDiscretization.getTime(timeEndIndex) != periodEnd) {
+			System.out.println("*****E" + (periodStart));
+		}
 		double timeScaled = timesIntegrated[timeEndIndex] - timesIntegrated[timeStartIndex];
 
 		return timeScaled;

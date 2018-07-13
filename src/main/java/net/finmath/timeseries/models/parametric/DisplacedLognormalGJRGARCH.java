@@ -105,7 +105,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		double eval			= volScaling * (Math.log((timeSeries.getValue(1)+displacement)/(timeSeries.getValue(0)+displacement)));
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0; // xxx how to init?
-		
+
 		int length = timeSeries.getNumberOfTimePoints();
 
 		for (int i = 1; i < length-1; i++) {
@@ -122,7 +122,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 			evalPrev = eval;
 			eval = evalNext;
 		}
-		logLikelihood += - Math.log(2 * Math.PI) * (double)(length);
+		logLikelihood += - Math.log(2 * Math.PI) * (length);
 		logLikelihood *= 0.5;
 
 		return logLikelihood;
@@ -135,7 +135,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		double mu			= parameters[3];
 		double gamma		= parameters[4];
 		double displacement	= parameters[5];
-		
+
 		double evalPrev		= 0.0;
 		double volScaling	= (1+Math.abs(displacement));
 		double h			= omega / (1.0 - alpha - beta);
@@ -147,7 +147,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 
 			m = eval;
 			h = (omega + (alpha + gamma * (m < mu ? 1.0 : 0.0)) * m * m) + beta * h;
-			
+
 			evalPrev = eval;
 		}
 
@@ -161,7 +161,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		double mu			= parameters[3];
 		double gamma		= parameters[4];
 		double displacement	= parameters[5];
-		
+
 		double[] szenarios = new double[timeSeries.getNumberOfTimePoints()-1];
 
 		double volScaling	= (1+Math.abs(displacement));
@@ -182,7 +182,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 			evalPrev = eval;
 		}
 		java.util.Arrays.sort(szenarios);
-		
+
 		return szenarios;
 	}
 
@@ -250,7 +250,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};
-		
+
 		double[] bestParameters = null;
 
 		boolean isUseLM = false;
@@ -271,7 +271,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 				public double computeObjectiveValue(double[] params) {
 					return objectiveFunction.value(params);
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer#getGoalType()
 				 */
@@ -280,7 +280,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 					// TODO Auto-generated method stub
 					return org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getStartPoint()
 				 */
@@ -288,7 +288,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 				public double[] getStartPoint() {
 					return guessParameters;
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getLowerBound()
 				 */
@@ -296,7 +296,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 				public double[] getLowerBound() {
 					return lowerBound;
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getUpperBound()
 				 */
@@ -308,7 +308,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 
 			try {
 				org.apache.commons.math3.optim.PointValuePair result = optimizer2.optimize(
-						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log((double)guessParameters.length))),
+						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(guessParameters.length))),
 						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(parameterStep)
 						);
 				bestParameters = result.getPoint();
@@ -326,7 +326,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		double gamma		= bestParameters[4];
 		double displacement	= bestParameters[5];
 
-		Map<String, Object> results = new HashMap<String, Object>();
+		Map<String, Object> results = new HashMap<>();
 		results.put("parameters", bestParameters);
 		results.put("Omega", omega);
 		results.put("Alpha", alpha);

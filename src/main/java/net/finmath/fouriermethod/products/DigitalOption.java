@@ -7,6 +7,9 @@ package net.finmath.fouriermethod.products;
 
 import org.apache.commons.math3.complex.Complex;
 
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
+
 /**
  * Implements valuation of a European option on a single asset.
  * 
@@ -22,12 +25,12 @@ import org.apache.commons.math3.complex.Complex;
  * @author Christian Fries
  * @version 1.0
  */
-public class DigitalOption extends AbstractProductFourierTransform {
+public class DigitalOption extends AbstractProductFourierTransform implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>{
 
 	private final double maturity;
 	private final double strike;
-	private final String nameOfUnderliyng;
-	
+	private final String nameOfUnderlying;
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
@@ -37,7 +40,11 @@ public class DigitalOption extends AbstractProductFourierTransform {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
-		this.nameOfUnderliyng	= null;		// Use asset with index 0
+		this.nameOfUnderlying	= null;		// Use asset with index 0
+	}
+
+	public DigitalOption(SingleAssetDigitalOptionProductDescriptor descriptor) {
+		this(descriptor.getMaturity(), descriptor.getStrike());
 	}
 
 	/* (non-Javadoc)
@@ -75,5 +82,10 @@ public class DigitalOption extends AbstractProductFourierTransform {
 	@Override
 	public double getIntegrationDomainImagUpperBound() {
 		return 2.5;
+	}
+
+	@Override
+	public SingleAssetDigitalOptionProductDescriptor getDescriptor() {
+		return new SingleAssetDigitalOptionProductDescriptor(nameOfUnderlying, maturity, strike);
 	}
 }

@@ -44,10 +44,14 @@ public class AnalyticModelIndex extends AbstractIndex {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
-		if(analyticModel == null) throw new IllegalArgumentException("Provided model does not carry an associated analytic model.");
+		if(analyticModel == null) {
+			throw new IllegalArgumentException("Provided model does not carry an associated analytic model.");
+		}
 
 		CurveInterface curve = analyticModel.getCurve(curveName);
-		if(curve == null) throw new IllegalArgumentException("Associated analytic model does not carry a curve of the name " +  curveName + ".");
+		if(curve == null) {
+			throw new IllegalArgumentException("Associated analytic model does not carry a curve of the name " +  curveName + ".");
+		}
 
 		double index = curve.getValue(analyticModel, evaluationTime + fixingOffet);
 

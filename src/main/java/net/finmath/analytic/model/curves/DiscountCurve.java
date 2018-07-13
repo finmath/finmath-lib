@@ -149,7 +149,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			isParameter[timeIndex] = times[timeIndex] > 0;
 		}
-		
+
 		return createDiscountCurveFromDiscountFactors(name, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
@@ -206,7 +206,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, RandomVariableInterface[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		RandomVariableInterface[] givenDiscountFactors = new RandomVariableInterface[givenZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -215,7 +215,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 		return createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
-	
+
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
 	 * The discount factor is determined by 
@@ -237,7 +237,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, Date referenceDate,
 			double[] times, RandomVariableInterface[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		return createDiscountCurveFromZeroRates(name, referenceDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
@@ -263,7 +263,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, RandomVariableInterface[] givenZeroRates,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		RandomVariableInterface[] givenDiscountFactors = new RandomVariableInterface[givenZeroRates.length];
 		boolean[] isParameter = new boolean[givenZeroRates.length];
 
@@ -318,7 +318,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, RandomVariableInterface[] givenAnnualizedZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		RandomVariableInterface[] givenDiscountFactors = new RandomVariableInterface[givenAnnualizedZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -348,7 +348,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, RandomVariableInterface[] givenAnnualizedZeroRates,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		RandomVariableInterface[] givenDiscountFactors = new RandomVariableInterface[givenAnnualizedZeroRates.length];
 		boolean[] isParameter = new boolean[givenAnnualizedZeroRates.length];
 
@@ -371,8 +371,8 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 */
 	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretizationInterface tenor, RandomVariableInterface [] forwardRates) {
 		DiscountCurve discountFactors = new DiscountCurve(name);
-        RandomVariableInterface df = forwardRates[0].mult(tenor.getTimeStep(0)).add(1.0).invert();
-        discountFactors.addDiscountFactor(tenor.getTime(1), df, tenor.getTime(1) > 0);
+		RandomVariableInterface df = forwardRates[0].mult(tenor.getTimeStep(0)).add(1.0).invert();
+		discountFactors.addDiscountFactor(tenor.getTime(1), df, tenor.getTime(1) > 0);
 		for(int timeIndex=1; timeIndex<tenor.getNumberOfTimeSteps();timeIndex++) {
 			df = df.div(forwardRates[timeIndex].mult(tenor.getTimeStep(timeIndex)).add(1.0));
 			discountFactors.addDiscountFactor(tenor.getTime(timeIndex+1), df, tenor.getTime(timeIndex+1) > 0);
@@ -380,7 +380,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 		return discountFactors;
 	}
-	
+
 	/**
 	 * Create a discount curve from forwards given by a LIBORMonteCarloModel. If the model uses multiple curves, return its discount curve.
 	 * 
@@ -393,19 +393,19 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	public static DiscountCurveInterface createDiscountCurveFromMonteCarloLiborModel(String forwardCurveName,  LIBORModelMonteCarloSimulationInterface model, double startTime) throws CalculationException{
 		// Check if the LMM uses a discount curve which is created from a forward curve
 		if(model.getModel().getDiscountCurve()==null || model.getModel().getDiscountCurve().getName().toLowerCase().contains("DiscountCurveFromForwardCurve".toLowerCase())){
-		   return new DiscountCurveFromForwardCurve(ForwardCurve.createForwardCurveFromMonteCarloLiborModel(forwardCurveName, model, startTime));
+			return new DiscountCurveFromForwardCurve(ForwardCurve.createForwardCurveFromMonteCarloLiborModel(forwardCurveName, model, startTime));
 		} else {
-		   // i.e. forward curve of Libor Model not OIS. In this case return the OIS curve.
-		   // Only at startTime 0!
-		   return (DiscountCurveInterface) model.getModel().getDiscountCurve();
+			// i.e. forward curve of Libor Model not OIS. In this case return the OIS curve.
+			// Only at startTime 0!
+			return (DiscountCurveInterface) model.getModel().getDiscountCurve();
 		}
-		
+
 	}
-	
-	
+
+
 	// INSERTED
 	public static RandomVariableInterface[] createZeroRates(double time, double[] maturities, LIBORModelMonteCarloSimulationInterface model) throws CalculationException{
-	
+
 		// get time index of first libor fixing time after time
 		int firstLiborIndex = model.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(time);
 		int remainingLibors = model.getNumberOfLibors()-firstLiborIndex;
@@ -415,29 +415,31 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		double periodStart;
 		double periodEnd;
 		if(model.getLiborPeriodDiscretization().getTime(firstLiborIndex)>time){
-		   periodStart = time;
-		   periodEnd   = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);
-		   forwardRates = new RandomVariableInterface[remainingLibors+1];
-		   forwardRates[0] = model.getLIBOR(time, periodStart, periodEnd);
-		   indexOffset = 1;
-		   liborTimes = new double[forwardRates.length+1];
-		   liborTimes[0] = 0;
+			periodStart = time;
+			periodEnd   = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);
+			forwardRates = new RandomVariableInterface[remainingLibors+1];
+			forwardRates[0] = model.getLIBOR(time, periodStart, periodEnd);
+			indexOffset = 1;
+			liborTimes = new double[forwardRates.length+1];
+			liborTimes[0] = 0;
 		} else {
-		   forwardRates = new RandomVariableInterface[remainingLibors];
-		   indexOffset = 0;
-		   liborTimes = new double[forwardRates.length+1];
+			forwardRates = new RandomVariableInterface[remainingLibors];
+			indexOffset = 0;
+			liborTimes = new double[forwardRates.length+1];
 		}
 		for(int liborIndex=firstLiborIndex;liborIndex<model.getNumberOfLibors();liborIndex++){
 			periodStart = model.getLiborPeriodDiscretization().getTime(liborIndex);
 			periodEnd   = model.getLiborPeriodDiscretization().getTime(liborIndex+1);
 			forwardRates[liborIndex-firstLiborIndex+indexOffset]=model.getLIBOR(time, periodStart, periodEnd);
 		}
-		
-		for(int i=indexOffset;i<liborTimes.length;i++) liborTimes[i]=model.getLiborPeriod(firstLiborIndex+i-indexOffset)-time;
+
+		for(int i=indexOffset;i<liborTimes.length;i++) {
+			liborTimes[i]=model.getLiborPeriod(firstLiborIndex+i-indexOffset)-time;
+		}
 		DiscountCurve df = (DiscountCurve) createDiscountFactorsFromForwardRates("",new TimeDiscretization(liborTimes), forwardRates); 
-	    return df.getZeroRates(maturities);
+		return df.getZeroRates(maturities);
 	}
-	
+
 
 	/**
 	 * Returns the zero rate for a given maturity, i.e., -ln(df(T)) / T where T is the given maturity and df(T) is
@@ -448,7 +450,9 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 */
 	public RandomVariableInterface  getZeroRate(double maturity)
 	{
-		if(maturity == 0) return this.getZeroRate(1.0E-14);
+		if(maturity == 0) {
+			return this.getZeroRate(1.0E-14);
+		}
 
 		return getDiscountFactor(maturity).log().div(-maturity);
 	}
@@ -463,7 +467,9 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	{
 		RandomVariableInterface[] values = new RandomVariableInterface [maturities.length];
 
-		for(int i=0; i<maturities.length; i++) values[i] = getZeroRate(maturities[i]);
+		for(int i=0; i<maturities.length; i++) {
+			values[i] = getZeroRate(maturities[i]);
+		}
 
 		return values;
 	}

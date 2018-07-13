@@ -67,7 +67,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @throws CalculationException Thrown if calculation of numeraire fails.
 	 */
 	RandomVariableInterface		getNumeraire(double time) throws CalculationException;
-	
+
 	/**
 	 * Create a clone of this simulation modifying some of its properties (if any).
 	 * 

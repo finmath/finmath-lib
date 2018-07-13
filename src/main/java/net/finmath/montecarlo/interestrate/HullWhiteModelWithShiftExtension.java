@@ -108,7 +108,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		DISCRETE
 	}
 	private final DriftFormula driftFormula;
-	
+
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;
 
 	private String							forwardCurveName;
@@ -151,10 +151,13 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 
-		numeraires = new ConcurrentHashMap<Integer, RandomVariableInterface>();
+		numeraires = new ConcurrentHashMap<>();
 
-		if(properties != null && properties.containsKey("driftFormula")) driftFormula = DriftFormula.valueOf((String)properties.get("driftFormula"));
-		else driftFormula = DriftFormula.DISCRETE;
+		if(properties != null && properties.containsKey("driftFormula")) {
+			driftFormula = DriftFormula.valueOf((String)properties.get("driftFormula"));
+		} else {
+			driftFormula = DriftFormula.DISCRETE;
+		}
 	}
 
 	@Override
@@ -195,7 +198,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 
 			// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
 			int previousTimeIndex = getProcess().getTimeIndex(time);
-			if(previousTimeIndex < 0) previousTimeIndex = -previousTimeIndex-1;
+			if(previousTimeIndex < 0) {
+				previousTimeIndex = -previousTimeIndex-1;
+			}
 			previousTimeIndex--;
 			double previousTime = getProcess().getTime(previousTimeIndex);
 
@@ -221,21 +226,21 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		 */
 		RandomVariableInterface numeraire = numeraires.get(timeIndex);
 		if(numeraire == null) {
-		/*
+			/*
 			 * Calculate the numeraire for timeIndex
-		 */
-		RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
-		RandomVariableInterface integratedRate = zero;
-		// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
-		for(int i=0; i<timeIndex; i++) {
-			RandomVariableInterface rate = getShortRate(i);
-			double dt = getProcess().getTimeDiscretization().getTimeStep(i);
-//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
-			integratedRate = integratedRate.addProduct(rate, dt);
+			 */
+			RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+			RandomVariableInterface integratedRate = zero;
+			// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
+			for(int i=0; i<timeIndex; i++) {
+				RandomVariableInterface rate = getShortRate(i);
+				double dt = getProcess().getTimeDiscretization().getTimeStep(i);
+				//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
+				integratedRate = integratedRate.addProduct(rate, dt);
 
-			numeraire = integratedRate.exp();
-			numeraires.put(i+1, numeraire);
-		}
+				numeraire = integratedRate.exp();
+				numeraires.put(i+1, numeraire);
+			}
 		}
 
 		/*
@@ -257,7 +262,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		double timeNext = getProcess().getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexVolatility < 0) timeIndexVolatility = -timeIndexVolatility-2;
+		if(timeIndexVolatility < 0) {
+			timeIndexVolatility = -timeIndexVolatility-2;
+		}
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double meanReversionEffective = meanReversion*getB(time,timeNext)/(timeNext-time);
 
@@ -278,7 +285,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		double timeNext = getProcess().getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexVolatility < 0) timeIndexVolatility = -timeIndexVolatility-2;
+		if(timeIndexVolatility < 0) {
+			timeIndexVolatility = -timeIndexVolatility-2;
+		}
 
 		double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
@@ -355,8 +364,11 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		 * getIntegratedDriftAdjustment(timeIndex)
 		 * is the correct one given the discretized numeraire.
 		 */
-		if(driftFormula == DriftFormula.DISCRETE)		alpha += getIntegratedDriftAdjustment(timeIndex);
-		else if(driftFormula == DriftFormula.ANALYTIC)	alpha += getDV(0,time);
+		if(driftFormula == DriftFormula.DISCRETE) {
+			alpha += getIntegratedDriftAdjustment(timeIndex);
+		} else if(driftFormula == DriftFormula.ANALYTIC) {
+			alpha += getDV(0,time);
+		}
 
 		value = value.add(alpha);
 
@@ -385,7 +397,10 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 			double t2 = getProcess().getTime(i);
 
 			int timeIndexVolatilityModel = volatilityModel.getTimeDiscretization().getTimeIndex(t);
-			if(timeIndexVolatilityModel < 0) timeIndexVolatilityModel = -timeIndexVolatilityModel-2;	// Get timeIndex corresponding to previous point
+			if(timeIndexVolatilityModel < 0)
+			{
+				timeIndexVolatilityModel = -timeIndexVolatilityModel-2;	// Get timeIndex corresponding to previous point
+			}
 			double meanReversion = volatilityModel.getMeanReversion(timeIndexVolatilityModel);
 
 			integratedDriftAdjustment += getShortRateConditionalVariance(0, t) * getB(t,t2)/(t2-t) * (t2-t) - integratedDriftAdjustment * meanReversion * (t2-t) * getB(t,t2)/(t2-t);
@@ -428,10 +443,16 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	 */
 	private double getMRTime(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -459,10 +480,16 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	 */
 	private double getB(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -491,12 +518,20 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	 * @return The integral \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \).
 	 */
 	private double getV(double time, double maturity) {
-		if(time==maturity) return 0;
+		if(time==maturity) {
+			return 0;
+		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -521,12 +556,20 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	}
 
 	private double getDV(double time, double maturity) {
-		if(time==maturity) return 0;
+		if(time==maturity) {
+			return 0;
+		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;
@@ -560,10 +603,16 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	 */
 	public double getShortRateConditionalVariance(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
-		if(timeIndexStart < 0) timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		if(timeIndexStart < 0)
+		{
+			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
-		if(timeIndexEnd < 0) timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		if(timeIndexEnd < 0)
+		{
+			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point
+		}
 
 		double integral = 0.0;
 		double timePrev = time;

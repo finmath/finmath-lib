@@ -62,7 +62,9 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 */
 	@Override
 	public double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention) {
-		if(maturity == 0) return 0;
+		if(maturity == 0) {
+			return 0;
+		}
 
 		/*
 		 * Integral of the square of the instantaneous volatility function
@@ -71,11 +73,13 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 		double integratedVariance = 0.0;
 		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			double time = timeDiscretization.getTime(timeIndex);
-			if(time > maturity) break;
+			if(time > maturity) {
+				break;
+			}
 
 			double timeStep = timeDiscretization.getTimeStep(timeIndex);
 			double instantaneousVolatility = (a + b * (maturity-time)) * Math.exp(-c * (maturity-time)) + d;
-			
+
 			integratedVariance += instantaneousVolatility*instantaneousVolatility * Math.min(maturity-time, timeStep);
 		}
 

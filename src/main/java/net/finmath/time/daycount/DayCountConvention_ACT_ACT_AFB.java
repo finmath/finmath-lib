@@ -57,26 +57,30 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
-		if(startDate.isAfter(endDate)) return -getDaycountFraction(endDate,startDate);
+		if(startDate.isAfter(endDate)) {
+			return -getDaycountFraction(endDate,startDate);
+		}
 
 		/*
 		 * Find the "fractionalPeriodEnd", i.e. subtract whole years from endDate.
 		 */
 		LocalDate fractionalPeriodEnd = endDate.plusYears(startDate.getYear() - endDate.getYear());
-		
+
 		// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year.
-		if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) 
+		if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) {
 			fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());
-		
+		}
+
 		if (fractionalPeriodEnd.isBefore(startDate)) {
 			fractionalPeriodEnd.plusYears(1);
 			// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year, again after changing the years. 
-			if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) 
+			if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) {
 				fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());
+			}
 		}
-		
+
 		double daycountFraction = endDate.getYear() - fractionalPeriodEnd.getYear(); 
-				
+
 		double fractionPeriodDenominator = 365.0;
 		if(fractionalPeriodEnd.isLeapYear()) {
 			LocalDate feb29th = LocalDate.of(fractionalPeriodEnd.getYear(), Month.FEBRUARY, 29);
@@ -90,9 +94,9 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 				fractionPeriodDenominator = 366.0;
 			}
 		}
-		
+
 		daycountFraction += getDaycount(startDate, fractionalPeriodEnd) / fractionPeriodDenominator;
-		
+
 		return daycountFraction;
 	}
 

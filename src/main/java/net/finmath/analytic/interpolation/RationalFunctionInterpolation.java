@@ -72,8 +72,8 @@ public class RationalFunctionInterpolation  {
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.DEFAULT;
 
 	private class RationalFunction {
-		public final RandomVariableInterface[] coefficientsNumerator; 
-		public final RandomVariableInterface[] coefficientsDenominator;
+		private final RandomVariableInterface[] coefficientsNumerator; 
+		private final RandomVariableInterface[] coefficientsDenominator;
 
 		/**
 		 * Create a rational interpolation function.
@@ -81,7 +81,7 @@ public class RationalFunctionInterpolation  {
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
-		public RationalFunction(RandomVariableInterface[] coefficientsNumerator, RandomVariableInterface[]coefficientsDenominator) {
+		RationalFunction(RandomVariableInterface[] coefficientsNumerator, RandomVariableInterface[]coefficientsDenominator) {
 			super();
 			this.coefficientsNumerator = coefficientsNumerator;
 			this.coefficientsDenominator = coefficientsDenominator;
@@ -92,7 +92,7 @@ public class RationalFunctionInterpolation  {
 		 * 
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
-		public RationalFunction(RandomVariableInterface[] coefficients) {
+		RationalFunction(RandomVariableInterface[] coefficients) {
 			super();
 			this.coefficientsNumerator = coefficients;
 			this.coefficientsDenominator = null;
@@ -115,7 +115,9 @@ public class RationalFunctionInterpolation  {
 				valueNumerator = valueNumerator.addProduct(coefficientsNumerator[i],powerOfX);
 			}
 
-			if(coefficientsDenominator == null) return valueNumerator;
+			if(coefficientsDenominator == null) {
+				return valueNumerator;
+			}
 			RandomVariableInterface valueDenominator = coefficientsDenominator[0];
 			powerOfX	=  new RandomVariable(1.0);
 			for (int i = 1; i<coefficientsDenominator.length;i++) {
@@ -179,27 +181,39 @@ public class RationalFunctionInterpolation  {
 	public RandomVariableInterface getValue(double x) // x is time
 	{
 		synchronized(interpolatingRationalFunctionsLazyInitLock) {
-			if(interpolatingRationalFunctions == null) doCreateRationalFunctions();
+			if(interpolatingRationalFunctions == null) {
+				doCreateRationalFunctions();
+			}
 		}
 
 		// Get interpolating rational function for the given point x
 		int pointIndex = java.util.Arrays.binarySearch(points, x);
-		if(pointIndex >= 0) return values[pointIndex];
+		if(pointIndex >= 0) {
+			return values[pointIndex];
+		}
 
 		int intervallIndex = -pointIndex-2;
 
 		// Check for extrapolation
 		if(intervallIndex < 0) {
 			// Extrapolation
-			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT)	return values[0];
-			else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR)		return values[0].add((values[1].sub(values[0])).div(points[1]-points[0]).mult(x-points[0]));
-			else intervallIndex = 0;
+			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT) {
+				return values[0];
+			} else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR) {
+				return values[0].add((values[1].sub(values[0])).div(points[1]-points[0]).mult(x-points[0]));
+			} else {
+				intervallIndex = 0;
+			}
 		}
 		else if(intervallIndex > points.length-2) {
 			// Extrapolation
-			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT) return values[points.length-1];
-			else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR)		return values[points.length-1].add((values[points.length-2].sub(values[points.length-1])).div(points[points.length-2]-points[points.length-1]).mult(x-points[points.length-1]));
-			else intervallIndex = points.length-2;
+			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT) {
+				return values[points.length-1];
+			} else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR) {
+				return values[points.length-1].add((values[points.length-2].sub(values[points.length-1])).div(points[points.length-2]-points[points.length-1]).mult(x-points[points.length-1]));
+			} else {
+				intervallIndex = points.length-2;
+			}
 		}
 
 		RationalFunction rationalFunction = interpolatingRationalFunctions[intervallIndex];
@@ -241,8 +255,11 @@ public class RationalFunctionInterpolation  {
 		// create numerator polynomials (constant)
 		for(int pointIndex = 0; pointIndex < points.length-1; pointIndex++ ) {
 			RandomVariableInterface[] numeratorPolynomCoeff;
-			if (interpolationMethod == InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT)	numeratorPolynomCoeff = new RandomVariableInterface[] {values[pointIndex+1]};
-			else																			numeratorPolynomCoeff = new RandomVariableInterface[] {values[pointIndex]};
+			if (interpolationMethod == InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT) {
+				numeratorPolynomCoeff = new RandomVariableInterface[] {values[pointIndex+1]};
+			} else {
+				numeratorPolynomCoeff = new RandomVariableInterface[] {values[pointIndex]};
+			}
 			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);			
 		}
 	}

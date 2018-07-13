@@ -23,7 +23,7 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 
 	private static final long serialVersionUID = 5375406324063846793L;
 	private final Exception exception;
-	
+
 	/**
 	 * Creates an unsupported product throwing an exception if its <code>getValue</code> method is called.
 	 * 

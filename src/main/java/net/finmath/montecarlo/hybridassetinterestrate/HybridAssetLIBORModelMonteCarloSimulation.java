@@ -168,6 +168,7 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	 * @deprecated
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
 	 */
+	@Deprecated
 	public HybridAssetLIBORModelMonteCarloSimulation getCloneWithModifiedSeed(int seed) {
 		return null;
 	}
@@ -182,9 +183,11 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 
 	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
-		
+
 		// We round to the previous stock vaue (may generate loss of volatility and inconsistent forwards).
-		if(timeIndex < 0) timeIndex = -timeIndex-2;
+		if(timeIndex < 0) {
+			timeIndex = -timeIndex-2;
+		}
 
 		return getAssetValue(timeIndex, assetIndex);
 	}	

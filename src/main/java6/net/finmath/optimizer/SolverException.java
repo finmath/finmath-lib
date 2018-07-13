@@ -12,7 +12,7 @@ package net.finmath.optimizer;
  */
 public class SolverException extends Exception {
 
-    private static final long serialVersionUID = 7123998462171729835L;
+	private static final long serialVersionUID = 7123998462171729835L;
 
 	/**
 	 * Create an exception with error message.

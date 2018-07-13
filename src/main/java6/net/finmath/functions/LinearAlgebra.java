@@ -45,7 +45,9 @@ public class LinearAlgebra {
 			try {
 				double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
 				// The following should not happen.
-				if(x[0] != 1.0 || x[1] != 0.0) isSolverUseApacheCommonsMath = true;
+				if(x[0] != 1.0 || x[1] != 0.0) {
+					isSolverUseApacheCommonsMath = true;
+				}
 			}
 			catch(java.lang.UnsatisfiedLinkError e) {
 				isSolverUseApacheCommonsMath = true;
@@ -216,7 +218,7 @@ public class LinearAlgebra {
 			private int index;
 			Double value;
 
-			public EigenValueIndex(int index, double value) {
+			EigenValueIndex(int index, double value) {
 				this.index = index; this.value = value;
 			}
 
@@ -224,13 +226,15 @@ public class LinearAlgebra {
 			public int compareTo(EigenValueIndex o) { return o.value.compareTo(value); }
 		};
 		List<EigenValueIndex> eigenValueIndices = new ArrayList<EigenValueIndex>();
-		for(int i=0; i<eigenValues.length; i++) eigenValueIndices.add(i,new EigenValueIndex(i,eigenValues[i]));
+		for(int i=0; i<eigenValues.length; i++) {
+			eigenValueIndices.add(i,new EigenValueIndex(i,eigenValues[i]));
+		}
 		Collections.sort(eigenValueIndices);
 
 		// Extract factors corresponding to the largest eigenvalues
 		double[][] factorMatrix = new double[eigenValues.length][numberOfFactors];
 		for (int factor = 0; factor < numberOfFactors; factor++) {
-			int		eigenVectorIndex	= (int) eigenValueIndices.get(factor).index;
+			int		eigenVectorIndex	= eigenValueIndices.get(factor).index;
 			double	eigenValue			= eigenValues[eigenVectorIndex];
 			double	signChange			= eigenVectorMatrix[0][eigenVectorIndex] > 0.0 ? 1.0 : -1.0;		// Convention: Have first entry of eigenvector positive. This is to make results more consistent.
 			double  eigenVectorNormSquared     = 0.0;
@@ -261,16 +265,19 @@ public class LinearAlgebra {
 		// Renormalize rows
 		for (int row = 0; row < correlationMatrix.length; row++) {
 			double sumSquared = 0;
-			for (int factor = 0; factor < numberOfFactors; factor++)
+			for (int factor = 0; factor < numberOfFactors; factor++) {
 				sumSquared += factorMatrix[row][factor] * factorMatrix[row][factor];
+			}
 			if(sumSquared != 0) {
-				for (int factor = 0; factor < numberOfFactors; factor++)
+				for (int factor = 0; factor < numberOfFactors; factor++) {
 					factorMatrix[row][factor] = factorMatrix[row][factor] / Math.sqrt(sumSquared);
+				}
 			}
 			else {
 				// This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
-				for (int factor = 0; factor < numberOfFactors; factor++)
-					factorMatrix[row][factor] = 1.0;			    
+				for (int factor = 0; factor < numberOfFactors; factor++) {
+					factorMatrix[row][factor] = 1.0;
+				}			    
 			}
 		}
 

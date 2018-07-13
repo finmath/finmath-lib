@@ -93,10 +93,14 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 
 	@Override
 	public double[] getParameter() {
-		if(!isCalibrateable) return covarianceModel.getParameter();
+		if(!isCalibrateable) {
+			return covarianceModel.getParameter();
+		}
 
 		double[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new double[] { displacement };
+		if(covarianceParameters == null) {
+			return new double[] { displacement };
+		}
 
 		// Append displacement to the end of covarianceParameters
 		double[] jointParameters = new double[covarianceParameters.length+1];
@@ -109,7 +113,9 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		DisplacedLocalVolatilityModel model = (DisplacedLocalVolatilityModel)this.clone();
-		if(parameters == null || parameters.length == 0) return model;
+		if(parameters == null || parameters.length == 0) {
+			return model;
+		}
 
 		if(!isCalibrateable) {
 			model.covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameters);

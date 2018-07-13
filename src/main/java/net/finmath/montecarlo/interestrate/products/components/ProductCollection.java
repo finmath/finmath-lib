@@ -73,8 +73,11 @@ public class ProductCollection extends AbstractProductComponent {
 		for(AbstractProductComponent product : products) {
 			Set<String> productUnderlyingNames = product.queryUnderlyings();
 			if(productUnderlyingNames != null) {
-				if(underlyingNames == null)	underlyingNames = productUnderlyingNames;
-				else						underlyingNames.addAll(productUnderlyingNames);
+				if(underlyingNames == null) {
+					underlyingNames = productUnderlyingNames;
+				} else {
+					underlyingNames.addAll(productUnderlyingNames);
+				}
 			}
 		}
 		return underlyingNames;
@@ -95,7 +98,7 @@ public class ProductCollection extends AbstractProductComponent {
 	public RandomVariableInterface getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Ignite asynchronous calculation if possible
-		ArrayList< Future<RandomVariableInterface> > results = new ArrayList< Future<RandomVariableInterface> >();
+		ArrayList< Future<RandomVariableInterface> > results = new ArrayList< >();
 		for(final AbstractMonteCarloProduct product : products) {
 			Future<RandomVariableInterface> valueFuture;
 			try {
@@ -108,7 +111,7 @@ public class ProductCollection extends AbstractProductComponent {
 						);
 			}
 			catch(RejectedExecutionException e) {
-				valueFuture = new FutureWrapper<RandomVariableInterface>(product.getValue(evaluationTime, model));
+				valueFuture = new FutureWrapper<>(product.getValue(evaluationTime, model));
 			}
 
 			results.add(valueFuture);

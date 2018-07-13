@@ -112,7 +112,9 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 
 		// Thread safe lazy initialization
 		synchronized(brownianIncrementsLazyInitLock) {
-			if(brownianIncrements == null) doGenerateBrownianMotion();
+			if(brownianIncrements == null) {
+				doGenerateBrownianMotion();
+			}
 		}
 
 		/*
@@ -125,7 +127,9 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateBrownianMotion() {
-		if(brownianIncrements != null) return;	// Nothing to do
+		if(brownianIncrements != null) {
+			return;	// Nothing to do
+		}
 
 		// Create random number sequence generator
 		MersenneTwister mersenneTwister = new MersenneTwister(seed);
@@ -207,16 +211,26 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
 		BrownianMotion that = (BrownianMotion) o;
 
-		if (numberOfFactors != that.numberOfFactors) return false;
-		if (numberOfPaths != that.numberOfPaths) return false;
-		if (seed != that.seed) return false;
-        return timeDiscretization.equals(that.timeDiscretization);
-    }
+		if (numberOfFactors != that.numberOfFactors) {
+			return false;
+		}
+		if (numberOfPaths != that.numberOfPaths) {
+			return false;
+		}
+		if (seed != that.seed) {
+			return false;
+		}
+		return timeDiscretization.equals(that.timeDiscretization);
+	}
 
 	@Override
 	public RandomVariableInterface getIncrement(int timeIndex, int factor) {

@@ -116,21 +116,21 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @author Christian Fries
 	 */
 	public enum RegularizationMethod {
-			/**
-			 * The Hessian approximated and regularized as
-			 * \( H_{\lambda} = J^T J + \lambda I \).
-			 */
-			LEVENBERG,
-			
-			/**
-			 * The Hessian approximated and regularized as
-			 * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
-			 */
-			LEVENBERG_MARQUARDT
+		/**
+		 * The Hessian approximated and regularized as
+		 * \( H_{\lambda} = J^T J + \lambda I \).
+		 */
+		LEVENBERG,
+
+		/**
+		 * The Hessian approximated and regularized as
+		 * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
+		 */
+		LEVENBERG_MARQUARDT
 	}
 
 	private final RegularizationMethod regularizationMethod;
-	
+
 	private RandomVariableInterface[] initialParameters = null;
 	private RandomVariableInterface[] parameterSteps = null;
 	private RandomVariableInterface[] targetValues = null;
@@ -197,7 +197,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-		for (int i = 0; i < bestParameters.length; i++) System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		for (int i = 0; i < bestParameters.length; i++) {
+			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
+		}
 		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
 
 		/*
@@ -288,7 +290,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &gt; 1.
 	 */
 	public void setLambdaMultiplicator(double lambdaMultiplicator) {
-		if(lambdaMultiplicator <= 1.0) throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
+		if(lambdaMultiplicator <= 1.0) {
+			throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
+		}
 		this.lambdaMultiplicator = lambdaMultiplicator;
 	}
 
@@ -311,7 +315,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @param lambdaDivisor the lambdaDivisor to set. Should be &gt; 1.
 	 */
 	public void setLambdaDivisor(double lambdaDivisor) {
-		if(lambdaDivisor <= 1.0) throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
+		if(lambdaDivisor <= 1.0) {
+			throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
+		}
 		this.lambdaDivisor = lambdaDivisor;
 	}
 
@@ -368,7 +374,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		// parameters = parameterTest, so we may use valueTest.
 
 		parameters = parameterCurrent;
-		Vector<Future<RandomVariableInterface[]>> valueFutures = new Vector<Future<RandomVariableInterface[]>>(parameterCurrent.length);
+		Vector<Future<RandomVariableInterface[]>> valueFutures = new Vector<>(parameterCurrent.length);
 		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
 			final RandomVariableInterface[] parametersNew	= parameters.clone();
 			final RandomVariableInterface[] derivative		= derivatives[parameterIndex];
@@ -411,7 +417,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				valueFutures.add(parameterIndex, valueFuture);
 			}
 			else {
-				FutureTask<RandomVariableInterface[]> valueFutureTask = new FutureTask<RandomVariableInterface[]>(worker);
+				FutureTask<RandomVariableInterface[]> valueFutureTask = new FutureTask<>(worker);
 				valueFutureTask.run();
 				valueFutures.add(parameterIndex, valueFutureTask);
 			}
@@ -463,7 +469,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 			iteration = 0;
 			lambda = lambdaInitialValue;
 			isParameterCurrentDerivativeValid = false;
-			
+
 			while(true) {
 				// Count iterations
 				iteration++;
@@ -488,7 +494,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				}
 
 				// Check if we are done
-				if (done()) break;
+				if (done()) {
+					break;
+				}
 
 				/*
 				 * Update lambda
@@ -641,7 +649,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		StochasticLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
 
-		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+		if(isUseBestParametersAsInitialParameters && this.done()) {
+			clonedOptimizer.initialParameters = this.getBestFitParameters();
+		}
 
 		return clonedOptimizer;
 	}
@@ -668,7 +678,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		StochasticLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.toArray(new RandomVariableInterface[] {});
 
-		if(isUseBestParametersAsInitialParameters && this.done()) clonedOptimizer.initialParameters = this.getBestFitParameters();
+		if(isUseBestParametersAsInitialParameters && this.done()) {
+			clonedOptimizer.initialParameters = this.getBestFitParameters();
+		}
 
 		return clonedOptimizer;
 	}

@@ -170,7 +170,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return The sample variance.
 	 */
 	double getSampleVariance();
-	
+
 	/**
 	 * Returns the standard deviation of this random variable, i.e.,
 	 * sqrt(V) where V = ((X-m)^2).getAverage() and X = this and m = X.getAverage().

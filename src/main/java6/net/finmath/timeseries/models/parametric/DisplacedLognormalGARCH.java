@@ -120,7 +120,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
 			eval = evalNext;
 		}
-		logLikelihood += - Math.log(2 * Math.PI) * (double)(windowIndexEnd-windowIndexStart);
+		logLikelihood += - Math.log(2 * Math.PI) * (windowIndexEnd-windowIndexStart);
 		logLikelihood *= 0.5;
 
 		return logLikelihood;
@@ -154,10 +154,10 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 			vol = Math.sqrt(h) / volScaling;
 		}
 		java.util.Arrays.sort(szenarios);
-		
+
 		return szenarios;
 	}
-	
+
 	public double[] getQuantilPredictionsForParameters(double omega, double alpha, double beta, double displacement, double[] quantiles) {
 		double[] szenarios = getSzenarios(omega, alpha, beta, displacement);
 
@@ -219,8 +219,8 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 				double muema	= Math.exp(-Math.exp(-variables[2]));
 				double beta		= mucorr * muema;
 				double alpha	= mucorr - beta;
-//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
-//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
+				//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
+				//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
 				double displacementNormed = 1.0/(1.0+Math.exp(-variables[3]));
 				double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;
 
@@ -279,7 +279,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};
-		
+
 		double[] bestParameters = null;
 
 		boolean isUseLM = false;
@@ -333,7 +333,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		results.put("Quantile=1%", quantileValues[0]);
 		results.put("Quantile=5%", quantileValues[1]);
 		results.put("Quantile=50%", quantileValues[2]);
-//		System.out.println(results.get("Likelihood") + "\t" + Arrays.toString(bestParameters));
+		//		System.out.println(results.get("Likelihood") + "\t" + Arrays.toString(bestParameters));
 		return results;
 	}
 

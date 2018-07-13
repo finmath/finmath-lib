@@ -4,10 +4,11 @@
  * Created on 09.02.2018
  */
 
-package net.finmath.modelling.descriptor;
+package net.finmath.modelling.modelfactory;
 
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ModelFactory;
+import net.finmath.modelling.descriptor.HestonModelDescriptor;
 
 /**
  * @author Christian Fries

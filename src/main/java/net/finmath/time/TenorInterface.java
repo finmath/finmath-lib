@@ -17,7 +17,7 @@ public interface TenorInterface {
 	/**
 	 * @return The reference date of this tenor, i.e., the date mapped to 0.0
 	 */
-    LocalDate getReferenceDate();
+	LocalDate getReferenceDate();
 
 	/**
 	 * Returns the date for the given time index.
@@ -25,7 +25,7 @@ public interface TenorInterface {
 	 * @param timeIndex Time index
 	 * @return Returns the date for a given time index.
 	 */
-    LocalDate getDate(int timeIndex);
+	LocalDate getDate(int timeIndex);
 
 	/**
 	 * Returns the day count fraction for the period form timeIndex to to timeIndex+1.
@@ -33,5 +33,5 @@ public interface TenorInterface {
 	 * @param timeIndex Time index
 	 * @return Returns the day count fraction.
 	 */
-    double getDaycountFraction(int timeIndex);
+	double getDaycountFraction(int timeIndex);
 }

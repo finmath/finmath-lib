@@ -104,7 +104,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 		double eval			= volScaling * (Math.log((timeSeries.getValue(1)+displacement)/(timeSeries.getValue(0)+displacement)));
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0; // xxx how to init?
-		
+
 		int length = timeSeries.getNumberOfTimePoints();
 
 		for (int i = 1; i < length-1; i++) {
@@ -121,7 +121,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 			evalPrev = eval;
 			eval = evalNext;
 		}
-		logLikelihood += - Math.log(2 * Math.PI) * (double)(length);
+		logLikelihood += - Math.log(2 * Math.PI) * (length);
 		logLikelihood *= 0.5;
 
 		return logLikelihood;
@@ -134,7 +134,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 		double displacement	= parameters[3];
 		double theta		= parameters[4];
 		double mu			= parameters[5];
-		
+
 		double evalPrev		= 0.0;
 		double volScaling	= (1+Math.abs(displacement));
 		double h			= omega / (1.0 - alpha - beta);
@@ -146,7 +146,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 
 			m = -theta * m + eval - mu * evalPrev;
 			h = (omega + alpha * m * m) + beta * h;
-			
+
 			evalPrev = eval;
 		}
 
@@ -160,7 +160,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 		double displacement	= parameters[3];
 		double theta		= parameters[4];
 		double mu			= parameters[5];
-		
+
 		double[] szenarios = new double[timeSeries.getNumberOfTimePoints()-1];
 
 		double volScaling	= (1+Math.abs(displacement));
@@ -181,7 +181,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 			evalPrev = eval;
 		}
 		java.util.Arrays.sort(szenarios);
-		
+
 		return szenarios;
 	}
 
@@ -249,7 +249,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};
-		
+
 		double[] bestParameters = null;
 
 		boolean isUseLM = false;
@@ -270,7 +270,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 				public double computeObjectiveValue(double[] params) {
 					return objectiveFunction.value(params);
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer#getGoalType()
 				 */
@@ -279,7 +279,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 					// TODO Auto-generated method stub
 					return org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getStartPoint()
 				 */
@@ -287,7 +287,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 				public double[] getStartPoint() {
 					return guessParameters;
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getLowerBound()
 				 */
@@ -295,7 +295,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 				public double[] getLowerBound() {
 					return lowerBound;
 				}
-				
+
 				/* (non-Javadoc)
 				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getUpperBound()
 				 */
@@ -307,7 +307,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 
 			try {
 				org.apache.commons.math3.optim.PointValuePair result = optimizer2.optimize(
-						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log((double)guessParameters.length))),
+						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(guessParameters.length))),
 						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(parameterStep)
 						);
 				bestParameters = result.getPoint();

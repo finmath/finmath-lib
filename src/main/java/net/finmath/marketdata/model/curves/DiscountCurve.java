@@ -140,7 +140,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			isParameter[timeIndex] = times[timeIndex] > 0;
 		}
-		
+
 		return createDiscountCurveFromDiscountFactors(name, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
@@ -183,7 +183,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, double[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		double[] givenDiscountFactors = new double[givenZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -192,7 +192,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 		return createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
-	
+
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
 	 * The discount factor is determined by 
@@ -214,7 +214,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, Date referenceDate,
 			double[] times, double[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		return createDiscountCurveFromZeroRates(name, referenceDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
@@ -240,7 +240,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name,
 			double[] times, double[] givenZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		return createDiscountCurveFromZeroRates(name, (LocalDate)null, times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
@@ -264,7 +264,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, double[] givenZeroRates,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		double[] givenDiscountFactors = new double[givenZeroRates.length];
 		boolean[] isParameter = new boolean[givenZeroRates.length];
 
@@ -319,7 +319,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, double[] givenAnnualizedZeroRates, boolean[] isParameter,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -349,7 +349,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 			String name, LocalDate referenceDate,
 			double[] times, double[] givenAnnualizedZeroRates,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		
+
 		double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
 		boolean[] isParameter = new boolean[givenAnnualizedZeroRates.length];
 
@@ -410,7 +410,9 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 */
 	public double getZeroRate(double maturity)
 	{
-		if(maturity == 0) return this.getZeroRate(1.0E-14);
+		if(maturity == 0) {
+			return this.getZeroRate(1.0E-14);
+		}
 
 		return -Math.log(getDiscountFactor(null, maturity))/maturity;
 	}
@@ -425,7 +427,9 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	{
 		double[] values = new double[maturities.length];
 
-		for(int i=0; i<maturities.length; i++) values[i] = getZeroRate(maturities[i]);
+		for(int i=0; i<maturities.length; i++) {
+			values[i] = getZeroRate(maturities[i]);
+		}
 
 		return values;
 	}

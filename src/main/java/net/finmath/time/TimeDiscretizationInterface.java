@@ -15,12 +15,12 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	/**
 	 * @return Returns the number of time discretization points.
 	 */
-    int getNumberOfTimes();
+	int getNumberOfTimes();
 
 	/**
 	 * @return Returns the number of time steps (= number of discretization points-1).
 	 */
-    int getNumberOfTimeSteps();
+	int getNumberOfTimeSteps();
 
 	/**
 	 * Returns the time for the given time index.
@@ -28,7 +28,7 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
-    double getTime(int timeIndex);
+	double getTime(int timeIndex);
 
 	/**
 	 * Returns the time step from the given time index to the next one.
@@ -36,7 +36,7 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	 * @param timeIndex Time index
 	 * @return Returns the time step
 	 */
-    double getTimeStep(int timeIndex);
+	double getTimeStep(int timeIndex);
 
 	/**
 	 * Returns the time index for the given time. If the given time is not in the time discretization
@@ -45,7 +45,7 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	 * @param time The time.
 	 * @return Returns the time index for a given time.
 	 */
-    int getTimeIndex(double time);
+	int getTimeIndex(double time);
 
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
@@ -55,7 +55,7 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	 * @param time Given time.
 	 * @return Returns a time index
 	 */
-    int getTimeIndexNearestLessOrEqual(double time);
+	int getTimeIndexNearestLessOrEqual(double time);
 
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
@@ -65,13 +65,13 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	 * @param time Given time.
 	 * @return Returns a time index
 	 */
-    int getTimeIndexNearestGreaterOrEqual(double time);
+	int getTimeIndexNearestGreaterOrEqual(double time);
 
 	/**
 	 * Return a clone of this time discretization as <code>double[]</code>.
 	 * @return The time discretization as <code>double[]</code>
 	 */
-    double[] getAsDoubleArray();
+	double[] getAsDoubleArray();
 
 	/**
 	 * Return a clone of this time discretization as <code>ArrayList&lt;Double&gt;</code>.
@@ -79,15 +79,15 @@ public interface TimeDiscretizationInterface extends Iterable<Double> {
 	 * 
 	 * @return The time discretization as <code>ArrayList&lt;Double&gt;</code>
 	 */
-    ArrayList<Double> getAsArrayList();
+	ArrayList<Double> getAsArrayList();
 
-    
-    /**
-     * Return a new time discretization where all time points have been shifted by
-     * a given time shift.
-     * 
-     * @param timeShift A time shift applied to all discretization points.
-     * @return A new time discretization where all time points have been shifted by the given time shift.
-     */
-    TimeDiscretizationInterface getTimeShiftedTimeDiscretization(double timeShift);
+
+	/**
+	 * Return a new time discretization where all time points have been shifted by
+	 * a given time shift.
+	 * 
+	 * @param timeShift A time shift applied to all discretization points.
+	 * @return A new time discretization where all time points have been shifted by the given time shift.
+	 */
+	TimeDiscretizationInterface getTimeShiftedTimeDiscretization(double timeShift);
 }

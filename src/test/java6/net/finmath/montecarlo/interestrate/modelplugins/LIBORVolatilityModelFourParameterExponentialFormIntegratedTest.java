@@ -30,7 +30,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 		 * Generate a set of test parameters within a given range
 		 */
 		Random random = new Random(3141);
-		
+
 		double aMin = 0.0;
 		double aMax = 1.0;
 		double bMin = 0.0;
@@ -39,7 +39,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 		double cMax = 1.0;
 		double dMin = 0.0;
 		double dMax = 0.2;
-				
+
 		double error = 0.0;
 		for(int i=0; i<10000; i++) {
 			double a = aMin + random.nextDouble() * (aMax-aMin);
@@ -51,16 +51,16 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 			TimeDiscretizationInterface td = new TimeDiscretization(0.0, numberOfTimePoints, 10.0/numberOfTimePoints);
 			LIBORVolatilityModelFourParameterExponentialFormIntegrated vol1 = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(td, td, a, b, c, d, false);
 			LIBORVolatilityModelFourParameterExponentialForm vol2 = new LIBORVolatilityModelFourParameterExponentialForm(td, td, a, b, c, d, false);
-			
+
 			int timeIndex = random.nextInt(numberOfTimePoints-1);
 			int liborIndex = random.nextInt(numberOfTimePoints-timeIndex-1)+1;
-			
+
 			double v1 = vol1.getVolatility(timeIndex, timeIndex+liborIndex).getAverage();
 			double v2 = vol2.getVolatility(timeIndex, timeIndex+liborIndex).getAverage();
-			
+
 			error = Math.max(error, Math.abs(v1-v2));
 		}
-		
+
 		System.out.println(error);
 		Assert.assertEquals(0.0, error, 1E-3);
 	}

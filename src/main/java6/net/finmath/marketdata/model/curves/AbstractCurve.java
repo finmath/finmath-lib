@@ -60,8 +60,10 @@ public abstract class AbstractCurve implements CurveInterface, Serializable, Clo
 	public double[] getValues(double[] times) {
 		double[] values = new double[times.length];
 
-		for(int i=0; i<times.length; i++) values[i] = getValue(null, times[i]);
-		
+		for(int i=0; i<times.length; i++) {
+			values[i] = getValue(null, times[i]);
+		}
+
 		return values;
 	}
 
@@ -74,7 +76,7 @@ public abstract class AbstractCurve implements CurveInterface, Serializable, Clo
 	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "AbstractCurve [name=" + name + ", referenceDate=" + referenceDate + "]";

@@ -11,6 +11,7 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
@@ -43,24 +44,24 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
-			
+
 			/**
 			 * @param model
 			 * @param process
 			 */
-			public HestonMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
+			HestonMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);
 			}
-			
+
 			@Override
 			public HestonModelDescriptor getDescriptor() {
 				return modelDescriptor;
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
-					return productFactory.getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+					return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 				}
 				else {
 					String name = modelDescriptor.name();
@@ -69,10 +70,9 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}	
 		}
 
-        return new HestonMonteCarloModel(
+		return new HestonMonteCarloModel(
 				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(modelDescriptor, scheme, randomVariableFactory), 
 				new ProcessEulerScheme(brownianMotion)
 				);
 	}
-
 }

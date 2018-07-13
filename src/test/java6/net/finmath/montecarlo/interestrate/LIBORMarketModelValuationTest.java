@@ -644,9 +644,9 @@ public class LIBORMarketModelValuationTest {
 			RandomVariableInterface numeraireAtPeriodEnd = liborMarketModel.getNumeraire(periodEnd);
 			double zeroCouponBondCorrespondingToPeriodEnd = numeraireAtEvaluation.div(numeraireAtPeriodEnd).getAverage();
 			double forward = libor.div(numeraireAtPeriodEnd).mult(numeraireAtEvaluation).getAverage() / zeroCouponBondCorrespondingToPeriodEnd;
-			
+
 			System.out.println(payment + "       \t" + formatterValue.format(rate));
-			
+
 			if(payment < periodEnd) {
 				Assert.assertTrue("LIBOR payment convexity adjustment: rate > forward", rate > forward);
 			}
@@ -760,7 +760,9 @@ public class LIBORMarketModelValuationTest {
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
-		for (double p : param) System.out.println(p);
+		for (double p : param) {
+			System.out.println(p);
+		}
 
 		net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation simulationCalibrated = new net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation(
 				liborMarketModelCalibrated, process);

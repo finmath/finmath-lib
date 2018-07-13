@@ -184,7 +184,9 @@ public class AnalyticFormulas {
 			double forward,
 			double payoffUnit)
 	{
-		if(optionMaturity < 0) return 0.0;
+		if(optionMaturity < 0) {
+			return 0.0;
+		}
 
 		// Calculate analytic value
 		double dPlus = 0.5 * volatility * Math.sqrt(optionMaturity);
@@ -226,9 +228,14 @@ public class AnalyticFormulas {
 		else if(initialStockValue == 0)
 		{
 			// Limit case (where dPlus = +/- infty)
-			if(optionStrike < 0)		return 1.0;					// dPlus = +infinity
-			else if(optionStrike > 0)	return 0.0;					// dPlus = -infinity
-			else						return 1.0;					// Matter of definition of continuity of the payoff function
+			if(optionStrike < 0) {
+				return 1.0;					// dPlus = +infinity
+			} else if(optionStrike > 0) {
+				return 0.0;					// dPlus = -infinity
+			}
+			else {
+				return 1.0;					// Matter of definition of continuity of the payoff function
+			}
 		}
 		else if((optionStrike <= 0.0) || (volatility <= 0.0) || (optionMaturity <= 0.0))		// (and initialStockValue > 0)
 		{	
@@ -416,6 +423,40 @@ public class AnalyticFormulas {
 	}
 
 	/**
+	 * This static method calculated the vega of a call option under a Black-Scholes model
+	 * 
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the option
+	 */
+	public static double blackScholesOptionTheta(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double optionMaturity,
+			double optionStrike)
+	{
+		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		{	
+			// The Black-Scholes model does not consider it being an option
+			return 0.0;
+		}
+		else
+		{
+			// Calculate theta
+			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+
+			double theta = volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue + riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+
+			return theta;
+		}
+	}
+
+	/**
 	 * This static method calculated the rho of a call option under a Black-Scholes model
 	 * 
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
@@ -487,7 +528,9 @@ public class AnalyticFormulas {
 			double volatilityUpperBound = p + Math.sqrt(         p * p + q      );
 
 			// If strike is close to forward the two bounds are close to the analytic solution
-			if(Math.abs(volatilityLowerBound - volatilityUpperBound) < maxAccuracy) return (volatilityLowerBound+volatilityUpperBound) / 2.0;
+			if(Math.abs(volatilityLowerBound - volatilityUpperBound) < maxAccuracy) {
+				return (volatilityLowerBound+volatilityUpperBound) / 2.0;
+			}
 
 			// Solve for implied volatility
 			NewtonsMethod solver = new NewtonsMethod(0.5*(volatilityLowerBound+volatilityUpperBound) /* guess */);
@@ -1071,8 +1114,11 @@ public class AnalyticFormulas {
 		double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here
 
 		double z;		
-		if(beta < 1.0)	z = nu / alpha * (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);
-		else			z = nu / alpha * Math.log(underlying/strike);
+		if(beta < 1.0) {
+			z = nu / alpha * (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);
+		} else {
+			z = nu / alpha * Math.log(underlying/strike);
+		}
 
 		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
 

@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public interface TermStructureModelInterface extends AbstractModelInterface {
 
-	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
+	RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
 
 	/**
 	 * Return the associated analytic model, a collection of market date object like discount curve, forward curve
@@ -50,7 +50,7 @@ public interface TermStructureModelInterface extends AbstractModelInterface {
 	 * 
 	 * @return the term structure covariance model.
 	 */
-//	TermStructureCovarianceModelInterface getCovarianceModel();
+	//	TermStructureCovarianceModelInterface getCovarianceModel();
 
 	/**
 	 * Create a new object implementing TermStructureModelInterface, using the new data.

@@ -17,7 +17,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  */
 public class CurveFromProductOfCurves extends AbstractCurve implements Serializable, CurveInterface {
-	
+
 	private static final long serialVersionUID = 8850409340966149755L;
 
 	private CurveInterface[] curves;
@@ -39,8 +39,10 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 	public double getValue(AnalyticModelInterface model, double time) {
 		double value = 1.0;
 
-		for(CurveInterface curve : curves) value *= curve.getValue(model, time);
-		
+		for(CurveInterface curve : curves) {
+			value *= curve.getValue(model, time);
+		}
+
 		return value;
 	}
 

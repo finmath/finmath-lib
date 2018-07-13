@@ -27,13 +27,13 @@ public interface ParameterTransformation {
 	 * @param solverParameter The given solver parameter (unbounded).
 	 * @return The (possibly bounded) parameter.
 	 */
-	RandomVariableInterface[] getParameter(final RandomVariableInterface[] solverParameter);
-	
+	RandomVariableInterface[] getParameter(RandomVariableInterface[] solverParameter);
+
 	/**
 	 * Return the (unbounded) solver parameter for the given original parameter.
 	 * 
 	 * @param parameter The parameter.
 	 * @return The corresponding unbounded solver parameter.
 	 */
-	RandomVariableInterface[] getSolverParameter(final RandomVariableInterface[] parameter);
+	RandomVariableInterface[] getSolverParameter(RandomVariableInterface[] parameter);
 }

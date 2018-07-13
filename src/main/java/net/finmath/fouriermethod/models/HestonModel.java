@@ -17,7 +17,7 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
-import net.finmath.modelling.descriptor.SingleAssetFourierProductFactory;
+import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
 
 /**
  * Implements the characteristic function of a Heston model.
@@ -236,7 +236,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 	}
 
 	@Override
-	public DescribedProduct<? extends ProductDescriptor> getProductFromDesciptor(ProductDescriptor productDescriptor) {
-		return (new SingleAssetFourierProductFactory()).getProductFromDescription((SingleAssetProductDescriptor) productDescriptor);
+	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+		return (new SingleAssetFourierProductFactory()).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 	}
 }

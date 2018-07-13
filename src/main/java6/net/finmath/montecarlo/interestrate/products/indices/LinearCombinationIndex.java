@@ -26,15 +26,15 @@ public class LinearCombinationIndex extends AbstractIndex {
 	private double scaling1;
 	private double scaling2;
 
-    /**
-     * Create a linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
-     * 
-     * @param scaling1 Scaling for first index.
-     * @param index1 First index.
-     * @param scaling2 Scaling for second index.
-     * @param index2 Second index.
-     */
-    public LinearCombinationIndex(double scaling1, AbstractProductComponent index1, double scaling2, AbstractProductComponent index2) {
+	/**
+	 * Create a linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
+	 * 
+	 * @param scaling1 Scaling for first index.
+	 * @param index1 First index.
+	 * @param scaling2 Scaling for second index.
+	 * @param index2 Second index.
+	 */
+	public LinearCombinationIndex(double scaling1, AbstractProductComponent index1, double scaling2, AbstractProductComponent index2) {
 		super();
 		this.scaling1	= scaling1;
 		this.index1		= index1;
@@ -42,11 +42,11 @@ public class LinearCombinationIndex extends AbstractIndex {
 		this.index2		= index2;
 	}
 
-    @Override
-    public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-    	return index1.getValue(evaluationTime, model).mult(scaling1)
-    			.addProduct(index2.getValue(evaluationTime, model),scaling2);
-    }
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		return index1.getValue(evaluationTime, model).mult(scaling1)
+				.addProduct(index2.getValue(evaluationTime, model),scaling2);
+	}
 
 	/**
 	 * Returns the index 1.
@@ -89,8 +89,11 @@ public class LinearCombinationIndex extends AbstractIndex {
 		Set<String> underlyingNames			= index1.queryUnderlyings();
 		Set<String>	underlyingNames2		= index2.queryUnderlyings();
 		if(underlyingNames2 != null) {
-			if(underlyingNames != null)	underlyingNames.addAll(underlyingNames2);
-			else						underlyingNames = underlyingNames2;
+			if(underlyingNames != null) {
+				underlyingNames.addAll(underlyingNames2);
+			} else {
+				underlyingNames = underlyingNames2;
+			}
 		}
 		return underlyingNames;
 	}

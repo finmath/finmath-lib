@@ -36,7 +36,7 @@ public class DayCountConvention_UNKNOWN implements DayCountConventionInterface {
 	public DayCountConvention_UNKNOWN(String name) {
 		errorMessage = "Requesting day count on an unknown day count convention (name=" + name + ").";
 	}
-	
+
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
 		throw new IllegalArgumentException(errorMessage);

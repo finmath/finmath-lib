@@ -118,15 +118,16 @@ public class Schedule implements ScheduleInterface {
 	public Iterator<Period> iterator() {
 		return periods.iterator();
 	}
-	
+
 	@Override
 	public String toString() {
 		String periodOutputString = "Periods (fixing, periodStart, periodEnd, payment):";
-		for(int periodIndex=0; periodIndex<periods.size(); periodIndex++) 
+		for(int periodIndex=0; periodIndex<periods.size(); periodIndex++) {
 			periodOutputString += "\n" + periods.get(periodIndex).getFixing() + ", " +
-									periods.get(periodIndex).getPeriodStart() + ", " +
-									periods.get(periodIndex).getPeriodEnd() + ", " +
-									periods.get(periodIndex).getPayment();
+					periods.get(periodIndex).getPeriodStart() + ", " +
+					periods.get(periodIndex).getPeriodEnd() + ", " +
+					periods.get(periodIndex).getPayment();
+		}
 		return "Schedule [referenceDate=" + referenceDate + ", daycountconvention=" + daycountconvention + "\n" + periodOutputString + "]";
 	}
 }

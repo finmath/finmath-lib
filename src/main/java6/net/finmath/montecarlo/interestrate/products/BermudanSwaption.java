@@ -147,8 +147,12 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		basisFunctions.add(basisFunction);
 
 		int fixingDateIndex = Arrays.binarySearch(fixingDates, fixingDate);
-		if(fixingDateIndex < 0) fixingDateIndex = -fixingDateIndex;
-		if(fixingDateIndex >= fixingDates.length) fixingDateIndex = fixingDates.length-1;
+		if(fixingDateIndex < 0) {
+			fixingDateIndex = -fixingDateIndex;
+		}
+		if(fixingDateIndex >= fixingDates.length) {
+			fixingDateIndex = fixingDates.length-1;
+		}
 
 		// forward rate to the next period
 		RandomVariableInterface rateShort = model.getLIBOR(fixingDate, fixingDate, paymentDates[fixingDateIndex]);

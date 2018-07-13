@@ -83,7 +83,7 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 * @return forward curve corresponding to forwardCurveName or null if no forwardCurve with this name exists in the model
 	 */
 	ForwardCurveInterface getForwardCurve(String forwardCurveName);
-	
+
 	HazardCurveInterface getHazardCurve(String hazardCurveName);
 
 	VolatilitySurfaceInterface getVolatilitySurface(String name);

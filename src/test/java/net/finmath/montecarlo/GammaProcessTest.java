@@ -48,7 +48,7 @@ public class GammaProcessTest {
 				seed,
 				shape,
 				scale1	// Scale
-		);
+				);
 
 		IndependentIncrementsInterface gamma2 = new GammaProcess(
 				timeDiscretization,
@@ -57,11 +57,11 @@ public class GammaProcessTest {
 				seed,
 				shape,
 				scale2	// Scale
-		);
-		
+				);
+
 		RandomVariableInterface gammaIncement1 = gamma1.getIncrement(3, 0);
 		RandomVariableInterface gammaIncement2 = gamma2.getIncrement(3, 0);
-		
+
 		for(int i=0; i<gammaIncement1.size(); i++) {
 			double diff = gammaIncement2.get(i) - scale2/scale1 * gammaIncement1.get(i);
 			System.out.println(formatterReal2.format(gammaIncement1.get(i)) + "\t" + formatterReal2.format(gammaIncement2.get(i)) + "\t" + formatterSci4.format(diff));

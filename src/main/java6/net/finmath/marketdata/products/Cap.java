@@ -46,13 +46,13 @@ public class Cap extends AbstractAnalyticProduct {
 	private final boolean					isStrikeMoneyness;
 	private final String					discountCurveName;
 	private final String					volatiltiySufaceName;
-	
+
 	private final VolatilitySurfaceInterface.QuotingConvention quotingConvention;
-	
+
 	private transient double cachedATMForward = Double.NaN;
 	private transient SoftReference<AnalyticModelInterface> cacheStateModel;
 	private transient boolean cacheStateIsFirstPeriodIncluded;
-	
+
 	/**
 	 * Create a Caplet with a given schedule, strike on a given forward curve (by name)
 	 * with a given discount curve and volatility surface (by name).
@@ -97,8 +97,11 @@ public class Cap extends AbstractAnalyticProduct {
 
 	@Override
 	public double getValue(double evaluationTime, AnalyticModelInterface model) {
-		if(quotingConvention == QuotingConvention.PRICE)	return getValueAsPrice(evaluationTime, model);
-		else												return getImpliedVolatility(evaluationTime, model, quotingConvention);
+		if(quotingConvention == QuotingConvention.PRICE) {
+			return getValueAsPrice(evaluationTime, model);
+		} else {
+			return getImpliedVolatility(evaluationTime, model, quotingConvention);
+		}
 	}
 
 	/**
@@ -134,7 +137,9 @@ public class Cap extends AbstractAnalyticProduct {
 			 * Since empty periods are an indication for a ill-specified product,
 			 * it might be reasonable to throw an illegal argument exception instead.
 			 */
-			if(periodLength == 0) continue;
+			if(periodLength == 0) {
+				continue;
+			}
 
 			double forward = 0.0;
 			if(forwardCurve != null) {
@@ -154,10 +159,14 @@ public class Cap extends AbstractAnalyticProduct {
 			double payoffUnit = discountFactor * periodLength;
 
 			double effektiveStrike = strike;
-			if(isStrikeMoneyness)	effektiveStrike += getATMForward(model, true);
+			if(isStrikeMoneyness) {
+				effektiveStrike += getATMForward(model, true);
+			}
 
 			VolatilitySurfaceInterface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
-			if(volatilitySurface == null) throw new IllegalArgumentException("Volatility surface not found in model: " + volatiltiySufaceName);
+			if(volatilitySurface == null) {
+				throw new IllegalArgumentException("Volatility surface not found in model: " + volatiltiySufaceName);
+			}
 			if(volatilitySurface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL) {
 				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurfaceInterface.QuotingConvention.VOLATILITYLOGNORMAL);
 				value += AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);
@@ -168,7 +177,7 @@ public class Cap extends AbstractAnalyticProduct {
 				value += AnalyticFormulas.bachelierOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);
 			}
 		}
-		
+
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 
@@ -186,14 +195,18 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @return The ATM forward of this cap.
 	 */
 	public double getATMForward(AnalyticModelInterface model, boolean isFirstPeriodIncluded) {
-		if(!Double.isNaN(cachedATMForward) && cacheStateModel.get() == model && cacheStateIsFirstPeriodIncluded == isFirstPeriodIncluded) return cachedATMForward;
+		if(!Double.isNaN(cachedATMForward) && cacheStateModel.get() == model && cacheStateIsFirstPeriodIncluded == isFirstPeriodIncluded) {
+			return cachedATMForward;
+		}
 
 		ScheduleInterface remainderSchedule = schedule;
 		if(!isFirstPeriodIncluded) {
 			ArrayList<Period> periods = new ArrayList<Period>();
 			periods.addAll(schedule.getPeriods());
 
-			if(periods.size() > 1) periods.remove(0);
+			if(periods.size() > 1) {
+				periods.remove(0);
+			}
 			remainderSchedule = new Schedule(schedule.getReferenceDate(), periods, schedule.getDaycountconvention());
 		}
 
@@ -203,7 +216,7 @@ public class Cap extends AbstractAnalyticProduct {
 		cachedATMForward = floatLeg.getValue(model) / annuityLeg.getValue(model);
 		cacheStateModel = new SoftReference<AnalyticModelInterface>(model);
 		cacheStateIsFirstPeriodIncluded = isFirstPeriodIncluded;
-		
+
 		return cachedATMForward;
 	}
 
@@ -222,10 +235,14 @@ public class Cap extends AbstractAnalyticProduct {
 			double fixingDate	= schedule.getFixing(periodIndex);
 			double periodLength	= schedule.getPeriodLength(periodIndex);
 
-			if(periodLength == 0) continue;
+			if(periodLength == 0) {
+				continue;
+			}
 
 			double effektiveStrike = strike;
-			if(isStrikeMoneyness)	effektiveStrike += getATMForward(model, true);
+			if(isStrikeMoneyness) {
+				effektiveStrike += getATMForward(model, true);
+			}
 
 			VolatilitySurfaceInterface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
 			double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, quotingConvention);
@@ -244,7 +261,7 @@ public class Cap extends AbstractAnalyticProduct {
 			double[] strikes		= { 0.0 };
 			double[] volatilities	= { volatility };
 			VolatilitySurfaceInterface flatSurface = new CapletVolatilities(model.getVolatilitySurface(volatiltiySufaceName).getName(), model.getVolatilitySurface(volatiltiySufaceName).getReferenceDate(), model.getForwardCurve(forwardCurveName), maturities, strikes, volatilities, quotingConvention, model.getDiscountCurve(discountCurveName));
-			AnalyticModelInterface flatModel = (AnalyticModelInterface)model.clone();
+			AnalyticModelInterface flatModel = model.clone();
 			flatModel = flatModel.addVolatilitySurfaces(flatSurface);
 			double flatModelValue = this.getValueAsPrice(evaluationTime, flatModel);
 			double error = value-flatModelValue;

@@ -94,7 +94,9 @@ public class BrownianBridge implements BrownianMotionInterface {
 	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(brownianIncrementsLazyInitLock) {
-			if(brownianIncrements == null) doGenerateBrownianMotion();
+			if(brownianIncrements == null) {
+				doGenerateBrownianMotion();
+			}
 		}
 
 		/*
@@ -108,8 +110,11 @@ public class BrownianBridge implements BrownianMotionInterface {
 	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateBrownianMotion() {
-		if(brownianIncrements != null) return;	// Nothing to do
-		
+		if(brownianIncrements != null)
+		{
+			return;	// Nothing to do
+		}
+
 		BrownianMotion generator = new BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 		// Allocate memory
@@ -128,10 +133,10 @@ public class BrownianBridge implements BrownianMotionInterface {
 
 				// Calculate the next point using the "scheme" of the Brownian bridge
 				RandomVariableInterface nextRealization = brownianBridge.mult(1.0-alpha).add(endOfFactor.mult(alpha)).add(generator.getBrownianIncrement(timeIndex, factor).mult(Math.sqrt(1-alpha)));
-				
+
 				// Store the increment
 				brownianIncrements[timeIndex][factor] = nextRealization.sub(brownianBridge);
-				
+
 				// Update the bridge to the current point
 				brownianBridge = nextRealization;
 			}
@@ -187,7 +192,9 @@ public class BrownianBridge implements BrownianMotionInterface {
 	public RandomVariableInterface[] getIncrement(int timeIndex) {
 		// Thread safe lazy initialization
 		synchronized(brownianIncrementsLazyInitLock) {
-			if(brownianIncrements == null) doGenerateBrownianMotion();
+			if(brownianIncrements == null) {
+				doGenerateBrownianMotion();
+			}
 		}
 
 		return brownianIncrements[timeIndex].clone();

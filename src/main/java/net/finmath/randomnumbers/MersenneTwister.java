@@ -17,9 +17,9 @@ public class MersenneTwister implements Serializable {
 	private static final long serialVersionUID = -1827470318370174186L;
 
 	private final org.apache.commons.math3.random.MersenneTwister mersenneTwister;
-	
+
 	public MersenneTwister(long seed) {
-			mersenneTwister	= new org.apache.commons.math3.random.MersenneTwister(seed);
+		mersenneTwister	= new org.apache.commons.math3.random.MersenneTwister(seed);
 	}
 
 	/**

@@ -50,11 +50,11 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-				{ Measure.SPOT }, { Measure.TERMINAL }
+			{ Measure.SPOT }, { Measure.TERMINAL }
 		});
 	}
 
-    private final int numberOfPaths = 10000;
+	private final int numberOfPaths = 10000;
 
 	private final Measure measure;
 
@@ -78,7 +78,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		double[] paymentDates = (new TimeDiscretization(0.5, 9, 0.5)).getAsDoubleArray();
 		double maturity = 0.5 + 9 * 0.5;
 
-        double[] floors = null;
+		double[] floors = null;
 		double[] caps = null;
 		double[] spreads = null;
 
@@ -88,8 +88,12 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 
 		System.out.println("Value of floating rate bond (measure = " + measure + "): " + value);
 
-		if(measure == Measure.SPOT)		Assert.assertEquals("Value of floating rate bond.", 1.0, value, 1E-10);
-		if(measure == Measure.TERMINAL)	Assert.assertEquals("Value of floating rate bond.", 1.0, value, 2E-2);
+		if(measure == Measure.SPOT) {
+			Assert.assertEquals("Value of floating rate bond.", 1.0, value, 1E-10);
+		}
+		if(measure == Measure.TERMINAL) {
+			Assert.assertEquals("Value of floating rate bond.", 1.0, value, 2E-2);
+		}
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(int numberOfPaths, Measure measure) throws CalculationException {
@@ -146,10 +150,11 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 				double timeToMaturity = maturity - time;
 
 				double instVolatility;
-				if(timeToMaturity <= 0)
+				if(timeToMaturity <= 0) {
 					instVolatility = 0;				// This forward rate is already fixed, no volatility
-				else
+				} else {
 					instVolatility = 0.3 + 0.2 * Math.exp(-0.25 * timeToMaturity);
+				}
 
 				// Store
 				volatility[timeIndex][liborIndex] = instVolatility;
@@ -178,7 +183,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());

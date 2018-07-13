@@ -5,9 +5,19 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 3.2.9 (30.06.2018)
+## 3.2.11 (07.07.2018)
 
-###
+### General
+
+- Clean up and improvements to JavaDoc.
+
+### Monte-Carlo Simulation
+
+- Added algorithm implementing acceptance rejection method.
+
+## 3.2.10 (30.06.2018)
+
+### Modelling / Interfaces
 
 - Clean up of the model hierarchy.
 

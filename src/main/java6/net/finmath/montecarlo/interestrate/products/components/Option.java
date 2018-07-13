@@ -114,8 +114,11 @@ public class Option extends AbstractProductComponent {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		if(underlying instanceof AbstractProductComponent)	return ((AbstractProductComponent)underlying).queryUnderlyings();
-		else												throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+		if(underlying instanceof AbstractProductComponent) {
+			return ((AbstractProductComponent)underlying).queryUnderlyings();
+		} else {
+			throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+		}
 	}
 
 	/**
@@ -133,17 +136,22 @@ public class Option extends AbstractProductComponent {
 
 		final RandomVariableInterface one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariableInterface zero	= model.getRandomVariableForConstant(0.0);
-		
+
 		// TODO >=? -
-		if(evaluationTime > exerciseDate) return zero;
+		if(evaluationTime > exerciseDate) {
+			return zero;
+		}
 
 		RandomVariableInterface values = underlying.getValue(exerciseDate, model);
 		RandomVariableInterface strike;
-		if(strikeProduct != null)	strike = strikeProduct.getValue(exerciseDate, model);
-		else						strike = model.getRandomVariableForConstant(strikePrice);
+		if(strikeProduct != null) {
+			strike = strikeProduct.getValue(exerciseDate, model);
+		} else {
+			strike = model.getRandomVariableForConstant(strikePrice);
+		}
 
 		RandomVariableInterface exerciseTrigger = values.sub(strike).mult(isCall ? 1.0 : -1.0);
-		
+
 		if(exerciseTrigger.getFiltrationTime() > exerciseDate) {
 			RandomVariableInterface filterNaN = exerciseTrigger.isNaN().sub(1.0).mult(-1.0);
 			RandomVariableInterface exerciseTriggerFiltered = exerciseTrigger.mult(filterNaN);
@@ -164,7 +172,9 @@ public class Option extends AbstractProductComponent {
 
 			RandomVariableInterface[] regressionBasisFunctions			= getRegressionBasisFunctions(exerciseDate, model);
 			RandomVariableInterface[] filteredRegressionBasisFunctions	= new RandomVariableInterface[regressionBasisFunctions.length];
-			for(int i=0; i<regressionBasisFunctions.length; i++) filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
+			for(int i=0; i<regressionBasisFunctions.length; i++) {
+				filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
+			}
 
 			// Remove foresight through conditional expectation
 			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
@@ -174,8 +184,11 @@ public class Option extends AbstractProductComponent {
 		}
 
 		// Apply exercise criteria
-		if(strikeProduct != null)	values = values.barrier(exerciseTrigger, values, strikeProduct.getValue(exerciseDate, model));
-		else						values = values.barrier(exerciseTrigger, values, strikePrice);
+		if(strikeProduct != null) {
+			values = values.barrier(exerciseTrigger, values, strikeProduct.getValue(exerciseDate, model));
+		} else {
+			values = values.barrier(exerciseTrigger, values, strikePrice);
+		}
 
 		// Discount to evaluation time
 		if(evaluationTime != exerciseDate) {
@@ -187,7 +200,7 @@ public class Option extends AbstractProductComponent {
 		// Return values
 		return values;	
 	}
-    
+
 	/**
 	 * Return the regression basis functions.
 	 * 
@@ -209,11 +222,13 @@ public class Option extends AbstractProductComponent {
 		// LIBORs
 		int liborPeriodIndex, liborPeriodIndexEnd;
 		RandomVariableInterface rate;
-		
+
 		// 1 Period
 		basisFunction = model.getRandomVariableForConstant(1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
-		if(liborPeriodIndex < 0) liborPeriodIndex = -liborPeriodIndex-1;
+		if(liborPeriodIndex < 0) {
+			liborPeriodIndex = -liborPeriodIndex-1;
+		}
 		liborPeriodIndexEnd = liborPeriodIndex+1;
 		double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
@@ -227,7 +242,9 @@ public class Option extends AbstractProductComponent {
 		// n/2 Period
 		basisFunction = model.getRandomVariableForConstant(1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
-		if(liborPeriodIndex < 0) liborPeriodIndex = -liborPeriodIndex-1;
+		if(liborPeriodIndex < 0) {
+			liborPeriodIndex = -liborPeriodIndex-1;
+		}
 		liborPeriodIndexEnd = (liborPeriodIndex + model.getNumberOfLibors())/2;
 
 		double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
@@ -238,17 +255,19 @@ public class Option extends AbstractProductComponent {
 			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 
 			basisFunction = basisFunction.discount(rate, periodLength2);
-//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
+			//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 
 			basisFunction = basisFunction.discount(rate, periodLength2);
-//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
+			//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 		}
 
 
 		// n Period
 		basisFunction = model.getRandomVariableForConstant(1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
-		if(liborPeriodIndex < 0) liborPeriodIndex = -liborPeriodIndex-1;
+		if(liborPeriodIndex < 0) {
+			liborPeriodIndex = -liborPeriodIndex-1;
+		}
 		liborPeriodIndexEnd = model.getNumberOfLibors();
 		double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
@@ -258,9 +277,9 @@ public class Option extends AbstractProductComponent {
 			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 
 			basisFunction = basisFunction.discount(rate, periodLength3);
-//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
+			//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 		}
-		
+
 		return basisFunctions.toArray(new RandomVariableInterface[0]);
 	}
 

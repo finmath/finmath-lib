@@ -21,7 +21,7 @@ public class FixedCoupon extends AbstractIndex {
 	private static final long serialVersionUID = 5375406324063846793L;
 
 	private final RandomVariableInterface coupon;
-	
+
 	/**
 	 * Creates a fixed coupon index paying constant coupon.
 	 * 

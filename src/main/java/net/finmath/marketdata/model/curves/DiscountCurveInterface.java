@@ -21,7 +21,7 @@ public interface DiscountCurveInterface extends CurveInterface {
 	 * @param maturity The maturity for which the discount factor is requested.
 	 * @return The discount factor (i.e., price of the zero coupon bond with given maturity and notional 1.
 	 */
-    double getDiscountFactor(double maturity);
+	double getDiscountFactor(double maturity);
 
 	/**
 	 * Returns the discount factor for the corresponding maturity. This getter is not optimized for performance.
@@ -31,6 +31,6 @@ public interface DiscountCurveInterface extends CurveInterface {
 	 * 
 	 * @return The discount factor (i.e., price of the zero coupon bond with given maturity and notional 1.
 	 */
-    double getDiscountFactor(AnalyticModelInterface model, double maturity);
+	double getDiscountFactor(AnalyticModelInterface model, double maturity);
 
 }

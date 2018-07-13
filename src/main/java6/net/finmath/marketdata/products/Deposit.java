@@ -41,7 +41,9 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 		this.discountCurveName = discountCurveName;
 
 		// Check schedule
-		if(schedule.getNumberOfPeriods() > 1) throw new IllegalArgumentException("Number of periods has to be 1: Change frequency to 'tenor'!");
+		if(schedule.getNumberOfPeriods() > 1) {
+			throw new IllegalArgumentException("Number of periods has to be 1: Change frequency to 'tenor'!");
+		}
 	}
 
 	@Override

@@ -77,12 +77,17 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 			 * Since empty periods are an indication for a ill-specified
 			 * product, it might be reasonable to throw an illegal argument exception instead.
 			 */
-			if(periodLength == 0) continue;
+			if(periodLength == 0) {
+				continue;
+			}
 
 			AbstractIndex coupon;
 			if(index != null) {
-				if(spread != 0)	coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));
-				else			coupon = index;
+				if(spread != 0) {
+					coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));
+				} else {
+					coupon = index;
+				}
 			}
 			else {
 				coupon = new FixedCoupon(spread);
@@ -91,7 +96,9 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false);
 			periods.add(period);
 
-			if(isNotionalAccruing) notional = new AccruingNotional(notional, period);
+			if(isNotionalAccruing) {
+				notional = new AccruingNotional(notional, period);
+			}
 		}
 
 		components = new ProductCollection(periods);

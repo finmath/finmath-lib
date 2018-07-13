@@ -73,7 +73,7 @@ public class BusinessdayCalendarTest {
 			Assert.assertTrue(baseDate.plusDays((int) Math.round(days / 5.0 * 7.0)).isEqual(targetDate));
 		}
 	}
-	
+
 	/**
 	 * Simple tests for combined calendar.
 	 */
@@ -82,7 +82,7 @@ public class BusinessdayCalendarTest {
 		BusinessdayCalendarInterface targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		BusinessdayCalendarInterface targetNewYorkCalendar = new BusinessdayCalendarExcludingNYCHolidays(targetCalendar);
 		BusinessdayCalendarInterface combinedCalendar = new BusinessdayCalendarExcludingLONHolidays(targetNewYorkCalendar);
-		
+
 		// busDay
 		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
 		Assert.assertTrue(combinedCalendar.isBusinessday(dateToTest));
@@ -102,7 +102,7 @@ public class BusinessdayCalendarTest {
 		dateToTest = LocalDate.of(2017, 8, 28);
 		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));		
 	}
-	
+
 	/**
 	 * Simple tests for TARGET calendar.
 	 */
@@ -137,7 +137,7 @@ public class BusinessdayCalendarTest {
 		dateToTest = LocalDate.of(2017, 12, 26);
 		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
 	}
-	
+
 	/**
 	 * Simple tests for NYC calendar.
 	 */
@@ -154,7 +154,7 @@ public class BusinessdayCalendarTest {
 		dateToTest = LocalDate.of(2017, 7, 4);
 		Assert.assertTrue(!newYorkCalendar.isBusinessday(dateToTest));
 	}
-	
+
 	/**
 	 * Simple tests for LON calendar.
 	 */
