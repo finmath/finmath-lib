@@ -15,31 +15,30 @@ import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
  *
  */
 public interface SmileByIntegralTransform extends CharacteristicFunctionInterface{
-	
+
 	/**
 	 * Return the maturity of the associated payoff.
 	 * 
 	 * @return The maturity of the associated payoff.
 	 */
-	public double getMaturity();
-	
+	double getMaturity();
+
 	/**
 	 * Return the lower bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.
 	 * 
 	 * @return the lower bound of the imaginary part of the domain of integration.
 	 */
-	public double getIntegrationDomainImagLowerBound();
-	
+	double getIntegrationDomainImagLowerBound();
+
 	/**
 	 * Return the upper bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.
 	 * 
 	 * @return the upper bound of the imaginary part of the domain of integration.
 	 */
-	public double getIntegrationDomainImagUpperBound();
-	
-	
+	double getIntegrationDomainImagUpperBound();
+
 	/**
 	 * Return the value of a family of options with the same maturity for different strikes.
 	 * 
@@ -47,6 +46,6 @@ public interface SmileByIntegralTransform extends CharacteristicFunctionInterfac
 	 * @return The map of product values mapping from strike to value.
 	 * @throws CalculationException Thrown if the valuation failed.
 	 */
-	public Map<Double, Double> getValue(ProcessCharacteristicFunctionInterface model) throws CalculationException;
+	Map<Double, Double> getValue(ProcessCharacteristicFunctionInterface model) throws CalculationException;
 
 }
