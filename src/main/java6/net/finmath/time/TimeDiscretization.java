@@ -18,11 +18,11 @@ import java.util.Set;
  * It uses a time tick size ("quantum"). This is to make comparison of times safe.
  * The default tick size is 1.0 / (365.0 * 24.0) (which corresponds to one hour if 1.0 is a non-leap-year):
  * Times are rounded to the nearest multiple of 1.0 / (365.0 * 24.0).
- * 
+ *
  * This property can be configured via a System.setProperty("net.finmath.functions.TimeDiscretization.timeTickSize").
- * 
+ *
  * Objects of this class are immutable.
- * 
+ *
  * @author Christian Fries
  * @version 1.6
  */
@@ -42,7 +42,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs a time discretization from a given set of doubles.
 	 * The given array does not need to be sorted.
-	 * 
+	 *
 	 * @param times Given array or arguments list of discretization points.
 	 */
 	public TimeDiscretization(double... times) {
@@ -54,7 +54,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs a time discretization from a given set of Doubles.
 	 * The given array does not need to be sorted.
-	 * 
+	 *
 	 * @param times Given array or arguments list of discretization points.
 	 */
 	public TimeDiscretization(Double[] times) {
@@ -69,7 +69,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs a time discretization from a given ArrayList of Doubles.
 	 * The given list does not need to be sorted.
-	 * 
+	 *
 	 * @param timeDiscretization Given ArrayList of discretization points
 	 */
 	public TimeDiscretization(ArrayList<Double> timeDiscretization) {
@@ -83,7 +83,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	/**
 	 * Constructs a time discretization from a given Set of Doubles.
-	 * 
+	 *
 	 * @param times Given Set of discretization points
 	 */
 	public TimeDiscretization(Set<Double> times) {
@@ -99,7 +99,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs an equi-distant time discretization with points timeDiscretization[i] being
 	 * <code>for(i=0; i &le; timeSteps; i++) timeDiscretization[i] = initial + i * deltaT;</code>
-	 * 
+	 *
 	 * @param initial First discretization point.
 	 * @param numberOfTimeSteps Number of time steps.
 	 * @param deltaT Time step size.
@@ -114,7 +114,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 
 	/**
 	 * Constructs an equi-distant time discretization with stub periods at start or end.
-	 * 
+	 *
 	 * @param initial First discretization point.
 	 * @param last Last time steps.
 	 * @param deltaT Time step size.
@@ -259,3 +259,4 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 		return Math.rint(time/timeTickSize)*timeTickSize;
 	}
 }
+

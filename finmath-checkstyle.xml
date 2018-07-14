@@ -21,9 +21,7 @@
 
 	<!-- Checks whether files end with a new line. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
-	<!-- 
 	<module name="NewlineAtEndOfFile" />
-	--> 
 
 	<!-- Checks that property files contain the same keys. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
@@ -45,14 +43,12 @@
 
 	<!-- Miscellaneous other checks. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html -->
-	<!-- 
 	<module name="RegexpSingleline">
 		<property name="format" value="\s+$" />
 		<property name="minimum" value="0" />
 		<property name="maximum" value="0" />
 		<property name="message" value="Line has trailing spaces." />
 	</module>
-	--> 
 
 	<!-- Checks for Headers -->
 	<!-- See http://checkstyle.sf.net/config_header.html -->

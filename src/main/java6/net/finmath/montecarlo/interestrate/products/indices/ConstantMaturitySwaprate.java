@@ -14,8 +14,8 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * An idealized (single curve) CMS index with given maturity and given period length. 
- * 
+ * An idealized (single curve) CMS index with given maturity and given period length.
+ *
  * @author Christian Fries
  */
 public class ConstantMaturitySwaprate extends AbstractIndex {
@@ -27,7 +27,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 
 	/**
 	 * Create a CMS index with given fixing offset and given period lengths.
-	 * 
+	 *
 	 * @param name The name of the underlying index.
 	 * @param currency The currency of the underlying index, if any.
 	 * @param fixingOffset Fixing offset of this index.
@@ -41,7 +41,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 
 	/**
 	 * Create a CMS index with given fixing offset and given period lengths.
-	 * 
+	 *
 	 * @param fixingOffset Fixing offset of this index.
 	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
 	 */
@@ -51,7 +51,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 
 	/**
 	 * Create a CMS index with given period lengths.
-	 * 
+	 *
 	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
 	 */
 	public ConstantMaturitySwaprate(double[] periodLengths) {
@@ -61,7 +61,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	/**
 	 * Create a CMS index with given fixing offset and given maturity and given period length.
 	 * Note that maturity must be a multiple of the period length.
-	 * 
+	 *
 	 * @param name The name of the underlying index.
 	 * @param currency The currency of the underlying index, if any.
 	 * @param fixingOffset Fixing offset of this index.
@@ -83,7 +83,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	/**
 	 * Create a CMS index with given fixing offset and given maturity and given period length.
 	 * Note that maturity must be a multiple of the period length.
-	 * 
+	 *
 	 * @param fixingOffset Fixing offset of this index.
 	 * @param maturity The maturity.
 	 * @param periodLength Period length of underlying swap, used for the swap annuity calculation.
@@ -94,7 +94,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 
 	/**
 	 * Create a CMS index with given maturity and given period length. Note that maturity must be a multiple of the period length.
-	 * 
+	 *
 	 * @param maturity Maturity of the swap rate.
 	 * @param periodLength Period length of the fixed size (determines the swap annuity used)
 	 */
@@ -142,3 +142,4 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 				+ ", periodLengths=" + Arrays.toString(periodLengths) + "]";
 	}
 }
+

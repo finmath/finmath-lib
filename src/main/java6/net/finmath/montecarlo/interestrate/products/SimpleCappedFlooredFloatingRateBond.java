@@ -83,3 +83,4 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 		return value;
 	}
 }
+

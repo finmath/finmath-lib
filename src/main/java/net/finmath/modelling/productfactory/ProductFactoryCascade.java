@@ -9,7 +9,7 @@ import net.finmath.modelling.ProductFactory;
 
 /**
  * Implements a product factory based on a cascade of given factories.
- * 
+ *
  * @author Christian Fries
  * @author Roland Bachl
  */
@@ -43,3 +43,4 @@ public abstract class ProductFactoryCascade<T extends ProductDescriptor> impleme
 		throw new IllegalArgumentException("Unsupported product type " + productDescriptor.name());
 	}
 }
+

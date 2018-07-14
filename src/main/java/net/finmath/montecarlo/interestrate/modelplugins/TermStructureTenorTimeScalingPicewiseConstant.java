@@ -70,3 +70,4 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 		return this;
 	}
 }
+

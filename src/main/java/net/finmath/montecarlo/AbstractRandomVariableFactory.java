@@ -25,3 +25,4 @@ public abstract class AbstractRandomVariableFactory implements Serializable{
 
 	public abstract RandomVariableInterface createRandomVariable(double time, double[] values);
 }
+

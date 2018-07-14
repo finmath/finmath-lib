@@ -10,7 +10,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * The interface which is implemented by forward curves.
- * 
+ *
  * @author Christian Fries
  */
 public interface ForwardCurveInterface extends CurveInterface {
@@ -19,7 +19,7 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 * Returns the forward for the corresponding fixing time.
 	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
 	 * @param fixingTime The fixing time of the index associated with this forward curve.
-	 * 
+	 *
 	 * @return The forward.
 	 */
 	RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime);
@@ -29,7 +29,7 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
 	 * @param fixingTime The fixing time of the index associated with this forward curve.
 	 * @param paymentOffset The payment offset (as internal day count fraction) specifying the payment of this index. Used only as a fallback and/or consistency check.
-	 * 
+	 *
 	 * @return The forward.
 	 */
 	RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset);
@@ -41,7 +41,7 @@ public interface ForwardCurveInterface extends CurveInterface {
 
 	/**
 	 * Returns the payment offset associated with this forward curve and a corresponding fixingTime.
-	 * 
+	 *
 	 * @param fixingTime The fixing time of the index associated with this forward curve.
 	 * @return The payment offset associated with this forward curve.
 	 */

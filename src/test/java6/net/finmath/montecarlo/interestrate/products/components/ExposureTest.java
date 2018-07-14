@@ -59,7 +59,7 @@ public class ExposureTest {
 		 * Create a receiver swap (receive fix, pay float)
 		 */
 		ScheduleInterface legScheduleRec = ScheduleGenerator.createScheduleFromConventions(
-				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */, 
+				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */,
 				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
 				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.ANNUAL /* frequency */,
@@ -71,7 +71,7 @@ public class ExposureTest {
 				0 /* paymentOffsetDays */);
 
 		ScheduleInterface legSchedulePay = ScheduleGenerator.createScheduleFromConventions(
-				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */, 
+				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */,
 				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
 				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
 				ScheduleGenerator.Frequency.QUARTERLY /* frequency */,
@@ -266,3 +266,4 @@ public class ExposureTest {
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 }
+

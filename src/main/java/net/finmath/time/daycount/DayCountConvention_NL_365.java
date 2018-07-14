@@ -12,14 +12,14 @@ import java.time.chrono.IsoChronology;
 
 /**
  * Implementation of NL/365.
- * 
+ *
  * Calculates the day count by calculating the actual number of days between startDate (excluding) and endDate (including), excluding a leap day (February 29th) if present.
- * 
+ *
  * A fractional day is rounded to the approximately nearest day.
- * 
+ *
  * The day count fraction is calculated using NL/365 convention, that is, the
  * day count is divided by 365.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_NL_365 implements DayCountConventionInterface {
@@ -69,3 +69,4 @@ public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 		return daycountFraction;
 	}
 }
+

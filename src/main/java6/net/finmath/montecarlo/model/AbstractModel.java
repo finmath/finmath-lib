@@ -7,11 +7,11 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class is an abstract base class to implement a model provided to an AbstractProcess.
- * 
+ *
  * Manages the delegation to AbstractProcessInterface.
- * 
+ *
  * For details see {@link net.finmath.montecarlo.model.AbstractModelInterface}.
- * 
+ *
  * @author Christian Fries
  * @see AbstractModelInterface The interface definition contains more details.
  * @version 1.3
@@ -22,7 +22,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 
 	/**
 	 * Returns the initial value of the model.
-	 * 
+	 *
 	 * @return The initial value of the model.
 	 */
 	public RandomVariableInterface[] getInitialValue() {
@@ -64,8 +64,8 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	/**
 	 * @param timeIndex The time index of evaluation time (using this models time discretization)
 	 * @param componentIndex The component of the process vector
-	 * @return Process realization as a random variable 
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @return Process realization as a random variable
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.AbstractProcess#getProcessValue(int, int)
 	 */
 	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
@@ -75,7 +75,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	/**
 	 * @param timeIndex The time index of evaluation time (using this models time discretization)
 	 * @return A random variable representing the Monte-Carlo probabilities.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.AbstractProcess#getMonteCarloWeights(int)
 	 */
 	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
@@ -111,3 +111,4 @@ public abstract class AbstractModel implements AbstractModelInterface {
 		return process.getTimeIndex(time);
 	}
 }
+

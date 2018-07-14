@@ -11,11 +11,11 @@ import java.time.Month;
 
 /**
  * Implementation of ACT/ACT ISDA.
- * 
+ *
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
- * 
+ *
  * A fractional day is rounded to the approximately nearest day.
- * 
+ *
  * The day count fraction is calculated using ACT_ACT_ISDA convention, that is, the
  * day count fraction is <i>n<sub>1</sub>/365</i> + <i>n<sub>2</sub>/366</i>, where
  * <ul>
@@ -24,7 +24,7 @@ import java.time.Month;
  * </ul>
  * where the start date is included in the counting and the end date is excluded in the counting.
  * This means that from 31.12.2014 to 01.01.2015 the day count fraction is 1/366 since 2014 is a leap year.
- * 
+ *
  * <p>
  * The class passed that standard benchmark test in the IDSA document see net.finmath.tests.time.daycount.DayCountConventionTest
  * </p>
@@ -34,7 +34,7 @@ import java.time.Month;
  * In this case the start date is excluded in the counting and the end date is included in the counting.
  * This means that from 31.12.2014 to 01.01.2015 the day count fraction is 1/365 since 2015 is not a leap year.
  * </p>
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
@@ -43,7 +43,7 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 
 	/**
 	 * Create an ACT/ACT ISDA day count convention.
-	 * 
+	 *
 	 * @param isCountFirstDayNotLast If this value is false (default), the days are counted including the first day and excluding the last day. If this field is true, the days are counted excluding the first day and including the last day.
 	 */
 	public DayCountConvention_ACT_ACT_ISDA(boolean isCountFirstDayNotLast) {
@@ -69,11 +69,11 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 
 		/*
 		 * Number of whole years between start and end, excluding start's year and excluding end's year.
-		 * 
+		 *
 		 * If start and end fall in the same year, this is -1 (there will be a double counting of 1 year below if start < end).
 		 * If start and end fall in separate but consecutive years, this is 0 (for start and end the fractional parts are counted individually below).
 		 */
-		double daycountFraction = endDate.getYear() - startDate.getYear() - 1.0; 
+		double daycountFraction = endDate.getYear() - startDate.getYear() - 1.0;
 
 		/*
 		 * Fraction from start to the end of start's year
@@ -107,3 +107,4 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 	}
 
 }
+

@@ -21,21 +21,21 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A collection of product components (like periods, options, etc.) paying the sum of their payouts.
- * 
+ *
  * @author Christian Fries
  * @version 1.1
  */
 public class ProductCollection extends AbstractProductComponent {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3058874897795789705L;
 	private Collection<AbstractProductComponent> products;
 
 	/**
 	 * Creates a collection of product components paying the sum of their payouts.
-	 * 
+	 *
 	 * @param products Array of AbstractProductComponent objects
 	 */
 	public ProductCollection(AbstractProductComponent... products) {
@@ -44,7 +44,7 @@ public class ProductCollection extends AbstractProductComponent {
 
 	/**
 	 * Creates a collection of product components paying the sum of their payouts.
-	 * 
+	 *
 	 * @param products Collection of AbstractProductComponent objects
 	 */
 	public ProductCollection(Collection<AbstractProductComponent> products) {
@@ -60,7 +60,7 @@ public class ProductCollection extends AbstractProductComponent {
 
 	/**
 	 * Returns the collection containing all products as an unmodifiable collection.
-	 * 
+	 *
 	 * @return the collection containing all products.
 	 */
 	public Collection<AbstractProductComponent> getProducts() {
@@ -87,11 +87,11 @@ public class ProductCollection extends AbstractProductComponent {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
 	 */
 	@Override
@@ -106,7 +106,7 @@ public class ProductCollection extends AbstractProductComponent {
 						new Callable<RandomVariableInterface>() {
 							public RandomVariableInterface call() throws CalculationException {
 								return product.getValue(evaluationTime, model);
-							}    					
+							}
 						}
 						);
 			}
@@ -146,3 +146,4 @@ public class ProductCollection extends AbstractProductComponent {
 		return "ProductCollection [products=" + products + "]";
 	}
 }
+

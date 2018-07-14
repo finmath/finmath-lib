@@ -17,7 +17,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.Quot
 
 /**
  * Test of the caplet volatilities class.
- * 
+ *
  * @author Christian Fries
  */
 public class CapletVolatilitiesTest {
@@ -63,3 +63,4 @@ public class CapletVolatilitiesTest {
 		}
 	}
 }
+

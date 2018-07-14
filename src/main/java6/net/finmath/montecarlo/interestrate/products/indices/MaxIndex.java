@@ -13,9 +13,9 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A maximum index.
- * 
+ *
  * Provides the function max(index1(t), index2(t), ...).
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  */
@@ -27,7 +27,7 @@ public class MaxIndex extends AbstractIndex {
 
 	/**
 	 * Creates the function max(index1(t), index2(t), ...)
-	 * 
+	 *
 	 * @param indexArguments An arguments list of <code>AbstractProductComponent</code>s or an array thereof. A minimum number of 2 arguments is required.
 	 */
 	public MaxIndex(AbstractProductComponent... indexArguments) {
@@ -69,3 +69,4 @@ public class MaxIndex extends AbstractIndex {
 		+ "]";
 	}
 }
+

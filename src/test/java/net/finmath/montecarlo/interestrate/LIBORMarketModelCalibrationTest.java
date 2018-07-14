@@ -66,7 +66,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * This class tests the LIBOR market model and products.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORMarketModelCalibrationTest {
@@ -209,7 +209,7 @@ public class LIBORMarketModelCalibrationTest {
 		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
 
 		/*
-		 * Create Brownian motions 
+		 * Create Brownian motions
 		 */
 		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors + 1, numberOfPaths, 31415 /* seed */);
 		BrownianMotionInterface brownianMotionView1 = new BrownianMotionView(brownianMotion, new Integer[] { 0, 1, 2, 3, 4 });
@@ -254,7 +254,7 @@ public class LIBORMarketModelCalibrationTest {
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
 				liborPeriodDiscretization,
-				forwardCurve, discountCurve, covarianceModelStochasticParametric, calibrationItems.toArray(new CalibrationItem[0]), properties);	
+				forwardCurve, discountCurve, covarianceModelStochasticParametric, calibrationItems.toArray(new CalibrationItem[0]), properties);
 
 
 		/*
@@ -298,7 +298,7 @@ public class LIBORMarketModelCalibrationTest {
 
 	/**
 	 * Brute force Monte-Carlo calibration of swaptions.
-	 * 
+	 *
 	 * @throws CalculationException Thrown if the model fails to calibrate.
 	 * @throws SolverException Thrown if the solver fails to find a solution.
 	 */
@@ -393,7 +393,7 @@ public class LIBORMarketModelCalibrationTest {
 				0.00453, 0.00435, 0.0042, 0.00542, 0.00547, 0.00539, 0.00532, 0.00522, 0.00516, 0.0051, 0.00504, 0.005,
 				0.00495, 0.00454, 0.00418, 0.00404, 0.00394 };
 
-		LocalDate referenceDate = LocalDate.of(2016, Month.SEPTEMBER, 30); 
+		LocalDate referenceDate = LocalDate.of(2016, Month.SEPTEMBER, 30);
 		BusinessdayCalendarExcludingTARGETHolidays cal = new BusinessdayCalendarExcludingTARGETHolidays();
 		DayCountConvention_ACT_365 modelDC = new DayCountConvention_ACT_365();
 		for(int i=0; i<atmNormalVolatilities.length; i++ ) {
@@ -434,7 +434,7 @@ public class LIBORMarketModelCalibrationTest {
 		final TimeDiscretizationInterface liborPeriodDiscretization = timeDiscretization;
 
 		/*
-		 * Create Brownian motions 
+		 * Create Brownian motions
 		 */
 		final BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 31415 /* seed */);
 		//final BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotionCudaWithHostRandomVariable(timeDiscretization, numberOfFactors, numberOfPaths, 31415 /* seed */);
@@ -446,7 +446,7 @@ public class LIBORMarketModelCalibrationTest {
 		//AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors, new double[] { 0.20/100.0, 0.05/100.0, 0.10, 0.05/100.0, 0.10} );
 		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization, liborPeriodDiscretization, volatilityModel, correlationModel);
 
-		// Create blended local volatility model with fixed parameter (0=lognormal, > 1 = almost a normal model).			
+		// Create blended local volatility model with fixed parameter (0=lognormal, > 1 = almost a normal model).
 		AbstractLIBORCovarianceModelParametric covarianceModelDisplaced = new DisplacedLocalVolatilityModel(covarianceModelParametric, 1.0/0.25, false /* isCalibrateable */);
 
 		// Set model properties
@@ -458,7 +458,7 @@ public class LIBORMarketModelCalibrationTest {
 		// Choose normal state space for the Euler scheme (the covariance model above carries a linear local volatility model, such that the resulting model is log-normal).
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
 
-		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).		
+		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).
 		Double accuracy = new Double(1E-6);	// Lower accuracy to reduce runtime of the unit test
 		int maxIterations = 100;
 		int numberOfThreads = 4;
@@ -547,7 +547,7 @@ public class LIBORMarketModelCalibrationTest {
 
 		HashMap<String, Object> parameters = new HashMap<>();
 
-		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30)); 
+		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30));
 		parameters.put("currency", "EUR");
 		parameters.put("forwardCurveTenor", "6M");
 		parameters.put("maturities", maturity);
@@ -587,7 +587,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * We create a forward curve by referencing the same discount curve, since
 		 * this is a single curve setup.
-		 * 
+		 *
 		 * Note that using an independent NSS forward curve with its own NSS parameters
 		 * would result in a problem where both, the forward curve and the discount curve
 		 * have free parameters.

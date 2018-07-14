@@ -2,7 +2,7 @@ package net.finmath.finitedifference.models;
 
 /**
  * Interface for boundaries conditions provided to one dimensional finite difference solvers.
- * 
+ *
  * @author Christian Fries
  */
 public interface FiniteDifference1DBoundary {
@@ -12,7 +12,7 @@ public interface FiniteDifference1DBoundary {
 	 * @param model The model which uses the boundary condition (provides model parameters)
 	 * @param time The time at which the boundary is observed.
 	 * @param assetValue The value of the asset specifying the location of the boundary.
-	 * 
+	 *
 	 * @return the value process at the lower boundary
 	 */
 	double getValueAtLowerBoundary(FiniteDifference1DModel model, double time, double assetValue);
@@ -22,7 +22,7 @@ public interface FiniteDifference1DBoundary {
 	 * @param model TODO
 	 * @param time The time at which the boundary is observed.
 	 * @param assetValue The value of the asset specifying the location of the boundary.
-	 * 
+	 *
 	 * @return the value process at the upper boundary
 	 */
 	double getValueAtUpperBoundary(FiniteDifference1DModel model, double time, double assetValue);

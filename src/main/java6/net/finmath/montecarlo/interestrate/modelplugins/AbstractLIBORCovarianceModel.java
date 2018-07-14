@@ -13,7 +13,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * A base class and interface description for the instantaneous covariance of
  * an forward rate interest rate model.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class AbstractLIBORCovarianceModel implements Serializable {
@@ -26,7 +26,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
-	 * 
+	 *
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
@@ -40,20 +40,20 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	/**
 	 * Return the factor loading for a given time and a given component.
-	 * 
+	 *
 	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
 	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
 	 * is the instantaneous covariance of the component <i>j</i> and <i>k</i>.
-	 * 
+	 *
 	 * With respect to simulation time <i>t</i>, this method uses a piece wise constant interpolation, i.e.,
 	 * it calculates <i>t_<sub>i</sub></i> such that <i>t_<sub>i</sub></i> is the largest point in <code>getTimeDiscretization</code>
 	 * such that <i>t_<sub>i</sub> &le; t </i>.
-	 * 
+	 *
 	 * The component here, it given via a double <i>T</i> which may be associated with the LIBOR fixing date.
 	 * With respect to component time <i>T</i>, this method uses a piece wise constant interpolation, i.e.,
 	 * it calculates <i>T_<sub>j</sub></i> such that <i>T_<sub>j</sub></i> is the largest point in <code>getTimeDiscretization</code>
 	 * such that <i>T_<sub>j</sub> &le; T </i>.
-	 * 
+	 *
 	 * @param time The time <i>t</i> at which factor loading is requested.
 	 * @param component The component time (as a double associated with the fixing of the forward rate)  <i>T<sub>i</sub></i>.
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
@@ -72,11 +72,11 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
 	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
 	 * is the instantaneous covariance of the component <i>j</i> and <i>k</i>.
-	 * 
+	 *
 	 * With respect to simulation time <i>t</i>, this method uses a piece wise constant interpolation, i.e.,
 	 * it calculates <i>t_<sub>i</sub></i> such that <i>t_<sub>i</sub></i> is the largest point in <code>getTimeDiscretization</code>
 	 * such that <i>t_<sub>i</sub> &le; t </i>.
-	 * 
+	 *
 	 * @param time The time <i>t</i> at which factor loading is requested.
 	 * @param component The index of the component <i>i</i>. Note that this class may have its own LIBOR time discretization and that this index refers to this discretization.
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
@@ -95,7 +95,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * The factor loading is the vector <i>f<sub>i</sub></i> such that the scalar product <br>
 	 * <i>f<sub>j</sub>f<sub>k</sub> = f<sub>j,1</sub>f<sub>k,1</sub> + ... + f<sub>j,m</sub>f<sub>k,m</sub></i> <br>
 	 * is the instantaneous covariance of the component <i>j</i> and <i>k</i>.
-	 * 
+	 *
 	 * @param timeIndex The time index at which factor loading is requested.
 	 * @param component The index of the component  <i>i</i>.
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
@@ -105,7 +105,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	/**
 	 * Returns the pseudo inverse of the factor matrix.
-	 * 
+	 *
 	 * @param timeIndex The time index at which factor loading inverse is requested.
 	 * @param factor The index of the factor <i>j</i>.
 	 * @param component The index of the component  <i>i</i>.
@@ -116,7 +116,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	/**
 	 * Returns the instantaneous covariance calculated from factor loadings.
-	 * 
+	 *
 	 * @param time The time <i>t</i> at which covariance is requested.
 	 * @param component1 Index of component <i>i</i>.
 	 * @param component2  Index of component <i>j</i>.
@@ -134,7 +134,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	/**
 	 * Returns the instantaneous covariance calculated from factor loadings.
-	 * 
+	 *
 	 * @param timeIndex The time index at which covariance is requested.
 	 * @param component1 Index of component <i>i</i>.
 	 * @param component2  Index of component <i>j</i>.
@@ -160,7 +160,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	/**
 	 * The simulation time discretization associated with this model.
-	 * 
+	 *
 	 * @return the timeDiscretization
 	 */
 	public TimeDiscretizationInterface getTimeDiscretization() {
@@ -169,7 +169,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	/**
 	 * The forward rate time discretization associated with this model (defines the components).
-	 * 
+	 *
 	 * @return the forward rate time discretization associated with this model.
 	 */
 	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
@@ -183,3 +183,4 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 		return numberOfFactors;
 	}
 }
+

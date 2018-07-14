@@ -11,13 +11,13 @@ import java.time.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day, expect SATURDAY and SUNDAY.
- * 
+ *
  * @author Christian Fries
  */
 public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -664535279499214108L;
 	private BusinessdayCalendarInterface baseCalendar;
@@ -30,7 +30,7 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 
 	/**
 	 * Create business day calendar using a given business day calendar as basis.
-	 * 
+	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
 	public BusinessdayCalendarExcludingWeekends(BusinessdayCalendarInterface baseCalendar) {
@@ -43,8 +43,8 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 	@Override
 	public boolean isBusinessday(LocalDate date) {
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
-				&& date.getDayOfWeek() != DayOfWeek.SATURDAY 
-				&& date.getDayOfWeek() != DayOfWeek.SUNDAY;  
+				&& date.getDayOfWeek() != DayOfWeek.SATURDAY
+				&& date.getDayOfWeek() != DayOfWeek.SUNDAY;
 	}
 
 	@Override
@@ -52,3 +52,4 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 		return "BusinessdayCalendarExcludingWeekends [baseCalendar=" + baseCalendar + "]";
 	}
 }
+

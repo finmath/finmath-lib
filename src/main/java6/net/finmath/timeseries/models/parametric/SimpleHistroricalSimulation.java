@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 15.07.2012
  */
 
@@ -14,13 +14,13 @@ import net.finmath.timeseries.HistoricalSimulationModel;
 
 /**
  * Implementation of standard historical simulation.
- * 
+ *
  * @author Christian Fries, Norman Seeger
  */
 
 public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 
-	private double[] values;	
+	private double[] values;
 
 	private int windowIndexStart;
 	private int windowIndexEnd;
@@ -129,3 +129,4 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 	}
 
 }
+

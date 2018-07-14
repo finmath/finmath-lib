@@ -7,15 +7,15 @@ import net.finmath.time.ScheduleInterface;
 
 /**
  * Implements the valuation of a FRA in multi-curve setting.
- * 
+ *
  * According to Ametrano/Bianchetti (2013) p.22, the size of the convexity adjustment
  * between market FRA and textbook FRA is neglegible. This class can thus be used for the valuation of the market FRA.
- * 
+ *
  * market conventions (see Ametrano/Bianchetti (2013), p.22):
  * spot offset: 2BD
  * day count convention: act/360
  * fixing date offset: 2BD
- * 
+ *
  * @author Rebecca Declara
  * @author Christian Fries
  */
@@ -29,7 +29,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 
 	/**
 	 * Creates a FRA. The FRA has a unit notional of 1.
-	 * 
+	 *
 	 * @param schedule The schedule (provides fixing and periods length).
 	 * @param spread The market FRA rate
 	 * @param forwardCurveName Name of the forward curve
@@ -52,7 +52,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 
 	/**
 	 * Creates a payer FRA. The FRA has a unit notional of 1.
-	 * 
+	 *
 	 * @param schedule The schedule (provides fixing and periods length).
 	 * @param spread The market FRA rate
 	 * @param forwardCurveName Name of the forward curve
@@ -63,7 +63,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -82,7 +82,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		double paymentDate = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
 
-		double forward = 0.0;		
+		double forward = 0.0;
 		if(forwardCurve != null) {
 			forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 		}
@@ -95,11 +95,11 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 
 	/**
 	 * Return the par FRA rate for a given curve.
-	 * 
+	 *
 	 * @param model A given model.
 	 * @return The par FRA rate.
 	 */
-	public double getRate(AnalyticModelInterface model) {	
+	public double getRate(AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -113,3 +113,4 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		return forwardCurve.getForward(model,fixingDate);
 	}
 }
+

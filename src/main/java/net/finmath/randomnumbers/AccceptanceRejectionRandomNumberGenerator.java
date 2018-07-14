@@ -50,3 +50,4 @@ public class AccceptanceRejectionRandomNumberGenerator implements  RandomNumberG
 		return 1;
 	}
 }
+

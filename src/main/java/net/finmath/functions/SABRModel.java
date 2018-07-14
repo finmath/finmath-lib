@@ -16,7 +16,7 @@ import net.finmath.optimizer.SolverException;
 public class SABRModel {
 
 	/**
-	 * 
+	 *
 	 */
 	private SABRModel() {
 		// TODO Auto-generated constructor stub
@@ -51,7 +51,7 @@ public class SABRModel {
 		int maxIteration = 1000;
 		int numberOfThreads = 8;
 
-		LevenbergMarquardt lm = new LevenbergMarquardt(parameterInitialValues, targetValues, maxIteration, numberOfThreads) {			
+		LevenbergMarquardt lm = new LevenbergMarquardt(parameterInitialValues, targetValues, maxIteration, numberOfThreads) {
 			private static final long serialVersionUID = -4481118838855868864L;
 
 			@Override
@@ -74,3 +74,4 @@ public class SABRModel {
 		return bestParameters;
 	}
 }
+

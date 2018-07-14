@@ -20,17 +20,17 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
  * This class implements the method of local linear regression with discrete kernel function, see see https://ssrn.com/abstract=3073942
- * 
+ *
  * In particular it represents the implementation of proposition 2 and 3 of the paper.
- * 
+ *
  * This class allows choosing between three different kernel functions, i.e. a normal, a Laplace or a Cauchy kernel.
- * 
+ *
  * For the kernel types provided see {@link net.finmath.marketdata.model.curves.locallinearregression.CurveEstimation.Distribution}.
- * 
+ *
  * The resulting curve is piecewise linear. That means, only the knot points of the curve are computed in this algorithm.
  * The final curve is then provided with linear interpolation of the knot points,
  * see {@link net.finmath.marketdata.model.curves.Curve}.
- * 
+ *
  * @author Moritz Scherrmann
  * @author Christian Fries
  */
@@ -54,15 +54,15 @@ public class CurveEstimation{
 	private AbstractRealDistribution kernel;
 
 	/**
-	 * Creates a curve estimation object.  
-	 * 
-	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.     
+	 * Creates a curve estimation object.
+	 *
+	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.
 	 * @param bandwidth The bandwidth parameter of the regression.
 	 * @param independentValues The realization of a random variable X.
 	 * @param dependentValues The realization of a random variable Y.
 	 * @param partitionValues The values to create a partition. It is important that min(partition) &le; min(X) and max(partition) &ge; max(X).
 	 * @param weight The weight needed to create a partition.
-	 * @param distribution The kernel type. 
+	 * @param distribution The kernel type.
 	 */
 	public CurveEstimation(
 			LocalDate referenceDate,
@@ -95,9 +95,9 @@ public class CurveEstimation{
 	}
 
 	/**
-	 * Creates a curve estimation object with a normal kernel.  
-	 * 
-	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.     
+	 * Creates a curve estimation object with a normal kernel.
+	 *
+	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.
 	 * @param bandwidth The bandwidth parameter of the regression.
 	 * @param independentValues The realization of a random variable X.
 	 * @param dependentValues The realization of a random variable Y.
@@ -116,7 +116,7 @@ public class CurveEstimation{
 
 	/**
 	 * Returns the curve resulting from the local linear regression with discrete kernel.
-	 * 
+	 *
 	 * @return The regression curve.
 	 */
 	public CurveInterface getRegressionCurve(){
@@ -143,10 +143,10 @@ public class CurveEstimation{
 
 	/**
 	 * Returns the vector a from proposition 3 in Beier/Fries (2017).
-	 * 
+	 *
 	 * @return The vector a.
 	 */
-	private DoubleMatrix solveEquationSystem(){ 
+	private DoubleMatrix solveEquationSystem(){
 		DoubleMatrix R=new DoubleMatrix(partition.getLength());
 		DoubleMatrix M=new DoubleMatrix(partition.getLength(),partition.getLength());
 		DoubleMatrix partitionAsVector=new DoubleMatrix(partition.getPoints());

@@ -57,7 +57,7 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Business
 						&& date.getDayOfWeek() != DayOfWeek.SATURDAY
 						&& date.getDayOfWeek() != DayOfWeek.SUNDAY
 						)
-				&& !getHolidays().contains(date);  
+				&& !getHolidays().contains(date);
 	}
 
 	@Override
@@ -65,3 +65,4 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Business
 		return getClass().getSimpleName() + " [baseCalendar=" + getBaseCalendar() + "]";
 	}
 }
+

@@ -14,13 +14,13 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 
 /**
  * Implements the bond curve as a curve object, see {@link net.finmath.marketdata.model.curves.CurveInterface}.
- * 
+ *
  * The bond curve is built as a product of a given reference discount curve and spread curve.
- * Since it is not clear in general if the reference curve or the spread curve are given in terms of 
+ * Since it is not clear in general if the reference curve or the spread curve are given in terms of
  * discount factors or zero rates, this class distinguishes between all possible cases of types.
- * 
+ *
  * For the curve types provided see {@link net.finmath.marketdata.model.bond.BondCurve.Type}.
- * 
+ *
  * @author Moritz Scherrmann
  */
 public class BondCurve extends AbstractCurve  {
@@ -28,14 +28,14 @@ public class BondCurve extends AbstractCurve  {
 	private static final long serialVersionUID = -7832169179168188306L;
 
 	/**
-	 * Possible curve types, where the first term stands for the reference discount curve and the 
+	 * Possible curve types, where the first term stands for the reference discount curve and the
 	 * second term stands for the spread curve.
-	 * 
+	 *
 	 * Example:
-	 * "DISCOUNTFACTOR_ZERORATE" means that the "getValue" method of the reference discount curve returns a value expressed as 
-	 * discount factor and the "getValue" method of the spread curve returns a value expressed as 
+	 * "DISCOUNTFACTOR_ZERORATE" means that the "getValue" method of the reference discount curve returns a value expressed as
+	 * discount factor and the "getValue" method of the spread curve returns a value expressed as
 	 * zero rate.
-	 * 
+	 *
 	 * @author Moritz Scherrmann
 	 */
 	public enum Type {
@@ -52,8 +52,8 @@ public class BondCurve extends AbstractCurve  {
 	private Type type;
 
 	/**
-	 * Creates a bond curve. 
-	 * 
+	 * Creates a bond curve.
+	 *
 	 * @param name Name of the curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param referenceCurve The reference discount curve.
@@ -104,7 +104,7 @@ public class BondCurve extends AbstractCurve  {
 	/**
 	 * Returns the zero rate for a given maturity, i.e., -ln(df(T)) / T where T is the given maturity and df(T) is
 	 * the discount factor at time $T$.
-	 * 
+	 *
 	 * @param maturity The given maturity.
 	 * @return The zero rate.
 	 */
@@ -159,3 +159,4 @@ public class BondCurve extends AbstractCurve  {
 
 
 }
+

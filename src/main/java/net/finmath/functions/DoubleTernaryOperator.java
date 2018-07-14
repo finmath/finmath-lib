@@ -23,3 +23,4 @@ public interface DoubleTernaryOperator {
 	 */
 	double applyAsDouble(double x, double y, double z);
 }
+

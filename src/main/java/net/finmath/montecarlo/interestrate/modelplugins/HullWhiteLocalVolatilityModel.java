@@ -11,7 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Special variant of a blended model (or displaced diffusion model)
  * build on top of a standard covariance model
  * using the special function corresponding to the Hull-White local volatility.
- * 
+ *
  * The model constructed for the <i>i</i>-th factor loading is
  * <center>
  * <i>(1+L<sub>i</sub>(t) d) F<sub>i</sub>(t)</i>
@@ -19,14 +19,14 @@ import net.finmath.stochastic.RandomVariableInterface;
  * where <i>d</i> is a constant (the period length), <i>L<sub>i</sub></i> is
  * the realization of the <i>i</i>-th component of the stochastic process and
  * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
- * 
+ *
  * If this model is combined with an exponential decay volatility model
  * <code>LIBORVolatilityModelTwoParameterExponentialForm</code>, then
  * the resulting LIBOR Market model corresponds to a Hull-White short rate model
  * (with constant short rate volatility and mean reversion).
- * 
+ *
  * The parameter of this model is the parameter vector of the given base covariance model.
- * 
+ *
  * @author Christian Fries
  */
 public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
@@ -44,9 +44,9 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	 * where <i>d</i> is a constant (the period length), <i>L<sub>i</sub></i> is
 	 * the realization of the <i>i</i>-th component of the stochastic process and
 	 * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
-	 * 
+	 *
 	 * The parameter of this model is the parameter vector of the given base covariance model.
-	 * 
+	 *
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param periodLength The parameter <i>d</i> in the formula above.
 	 */
@@ -63,7 +63,7 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 
 	/**
 	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>.
-	 * 
+	 *
 	 * @return The base covariance model.
 	 */
 	public AbstractLIBORCovarianceModelParametric getBaseCovarianceModel() {
@@ -99,3 +99,4 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 		throw new UnsupportedOperationException();
 	}
 }
+

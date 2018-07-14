@@ -13,9 +13,9 @@ import org.apache.commons.math3.analysis.integration.RombergIntegrator;
 
 /**
  * Implements a Romberg integrator.
- * 
+ *
  * The class is actually a wrapper to the Romberg integrator in commons-math.
- * 
+ *
  * @author Christian Fries
  */
 public class RombergRealIntegration extends AbstractRealIntegral {
@@ -24,7 +24,7 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 
 	/**
 	 * Create a Romberg integrator.
-	 * 
+	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
@@ -49,3 +49,4 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 	}
 
 }
+

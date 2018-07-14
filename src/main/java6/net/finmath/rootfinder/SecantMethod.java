@@ -1,6 +1,6 @@
 /*
  * Created on 19.02.2004
- * 
+ *
  * (c) Copyright Christian P. Fries, Germany.
  * Contact: email@christian-fries.de.
  */
@@ -9,7 +9,7 @@ package net.finmath.rootfinder;
 /**
  * This class implements a root finder as question-and-answer algorithm using
  * the secant method.
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  * @date 2008-04-06

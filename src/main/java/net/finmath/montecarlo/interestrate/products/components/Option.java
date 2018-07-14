@@ -17,20 +17,20 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * An option.
- * 
+ *
  * Implements the function <code>max(underlying(t)-strike,0)</code> for any <code>underlying</code> object
  * implementing an {@link net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct}.
- * 
+ *
  * The strike may be a fixed constant value or an object implementing
  * {@link net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct}
  * (resulting in a stochastic strike or exchange option).
- * 
+ *
  * More precise, the <code>getVaue</code> method returns the value
  * \[
  * 	\left\{
  * 		\begin{array}{ll}
  * 			U(t)-S(t) &amp; \text{if E(t) &gt; 0} \\
- * 			U(t)-S(t) &amp; \text{else.} 
+ * 			U(t)-S(t) &amp; \text{else.}
  * 		\end{array}
  * 	\right.
  * \]
@@ -38,7 +38,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * returned by the call to <code>getValue</code> of the underlying product, which may return a
  * sum on discounted futures cash-flows / values (i.e. not yet performing the expectation) and
  * \( S \) is the strike (which may be a fixed value or another underlying product).
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct
@@ -55,7 +55,7 @@ public class Option extends AbstractProductComponent {
 
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; 0 ? underlying : 0
-	 * 
+	 *
 	 * @param exerciseDate The exercise date of the option (given as a double).
 	 * @param underlying The underlying.
 	 */
@@ -65,7 +65,7 @@ public class Option extends AbstractProductComponent {
 
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
-	 * 
+	 *
 	 * @param exerciseDate The exercise date of the option (given as a double).
 	 * @param strikePrice The strike price.
 	 * @param underlying The underlying.
@@ -76,7 +76,7 @@ public class Option extends AbstractProductComponent {
 
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
-	 * 
+	 *
 	 * @param exerciseDate The exercise date of the option (given as a double).
 	 * @param strikePrice The strike price.
 	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
@@ -93,7 +93,7 @@ public class Option extends AbstractProductComponent {
 
 	/**
 	 * Creates the function underlying(exerciseDate) &ge; strikeProduct ? underlying : strikeProduct
-	 * 
+	 *
 	 * @param exerciseDate The exercise date of the option (given as a double).
 	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
 	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
@@ -138,14 +138,14 @@ public class Option extends AbstractProductComponent {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		final RandomVariableInterface one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariableInterface zero	= model.getRandomVariableForConstant(0.0);
@@ -211,16 +211,16 @@ public class Option extends AbstractProductComponent {
 		}
 
 		// Return values
-		return values;	
+		return values;
 	}
 
 	/**
 	 * Return the regression basis functions.
-	 * 
+	 *
 	 * @param exerciseDate The date w.r.t. which the basis functions should be measurable.
 	 * @param model The model.
 	 * @return Array of random variables.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
@@ -303,3 +303,4 @@ public class Option extends AbstractProductComponent {
 				+ isCall + ", toString()=" + super.toString() + "]";
 	}
 }
+

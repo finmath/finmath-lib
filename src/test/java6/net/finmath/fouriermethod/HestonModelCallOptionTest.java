@@ -26,7 +26,7 @@ import net.finmath.fouriermethod.products.EuropeanOption;
 /**
  * Test class for the valuation of a call option under Heston
  * model using Fourier transforms / characteristic functions.
- * 
+ *
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
@@ -34,7 +34,7 @@ public class HestonModelCallOptionTest {
 
 	/**
 	 * The parameters for this test
-	 * 
+	 *
 	 * @return Array of parameters.
 	 */
 	@Parameters(name="{0}")
@@ -88,3 +88,4 @@ public class HestonModelCallOptionTest {
 		Assert.assertEquals("Value", valueBS, valueHS, 1E-7);
 	}
 }
+

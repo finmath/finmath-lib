@@ -33,19 +33,19 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Base class for parametric covariance models, see also {@link AbstractLIBORCovarianceModel}.
- * 
+ *
  * Parametric models feature a parameter vector which can be inspected
  * and modified for calibration purposes.
- * 
+ *
  * The parameter vector may have zero length, which indicated that the model
  * is not calibrateable.
- * 
+ *
  * This class includes the implementation of a generic calibration algorithm.
  * If you provide an arbitrary list of calibration products, the class can return
- * a new instance where the parameters are chosen such that the (weighted) root-mean-square 
+ * a new instance where the parameters are chosen such that the (weighted) root-mean-square
  * error of the difference of the value of the calibration products and given target
  * values is minimized.
- * 
+ *
  * @author Christian Fries
  * @date 20.05.2006
  * @date 23.02.2014
@@ -59,7 +59,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
-	 * 
+	 *
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
@@ -72,7 +72,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * Get the parameters of determining this parametric
 	 * covariance model. The parameters are usually free parameters
 	 * which may be used in calibration.
-	 * 
+	 *
 	 * @return Parameter vector.
 	 */
 	public abstract double[]	getParameter();
@@ -83,7 +83,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	/**
 	 * Return an instance of this model using a new set of parameters.
 	 * Note: To improve performance it is admissible to return the same instance of the object given that the parameters have not changed. Models should be immutable.
-	 * 
+	 *
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
@@ -97,14 +97,14 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * Performs a generic calibration of the parametric model by
 	 * trying to match a given vector of calibration product to a given vector of target values
 	 * using a given vector of weights.
-	 * 
+	 *
 	 * Optional calibration parameters may be passed using the map calibrationParameters. The keys are (<code>String</code>s):
 	 * <ul>
 	 * 	<li><tt>brownianMotion</tt>: Under this key an object implementing {@link net.finmath.montecarlo.BrownianMotionInterface} may be provided. If so, this Brownian motion is used to build the valuation model.</li>
 	 * 	<li><tt>maxIterations</tt>: Under this key an object of type Integer may be provided specifying the maximum number of iterations.</li>
 	 * 	<li><tt>accuracy</tt>: Under this key an object of type Double may be provided specifying the desired accuracy. Note that this is understood in the sense that the solver will stop if the iteration does not improve by more than this number.</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param calibrationModel The LIBOR market model to be used for calibrations (specifies forward curve and tenor discretization).
 	 * @param calibrationProducts The array of calibration products.
 	 * @param calibrationTargetValues The array of target values.
@@ -154,7 +154,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
 		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
-		ObjectiveFunction calibrationError = new ObjectiveFunction() {			
+		ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
@@ -234,7 +234,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			logger.fine(logString);
 		}
 
-		return calibrationCovarianceModel;    	
+		return calibrationCovarianceModel;
 	}
 
 	@Override
@@ -243,3 +243,4 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				+ Arrays.toString(getParameter()) + "]";
 	}
 }
+

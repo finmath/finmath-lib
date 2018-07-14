@@ -20,7 +20,7 @@ public interface StochasticOptimizerInterface {
 
 	/**
 	 * Get the best fit parameter vector.
-	 * 
+	 *
 	 * @return The best fit parameter.
 	 */
 	RandomVariableInterface[] getBestFitParameters();
@@ -32,14 +32,14 @@ public interface StochasticOptimizerInterface {
 
 	/**
 	 * Get the number of iterations.
-	 * 
+	 *
 	 * @return The number of iterations required
 	 */
 	int getIterations();
 
 	/**
 	 * Runs the optimization.
-	 * 
+	 *
 	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	void run() throws SolverException;

@@ -21,7 +21,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
 
 /**
  * Implements the characteristic function of a Heston model.
- * 
+ *
  * The model is
  * \[
  * 	dS(t) = r^{\text{c}}(t) S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
@@ -36,11 +36,11 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
  * 	dN(t) = r^{\text{d}}(t) N(t) dt, \quad N(0) = N_{0},
  * \]
  * where \( W \) is a Brownian motion.
- * 
+ *
  * The model allows to specify two independent rate for forwarding (\( r^{\text{c}} \)) and discounting (\( r^{\text{d}} \)).
  * It thus allow for a simple modelling of a funding / collateral curve (via (\( r^{\text{d}} \)) and/or the specification of
  * a dividend yield.
- * 
+ *
  * The free parameters of this model are:
  * <dl>
  * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
@@ -52,7 +52,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
  * 	<dt>\( \kappa \)</dt> <dd>the mean reversion speed of the stochastic volatility</dd>
  * 	<dt>\( \rho \)</dt> <dd>the correlation of the Brownian drivers</dd>
  * </dl>
- * 
+ *
  * @author Christian Fries
  * @author Andy Graf
  * @author Lorenzo Toricelli
@@ -78,7 +78,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 
 	/**
 	 * Create a model from a model desciptor.
-	 * 
+	 *
 	 * @param descriptor A Heston model descriptor.
 	 */
 	public HestonModel(HestonModelDescriptor descriptor) {
@@ -97,7 +97,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 
 	/**
 	 * Create a Heston model (characteristic function)
-	 * 
+	 *
 	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
@@ -125,7 +125,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 
 	/**
 	 * Create a Heston model (characteristic function)
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -141,7 +141,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 
 	/**
 	 * Create a Heston model (characteristic function)
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -212,7 +212,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 
 	/**
 	 * Small helper to calculate rate off the curve or use constant.
-	 * 
+	 *
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
@@ -222,7 +222,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 
 	/**
 	 * Small helper to calculate rate off the curve or use constant.
-	 * 
+	 *
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
@@ -240,3 +240,4 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 		return (new SingleAssetFourierProductFactory()).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 	}
 }
+

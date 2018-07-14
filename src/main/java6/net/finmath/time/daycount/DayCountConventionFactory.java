@@ -10,7 +10,7 @@ import org.threeten.bp.LocalDate;
 
 /**
  * Factory methods for day count conventions.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConventionFactory {
@@ -33,7 +33,7 @@ public class DayCountConventionFactory {
 	 * 	<li>act/365</li>
 	 * 	<li>act/act yearfrac</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param convention A convention string.
 	 * @return A day count convention object.
 	 */
@@ -66,7 +66,7 @@ public class DayCountConventionFactory {
 	/**
 	 * Return the number of days between startDate and endDate given the
 	 * specific daycount convention.
-	 * 
+	 *
 	 * @param startDate The start date given as a {@link org.threeten.bp.LocalDate}.
 	 * @param endDate The end date given as a {@link org.threeten.bp.LocalDate}.
 	 * @param convention A convention string.
@@ -80,7 +80,7 @@ public class DayCountConventionFactory {
 	/**
 	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
 	 * specific daycount convention.
-	 * 
+	 *
 	 * @param startDate The start date given as a {@link org.threeten.bp.LocalDate}.
 	 * @param endDate The end date given as a {@link org.threeten.bp.LocalDate}.
 	 * @param convention A convention string.
@@ -89,6 +89,7 @@ public class DayCountConventionFactory {
 	public static double getDaycountFraction(LocalDate startDate, LocalDate endDate, String convention) {
 		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycountFraction(startDate, endDate);
-	}	
+	}
 
 }
+

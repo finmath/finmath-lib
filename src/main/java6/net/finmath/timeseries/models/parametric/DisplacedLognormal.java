@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 15.07.2012
  */
 
@@ -19,23 +19,23 @@ import net.finmath.timeseries.HistoricalSimulationModel;
 
 /**
  * Displaced log-normal process with constanst volatility.
- * 
+ *
  * This class estimate the process
  * \[
  *   \mathrm{d} \log(X + a) = \frac{\sigma}{b + a} \mathrm{d}W(t)
  * \]
  * where \( a &gt; -min(X(t_{i}) \) and thus \( X+a &gt; 0 \) and \( b = 1 - -min(X(t_{i}) \) \) and
  * \( \sigma \) is a constant.
- * 
+ *
  * The choice of b ensures that b+a &ge; 1.
  * For a=0 we have a log-normal process with volatility &sigma;/(b + a).
  * For a=infinity we have a normal process with volatility &sigma;.
- * 
+ *
  * @author Christian Fries
  */
 public class DisplacedLognormal implements HistoricalSimulationModel {
 
-	private double[] values;	
+	private double[] values;
 	private double lowerBoundDisplacement;
 	private double upperBoundDisplacement = 10000000;
 	private int windowIndexStart;
@@ -110,7 +110,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		double volSquaredEstimate = 0.0;
 		for (int i = windowIndexStart+1; i <= windowIndexEnd-1; i++) {
 			double eval	= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));
-			volSquaredEstimate += eval*eval;			
+			volSquaredEstimate += eval*eval;
 		}
 		volSquaredEstimate /= windowIndexEnd-windowIndexStart;
 
@@ -149,7 +149,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		double volSquaredEstimate = 0.0;
 		for (int i = windowIndexStart+1; i <= windowIndexEnd-1; i++) {
 			double eval	= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));
-			volSquaredEstimate += eval*eval;			
+			volSquaredEstimate += eval*eval;
 		}
 		volSquaredEstimate /= windowIndexEnd-windowIndexStart;
 
@@ -326,3 +326,4 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		return value;
 	}
 }
+

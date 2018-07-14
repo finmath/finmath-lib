@@ -7,7 +7,7 @@ package net.finmath.randomnumbers;
 
 /**
  * Implements a multi-dimensional Halton sequence (quasi random numbers) with the given bases.
- * 
+ *
  * @author Christian Fries
  */
 public class HaltonSequence implements RandomNumberGenerator {
@@ -18,9 +18,9 @@ public class HaltonSequence implements RandomNumberGenerator {
 
 	/**
 	 * Constructs a Halton sequence with the given bases.
-	 * 
+	 *
 	 * The bases should be integers without common divisor greater than 1, for example, prime numbers.
-	 * 
+	 *
 	 * @param base The array of base integers. The length of the array defines the dimension of the sequence.
 	 */
 	public HaltonSequence(int[] base) {
@@ -57,7 +57,7 @@ public class HaltonSequence implements RandomNumberGenerator {
 
 	/**
 	 * Return a Halton number, sequence starting at index = 0, base &gt; 1.
-	 * 
+	 *
 	 * @param index The index of the sequence.
 	 * @param base The base of the sequence. Has to be greater than one (this is not checked).
 	 * @return The Halton number.
@@ -76,3 +76,4 @@ public class HaltonSequence implements RandomNumberGenerator {
 		return x;
 	}
 }
+

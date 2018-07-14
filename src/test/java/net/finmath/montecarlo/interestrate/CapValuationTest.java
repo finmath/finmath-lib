@@ -38,7 +38,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * This class tests the valuation of a Cap using LMM and an AnalyticModel.
- * 
+ *
  * @author Christian Fries
  */
 public class CapValuationTest {
@@ -47,7 +47,7 @@ public class CapValuationTest {
 
 	private ForwardCurveInterface					forwardCurve;
 	private DiscountCurveInterface					discountCurve;
-	private LIBORModelMonteCarloSimulationInterface	liborMarketModel; 
+	private LIBORModelMonteCarloSimulationInterface	liborMarketModel;
 	private AbstractVolatilitySurface				capletVol;
 
 	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -65,7 +65,7 @@ public class CapValuationTest {
 
 	/**
 	 * Initialize market data objects and the libor market model object.
-	 * 
+	 *
 	 * @param numberOfPaths Numer of paths of the LIBOR market model.
 	 * @throws CalculationException Thrown if a numerical algorithm fails.
 	 */

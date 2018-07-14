@@ -30,7 +30,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * Accesses performed exclusively through the interface
  * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
- * 
+ *
  * The implementation require Java 8 or better.
  *
  * @author Christian Fries
@@ -113,11 +113,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	/**
 	 * Create a stochastic random variable.
-	 * 
+	 *
 	 * Important: The realizations array is not cloned (not defensive copy is made).
-	 * 
+	 *
 	 * @TODO A future version should perform a defensive copy.
-	 * 
+	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
 	 */
@@ -141,7 +141,7 @@ public class RandomVariable implements RandomVariableInterface {
 		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
 		this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
 		if(size > 1) {
-			IntStream.range(0,size).parallel().forEach(i -> 
+			IntStream.range(0,size).parallel().forEach(i ->
 			this.realizations[i] = realizations.applyAsDouble(i)
 					);
 		}
@@ -1279,3 +1279,4 @@ public class RandomVariable implements RandomVariableInterface {
 				(isDeterministic() ? valueIfNonStochastic : Arrays.toString(realizations));
 	}
 }
+

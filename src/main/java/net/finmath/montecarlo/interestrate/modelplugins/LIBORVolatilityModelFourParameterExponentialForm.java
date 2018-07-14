@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \[
  * 	\sigma_{i}(t_{j}) = ( a + b (T_{i}-t_{j}) ) exp(-c (T_{i}-t_{j})) + d \text{.}
  * \]
- * 
+ *
  * The parameters here have some interpretation:
  * <ul>
  * <li>The parameter a: an initial volatility level.</li>
@@ -34,7 +34,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 	\sigma_{i}(t) = ( a + b (T_{i}-t) ) exp(-c (T_{i}-t)) + d
  * \]
  * on the time discretization \( \{ t_{j} \} \). For the exact integration of this formula see {@link LIBORVolatilityModelFourParameterExponentialFormIntegrated}.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolatilityModel {
@@ -55,8 +55,8 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
-	 * 
-	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters. 
+	 *
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -77,7 +77,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
-	 * 
+	 *
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -149,7 +149,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
 		double timeToMaturity   = maturity-time;
 
-		double volatilityInstanteaneous; 
+		double volatilityInstanteaneous;
 		if(timeToMaturity <= 0)
 		{
 			volatilityInstanteaneous = 0.0;   // This forward rate is already fixed, no volatility
@@ -178,3 +178,4 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 				);
 	}
 }
+

@@ -22,27 +22,27 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{1}(t), \quad V(0) = 1.0,
  * \]
  * where \( \lambda(0) = 1 \) to scale all factor loadings \( f_{i} \) returned by a given covariance model.
- * 
+ *
  * The model constructed is \( \lambda(t) F(t) \) where \( \lambda(t) \) is
  * a discretization of the above process and \( F = ( f_{1}, \ldots, f_{m} ) \) is the factor loading
  * from the given covariance model.
- * 
+ *
  * The process uses the first factor of the Brownian motion provided by an object implementing
  * {@link net.finmath.montecarlo.BrownianMotionInterface}. This can be used to generate correlations to
  * other objects. If you like to reuse a factor of another Brownian motion use a
  * {@link net.finmath.montecarlo.BrownianMotionView}
  * to delegate \( ( \mathrm{d} W_{1}(t) ) \) to a different object.
- * 
+ *
  * The parameter of this model is a joint parameter vector, consisting
  * of the parameter vector of the given base covariance model and
  * appending the parameters <i>&kappa;</i>, <i>&theta;</i> and <i>&xi;</i> at the end.
- * 
+ *
  * If this model is not calibrateable, its parameter vector is that of the
  * covariance model, i.e., <i>&nu;</i> and <i>&rho;</i> will be not
  * part of the calibration.
- * 
+ *
  * For an illustration of its usage see the associated unit test.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBORCovarianceModelParametric {
@@ -59,7 +59,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 	/**
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
-	 * 
+	 *
 	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
 	 * @param brownianMotion An object implementing {@link BrownianMotionInterface} with at least two factors. This class uses the first two factors, but you may use {@link net.finmath.montecarlo.BrownianMotionView} to change this.
 	 * @param kappa The initial value for <i>&kappa;</i>, the mean reversion speed of the variance process V.
@@ -236,3 +236,4 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		return null;
 	}
 }
+

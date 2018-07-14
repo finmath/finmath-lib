@@ -32,7 +32,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
- * 
+ *
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
@@ -50,7 +50,7 @@ public class CalibrationTest {
 	/**
 	 * The parameters for this test, that is an error consisting of
 	 * { numberOfPaths, setup }.
-	 * 
+	 *
 	 * @return Array of parameters.
 	 */
 	@Parameters(name="{0}")
@@ -68,7 +68,7 @@ public class CalibrationTest {
 
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
-	 * 
+	 *
 	 * @param args Arguments - not used.
 	 * @throws SolverException Thrown if the solver cannot find a solution to the calibration problem.
 	 */
@@ -117,14 +117,14 @@ public class CalibrationTest {
 		Assert.assertTrue(Math.abs(forwardRate - forwardRateFromDiscountFactor) < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
-	}	
+	}
 
 	@Test
 	public void testCurvesAndCalibration() throws SolverException {
 
 		/*
 		 * CALIBRATING A CURVE - SINGLE CURVE SETUP
-		 * 
+		 *
 		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
 
@@ -193,7 +193,7 @@ public class CalibrationTest {
 
 		/*
 		 * CALIBRATE A FORWARD CURVE, USING THE GIVEN DISCOUNT CURVE (MULTI-CURVE SETUP)
-		 * 
+		 *
 		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
 
@@ -245,5 +245,6 @@ public class CalibrationTest {
 		Assert.assertTrue(error2 < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
-	}		
+	}
 }
+

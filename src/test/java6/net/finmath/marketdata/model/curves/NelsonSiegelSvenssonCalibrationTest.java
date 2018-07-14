@@ -29,7 +29,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 	/**
 	 * Calibrate a Nelson-Siegel-Svensson curve to a given set of swap rates of
 	 * (self-discounted) swaps.
-	 * 
+	 *
 	 * @param parameters Key-Value-Map of parameters.
 	 * @return The best fitting NSS parameters.
 	 * @throws SolverException Thrown is the solver encountered a problem.
@@ -63,7 +63,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		/*
 		 * We create a forward curve by referencing the same discount curve, since
 		 * this is a single curve setup.
-		 * 
+		 *
 		 * Note that using an independent NSS forward curve with its own NSS parameters
 		 * would result in a problem where both, the forward curve and the discount curve
 		 * have free parameters.
@@ -125,7 +125,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 	/**
 	 * Test the calibration of a Nelson-Siegel-Svensson curve to a given set of swap rates of
 	 * (self-discounted) swaps.
-	 * 
+	 *
 	 * @throws SolverException Thrown if the solver cannot find a solution.
 	 */
 	@Test
@@ -139,7 +139,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		final double[] rates					= {0.0042, 0.0032, 0.0038, 0.0052, 0.0069, 0.00855, 0.0102, 0.0119, 0.0134, 0.0150, 0.0165, 0.0178, 0.0189, 0.0200, 0.0224, 0.0250, 0.0264, 0.0271, 0.0275, 0.0276, 0.0276 };
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 
-		parameters.put("referenceDate", LocalDate.of(2014, Month.AUGUST, 12)); 
+		parameters.put("referenceDate", LocalDate.of(2014, Month.AUGUST, 12));
 		parameters.put("currency", "EUR");
 		parameters.put("forwardCurveTenor", "3M");
 		parameters.put("maturities", maturity);
@@ -155,3 +155,4 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		System.out.println();
 	}
 }
+

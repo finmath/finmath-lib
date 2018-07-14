@@ -17,13 +17,13 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 /**
  * A schedule of interest rate periods with
  * a fixing and payment.
- * 
+ *
  * The periods have two representations: one a {@link net.finmath.time.Period}
  * which contains {@link org.threeten.bp.LocalDate} dates and
  * an alternative representation using doubles.
- * 
+ *
  * Within a schedule, the mapping from doubles to dates is one to one.
- * 
+ *
  * @author Christian Fries
  */
 public class Schedule implements ScheduleInterface {
@@ -131,3 +131,4 @@ public class Schedule implements ScheduleInterface {
 		return "Schedule [referenceDate=" + referenceDate + ", daycountconvention=" + daycountconvention + "\n" + periodOutputString + "]";
 	}
 }
+

@@ -24,10 +24,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  * f(x) = (sum a<sub>j</sub> x<sup>j</sup>) / (sum b<sub>k</sub> x<sup>k</sup>).
  * </li>
  * </ul>
- * 
+ *
  * This setup comprises linear interpolation (for which the function is C<sup>0</sup>) and
  * cubic spline interpolation (for which the function is C<sup>1</sup>).
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  */
@@ -48,9 +48,9 @@ public class RationalFunctionInterpolation  {
 		AKIMA,
 		/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
 		AKIMA_CONTINUOUS,
-		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/		
+		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
 		HARMONIC_SPLINE,
-		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/	
+		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/
 		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING
 
 	}
@@ -72,12 +72,12 @@ public class RationalFunctionInterpolation  {
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.DEFAULT;
 
 	private class RationalFunction {
-		private final RandomVariableInterface[] coefficientsNumerator; 
+		private final RandomVariableInterface[] coefficientsNumerator;
 		private final RandomVariableInterface[] coefficientsDenominator;
 
 		/**
 		 * Create a rational interpolation function.
-		 * 
+		 *
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
@@ -89,7 +89,7 @@ public class RationalFunctionInterpolation  {
 
 		/**
 		 * Create a polynomial interpolation function.
-		 * 
+		 *
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
 		RationalFunction(RandomVariableInterface[] coefficients) {
@@ -100,11 +100,11 @@ public class RationalFunctionInterpolation  {
 
 		/**
 		 * Returns the value for a given arguments.
-		 * 
+		 *
 		 * @param x Given argument.
 		 * @return Returns the value for the given argument.
 		 */
-		public RandomVariableInterface getValue(double x) 
+		public RandomVariableInterface getValue(double x)
 		{
 			RandomVariableInterface powerOfX	= new RandomVariable(1.0);
 
@@ -135,7 +135,7 @@ public class RationalFunctionInterpolation  {
 
 	/**
 	 * Generate a rational function interpolation from a given set of points.
-	 * 
+	 *
 	 * @param points The array of the x<sub>i</sub> sample points of a function y=f(x).
 	 * @param values The corresponding array of the y<sub>i</sub> sample values to the sample points x<sub>i</sub>.
 	 */
@@ -148,7 +148,7 @@ public class RationalFunctionInterpolation  {
 	/**
 	 * Generate a rational function interpolation from a given set of points using
 	 * the specified interpolation and extrapolation method.
-	 * 
+	 *
 	 * @param points The array of the x<sub>i</sub> sample points of a function y=f(x).
 	 * @param values The corresponding array of the y<sub>i</sub> sample values to the sample points x<sub>i</sub>.
 	 * @param interpolationMethod The interpolation method to be used.
@@ -165,7 +165,7 @@ public class RationalFunctionInterpolation  {
 
 	/**
 	 * Returns the interpolation method used.
-	 * 
+	 *
 	 * @return Returns the interpolationMethod.
 	 */
 	public InterpolationMethod getInterpolationMethod() {
@@ -174,7 +174,7 @@ public class RationalFunctionInterpolation  {
 
 	/**
 	 * Get an interpolated value for a given argument x.
-	 * 
+	 *
 	 * @param x The abscissa at which the interpolation should be performed.
 	 * @return The interpolated value (ordinate).
 	 */
@@ -260,7 +260,7 @@ public class RationalFunctionInterpolation  {
 			} else {
 				numeratorPolynomCoeff = new RandomVariableInterface[] {values[pointIndex]};
 			}
-			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);			
+			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);
 		}
 	}
 
@@ -284,7 +284,7 @@ public class RationalFunctionInterpolation  {
 			numeratorPolynomCoeff[1] = fr.sub(fl).div(xr-xl);
 			numeratorPolynomCoeff[0] = fl;
 
-			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);			
+			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);
 		}
 	}
 
@@ -312,7 +312,7 @@ public class RationalFunctionInterpolation  {
 		derivative[0] =(2*step[0] + step[1])/doubleStep[0] * slope[0] - step[0]/doubleStep[0] * slope[1];
 
 		// in t_n
-		derivative[numberOfPoints-1] =(2*step[numberOfPoints-2] + step[numberOfPoints-3])/doubleStep[numberOfPoints-3] * slope[numberOfPoints-2] 
+		derivative[numberOfPoints-1] =(2*step[numberOfPoints-2] + step[numberOfPoints-3])/doubleStep[numberOfPoints-3] * slope[numberOfPoints-2]
 				- step[numberOfPoints-2]/doubleStep[numberOfPoints-3] * slope[numberOfPoints-3];
 
 		//  monotonicity filtering
@@ -324,7 +324,7 @@ public class RationalFunctionInterpolation  {
 				derivative[0] = 0;
 
 			// in t_n
-			if((derivative[numberOfPoints-1]*slope[numberOfPoints-2] > 0) && (slope[numberOfPoints-2]*slope[numberOfPoints-3] <= 0) 
+			if((derivative[numberOfPoints-1]*slope[numberOfPoints-2] > 0) && (slope[numberOfPoints-2]*slope[numberOfPoints-3] <= 0)
 					&& (Math.abs(derivative[numberOfPoints-1]) < 3*Math.abs(slope[numberOfPoints-2])))
 				derivative[numberOfPoints-1] = 3 * slope[numberOfPoints-2];
 			if( derivative[numberOfPoints-1]*slope[numberOfPoints-2] <= 0 )
@@ -337,7 +337,7 @@ public class RationalFunctionInterpolation  {
 				derivative[i] = 0;
 			}
 			else{
-				double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1]) 
+				double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1])
 						+ (2*step[i-1] + step[i]) / (3*doubleStep[i-1]*slope[i]);
 				derivative[i] = 1.0 / weightedHarmonicMean;
 			}
@@ -355,13 +355,14 @@ public class RationalFunctionInterpolation  {
 			numeratortorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];
 			numeratortorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);
 
-			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);			
+			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);
 		}
 
 	}
-	 */	
+	 */
 
 
 
 
 }
+

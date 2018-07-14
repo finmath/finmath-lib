@@ -90,3 +90,4 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	}
 
 }
+

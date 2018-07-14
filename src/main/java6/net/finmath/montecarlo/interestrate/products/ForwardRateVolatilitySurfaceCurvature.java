@@ -14,9 +14,9 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements the calculation of the curvature of the volatility surface of the forward rates.
- * 
+ *
  * <br>
- * 
+ *
  * The value returned by the <code>{@link #getValue(double, LIBORModelMonteCarloSimulationInterface)}</code> method is calculated as follows:
  * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
  * <center>
@@ -31,17 +31,17 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	x<sub>i</sub> = &sigma;<sup>2</sup>(t<sub>i</sub>)
  * </i> is the
  * instantaneous variance of a specific forward rate.
- * 
+ *
  * The value returned is then calculated as the average of all those curvatures for all forward rates.
- * 
+ *
  * Note: A tolerance level can be specified. See the documentation of the constructor <code>{@link #ForwardRateVolatilitySurfaceCurvature(double)}</code>.
- * 
+ *
  * <br>
  * <br>
- * 
+ *
  * While this is not a common financial product, this class can be helpful in calibration procedures, e.g.
- * to put an additional constrain on the smoothness / curvature of the model surface. 
- * 
+ * to put an additional constrain on the smoothness / curvature of the model surface.
+ *
  * <br>
  * A rough interpretation of this product is a follows: If the value 0.25 is returned, then
  * - on average - the variance of the forward rate oscillates by 0.25 per year, i.e. it moves up by 0.25 and back.
@@ -66,13 +66,13 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 
 	/**
 	 * Create the calculation of the curvature of the volatility surface of the forward rates.
-	 * 
+	 *
 	 * A tolerance level may be specified. In that case, the curvature
 	 * calculated by the getValue method is approximately
 	 * <br>
 	 * <i>max(<code>curvature</code> - <code>tolerance</code>, 0)</i>.
 	 * <br>
-	 * 
+	 *
 	 * A rough interpretation of the tolerance is as follows:
 	 * With a tolerance = 0.04, then
 	 * <ul>
@@ -87,7 +87,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 	 * 		(i.e., the volatility is allowed to oscillate twice from 0.0 to 0.14 (sqrt(0.02)) and back).
 	 * 	</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param tolerance The tolerance level.
 	 */
 	public ForwardRateVolatilitySurfaceCurvature(double tolerance) {
@@ -108,7 +108,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 
 	/**
 	 * Calculates the squared curvature of the LIBOR instantaneous variance.
-	 * 
+	 *
 	 * @param evaluationTime Time at which the product is evaluated.
 	 * @param model A model implementing the LIBORModelMonteCarloSimulationInterface
 	 * @return The squared curvature of the LIBOR instantaneous variance (reduced a possible tolerance). The return value is &ge; 0.
@@ -177,3 +177,4 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 		return integratedLIBORCurvature.sub(tolerance).floor(0.0);
 	}
 }
+

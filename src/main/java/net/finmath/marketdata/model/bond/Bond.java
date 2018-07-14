@@ -29,10 +29,10 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * 	<li>a survival probability curve for additional credit risk related discount factor</li>
  * 	<li>a basis factor curve for additional bond related discount factor</li>
  * </ul>
- * 
+ *
  * Support for day counting is provided via the class implementing
  * <code>ScheduleInterface</code>.
- * 
+ *
  * @author Moritz Scherrmann
  * @author Chrisitan Fries
  */
@@ -40,17 +40,17 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	private final ScheduleInterface	schedule;
 	private final String discountCurveName;
-	private final String forwardCurveName; //Set null if fixed- or zero-coupon bond   
+	private final String forwardCurveName; //Set null if fixed- or zero-coupon bond
 	private final String survivalProbabilityCurveName;
 	private final String basisFactorCurveName;
-	private final double fixedCoupon; //Set equal zero if floating rate note 
+	private final double fixedCoupon; //Set equal zero if floating rate note
 	private final double floatingSpread;
 	private final double recoveryRate;
 
 
 	/**
-	 * Creates a bond. 
-	 * 
+	 * Creates a bond.
+	 *
 	 * @param schedule Schedule of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix coupon bond or a zero-coupon bond.
@@ -60,7 +60,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param floatingSpread The floating spread of the bond expressed as absolute value.
 	 * @param recoveryRate The recovery rate of the bond.
 	 */
-	public Bond(ScheduleInterface                    schedule, 
+	public Bond(ScheduleInterface                    schedule,
 			String             discountCurveName,
 			String              forwardCurveName,
 			String  survivalProbabilityCurveName,
@@ -80,8 +80,8 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	/**
-	 * Creates a fixed coupon bond with recovery rate. 
-	 * 
+	 * Creates a fixed coupon bond with recovery rate.
+	 *
 	 * @param schedule Schedule of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
@@ -94,8 +94,8 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	/**
-	 * Creates a fixed or floating bond without recovery rate. 
-	 * 
+	 * Creates a fixed or floating bond without recovery rate.
+	 *
 	 * @param schedule Schedule of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix coupon bond or a zero-coupon bond.
@@ -109,8 +109,8 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	/**
-	 * Creates a fixed coupon bond without recovery rate. 
-	 * 
+	 * Creates a fixed coupon bond without recovery rate.
+	 *
 	 * @param schedule Schedule of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
@@ -200,7 +200,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Returns the coupon payment of the period with the given index. The analytic model is needed in case of floating bonds.
-	 * 
+	 *
 	 * @param periodIndex The index of the period of interest.
 	 * @param model The model under which the product is valued.
 	 * @return The value of the coupon payment in the given period.
@@ -221,10 +221,10 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	/**
-	 * Returns the value of the sum of discounted cash flows of the bond where 
+	 * Returns the value of the sum of discounted cash flows of the bond where
 	 * the discounting is done with the given reference curve and an additional spread.
 	 * This method can be used for optimizer.
-	 * 
+	 *
 	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param referenceCurve The reference curve used for discounting the coupon payments.
 	 * @param spread The spread which should be added to the discount curve.
@@ -243,10 +243,10 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	/**
-	 * Returns the value of the sum of discounted cash flows of the bond where 
+	 * Returns the value of the sum of discounted cash flows of the bond where
 	 * the discounting is done with the given yield curve.
 	 * This method can be used for optimizer.
-	 * 
+	 *
 	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param rate The yield which is used for discounted the coupon payments.
 	 * @param model The model under which the product is valued.
@@ -258,16 +258,16 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	/**
-	 * Returns the spread value such that the sum of cash flows of the bond discounted with a given reference curve 
-	 * with the additional spread coincides with a given price. 
-	 * 
+	 * Returns the spread value such that the sum of cash flows of the bond discounted with a given reference curve
+	 * with the additional spread coincides with a given price.
+	 *
 	 * @param bondPrice The target price as double.
 	 * @param referenceCurve The reference curve used for discounting the coupon payments.
 	 * @param model The model under which the product is valued.
 	 * @return The optimal spread value.
 	 */
 	public double getSpread(double bondPrice, CurveInterface referenceCurve, AnalyticModelInterface model) {
-		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);		
+		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
 			double x = search.getNextPoint();
 			double fx=getValueWithGivenSpreadOverCurve(0.0,referenceCurve,x,model);
@@ -280,14 +280,14 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Returns the yield value such that the sum of cash flows of the bond discounted with the yield curve
-	 * coincides with a given price. 
-	 * 
+	 * coincides with a given price.
+	 *
 	 * @param bondPrice The target price as double.
 	 * @param model The model under which the product is valued.
 	 * @return The optimal yield value.
 	 */
 	public double getYield(double bondPrice, AnalyticModelInterface model) {
-		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);		
+		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
 			double x = search.getNextPoint();
 			double fx=getValueWithGivenYield(0.0,x,model);
@@ -300,7 +300,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Returns the accrued interest of the bond for a given date.
-	 * 
+	 *
 	 * @param date The date of interest.
 	 * @param model The model under which the product is valued.
 	 * @return The accrued interest.
@@ -315,7 +315,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Returns the accrued interest of the bond for a given time.
-	 * 
+	 *
 	 * @param time The time of interest as double.
 	 * @param model The model under which the product is valued.
 	 * @return The accrued interest.
@@ -360,7 +360,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	@Override
 	public String toString() {
-		return "CouponBond [Schedule=" + schedule 
+		return "CouponBond [Schedule=" + schedule
 				+ ", discountCurveName=" + discountCurveName
 				+ ", forwardtCurveName=" + forwardCurveName
 				+ ", survivalProbabilityCurveName=" + survivalProbabilityCurveName
@@ -372,3 +372,4 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 
 }
+

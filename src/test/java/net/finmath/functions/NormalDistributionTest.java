@@ -11,7 +11,7 @@ import org.junit.Test;
 
 /**
  * Simple unit test for the normal distribution.
- * 
+ *
  * @author Christian Fries
  */
 public class NormalDistributionTest {
@@ -55,3 +55,4 @@ public class NormalDistributionTest {
 		}
 	}
 }
+

@@ -23,7 +23,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * \[
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
- * 
+ *
  * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
  * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 \), \( \lambda_{1,1} = \sigma \), i.e.,
  * of the SDE
@@ -31,7 +31,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
  * \]
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
@@ -51,7 +51,7 @@ public class BlackScholesModel extends AbstractModel {
 
 	/**
 	 * Create a Black-Scholes specification implementing AbstractModel.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
@@ -72,12 +72,12 @@ public class BlackScholesModel extends AbstractModel {
 		// Cache
 		this.initialState = new RandomVariableInterface[] { initialValue.log() };
 		this.drift = new RandomVariableInterface[] { riskFreeRate.sub(volatility.squared().div(2)) };
-		this.factorLoadings = new RandomVariableInterface[] { volatility };		
+		this.factorLoadings = new RandomVariableInterface[] { volatility };
 	}
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
@@ -93,7 +93,7 @@ public class BlackScholesModel extends AbstractModel {
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
@@ -169,7 +169,7 @@ public class BlackScholesModel extends AbstractModel {
 
 	/**
 	 * Return the initial value of this model.
-	 * 
+	 *
 	 * @return the initial value of this model.
 	 */
 	public RandomVariableInterface[] getInitialValue() {
@@ -187,10 +187,11 @@ public class BlackScholesModel extends AbstractModel {
 
 	/**
 	 * Returns the volatility parameter of this model.
-	 * 
+	 *
 	 * @return Returns the volatility.
 	 */
 	public RandomVariableInterface getVolatility() {
 		return factorLoadings[0];
 	}
 }
+

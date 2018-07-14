@@ -53,7 +53,7 @@ public class TestCurvesFromLIBORModel {
 
 	@Test
 	/*
-	 * We value a forward starting swap with LMM and using curves built from the LMM. The curves' time 0 is the forward starting date of the swap. 
+	 * We value a forward starting swap with LMM and using curves built from the LMM. The curves' time 0 is the forward starting date of the swap.
 	 */
 	public void testStochasticCurves() throws CalculationException{
 		// Create Random Variable Factory
@@ -66,10 +66,10 @@ public class TestCurvesFromLIBORModel {
 		// Create Monte Carlo Swap
 		AbstractLIBORMonteCarloProduct swapMonteCarlo = createSwap(maturityInYears,forwardStartTimeInYears,randomVariableFactory);
 
-		// Create a Libor market model 
+		// Create a Libor market model
 		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactory,
-				numberOfPaths, 
-				numberOfFactors, 
+				numberOfPaths,
+				numberOfFactors,
 				//(ForwardCurve)curves.getModel().getForwardCurve("forwardCurve"),
 				0.0 /* Correlation */);
 		double evaluationTime = forwardStartTimeInYears;
@@ -103,7 +103,7 @@ public class TestCurvesFromLIBORModel {
 
 		System.out.println("" + valueMonteCarlo + "\t" + valueWithCurves);
 
-		Assert.assertEquals(valueMonteCarlo,valueWithCurves,1E-4); //True if forwardStartTimeInYears = 0;		
+		Assert.assertEquals(valueMonteCarlo,valueWithCurves,1E-4); //True if forwardStartTimeInYears = 0;
 	}
 
 	private static ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface[] libors) {
@@ -160,7 +160,7 @@ public class TestCurvesFromLIBORModel {
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
 		double a = 0.0 / 20.0, b = 0.0, c = 0.25, d = 0.3 / 20.0 / 2.0;
-		//LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);		
+		//LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
 		volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
 		double[][] volatilityMatrix = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
@@ -235,15 +235,15 @@ public class TestCurvesFromLIBORModel {
 		String shortPeriodConvention = "first";
 		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		String		frequency = "semiannual";
-		String		daycountConvention = "act/365";	
+		String		daycountConvention = "act/365";
 
 		calMat.add(Calendar.YEAR, maturityInYears);
 		Date maturityDate = calMat.getTime();
 
 		ScheduleInterface schedulePayer = ScheduleGenerator.createScheduleFromConventions(
-				referenceDate, 
+				referenceDate,
 				startDate,
-				maturityDate, 
+				maturityDate,
 				frequency,
 				daycountConvention,
 				shortPeriodConvention,
@@ -255,14 +255,14 @@ public class TestCurvesFromLIBORModel {
 		AbstractNotional notional = new Notional(1.0); // equal Notional as for analytic Swap.
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		double spread = 0.0;
-		net.finmath.montecarlo.interestrate.products.SwapLeg leg = 
+		net.finmath.montecarlo.interestrate.products.SwapLeg leg =
 				new net.finmath.montecarlo.interestrate.products.SwapLeg(schedulePayer, notional, index, spread, false /* isNotionalExchanged */);
 
 		//Create Monte-Carlo receiver leg (fixed)
 		AbstractNotional notionalF = notional;
 		AbstractIndex indexF = null;
 		double spreadF = 0.01;
-		net.finmath.montecarlo.interestrate.products.SwapLeg legF = 
+		net.finmath.montecarlo.interestrate.products.SwapLeg legF =
 				new net.finmath.montecarlo.interestrate.products.SwapLeg(scheduleReceiver, notionalF, indexF, spreadF, false /* isNotionalExchanged */);
 
 		return new net.finmath.montecarlo.interestrate.products.Swap(legF,leg);
@@ -298,7 +298,7 @@ public class TestCurvesFromLIBORModel {
 		String shortPeriodConvention = "first";
 		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		String		frequency = "semiannual";
-		String		daycountConvention = "act/365";	
+		String		daycountConvention = "act/365";
 
 
 
@@ -306,9 +306,9 @@ public class TestCurvesFromLIBORModel {
 		Date maturityDate = calMat.getTime();
 
 		ScheduleInterface schedulePayer = ScheduleGenerator.createScheduleFromConventions(
-				referenceDate, 
+				referenceDate,
 				startDate,
-				maturityDate, 
+				maturityDate,
 				frequency,
 				daycountConvention,
 				shortPeriodConvention,
@@ -330,3 +330,4 @@ public class TestCurvesFromLIBORModel {
 		return swap;
 	}
 }
+

@@ -53,3 +53,4 @@ public class TimeSeriesView implements TimeSeriesInterface {
 		};
 	}
 }
+

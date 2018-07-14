@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * \[
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
- * 
+ *
  * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
  * \( f = \text{identity} \), \( \mu = \frac{exp(r \Delta t_{i}) - 1}{\Delta t_{i}} S(t_{i}) \), \( \lambda_{1,1} = \sigma \frac{exp(-2 r t_{i}) - exp(-2 r t_{i+1})}{2 r \Delta t_{i}} \), i.e.,
  * of the SDE
@@ -29,7 +29,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
  * \]
  * with \( S = X \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
@@ -49,7 +49,7 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param displacement The displacement parameter d.
@@ -151,10 +151,11 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 
 	/**
 	 * Returns the volatility parameter of this model.
-	 * 
+	 *
 	 * @return Returns the volatility.
 	 */
 	public double getVolatility() {
 		return volatility;
 	}
 }
+

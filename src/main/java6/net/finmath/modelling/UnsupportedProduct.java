@@ -14,9 +14,9 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 
 /**
  * A product throwing an exception if its <code>getValue</code> method is called.
- * 
+ *
  * This class can be used to created products trigger an exception only upon valuation (i.e., late).
- * 
+ *
  * @author Christian Fries
  */
 public class UnsupportedProduct implements ProductInterface, AnalyticProductInterface, Serializable {
@@ -26,7 +26,7 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 
 	/**
 	 * Creates an unsupported product throwing an exception if its <code>getValue</code> method is called.
-	 * 
+	 *
 	 * @param exception The exception to be thrown if this product is evaluated.
 	 */
 	public UnsupportedProduct(Exception exception) {
@@ -54,3 +54,4 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 		return "UnsupportedProduct [exception=" + exception + "]";
 	}
 }
+

@@ -14,7 +14,7 @@ import net.finmath.functions.DoubleTernaryOperator;
 
 /**
  * A scalar value implementing the RandomVariableInterface.
- * 
+ *
  * @author Christian Fries
  */
 public class Scalar implements RandomVariableInterface {
@@ -375,3 +375,4 @@ public class Scalar implements RandomVariableInterface {
 		return new Scalar(Double.isNaN(value) ? 1.0 : 0.0);
 	}
 }
+

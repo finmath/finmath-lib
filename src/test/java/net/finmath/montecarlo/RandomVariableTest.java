@@ -19,7 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Test cases for the class net.finmath.montecarlo.RandomVariable.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.RandomVariable
  */
@@ -166,3 +166,4 @@ public class RandomVariableTest {
 		Assert.assertEquals(2.33, q99, 1E-2);
 	}
 }
+

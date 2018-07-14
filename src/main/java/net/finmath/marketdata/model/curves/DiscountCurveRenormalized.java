@@ -15,7 +15,7 @@ import net.finmath.time.FloatingpointDate;
 /**
  * A discount curve \( t \mapsto df(t) \) with property \( df(t_{0}) = 1 \) for a given
  * \( t_{0} \) derived from a base discount curve by a constant skaling.
- * 
+ *
  * @author Christian Fries
  */
 public class DiscountCurveRenormalized implements DiscountCurveInterface, Serializable {
@@ -24,7 +24,7 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface, Serial
 
 	private final String name;
 	private final LocalDate referenceDate;
-	private final LocalDate spotDate;	
+	private final LocalDate spotDate;
 	private final String baseCurveName;
 
 	private transient double spotOffset;
@@ -100,3 +100,4 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface, Serial
 		this.spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);
 	}
 }
+

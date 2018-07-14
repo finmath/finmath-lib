@@ -11,11 +11,11 @@ import java.time.LocalDate;
 /**
  * This is a special day count convention, where the day count between two dates is always 0.0
  * and the year fraction for an interval is always 1.0.
- * 
+ *
  * The latter property is probably the relevant property: you may use this day count convention if a coupon period
  * pays the coupon without applying a year fraction of the accrual period, but the implementation requires an object implementing
  * {@link DayCountConventionInterface}.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_NONE implements DayCountConventionInterface {
@@ -36,3 +36,4 @@ public class DayCountConvention_NONE implements DayCountConventionInterface {
 		return 1.0;
 	}
 }
+

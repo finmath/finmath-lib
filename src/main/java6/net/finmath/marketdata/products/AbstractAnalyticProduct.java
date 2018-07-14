@@ -39,3 +39,4 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 		return results;
 	}
 }
+

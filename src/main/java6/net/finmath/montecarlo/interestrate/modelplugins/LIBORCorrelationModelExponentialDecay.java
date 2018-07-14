@@ -14,12 +14,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  * (see {@link net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)}) created from the
  * \( n \) Eigenvectors of \( \tilde{R} \) belonging to the \( n \) largest non-negative Eigenvalues,
  * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and \[ \tilde{\rho}_{i,j} = \exp( -\max(a,0) | T_{i}-T_{j} | ) \]
- * 
+ *
  * For a more general model featuring three parameters see {@link LIBORCorrelationModelThreeParameterExponentialDecay}.
- * 
+ *
  * @see net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)
  * @see LIBORCorrelationModelThreeParameterExponentialDecay
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
@@ -35,7 +35,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 
 	/**
 	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
-	 * 
+	 *
 	 * @param timeDiscretization Simulation time dicretization. Not used.
 	 * @param liborPeriodDiscretization Tenor time discretization, i.e., the \( T_{i} \)'s.
 	 * @param numberOfFactors Number \( n \) of factors to be used.
@@ -96,7 +96,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		 * Create instantaneous correlation matrix
 		 */
 
-		// Negative values of a do not make sense. 
+		// Negative values of a do not make sense.
 		a = Math.max(a, 0);
 
 		correlationMatrix = new double[liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
@@ -138,3 +138,4 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		return parameter;
 	}
 }
+

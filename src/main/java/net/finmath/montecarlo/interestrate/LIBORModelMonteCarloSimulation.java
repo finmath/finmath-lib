@@ -19,7 +19,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Implements convenient methods for a LIBOR market model,
  * based on a given <code>LIBORMarketModel</code> model
  * and <code>AbstractLogNormalProcess</code> process.
- * 
+ *
  * @author Christian Fries
  * @version 0.7
  */
@@ -29,7 +29,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel and an AbstractProcess.
-	 * 
+	 *
 	 * @param model The LIBORMarketModel.
 	 * @param process The process.
 	 */
@@ -43,7 +43,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORModelInterface.
-	 * 
+	 *
 	 * @param model The LIBORModelInterface.
 	 */
 	public LIBORModelMonteCarloSimulation(LIBORModelInterface model) {
@@ -182,7 +182,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 
 	/**
 	 * Create a clone of this simulation modifying one of its properties (if any).
-	 * 
+	 *
 	 * @param entityKey The entity to modify.
 	 * @param dataModified The data which should be changed in the new model
 	 * @return Returns a clone of this model, where the specified part of the data is modified data (then it is no longer a clone :-)
@@ -195,3 +195,4 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return getCloneWithModifiedData(dataModifiedMap);
 	}
 }
+

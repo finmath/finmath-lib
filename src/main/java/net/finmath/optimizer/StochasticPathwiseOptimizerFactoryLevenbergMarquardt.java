@@ -43,7 +43,7 @@ public class StochasticPathwiseOptimizerFactoryLevenbergMarquardt implements Sto
 	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] lowerBound, RandomVariableInterface[]  upperBound, RandomVariableInterface[] parameterSteps, RandomVariableInterface[] targetValues) {
 		return
 				new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, null /* weights */, parameterSteps, maxIterations, null, null)
-		{	
+		{
 			private static final long serialVersionUID = -7050719719557572792L;
 
 			@Override
@@ -53,3 +53,4 @@ public class StochasticPathwiseOptimizerFactoryLevenbergMarquardt implements Sto
 		};
 	}
 }
+

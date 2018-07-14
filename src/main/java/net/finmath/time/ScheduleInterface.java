@@ -14,13 +14,13 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 /**
  * Interface of a schedule of interest rate periods with
  * a fixing and payment.
- * 
+ *
  * The periods have two representations: one a {@link net.finmath.time.Period}
  * which contains {@link java.time.LocalDate} dates and
  * an alternative representation using doubles.
- * 
+ *
  * Within a schedule, the mapping from doubles to dates is one to one.
- * 
+ *
  * @author Christian Fries
  */
 public interface ScheduleInterface extends Iterable<Period> {
@@ -30,35 +30,35 @@ public interface ScheduleInterface extends Iterable<Period> {
 	 * The reference date is only used to convert dates to doubles using
 	 * and internal daycount conventions (ACT/365) which does not need to agree
 	 * with the daycount convention used to calculate period length.
-	 * 
+	 *
 	 * @return The reference data of this schedule corresponding to t=0.
 	 */
 	LocalDate getReferenceDate();
 
 	/**
 	 * Returns the array of periods.
-	 * 
+	 *
 	 * @return The array of periods.
 	 */
 	List<Period> getPeriods();
 
 	/**
 	 * Returns the daycount convention used to calculate period lengths.
-	 * 
+	 *
 	 * @return The daycount convention used to calculate period lengths.
 	 */
 	DayCountConventionInterface getDaycountconvention();
 
 	/**
 	 * Returns the number of periods.
-	 * 
+	 *
 	 * @return The number of periods.
 	 */
 	int getNumberOfPeriods();
 
 	/**
 	 * Return the period for a given period index.
-	 * 
+	 *
 	 * @param periodIndex A given period index.
 	 * @return The period for the given period index.
 	 */
@@ -67,7 +67,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	/**
 	 * Return the fixing converted to the internal daycounting relative
 	 * to the schedules reference date.
-	 * 
+	 *
 	 * @param periodIndex A given period index.
 	 * @return The fixing converted to the internal daycounting relative to the schedules reference date.
 	 */
@@ -76,7 +76,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	/**
 	 * Return the payment date converted to the internal daycounting relative
 	 * to the schedules reference date.
-	 * 
+	 *
 	 * @param periodIndex A given period index.
 	 * @return The payment date converted to the internal daycounting relative to the schedules reference date.
 	 */
@@ -85,7 +85,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	/**
 	 * Return the period start date converted to the internal daycounting relative
 	 * to the schedules reference date.
-	 * 
+	 *
 	 * @param periodIndex A given period index.
 	 * @return The period start date converted to the internal daycounting relative to the schedules reference date.
 	 */
@@ -94,7 +94,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 	/**
 	 * Return the period end date converted to the internal daycounting relative
 	 * to the schedules reference date.
-	 * 
+	 *
 	 * @param periodIndex A given period index.
 	 * @return The period end date converted to the internal daycounting relative to the schedules reference date.
 	 */
@@ -102,7 +102,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 
 	/**
 	 * Return the period length for a given period index.
-	 * 
+	 *
 	 * @param periodIndex A given period index.
 	 * @return The period length for a given period index.
 	 */
@@ -110,7 +110,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 
 	/**
 	 * Return the index of the period which contains the given time point.
-	 * 
+	 *
 	 * @param time A given time.
 	 * @return The period index of the .
 	 */
@@ -118,7 +118,7 @@ public interface ScheduleInterface extends Iterable<Period> {
 
 	/**
 	 * Return the index of the period which contains the given date.
-	 * 
+	 *
 	 * @param date A given date.
 	 * @return The period index of the .
 	 */

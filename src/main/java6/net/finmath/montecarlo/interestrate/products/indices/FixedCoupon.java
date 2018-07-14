@@ -13,7 +13,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A fixed coupon index paying constant coupon..
- * 
+ *
  * @author Christian Fries
  */
 public class FixedCoupon extends AbstractIndex {
@@ -24,7 +24,7 @@ public class FixedCoupon extends AbstractIndex {
 
 	/**
 	 * Creates a fixed coupon index paying constant coupon.
-	 * 
+	 *
 	 * @param coupon The coupon.
 	 */
 	public FixedCoupon(double coupon) {
@@ -39,7 +39,7 @@ public class FixedCoupon extends AbstractIndex {
 
 	/**
 	 * Returns the coupon.
-	 * 
+	 *
 	 * @return the coupon
 	 */
 	public RandomVariableInterface getCoupon() {
@@ -57,3 +57,4 @@ public class FixedCoupon extends AbstractIndex {
 				+ super.toString() + "]";
 	}
 }
+

@@ -158,7 +158,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
 		double timeToMaturity   = maturity-time;
 
-		double volatilityInstanteaneous; 
+		double volatilityInstanteaneous;
 		if(timeToMaturity <= 0)
 		{
 			volatilityInstanteaneous = 0.0;   // This forward rate is already fixed, no volatility
@@ -193,7 +193,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 
 				RandomVariableInterface volatilityRandomVariable = volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity];
 				if(volatilityRandomVariable == null) {
-					volatilityInstanteaneous = volatility[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];				
+					volatilityInstanteaneous = volatility[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];
 					volatilityRandomVariable = randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);
 					volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity] = volatilityRandomVariable;
 				}
@@ -215,3 +215,4 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 				);
 	}
 }
+

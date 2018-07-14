@@ -14,7 +14,7 @@ import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
 
 /**
  * Unit test for the SimpsonRealIntegrator.
- * 
+ *
  * @author Christian Fries
  */
 public class SimpsonRealIntegratorTest {
@@ -83,3 +83,4 @@ public class SimpsonRealIntegratorTest {
 		Assert.assertEquals("Integreation error.", 0.0, error, 1E-13);
 	}
 }
+

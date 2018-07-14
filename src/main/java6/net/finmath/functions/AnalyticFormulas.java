@@ -15,7 +15,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements some functions as static class methods.
- * 
+ *
  * It provides functions like
  * <ul>
  * 	<li>the Black-Scholes formula,
@@ -26,7 +26,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	<li>analytic approximation for European options under the SABR model,
  * 	<li>some convexity adjustments.
  * </ul>
- * 
+ *
  * @author Christian Fries
  * @version 1.9
  * @date 27.04.2012
@@ -40,10 +40,10 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
-	 * 
+	 *
 	 * The method also handles cases where the forward and/or option strike is negative
 	 * and some limit cases where the forward and/or the option strike is zero.
-	 * 
+	 *
 	 * @param forward The forward of the underlying.
 	 * @param volatility The Black-Scholes volatility.
 	 * @param optionMaturity The option maturity T.
@@ -62,16 +62,16 @@ public class AnalyticFormulas {
 			return 0;
 		}
 		else if(forward < 0) {
-			// We use max(X,0) = X + max(-X,0) 
+			// We use max(X,0) = X + max(-X,0)
 			return (forward - optionStrike) * payoffUnit + blackScholesGeneralizedOptionValue(-forward, volatility, optionMaturity, -optionStrike, payoffUnit);
 		}
 		else if((forward == 0) || (optionStrike <= 0.0) || (volatility <= 0.0) || (optionMaturity <= 0.0))
-		{	
+		{
 			// Limit case (where dPlus = +/- infty)
 			return Math.max(forward - optionStrike,0) * payoffUnit;
 		}
 		else
-		{	
+		{
 			// Calculate analytic value
 			double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
@@ -84,10 +84,10 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
-	 * 
+	 *
 	 * The model specific quantities are considered to be random variable, i.e.,
 	 * the function may calculate an per-path valuation in a single call.
-	 * 
+	 *
 	 * @param forward The forward of the underlying.
 	 * @param volatility The Black-Scholes volatility.
 	 * @param optionMaturity The option maturity T.
@@ -106,7 +106,7 @@ public class AnalyticFormulas {
 			return forward.mult(0.0);
 		}
 		else
-		{	
+		{
 			RandomVariableInterface dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 			RandomVariableInterface dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
 
@@ -122,7 +122,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
-	 * 
+	 *
 	 * @param initialStockValue The spot value of the underlying.
 	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
 	 * @param volatility The Black-Scholes volatility.
@@ -148,7 +148,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), or a put, i.e., the payoff max(K-S(T),0), where S follows a log-normal process with constant log-volatility.
-	 * 
+	 *
 	 * @param initialStockValue The spot value of the underlying.
 	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
 	 * @param volatility The Black-Scholes volatility.
@@ -177,7 +177,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the Black-Scholes option value of an atm call option.
-	 * 
+	 *
 	 * @param volatility The Black-Scholes volatility.
 	 * @param optionMaturity The option maturity T.
 	 * @param forward The forward, i.e., the expectation of the index under the measure associated with payoff unit.
@@ -205,11 +205,11 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the delta of a call option under a Black-Scholes model
-	 * 
+	 *
 	 * The method also handles cases where the forward and/or option strike is negative
 	 * and some limit cases where the forward or the option strike is zero.
 	 * In the case forward = option strike = 0 the method returns 1.0.
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -244,12 +244,12 @@ public class AnalyticFormulas {
 			}
 		}
 		else if((optionStrike <= 0.0) || (volatility <= 0.0) || (optionMaturity <= 0.0))		// (and initialStockValue > 0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return 1.0;
 		}
 		else
-		{	
+		{
 			// Calculate delta
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
@@ -261,11 +261,11 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the delta of a call option under a Black-Scholes model
-	 * 
+	 *
 	 * The method also handles cases where the forward and/or option strike is negative
 	 * and some limit cases where the forward or the option strike is zero.
 	 * In the case forward = option strike = 0 the method returns 1.0.
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -284,7 +284,7 @@ public class AnalyticFormulas {
 			return initialStockValue.mult(0.0);
 		}
 		else
-		{	
+		{
 			// Calculate delta
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
@@ -299,11 +299,11 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the delta of a call option under a Black-Scholes model
-	 * 
+	 *
 	 * The method also handles cases where the forward and/or option strike is negative
 	 * and some limit cases where the forward or the option strike is zero.
 	 * In the case forward = option strike = 0 the method returns 1.0.
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -322,7 +322,7 @@ public class AnalyticFormulas {
 			return initialStockValue.mult(0.0);
 		}
 		else
-		{	
+		{
 			// Calculate delta
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
@@ -337,7 +337,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * This static method calculated the gamma of a call option under a Black-Scholes model
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -353,12 +353,12 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return 0.0;
 		}
 		else
-		{	
+		{
 			// Calculate gamma
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
@@ -370,7 +370,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * This static method calculated the gamma of a call option under a Black-Scholes model
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -386,12 +386,12 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return initialStockValue.mult(0.0);
 		}
 		else
-		{	
+		{
 			// Calculate gamma
 			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
@@ -403,7 +403,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * This static method calculated the vega of a call option under a Black-Scholes model
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -419,7 +419,7 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return 0.0;
 		}
@@ -436,7 +436,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * This static method calculated the rho of a call option under a Black-Scholes model
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -452,7 +452,7 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return 0.0;
 		}
@@ -492,7 +492,7 @@ public class AnalyticFormulas {
 		double	maxAccuracy		= 1E-15;
 
 		if(optionStrike <= 0.0)
-		{	
+		{
 			// Actually it is not an option
 			return 0.0;
 		}
@@ -517,7 +517,7 @@ public class AnalyticFormulas {
 
 				// Calculate analytic value
 				double dPlus                = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-				double dMinus               = dPlus - volatility * Math.sqrt(optionMaturity);				
+				double dMinus               = dPlus - volatility * Math.sqrt(optionMaturity);
 				double valueAnalytic		= (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;
 				double derivativeAnalytic	= forward * Math.sqrt(optionMaturity) * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0*Math.PI) * payoffUnit;
 
@@ -532,7 +532,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the Black-Scholes option value of a digital call option.
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -553,7 +553,7 @@ public class AnalyticFormulas {
 			return 1.0;
 		}
 		else
-		{	
+		{
 			// Calculate analytic value
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
@@ -566,7 +566,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the delta of a digital option under a Black-Scholes model
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -582,12 +582,12 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return 0.0;
 		}
 		else
-		{	
+		{
 			// Calculate delta
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
@@ -600,7 +600,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the vega of a digital option under a Black-Scholes model
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -616,12 +616,12 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return 0.0;
 		}
 		else
-		{	
+		{
 			// Calculate vega
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
@@ -634,7 +634,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculates the rho of a digital option under a Black-Scholes model
-	 * 
+	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
 	 * @param volatility The Black-Scholes volatility.
@@ -650,7 +650,7 @@ public class AnalyticFormulas {
 			double optionStrike)
 	{
 		if(optionMaturity <= 0.0)
-		{	
+		{
 			// The Black-Scholes model does not consider it being an option
 			return 0.0;
 		}
@@ -660,7 +660,7 @@ public class AnalyticFormulas {
 			return rho;
 		}
 		else
-		{	
+		{
 			// Calculate rho
 			double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
@@ -673,7 +673,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculate the value of a caplet assuming the Black'76 model.
-	 * 
+	 *
 	 * @param forward The forward (spot).
 	 * @param volatility The Black'76 volatility.
 	 * @param optionMaturity The option maturity
@@ -696,7 +696,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculate the value of a digital caplet assuming the Black'76 model.
-	 * 
+	 *
 	 * @param forward The forward (spot).
 	 * @param volatility The Black'76 volatility.
 	 * @param periodLength The period length of the underlying forward rate.
@@ -719,7 +719,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Calculate the value of a swaption assuming the Black'76 model.
-	 * 
+	 *
 	 * @param forwardSwaprate The forward (spot)
 	 * @param volatility The Black'76 volatility.
 	 * @param optionMaturity The option maturity.
@@ -741,10 +741,10 @@ public class AnalyticFormulas {
 	/**
 	 * Calculates the value of an Exchange option under a generalized Black-Scholes model, i.e., the payoff \( max(S_{1}(T)-S_{2}(T),0) \),
 	 * where \( S_{1} \) and \( S_{2} \) follow a log-normal process with constant log-volatility and constant instantaneous correlation.
-	 * 
+	 *
 	 * The method also handles cases where the forward and/or option strike is negative
 	 * and some limit cases where the forward and/or the option strike is zero.
-	 * 
+	 *
 	 * @param spot1 Value of \( S_{1}(0) \)
 	 * @param spot2 Value of \( S_{2}(0) \)
 	 * @param volatility1 Volatility of \( \log(S_{1}(t)) \)
@@ -771,7 +771,7 @@ public class AnalyticFormulas {
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
-	 * 
+	 *
 	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
@@ -790,10 +790,10 @@ public class AnalyticFormulas {
 			return 0;
 		}
 		else if(forward == optionStrike) {
-			return volatility * Math.sqrt(optionMaturity / Math.PI / 2.0) * payoffUnit; 
+			return volatility * Math.sqrt(optionMaturity / Math.PI / 2.0) * payoffUnit;
 		}
 		else
-		{	
+		{
 			// Calculate analytic value
 			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
@@ -810,7 +810,7 @@ public class AnalyticFormulas {
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
-	 * 
+	 *
 	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
@@ -829,7 +829,7 @@ public class AnalyticFormulas {
 			return forward.mult(0.0);
 		}
 		else
-		{	
+		{
 			RandomVariableInterface integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
 			RandomVariableInterface dPlus	= forward.sub(optionStrike).div(integratedVolatility);
 
@@ -865,7 +865,7 @@ public class AnalyticFormulas {
 			double optionValue)
 	{
 		if(forward == optionStrike) {
-			return optionValue / Math.sqrt(optionMaturity / Math.PI / 2.0) / payoffUnit; 
+			return optionValue / Math.sqrt(optionMaturity / Math.PI / 2.0) / payoffUnit;
 		}
 
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
@@ -895,7 +895,7 @@ public class AnalyticFormulas {
 	/**
 	 * Calculate the value of a CMS option using the Black-Scholes model for the swap rate together with
 	 * the Hunt-Kennedy convexity adjustment.
-	 * 
+	 *
 	 * @param forwardSwaprate The forward swap rate
 	 * @param volatility Volatility of the log of the swap rate
 	 * @param swapAnnuity The swap annuity
@@ -919,7 +919,7 @@ public class AnalyticFormulas {
 		double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);
 
 		double valueUnadjusted	= blackModelSwaptionValue(forwardSwaprate, volatility, optionMaturity, optionStrike, swapAnnuity);
-		double valueAdjusted	= blackModelSwaptionValue(forwardSwaprate * convexityAdjustment, volatility, optionMaturity, optionStrike, swapAnnuity); 
+		double valueAdjusted	= blackModelSwaptionValue(forwardSwaprate * convexityAdjustment, volatility, optionMaturity, optionStrike, swapAnnuity);
 
 		return a * valueUnadjusted + b * forwardSwaprate * valueAdjusted;
 	}
@@ -927,7 +927,7 @@ public class AnalyticFormulas {
 	/**
 	 * Calculate the value of a CMS strike using the Black-Scholes model for the swap rate together with
 	 * the Hunt-Kennedy convexity adjustment.
-	 * 
+	 *
 	 * @param forwardSwaprate The forward swap rate
 	 * @param volatility Volatility of the log of the swap rate
 	 * @param swapAnnuity The swap annuity
@@ -955,7 +955,7 @@ public class AnalyticFormulas {
 	/**
 	 * Calculate the adjusted forward swaprate corresponding to a change of payoff unit from the given swapAnnuity to the given payoffUnit
 	 * using the Black-Scholes model for the swap rate together with the Hunt-Kennedy convexity adjustment.
-	 * 
+	 *
 	 * @param forwardSwaprate The forward swap rate
 	 * @param volatility Volatility of the log of the swap rate
 	 * @param swapAnnuity The swap annuity
@@ -977,7 +977,7 @@ public class AnalyticFormulas {
 		double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);
 
 		double rateUnadjusted	= forwardSwaprate;
-		double rateAdjusted		= forwardSwaprate * convexityAdjustment; 
+		double rateAdjusted		= forwardSwaprate * convexityAdjustment;
 
 		return (a * rateUnadjusted + b * forwardSwaprate * rateAdjusted) * swapAnnuity / payoffUnit;
 	}
@@ -985,7 +985,7 @@ public class AnalyticFormulas {
 	/**
 	 * Calculated the approximation to the lognormal Black volatility using the
 	 * standard SABR model and the standard Hagan approximation.
-	 * 
+	 *
 	 * @param alpha initial value of the stochastic volatility process of the SABR model.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
@@ -1003,7 +1003,7 @@ public class AnalyticFormulas {
 	/**
 	 * Calculated the approximation to the lognormal Black volatility using the
 	 * standard SABR model and the standard Hagan approximation.
-	 * 
+	 *
 	 * @param alpha initial value of the stochastic volatility process of the SABR model.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
@@ -1055,11 +1055,11 @@ public class AnalyticFormulas {
 			 */
 			double forwardTimesStrike = underlying * strike;
 
-			double z = nu/alpha * Math.pow(forwardTimesStrike, (1-beta)/2) * Math.log(underlying / strike); 
+			double z = nu/alpha * Math.pow(forwardTimesStrike, (1-beta)/2) * Math.log(underlying / strike);
 
 			double x = Math.log((Math.sqrt(1- 2*rho * z + z*z) + z - rho)/(1 - rho));
 
-			double term1 = alpha / Math.pow(forwardTimesStrike,(1-beta)/2) 
+			double term1 = alpha / Math.pow(forwardTimesStrike,(1-beta)/2)
 					/ (1 + Math.pow(1-beta,2)/24*Math.pow(Math.log(underlying/strike),2)
 							+ Math.pow(1-beta,4)/1920 * Math.pow(Math.log(underlying/strike),4));
 
@@ -1071,14 +1071,14 @@ public class AnalyticFormulas {
 
 
 			return term1 * term2 * term3;
-		}		
+		}
 	}
 
 
 	/**
 	 * Return the implied normal volatility (Bachelier volatility) under a SABR model using the
 	 * approximation of Berestycki.
-	 * 
+	 *
 	 * @param alpha initial value of the stochastic volatility process of the SABR model.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
@@ -1097,7 +1097,7 @@ public class AnalyticFormulas {
 
 		double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here
 
-		double z;		
+		double z;
 		if(beta < 1.0) {
 			z = nu / alpha * (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);
 		} else {
@@ -1113,7 +1113,7 @@ public class AnalyticFormulas {
 		}
 		else {
 			term1 = nu * (underlying-strike) / x;
-		}			
+		}
 		double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
 
 		return Math.max(sigma, 0.0);
@@ -1122,7 +1122,7 @@ public class AnalyticFormulas {
 	/**
 	 * Return the implied normal volatility (Bachelier volatility) under a SABR model using the
 	 * approximation of Hagan.
-	 * 
+	 *
 	 * @param alpha initial value of the stochastic volatility process of the SABR model.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
@@ -1162,7 +1162,7 @@ public class AnalyticFormulas {
 	/**
 	 * Return the parameter alpha (initial value of the stochastic vol process) of a SABR model using the
 	 * to match the given at-the-money volatility.
-	 * 
+	 *
 	 * @param normalVolatility ATM volatility to match.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
@@ -1203,7 +1203,7 @@ public class AnalyticFormulas {
 	 * Return the skew of the implied normal volatility (Bachelier volatility) under a SABR model using the
 	 * approximation of Berestycki. The skew is the first derivative of the implied vol w.r.t. the strike,
 	 * evaluated at the money.
-	 * 
+	 *
 	 * @param alpha initial value of the stochastic volatility process of the SABR model.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
@@ -1220,7 +1220,7 @@ public class AnalyticFormulas {
 		// Apply displacement. Displaced model is just a shift on underlying and strike.
 		underlying += displacement;
 
-		double a = alpha/Math.pow(underlying, 1-beta);		
+		double a = alpha/Math.pow(underlying, 1-beta);
 		double c = 1.0/24*Math.pow(a, 3)*beta*(1.0-beta);
 
 		double skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
@@ -1243,7 +1243,7 @@ public class AnalyticFormulas {
 	 * Return the curvature of the implied normal volatility (Bachelier volatility) under a SABR model using the
 	 * approximation of Berestycki. The curvatures is the second derivative of the implied vol w.r.t. the strike,
 	 * evaluated at the money.
-	 * 
+	 *
 	 * @param alpha initial value of the stochastic volatility process of the SABR model.
 	 * @param beta CEV parameter of the SABR model.
 	 * @param rho Correlation (leverages) of the stochastic volatility.
@@ -1290,7 +1290,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
-	 * 
+	 *
 	 * @param forward The forward
 	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
 	 * @param maturity The maturity
@@ -1304,12 +1304,12 @@ public class AnalyticFormulas {
 		double normalVol = Math.sqrt(2*Math.PI / maturity) * (forward+displacement) * y;
 
 		return normalVol;
-	}		
+	}
 
 	/**
 	 * Re-implementation of the Excel PRICE function (a rather primitive bond price formula).
 	 * The re-implementation is not exact, because this function does not consider daycount conventions.
-	 * 
+	 *
 	 * @param settlementDate Valuation date.
 	 * @param maturityDate Maturity date of the bond.
 	 * @param coupon Coupon payment.
@@ -1345,7 +1345,7 @@ public class AnalyticFormulas {
 		Calendar periodEndDate = (Calendar)paymentDate.clone();
 		periodEndDate.add(Calendar.MONTH, +12/frequency);
 
-		// Accrue running period    	
+		// Accrue running period
 		double accrualPeriod = (paymentDate.getTimeInMillis() - settlementDate.getTime()) / (periodEndDate.getTimeInMillis() - paymentDate.getTimeInMillis());
 		price *= Math.pow(1.0 + yield / frequency, accrualPeriod);
 		price -= coupon * accrualPeriod;
@@ -1358,7 +1358,7 @@ public class AnalyticFormulas {
 	 * The re-implementation is not exact, because this function does not consider daycount conventions.
 	 * We assume we have (int)timeToMaturity/frequency future periods and the running period has
 	 * an accrual period of timeToMaturity - frequency * ((int)timeToMaturity/frequency).
-	 * 
+	 *
 	 * @param timeToMaturity The time to maturity.
 	 * @param coupon Coupon payment.
 	 * @param yield Yield (discount factor, using frequency: 1/(1 + yield/frequency).
@@ -1396,3 +1396,4 @@ public class AnalyticFormulas {
 		return price;
 	}
 }
+

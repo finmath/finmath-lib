@@ -1,15 +1,15 @@
 package net.finmath.time;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TimeDiscretizationTest {
 
@@ -230,3 +230,4 @@ public class TimeDiscretizationTest {
 		assertThat(intersection.getTickSize(), is(equalTo(1.0)));
 	}
 }
+

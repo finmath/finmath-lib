@@ -6,11 +6,11 @@ import java.util.stream.IntStream;
 
 /**
  * A simple integrator using Simpson's rule.
- * 
+ *
  * The constructor has an optional argument to allow
  * parallel function evaluation. In that case, the integration rule
  * uses Java 8 parallel streams to evaluate.
- * 
+ *
  * @author Christian Fries
  */
 public class SimpsonRealIntegrator extends AbstractRealIntegral{
@@ -21,7 +21,7 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 
 	/**
 	 * Create an integrator using Simpson's rule.
-	 * 
+	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
@@ -38,7 +38,7 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 
 	/**
 	 * Create an integrator using Simpson's rule.
-	 * 
+	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
@@ -74,3 +74,4 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		return (integrand.applyAsDouble(lowerBound) + integrand.applyAsDouble(upperBound) + 2.0 * sum) / 6.0 * fullIntervall;
 	}
 }
+

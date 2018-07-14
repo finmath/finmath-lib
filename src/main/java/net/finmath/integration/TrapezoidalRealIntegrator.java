@@ -9,7 +9,7 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * A simple integrator using the trapezoidal rule.
- * 
+ *
  * @author Christian Fries
  */
 public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
@@ -19,7 +19,7 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 
 	/**
 	 * Create an integrator using the trapezoidal rule.
-	 * 
+	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
 	 * @param evaluationPoints An ordered array of the inner evaluation points to use.
@@ -34,7 +34,7 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 	 * The minimum number of evaluation points (<code>numberOfEvaluationPoints</code>) is 2, since the
 	 * trapezoidal rule operates on intervals. That is, lowerBound and upperBound are always evaluated. For
 	 * <code>numberOfEvaluationPoints &gt; 2</code> additional inner points will be evaluated.
-	 * 
+	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Number of evaluation points (that is calls to the applyAsDouble of integrand). Has to be &gt; 2;
@@ -55,7 +55,7 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 		double sum = 0.0;
 		if(evaluationPoints != null) {
 			/*
-			 * Trapezoidal integration on a possibly non-equi-distant grid. 
+			 * Trapezoidal integration on a possibly non-equi-distant grid.
 			 */
 			int i = 0;
 			while(i<evaluationPoints.length && evaluationPoints[i] < lowerBound) {
@@ -83,7 +83,7 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 		}
 		else {
 			/*
-			 * Trapezoidal integration on an equi-distant grid. 
+			 * Trapezoidal integration on an equi-distant grid.
 			 */
 
 			double intervall = (upperBound-lowerBound) / (numberOfEvaluationPoints-1);
@@ -99,3 +99,4 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 		return sum;
 	}
 }
+

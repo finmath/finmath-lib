@@ -33,7 +33,7 @@ import net.finmath.optimizer.SolverException;
 /**
  * A base class and interface description for the instantaneous covariance of
  * an forward rate interest rate model.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModelInterface, TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelParametricInterface {
@@ -44,7 +44,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 * Get the parameters of determining this parametric
 	 * covariance model. The parameters are usually free parameters
 	 * which may be used in calibration.
-	 * 
+	 *
 	 * @return Parameter vector.
 	 */
 	public abstract double[]	getParameter();
@@ -55,7 +55,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	/**
 	 * Return an instance of this model using a new set of parameters.
 	 * Note: To improve performance it is admissible to return the same instance of the object given that the parameters have not changed. Models should be immutable.
-	 * 
+	 *
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
@@ -63,7 +63,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 
 	/**
 	 * Return a calibrated clone of the covariance model.
-	 * 
+	 *
 	 * @param calibrationModel Model to be used for the calibration.
 	 * @param calibrationProducts Vector of calibration products.
 	 * @param calibrationTargetValues Vector of corresponding target values.
@@ -113,7 +113,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
 		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
-		ObjectiveFunction calibrationError = new ObjectiveFunction() {			
+		ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
@@ -209,6 +209,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 			logger.fine(logString);
 		}
 
-		return calibrationCovarianceModel;    	
+		return calibrationCovarianceModel;
 	}
 }
+

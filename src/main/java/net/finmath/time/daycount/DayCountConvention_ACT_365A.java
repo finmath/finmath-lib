@@ -12,18 +12,18 @@ import java.time.chrono.IsoChronology;
 
 /**
  * Implementation of ACT/365A.
- * 
+ *
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
- * 
+ *
  * A fractional day is rounded to the approximately nearest day.
- * 
+ *
  * The day count fraction is calculated using ACT/365A convention, that is, the
  * day count is divided by 366 if February 29 lies in between startDate (excluding) and endDate (including),
  * otherwise it the day count is divided by 365.
- * 
+ *
  * @see DayCountConvention_ACT_365
  * @see DayCountConvention_ACT_365L
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_ACT_365A extends DayCountConvention_ACT {
@@ -74,3 +74,4 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT {
 		return daycountFraction;
 	}
 }
+

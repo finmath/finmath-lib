@@ -14,14 +14,14 @@ import net.finmath.time.TimeDiscretizationInterface;
  * A covariance model build from a volatility model implementing
  * <code>LIBORVolatilityModel</code> and a correlation model
  * implementing <code>LIBORCorrelationModel</code>.
- * 
+ *
  * <p>
  * The model parameters are given by the concatenation of the
  * parameters of the <code>LIBORVolatilityModel</code> and
  * the parameters of the <code>LIBORCorrelationModel</code>,
  * in this ordering
  * </p>
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLIBORCovarianceModelParametric {
@@ -61,13 +61,13 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 
 		double factorWeight = 0.0;
 		for(int componentIndex=0; componentIndex<numberOfComponents; componentIndex++) {
-			double factorElement = correlationModel.getFactorLoading(timeIndex, factor, componentIndex);            
-			factorWeight +=  factorElement*factorElement;                                                                                                                 
+			double factorElement = correlationModel.getFactorLoading(timeIndex, factor, componentIndex);
+			factorWeight +=  factorElement*factorElement;
 		}
 
 		factorLoadingPseudoInverse = factorLoadingPseudoInverse.mult(1/factorWeight);
 
-		return factorLoadingPseudoInverse;		
+		return factorLoadingPseudoInverse;
 	}
 
 	/* (non-Javadoc)
@@ -156,3 +156,4 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 		return correlationModel;
 	}
 }
+

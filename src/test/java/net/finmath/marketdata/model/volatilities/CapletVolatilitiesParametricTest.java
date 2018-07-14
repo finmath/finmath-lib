@@ -127,3 +127,4 @@ public class CapletVolatilitiesParametricTest {
 		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 1E-8);
 	}
 }
+

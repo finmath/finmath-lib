@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A performance index being numeratorIndex(t) / denominatorIndex(t)
- * 
+ *
  * @author Christian Fries
  */
 public class PerformanceIndex extends AbstractIndex {
@@ -26,7 +26,7 @@ public class PerformanceIndex extends AbstractIndex {
 
 	/**
 	 * Create a performance index being numeratorIndex(t) / denominatorIndex(t)
-	 * 
+	 *
 	 * @param numeratorIndex First index.
 	 * @param denominatorIndex Second index.
 	 */
@@ -43,7 +43,7 @@ public class PerformanceIndex extends AbstractIndex {
 
 	/**
 	 * Returns the numerator index.
-	 * 
+	 *
 	 * @return the numerator index.
 	 */
 	public AbstractProductComponent getNumeratorIndex() {
@@ -52,7 +52,7 @@ public class PerformanceIndex extends AbstractIndex {
 
 	/**
 	 * Returns the denominator index.
-	 * 
+	 *
 	 * @return the denominator index.
 	 */
 	public AbstractProductComponent getDenominatorIndex() {
@@ -73,3 +73,4 @@ public class PerformanceIndex extends AbstractIndex {
 		return underlyingNames;
 	}
 }
+

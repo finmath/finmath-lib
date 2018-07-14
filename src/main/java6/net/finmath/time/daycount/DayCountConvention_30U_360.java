@@ -16,9 +16,9 @@ import org.threeten.bp.Month;
  * </code>
  * where startDateDay and endDateDay are adjusted towards 30, when being larger than 30 or if isEndOfMonth, also if
  * they fall on the last day of February. See 30/360 US definition for details.
- * 
+ *
  * This day count convention is sometime called <i>Bond basis</i>.
- * 
+ *
  * <ul>
  * 	<li>
  * 		The method {@link #getDaycount(LocalDate, LocalDate) getDaycount} corresponds to the implementation of the "US method" of Excel function DAYS360, i.e., DAYS360(startDate,endDate,FALSE).
@@ -27,7 +27,7 @@ import org.threeten.bp.Month;
  * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the "30U/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,0).
  * 	</li>
  * </ul>
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_30U_360 implements DayCountConventionInterface {
@@ -42,7 +42,7 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 
 	/**
 	 * Create a 30U/360 day count convention.
-	 * 
+	 *
 	 * @param isEndOfMonth If true, an end-of-month day will always count as "30", even if we are in February.
 	 */
 	public DayCountConvention_30U_360(boolean isEndOfMonth) {
@@ -69,7 +69,7 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 		if(
 				isEndOfMonth &&
 				startDate.getMonth() == Month.FEBRUARY &&
-				startDate.getDayOfMonth() == startDate.lengthOfMonth() && 
+				startDate.getDayOfMonth() == startDate.lengthOfMonth() &&
 				endDate.getMonth() == Month.FEBRUARY &&
 				endDate.getDayOfMonth() == endDate.lengthOfMonth()
 				) {
@@ -100,3 +100,4 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }
+

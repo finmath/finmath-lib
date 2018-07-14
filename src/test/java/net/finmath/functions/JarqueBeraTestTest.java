@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretization;
 /**
  * Unit test, testing that the Brownian increment is normal distributed
  * using the Jarque-Bera test.
- * 
+ *
  * @author Christian Fries
  */
 public class JarqueBeraTestTest {
@@ -30,3 +30,4 @@ public class JarqueBeraTestTest {
 	}
 
 }
+

@@ -6,11 +6,11 @@ import net.finmath.randomnumbers.MersenneTwister;
 
 /**
  * A simple integrator using Monte-Carlo integration.
- * 
+ *
  * The constructor has an optional argument to allow
  * parallel function evaluation. In that case, the integration rule
  * uses Java 8 parallel streams to evaluate.
- * 
+ *
  * @author Christian Fries
  */
 public class MonteCarloIntegrator extends AbstractRealIntegral{
@@ -20,7 +20,7 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 
 	/**
 	 * Create an integrator using Simpson's rule.
-	 * 
+	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
@@ -36,7 +36,7 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 
 	/**
 	 * Create an integrator using Simpson's rule.
-	 * 
+	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
@@ -65,3 +65,4 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		return integral * range / numberOfEvaluationPoints;
 	}
 }
+

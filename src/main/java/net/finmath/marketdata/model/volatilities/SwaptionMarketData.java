@@ -12,12 +12,12 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Simple swaption market data class.
- * 
+ *
  * The class does currently not provide a surface interpolation
  * like SABR.
- * 
+ *
  * This will be added in a future version.
- * 
+ *
  * @author Christian Fries
  */
 public class SwaptionMarketData implements AbstractSwaptionMarketData {
@@ -113,3 +113,4 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];
 	}
 }
+

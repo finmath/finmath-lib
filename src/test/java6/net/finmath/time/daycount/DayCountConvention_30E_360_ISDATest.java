@@ -12,7 +12,7 @@ import org.threeten.bp.LocalDate;
 
 /**
  * Testing the 30E/360 DCC.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_30E_360_ISDATest {
@@ -89,7 +89,7 @@ public class DayCountConvention_30E_360_ISDATest {
 			0.5, /* value in case endDate is not a termination date, otherwise 0.4944444444 */
 			0.5,
 			0.5, /* value in case endDate is not a termination date, otherwise 0.4944444444 */
-			0.5		
+			0.5
 	};
 
 	double[] daycountFractionsIfEndDateIsTerminationDate = new double[] {
@@ -114,7 +114,7 @@ public class DayCountConvention_30E_360_ISDATest {
 			0.5-1.0/360.0, /* value in case endDate is a termination date, otherwise 0.5 */
 			0.5,
 			0.4944444444, /* value in case endDate is a termination date, otherwise 0.5 */
-			0.5		
+			0.5
 	};
 
 	@Test
@@ -141,3 +141,4 @@ public class DayCountConvention_30E_360_ISDATest {
 		}
 	}
 }
+

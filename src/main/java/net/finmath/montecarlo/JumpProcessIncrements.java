@@ -19,17 +19,17 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <i>J = (J<sub>1</sub>,...,J<sub>n</sub>)</i> where <i>J<sub>i</sub></i> is
  * a Poisson jump process and <i>J<sub>i</sub></i>, <i>J<sub>j</sub></i> are
  * independent for <i>i</i> not equal <i>j</i>.
- * 
+ *
  * Here the dimension <i>n</i> is called factors since the increments are used to
  * generate multi-dimensional multi-factor processes and there one might
  * use a different number of factors to generate processes of different
- * dimension. 
+ * dimension.
  *
  * The quadruppel (time discretization, jumpIntensities, number of paths, seed)
  * defines the state of an object of this class.
  *
  * The class is immutable and thread safe. It uses lazy initialization.
- * 
+ *
  * @author Christian Fries
  * @version 1.6
  */
@@ -51,12 +51,12 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 
 	/**
 	 * Construct a jump process.
-	 * 
+	 *
 	 * The constructor allows to set the factory to be used for the construction of
 	 * random variables. This allows to generate increments represented
 	 * by different implementations of the RandomVariableInterface (e.g. the RandomVariableLowMemory internally
 	 * using float representations).
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the increments.
 	 * @param jumpIntensities The jump intensities, one for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
@@ -82,7 +82,7 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 
 	/**
 	 * Construct a jump process.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param jumpIntensities The vector of jump intensities, one intensity for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
@@ -143,12 +143,12 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 			for(int factorIndex=0; factorIndex<jumpIntensities.length; factorIndex++) {
 				poissonDistribution[timeIndex][factorIndex] = new PoissonDistribution(timeDiscretization.getTimeStep(timeIndex)*jumpIntensities[factorIndex]);
 			}
-		} 
+		}
 
 
 		/*
 		 * Generate independent increments.
-		 * 
+		 *
 		 * The inner loop goes over time and factors.
 		 * MersenneTwister is known to generate "independent" increments in 623 dimensions.
 		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
@@ -217,3 +217,4 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 		incrementsLazyInitLock = new Object();
 	}
 }
+

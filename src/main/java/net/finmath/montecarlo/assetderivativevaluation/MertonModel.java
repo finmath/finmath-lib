@@ -24,11 +24,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
  * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
- * 
+ *
  * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
  * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
  * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
- * 
+ *
  *  The model can be rewritten as \( S = \exp(X) \), where
  * \[
  * 	dX = \mu dt + \sigma dW + dJ^{X}, \quad X(0) = \log(S_{0}),
@@ -38,7 +38,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	J^{X}(t) = \sum_{i=1}^{N(t)} \log(Y_{i})
  * \]
  * with \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \).
- * 
+ *
  * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
  * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \), \( \lambda_{1,1} = \sigma, \lambda_{1,2} = a - \frac{1}{2} b^2, \lambda_{1,3} = b \), i.e.,
  * of the SDE
@@ -46,9 +46,9 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	dX = \mu dt + \lambda_{1,1} dW + \lambda_{1,2} dN + \lambda_{1,3} Z dN, \quad X(0) = \log(S_{0}),
  * \]
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
- * 
+ *
  * For an example on the construction of the three factors \( dW \), \( dN \), and \( Z dN \) see {@link net.finmath.montecarlo.assetderivativevaluation.MonteCarloMertonModel}.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.assetderivativevaluation.MonteCarloMertonModel
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
@@ -66,7 +66,7 @@ public class MertonModel extends AbstractModel {
 
 	/**
 	 * Create a Heston model.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
@@ -182,3 +182,4 @@ public class MertonModel extends AbstractModel {
 	}
 
 }
+

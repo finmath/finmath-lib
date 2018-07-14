@@ -26,3 +26,4 @@ public class HestonModelFourierFactory implements ModelFactory<HestonModelDescri
 		return new net.finmath.fouriermethod.models.HestonModel(descriptor);
 	}
 }
+

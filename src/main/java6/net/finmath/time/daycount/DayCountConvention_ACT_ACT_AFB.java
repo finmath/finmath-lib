@@ -11,11 +11,11 @@ import org.threeten.bp.Month;
 
 /**
  * Implementation of ACT/ACT AFB.
- * 
+ *
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
- * 
+ *
  * A fractional day is rounded to the approximately nearest day.
- * 
+ *
  * The day count fraction is calculated using ACT_ACT_AFB convention. The algorithm works as follows:
  * <ul>
  * 	<li>
@@ -41,7 +41,7 @@ import org.threeten.bp.Month;
  * 		where the denominator is 366.0 if February 29th is in between start and end and 365.0 otherwise.
  * 	</li>
  * </ul>
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
@@ -73,13 +73,13 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 
 		if (fractionalPeriodEnd.isBefore(startDate)) {
 			fractionalPeriodEnd.plusYears(1);
-			// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year, again after changing the years. 
+			// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year, again after changing the years.
 			if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) {
 				fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());
 			}
 		}
 
-		double daycountFraction = endDate.getYear() - fractionalPeriodEnd.getYear(); 
+		double daycountFraction = endDate.getYear() - fractionalPeriodEnd.getYear();
 
 		double fractionPeriodDenominator = 365.0;
 		if(fractionalPeriodEnd.isLeapYear()) {
@@ -89,7 +89,7 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 			}
 		}
 		else if(startDate.isLeapYear()) {
-			LocalDate feb29th = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);				
+			LocalDate feb29th = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);
 			if(startDate.compareTo(feb29th) <= 0 && fractionalPeriodEnd.compareTo(feb29th) > 0) {
 				fractionPeriodDenominator = 366.0;
 			}
@@ -106,3 +106,4 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 	}
 
 }
+

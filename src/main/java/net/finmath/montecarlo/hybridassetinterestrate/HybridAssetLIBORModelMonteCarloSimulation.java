@@ -24,9 +24,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * rate simulation and the numeraire and an object implementing
  * <code>AssetModelMonteCarloSimulationInterface</code> providing the
  * asset simulation.
- * 
+ *
  * <b>The interest rate model needs to be in spot measure.</b>
- * 
+ *
  * @author Christian Fries
  */
 public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIBORModelMonteCarloSimulationInterface {
@@ -41,9 +41,9 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	 * rate simulation and the numeraire and an object implementing
 	 * <code>AssetModelMonteCarloSimulationInterface</code> providing the
 	 * asset simulation.
-	 * 
+	 *
 	 * The interest rate model needs to be in spot measure.
-	 * 
+	 *
 	 * @param liborSimulation An object implementing <code>LIBORModelMonteCarloSimulationInterface</code> providing the interest rate simulation and the numeraire.
 	 * @param assetSimulation An object implementing <code>AssetModelMonteCarloSimulationInterface</code> providing the asset simulation.
 	 * @param discountCurve An optional object implementing <code>DiscountCurveInterface</code> to adjust the numeraire for a deterministic discounting spread.
@@ -190,5 +190,6 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 		}
 
 		return getAssetValue(timeIndex, assetIndex);
-	}	
+	}
 }
+

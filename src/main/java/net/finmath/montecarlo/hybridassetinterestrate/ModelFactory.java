@@ -20,7 +20,7 @@ import net.finmath.optimizer.SolverException;
 
 /**
  * Helper factory to create a simple equity hybrid LIBOR market model.
- * 
+ *
  * @author Christian Fries
  */
 public class ModelFactory {
@@ -45,7 +45,7 @@ public class ModelFactory {
 	/**
 	 * Create a simple equity hybrid LIBOR market model with a calibration of the equity processes
 	 * to a given Black-Scholes implied volatility.
-	 * 
+	 *
 	 * @param baseModel LIBOR model providing the stochastic numeraire.
 	 * @param brownianMotion {@link BrownianMotionInterface} for the asset process.
 	 * @param initialValues Initial value of the asset process.
@@ -126,3 +126,4 @@ public class ModelFactory {
 		return hybridModel;
 	}
 }
+

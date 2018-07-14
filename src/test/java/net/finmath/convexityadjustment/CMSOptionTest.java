@@ -125,7 +125,7 @@ public class CMSOptionTest {
 		Swaption	swaption			= new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates);
 		double		swaptionNotional	= payoffUnit / swapAnnuity * (swapTenor[1]-swapTenor[0]);
 
-		double valueSwp = swaption.getValue(liborMarketModelMonteCarloSimulation);		
+		double valueSwp = swaption.getValue(liborMarketModelMonteCarloSimulation);
 		System.out.println("Swaption with LIBOR Market Model............................:\t" + formatterPercent.format(valueSwp * swaptionNotional));
 
 		double valueSwaptionAnalytic = swaption.getValue(forwardCurve, swaprateVolatility);
@@ -158,6 +158,7 @@ public class CMSOptionTest {
 
 		LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 
-		return liborMarketModelMonteCarloSimulation;		
+		return liborMarketModelMonteCarloSimulation;
 	}
 }
+

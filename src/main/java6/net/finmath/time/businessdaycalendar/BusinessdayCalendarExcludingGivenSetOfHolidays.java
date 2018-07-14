@@ -13,7 +13,7 @@ import org.threeten.bp.LocalDate;
 public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -485496533316101770L;
 	private final Set<LocalDate> holidays;
@@ -32,3 +32,4 @@ public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends Bus
 	 */
 	public Set<LocalDate> getHolidays() { return holidays; };
 }
+

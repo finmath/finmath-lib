@@ -21,7 +21,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
 
 /**
  * Implements the characteristic function of a Black Scholes model.
- * 
+ *
  * @author Christian Fries
  * @author Alessandro Gnoatto
  */
@@ -41,7 +41,7 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 
 	/**
 	 * Create a model from a model desciptor.
-	 * 
+	 *
 	 * @param descriptor A Black Scholes model descriptor.
 	 */
 	public BlackScholesModel(BlackScholesModelDescriptor descriptor) {
@@ -101,7 +101,7 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 
 	/**
 	 * Small helper to calculate rate off the curve or use constant.
-	 * 
+	 *
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
@@ -111,7 +111,7 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 
 	/**
 	 * Small helper to calculate rate off the curve or use constant.
-	 * 
+	 *
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
@@ -129,3 +129,4 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 		return (new SingleAssetFourierProductFactory()).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 	}
 }
+

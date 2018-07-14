@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
- * 
+ *
  */
 public class GammaProcessTest {
 
@@ -69,3 +69,4 @@ public class GammaProcessTest {
 		}
 	}
 }
+

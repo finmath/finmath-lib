@@ -44,9 +44,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <br>
  * The model uses an <code>AbstractLIBORCovarianceModel</code> for the specification of <i>(&lambda;<sub>1,j</sub>,...,&lambda;<sub>m,j</sub>)</i> as a covariance model,
  * which may have the ability to calibrate to swaptions.
- * 
+ *
  * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel
- * 
+ *
  * @author Christian Fries
  * @version 1.1
  */
@@ -95,7 +95,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param covarianceModel The covariance model to use.
@@ -112,7 +112,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -133,7 +133,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	/**
 	 * Creates a LIBOR Market Model using a given covariance model and calibrating this model
 	 * to given swaption volatility data.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param covarianceModel The covariance model to use.
@@ -151,7 +151,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -173,7 +173,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -295,7 +295,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * The numeraire is provided for interpolated points. If requested on points which are not
 	 * part of the tenor discretization, the numeraire uses a linear interpolation of the reciprocal
 	 * value. See ISBN 0470047224 for details.
-	 * 
+	 *
 	 * @param time Time time <i>t</i> for which the numeraire should be returned <i>N(t)</i>.
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
@@ -336,7 +336,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		// Initialize to 1.0
 		RandomVariableInterface numeraire = new RandomVariable(time, 1.0);
 
-		// The product 
+		// The product
 		for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
 			RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
 
@@ -380,9 +380,9 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * Return the complete vector of the drift for the time index timeIndex, given that current state is realizationAtTimeIndex.
 	 * Note: The random variable returned is a defensive copy and may be modified.
 	 * The drift will be zero for rates being already fixed.
-	 * 
+	 *
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelStandard#getNumeraire(double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
-	 * 
+	 *
 	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
 	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
 	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariable[]</code>
@@ -623,7 +623,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	/**
 	 * Alternative implementation for the drift. For experimental purposes.
-	 * 
+	 *
 	 * @param timeIndex
 	 * @param componentIndex
 	 * @param realizationAtTimeIndex
@@ -648,11 +648,11 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 			return drift;
 		}
 		else if(driftApproximationMethod == Driftapproximation.LINE_INTEGRAL && realizationPredictor != null) {
-			return getDriftLineIntegral(timeIndex, componentIndex, realizationAtTimeIndex, realizationPredictor);		    
+			return getDriftLineIntegral(timeIndex, componentIndex, realizationAtTimeIndex, realizationPredictor);
 		}
 		else {
 			return getDriftEuler(timeIndex, componentIndex, realizationAtTimeIndex);
-		}		
+		}
 	}
 
 	protected RandomVariableInterface getDriftEuler(int timeIndex, int componentIndex, RandomVariableInterface[] liborVectorStart) {
@@ -835,7 +835,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	/**
 	 * Return the swaption market data used for calibration (if any, may be null).
-	 * 
+	 *
 	 * @return The swaption market data used for calibration (if any, may be null).
 	 */
 	public AbstractSwaptionMarketData getSwaptionMarketData() {

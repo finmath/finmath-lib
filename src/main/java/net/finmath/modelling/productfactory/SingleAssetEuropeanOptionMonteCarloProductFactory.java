@@ -29,3 +29,4 @@ public class SingleAssetEuropeanOptionMonteCarloProductFactory implements Produc
 		return product;
 	}
 }
+

@@ -22,17 +22,17 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This class implements an analytic swaption valuation formula under
  * a LIBOR market model. The algorithm implemented here is
  * taken from ISBN 0470047224.
- * 
+ *
  * The approximation assumes that the forward rates (LIBOR) follow a
  * log normal model and that the model provides the integrated
  * instantaneous covariance of the log-forward rates.
  *
  * The getValue method calculates the approximated integrated instantaneous variance of the swap rate,
  * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
- * 
+ *
  * The valuation can be performed in terms of value or implied
  * volatility.
- * 
+ *
  *
  * @author Christian Fries
  */
@@ -51,9 +51,9 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 	/**
 	 * Create an analytic swaption approximation product for
 	 * log normal forward rate model.
-	 * 
+	 *
 	 * Note: It is implicitly assumed that swapTenor.getTime(0) is the exercise date (no forward starting).
-	 * 
+	 *
 	 * @param swaprate The strike swap rate of the swaption.
 	 * @param swapTenor The swap tenor in doubles.
 	 */
@@ -64,9 +64,9 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 	/**
 	 * Create an analytic swaption approximation product for
 	 * log normal forward rate model.
-	 * 
+	 *
 	 * Note: It is implicitly assumed that swapTenor[0] is the exercise date (no forward starting).
-	 * 
+	 *
 	 * @param swaprate The strike swap rate of the swaption.
 	 * @param swapTenor The swap tenor in doubles.
 	 * @param valueUnit The unit of the quantity returned by the getValues method.
@@ -91,7 +91,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 	/**
 	 * Calculates the approximated integrated instantaneous variance of the swap rate,
 	 * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
-	 * 
+	 *
 	 * @param evaluationTime Time at which the product is evaluated.
 	 * @param model A model implementing the LIBORModelMonteCarloSimulationInterface
 	 * @return Depending on the value of value unit, the method returns either
@@ -155,9 +155,9 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 	/**
 	 * This function calculate the partial derivative <i>d log(S) / d log(L<sub>k</sub>)</i> for
 	 * a given swap rate with respect to a vector of forward rates (on a given forward rate tenor).
-	 * 
+	 *
 	 * It also returns some useful other quantities like the corresponding discount factors and swap annuities.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The libor period discretization.
 	 * @param forwardCurveInterface The forward curve.
 	 * @param swapTenor The swap tenor.
@@ -229,3 +229,4 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 		return model.getIntegratedLIBORCovariance();
 	}
 }
+

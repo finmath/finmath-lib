@@ -20,14 +20,14 @@ import net.finmath.optimizer.SolverException;
 /**
  * Generates a calibrated model for a given set
  * of <code>calibrationProducts</code> with respect to given <code>Curve</code>s.
- * 
+ *
  * The model and the curve are assumed to be immutable, i.e., the solver
  * will return a calibrate clone, containing clones for every curve
  * which is part of the set of curves to be calibrated.
- * 
+ *
  * The calibration is performed as a multi-threaded global optimization.
  * I will greatly profit from a multi-core architecture.
- * 
+ *
  * @author Christian Fries
  */
 public class Solver {
@@ -49,7 +49,7 @@ public class Solver {
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
 	 * objective functions (dependents).
-	 * 
+	 *
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
 	 * @param calibrationTargetValues Array of target values for the objective functions.
@@ -71,7 +71,7 @@ public class Solver {
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
 	 * objective functions (dependents).
-	 * 
+	 *
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
 	 * @param calibrationTargetValues Array of target values for the objective functions.
@@ -93,7 +93,7 @@ public class Solver {
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
 	 * objective functions (dependents).
-	 * 
+	 *
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
 	 * @param calibrationTargetValues Array of target values for the objective functions.
@@ -107,7 +107,7 @@ public class Solver {
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
 	 * objective functions (dependents).
-	 * 
+	 *
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
 	 * @param evaluationTime Evaluation time applied to the calibration products.
@@ -120,7 +120,7 @@ public class Solver {
 	/**
 	 * Generate a solver for the given parameter objects (independents) and
 	 * objective functions (dependents).
-	 * 
+	 *
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
 	 */
@@ -136,7 +136,7 @@ public class Solver {
 	 * </code>
 	 * </center>
 	 * holds.
-	 * 
+	 *
 	 * @param objectsToCalibrate The set of parameterized objects to calibrate.
 	 * @return A reference to a calibrated clone of the given model.
 	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
@@ -227,7 +227,7 @@ public class Solver {
 
 	/**
 	 * Returns the number of iterations required in the last solver step.
-	 * 
+	 *
 	 * @return The number of iterations required.
 	 */
 	public int getIterations() {
@@ -236,10 +236,11 @@ public class Solver {
 
 	/**
 	 * Returns the accuracy achieved in the last solver run.
-	 * 
+	 *
 	 * @return The accuracy achieved in the last solver run.
 	 */
 	public double getAccuracy() {
 		return accuracy;
 	}
 }
+

@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class WorstOfExpressCertificate implements ProductInterface {
 
-	final double maturity;	
+	final double maturity;
 	final double[] strikeLevels;
 	final double[] exerciseDates;
 	final double[] triggerPerformanceLevel;
@@ -66,7 +66,7 @@ public class WorstOfExpressCertificate implements ProductInterface {
 
 			// if trigger >= 0 we have a payment and set the exerciseIndicator to 0.
 			values = values.add(trigger.barrier(trigger, payment, 0.0));
-			exerciseIndicator = exerciseIndicator.barrier(trigger, zero, exerciseIndicator);				
+			exerciseIndicator = exerciseIndicator.barrier(trigger, zero, exerciseIndicator);
 		}
 
 		/*
@@ -111,3 +111,4 @@ public class WorstOfExpressCertificate implements ProductInterface {
 		return worstPerformance;
 	}
 }
+

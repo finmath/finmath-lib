@@ -11,7 +11,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 
 /**
  * Implements the characteristic function of a Bates model.
- * 
+ *
  * The Bates model for an underlying \( S \) is given by
  * \[
  * 	dS(t) = r^{\text{c}} S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t) + S dJ, \quad S(0) = S_{0},
@@ -26,7 +26,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * 	dN(t) = r^{\text{d}} N(t) dt, \quad N(0) = N_{0},
  * \]
  * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
- * 
+ *
  * The free parameters of this model are:
  * <dl>
  * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
@@ -39,11 +39,11 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * 	<dt>\( a \)</dt> <dd>the jump size mean</dd>
  * 	<dt>\( b \)</dt> <dd>the jump size standard deviation</dd>
  * </dl>
- * 
+ *
  * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
  * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
  * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
- * 
+ *
  *  The model can be rewritten as \( S = \exp(X) \), where
  * \[
  * 	dX = \mu dt + \sqrt{V(t)} dW + dJ^{X}, \quad X(0) = \log(S_{0}),
@@ -53,8 +53,8 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * 	J^{X}(t) = \sum_{i=1}^{N(t)} \log(Y_{i})
  * \]
  * with \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \).
- * 
- * 
+ *
+ *
  * @author Christian Fries
  * @author Andy Graf
  * @author Lorenzo Toricelli
@@ -69,7 +69,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 	private final double[] alpha;
 	private final double[] beta;
 	private final double[] sigma;
-	private final double[] rho;	
+	private final double[] rho;
 
 	private final double[] lambda; //3 constants
 	private final double k;
@@ -79,7 +79,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 
 	/**
 	 * Create a two factor Bates model.
-	 * 
+	 *
 	 * @param initialValue Initial value of S.
 	 * @param riskFreeRate Risk free rate.
 	 * @param volatility Square root of initial value of the stochastic variance process V.
@@ -123,7 +123,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 
 	/**
 	 * Create a two factor Bates model.
-	 * 
+	 *
 	 * @param initialValue Initial value of S.
 	 * @param riskFreeRate Risk free rate.
 	 * @param volatility Square root of initial value of the stochastic variance process V.
@@ -164,7 +164,7 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 
 	/**
 	 * Create a one factor Bates model.
-	 * 
+	 *
 	 * @param initialValue Initial value of S.
 	 * @param riskFreeRate Risk free rate.
 	 * @param volatility Square root of initial value of the stochastic variance process V.
@@ -216,10 +216,10 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 				Complex c = iargument
 						.multiply(iargument)
 						.add(iargument.multiply(-1))
-						.multiply(0.5*delta*delta)			
+						.multiply(0.5*delta*delta)
 						.exp()
 						.multiply(new Complex(1+k).pow(iargument))
-						.add(-1)							
+						.add(-1)
 						.add(iargument.multiply(-k));
 
 				Complex[] gamma = new Complex[numberOfFactors];
@@ -305,3 +305,4 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 		};
 	}
 }
+

@@ -26,3 +26,4 @@ public interface StochasticOptimizerFactoryInterface {
 	StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] lowerBound, RandomVariableInterface[] upperBound, RandomVariableInterface[] parameterStep, RandomVariableInterface[] targetValues);
 
 }
+

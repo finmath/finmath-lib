@@ -25,10 +25,10 @@ import net.finmath.functions.LinearAlgebra;
  * f(x) = (sum a<sub>j</sub> x<sup>j</sup>) / (sum b<sub>k</sub> x<sup>k</sup>).
  * </li>
  * </ul>
- * 
+ *
  * This setup comprises linear interpolation (for which the function is C<sup>0</sup>) and
  * cubic spline interpolation (for which the function is C<sup>1</sup>).
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  */
@@ -51,9 +51,9 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		AKIMA,
 		/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
 		AKIMA_CONTINUOUS,
-		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/		
+		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
 		HARMONIC_SPLINE,
-		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/	
+		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/
 		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING
 
 	}
@@ -83,7 +83,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 		/**
 		 * Create a rational interpolation function.
-		 * 
+		 *
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
@@ -95,7 +95,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 		/**
 		 * Create a polynomial interpolation function.
-		 * 
+		 *
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
 		RationalFunction(double[] coefficients) {
@@ -106,7 +106,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 		/**
 		 * Returns the value for a given arguments.
-		 * 
+		 *
 		 * @param x Given argument.
 		 * @return Returns the value for the given argument.
 		 */
@@ -141,7 +141,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 	/**
 	 * Generate a rational function interpolation from a given set of points.
-	 * 
+	 *
 	 * @param points The array of the x<sub>i</sub> sample points of a function y=f(x).
 	 * @param values The corresponding array of the y<sub>i</sub> sample values to the sample points x<sub>i</sub>.
 	 */
@@ -154,7 +154,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	/**
 	 * Generate a rational function interpolation from a given set of points using
 	 * the specified interpolation and extrapolation method.
-	 * 
+	 *
 	 * @param points The array of the x<sub>i</sub> sample points of a function y=f(x).
 	 * @param values The corresponding array of the y<sub>i</sub> sample values to the sample points x<sub>i</sub>.
 	 * @param interpolationMethod The interpolation method to be used.
@@ -170,7 +170,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 	/**
 	 * Returns the interpolation method used.
-	 * 
+	 *
 	 * @return Returns the interpolationMethod.
 	 */
 	public InterpolationMethod getInterpolationMethod() {
@@ -179,7 +179,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 	/**
 	 * Get an interpolated value for a given argument x.
-	 * 
+	 *
 	 * @param x The abscissa at which the interpolation should be performed.
 	 * @return The interpolated value (ordinate).
 	 */
@@ -254,7 +254,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			break;
 		case HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING:
 			doCreateRationalFunctionsForHarmonicSplineInterpolation();
-			break;	
+			break;
 		}
 	}
 
@@ -273,7 +273,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			} else {
 				numeratorPolynomCoeff = new double[] {values[pointIndex]};
 			}
-			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);			
+			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);
 		}
 	}
 
@@ -297,7 +297,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			numeratorPolynomCoeff[1] = (fr-fl) / (xr-xl);
 			numeratorPolynomCoeff[0] = fl;
 
-			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);			
+			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);
 		}
 	}
 
@@ -315,7 +315,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 * Calculate 2nd derivatives of given function at states by solving
 		 * a linear system of equations (secondDerivativeMarix * secondDerivativeVector = v).
 		 */
-		double[] secondDerivativeVector	= new double[numberOfPoints];		
+		double[] secondDerivativeVector	= new double[numberOfPoints];
 
 		double[][]	secondDerivativeMarix	= new double[numberOfPoints][numberOfPoints];
 		double[]	v						= new double[numberOfPoints];
@@ -357,7 +357,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			numeratortorPolynomCoeff[2] = secondDerivativeVector[i] / 2;
 			numeratortorPolynomCoeff[3] = (secondDerivativeVector[i+1] - secondDerivativeVector[i]) / (6*step[i]);
 
-			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);			
+			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);
 		}
 	}
 
@@ -399,7 +399,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 				derivative[1] = (step[1] * slope[0] + step[0] * slope[1]) / (step[0] + step[1]);
 			}
 			else{
-				derivative[1] = (absSlopeDifference[1] * slope[0] + absSlopeDifference[0] * slope[1]) 
+				derivative[1] = (absSlopeDifference[1] * slope[0] + absSlopeDifference[0] * slope[1])
 						/ (absSlopeDifference[1] + absSlopeDifference[0]);
 			}
 
@@ -408,7 +408,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 				derivative[numberOfPoints-2] = (step[numberOfPoints-2] * slope[numberOfPoints-3] + step[numberOfPoints-3] * slope[numberOfPoints-2]) / (step[numberOfPoints-3] + step[numberOfPoints-2]);
 			}
 			else{
-				derivative[numberOfPoints-2] = 
+				derivative[numberOfPoints-2] =
 						(absSlopeDifference[numberOfPoints-3] * slope[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4] * slope[numberOfPoints-2])
 						/ (absSlopeDifference[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4]);
 			}
@@ -424,7 +424,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 					derivative[i] = (step[i] * slope[i-1] + step[i-1] * slope[i]) / (step[i-1] + step[i]);
 				}
 				else{
-					derivative[i] = 
+					derivative[i] =
 							(absSlopeDifference[i] * slope[i-1] + absSlopeDifference[i-2] * slope[i])
 							/ (absSlopeDifference[i] + absSlopeDifference[i-2]);
 				}
@@ -444,7 +444,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 				numeratorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];
 				numeratorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);
 
-				interpolatingRationalFunctions[i] = new RationalFunction(numeratorPolynomCoeff);			
+				interpolatingRationalFunctions[i] = new RationalFunction(numeratorPolynomCoeff);
 			}
 		}
 	}
@@ -472,7 +472,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		derivative[0] =(2*step[0] + step[1])/doubleStep[0] * slope[0] - step[0]/doubleStep[0] * slope[1];
 
 		// in t_n
-		derivative[numberOfPoints-1] =(2*step[numberOfPoints-2] + step[numberOfPoints-3])/doubleStep[numberOfPoints-3] * slope[numberOfPoints-2] 
+		derivative[numberOfPoints-1] =(2*step[numberOfPoints-2] + step[numberOfPoints-3])/doubleStep[numberOfPoints-3] * slope[numberOfPoints-2]
 				- step[numberOfPoints-2]/doubleStep[numberOfPoints-3] * slope[numberOfPoints-3];
 
 		//  monotonicity filtering
@@ -486,7 +486,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			}
 
 			// in t_n
-			if((derivative[numberOfPoints-1]*slope[numberOfPoints-2] > 0) && (slope[numberOfPoints-2]*slope[numberOfPoints-3] <= 0) 
+			if((derivative[numberOfPoints-1]*slope[numberOfPoints-2] > 0) && (slope[numberOfPoints-2]*slope[numberOfPoints-3] <= 0)
 					&& (Math.abs(derivative[numberOfPoints-1]) < 3*Math.abs(slope[numberOfPoints-2]))) {
 				derivative[numberOfPoints-1] = 3 * slope[numberOfPoints-2];
 			}
@@ -501,7 +501,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 				derivative[i] = 0;
 			}
 			else{
-				double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1]) 
+				double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1])
 						+ (2*step[i-1] + step[i]) / (3*doubleStep[i-1]*slope[i]);
 				derivative[i] = 1.0 / weightedHarmonicMean;
 			}
@@ -521,7 +521,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			numeratortorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];
 			numeratortorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);
 
-			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);			
+			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);
 		}
 
 	}
@@ -609,3 +609,4 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		interpolatingRationalFunctionsLazyInitLock = new Object();
 	}
 }
+

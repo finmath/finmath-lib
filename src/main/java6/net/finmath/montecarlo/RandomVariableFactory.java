@@ -9,7 +9,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A factory (helper class) to create random variables.
- * 
+ *
  * By changing the factory implementation used, you can (more or less globally)
  * change which implementation of random variable is used.
  *
@@ -47,3 +47,4 @@ public class RandomVariableFactory extends AbstractRandomVariableFactory {
 		}
 	}
 }
+

@@ -60,11 +60,11 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 
 /**
  * This class tests the Hull White model and products.
- * 
+ *
  * It also compares a Hull White model to a special parameterization of the
- * LIBOR Market model, illustrating that a special parameterization of the 
+ * LIBOR Market model, illustrating that a special parameterization of the
  * LIBOR Market model is equivalent to the Hull White model.
- * 
+ *
  * @author Christian Fries
  */
 public class HullWhiteModelTest {
@@ -420,10 +420,10 @@ public class HullWhiteModelTest {
 			}
 			else if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModelWithDirectSimulation) {
 				forwardBondVolatility = Math.sqrt(((HullWhiteModelWithDirectSimulation)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
-			}				
+			}
 			else if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModelWithShiftExtension) {
 				forwardBondVolatility = Math.sqrt(((HullWhiteModelWithShiftExtension)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
-			}				
+			}
 
 			double bondForward = (1.0+forward*periodLength);
 			double bondStrike = (1.0+strike*periodLength);
@@ -886,3 +886,4 @@ public class HullWhiteModelTest {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve);
 	}
 }
+

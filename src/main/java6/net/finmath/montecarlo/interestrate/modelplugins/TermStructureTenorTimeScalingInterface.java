@@ -16,7 +16,7 @@ public interface TermStructureTenorTimeScalingInterface {
 
 	/**
 	 * Create a new object constructed from a clone of this time scaling, where some parameters have been modified.
-	 * 
+	 *
 	 * @param parameters The set of new parameters.
 	 * @return A new object constructed from a clone of this time scaling, where some parameters have been modified.
 	 */
@@ -32,3 +32,4 @@ public interface TermStructureTenorTimeScalingInterface {
 	 */
 	TermStructureTenorTimeScalingInterface clone();
 }
+

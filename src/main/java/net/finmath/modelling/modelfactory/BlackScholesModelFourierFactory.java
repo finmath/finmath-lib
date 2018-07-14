@@ -26,3 +26,4 @@ public class BlackScholesModelFourierFactory implements ModelFactory<BlackSchole
 		return new net.finmath.fouriermethod.models.BlackScholesModel(descriptor);
 	}
 }
+

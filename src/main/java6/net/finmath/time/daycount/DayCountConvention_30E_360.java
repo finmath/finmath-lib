@@ -10,14 +10,14 @@ import org.threeten.bp.LocalDate;
 
 /**
  * Implementation of 30E/360 and 30E+/360.
- * 
+ *
  * Calculates the day count of 30E/360 as
  * <code>
  *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0))
  * </code>
- * 
+ *
  * This day count convention is sometime called <i>Eurobond basis</i> or <i>30/360 ISMA</i>.
- * 
+ *
  * For 30E/360 we have that:
  * <ul>
  * 	<li>
@@ -27,9 +27,9 @@ import org.threeten.bp.LocalDate;
  * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the "30E/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,4).
  * 	</li>
  * </ul>
- * 
+ *
  * The day count of 30E+/360 is that of 30E/360 whenever endDateDay is &le; 30, otherwise it is that of 30E/360 plus one.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_30E_360 implements DayCountConventionInterface {
@@ -38,7 +38,7 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 
 	/**
 	 * Create a 30E/360 or 30E+/360 day count convention.
-	 * 
+	 *
 	 * @param is30Eplus360 If true, then 30E+/360 is constructed, otherwise 30E/360 is constructed.
 	 */
 	public DayCountConvention_30E_360(boolean is30Eplus360) {
@@ -86,3 +86,4 @@ public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }
+

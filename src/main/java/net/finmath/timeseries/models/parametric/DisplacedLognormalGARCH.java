@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 15.07.2012
  */
 
@@ -22,23 +22,23 @@ import net.finmath.timeseries.HistoricalSimulationModel;
 
 /**
  * Displaced log-normal process with GARCH(1,1) volatility.
- * 
+ *
  * This class estimate the process
  * \[
  *   \mathrm{d} \log(X + a) = \frac{\sigma}{b + a} \mathrm{d}W(t)
  * \]
  * where \( a &gt; -min(X(t_{i}) \) and thus \( X+a &gt; 0 \) and \( b = 1 - -min(X(t_{i}) \) \) and
  * \( \sigma \) is given by a GARCH(1,1) process.
- * 
+ *
  * The choice of b ensures that b+a &ge; 1.
  * For a=0 we have a log-normal process with volatility &sigma;/(b + a).
  * For a=infinity we have a normal process with volatility &sigma;.
- * 
+ *
  * @author Christian Fries
  */
 public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
-	private double[] values;	
+	private double[] values;
 	private double lowerBoundDisplacement;
 	private double upperBoundDisplacement = 10000000;
 	private int windowIndexStart;
@@ -301,7 +301,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 						maxIterations,
 						objectiveFunction,
 						GoalType.MAXIMIZE,
-						guessParameters 
+						guessParameters
 						);
 				bestParameters = result.getPoint();
 			} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
@@ -343,3 +343,4 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		return value;
 	}
 }
+

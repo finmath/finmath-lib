@@ -8,7 +8,7 @@ package net.finmath.rootfinder;
 /**
  * This class implements Ridders root finder as a question-and-answer algorithm.
  * The method is documented in Numerical Receipts in C.
- * 
+ *
  * @author Christian Fries
  * @version 1.1
  * @date 2008-04-06
@@ -20,8 +20,8 @@ public class RiddersMethod implements RootFinder {
 	private final double[] values = new double[3]; // left, middle, right
 
 	/*
-	 * State of solver 
-	 */	
+	 * State of solver
+	 */
 	private double	nextPoint;						// Stores the next point to return by getPoint()
 	private int		solverState			= 0;		// Internal state of the solver - see <code>setValue()</code>
 
@@ -161,7 +161,7 @@ public class RiddersMethod implements RootFinder {
 			solverState = 2;				// Next state is 2
 
 			// Savety belt: check if still improve or if we have reached machine accuracy
-			//			if(Math.abs(points[2]-points[0]) >= accuracy) isDone = true;	
+			//			if(Math.abs(points[2]-points[0]) >= accuracy) isDone = true;
 
 			break;
 		}
@@ -201,7 +201,7 @@ public class RiddersMethod implements RootFinder {
 		return isDone;
 	}
 
-	private static double sign(double a, double b) 
+	private static double sign(double a, double b)
 	{
 		return b>= 0.0 ? (a>=0 ? a : -a) : (a>0 ? -a : a);
 	}

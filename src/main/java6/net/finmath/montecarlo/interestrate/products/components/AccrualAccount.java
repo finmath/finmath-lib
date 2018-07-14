@@ -16,10 +16,10 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implementation of a general accrual account.
- * 
+ *
  * This class is an improved version of the {@link net.finmath.montecarlo.interestrate.products.MoneyMarketAccount} except that it
  * allow the use of a general index for accrual and also supports past fixings.
- * 
+ *
  * @author Christian Fries
  *
  */
@@ -33,7 +33,7 @@ public class AccrualAccount extends AbstractProductComponent {
 
 	/**
 	 * Create an accrual account.
-	 * 
+	 *
 	 * @param currency The currency of this account.
 	 * @param pastFixings An analytic model index which is used for past fixings, i.e., all calls to getValue with evaluationTime &lt; 0 are delegated to this index.
 	 * @param accrualIndex The accrual index.
@@ -60,7 +60,7 @@ public class AccrualAccount extends AbstractProductComponent {
 		RandomVariableInterface value = pastFixings.getValue(0.0, model);
 
 		// Loop over accrual periods
-		for(double time=0.0; time<evaluationTime; time += accrualPeriod) {	
+		for(double time=0.0; time<evaluationTime; time += accrualPeriod) {
 			// Get the forward fixed at the beginning of the period
 			RandomVariableInterface	forwardRate				= accrualIndex.getValue(time, model);
 			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
@@ -72,3 +72,4 @@ public class AccrualAccount extends AbstractProductComponent {
 		return value;
 	}
 }
+

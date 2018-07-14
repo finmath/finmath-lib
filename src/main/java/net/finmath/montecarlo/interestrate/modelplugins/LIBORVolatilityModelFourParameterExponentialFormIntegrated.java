@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \[
  * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
  * \]
- * 
+ *
  * The parameters here have some interpretation:
  * <ul>
  * <li>The parameter a: an initial volatility level.</li>
@@ -30,7 +30,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \[
  * 	\left( \sigma^{\text{Black}}_{i}(t_{k}) \right)^2 = \frac{1}{t_{k} \int_{0}^{t_{k}} \left( ( a + b (T_{i}-t) ) exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t \text{.}
  * \]
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends LIBORVolatilityModel {
@@ -52,7 +52,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	 * \[
 	 * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
 	 * \]
-	 * 
+	 *
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -138,3 +138,4 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 				);
 	}
 }
+

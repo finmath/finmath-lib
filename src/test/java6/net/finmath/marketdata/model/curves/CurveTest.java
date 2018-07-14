@@ -18,7 +18,7 @@ import net.finmath.optimizer.SolverException;
 
 /**
  * A short demo on how to use {@link net.finmath.marketdata.model.curves.Curve}.
- * 
+ *
  * @author Christian Fries
  */
 public class CurveTest {
@@ -27,7 +27,7 @@ public class CurveTest {
 
 	/**
 	 * Run a short demo on how to use {@link net.finmath.marketdata.model.curves.Curve}.
-	 * 
+	 *
 	 * @param args Not used.
 	 * @throws SolverException Thrown if optimizer fails.
 	 * @throws CloneNotSupportedException Thrown if curve cannot be cloned for optimization.
@@ -38,7 +38,7 @@ public class CurveTest {
 
 	/**
 	 * Tests fitting of curve to given data.
-	 * 
+	 *
 	 * @throws SolverException Thrown if optimizer fails.
 	 * @throws CloneNotSupportedException Thrown if curve cannot be cloned for optimization.
 	 */
@@ -82,7 +82,7 @@ public class CurveTest {
 				curve.getParameter()	/* initial parameters */,
 				givenValues				/* target values */,
 				100,					/* max iterations */
-				Runtime.getRuntime().availableProcessors() /* max number of threads */	
+				Runtime.getRuntime().availableProcessors() /* max number of threads */
 				) {
 
 			private static final long serialVersionUID = -5128114286941153154L;
@@ -128,3 +128,4 @@ public class CurveTest {
 		Assert.assertEquals("Deviation", errorSum, -2.5, 1E-5);
 	}
 }
+

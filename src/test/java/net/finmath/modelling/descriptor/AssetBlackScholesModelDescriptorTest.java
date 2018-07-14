@@ -33,7 +33,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * Unit test creating a Black-Scholes model and a European option from corresponding model descriptors and product descriptors
  * using two different factories: Fourier versus Monte-Carlo.
- * 
+ *
  * @author Christian Fries
  */
 public class AssetBlackScholesModelDescriptorTest {
@@ -141,11 +141,11 @@ public class AssetBlackScholesModelDescriptorTest {
 
 	/**
 	 * Get the discount curve using the riskFreeRate.
-	 * 
+	 *
 	 * @param name Name of the curve
 	 * @param referenceDate Date corresponding to t=0.
 	 * @param riskFreeRate Constant continuously compounded rate
-	 * 
+	 *
 	 * @return the discount curve using the riskFreeRate.
 	 */
 	private static DiscountCurveInterface getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
@@ -160,7 +160,7 @@ public class AssetBlackScholesModelDescriptorTest {
 
 	/**
 	 * Create a Brownian motion implementing BrownianMotionInterface from given specs.
-	 * 
+	 *
 	 * @param numberOfTimeSteps The number of time steps.
 	 * @param deltaT The time step size.
 	 * @param numberOfFactors The number of factors.
@@ -175,3 +175,4 @@ public class AssetBlackScholesModelDescriptorTest {
 	}
 
 }
+

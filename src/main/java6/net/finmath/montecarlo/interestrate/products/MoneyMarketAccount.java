@@ -15,14 +15,14 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Implements the valuation of a money market account. The money market account
  * is characterized by its inception time <i>t<sub>0</sub></i> and its accrual period
  * <i>&Delta; t</i>. <br>
- * 
+ *
  * With <i>t<sub>i</sub> := t<sub>0</sub> + i &Delta; t</i>
  * the money market account value <i>N(t<sub>0</sub>) = 1</i> and
  * <i>N(t) = N(t<sub>i</sub>) (1 + L(t<sub>i</sub>,t<sub>i+1</sub>;t<sub>i</sub>) (t - t<sub>i</sub>))</i>.
  * for <i>t<sub>i</sub> &lt; t &lt; t<sub>i+1</sub></i>. <br>
- * 
+ *
  * The value of the account at inception is 1.0. The value of the account prior to inception is zero.
- * 
+ *
  * @author Christian Fries
  */
 public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
@@ -33,7 +33,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a money market account.
-	 * 
+	 *
 	 * @param inceptionTime The inception time. The value of the account at inception is 1.0. The value of the account prior to inception is zero.
 	 * @param initialValue The initial value, i.e., the value at inception time.
 	 * @param accrualPeriod The accrual period. If this period is &lt; 0, then the finest model LIBOR period discretization is used
@@ -47,7 +47,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a money market account.
-	 * 
+	 *
 	 * @param inceptionTime The inception time. The value of the account at inception is 1.0. The value of the account prior to inception is zero.
 	 * @param accrualPeriod The accrual period. If this period is &lt; 0, then the finest model LIBOR period discretization is used
 	 */
@@ -80,7 +80,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 		RandomVariableInterface value = new RandomVariable(initialValue);
 
 		// Loop over accrual periods
-		for(double time=inceptionTime; time<evaluationTime; time += accrualPeriod) {	
+		for(double time=inceptionTime; time<evaluationTime; time += accrualPeriod) {
 			// Get the forward fixed at the beginning of the period
 			RandomVariableInterface	forwardRate				= model.getLIBOR(time, time, time+accrualPeriod);
 			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
@@ -92,3 +92,4 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 		return value;
 	}
 }
+

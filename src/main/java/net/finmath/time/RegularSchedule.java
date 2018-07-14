@@ -14,7 +14,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
- * 
+ *
  * @author Christian Fries
  */
 public class RegularSchedule implements ScheduleInterface {
@@ -23,7 +23,7 @@ public class RegularSchedule implements ScheduleInterface {
 
 	/**
 	 * Create a schedule from a time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 */
 	public RegularSchedule(TimeDiscretizationInterface timeDiscretization) {
@@ -96,3 +96,4 @@ public class RegularSchedule implements ScheduleInterface {
 		return getPeriodIndex(time);
 	}
 }
+

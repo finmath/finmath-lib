@@ -20,10 +20,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * The swap valuation supports distinct discounting and forward curve.
  * Support for day counting is limited to the capabilities of
  * <code>TimeDiscretizationInterface</code>.
- * 
+ *
  * The swap is just the composition of two <code>SwapLeg</code>s, namely the
  * receiver leg and the payer leg. The value of the swap is the value of the receiver leg minus the value of the payer leg.
- * 
+ *
  * @author Christian Fries
  */
 public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -33,7 +33,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Create a swap which values as <code>legReceiver - legPayer</code>.
-	 * 
+	 *
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payler leg.
 	 */
@@ -45,7 +45,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
-	 * 
+	 *
 	 * @param scheduleReceiveLeg Schedule of the receiver leg.
 	 * @param forwardCurveReceiveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadReceive Fixed spread on the forward or fix rate.
@@ -71,7 +71,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
-	 * 
+	 *
 	 * @param scheduleReceiveLeg Schedule of the receiver leg.
 	 * @param forwardCurveReceiveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadReceive Fixed spread on the forward or fix rate.
@@ -92,7 +92,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
-	 * 
+	 *
 	 * @param scheduleReceiveLeg Schedule of the receiver leg.
 	 * @param spreadReceive Fixed spread on the forward or fix rate.
 	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
@@ -111,7 +111,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 
 		double valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
 		double valuePayerLeg	= legPayer.getValue(evaluationTime, model);
@@ -164,7 +164,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Return the receiver leg of the swap, i.e. the leg who's value is added to the swap value.
-	 * 
+	 *
 	 * @return The receiver leg of the swap.
 	 */
 	public AnalyticProductInterface getLegReceiver() {
@@ -173,7 +173,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	/**
 	 * Return the payer leg of the swap, i.e. the leg who's value is subtracted from the swap value.
-	 * 
+	 *
 	 * @return The payer leg of the swap.
 	 */
 	public AnalyticProductInterface getLegPayer() {
@@ -186,3 +186,4 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 				+ "]";
 	}
 }
+

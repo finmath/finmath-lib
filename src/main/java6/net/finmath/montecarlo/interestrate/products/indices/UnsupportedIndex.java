@@ -14,13 +14,13 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * An index throwing an exception if his <code>getValue</code> method is called.
- * 
+ *
  * This class can be used to created indices which triggers an exception only upon usage (i.e., late).
- * 
+ *
  * A typical use case is a financial product referencing an index in one of its past payments,
  * which is not supported by the current model. In that case the product can be valued as of a future
  * date, but no necessarily as of a past date.
- * 
+ *
  * @author Christian Fries
  */
 public class UnsupportedIndex extends AbstractIndex {
@@ -30,7 +30,7 @@ public class UnsupportedIndex extends AbstractIndex {
 
 	/**
 	 * Creates an unsupported index throwing an exception if his <code>getValue</code> method is called.
-	 * 
+	 *
 	 * @param name The name of the index.
 	 * @param exception The exception to be thrown if this index is valued.
 	 */
@@ -41,7 +41,7 @@ public class UnsupportedIndex extends AbstractIndex {
 
 	/**
 	 * Creates an unsupported index throwing an exception if his <code>getValue</code> method is called.
-	 * 
+	 *
 	 * @param exception The exception.
 	 */
 	public UnsupportedIndex(Exception exception) {
@@ -65,3 +65,4 @@ public class UnsupportedIndex extends AbstractIndex {
 		return underlying;
 	}
 }
+

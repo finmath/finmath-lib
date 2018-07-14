@@ -8,7 +8,7 @@ package net.finmath.rootfinder;
 /**
  * This is the interface for a one dimensional root finder
  * implemented as an question-and-answer algorithm.
- * 
+ *
  * @author Christian Fries
  * @date 2008-04-06
  */
@@ -45,3 +45,4 @@ public interface RootFinderWithDerivative {
 	 */
 	double getBestPoint();
 }
+

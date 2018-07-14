@@ -48,7 +48,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class tests the LIBOR market model and products.
- * 
+ *
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
@@ -67,7 +67,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 
 	private final Measure measure;
 
-	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
+	private LIBORModelMonteCarloSimulationInterface liborMarketModel;
 
 	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -618,7 +618,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
 				this.liborMarketModel.getLiborPeriodDiscretization(),
-				forwardCurve, discountCurve, covarianceModelParametric, calibrationItems.toArray(new CalibrationItem[0]), null);	
+				forwardCurve, discountCurve, covarianceModelParametric, calibrationItems.toArray(new CalibrationItem[0]), null);
 
 		/*
 		 * Test our calibration

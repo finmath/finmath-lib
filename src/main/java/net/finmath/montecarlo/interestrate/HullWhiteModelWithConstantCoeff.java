@@ -21,12 +21,12 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements a Hull-White model with constant coefficients.
- * 
+ *
  * <i>
  * A more general implementation of the Hull-White model can be found in {@link net.finmath.montecarlo.interestrate.HullWhiteModel}.
  * For details and documentation please see {@link net.finmath.montecarlo.interestrate.HullWhiteModel} for real applications.
  * </i>
- * 
+ *
  * @author Christian Fries
  */
 public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LIBORModelInterface {
@@ -53,7 +53,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
 	 * @param analyticModel The analytic model to be used (currently not used, may be null).
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
@@ -298,7 +298,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	 * and
 	 * \( \phi(t,T) \) is the value calculated from integrating \( ( \sigma(s) B(s,T) )^{2} \) with respect to s from t to T
 	 * in <code>getShortRateConditionalVariance</code>.
-	 * 
+	 *
 	 * @param time The parameter t.
 	 * @param maturity The parameter T.
 	 * @return The value A(t,T).
@@ -321,7 +321,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	/**
 	 * Calculates \( B(t,T) = \int_{t}^{T} \exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau) \mathrm{d}s \), where a is the mean reversion parameter.
 	 * For a constant \( a \) this results in \( \frac{1-\exp(-a (T-t)}{a} \), but the method also supports piecewise constant \( a \)'s.
-	 * 
+	 *
 	 * @param time The parameter t.
 	 * @param maturity The parameter T.
 	 * @return The value of B(t,T).
@@ -335,7 +335,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	 * \(
 	 * \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau
 	 * \) where \( a \) is the meanReversion and \( \sigma \) is the short rate instantaneous volatility.
-	 * 
+	 *
 	 * @param time The parameter s in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau \)
 	 * @param maturity The parameter t in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot a \cdot (t-\tau)) \ \mathrm{d}\tau \)
 	 * @return The integrated square volatility.

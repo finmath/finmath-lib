@@ -14,7 +14,7 @@ import org.junit.Test;
 
 /**
  * Unit test for the SimpsonRealIntegrator.
- * 
+ *
  * @author Christian Fries
  */
 public class SimpsonRealIntegratorTest {
@@ -64,3 +64,4 @@ public class SimpsonRealIntegratorTest {
 		Assert.assertEquals("Integreation error.", 0.0, error, 1E-13);
 	}
 }
+

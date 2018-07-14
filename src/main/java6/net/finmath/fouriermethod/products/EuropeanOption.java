@@ -9,16 +9,16 @@ import org.apache.commons.math3.complex.Complex;
 
 /**
  * Implements valuation of a European option on a single asset.
- * 
+ *
  * Given a model for an asset <i>S</i>, the European option with strike <i>K</i>, maturity <i>T</i>
  * pays
  * <br>
  * 	<i>max(S(T) - K , 0)</i> in <i>T</i>
  * <br>
- * 
+ *
  * The class implements the characteristic function of the call option
  * payoff, i.e., its Fourier transform.
- * 
+ *
  * @author Christian Fries
  * @author Alessandro Gnoatto
  * @version 1.0
@@ -49,7 +49,7 @@ public class EuropeanOption extends AbstractProductFourierTransform {
 		Complex iargument = argument.multiply(Complex.I);
 		Complex exponent = (iargument).add(1);
 		Complex numerator = (new Complex(strike)).pow(exponent);
-		Complex denominator = (argument.multiply(argument)).subtract(iargument);	
+		Complex denominator = (argument.multiply(argument)).subtract(iargument);
 
 		return numerator.divide(denominator).negate();
 	}
@@ -78,3 +78,4 @@ public class EuropeanOption extends AbstractProductFourierTransform {
 		return 2.5;
 	}
 }
+

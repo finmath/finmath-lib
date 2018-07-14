@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A time-lagged index paying index(t+fixingOffset)
- * 
+ *
  * @author Christian Fries
  */
 public class LaggedIndex extends AbstractIndex {
@@ -26,7 +26,7 @@ public class LaggedIndex extends AbstractIndex {
 
 	/**
 	 * Creates a time-lagged index paying index(t+fixingOffset).
-	 * 
+	 *
 	 * @param index An index.
 	 * @param fixingOffset Offset added to the fixing (evaluation time) of this index to fix the underlying index.
 	 */
@@ -46,3 +46,4 @@ public class LaggedIndex extends AbstractIndex {
 		return index.getValue(evaluationTime + fixingOffset, model);
 	}
 }
+

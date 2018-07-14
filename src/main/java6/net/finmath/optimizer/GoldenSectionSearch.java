@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 25.01.2004
  */
 
@@ -9,23 +9,23 @@ package net.finmath.optimizer;
 /**
  * This class implements a Golden Section search algorithm, i.e., a minimization,
  * implemented as a question-and-answer search algorithm.
- * 
+ *
  * Example:
  * <pre>
  * <code>
- * 		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);		
+ * 		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);
  * 		while(search.getAccuracy() &gt; 1E-11 &amp;&amp; !search.isDone()) {
  * 			double x = search.getNextPoint();
- * 			
+ *
  * 			double y = (x - 0.656) * (x - 0.656);
- * 			
+ *
  * 			search.setValue(y);
  * 		}
  * </code>
  * </pre>
- * 
+ *
  * For an example on how to use this class see also its main method.
- * 
+ *
  * @author Christian Fries - http://www.christian-fries.de
  * @version 1.1
  */
@@ -39,7 +39,7 @@ public class GoldenSectionSearch {
 	private final double[] values = new double[3]; // left, middle, right
 
 	/*
-	 * State of solver 
+	 * State of solver
 	 */
 
 	private double	nextPoint;						// Stores the next point to return by getPoint()
@@ -53,9 +53,9 @@ public class GoldenSectionSearch {
 		System.out.println("Test of GoldenSectionSearch Class.\n");
 
 		// Test 1
-		System.out.println("1. Find minimum of f(x) = (x - 0.656) * (x - 0.656):");		
+		System.out.println("1. Find minimum of f(x) = (x - 0.656) * (x - 0.656):");
 
-		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);		
+		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
 			double x = search.getNextPoint();
 
@@ -69,9 +69,9 @@ public class GoldenSectionSearch {
 		System.out.println("Iterations: " + search.getNumberOfIterations() + "\n");
 
 		// Test 2
-		System.out.println("2. Find minimum of f(x) = cos(x) on [0.0,6.0]:");		
+		System.out.println("2. Find minimum of f(x) = cos(x) on [0.0,6.0]:");
 
-		GoldenSectionSearch search2 = new GoldenSectionSearch(0.0, 6.0);		
+		GoldenSectionSearch search2 = new GoldenSectionSearch(0.0, 6.0);
 		while(search2.getAccuracy() > 1E-11 && !search2.isDone()) {
 			double x = search2.getNextPoint();
 
@@ -109,7 +109,7 @@ public class GoldenSectionSearch {
 
 	/**
 	 * Returns the next point for which a valuation is requested.
-	 * 
+	 *
 	 * @return Returns the next point for which a value should be set using <code>setValue</code>.
 	 */
 	public double getNextPoint() {
@@ -121,7 +121,7 @@ public class GoldenSectionSearch {
 	 * Set the value corresponding to the point returned by a previous call of <code>getNextPoint()</code>.
 	 * If setValue is called without prior call to getNextPoint(),
 	 * e.g., when called twice, a RuntimeException is thrown.
-	 * 
+	 *
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint()</code> call.
 	 */
 	public void setValue(double value) {
@@ -143,7 +143,7 @@ public class GoldenSectionSearch {
 				} else {
 					nextPoint = getGoldenSection(points[1], points[2]);
 				}
-			}			
+			}
 		}
 		else {
 			/**
@@ -206,7 +206,7 @@ public class GoldenSectionSearch {
 			accuracy = points[2]-points[0];
 		}
 
-		numberOfIterations++;			
+		numberOfIterations++;
 		expectingValue = false;
 	}
 
@@ -251,3 +251,4 @@ public class GoldenSectionSearch {
 		return isDone;
 	}
 }
+

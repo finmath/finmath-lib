@@ -15,19 +15,19 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * An accrued interest index.
- * 
+ *
  * For a given index I this class's getValue function calculates the value
  * \( I(t_{0}) \cdot \frac{\max(\text{dcf}(t,T_{end}),0)}{\text{dcf}(T_{start},T_{end})} \) \text{,}
  * where \( \text{dcf} \) is the given day count convention and T_{start} and T_{end} are the
  * period start and period end date respectively and \( t \) is the fixing date.
- * 
+ *
  * The fixingDate is provided as an argument to the getValue method in terms of a ACT/365 day count fraction from
  * the given reference date.
- * 
+ *
  * Note that the value returned is not numeraire adjusted, i.e., not discounted.
- * 
+ *
  * Note that the index is fixed in \( t \). For
- * 
+ *
  * @author Christian Fries
  */
 public class AccruedInterest extends AbstractIndex {
@@ -46,7 +46,7 @@ public class AccruedInterest extends AbstractIndex {
 
 	/**
 	 * Create an accrued interest index.
-	 * 
+	 *
 	 * @param name The name of the index.
 	 * @param currency The payment currency.
 	 * @param referenceDate The model reference date (corresponding to t=0).
@@ -93,3 +93,4 @@ public class AccruedInterest extends AbstractIndex {
 		return referenceDate.plusDays(Math.round((float)(fixingTime*365.0)));
 	}
 }
+

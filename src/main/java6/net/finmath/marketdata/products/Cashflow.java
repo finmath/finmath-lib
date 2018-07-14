@@ -10,9 +10,9 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 
 /**
  * Implements the valuation of a single cashflow by a discount curve.
- * 
+ *
  * @TODO: Currency is neither checked nor used.
- * 
+ *
  * @author Christian Fries
  */
 public class Cashflow extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -24,7 +24,7 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 
 	/**
 	 * Create a single deterministic cashflow at a fixed time.
-	 * 
+	 *
 	 * @param currency The currency.
 	 * @param flowAmount The amount of the cash flow.
 	 * @param flowDate The flow date.
@@ -41,7 +41,7 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -57,3 +57,4 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 }
+

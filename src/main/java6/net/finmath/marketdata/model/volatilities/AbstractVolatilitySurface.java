@@ -16,7 +16,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 /**
  * Abstract base class for a volatility surface. It stores the name of the surface and
  * provides some convenient way of getting values.
- *  
+ *
  * @author Christian Fries
  */
 public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInterface, Cloneable {
@@ -62,14 +62,14 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 
 	/**
 	 * Convert the value of a caplet from one quoting convention to another quoting convention.
-	 * 
+	 *
 	 * @param model An analytic model providing the context when fetching required market date.
 	 * @param optionMaturity Option maturity of the caplet.
 	 * @param optionStrike Option strike of the caplet.
 	 * @param value Value of the caplet given in the form of <code>fromQuotingConvention</code>.
 	 * @param fromQuotingConvention The quoting convention of the given value.
 	 * @param toQuotingConvention The quoting convention requested.
-	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>. 
+	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>.
 	 */
 	public double convertFromTo(AnalyticModelInterface model, double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
 
@@ -120,13 +120,13 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 
 	/**
 	 * Convert the value of a caplet from one quoting convention to another quoting convention.
-	 * 
+	 *
 	 * @param optionMaturity Option maturity of the caplet.
 	 * @param optionStrike Option strike of the caplet.
 	 * @param value Value of the caplet given in the form of <code>fromQuotingConvention</code>.
 	 * @param fromQuotingConvention The quoting convention of the given value.
 	 * @param toQuotingConvention The quoting convention requested.
-	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>. 
+	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>.
 	 */
 	public double convertFromTo(double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
 		return convertFromTo(null, optionMaturity, optionStrike, value, fromQuotingConvention, toQuotingConvention);

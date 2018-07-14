@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 15.02.2004
  */
 package net.finmath.montecarlo.interestrate.products;
@@ -16,12 +16,12 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * Implements the pricing of a portfolio of AbstractLIBORMonteCarloProduct products
  * under a AbstractLIBORMarketModel. The products can be scaled by weights.
- * 
+ *
  * The value of the portfolio is that of
  * \( \sum_{i=0}^{n} weights\[i\] \cdot products\[i\] \text{.} \)
- * 
+ *
  * Note: Currently the products have to be of the same currency.
- * 
+ *
  * @author Christian Fries
  * @date 08.09.2006
  * @version 1.2
@@ -35,9 +35,9 @@ public class Portfolio extends AbstractProductComponent {
 
 	/**
 	 * Creates a portfolio consisting of a single product and a weight.
-	 * 
+	 *
 	 * The currency of this portfolio is the currency of the product.
-	 * 
+	 *
 	 * @param product A product.
 	 * @param weight A weight.
 	 */
@@ -49,9 +49,9 @@ public class Portfolio extends AbstractProductComponent {
 
 	/**
 	 * Creates a portfolio consisting of a set of products and a weights.
-	 * 
+	 *
 	 * Note: Currently the products have to be of the same currency.
-	 * 
+	 *
 	 * @param products An array of products.
 	 * @param weights An array of weights (having the same lengths as the array of products).
 	 */
@@ -70,9 +70,9 @@ public class Portfolio extends AbstractProductComponent {
 
 	/**
 	 * Creates a portfolio consisting of a set of products and a weights.
-	 * 
+	 *
 	 * Note: Currently the products have to be of the same currency, namely the one provided.
-	 * 
+	 *
 	 * @param currency The currency of the value of this portfolio when calling <code>getValue</code>.
 	 * @param products An array of products.
 	 * @param weights An array of weights (having the same lengths as the array of products).
@@ -122,12 +122,12 @@ public class Portfolio extends AbstractProductComponent {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @TODO The conversion between different currencies is currently not performed.
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
@@ -156,3 +156,4 @@ public class Portfolio extends AbstractProductComponent {
 		return weights.clone();
 	}
 }
+

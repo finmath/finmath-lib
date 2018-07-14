@@ -11,7 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A single deterministic cashflow at a fixed time
- * 
+ *
  * @author Christian Fries
  * @version 1.1
  */
@@ -25,7 +25,7 @@ public class Cashflow extends AbstractProductComponent {
 
 	/**
 	 * Create a single deterministic cashflow at a fixed time.
-	 * 
+	 *
 	 * @param currency The currency.
 	 * @param flowAmount The amount of the cash flow.
 	 * @param flowDate The flow date.
@@ -40,7 +40,7 @@ public class Cashflow extends AbstractProductComponent {
 
 	/**
 	 * Create a single deterministic cashflow at a fixed time.
-	 * 
+	 *
 	 * @param flowAmount The amount of the cash flow.
 	 * @param flowDate The flow date.
 	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
@@ -52,20 +52,20 @@ public class Cashflow extends AbstractProductComponent {
 	@Override
 	public Set<String> queryUnderlyings() {
 		return null;
-	}    
+	}
 
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * cash-flows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Note: We use > here. To distinguish an end of day valuation use hour of day for cash flows and evaluation date.
 		if(evaluationTime > flowDate) {
@@ -87,13 +87,14 @@ public class Cashflow extends AbstractProductComponent {
 		}
 
 		// Return values
-		return values;	
-	}    
+		return values;
+	}
 
 	@Override
 	public String toString() {
 		return "Cashflow [flowAmount=" + flowAmount + ", flowDate=" + flowDate
 				+ ", isPayer=" + isPayer + ", toString()=" + super.toString()
 				+ "]";
-	}    
+	}
 }
+

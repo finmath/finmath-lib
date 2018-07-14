@@ -22,7 +22,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
  * A collection of convenient methods constructing some more specialized curves.
- * 
+ *
  * @author Christian Fries
  */
 public class CurveFactory {
@@ -34,20 +34,20 @@ public class CurveFactory {
 
 	/**
 	 * Creates a monthly index curve with seasonality and past fixings.
-	 * 
+	 *
 	 * This methods creates an index curve (e.g. for a CPI index) using provided <code>annualizedZeroRates</code>
 	 * for the forwards (expected future CPI values) and <code>indexFixings</code> for the past
 	 * fixings.
-	 * 
+	 *
 	 * It may also "overlay" the future values with a seasonality adjustment. The seasonality adjustment
 	 * is either taken from adjustment factors provided in <code>seasonalityAdjustments</code> or
 	 * (if that argument is null) estimated from the <code>indexFixings</code>. The the latter case
 	 * use <code>seasonalAveragingNumerOfYears</code> to specify the number of years which should be used
 	 * to estimate the seasonality adjustments.
-	 * 
+	 *
 	 * @param name The name of the curve.
 	 * @param referenceDate The reference date of the curve.
-	 * @param indexFixings A Map&lt;LocalDate, Double&gt; of past fixings. 
+	 * @param indexFixings A Map&lt;LocalDate, Double&gt; of past fixings.
 	 * @param seasonalityAdjustments A Map&lt;String, Double&gt; of seasonality adjustments (annualized continuously compounded rates for the given month, i.e., the seasonality factor is exp(seasonalityAdjustment/12)), where the String keys are "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december".
 	 * @param seasonalAveragingNumberOfYears If seasonalityAdjustments is null you may provide an integer representing a number of years to have the seasonality estimated from the past fixings in <code>indexFixings</code>.
 	 * @param annualizedZeroRates Map&lt;LocalDate, Double&gt; of annualized zero rates for given maturities.
@@ -161,7 +161,7 @@ public class CurveFactory {
 		 */
 		double currentProjectedIndexValue = baseValue;
 		if(seasonCurve != null) {
-			// Rescale initial value of with seasonality  
+			// Rescale initial value of with seasonality
 			currentProjectedIndexValue /= seasonCurve.getValue(baseTime);
 
 			CurveInterface indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
@@ -176,3 +176,4 @@ public class CurveFactory {
 		}
 	}
 }
+

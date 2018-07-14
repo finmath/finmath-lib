@@ -8,7 +8,7 @@ package net.finmath.rootfinder;
 /**
  * This class implements a root finder as question-and-answer algorithm
  * using Newton's method.
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  * @date 2008-04-06
@@ -93,3 +93,4 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 		return isDone;
 	}
 }
+

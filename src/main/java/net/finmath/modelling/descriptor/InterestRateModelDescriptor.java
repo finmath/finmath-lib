@@ -5,3 +5,4 @@ import net.finmath.modelling.ModelDescriptor;
 public interface InterestRateModelDescriptor extends ModelDescriptor {
 
 }
+

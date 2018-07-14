@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 23.02.2004
  */
 
@@ -21,12 +21,12 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
- * 
+ *
  * It is basically a functional wrapper using either the Colt library or Apache commons math.
- * 
+ *
  * I am currently preferring to use Colt, due to better performance in some situations, however it allows
  * to easily switch some parts to Apache commons math (this is the motivation for this class).
- * 
+ *
  * @author Christian Fries
  * @version 1.6
  */
@@ -63,7 +63,7 @@ public class LinearAlgebra {
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param matrixA The matrix A (left hand side of the linear equation).
 	 * @param b The vector (right hand of the linear equation).
 	 * @return A solution x to A x = b.
@@ -75,10 +75,10 @@ public class LinearAlgebra {
 
 			DecompositionSolver solver;
 			if(matrix.getColumnDimension() == matrix.getRowDimension()) {
-				solver = new LUDecomposition(matrix).getSolver();			
+				solver = new LUDecomposition(matrix).getSolver();
 			}
 			else {
-				solver = new QRDecomposition(new Array2DRowRealMatrix(matrixA)).getSolver();			
+				solver = new QRDecomposition(new Array2DRowRealMatrix(matrixA)).getSolver();
 			}
 
 			// Using SVD - very slow
@@ -100,7 +100,7 @@ public class LinearAlgebra {
 
 	/**
 	 * Returns the inverse of a given matrix.
-	 * 
+	 *
 	 * @param matrix A matrix given as double[n][n].
 	 * @return The inverse of the given matrix.
 	 */
@@ -125,14 +125,14 @@ public class LinearAlgebra {
 	 * <li>b is an n - vector given as double[n],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param matrix The matrix A (left hand side of the linear equation).
 	 * @param vector The vector b (right hand of the linear equation).
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationSymmetric(double[][] matrix, double[] vector) {
 		if(isSolverUseApacheCommonsMath) {
-			DecompositionSolver solver = new LUDecomposition(new Array2DRowRealMatrix(matrix)).getSolver();			
+			DecompositionSolver solver = new LUDecomposition(new Array2DRowRealMatrix(matrix)).getSolver();
 			return solver.solve(new Array2DRowRealMatrix(vector)).getColumn(0);
 		}
 		else {
@@ -153,7 +153,7 @@ public class LinearAlgebra {
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param matrix The matrix A (left hand side of the linear equation).
 	 * @param vector The vector b (right hand of the linear equation).
 	 * @return A solution x to A x = b.
@@ -167,7 +167,7 @@ public class LinearAlgebra {
 	/**
 	 * Returns the matrix of the n Eigenvectors corresponding to the first n largest Eigenvalues of a correlation matrix.
 	 * These Eigenvectors can also be interpreted as "principal components" (i.e., the method implements the PCA).
-	 * 
+	 *
 	 * @param correlationMatrix The given correlation matrix.
 	 * @param numberOfFactors The requested number of factors (eigenvectors).
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
@@ -178,7 +178,7 @@ public class LinearAlgebra {
 
 	/**
 	 * Returns a correlation matrix which has rank &lt; n and for which the first n factors agree with the factors of correlationMatrix.
-	 * 
+	 *
 	 * @param correlationMatrix The given correlation matrix.
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Factor reduced correlation matrix.
@@ -190,7 +190,7 @@ public class LinearAlgebra {
 	/**
 	 * Returns the matrix of the n Eigenvectors corresponding to the first n largest Eigenvalues of a correlation matrix.
 	 * These eigenvectors can also be interpreted as "principal components" (i.e., the method implements the PCA).
-	 * 
+	 *
 	 * @param correlationMatrix The given correlation matrix.
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
@@ -252,7 +252,7 @@ public class LinearAlgebra {
 
 	/**
 	 * Returns a correlation matrix which has rank &lt; n and for which the first n factors agree with the factors of correlationMatrix.
-	 * 
+	 *
 	 * @param correlationMatrix The given correlation matrix.
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Factor reduced correlation matrix.
@@ -277,7 +277,7 @@ public class LinearAlgebra {
 				// This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
 				for (int factor = 0; factor < numberOfFactors; factor++) {
 					factorMatrix[row][factor] = 1.0;
-				}			    
+				}
 			}
 		}
 
@@ -289,10 +289,10 @@ public class LinearAlgebra {
 
 	/**
 	 * Calculate the "matrix exponential" (expm).
-	 * 
+	 *
 	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
 	 * A future version of this function may implement a fall back.
-	 * 
+	 *
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
@@ -302,10 +302,10 @@ public class LinearAlgebra {
 
 	/**
 	 * Calculate the "matrix exponential" (expm).
-	 * 
+	 *
 	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
 	 * A future version of this function may implement a fall back.
-	 * 
+	 *
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
@@ -313,3 +313,4 @@ public class LinearAlgebra {
 		return new Array2DRowRealMatrix(exp(matrix.getData()));
 	}
 }
+

@@ -41,3 +41,4 @@ public class TrapezoidalRealIntegratorTest {
 		Assert.assertEquals("Difference of trapezoidal and Simpson's rule", 0.0, valueSimpsons-valueTrapezoidal, 0.000001);
 	}
 }
+

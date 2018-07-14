@@ -15,3 +15,4 @@ public abstract class AbstractRootFinder implements RootFinder, RootFinderWithDe
 		setValue(value);
 	}
 }
+

@@ -21,3 +21,4 @@ public abstract class AbstractRandomVariableFactory {
 
 	public abstract RandomVariableInterface createRandomVariable(double time, double[] values);
 }
+

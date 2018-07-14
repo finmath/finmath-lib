@@ -15,19 +15,19 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements a delta and delta-gamma hedged portfolio of an European option (a hedge simulator).
- * 
+ *
  * The hedge is done under the assumption of a Black Scholes Model (even if the pricing model is a different one).
- * 
+ *
  * In case of the gamma hedge and the vega hedge, note that we make the assumption that the
  * market trades these option according to Black-Scholes parameters assumed in hedging.
  * While this is a simple model, it is to some extend resonable, when we assume that the
  * hedge is done by calculating delta from a calibrated model (where the risk free rate and
  * the volatility are "market implied").
- * 
+ *
  * That said, this class evaluates the hedge portfolio given that the market implies a given
  * risk free rate and volatility, while the underlying follows a given (possibly different) stochastic
  * process.
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  */
@@ -36,7 +36,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	public enum HedgeStrategy {
 		deltaHedge,
 		deltaGammaHedge,
-		deltaVegaHedge		
+		deltaVegaHedge
 	}
 
 	// Properties of the European option we wish to replicate
@@ -78,7 +78,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 
 	/**
 	 * Construction of a hedge portfolio assuming a Black-Scholes model for the hedge ratios.
-	 * 
+	 *
 	 * @param maturity		Maturity of the option we wish to replicate.
 	 * @param strike		Strike of the option we wish to replicate.
 	 * @param riskFreeRate	Model riskFreeRate assumption for our delta hedge.
@@ -129,7 +129,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		Arrays.fill(amountOfHedgeOptions, 0.0);
 
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
-			// Get value of underlying and numeraire assets			
+			// Get value of underlying and numeraire assets
 			RandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
 			RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
@@ -254,7 +254,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		//
 		double[] portfolioValue				= new double[numberOfPath];
 
-		// Get value of underlying and numeraire assets			
+		// Get value of underlying and numeraire assets
 		RandomVariableInterface underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
 		RandomVariableInterface numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
 		for(int path=0; path<portfolioValue.length; path++)
@@ -272,7 +272,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 						riskFreeRate,
 						volatility,
 						hedgeOptionMaturity-model.getTime(timeIndexEvaluationTime),	// remaining time
-						hedgeOptionStrike); 
+						hedgeOptionStrike);
 			}
 
 			portfolioValue[path] =
@@ -284,3 +284,4 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		return new RandomVariable(evaluationTime, portfolioValue);
 	}
 }
+

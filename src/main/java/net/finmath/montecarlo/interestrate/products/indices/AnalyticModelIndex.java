@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * An index which is given by a name referencing a curve of an analytic model.
- * 
+ *
  * @author Christian Fries
  */
 public class AnalyticModelIndex extends AbstractIndex {
@@ -29,7 +29,7 @@ public class AnalyticModelIndex extends AbstractIndex {
 
 	/**
 	 * Creates an analytic model index using a given fixing offset (in days / 365).
-	 * 
+	 *
 	 * @param name The name of an index. Used to map an index on a curve.
 	 * @param curveName The name of the curve used to infer the forward of this index.
 	 * @param fixingOffset An offset added to the fixing to define the period start. Measured in days / 365.
@@ -61,7 +61,7 @@ public class AnalyticModelIndex extends AbstractIndex {
 
 	/**
 	 * Returns the fixingOffet as an act/365 day count.
-	 * 
+	 *
 	 * @return the fixingOffet
 	 */
 	public double getPeriodStartOffset() {

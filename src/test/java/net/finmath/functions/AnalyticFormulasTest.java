@@ -73,7 +73,7 @@ public class AnalyticFormulasTest {
 		for(double displacement2 = 0.5; displacement2>0; displacement2 -= 0.001) {
 			givenVolatilities[0] = givenVolatilities[0] + 0.00001;
 			final double displacement3 = displacement2;
-			LevenbergMarquardt lm = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, numberOfThreads) {			
+			LevenbergMarquardt lm = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, numberOfThreads) {
 				private static final long serialVersionUID = -4799790311777696204L;
 
 				@Override
@@ -234,12 +234,12 @@ public class AnalyticFormulasTest {
 	/**
 	 * This test shows the Bachelier risk neutral probabilities
 	 * compared to Black-Scholes risk neutral probabilities.
-	 * 
+	 *
 	 * The Bachelier model allows for negative values of the underlying.
-	 * 
+	 *
 	 * The parameters in this test are such that value of the ATM option
 	 * is similar in both models.
-	 * 
+	 *
 	 */
 	@Test
 	public void testBachelierRiskNeutralProbabilities() {
@@ -252,11 +252,11 @@ public class AnalyticFormulasTest {
 		Double volatilityLN = 0.849;
 		Double optionMaturity = 10.0;
 
-		// We calculate risk neutral probs using a finite difference approx. of Breden-Litzenberger 
+		// We calculate risk neutral probs using a finite difference approx. of Breden-Litzenberger
 		double eps = 1E-8;
 
 		System.out.println("Strike K" + "          \t" +
-				"Bachelier Value " + "     \t" + 
+				"Bachelier Value " + "     \t" +
 				"Bachelier P(S<K) " + "    \t" +
 				"Black-Scholes Value " + " \t" +
 				"Black-Scholes P(S<K) " + "\t");
@@ -275,7 +275,7 @@ public class AnalyticFormulasTest {
 
 			System.out.println(
 					numberFormatStrike.format(optionStrike) + "         \t" +
-							numberFormatValue.format(valuePutBa1) + "         \t" + 
+							numberFormatValue.format(valuePutBa1) + "         \t" +
 							numberFormatProbability.format(probabilityBachelier) + "         \t" +
 							numberFormatValue.format(valuePutBS1) + "         \t" +
 							numberFormatProbability.format(probabilityBlackScholes));
@@ -288,7 +288,8 @@ public class AnalyticFormulasTest {
 				Assert.assertTrue("For strike<0: Black Scholes probability for underlying < 0 should be 0:", probabilityBlackScholes < 1E-8);
 
 			}
-		}	
+		}
 	}
 
 }
+

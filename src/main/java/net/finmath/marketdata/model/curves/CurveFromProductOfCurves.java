@@ -12,7 +12,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * A curve derived from other curves by multiplying the values.
- * 
+ *
  * @author Christian Fries
  */
 public class CurveFromProductOfCurves extends AbstractCurve implements Serializable, CurveInterface {
@@ -23,7 +23,7 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 
 	/**
 	 * Create a curve using one or more curves.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date of this curve.
 	 * @param curves Argument list or array of curves.
@@ -60,3 +60,4 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 		throw new CloneNotSupportedException("Cloning is unsupported for this curve.");
 	}
 }
+

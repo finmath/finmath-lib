@@ -11,7 +11,7 @@ import java.time.LocalDate;
 /**
  * Abstract base class for a curve. It stores the name of the curve and
  * provides some convenient way of getting values.
- *  
+ *
  * @author Christian Fries
  */
 public abstract class AbstractCurve implements CurveInterface, Serializable, Cloneable {

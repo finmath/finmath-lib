@@ -17,14 +17,14 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * A parametric caplet volatility surface created form the four parameter model
  * for the instantaneous <i>displaced</i> forward rate lognormal volatility given by
  * \( \sigma(t) = (a + b t) \exp(- c t) + d \).
- * 
+ *
  * In other words, the Black volatility of the <i>displaced</i> rate for maturity T is given by
  * \[ \sqrt{ \frac{1}{T} \int_0^T ((a + b t) \exp(- c t) + d)^2 dt } \].
- * 
+ *
  * The displacement may be either set as a fixed parameter (isDisplacementCalibrateable = false) or
  * as a free parameter (isDisplacementCalibrateable = true). This will alter the behavior of
  * the getCloneForParameter method which either requires a double[4] or a double[5] argument.
- * 
+ *
  * @author Christian Fries
  */
 public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends AbstractVolatilitySurfaceParametric {
@@ -36,7 +36,7 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 
 	/**
 	 * Create a model with parameters a,b,c,d defining a displaced lognormal volatility surface.
-	 * 
+	 *
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param forwardCurve The underlying forward curve.
@@ -175,3 +175,4 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	}
 
 }
+

@@ -26,15 +26,15 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 
 /**
  * A very simple container for Caplet volatilities.
- * 
+ *
  * It performs piecewise constant interpolation (discretization) in maturity dimension on iso-moneyness lines
  * and uses the default interpolation from the Curve class in strike dimension.
- * 
+ *
  * It allows to convert from several quoting conventions.
- * 
+ *
  * It needs a forward curve and a discount curve. The tenor length of the Caplet is inferred
  * from the forward curve.
- * 
+ *
  * @TODO: Need to add forward and discount curve to support implied vol.
  * @author Christian Fries
  */
@@ -80,7 +80,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	/**
 	 * Private constructor for empty surface, to add points to it.
-	 * 
+	 *
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 */
@@ -155,7 +155,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	public static AbstractVolatilitySurface fromFile(File inputFile) throws FileNotFoundException {
 		// Read data
-		BufferedReader		dataStream	= new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));		
+		BufferedReader		dataStream	= new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
 		ArrayList<String>	datasets	= new ArrayList<>();
 		try {
 			while(true) {
@@ -208,3 +208,4 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		lazyInitLock = new Object();
 	}
 }
+

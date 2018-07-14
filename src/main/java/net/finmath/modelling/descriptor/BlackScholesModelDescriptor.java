@@ -81,3 +81,4 @@ public class BlackScholesModelDescriptor implements AssetModelDescriptor {
 		return volatility;
 	}
 }
+

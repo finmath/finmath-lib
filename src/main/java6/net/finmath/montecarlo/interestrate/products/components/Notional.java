@@ -11,7 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A constant (non-stochastic) notional.
- * 
+ *
  * @author Christian Fries
  */
 public class Notional implements AbstractNotional {
@@ -21,7 +21,7 @@ public class Notional implements AbstractNotional {
 
 	/**
 	 * Creates a constant (non-stochastic) notional.
-	 * 
+	 *
 	 * @param notional The constant notional value.
 	 * @param currency The currency.
 	 */
@@ -33,7 +33,7 @@ public class Notional implements AbstractNotional {
 
 	/**
 	 * Creates a constant (non-stochastic) notional.
-	 * 
+	 *
 	 * @param notional The constant notional value.
 	 */
 	public Notional(double notional) {
@@ -61,3 +61,4 @@ public class Notional implements AbstractNotional {
 				+ "]";
 	}
 }
+

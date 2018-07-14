@@ -28,7 +28,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This class represents a collection of several "tests" illustrating different aspects
  * related to the Monte-Carlo Simulation and derivative pricing (using a simple
  * Black-Scholes model.
- * 
+ *
  * @author Christian Fries
  */
 public class BlackScholesMonteCarloValuationTest {
@@ -49,7 +49,7 @@ public class BlackScholesMonteCarloValuationTest {
 	/**
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
 	 * performed with this model.
-	 * 
+	 *
 	 * @param args Arguments - not used.
 	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
 	 * @throws InterruptedException Thrown if multi-threadded execution is interrupted.
@@ -84,11 +84,11 @@ public class BlackScholesMonteCarloValuationTest {
 			break;
 		case 6:
 			// This test requires a MonteCarloBlackScholesModel and will not work with others models
-			pricingTest.testEuropeanCallDelta();    	
+			pricingTest.testEuropeanCallDelta();
 			break;
 		case 7:
 			// This test requires a MonteCarloBlackScholesModel and will not work with others models
-			pricingTest.testEuropeanCallVega();    	
+			pricingTest.testEuropeanCallVega();
 			break;
 		}
 
@@ -133,7 +133,7 @@ public class BlackScholesMonteCarloValuationTest {
 	{
 		/*
 		 * Lazy initialize the model
-		 */	
+		 */
 		if(model == null) {
 			// Create the time discretization
 			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, deltaT);
@@ -192,7 +192,7 @@ public class BlackScholesMonteCarloValuationTest {
 			double valueAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
 			// Print result
-			System.out.println(numberFormatStrike.format(optionStrike) + 
+			System.out.println(numberFormatStrike.format(optionStrike) +
 					"\t" + numberFormatValue.format(valueMonteCarlo) +
 					"\t" + numberFormatValue.format(valueAnalytic) +
 					"\t" + numberFormatDeviation.format(valueMonteCarlo-valueAnalytic));
@@ -203,7 +203,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 	/**
 	 * Test some properties of the model
-	 * 
+	 *
 	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
 	 */
 	@Test
@@ -250,14 +250,14 @@ public class BlackScholesMonteCarloValuationTest {
 
 	/**
 	 * Evaluates different options (European, Asian, Bermudan) using the given model.
-	 * 
+	 *
 	 * The options share the same maturity and strike for the at t=3.0.
 	 * Observations which can be made:
 	 * <ul>
 	 * <li>The Asian is cheaper than the European since averaging reduces the volatility.
 	 * <li>The European is cheaper than the Bermudan since exercises into the European is one (out of may) exercises strategies of the Bermudan.
 	 * </ul>
-	 * 
+	 *
 	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
 	 */
 	@Test
@@ -316,7 +316,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 	/**
 	 * Evaluates 100000 Asian options in 10 parallel threads (each valuing 10000 options)
-	 * 
+	 *
 	 * @throws InterruptedException Thrown if multi-threadded execution is interrupted.
 	 */
 	public void testMultiThreaddedValuation() throws InterruptedException {
@@ -324,7 +324,7 @@ public class BlackScholesMonteCarloValuationTest {
 		final double maturity = 5.0;
 		final double strike = 1.07;
 
-		int			numberOfThreads	= 10;		
+		int			numberOfThreads	= 10;
 		Thread[]	myThreads		= new Thread[numberOfThreads];
 
 		for(int k=0; k<myThreads.length; k++) {
@@ -422,7 +422,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 
 			// Print result
-			System.out.println(numberFormatStrike.format(optionStrike) + 
+			System.out.println(numberFormatStrike.format(optionStrike) +
 					"\t" + numberFormatValue.format(delta) +
 					"\t" + numberFormatValue.format(deltaAnalytic) +
 					"\t" + numberFormatDeviation.format(delta-deltaAnalytic));
@@ -494,7 +494,7 @@ public class BlackScholesMonteCarloValuationTest {
 			double vegaAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionVega(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
 			// Print result
-			System.out.println(numberFormatStrike.format(optionStrike) + 
+			System.out.println(numberFormatStrike.format(optionStrike) +
 					"\t" + numberFormatValue.format(vega) +
 					"\t" + numberFormatValue.format(vegaAnalytic) +
 					"\t" + numberFormatDeviation.format(vega-vegaAnalytic));
@@ -504,3 +504,4 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("__________________________________________________________________________________________\n");
 	}
 }
+

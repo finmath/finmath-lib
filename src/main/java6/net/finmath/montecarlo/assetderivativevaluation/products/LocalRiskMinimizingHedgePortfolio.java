@@ -19,12 +19,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This class implements a mean variance hedged portfolio of a given product (a hedge simulator).
  * The hedge is done using a given model, that is, the model generating the states and the model
  * used to calculate the hedge portfolio may be different!
- * 
+ *
  * <br>
  * WARNING: If the model used for calculating the delta is "slow" (e.g., a Monte-Carlo simulation)
  * then the calculation might take very long.
  * <br>
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
@@ -40,7 +40,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 
 	/**
 	 * Construction of a variance minimizing hedge portfolio.
-	 * 
+	 *
 	 * @param productToHedge The financial product for which the hedge portfolio should be constructed.
 	 * @param modelUsedForHedging The model used for calculating the hedge rations (deltas). This may differ from the model passed to <code>getValue</code>.
 	 * @param timeDiscretizationForRebalancing The times at which the portfolio is re-structured.
@@ -86,7 +86,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 				break;
 			}
 
-			// Get value of underlying and numeraire assets	
+			// Get value of underlying and numeraire assets
 			RandomVariableInterface underlyingAtTime = modelUsedForHedging.getAssetValue(time,0);
 			RandomVariableInterface numeraireAtTime  = modelUsedForHedging.getNumeraire(time);
 			RandomVariableInterface underlyingAtTimeNext = modelUsedForHedging.getAssetValue(timeNext,0);
@@ -137,7 +137,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		 * At maturity, calculate the value of the replication portfolio
 		 */
 
-		// Get value of underlying and numeraire assets			
+		// Get value of underlying and numeraire assets
 		RandomVariableInterface underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
 		RandomVariableInterface numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 
@@ -148,7 +148,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 
 	/**
 	 * Create basis functions for a binning.
-	 * 
+	 *
 	 * @param underlying
 	 * @return
 	 */
@@ -166,3 +166,4 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		return basisFunctionList.toArray(new RandomVariableInterface[0]);
 	}
 }
+

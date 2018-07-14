@@ -33,7 +33,7 @@ public class BlackScholesThetaTest {
 		}
 
 		Assert.assertArrayEquals(optionValue, analyticalOptionValue, 2e-2);
-		*/
+		 */
 
 		// First refactoring attempt
 		int numTimesteps = 35;
@@ -66,3 +66,4 @@ public class BlackScholesThetaTest {
 		System.out.println(Arrays.toString(optionValue));
 	}
 }
+

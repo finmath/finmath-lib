@@ -6,7 +6,7 @@
  * 		set of points and an interpolation and extrapolation method or a functional form
  * 		(like the SABR model).
  *
- * 
+ *
  * @author Christian Fries
  */
 package net.finmath.analytic.model.volatilities;

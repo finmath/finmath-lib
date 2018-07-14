@@ -12,11 +12,11 @@ import java.util.List;
  * This interface describes the methods implemented by an immutable random variable, i.e.
  * methods that leave a random variable unchanged (immutable).
  * This is used to ensure that arguments or return values are not changed.
- * 
+ *
  * For C++ guys: In C++ you could achieve this by making a return value const.
  *
  * <br>
- * 
+ *
  * <b>IMPORTANT:</b> As of version 1.3 / revision 487 the design of RandomVariable, RandomVariableInterface has changed:
  * All methods of RandomVariable leave the object immutable and the interface ImmutableRandomVariableInterface has been renamed
  * to RandomVariableInterface. Your code remains compatible if you perform the following changes:
@@ -36,7 +36,7 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Compare this random variable with a given one
-	 * 
+	 *
 	 * @param randomVariable Random variable to compare with.
 	 * @return True if this random variable and the given one are equal, otherwise false
 	 */
@@ -44,14 +44,14 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Returns the filtration time.
-	 * 
+	 *
 	 * @return The filtration time.
 	 */
 	double getFiltrationTime();
 
 	/**
 	 * Evaluate at a given path or state.
-	 * 
+	 *
 	 * @param pathOrState Index of the path or state.
 	 * @return Value of this random variable at the given path or state.
 	 */
@@ -59,7 +59,7 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Returns the number of paths or states.
-	 * 
+	 *
 	 * @return Number of paths or states.
 	 */
 	int size();
@@ -67,7 +67,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Check if this random variable is deterministic in the sense that it is represented by a single double value.
 	 * Note that the methods returns false, if the random variable is represented by a vector where each element has the same value.
-	 * 
+	 *
 	 * @return True if this random variable is deterministic.
 	 */
 	boolean isDeterministic();
@@ -76,48 +76,48 @@ public interface RandomVariableInterface extends Serializable {
 	 * Returns a vector representing the realization of this random variable.
 	 * This method is merely useful for analysis. Its interpretation depends on the context (Monte-Carlo or lattice).
 	 * The method does not expose an internal data model.
-	 * 
+	 *
 	 * @return Vector of realizations of this random variable.
 	 */
 	double[] getRealizations();
 
 	/**
 	 * Returns the double value if isDeterministic() is true. otherwise throws an {@link UnsupportedOperationException}.
-	 * 
+	 *
 	 * @return The double value if isDeterministic() is true, otherwise throws an  an {@link UnsupportedOperationException}.
 	 */
 	Double doubleValue();
 
 	/**
 	 * Returns the minimum value attained by this random variable.
-	 * 
+	 *
 	 * @return The minimum value.
 	 */
 	double getMin();
 
 	/**
 	 * Returns the maximum value attained by this random variable.
-	 * 
+	 *
 	 * @return The maximum value.
 	 */
 	double getMax();
 
 	/**
 	 * Returns the expectation of this random variable.
-	 * 
+	 *
 	 * @return The average assuming equi-distribution.
 	 */
 	double getAverage();
 
 	/**
 	 * Returns the expectation of this random variable for a given probability measure (weight).
-	 * 
+	 *
 	 * The result of this method is (mathematically) equivalent to
 	 * <br>
 	 * <code>this.mult(probabilities).getAverage() / probabilities.getAverage()</code>
 	 * <br>
 	 * while the internal implementation may differ, e.g. being more efficient by performing multiplication and summation in the same loop.
-	 * 
+	 *
 	 * @param probabilities The probability weights.
 	 * @return The average assuming the given probability weights.
 	 */
@@ -126,7 +126,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the variance of this random variable, i.e.,
 	 * V where V = ((X-m)^2).getAverage() and X = this and m = X.getAverage().
-	 * 
+	 *
 	 * @return The average assuming equi-distribution.
 	 */
 	double getVariance();
@@ -134,7 +134,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the variance of this random variable, i.e.,
 	 * V where V = ((X-m)^2).getAverage(probabilities) and X = this and m = X.getAverage(probabilities).
-	 * 
+	 *
 	 * @param probabilities The probability weights.
 	 * @return The average assuming the given probability weights.
 	 */
@@ -143,7 +143,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the sample variance of this random variable, i.e.,
 	 * V * size()/(size()-1) where V = getVariance().
-	 * 
+	 *
 	 * @return The sample variance.
 	 */
 	double getSampleVariance();
@@ -151,7 +151,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the standard deviation of this random variable, i.e.,
 	 * sqrt(V) where V = ((X-m)^2).getAverage() and X = this and m = X.getAverage().
-	 * 
+	 *
 	 * @return The standard deviation assuming equi-distribution.
 	 */
 	double getStandardDeviation();
@@ -159,7 +159,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the standard deviation of this random variable, i.e.,
 	 * sqrt(V) where V = ((X-m)^2).getAverage(probabilities) and X = this and m = X.getAverage(probabilities).
-	 * 
+	 *
 	 * @param probabilities The probability weights.
 	 * @return The standard error assuming the given probability weights.
 	 */
@@ -168,7 +168,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the standard error (discretization error) of this random variable.
 	 * For a Monte-Carlo simulation this is 1/Math.sqrt(n) * {@link #getStandardDeviation() }.
-	 * 
+	 *
 	 * @return The standard error assuming equi-distribution.
 	 */
 	double getStandardError();
@@ -176,7 +176,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the standard error (discretization error) of this random variable.
 	 * For a Monte-Carlo simulation this is 1/Math.sqrt(n) * {@link #getStandardDeviation(RandomVariableInterface) }.
-	 * 
+	 *
 	 * @param probabilities The probability weights.
 	 * @return The standard error assuming the given probability weights.
 	 */
@@ -187,7 +187,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * where P denotes the probability measure.
 	 * The method will consider picewise constant values (with constant extrapolation) in the random variable.
 	 * That is getQuantile(0) wiil return the smallest value and getQuantile(1) will return the largest value.
-	 * 
+	 *
 	 * @param quantile The quantile level.
 	 * @return The quantile value assuming equi-distribution.
 	 */
@@ -196,7 +196,7 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns the quantile value for this given random variable, i.e., the value x such that P(this &lt; x) = quantile,
 	 * where P denotes the probability measure.
-	 * 
+	 *
 	 * @param quantile The quantile level.
 	 * @param probabilities The probability weights.
 	 * @return The quantile value assuming the given probability weights.
@@ -213,7 +213,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * <li>n = this.size();</li>
 	 * </ul>
 	 * For quantileStart &gt; quantileEnd the method returns getQuantileExpectation(quantileEnd, quantileStart).
-	 * 
+	 *
 	 * @param quantileStart Lower bound of the integral.
 	 * @param quantileEnd  Upper bound of the integral.
 	 * @return The (conditional) expectation of the values between two quantile levels assuming equi-distribution.
@@ -230,14 +230,14 @@ public interface RandomVariableInterface extends Serializable {
 	 * </ul>
 	 * where n = intervalPoints.length. Note that the intervals are open on the left, closed on the right, i.e.,
 	 * result[i] contains the number of elements x with intervalPoints[i-1] &lt; x &le; intervalPoints[i].
-	 * 
+	 *
 	 * Thus, is you have a random variable which only takes values contained in the (sorted) array
 	 * <code>possibleValues</code>, then <code>result = getHistogram(possibleValues)</code> returns an
 	 * array where <code>result[i]</code> is the relative frequency of occurrence of <code>possibleValues[i]</code>.
-	 * 
+	 *
 	 * The sum of result[i] over all i is equal to 1, except for uninitialized random
 	 * variables where all values are 0.
-	 * 
+	 *
 	 * @param intervalPoints Array of ascending values defining the interval boundaries.
 	 * @return A histogram with respect to a provided interval.
 	 */
@@ -248,7 +248,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * using interval points calculated from the arguments, see also {@link #getHistogram(double[])}.
 	 * The interval points are
 	 * set with equal distance over an the interval of the specified standard deviation.
-	 * 
+	 *
 	 * The interval points used are
 	 * <center>
 	 * <code>x[i] = mean + alpha[i] * standardDeviations * sigma</code>
@@ -260,13 +260,13 @@ public interface RandomVariableInterface extends Serializable {
 	 * <li>mean = {@link #getAverage()},</li>
 	 * <li>sigma = {@link #getStandardDeviation()}.</li>
 	 * </ul>
-	 * 
+	 *
 	 * The methods <code>result</code> is an array of two vectors, where result[0] are the
 	 * intervals center points ('anchor points') and result[1] contains the relative frequency for the interval.
 	 * The 'anchor point' for the interval (-infinity, x[0]) is x[0] - 1/2 (x[1]-x[0])
 	 * and the 'anchor point' for the interval (x[n], infinity) is x[n] + 1/2 (x[n]-x[n-1]).
 	 * Here n = numberOfPoints is the number of interval points.
-	 * 
+	 *
 	 * @param numberOfPoints The number of interval points.
 	 * @param standardDeviations The number of standard deviations defining the discretization radius.
 	 * @return A histogram, given as double[2][], where result[0] are the center point of the intervals and result[1] is the value of {@link #getHistogram(double[])} for the given the interval points. The length of result[0] and result[1] is numberOfPoints+1.
@@ -284,7 +284,7 @@ public interface RandomVariableInterface extends Serializable {
 	RandomVariableInterface cache();
 	/**
 	 * Applies x &rarr; function.value(x) to this random variable.
-	 * 
+	 *
 	 * @param function A univariate function mapping doubles to doubles.
 	 * @return New random variable with the result of the function.
 	 */
@@ -349,14 +349,14 @@ public interface RandomVariableInterface extends Serializable {
 	/**
 	 * Returns a random variable which is deterministic and corresponds
 	 * the expectation of this random variable.
-	 * 
+	 *
 	 * @return New random variable being the expectation of this random variable.
 	 */
 	RandomVariableInterface average();
 
 	/**
 	 * Returns the conditional expectation using a given conditional expectation estimator.
-	 * 
+	 *
 	 * @param conditionalExpectationOperator A given conditional expectation estimator.
 	 * @return The conditional expectation of this random variable (as a random variable)
 	 */
@@ -534,8 +534,9 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Applies x &rarr; (Double.isNaN(x) ? 1.0 : 0.0)
-	 * 
+	 *
 	 * @return A random variable which is 1.0 for all states that are NaN, otherwise 0.0.
 	 */
 	RandomVariableInterface isNaN();
 }
+

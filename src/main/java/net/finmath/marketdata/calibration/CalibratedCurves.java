@@ -39,12 +39,12 @@ import net.finmath.time.TimeDiscretization;
 /**
  * Generate a collection of calibrated curves (discount curves, forward curves)
  * from a vector of calibration products.
- * 
+ *
  * An object of this class provides a calibration of curves (using multi-curves, forward curve, discount curve).
  * Sometimes this is referred as curve bootstrapping, however the algorithm used here is not a bootstrap.
- * 
+ *
  * The calibration products have to be provided via a vector of <code>CalibrationSpec</code>s.
- * 
+ *
  * The products provides are
  * <table summary="List of calibration products types">
  * 	<tr>
@@ -83,9 +83,9 @@ import net.finmath.time.TimeDiscretization;
  * 		<td>Only the receiver part of <code>CalibrationSpec</code> is used.</td>
  * 	</tr>
  * </table>
- * 
+ *
  * For a demo spreadsheet using this class see <a href="http://finmath.net/topics/curvecalibration/">finmath.net/topics/curvecalibration/</a>.
- * 
+ *
  * @author Christian Fries
  */
 public class CalibratedCurves {
@@ -101,7 +101,7 @@ public class CalibratedCurves {
 
 	/**
 	 * Specification of calibration product.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public static class CalibrationSpec {
@@ -125,7 +125,7 @@ public class CalibratedCurves {
 
 		/**
 		 * Calibration specification.
-		 * 
+		 *
 		 * @param symbol A string identifying the calibration product. This string can be used in sensitivity calculation, allowing to bump the spread in a finite difference approximation. See <code>getCloneShifted</code> method.
 		 * @param type The type of the calibration product.
 		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
@@ -167,7 +167,7 @@ public class CalibratedCurves {
 
 		/**
 		 * Calibration specification.
-		 * 
+		 *
 		 * @param type The type of the calibration product.
 		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
 		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
@@ -195,7 +195,7 @@ public class CalibratedCurves {
 
 		/**
 		 * Calibration specification.
-		 * 
+		 *
 		 * @param type The type of the calibration product.
 		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
 		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
@@ -234,7 +234,7 @@ public class CalibratedCurves {
 
 		/**
 		 * Calibration specification.
-		 * 
+		 *
 		 * @param type The type of the calibration product.
 		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
 		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
@@ -302,22 +302,22 @@ public class CalibratedCurves {
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products and a given model.
-	 * 
+	 *
 	 * If the model already contains a curve referenced as calibration curve that
 	 * curve is replaced by a clone, retaining the given curve information and
 	 * adding a new calibration point.
-	 * 
+	 *
 	 * If the model does not contain the curve referenced as calibration curve, the
-	 * curve will be added to the model. 
-	 * 
+	 * curve will be added to the model.
+	 *
 	 * Use case: You already have a discount curve as part of the model and like
 	 * to calibrate an additional curve to an additional set of instruments.
-	 * 
+	 *
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(List<CalibrationSpec> calibrationSpecs, AnalyticModelInterface calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
@@ -337,22 +337,22 @@ public class CalibratedCurves {
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products and a given model.
-	 * 
+	 *
 	 * If the model already contains a curve referenced as calibration curve that
 	 * curve is replaced by a clone, retaining the given curve information and
 	 * adding a new calibration point.
-	 * 
+	 *
 	 * If the model does not contain the curve referenced as calibration curve, the
-	 * curve will be added to the model. 
-	 * 
+	 * curve will be added to the model.
+	 *
 	 * Use case: You already have a discount curve as part of the model and like
 	 * to calibrate an additional curve to an additional set of instruments.
-	 * 
+	 *
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
@@ -372,21 +372,21 @@ public class CalibratedCurves {
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products and a given model.
-	 * 
+	 *
 	 * If the model already contains a curve referenced as calibration curve that
 	 * curve is replaced by a clone, retaining the given curve information and
 	 * adding a new calibration point.
-	 * 
+	 *
 	 * If the model does not contain the curve referenced as calibration curve, the
-	 * curve will be added to the model. 
-	 * 
+	 * curve will be added to the model.
+	 *
 	 * Use case: You already have a discount curve as part of the model and like
 	 * to calibrate an additional curve to an additional set of instruments.
-	 * 
+	 *
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
 	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
@@ -396,20 +396,20 @@ public class CalibratedCurves {
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products and a given model.
-	 * 
+	 *
 	 * If the model already contains a curve referenced as calibration curve that
 	 * curve is replaced by a clone, retaining the given curve information and
 	 * adding a new calibration point.
-	 * 
+	 *
 	 * If the model does not contain the curve referenced as calibration curve, the
-	 * curve will be added to the model. 
-	 * 
+	 * curve will be added to the model.
+	 *
 	 * Use case: You already have a discount curve as part of the model and like
 	 * to calibrate an additional curve to an additional set of instruments.
-	 * 
+	 *
 	 * @param calibrationSpecs Array of calibration specs.
 	 * @param calibrationModel A given model used to value the calibration products.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException, CloneNotSupportedException {
@@ -419,9 +419,9 @@ public class CalibratedCurves {
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products.
-	 * 
+	 *
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(Collection<CalibrationSpec> calibrationSpecs) throws SolverException, CloneNotSupportedException {
@@ -431,9 +431,9 @@ public class CalibratedCurves {
 	/**
 	 * Generate a collection of calibrated curves (discount curves, forward curves)
 	 * from a vector of calibration products.
-	 * 
+	 *
 	 * @param calibrationSpecs Array of calibration specs.
-	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem. 
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
 	public CalibratedCurves(CalibrationSpec[] calibrationSpecs) throws SolverException, CloneNotSupportedException {
@@ -481,12 +481,12 @@ public class CalibratedCurves {
 		else if(calibrationSpec.type.toLowerCase().equals("fra")){
 			product = new ForwardRateAgreement(tenorReceiver, calibrationSpec.spreadReceiver, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);
 		}
-		else if(calibrationSpec.type.toLowerCase().equals("future")){    
-			// like a fra but future price needs to be translated into rate    
-			product = new ForwardRateAgreement(calibrationSpec.swapTenorDefinitionReceiver, 1.0-calibrationSpec.spreadReceiver/100.0, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);    
+		else if(calibrationSpec.type.toLowerCase().equals("future")){
+			// like a fra but future price needs to be translated into rate
+			product = new ForwardRateAgreement(calibrationSpec.swapTenorDefinitionReceiver, 1.0-calibrationSpec.spreadReceiver/100.0, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swapleg")) {
-			// note that a swapLeg is always assumed to have a notional reset 
+			// note that a swapLeg is always assumed to have a notional reset
 			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swap")) {
@@ -517,7 +517,7 @@ public class CalibratedCurves {
 	/**
 	 * Return the calibrated model, i.e., the model maintaining a collection of curves calibrated to the
 	 * given calibration specifications.
-	 * 
+	 *
 	 * @return The calibrated model.
 	 */
 	public AnalyticModelInterface getModel() {
@@ -526,7 +526,7 @@ public class CalibratedCurves {
 
 	/**
 	 * Get a curve for a given name.
-	 * 
+	 *
 	 * @param name Name of the curve
 	 * @return The curve model.
 	 */
@@ -536,7 +536,7 @@ public class CalibratedCurves {
 
 	/**
 	 * Return the number of iterations needed to calibrate the model.
-	 * 
+	 *
 	 * @return The number of iterations needed to calibrate the model.
 	 */
 	public int getLastNumberOfInterations() {
@@ -547,7 +547,7 @@ public class CalibratedCurves {
 	 * Returns the set curves calibrated to "shifted" market data, that is,
 	 * the market date of <code>this</code> object, modified by the shifts
 	 * provided to this methods.
-	 * 
+	 *
 	 * @param symbol The symbol to shift. All other symbols remain unshifted.
 	 * @param shift The shift to apply to the symbol.
 	 * @return A new set of calibrated curves, calibrated to shifted market data.
@@ -562,7 +562,7 @@ public class CalibratedCurves {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
 			}
 			else {
-				calibrationSpecsShifted.add(calibrationSpec);				
+				calibrationSpecsShifted.add(calibrationSpec);
 			}
 		}
 
@@ -573,7 +573,7 @@ public class CalibratedCurves {
 	 * Returns the set curves calibrated to "shifted" market data, that is,
 	 * the market date of <code>this</code> object, modified by the shifts
 	 * provided to this methods.
-	 * 
+	 *
 	 * @param shifts A map of shifts associating each symbol with a shifts. If symbols are not part of this map, they remain unshifted.
 	 * @return A new set of calibrated curves, calibrated to shifted market data.
 	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
@@ -587,7 +587,7 @@ public class CalibratedCurves {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shifts.get(calibrationSpec)));
 			}
 			else {
-				calibrationSpecsShifted.add(calibrationSpec);				
+				calibrationSpecsShifted.add(calibrationSpec);
 			}
 		}
 
@@ -598,11 +598,11 @@ public class CalibratedCurves {
 	 * Returns the set curves calibrated to "shifted" market data, that is,
 	 * the market date of <code>this</code> object, modified by the shifts
 	 * provided to this methods.
-	 * 
+	 *
 	 * This method will shift all symbols matching a given regular expression <code>Pattern</code>.
-	 * 
+	 *
 	 * @see java.util.regex.Pattern
-	 * 
+	 *
 	 * @param symbolRegExp A pattern, identifying the symbols to shift.
 	 * @param shift The shift to apply to the symbol(s).
 	 * @return A new set of calibrated curves, calibrated to shifted market data.
@@ -619,7 +619,7 @@ public class CalibratedCurves {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
 			}
 			else {
-				calibrationSpecsShifted.add(calibrationSpec);				
+				calibrationSpecsShifted.add(calibrationSpec);
 			}
 		}
 
@@ -630,11 +630,11 @@ public class CalibratedCurves {
 	 * Returns the set curves calibrated to "shifted" market data, that is,
 	 * the market date of <code>this</code> object, modified by the shifts
 	 * provided to this methods.
-	 * 
+	 *
 	 * This method will shift all symbols matching a given regular expression.
-	 * 
+	 *
 	 * @see java.util.regex.Pattern
-	 * 
+	 *
 	 * @param symbolRegExp A string representing a regular expression, identifying the symbols to shift.
 	 * @param shift The shift to apply to the symbol(s).
 	 * @return A new set of calibrated curves, calibrated to shifted market data.
@@ -647,7 +647,7 @@ public class CalibratedCurves {
 
 	/**
 	 * Return the accuracy achieved in the last calibration.
-	 * 
+	 *
 	 * @return The accuracy achieved in the last calibration.
 	 */
 	public double getLastAccuracy() {
@@ -658,7 +658,7 @@ public class CalibratedCurves {
 	 * Returns the first product found in the vector of calibration products
 	 * which matches the given symbol, where symbol is the String set in
 	 * the calibrationSpecs.
-	 * 
+	 *
 	 * @param symbol A given symbol string.
 	 * @return The product associated with that symbol.
 	 */
@@ -690,7 +690,7 @@ public class CalibratedCurves {
 
 	/**
 	 * Add a calibration product to the set of calibration instruments.
-	 * 
+	 *
 	 * @param calibrationSpec The spec of the calibration product.
 	 * @throws CloneNotSupportedException Thrown if a curve could not be cloned / created.
 	 */
@@ -698,7 +698,7 @@ public class CalibratedCurves {
 	{
 		calibrationSpecs.add(calibrationSpec);
 
-		/* 
+		/*
 		 * Add one point to the calibration curve and one new objective function
 		 */
 
@@ -742,7 +742,7 @@ public class CalibratedCurves {
 
 	/**
 	 * Get a discount curve from the model, if not existing create a discount curve.
-	 * 
+	 *
 	 * @param discountCurveName The name of the discount curve to create.
 	 * @return The discount factor curve associated with the given name.
 	 */
@@ -758,7 +758,7 @@ public class CalibratedCurves {
 
 	/**
 	 * Get a forward curve from the model, if not existing create a forward curve.
-	 * 
+	 *
 	 * @param swapTenorDefinition The swap tenor associated with the forward curve.
 	 * @param forwardCurveName The name of the forward curve to create.
 	 * @return The forward curve associated with the given name.
@@ -808,7 +808,7 @@ public class CalibratedCurves {
 			 *  If the specified forward curve exits as a discount curve, we generate a forward curve
 			 *  by wrapping the discount curve and calculating the
 			 *  forward from discount factors using the formula (df(T)/df(T+Delta T) - 1) / Delta T).
-			 *  
+			 *
 			 *  If no index maturity is used, the forward curve is interpreted "single curve", i.e.
 			 *  T+Delta T is always the payment.
 			 */
@@ -824,3 +824,4 @@ public class CalibratedCurves {
 		return forwardCurve.getName();
 	}
 }
+

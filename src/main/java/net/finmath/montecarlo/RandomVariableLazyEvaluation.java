@@ -35,7 +35,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8413020544732461630L;
 
@@ -1019,3 +1019,4 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		}
 	}
 }
+

@@ -42,7 +42,7 @@ public class HestonModelTest {
 	/**
 	 * The parameters for this test, that is an array consisting of
 	 * { xi }.
-	 * 
+	 *
 	 * @return Array of parameters.
 	 */
 	@Parameters(name="xi={0}}")
@@ -164,3 +164,4 @@ public class HestonModelTest {
 		System.out.println();
 	}
 }
+

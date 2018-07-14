@@ -105,7 +105,7 @@ public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 							rms += value*value;
 						}
 						return Math.sqrt(rms);
-					}			
+					}
 
 					@Override
 					public org.apache.commons.math3.optim.nonlinear.scalar.GoalType getGoalType() {

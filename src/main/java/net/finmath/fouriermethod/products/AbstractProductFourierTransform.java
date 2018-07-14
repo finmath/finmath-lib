@@ -55,7 +55,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
@@ -77,7 +77,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 
 	/**
 	 * Return the maturity of the associated payoff.
-	 * 
+	 *
 	 * @return The maturity of the associated payoff.
 	 */
 	public abstract double getMaturity();
@@ -85,7 +85,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	/**
 	 * Return the lower bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.
-	 * 
+	 *
 	 * @return the lower bound of the imaginary part of the domain of integration.
 	 */
 	public abstract double getIntegrationDomainImagLowerBound();
@@ -93,8 +93,9 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	/**
 	 * Return the upper bound of the imaginary part of the domain where
 	 * the characteristic function can be integrated.
-	 * 
+	 *
 	 * @return the upper bound of the imaginary part of the domain of integration.
 	 */
 	public abstract double getIntegrationDomainImagUpperBound();
 }
+

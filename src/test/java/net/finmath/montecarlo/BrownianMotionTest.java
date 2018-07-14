@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
- * 
+ *
  */
 @RunWith(Parameterized.class)
 public class BrownianMotionTest {
@@ -227,3 +227,4 @@ public class BrownianMotionTest {
 		System.out.println();
 	}
 }
+

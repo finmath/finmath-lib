@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Implementation of a time-discrete n-dimensional sequence of independent increments
  * <i>W = (W<sub>1</sub>,...,W<sub>n</sub>)</i> form a given set of inverse
  * cumulative distribution functions.
- * 
+ *
  * Independent increments is a sequence of independent random variables index
  * by the time index associated with the time discretization. At each time step
  * the increment is a d-dimensional random variable \( Z(t_{i}) \), where d is <code>numberOfFactors</code>.
@@ -27,22 +27,22 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 	Z_{j}(t_{i}) = ICDF_{i,j}(U_{i,j})
  * \]
  * for a sequence of independent uniform distributes random variables U_{i,j}.
- * 
+ *
  * The inverse cumulative distribution functions \( ICDF_{i,j} \) are given by
  * <code>inverseCumulativeDistributionFunctions</code> as the
  * map \( i \mapsto ( j \mapsto ICDF_{i,j} ) \) (here i is the time index and j is the factor (component).
- * 
+ *
  * Each \( U_{i,j} \) is samples using <code>numberOfPaths</code>.
- * 
+ *
  * The class is immutable and thread safe. It uses lazy initialization.
- * 
+ *
  * @author Christian Fries
  * @version 1.6
  */
 public class IndependentIncrements implements IndependentIncrementsInterface, Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 6270884840989559532L;
 
@@ -61,7 +61,7 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 
 	/**
 	 * Construct  the simulation of independent increments.
-	 * 
+	 *
 	 * Independent increments is a sequence of independent random variables index
 	 * by the time index associated with the time discretization. At each time step
 	 * the increment is a d-dimensional random variable \( Z(t_{i}) \), where d is <code>numberOfFactors</code>.
@@ -70,18 +70,18 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 	 * 	Z_{j}(t_{i}) = ICDF_{i,j}(U_{i,j})
 	 * \]
 	 * for a sequence of independent uniform distributes random variables U_{i,j}.
-	 * 
+	 *
 	 * The inverse cumulative distribution functions \( ICDF_{i,j} \) are given by
 	 * <code>inverseCumulativeDistributionFunctions</code> as the
 	 * map \( i \mapsto ( j \mapsto ICDF_{i,j} ) \) (here i is the time index and j is the factor (component).
-	 * 
+	 *
 	 * Each \( U_{i,j} \) is samples using <code>numberOfPaths</code>.
-	 * 
+	 *
 	 * The constructor allows to set the factory to be used for the construction of
 	 * random variables. This allows to generate increments represented
 	 * by different implementations of the RandomVariableInterface
 	 * (e.g. the RandomVariableLowMemory internally using float representations).
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
@@ -110,7 +110,7 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 
 	/**
 	 * Construct  the simulation of independet increments.
-	 * 
+	 *
 	 * The independent increments is a sequence of independent random variables index
 	 * by the time index associated with the time discretization. At each time step
 	 * the increment is a d-dimensional random variable \( Z(t_{i}) \), where d is <code>numberOfFactors</code>.
@@ -119,13 +119,13 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 	 * 	Z_{j}(t_{i}) = ICDF_{i,j}(U_{i,j})
 	 * \]
 	 * for a sequence of independent uniform distributes random variables U_{i,j}.
-	 * 
+	 *
 	 * The inverse cumulative distribution functions \( ICDF_{i,j} \) are given by
 	 * <code>inverseCumulativeDistributionFunctions</code> as the
 	 * map \( i \mapsto ( j \mapsto ICDF_{i,j} ) \) (here i is the time index and j is the factor (component).
-	 * 
+	 *
 	 * Each \( U_{i,j} \) is samples using <code>numberOfPaths</code>.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
@@ -187,11 +187,11 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				inverseCumulativeDistributionFunctions[timeIndex][factor] = this.inverseCumulativeDistributionFunctions.apply(timeIndex).apply(factor);
 			}
-		}   
+		}
 
 		/*
 		 * Generate normal distributed independent increments.
-		 * 
+		 *
 		 * The inner loop goes over time and factors.
 		 * MersenneTwister is known to generate "independent" increments in 623 dimensions.
 		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
@@ -292,3 +292,4 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 		incrementsLazyInitLock = new Object();
 	}
 }
+

@@ -41,7 +41,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 		/*
 		 * Build model from description.
 		 * Adding product factory.
-		 * 
+		 *
 		 * We build the class implementing DescribedModel<BlackScholesModelDescriptor> as an inner class.
 		 * For larger applications this should be a dedicated class file.
 		 */
@@ -82,3 +82,4 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 	}
 
 }
+

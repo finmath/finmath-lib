@@ -16,13 +16,13 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 /**
  * Implementation of a forward given by a Nelson-Siegel-Svensson (NSS) parameterization.
  * In the NSS parameterization the zero rate \( r(T) \) is given by
- * 
+ *
  * \[ r(T) = \beta_0 + \beta_1 \frac{1-x_0}{T/\tau_0} + \beta_2 ( \frac{1-x_0}{T/\tau_0} - x_0) + \beta_3 ( \frac{1-x_1}{T/\tau_1} - x_1) \]
- * 
+ *
  * where \( x_0 = \exp(-T/\tau_0) \) and \( x_1 = \exp(-T/\tau_1) \).
- * 
+ *
  * The sub-family of curves with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
- * 
+ *
  * @see net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson
  * @author Christian Fries
  */
@@ -107,7 +107,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 			@Override
 			public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
 				throw new UnsupportedOperationException("NSS curve does not support adding points.");
-			}			
+			}
 		};
 	}
 
@@ -133,7 +133,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 
 	/**
 	 * Returns the forwards for a given vector fixing times.
-	 * 
+	 *
 	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
@@ -170,3 +170,4 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		return getReferenceDate().plusDays((int)Math.round(fixingTime*365.0));
 	}
 }
+

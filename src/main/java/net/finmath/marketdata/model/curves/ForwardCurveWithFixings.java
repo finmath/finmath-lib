@@ -18,7 +18,7 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 
 	/**
 	 * Create a piecewise forward curve.
-	 * 
+	 *
 	 * @param curveInterface Base curve, to be used by default.
 	 * @param fixedPartCurve Curve to be used for the open time interval from fixedPartStartTime to fixedPartEndTime.
 	 * @param fixedPartStartTime Start time of the interval where we use the fixedPartCurve.
@@ -50,7 +50,7 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 
 	/**
 	 * Returns the forwards for a given vector fixing times.
-	 * 
+	 *
 	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
@@ -86,3 +86,4 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 		return new ForwardCurveWithFixings((ForwardCurveInterface)getBaseCurve().clone(), (ForwardCurveInterface)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());
 	}
 }
+
