@@ -594,4 +594,3 @@ public interface RandomVariableInterface extends Serializable {
 	 */
 	RandomVariableInterface isNaN();
 }
-

@@ -8,4 +8,3 @@
  * @author Christian Fries
  */
 package net.finmath.analytic.model.curves;
-

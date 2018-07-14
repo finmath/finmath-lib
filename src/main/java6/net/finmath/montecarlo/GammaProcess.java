@@ -265,4 +265,3 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 		return result;
 	}
 }
-

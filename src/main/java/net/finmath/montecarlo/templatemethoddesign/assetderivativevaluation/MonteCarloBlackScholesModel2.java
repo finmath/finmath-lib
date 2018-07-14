@@ -183,4 +183,3 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		throw new UnsupportedOperationException();
 	}
 }
-

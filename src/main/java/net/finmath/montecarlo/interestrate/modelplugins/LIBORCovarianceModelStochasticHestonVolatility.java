@@ -236,4 +236,3 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		return null;
 	}
 }
-

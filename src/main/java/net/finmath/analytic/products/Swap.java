@@ -177,4 +177,3 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 				+ "]";
 	}
 }
-

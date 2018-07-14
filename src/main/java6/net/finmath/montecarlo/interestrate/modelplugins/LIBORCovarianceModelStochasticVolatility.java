@@ -234,4 +234,3 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		return null;
 	}
 }
-

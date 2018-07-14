@@ -284,4 +284,3 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		return new RandomVariable(evaluationTime, portfolioValue);
 	}
 }
-

@@ -97,4 +97,3 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT {
 		return periodFraction / frequency;
 	}
 }
-

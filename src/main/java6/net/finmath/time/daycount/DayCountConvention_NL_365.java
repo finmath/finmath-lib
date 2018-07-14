@@ -69,4 +69,3 @@ public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 		return daycountFraction;
 	}
 }
-

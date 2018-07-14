@@ -75,4 +75,3 @@ public class BiLinearInterpolation implements BiFunction<Double, Double, Double>
 		return interpolatedValue;
 	}
 }
-

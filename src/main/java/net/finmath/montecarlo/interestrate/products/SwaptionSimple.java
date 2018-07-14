@@ -117,4 +117,3 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 				+ ", valueUnit=" + valueUnit + "]";
 	}
 }
-

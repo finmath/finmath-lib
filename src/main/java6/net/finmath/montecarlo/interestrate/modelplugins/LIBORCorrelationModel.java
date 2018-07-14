@@ -57,4 +57,3 @@ public abstract class LIBORCorrelationModel implements Serializable {
 	@Override
 	public abstract Object clone();
 }
-

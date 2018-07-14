@@ -50,4 +50,3 @@ public interface TermStructureFactorLoadingsModelInterface {
 	 */
 	int getNumberOfFactors();
 }
-

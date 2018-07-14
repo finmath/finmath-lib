@@ -685,4 +685,3 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		return clonedOptimizer;
 	}
 }
-

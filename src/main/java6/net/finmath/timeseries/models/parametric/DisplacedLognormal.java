@@ -326,4 +326,3 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		return value;
 	}
 }
-

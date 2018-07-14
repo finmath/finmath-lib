@@ -84,4 +84,3 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterf
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }
-

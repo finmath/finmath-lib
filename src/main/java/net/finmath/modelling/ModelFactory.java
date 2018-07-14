@@ -15,4 +15,3 @@ public interface ModelFactory<T extends ModelDescriptor> {
 
 	DescribedModel<? extends T> getModelFromDescriptor(T description);
 }
-

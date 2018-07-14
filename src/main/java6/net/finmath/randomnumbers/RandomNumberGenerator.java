@@ -15,4 +15,3 @@ public interface RandomNumberGenerator {
 
 	int getDimension();
 }
-

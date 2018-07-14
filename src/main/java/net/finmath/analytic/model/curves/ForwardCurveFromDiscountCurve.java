@@ -175,4 +175,3 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		return "ForwardCurveFromDiscountCurve [" + super.toString() + ", referenceDiscountCurveForForwardsName=" + referenceDiscountCurveForForwardsName + ", daycountScaling=" + daycountScaling + ", periodOffset=" + periodOffset + "]";
 	}
 }
-

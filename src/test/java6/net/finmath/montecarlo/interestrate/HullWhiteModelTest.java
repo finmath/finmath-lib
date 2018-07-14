@@ -886,4 +886,3 @@ public class HullWhiteModelTest {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve);
 	}
 }
-

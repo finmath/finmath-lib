@@ -104,4 +104,3 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 				);
 	}
 }
-

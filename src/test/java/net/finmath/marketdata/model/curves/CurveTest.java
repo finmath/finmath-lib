@@ -128,4 +128,3 @@ public class CurveTest {
 		Assert.assertEquals("Deviation", errorSum, -2.5, 1E-5);
 	}
 }
-

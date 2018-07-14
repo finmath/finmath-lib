@@ -69,4 +69,3 @@ public abstract class LIBORVolatilityModel implements Serializable {
 
 	public abstract Object clone();
 }
-

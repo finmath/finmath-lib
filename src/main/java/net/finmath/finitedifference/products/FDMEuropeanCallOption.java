@@ -38,4 +38,3 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 		return stockPrice - strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
 	}
 }
-

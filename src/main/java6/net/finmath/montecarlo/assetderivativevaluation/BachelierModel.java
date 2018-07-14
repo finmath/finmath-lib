@@ -174,4 +174,3 @@ public class BachelierModel extends AbstractModel {
 		return volatility * Math.exp(riskFreeRate * maturity);
 	}
 }
-

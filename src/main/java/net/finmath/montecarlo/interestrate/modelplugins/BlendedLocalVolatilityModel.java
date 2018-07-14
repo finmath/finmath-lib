@@ -223,4 +223,3 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		throw new UnsupportedOperationException();
 	}
 }
-

@@ -31,4 +31,3 @@ public class MersenneTwister implements Serializable {
 		return mersenneTwister.nextDouble();
 	}
 }
-

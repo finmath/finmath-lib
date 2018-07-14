@@ -135,4 +135,3 @@ public class BusinessdayCalendarExcludingNYCHolidays extends BusinessdayCalendar
 
 	public Set<LocalDate> getHolidays() { return HOLIDAYS; }
 }
-

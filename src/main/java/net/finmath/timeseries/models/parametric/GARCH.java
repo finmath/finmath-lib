@@ -297,4 +297,3 @@ public class GARCH implements HistoricalSimulationModel {
 		return value;
 	}
 }
-

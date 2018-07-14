@@ -226,4 +226,3 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 		return "AbstractMonteCarloProduct [currency=" + currency + "]";
 	}
 }
-

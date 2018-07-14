@@ -106,4 +106,3 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 		return new BlackScholesFDModel();
 	}
 }
-

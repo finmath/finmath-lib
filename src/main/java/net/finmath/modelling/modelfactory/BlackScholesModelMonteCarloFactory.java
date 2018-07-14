@@ -83,4 +83,3 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 	}
 
 }
-

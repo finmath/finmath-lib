@@ -209,4 +209,3 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		return basisFunctions;
 	}
 }
-

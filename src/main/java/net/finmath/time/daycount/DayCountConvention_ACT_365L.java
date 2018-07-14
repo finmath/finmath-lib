@@ -49,4 +49,3 @@ public class DayCountConvention_ACT_365L extends DayCountConvention_ACT {
 		return daycountFraction;
 	}
 }
-

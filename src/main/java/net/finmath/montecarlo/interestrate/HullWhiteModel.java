@@ -589,4 +589,3 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	}
 }
 
-

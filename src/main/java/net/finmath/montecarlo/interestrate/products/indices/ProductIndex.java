@@ -55,4 +55,3 @@ public class ProductIndex extends AbstractIndex {
 		return underlyingNames;
 	}
 }
-

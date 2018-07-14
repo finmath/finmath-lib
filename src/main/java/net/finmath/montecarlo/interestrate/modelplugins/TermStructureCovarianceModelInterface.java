@@ -13,4 +13,3 @@ package net.finmath.montecarlo.interestrate.modelplugins;
  */
 public interface TermStructureCovarianceModelInterface extends TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelInterface {
 }
-

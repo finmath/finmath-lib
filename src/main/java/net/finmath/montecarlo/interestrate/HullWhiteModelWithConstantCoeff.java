@@ -350,4 +350,3 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	}
 }
 
-

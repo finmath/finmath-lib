@@ -538,4 +538,3 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		rationalFunctionInterpolationLazyInitLock = new Object();
 	}
 }
-

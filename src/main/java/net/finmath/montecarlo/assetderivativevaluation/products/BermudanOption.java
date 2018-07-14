@@ -246,4 +246,3 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		return basisFunctions;
 	}
 }
-

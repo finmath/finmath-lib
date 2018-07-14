@@ -65,4 +65,3 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		return integral * range / numberOfEvaluationPoints;
 	}
 }
-

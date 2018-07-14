@@ -279,4 +279,3 @@ public class CalibrationMultiCurveTest {
 		Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors)/calibrationSpecs.size(), 1E-10);
 	}
 }
-

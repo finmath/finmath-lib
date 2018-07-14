@@ -215,4 +215,3 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 				);
 	}
 }
-

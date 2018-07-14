@@ -29,4 +29,3 @@ public interface ProductDescriptor {
 	String name();
 
 }
-

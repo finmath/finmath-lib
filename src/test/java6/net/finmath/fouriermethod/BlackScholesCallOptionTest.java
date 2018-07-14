@@ -74,4 +74,3 @@ public class BlackScholesCallOptionTest {
 		Assert.assertEquals("Value", valueAnalytic, value, 1E-7);
 	}
 }
-

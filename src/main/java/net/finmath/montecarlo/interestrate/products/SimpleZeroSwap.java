@@ -129,4 +129,3 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 		return values;
 	}
 }
-

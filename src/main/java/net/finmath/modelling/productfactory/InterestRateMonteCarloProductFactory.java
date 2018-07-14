@@ -22,4 +22,3 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	}
 
 }
-

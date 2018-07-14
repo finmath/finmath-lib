@@ -130,4 +130,3 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 		return "Tenor [referenceDate=" + referenceDate + ", dates=" + datesOutputString + "]";
 	}
 }
-

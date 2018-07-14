@@ -85,4 +85,3 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractLIBORMonteC
 		return new RandomVariable(evaluationTime, integratedSwapRateCovariance);
 	}
 }
-

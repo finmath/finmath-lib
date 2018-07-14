@@ -263,4 +263,3 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 		return model.getIntegratedLIBORCovariance();
 	}
 }
-

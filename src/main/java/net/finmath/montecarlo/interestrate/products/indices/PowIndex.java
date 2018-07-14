@@ -52,4 +52,3 @@ public class PowIndex extends AbstractIndex {
 		return "PowIndex [index=" + index + ", exponent=" + exponent + "]";
 	}
 }
-

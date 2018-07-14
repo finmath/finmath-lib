@@ -209,4 +209,3 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 		return seasonalAdjustments;
 	}
 }
-

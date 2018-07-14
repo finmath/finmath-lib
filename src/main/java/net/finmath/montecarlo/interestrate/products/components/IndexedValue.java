@@ -167,4 +167,3 @@ public class IndexedValue extends AbstractProductComponent {
 		return basisFunctions.toArray(new RandomVariableInterface[0]);
 	}
 }
-

@@ -52,4 +52,3 @@ public class IndexCurveFromDiscountCurve extends AbstractCurve implements CurveI
 		throw new CloneNotSupportedException();
 	}
 }
-

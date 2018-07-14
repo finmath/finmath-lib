@@ -43,4 +43,3 @@ public class HullWhiteModelDescriptor implements InterestRateModelDescriptor {
 	}
 
 }
-

@@ -32,4 +32,3 @@ public interface TermStructureTenorTimeScalingInterface {
 	 */
 	TermStructureTenorTimeScalingInterface clone();
 }
-

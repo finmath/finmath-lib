@@ -180,4 +180,3 @@ public class SwapLegWithResetting extends AbstractAnalyticProduct implements Ana
 				+ ", isNotionalExchanged=" + isNotionalExchanged + "]";
 	}
 }
-

@@ -225,4 +225,3 @@ public class LIBORMarketModelHierarchyTest {
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 }
-

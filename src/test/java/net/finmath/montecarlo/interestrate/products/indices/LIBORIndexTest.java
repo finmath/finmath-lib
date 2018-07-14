@@ -326,4 +326,3 @@ public class LIBORIndexTest {
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 }
-

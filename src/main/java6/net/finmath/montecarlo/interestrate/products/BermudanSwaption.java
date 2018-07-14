@@ -178,4 +178,3 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
 }
-

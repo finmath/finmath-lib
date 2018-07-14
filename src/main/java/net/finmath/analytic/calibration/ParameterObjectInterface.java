@@ -42,4 +42,3 @@ public interface ParameterObjectInterface {
 	void setParameter(RandomVariableInterface[] parameter);
 
 }
-

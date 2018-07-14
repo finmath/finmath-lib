@@ -207,4 +207,3 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 }
-

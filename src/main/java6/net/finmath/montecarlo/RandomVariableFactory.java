@@ -47,4 +47,3 @@ public class RandomVariableFactory extends AbstractRandomVariableFactory {
 		}
 	}
 }
-

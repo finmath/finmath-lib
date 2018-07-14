@@ -21,4 +21,3 @@ public class DiscountCurveNelsonSiegelSvenssonTest {
 		Assert.assertEquals("Discount factor", 0.847664288, df, 1E-8);
 	}
 }
-

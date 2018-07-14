@@ -98,4 +98,3 @@ public class LIBORIndex extends AbstractIndex {
 				+ super.toString() + "]";
 	}
 }
-

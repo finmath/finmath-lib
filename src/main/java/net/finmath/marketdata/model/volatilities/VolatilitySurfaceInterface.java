@@ -73,4 +73,3 @@ public interface VolatilitySurfaceInterface {
 	 */
 	QuotingConvention getQuotingConvention();
 }
-

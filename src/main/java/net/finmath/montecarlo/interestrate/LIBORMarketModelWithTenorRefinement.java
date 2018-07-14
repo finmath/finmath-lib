@@ -767,4 +767,3 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	}
 }
 
-

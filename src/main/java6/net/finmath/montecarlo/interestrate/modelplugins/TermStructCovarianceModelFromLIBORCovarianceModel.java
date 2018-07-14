@@ -73,4 +73,3 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 		return covarianceModel.getNumberOfFactors();
 	}
 }
-

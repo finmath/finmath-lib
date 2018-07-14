@@ -13,4 +13,3 @@ public class HullWhiteMonteCarloFactory implements ModelFactory<HullWhiteModelDe
 	}
 
 }
-

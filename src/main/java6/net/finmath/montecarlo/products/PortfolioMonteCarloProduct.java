@@ -113,4 +113,3 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 		return value;
 	}
 }
-

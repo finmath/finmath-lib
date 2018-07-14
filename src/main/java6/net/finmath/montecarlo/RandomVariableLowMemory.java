@@ -1232,4 +1232,3 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 				+ "\n" + "realizations: " + Arrays.toString(realizations);
 	}
 }
-

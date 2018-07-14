@@ -45,4 +45,3 @@ public interface AbstractNotional {
 	 */
 	RandomVariableInterface getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 }
-

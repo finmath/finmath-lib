@@ -14,4 +14,3 @@ package net.finmath.modelling;
  */
 public interface SingleAssetProductDescriptor extends ProductDescriptor {
 }
-

@@ -43,4 +43,3 @@ public interface ProductInterface {
 	 */
 	default Map<String, Object> getValues(double evaluationTime, ModelInterface model) { throw new UnsupportedOperationException(); }
 }
-

@@ -53,4 +53,3 @@ public class CalculationException extends Exception {
 		// TODO Auto-generated constructor stub
 	}
 }
-

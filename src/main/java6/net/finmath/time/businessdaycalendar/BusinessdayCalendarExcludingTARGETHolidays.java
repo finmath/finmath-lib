@@ -91,4 +91,3 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 		return "BusinessdayCalendarExcludingTARGETHolidays [baseCalendar=" + baseCalendar + "]";
 	}
 }
-

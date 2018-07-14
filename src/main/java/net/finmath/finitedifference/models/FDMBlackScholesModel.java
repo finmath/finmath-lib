@@ -101,4 +101,3 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	}
 
 }
-

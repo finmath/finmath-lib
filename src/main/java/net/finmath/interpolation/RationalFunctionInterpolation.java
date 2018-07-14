@@ -609,4 +609,3 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		interpolatingRationalFunctionsLazyInitLock = new Object();
 	}
 }
-

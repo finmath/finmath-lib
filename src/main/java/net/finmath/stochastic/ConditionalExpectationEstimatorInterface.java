@@ -22,4 +22,3 @@ public interface ConditionalExpectationEstimatorInterface {
 	 */
 	RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable);
 }
-

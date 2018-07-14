@@ -47,4 +47,3 @@ public class AccruingNotional implements AbstractNotional {
 		return getNotionalAtPeriodStart(period, model);
 	}
 }
-

@@ -229,4 +229,3 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 		return model.getIntegratedLIBORCovariance();
 	}
 }
-

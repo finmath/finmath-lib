@@ -199,4 +199,3 @@ public class ExposureEstimator extends AbstractProductComponent {
 		return basisFunctions.toArray(new RandomVariableInterface[0]);
 	}
 }
-

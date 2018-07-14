@@ -177,4 +177,3 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 		return integratedLIBORCurvature.sub(tolerance).floor(0.0);
 	}
 }
-

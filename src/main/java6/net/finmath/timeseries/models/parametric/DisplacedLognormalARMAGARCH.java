@@ -366,4 +366,3 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 		return parameterNames;
 	}
 }
-

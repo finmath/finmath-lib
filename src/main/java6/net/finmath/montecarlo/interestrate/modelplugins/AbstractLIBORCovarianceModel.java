@@ -183,4 +183,3 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 		return numberOfFactors;
 	}
 }
-

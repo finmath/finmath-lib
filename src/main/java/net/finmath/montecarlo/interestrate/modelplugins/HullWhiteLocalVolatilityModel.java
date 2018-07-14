@@ -99,4 +99,3 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 		throw new UnsupportedOperationException();
 	}
 }
-

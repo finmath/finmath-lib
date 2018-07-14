@@ -57,4 +57,3 @@ public abstract class AbstractRealIntegral implements RealIntegralInterface {
 	public abstract double integrate(DoubleUnaryOperator integrand);
 
 }
-

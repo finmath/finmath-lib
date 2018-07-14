@@ -53,4 +53,3 @@ public class FutureWrapper<V> implements Future<V> {
 		return true;
 	}
 }
-

@@ -29,4 +29,3 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 		return getValue(0.0, model);
 	}
 }
-

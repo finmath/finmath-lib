@@ -65,4 +65,3 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Business
 		return getClass().getSimpleName() + " [baseCalendar=" + getBaseCalendar() + "]";
 	}
 }
-

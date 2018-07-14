@@ -32,4 +32,3 @@ public class BusinessdayCalendarAny extends BusinessdayCalendar {
 		return "BusinessdayCalendarAny";
 	}
 }
-

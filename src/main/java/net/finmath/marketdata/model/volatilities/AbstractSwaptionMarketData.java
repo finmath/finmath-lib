@@ -40,4 +40,3 @@ public interface AbstractSwaptionMarketData {
 	 */
 	double getVolatility(double optionMaturity, double tenorLength, double periodLength, double strike);
 }
-

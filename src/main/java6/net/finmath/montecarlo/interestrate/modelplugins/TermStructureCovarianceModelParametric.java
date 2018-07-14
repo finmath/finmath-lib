@@ -212,4 +212,3 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		return calibrationCovarianceModel;
 	}
 }
-

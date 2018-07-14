@@ -69,4 +69,3 @@ public class MaxIndex extends AbstractIndex {
 		+ "]";
 	}
 }
-

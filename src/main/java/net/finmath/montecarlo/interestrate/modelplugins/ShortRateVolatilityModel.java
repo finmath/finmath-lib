@@ -39,4 +39,3 @@ public class ShortRateVolatilityModel implements ShortRateVolailityModelInterfac
 		return meanReversion[timeIndex];
 	}
 }
-

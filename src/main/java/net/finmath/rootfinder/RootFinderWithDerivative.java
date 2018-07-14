@@ -45,4 +45,3 @@ public interface RootFinderWithDerivative {
 	 */
 	double getBestPoint();
 }
-

@@ -182,4 +182,3 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	};
 }
-

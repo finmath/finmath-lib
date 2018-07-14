@@ -180,4 +180,3 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 		return factorLoadings[0];
 	}
 }
-

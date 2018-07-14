@@ -38,4 +38,3 @@ public class ShortRateVolatilityModelHoLee implements ShortRateVolailityModelInt
 		return 0.0;
 	}
 }
-

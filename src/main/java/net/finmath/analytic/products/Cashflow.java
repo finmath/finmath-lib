@@ -58,4 +58,3 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 		return value.div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}
 }
-

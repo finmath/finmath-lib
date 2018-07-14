@@ -293,4 +293,3 @@ public class LevenbergMarquardtTest {
 		Assert.assertEquals(0.0, optimizer.getRootMeanSquaredError(), 2E-4);
 	}
 }
-

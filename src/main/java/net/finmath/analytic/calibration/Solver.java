@@ -246,4 +246,3 @@ public class Solver {
 		return accuracy;
 	}
 }
-

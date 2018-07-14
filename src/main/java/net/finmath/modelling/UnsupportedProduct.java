@@ -54,4 +54,3 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 		return "UnsupportedProduct [exception=" + exception + "]";
 	}
 }
-

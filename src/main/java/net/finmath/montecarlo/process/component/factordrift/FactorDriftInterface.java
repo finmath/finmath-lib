@@ -36,4 +36,3 @@ public interface FactorDriftInterface {
 	 */
 	RandomVariableInterface    getFactorDriftDeterminant(int timeIndex, RandomVariableInterface[] realizationPredictor);
 }
-

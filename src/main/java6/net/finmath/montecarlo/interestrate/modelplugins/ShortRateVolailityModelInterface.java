@@ -41,4 +41,3 @@ public interface ShortRateVolailityModelInterface {
 	 */
 	double getMeanReversion(int timeIndex);
 }
-

@@ -431,4 +431,3 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 		return model.getIntegratedLIBORCovariance();
 	}
 }
-

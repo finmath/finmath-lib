@@ -158,4 +158,3 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 				+ ", isNotionalExchanged=" + isNotionalExchanged + "]";
 	}
 }
-

@@ -209,4 +209,3 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		lazyInitLock = new Object();
 	}
 }
-

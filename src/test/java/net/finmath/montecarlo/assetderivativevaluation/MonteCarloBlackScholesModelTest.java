@@ -103,4 +103,3 @@ public class MonteCarloBlackScholesModelTest {
 		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
 }
-

@@ -166,4 +166,3 @@ public class RandomVariableTest {
 		Assert.assertEquals(2.33, q99, 1E-2);
 	}
 }
-

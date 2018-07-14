@@ -30,4 +30,3 @@ public interface TermStructureFactorLoadingsModelParametricInterface extends Ter
 	 */
 	TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
 }
-

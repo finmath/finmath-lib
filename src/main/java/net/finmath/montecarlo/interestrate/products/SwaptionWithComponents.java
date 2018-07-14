@@ -97,4 +97,3 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 		return values;
 	}
 }
-

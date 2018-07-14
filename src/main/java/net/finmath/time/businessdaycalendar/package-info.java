@@ -4,4 +4,3 @@
  * @author Christian Fries
  */
 package net.finmath.time.businessdaycalendar;
-

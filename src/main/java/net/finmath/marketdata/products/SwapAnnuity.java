@@ -134,4 +134,3 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 				+ discountCurveName + "]";
 	}
 }
-

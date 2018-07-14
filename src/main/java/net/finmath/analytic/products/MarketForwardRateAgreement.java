@@ -89,4 +89,3 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 		return payoff.mult(discountFactor).div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}
 }
-

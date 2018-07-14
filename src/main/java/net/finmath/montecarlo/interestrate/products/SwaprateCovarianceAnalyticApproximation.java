@@ -82,4 +82,3 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 		return new RandomVariable(evaluationTime, integratedSwapRateCovariance);
 	}
 }
-

@@ -211,4 +211,3 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 				.doubleToLongBits(other.timeScaling);
 	}
 }
-

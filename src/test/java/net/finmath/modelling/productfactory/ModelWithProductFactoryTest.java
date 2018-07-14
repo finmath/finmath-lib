@@ -263,4 +263,3 @@ public class ModelWithProductFactoryTest {
 		return brownianMotion;
 	}
 }
-

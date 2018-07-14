@@ -477,4 +477,3 @@ public class SwapLegTest {
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 }
-

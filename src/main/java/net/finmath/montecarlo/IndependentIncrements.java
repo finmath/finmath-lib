@@ -292,4 +292,3 @@ public class IndependentIncrements implements IndependentIncrementsInterface, Se
 		incrementsLazyInitLock = new Object();
 	}
 }
-

@@ -252,4 +252,3 @@ public class GoldenSectionSearch {
 		return isDone;
 	}
 }
-

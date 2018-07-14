@@ -21,4 +21,3 @@ public interface OptimizerFactoryInterface {
 	OptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, double[] initialParameters, double[] lowerBound, double[] upperBound, double[] parameterStep, double[] targetValues);
 
 }
-

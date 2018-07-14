@@ -343,4 +343,3 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		return value;
 	}
 }
-

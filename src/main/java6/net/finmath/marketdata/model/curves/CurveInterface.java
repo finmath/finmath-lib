@@ -79,4 +79,3 @@ public interface CurveInterface extends ParameterObjectInterface, Serializable, 
 	@Override
 	CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException;
 }
-

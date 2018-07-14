@@ -134,4 +134,3 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 		throw new UnsupportedOperationException("Method getCloneForParameter not supported on an aggregate.");
 	}
 }
-

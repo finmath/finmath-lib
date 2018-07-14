@@ -94,4 +94,3 @@ public class BrownianMotionView implements BrownianMotionInterface {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 }
-

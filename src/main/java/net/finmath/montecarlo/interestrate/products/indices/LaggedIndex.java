@@ -46,4 +46,3 @@ public class LaggedIndex extends AbstractIndex {
 		return index.getValue(evaluationTime + fixingOffset, model);
 	}
 }
-

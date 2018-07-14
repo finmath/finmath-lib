@@ -99,4 +99,3 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 		return values;
 	}
 }
-

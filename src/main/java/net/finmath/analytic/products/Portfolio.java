@@ -138,4 +138,3 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 		return Collections.unmodifiableList(weights);
 	}
 }
-

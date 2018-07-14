@@ -637,4 +637,3 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	}
 }
 
-

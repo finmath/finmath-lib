@@ -194,4 +194,3 @@ public class BlackScholesModel extends AbstractModel {
 		return factorLoadings[0];
 	}
 }
-

@@ -76,4 +76,3 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 				);
 	}
 }
-

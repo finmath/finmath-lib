@@ -26,4 +26,3 @@ public interface ProcessCharacteristicFunctionInterface extends ModelInterface {
 	 */
 	CharacteristicFunctionInterface apply(double time);
 }
-

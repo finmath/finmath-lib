@@ -72,4 +72,3 @@ public class AccrualAccount extends AbstractProductComponent {
 		return value;
 	}
 }
-

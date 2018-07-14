@@ -116,4 +116,3 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 		return strikes;
 	}
 }
-

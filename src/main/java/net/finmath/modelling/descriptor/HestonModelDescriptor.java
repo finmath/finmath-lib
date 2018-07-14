@@ -118,4 +118,3 @@ public class HestonModelDescriptor implements AssetModelDescriptor {
 		return rho;
 	}
 }
-

@@ -142,4 +142,3 @@ public class DayCountConvention_30E_360_ISDATest {
 		}
 	}
 }
-

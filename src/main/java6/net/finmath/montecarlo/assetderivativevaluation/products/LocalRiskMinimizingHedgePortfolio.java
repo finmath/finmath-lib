@@ -166,4 +166,3 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		return basisFunctionList.toArray(new RandomVariableInterface[0]);
 	}
 }
-

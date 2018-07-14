@@ -138,4 +138,3 @@ public class BisectionSearch implements RootFinder {
 		return isDone;
 	}
 }
-

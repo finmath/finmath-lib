@@ -80,4 +80,3 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 		return "AbstractCurve [name=" + name + ", referenceDate=" + referenceDate + "]";
 	}
 }
-

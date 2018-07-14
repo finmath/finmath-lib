@@ -51,4 +51,3 @@ public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implement
 		return daycountFraction;
 	}
 }
-

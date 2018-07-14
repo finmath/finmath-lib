@@ -163,4 +163,3 @@ public class InhomogenousBachelierModel extends AbstractModel {
 		return volatility * Math.sqrt((Math.exp(2 * riskFreeRate * maturity) - 1)/(2*riskFreeRate*maturity));
 	}
 }
-

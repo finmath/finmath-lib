@@ -104,4 +104,3 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 		Assert.assertTrue(hedgeErrorRMS < 0.035);
 	}
 }
-

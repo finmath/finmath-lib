@@ -60,4 +60,3 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 		throw new CloneNotSupportedException("Cloning is unsupported for this curve.");
 	}
 }
-

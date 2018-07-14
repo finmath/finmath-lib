@@ -142,4 +142,3 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		return AnalyticFormulas.huntKennedyCMSOptionValue(forwardSwapRate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit, strike) * (swapTenor[1] - swapTenor[0]);
 	}
 }
-

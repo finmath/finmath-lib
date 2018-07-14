@@ -48,4 +48,3 @@ public interface RootFinder {
 	boolean isDone();
 
 }
-

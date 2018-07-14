@@ -47,4 +47,3 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 		Assert.assertEquals("Forward", 0.0223256887, forwardCurve.getForward(model, 25.0), 1E-9);
 	}
 }
-

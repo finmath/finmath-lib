@@ -240,4 +240,3 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 		return (new SingleAssetFourierProductFactory()).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 	}
 }
-

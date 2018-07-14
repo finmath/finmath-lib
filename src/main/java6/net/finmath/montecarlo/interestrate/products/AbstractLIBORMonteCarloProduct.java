@@ -76,4 +76,3 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 		return null;
 	}
 }
-

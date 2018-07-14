@@ -58,4 +58,3 @@ public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetPr
 		return strike;
 	}
 }
-

@@ -202,4 +202,3 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 				+ "\n" + "swaprates: " + Arrays.toString(swaprates);
 	}
 }
-

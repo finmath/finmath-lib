@@ -195,4 +195,3 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		return getCloneWithModifiedData(dataModifiedMap);
 	}
 }
-

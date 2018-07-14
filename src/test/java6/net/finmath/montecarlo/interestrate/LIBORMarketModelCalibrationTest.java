@@ -610,4 +610,3 @@ public class LIBORMarketModelCalibrationTest {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve, discountCurve);
 	}
 }
-

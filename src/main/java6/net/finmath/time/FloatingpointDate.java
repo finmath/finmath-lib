@@ -70,4 +70,3 @@ public class FloatingpointDate {
 		return internalDayCounting.getDaycountFraction(referenceDate, date);
 	}
 }
-

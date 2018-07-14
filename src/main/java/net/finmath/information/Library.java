@@ -60,4 +60,3 @@ public class Library {
 		return versionString;
 	}
 }
-

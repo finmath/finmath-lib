@@ -159,4 +159,3 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 		+ ", toString()=" + super.toString() + "]";
 	}
 }
-

@@ -1153,4 +1153,3 @@ public class RandomVariable implements RandomVariableInterface {
 				(isDeterministic() ? valueIfNonStochastic : Arrays.toString(realizations));
 	}
 }
-

@@ -138,4 +138,3 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 				+ ", daycountFraction=" + daycountFraction + "]";
 	}
 }
-

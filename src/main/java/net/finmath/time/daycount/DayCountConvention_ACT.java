@@ -54,4 +54,3 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 		return (endDate.toEpochDay() - startDate.toEpochDay());
 	}
 }
-

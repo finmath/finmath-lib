@@ -128,4 +128,3 @@ public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendar
 
 	public Set<LocalDate> getHolidays() { return HOLIDAYS; }
 }
-

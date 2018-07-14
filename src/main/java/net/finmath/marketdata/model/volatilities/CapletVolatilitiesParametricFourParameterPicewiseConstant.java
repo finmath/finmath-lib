@@ -108,4 +108,3 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 		return new CapletVolatilitiesParametricFourParameterPicewiseConstant(getName(), getReferenceDate(), value[0], value[1], value[2], value[3], timeDiscretization);
 	}
 }
-

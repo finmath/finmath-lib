@@ -83,4 +83,3 @@ public class SimpsonRealIntegratorTest {
 		Assert.assertEquals("Integreation error.", 0.0, error, 1E-13);
 	}
 }
-

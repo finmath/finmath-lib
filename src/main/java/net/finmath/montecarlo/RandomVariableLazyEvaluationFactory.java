@@ -28,4 +28,3 @@ public class RandomVariableLazyEvaluationFactory extends AbstractRandomVariableF
 		return new RandomVariableLazyEvaluation(time, values);
 	}
 }
-

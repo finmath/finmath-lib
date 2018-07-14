@@ -15,4 +15,3 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 public interface HybridAssetLIBORModelMonteCarloSimulationInterface extends LIBORModelMonteCarloSimulationInterface, AssetModelMonteCarloSimulationInterface
 {
 }
-

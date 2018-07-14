@@ -100,4 +100,3 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }
-

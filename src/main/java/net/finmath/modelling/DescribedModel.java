@@ -17,4 +17,3 @@ public interface DescribedModel<M extends ModelDescriptor> extends ModelInterfac
 	 */
 	DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor);
 }
-

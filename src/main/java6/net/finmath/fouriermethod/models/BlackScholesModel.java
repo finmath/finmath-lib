@@ -52,4 +52,3 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 		};
 	}
 }
-

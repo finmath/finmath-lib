@@ -73,4 +73,3 @@ public class PerformanceIndex extends AbstractIndex {
 		return underlyingNames;
 	}
 }
-

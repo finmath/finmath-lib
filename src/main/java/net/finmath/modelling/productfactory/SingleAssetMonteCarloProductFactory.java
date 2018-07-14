@@ -34,4 +34,3 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 	}
 
 }
-

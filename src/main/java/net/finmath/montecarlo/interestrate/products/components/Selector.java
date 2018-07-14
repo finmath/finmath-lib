@@ -62,4 +62,3 @@ public class Selector extends AbstractProductComponent {
 		return (RandomVariableInterface)(underlying.getValues(evaluationTime, model).get(key));
 	}
 }
-

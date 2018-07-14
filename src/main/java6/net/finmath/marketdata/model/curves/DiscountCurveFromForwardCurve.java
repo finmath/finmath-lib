@@ -214,4 +214,3 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		return true;
 	}
 }
-

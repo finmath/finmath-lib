@@ -270,4 +270,3 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 		return null;
 	}
 }
-

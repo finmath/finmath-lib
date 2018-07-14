@@ -142,4 +142,3 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 				+ ", periodLengths=" + Arrays.toString(periodLengths) + "]";
 	}
 }
-

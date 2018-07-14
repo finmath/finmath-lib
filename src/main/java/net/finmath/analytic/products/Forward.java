@@ -78,4 +78,3 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 		return forward.mult(discountFactor).div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}
 }
-

@@ -243,4 +243,3 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		return "AnalyticModel: curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
 	}
 }
-

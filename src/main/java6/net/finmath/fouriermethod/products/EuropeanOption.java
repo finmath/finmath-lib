@@ -78,4 +78,3 @@ public class EuropeanOption extends AbstractProductFourierTransform {
 		return 2.5;
 	}
 }
-

@@ -313,4 +313,3 @@ public class LinearAlgebra {
 		return new Array2DRowRealMatrix(exp(matrix.getData()));
 	}
 }
-

@@ -87,4 +87,3 @@ public class EuropeanOption extends AbstractProductFourierTransform implements D
 		return new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturity, strike);
 	}
 }
-

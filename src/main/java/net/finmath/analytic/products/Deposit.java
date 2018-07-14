@@ -134,4 +134,3 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 		return "Deposit [schedule=" + schedule + ", rate=" + rate + ", forwardCurveName=" + discountCurveName + "]";
 	}
 }
-

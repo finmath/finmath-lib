@@ -100,4 +100,3 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface, Serial
 		this.spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);
 	}
 }
-

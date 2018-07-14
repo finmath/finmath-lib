@@ -169,4 +169,3 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
 }
-

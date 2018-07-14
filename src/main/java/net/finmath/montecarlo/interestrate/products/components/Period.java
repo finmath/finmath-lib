@@ -177,4 +177,3 @@ public class Period extends AbstractPeriod {
 				+ super.toString() + "]";
 	}
 }
-

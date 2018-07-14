@@ -161,4 +161,3 @@ public class CMSOptionTest {
 		return liborMarketModelMonteCarloSimulation;
 	}
 }
-

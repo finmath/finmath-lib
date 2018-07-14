@@ -489,4 +489,3 @@ public class HestonModel extends AbstractModel {
 		return volatility;
 	}
 }
-

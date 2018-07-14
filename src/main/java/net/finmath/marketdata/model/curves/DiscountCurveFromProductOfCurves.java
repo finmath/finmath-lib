@@ -76,4 +76,3 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 		return null;
 	}
 }
-

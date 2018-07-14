@@ -21,4 +21,3 @@ import net.finmath.compatibility.java.util.function.Function;
 public interface CharacteristicFunctionInterface extends Function<Complex, Complex> {
 
 }
-

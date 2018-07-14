@@ -64,4 +64,3 @@ public abstract class AbstractIndex extends AbstractProductComponent {
 		return name;
 	}
 }
-

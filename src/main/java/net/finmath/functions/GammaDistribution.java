@@ -28,4 +28,3 @@ public class GammaDistribution {
 		return gammaDistribution.inverseCumulativeProbability(x);
 	}
 }
-

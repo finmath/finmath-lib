@@ -49,4 +49,3 @@ public class FowardCurveIndex extends AbstractIndex {
 		return "FowardCurveIndex [fowardCurve=" + fowardCurve + "]";
 	}
 }
-

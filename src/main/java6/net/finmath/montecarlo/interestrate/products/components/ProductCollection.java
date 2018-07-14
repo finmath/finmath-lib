@@ -146,4 +146,3 @@ public class ProductCollection extends AbstractProductComponent {
 		return "ProductCollection [products=" + products + "]";
 	}
 }
-

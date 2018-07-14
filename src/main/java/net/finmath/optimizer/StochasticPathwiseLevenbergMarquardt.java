@@ -725,4 +725,3 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		return clonedOptimizer;
 	}
 }
-

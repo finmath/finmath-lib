@@ -158,4 +158,3 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 		return volatility;
 	}
 }
-

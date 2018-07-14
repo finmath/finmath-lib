@@ -121,4 +121,3 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 		return new TermStructCovarianceModelFromLIBORCovarianceModelParametric(tenorTimeScalingModel.clone(), (AbstractLIBORCovarianceModelParametric) covarianceModel.clone());
 	}
 }
-

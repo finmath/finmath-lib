@@ -188,4 +188,3 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractModel {
 		return volatility;
 	}
 }
-

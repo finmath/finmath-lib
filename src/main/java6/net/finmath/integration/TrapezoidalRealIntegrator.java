@@ -99,4 +99,3 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 		return sum;
 	}
 }
-

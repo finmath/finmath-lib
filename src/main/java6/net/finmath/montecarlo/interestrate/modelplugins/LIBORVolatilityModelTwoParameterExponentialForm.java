@@ -112,4 +112,3 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 				);
 	}
 }
-

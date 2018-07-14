@@ -41,4 +41,3 @@ public interface ParameterObjectInterface {
 	void setParameter(double[] parameter);
 
 }
-

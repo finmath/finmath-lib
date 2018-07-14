@@ -5,4 +5,3 @@ import net.finmath.modelling.ModelDescriptor;
 public interface AssetModelDescriptor extends ModelDescriptor {
 
 }
-

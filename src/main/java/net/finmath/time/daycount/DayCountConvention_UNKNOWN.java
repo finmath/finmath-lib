@@ -47,4 +47,3 @@ public class DayCountConvention_UNKNOWN implements DayCountConventionInterface {
 		throw new IllegalArgumentException(errorMessage);
 	}
 }
-

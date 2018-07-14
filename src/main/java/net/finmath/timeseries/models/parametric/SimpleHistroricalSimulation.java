@@ -129,4 +129,3 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 	}
 
 }
-

@@ -193,4 +193,3 @@ public class BrownianMotionTest {
 		System.out.println("");
 	}
 }
-

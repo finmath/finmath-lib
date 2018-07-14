@@ -1396,4 +1396,3 @@ public class AnalyticFormulas {
 		return price;
 	}
 }
-

@@ -113,4 +113,3 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];
 	}
 }
-

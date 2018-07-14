@@ -311,4 +311,3 @@ public class Cap extends AbstractAnalyticProduct {
 		cachedATMForward = Double.NaN;
 	}
 }
-

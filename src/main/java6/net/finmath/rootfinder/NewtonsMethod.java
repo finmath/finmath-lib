@@ -93,4 +93,3 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 		return isDone;
 	}
 }
-

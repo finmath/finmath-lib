@@ -76,4 +76,3 @@ public class HaltonSequence implements RandomNumberGenerator {
 		return x;
 	}
 }
-

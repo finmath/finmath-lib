@@ -105,4 +105,3 @@ public class LinearCombinationIndex extends AbstractIndex {
 				+ ", toString()=" + super.toString() + "]";
 	}
 }
-

@@ -156,4 +156,3 @@ public class Portfolio extends AbstractProductComponent {
 		return weights.clone();
 	}
 }
-

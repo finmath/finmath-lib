@@ -66,4 +66,3 @@ public class BlackScholesThetaTest {
 		System.out.println(Arrays.toString(optionValue));
 	}
 }
-

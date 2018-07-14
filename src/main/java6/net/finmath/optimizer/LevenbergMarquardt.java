@@ -885,4 +885,3 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		return clonedOptimizer;
 	}
 }
-

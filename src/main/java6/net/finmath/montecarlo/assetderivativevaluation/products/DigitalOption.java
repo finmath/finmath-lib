@@ -90,4 +90,3 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 		return values;
 	}
 }
-

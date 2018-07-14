@@ -49,4 +49,3 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 	}
 
 }
-

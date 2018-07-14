@@ -10,4 +10,3 @@ public interface TimeSeriesInterface {
 
 	Iterable<Double> getValues();
 }
-

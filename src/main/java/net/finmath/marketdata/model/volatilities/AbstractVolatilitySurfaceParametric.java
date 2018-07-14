@@ -99,4 +99,3 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		return (AbstractVolatilitySurfaceParametric)modelCalibrated.getVolatilitySurface(this.getName());
 	}
 }
-

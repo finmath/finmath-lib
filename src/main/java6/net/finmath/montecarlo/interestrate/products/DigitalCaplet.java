@@ -84,4 +84,3 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 		return values;
 	}
 }
-

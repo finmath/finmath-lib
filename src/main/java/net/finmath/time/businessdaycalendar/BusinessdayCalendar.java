@@ -148,4 +148,3 @@ public abstract class BusinessdayCalendar implements BusinessdayCalendarInterfac
 		return "BusinessdayCalendar";
 	}
 }
-

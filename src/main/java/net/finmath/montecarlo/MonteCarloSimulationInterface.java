@@ -87,4 +87,3 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	 */
 	MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }
-

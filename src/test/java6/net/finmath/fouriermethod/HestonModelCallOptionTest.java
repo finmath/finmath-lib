@@ -88,4 +88,3 @@ public class HestonModelCallOptionTest {
 		Assert.assertEquals("Value", valueBS, valueHS, 1E-7);
 	}
 }
-

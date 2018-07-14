@@ -149,4 +149,3 @@ public class Schedule implements ScheduleInterface {
 		return "Schedule [referenceDate=" + referenceDate + ", daycountconvention=" + daycountconvention + "\n" + periodOutputString + "]";
 	}
 }
-

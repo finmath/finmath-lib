@@ -120,4 +120,3 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 }
-

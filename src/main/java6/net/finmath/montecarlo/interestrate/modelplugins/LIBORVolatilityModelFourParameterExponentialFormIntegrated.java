@@ -138,4 +138,3 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 				);
 	}
 }
-

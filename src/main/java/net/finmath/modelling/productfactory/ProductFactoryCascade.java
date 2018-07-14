@@ -43,4 +43,3 @@ public abstract class ProductFactoryCascade<T extends ProductDescriptor> impleme
 		throw new IllegalArgumentException("Unsupported product type " + productDescriptor.name());
 	}
 }
-

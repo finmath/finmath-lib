@@ -111,4 +111,3 @@ public abstract class AbstractModel implements AbstractModelInterface {
 		return process.getTimeIndex(time);
 	}
 }
-

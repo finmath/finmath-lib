@@ -92,4 +92,3 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 		return value;
 	}
 }
-

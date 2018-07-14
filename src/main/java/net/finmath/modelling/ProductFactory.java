@@ -21,4 +21,3 @@ public interface ProductFactory<P extends ProductDescriptor> {
 	 */
 	DescribedProduct<? extends P> getProductFromDescriptor(ProductDescriptor descriptor);
 }
-

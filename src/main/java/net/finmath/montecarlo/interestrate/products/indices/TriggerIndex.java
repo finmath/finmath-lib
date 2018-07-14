@@ -79,4 +79,3 @@ public class TriggerIndex extends AbstractIndex {
 				+ ", toString()=" + super.toString() + "]";
 	}
 }
-

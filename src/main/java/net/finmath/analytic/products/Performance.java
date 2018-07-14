@@ -53,4 +53,3 @@ public class Performance extends AbstractAnalyticProduct implements AnalyticProd
 				+ ", productDenominator=" + productDenominator + "]";
 	}
 }
-

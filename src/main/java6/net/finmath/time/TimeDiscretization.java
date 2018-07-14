@@ -259,4 +259,3 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 		return Math.rint(time/timeTickSize)*timeTickSize;
 	}
 }
-

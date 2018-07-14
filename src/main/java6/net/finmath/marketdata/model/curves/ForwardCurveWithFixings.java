@@ -86,4 +86,3 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 		return new ForwardCurveWithFixings((ForwardCurveInterface)getBaseCurve().clone(), (ForwardCurveInterface)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());
 	}
 }
-

@@ -16,4 +16,3 @@ package net.finmath.modelling;
 public interface ModelInterface {
 
 }
-

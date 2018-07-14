@@ -21,4 +21,3 @@ public interface HazardCurveInterface extends CurveInterface{
 	double getSurvivalProbability(AnalyticModelInterface model, double maturity);
 
 }
-

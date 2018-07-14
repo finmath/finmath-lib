@@ -266,4 +266,3 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		return model;
 	}
 }
-

@@ -77,4 +77,3 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 		return super.toString() + "\n" + "maturity: " + maturity;
 	}
 }
-

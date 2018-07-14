@@ -84,4 +84,3 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		throw new UnsupportedOperationException();
 	}
 }
-

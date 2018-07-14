@@ -65,4 +65,3 @@ public class UnsupportedIndex extends AbstractIndex {
 		return underlying;
 	}
 }
-

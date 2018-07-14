@@ -157,4 +157,3 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, realizations);
 	}
 }
-

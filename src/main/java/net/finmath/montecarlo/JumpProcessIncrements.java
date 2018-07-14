@@ -217,4 +217,3 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 		incrementsLazyInitLock = new Object();
 	}
 }
-

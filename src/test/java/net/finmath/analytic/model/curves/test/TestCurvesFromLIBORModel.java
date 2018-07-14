@@ -330,4 +330,3 @@ public class TestCurvesFromLIBORModel {
 		return swap;
 	}
 }
-

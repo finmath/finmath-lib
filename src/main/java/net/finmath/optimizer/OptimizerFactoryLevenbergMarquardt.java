@@ -66,4 +66,3 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInter
 				.setParameterSteps(parameterSteps);
 	}
 }
-

@@ -81,4 +81,3 @@ public class CappedFlooredIndex extends AbstractIndex {
 				+ ", floor=" + floor + ", toString()=" + super.toString() + "]";
 	}
 }
-

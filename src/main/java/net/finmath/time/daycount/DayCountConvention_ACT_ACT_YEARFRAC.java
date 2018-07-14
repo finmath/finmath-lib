@@ -127,4 +127,3 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 	}
 
 }
-

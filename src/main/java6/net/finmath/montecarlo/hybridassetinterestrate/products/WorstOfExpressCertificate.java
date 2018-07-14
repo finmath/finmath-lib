@@ -111,4 +111,3 @@ public class WorstOfExpressCertificate implements ProductInterface {
 		return worstPerformance;
 	}
 }
-

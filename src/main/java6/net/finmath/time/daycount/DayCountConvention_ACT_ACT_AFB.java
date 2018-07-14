@@ -106,4 +106,3 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 	}
 
 }
-

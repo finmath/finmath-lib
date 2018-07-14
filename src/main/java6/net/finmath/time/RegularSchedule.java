@@ -86,4 +86,3 @@ public class RegularSchedule implements ScheduleInterface {
 		return null;
 	}
 }
-

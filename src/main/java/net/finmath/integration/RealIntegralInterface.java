@@ -22,4 +22,3 @@ public interface RealIntegralInterface {
 	double integrate(DoubleUnaryOperator integrand);
 
 }
-

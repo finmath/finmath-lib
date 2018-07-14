@@ -115,4 +115,3 @@ public class Period implements Comparable<Period> {
 		return "Period [start=" + periodStart + ", end=" + periodEnd + ", fixing=" + fixing + ", payment=" + payment + "]";
 	}
 }
-

@@ -77,4 +77,3 @@ public class DigitalOption extends AbstractProductFourierTransform {
 		return 2.5;
 	}
 }
-

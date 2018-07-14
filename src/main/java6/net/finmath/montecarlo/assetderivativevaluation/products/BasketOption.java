@@ -84,4 +84,3 @@ public class BasketOption extends AbstractAssetMonteCarloProduct {
 		return values;
 	}
 }
-

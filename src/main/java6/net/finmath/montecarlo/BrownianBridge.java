@@ -223,4 +223,3 @@ public class BrownianBridge implements BrownianMotionInterface {
 		brownianIncrementsLazyInitLock = new Object();
 	}
 }
-

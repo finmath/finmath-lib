@@ -74,4 +74,3 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		return (integrand.applyAsDouble(lowerBound) + integrand.applyAsDouble(upperBound) + 2.0 * sum) / 6.0 * fullIntervall;
 	}
 }
-

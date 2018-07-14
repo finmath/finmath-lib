@@ -57,4 +57,3 @@ public class TimeSeries implements TimeSeriesInterface {
 	}
 
 }
-

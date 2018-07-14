@@ -87,4 +87,3 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 */
 	AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed)  throws CalculationException;
 }
-

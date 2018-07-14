@@ -82,4 +82,3 @@ public abstract class AbstractCurve implements CurveInterface, Serializable, Clo
 		return "AbstractCurve [name=" + name + ", referenceDate=" + referenceDate + "]";
 	}
 }
-

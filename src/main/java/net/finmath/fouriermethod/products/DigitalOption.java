@@ -89,4 +89,3 @@ public class DigitalOption extends AbstractProductFourierTransform implements De
 		return new SingleAssetDigitalOptionProductDescriptor(nameOfUnderlying, maturity, strike);
 	}
 }
-

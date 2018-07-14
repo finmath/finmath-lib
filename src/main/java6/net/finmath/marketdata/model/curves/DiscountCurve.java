@@ -446,4 +446,3 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		return "DiscountCurve [" + super.toString() + "]";
 	}
 }
-

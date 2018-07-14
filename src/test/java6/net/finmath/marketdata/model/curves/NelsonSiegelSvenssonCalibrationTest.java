@@ -155,4 +155,3 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		System.out.println();
 	}
 }
-

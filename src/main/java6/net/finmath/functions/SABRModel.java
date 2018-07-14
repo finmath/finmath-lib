@@ -74,4 +74,3 @@ public class SABRModel {
 		return bestParameters;
 	}
 }
-

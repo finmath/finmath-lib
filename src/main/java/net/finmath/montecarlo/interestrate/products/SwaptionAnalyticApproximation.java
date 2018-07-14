@@ -293,4 +293,3 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 		return model.getIntegratedLIBORCovariance();
 	}
 }
-

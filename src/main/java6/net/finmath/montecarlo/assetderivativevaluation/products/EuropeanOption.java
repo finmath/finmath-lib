@@ -89,4 +89,3 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		return values;
 	}
 }
-

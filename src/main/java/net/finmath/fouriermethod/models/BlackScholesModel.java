@@ -129,4 +129,3 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 		return (new SingleAssetFourierProductFactory()).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 	}
 }
-

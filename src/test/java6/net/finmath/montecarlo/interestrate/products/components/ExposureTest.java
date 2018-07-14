@@ -266,4 +266,3 @@ public class ExposureTest {
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 }
-

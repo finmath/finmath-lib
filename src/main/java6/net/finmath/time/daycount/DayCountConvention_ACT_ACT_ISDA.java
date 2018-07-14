@@ -107,4 +107,3 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 	}
 
 }
-

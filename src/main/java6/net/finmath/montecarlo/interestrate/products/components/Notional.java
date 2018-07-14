@@ -61,4 +61,3 @@ public class Notional implements AbstractNotional {
 				+ "]";
 	}
 }
-

@@ -168,4 +168,3 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 				newVolatilityArray);
 	}
 }
-

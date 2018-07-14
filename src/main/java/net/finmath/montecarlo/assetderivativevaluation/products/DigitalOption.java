@@ -109,4 +109,3 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct implements Des
 		return new SingleAssetDigitalOptionProductDescriptor(nameOfUnderlying, maturity, strike);
 	}
 }
-

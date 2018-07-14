@@ -48,4 +48,3 @@ public class Numeraire extends AbstractProductComponent {
 
 	}
 }
-

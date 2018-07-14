@@ -38,4 +38,3 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 	}
 
 }
-

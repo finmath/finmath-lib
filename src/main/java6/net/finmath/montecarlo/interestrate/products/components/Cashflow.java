@@ -97,4 +97,3 @@ public class Cashflow extends AbstractProductComponent {
 				+ "]";
 	}
 }
-

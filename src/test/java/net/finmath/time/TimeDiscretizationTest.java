@@ -230,4 +230,3 @@ public class TimeDiscretizationTest {
 		assertThat(intersection.getTickSize(), is(equalTo(1.0)));
 	}
 }
-

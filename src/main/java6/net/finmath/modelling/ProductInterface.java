@@ -43,4 +43,3 @@ public interface ProductInterface {
 	 */
 	Map<String, Object> getValues(double evaluationTime, ModelInterface model);
 }
-

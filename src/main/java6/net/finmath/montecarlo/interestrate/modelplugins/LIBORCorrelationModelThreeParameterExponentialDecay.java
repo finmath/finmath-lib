@@ -154,4 +154,3 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		return newModel;
 	}
 }
-

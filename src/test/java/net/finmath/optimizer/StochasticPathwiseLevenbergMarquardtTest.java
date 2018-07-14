@@ -97,4 +97,3 @@ public class StochasticPathwiseLevenbergMarquardtTest {
 		System.out.println("The solver accuracy is " + optimizer.getRootMeanSquaredError());
 	}
 }
-

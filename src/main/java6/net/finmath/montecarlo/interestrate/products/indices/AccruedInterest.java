@@ -94,4 +94,3 @@ public class AccruedInterest extends AbstractIndex {
 		return referenceDate.plusDays(Math.round((float)(fixingTime*365.0)));
 	}
 }
-

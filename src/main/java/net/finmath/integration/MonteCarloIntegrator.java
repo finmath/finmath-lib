@@ -65,4 +65,3 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		return randomNumberSequence.map(x -> (integrand.applyAsDouble(lowerBound + x * range))).sum() * range / numberOfEvaluationPoints;
 	}
 }
-

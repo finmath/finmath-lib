@@ -96,4 +96,3 @@ public class RegularSchedule implements ScheduleInterface {
 		return getPeriodIndex(time);
 	}
 }
-

@@ -787,4 +787,3 @@ public class LIBORMarketModelValuationTest {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
 	}
 }
-

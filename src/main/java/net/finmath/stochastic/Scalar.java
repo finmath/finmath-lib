@@ -375,4 +375,3 @@ public class Scalar implements RandomVariableInterface {
 		return new Scalar(Double.isNaN(value) ? 1.0 : 0.0);
 	}
 }
-

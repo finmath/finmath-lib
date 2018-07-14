@@ -24,4 +24,3 @@ public interface ProcessCharacteristicFunctionInterface {
 	 */
 	CharacteristicFunctionInterface apply(double time);
 }
-

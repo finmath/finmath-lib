@@ -52,4 +52,3 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 		return "BusinessdayCalendarExcludingWeekends [baseCalendar=" + baseCalendar + "]";
 	}
 }
-

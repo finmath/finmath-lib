@@ -36,4 +36,3 @@ public class DayCountConvention_NONE implements DayCountConventionInterface {
 		return 1.0;
 	}
 }
-

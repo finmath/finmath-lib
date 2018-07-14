@@ -112,4 +112,3 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 				+ "\n" + "swaprates: " + Arrays.toString(swaprates);
 	}
 }
-

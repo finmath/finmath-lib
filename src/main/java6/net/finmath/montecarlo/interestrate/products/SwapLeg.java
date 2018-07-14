@@ -122,4 +122,3 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 		return components.getValue(evaluationTime, model);
 	}
 }
-

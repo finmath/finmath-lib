@@ -405,4 +405,3 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 		return parameterNames;
 	}
 }
-

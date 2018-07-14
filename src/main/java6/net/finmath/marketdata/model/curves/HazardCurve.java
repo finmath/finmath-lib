@@ -366,4 +366,3 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 		return super.toString();
 	}
 }
-

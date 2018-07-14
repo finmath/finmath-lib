@@ -70,4 +70,3 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	 */
 	public abstract double getIntegrationDomainImagUpperBound();
 }
-

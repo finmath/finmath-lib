@@ -367,4 +367,3 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		return parameterNames;
 	}
 }
-

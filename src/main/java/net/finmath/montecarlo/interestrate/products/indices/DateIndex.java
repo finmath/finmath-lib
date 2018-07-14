@@ -85,4 +85,3 @@ public class DateIndex extends AbstractIndex {
 	}
 
 }
-

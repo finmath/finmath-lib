@@ -177,4 +177,3 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 				+ super.toString() + "]";
 	}
 }
-

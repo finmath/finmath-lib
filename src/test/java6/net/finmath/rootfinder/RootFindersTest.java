@@ -95,4 +95,3 @@ public class RootFindersTest {
 		Assert.assertEquals("x such that x^3 + x^2 + x + 1 = 0", -1.0, rootFinder.getBestPoint(), 1E-12);
 	}
 }
-

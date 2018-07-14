@@ -246,4 +246,3 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		return result;
 	}
 }
-

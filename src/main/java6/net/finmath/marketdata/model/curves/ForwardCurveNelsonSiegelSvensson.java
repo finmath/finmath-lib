@@ -171,4 +171,3 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 		return getReferenceDate().plusDays((int)Math.round(fixingTime*365.0));
 	}
 }
-

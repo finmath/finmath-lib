@@ -259,4 +259,3 @@ public class SwaptionAnalyticApproximationTest {
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
 	}
 }
-

@@ -195,4 +195,3 @@ public class JNumberField extends JTextField implements ActionListener {
 		}
 	}
 }
-

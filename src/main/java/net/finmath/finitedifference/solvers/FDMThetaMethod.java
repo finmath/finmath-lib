@@ -153,4 +153,3 @@ public class FDMThetaMethod {
 		return f(boundaryCondition.getValueAtUpperBoundary(model, f_t(tau), f_s(x)), x, tau);
 	}
 }
-

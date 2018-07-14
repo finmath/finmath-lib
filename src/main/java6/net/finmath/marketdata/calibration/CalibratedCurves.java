@@ -816,4 +816,3 @@ public class CalibratedCurves {
 		return forwardCurve.getName();
 	}
 }
-

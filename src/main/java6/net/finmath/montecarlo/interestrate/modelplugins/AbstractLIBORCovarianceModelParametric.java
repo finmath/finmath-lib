@@ -243,4 +243,3 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				+ Arrays.toString(getParameter()) + "]";
 	}
 }
-
