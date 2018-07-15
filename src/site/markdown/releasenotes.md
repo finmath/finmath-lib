@@ -5,6 +5,15 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.2.12 (15.07.2018)
+
+### General
+
+- Requiring some checkstyle checks to be passed.
+- Improving API documentation (JavaDoc).
+- Improvements to TimeDiscretizationInterface and TimeDiscretization (see pull request #60).
+- More unit tests.
+
 ## 3.2.11 (07.07.2018)
 
 ### General
