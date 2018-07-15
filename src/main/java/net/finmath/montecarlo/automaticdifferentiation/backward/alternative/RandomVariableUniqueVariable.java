@@ -1,11 +1,7 @@
 /**
- * 
+ *
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
-
-import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +9,10 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Stefan Sedlmair
@@ -24,26 +24,26 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	public enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP
 	}
-	
+
 	private final RandomVariableUniqueVariableFactory factory = new RandomVariableUniqueVariableFactory();
 	private ArrayList<RandomVariableUniqueVariable> parentsVariables;
 	private OperatorType parentOperatorType; /* important for the partial derivatives */
-	
+
 	private int variableID;
 	private boolean isConstant;
-	
+
 	/*---------------------------------------------------------------------------------------------------------------------------------*/
-	
+
 	/**
 	 * <b>Do not use this constructor on its own.</b> It is thought only to be use by the {@link RandomVariableUniqueVariableFactory}!
-	 * 
+	 *
 	 * @param variableID is the index of the corresponding {@link RandomVariableInterface} in the ArrayList of the {@link RandomVariableUniqueVariableFactory}
 	 * @param isConstant If true, this is a constant.
 	 * @param parentVariables Indices of parents
 	 * @param parentOperatorType Operator
 	 */
 	public RandomVariableUniqueVariable(int variableID, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType) {
-		this.variableID = variableID;		
+		this.variableID = variableID;
 		this.isConstant = isConstant;
 		this.parentsVariables = parentVariables;
 		this.parentOperatorType = parentOperatorType;
@@ -52,43 +52,43 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	public RandomVariableUniqueVariable(double time, double[] values, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
 		constructRandomVariableUniqueVariable(new RandomVariable(time, values), isConstant, parentVariables, parentOperatorType);
 	}
-	
+
 	public RandomVariableUniqueVariable(RandomVariableInterface randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
 		constructRandomVariableUniqueVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
 	}
-	
+
 	public RandomVariableUniqueVariable(double time, double[] values, boolean isConstant){
 		constructRandomVariableUniqueVariable(new RandomVariable(time, values), isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
-	
+
 	public RandomVariableUniqueVariable(RandomVariableInterface randomVariable, boolean isConstant){
 		constructRandomVariableUniqueVariable(randomVariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
-	
+
 	public RandomVariableUniqueVariable(double time, double[] values){
 		constructRandomVariableUniqueVariable(new RandomVariable(time, values), /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
-	
+
 	public RandomVariableUniqueVariable(RandomVariableInterface randomVariable){
 		constructRandomVariableUniqueVariable(randomVariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
-	
+
 	/**
 	 * Function calls {@link RandomVariableUniqueVariableFactory} to use the given {@link RandomVariable}
-	 * and save it to its internal ArrayList. The index of the object will be give to the new {@link RandomVariableUniqueVariable} 
+	 * and save it to its internal ArrayList. The index of the object will be give to the new {@link RandomVariableUniqueVariable}
 	 * object.
-	 * 
+	 *
 	 *  @param randomVariable
 	 *  @param isConstant
 	 * */
 	private void constructRandomVariableUniqueVariable(RandomVariableInterface randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
-		/* 	by calling the method in the factory it will produce a new object of RandomVariableInterface and 
+		/* 	by calling the method in the factory it will produce a new object of RandomVariableInterface and
 	 	the new item will be stored in its factory internal array list */
 		RandomVariableInterface normalrandomvariable = factory.createRandomVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
-		
+
 		/* by construction this object can be up-casted to RandomVariableUniqueVariable */
 		RandomVariableUniqueVariable newrandomvariableuniquevariable = (RandomVariableUniqueVariable)normalrandomvariable;
-		
+
 		/* now we have access to the internal variables of the new RandomVarialeUniqueVariable */
 		this.variableID = newrandomvariableuniquevariable.getVariableID();
 		this.isConstant = newrandomvariableuniquevariable.isConstant();
@@ -99,63 +99,63 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	/*---------------------------------------------------------------------------------------------------------------------------------*/
 
 	private int[] getParentIDs(){
-		
+
 		if(parentsVariables == null) return null;
-		
+
 		int[] parentIDs = new int[parentsVariables.size()];
-		
+
 		for(int i = 0; i < parentsVariables.size(); i++){
 			parentIDs[i] = parentsVariables.get(i).getVariableID();
 		}
-		
+
 		/*DO NOT sort this array! This deletes the information for divisions (de-/nominator)*/
-		
+
 		return parentIDs;
 	}
-	
+
 	public int getVariableID(){
 		return variableID;
 	}
-	
+
 	private boolean isConstant(){
 		return isConstant;
 	}
-	
+
 	private ArrayList<RandomVariableUniqueVariable> getParentVariables(){
 		return parentsVariables;
 	}
-	
+
 	private OperatorType getParentOperatorType(){
 		return parentOperatorType;
 	}
-	
+
 	private ArrayList<RandomVariableInterface> getListOfAllVariables(){
 		return factory.getListOfAllVariables();
 	}
 
 	private ArrayList<RandomVariableInterface> getParentRandomVariables(){
-		
+
 		ArrayList<RandomVariableInterface> parentrandomvariables = new ArrayList<>();
-		
+
 		for(RandomVariableUniqueVariable parent:parentsVariables){
 			parentrandomvariables.add(parent.getRandomVariable());
 		}
-		
-		return parentrandomvariables;	
+
+		return parentrandomvariables;
 	}
-	
+
 	private RandomVariableInterface getRandomVariable(){
 		return getListOfAllVariables().get(variableID);
 	}
-	
+
 	public boolean isVariable(){
 		return parentsVariables == null && isConstant() == false;
 
 	}
-	
+
 	/*---------------------------------------------------------------------------------------------------------------------------------*/
 
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -434,7 +434,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	 * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
 	 */
 	@Override
-	public RandomVariableInterface sqrt() {		
+	public RandomVariableInterface sqrt() {
 		return apply(OperatorType.SQRT, new RandomVariableInterface[] {this});
 	}
 
@@ -623,141 +623,141 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	/**
 	 * Check if an object can be up-casted to {@link RandomVariableUniqueVariable}.
 	 * <b>If not treat the object as an constant</b> with respect to the AAD components.
-	 * 
+	 *
 	 * @param obj any object that should be tested.
-	 * @return <i>true</i> if object can be casted to {@link RandomVariableUniqueVariable}, else <i>false</i>  
+	 * @return <i>true</i> if object can be casted to {@link RandomVariableUniqueVariable}, else <i>false</i>
 	 * */
 	private boolean isUpcastableToRandomVariableUniqueVariable(Object obj){
 		return (obj instanceof RandomVariableUniqueVariable);
 	}
-	
-	/** Apply one of the possible {@link OperatorType} to an array of {@link RandomVariableInterface}s. 
-	 *  If the entries in the array are not an instance of {@link RandomVariableUniqueVariable} 
+
+	/** Apply one of the possible {@link OperatorType} to an array of {@link RandomVariableInterface}s.
+	 *  If the entries in the array are not an instance of {@link RandomVariableUniqueVariable}
 	 *  generate a new {@link RandomVariableUniqueVariable} and consider them as constants.
 	 * */
 	private RandomVariableUniqueVariable apply(OperatorType operatortype, RandomVariableInterface[] operatorVariables){
-		
+
 		ArrayList<RandomVariableUniqueVariable> parentVariables = new ArrayList<>();
-				
+
 		for(int i = 0; i < operatorVariables.length; i++){
-			/* 
-			 * is variable upcastable to {@link RandomVariableUniqueVariable} ? 
+			/*
+			 * is variable upcastable to {@link RandomVariableUniqueVariable} ?
 			 */
 			if(!isUpcastableToRandomVariableUniqueVariable(operatorVariables[i])){
-				/* 
-				 * if no then construct a new one and consider it constant 
+				/*
+				 * if no then construct a new one and consider it constant
 				 */
 				operatorVariables[i] = new RandomVariableUniqueVariable(operatorVariables[i], /*isConstant*/ true);
 			}
 			/* add current function variable to parentVariables of new RandomVariableUniqueVariable*/
 			parentVariables.add(i, (RandomVariableUniqueVariable) operatorVariables[i]);
-			
+
 			/* get the underlying RandomVariable from the factory */
 			operatorVariables[i] = parentVariables.get(i).getRandomVariable();
 		}
-		
+
 		RandomVariableInterface resultrandomvariable;
-		
+
 		switch(operatortype){
-			/* functions with one argument  */
-			case SQUARED:
-				resultrandomvariable = operatorVariables[0].squared();
-				break;
-			case SQRT:
-				resultrandomvariable = operatorVariables[0].sqrt();
-				break;
-			case EXP:
-				resultrandomvariable = operatorVariables[0].exp();
-				break;
-			case LOG:
-				resultrandomvariable = operatorVariables[0].log();
-				break;
-			case SIN:
-				resultrandomvariable = operatorVariables[0].sin();
-				break;
-			case COS:
-				resultrandomvariable = operatorVariables[0].cos();
-				break;
-				
+		/* functions with one argument  */
+		case SQUARED:
+			resultrandomvariable = operatorVariables[0].squared();
+			break;
+		case SQRT:
+			resultrandomvariable = operatorVariables[0].sqrt();
+			break;
+		case EXP:
+			resultrandomvariable = operatorVariables[0].exp();
+			break;
+		case LOG:
+			resultrandomvariable = operatorVariables[0].log();
+			break;
+		case SIN:
+			resultrandomvariable = operatorVariables[0].sin();
+			break;
+		case COS:
+			resultrandomvariable = operatorVariables[0].cos();
+			break;
+
 			/* functions with two arguments */
-			case ADD:
-				resultrandomvariable = operatorVariables[0].add(operatorVariables[1]);
-				break;
-			case SUB:
-				resultrandomvariable = operatorVariables[0].sub(operatorVariables[1]);
-				break;
-			case MULT:
-				resultrandomvariable = operatorVariables[0].mult(operatorVariables[1]);
-				break;
-			case DIV:
-				resultrandomvariable = operatorVariables[0].div(operatorVariables[1]);
-				break;
-				
+		case ADD:
+			resultrandomvariable = operatorVariables[0].add(operatorVariables[1]);
+			break;
+		case SUB:
+			resultrandomvariable = operatorVariables[0].sub(operatorVariables[1]);
+			break;
+		case MULT:
+			resultrandomvariable = operatorVariables[0].mult(operatorVariables[1]);
+			break;
+		case DIV:
+			resultrandomvariable = operatorVariables[0].div(operatorVariables[1]);
+			break;
+
 			/* if non of the above throw exception */
-			default:
-				throw new IllegalArgumentException("Operation not supported!\n");
+		default:
+			throw new IllegalArgumentException("Operation not supported!\n");
 		}
-		
+
 		/* create new RandomVariableUniqueVariable which is definitely NOT Constant */
 		return new RandomVariableUniqueVariable(resultrandomvariable, /*isConstant*/ false, parentVariables, operatortype);
 	}
-	
+
 	/**
 	 * Apply the AAD algorithm to this very variable
-	 * 
+	 *
 	 * NOTE: in this case it is indeed correct to assume that the output dimension is "one"
 	 * meaning that there is only one {@link RandomVariableUniqueVariable} as an output.
-	 * 
-	 * @return gradient for the built up function 
+	 *
+	 * @return gradient for the built up function
 	 * */
 	public RandomVariableInterface[] getGradient(){
-		
+
 		// for now let us take the case for output-dimension equal to one!
 		int numberOfVariables = getNumberOfVariablesInList();
-		int numberOfCalculationSteps = factory.getNumberOfEntriesInList();		
-		
+		int numberOfCalculationSteps = factory.getNumberOfEntriesInList();
+
 		RandomVariableInterface[] omega_hat = new RandomVariableInterface[numberOfCalculationSteps];
-		
-		// first entry gets initialized 
+
+		// first entry gets initialized
 		omega_hat[numberOfCalculationSteps-1] = new RandomVariable(1.0);
-		
+
 		/*
 		 * TODO: Find way that calculations form here on are not 'recorded' by the factory
 		 * IDEA: Let the calculation below run on {@link RandomVariable}, ie cast everything down!
 		 * */
-				
+
 		for(int functionIndex = numberOfCalculationSteps - 2; functionIndex > 0; functionIndex--){
 			// apply chain rule
 			omega_hat[functionIndex] = new RandomVariable(0.0);
-			
+
 			/*TODO: save all D_{i,j}*\omega_j in vector and sum up later */
 			for(RandomVariableUniqueVariable parent:parentsVariables){
-				
+
 				int variableIndex = parent.getVariableID();
-				
+
 				omega_hat[functionIndex] = omega_hat[functionIndex].add(getPartialDerivative(functionIndex, variableIndex).mult(omega_hat[variableIndex]));
 			}
 		}
-		
+
 		/* Due to the fact that we can still introduce 'new' true variables on the fly they are NOT the last couple of indices!
 		 * Thus save the indices of the true variables and recover them after finalizing all the calculations
 		 * IDEA: quit calculation after minimal true variable index is reached */
 		RandomVariableInterface[] gradient = new RandomVariableInterface[numberOfVariables];
-		
+
 		/* TODO: sort array in correct manner! */
 		int[] indicesOfVariables = getIDsOfVariablesInList();
-		
+
 		for(int i = 0; i < numberOfVariables; i++){
 			gradient[i] = omega_hat[numberOfCalculationSteps - numberOfVariables + indicesOfVariables[i]];
 		}
 
 		return gradient;
 	}
-	
+
 	private ArrayList<RandomVariableUniqueVariable> getListOfDependingTrueVariables(){
-				
+
 		ArrayList<RandomVariableUniqueVariable> listOfDependingTrueVariables = new ArrayList<>();
-		
+
 		for(RandomVariableUniqueVariable parent:parentsVariables){
 			if(parent.isVariable() && !listOfDependingTrueVariables.contains(parent)){
 				listOfDependingTrueVariables.add(parent);
@@ -765,19 +765,19 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 				listOfDependingTrueVariables.addAll(parent.getListOfDependingTrueVariables());
 			}
 		}
-		
+
 		return listOfDependingTrueVariables;
 	}
-	
+
 	private int[] getIDsOfVariablesInList() {
 		int[] IDsOfVariablesInList = new int[getNumberOfVariablesInList()];
-		
+
 		ArrayList<RandomVariableUniqueVariable> listOfDependingTrueVariables = getListOfDependingTrueVariables();
-		
+
 		for(RandomVariableUniqueVariable variable:listOfDependingTrueVariables){
 			IDsOfVariablesInList[listOfDependingTrueVariables.indexOf(variable)] = variable.getVariableID();
 		}
-		
+
 		return IDsOfVariablesInList;
 	}
 
@@ -791,14 +791,14 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	 * @return
 	 */
 	private RandomVariableInterface getPartialDerivative(int functionIndex, int variableIndex) {
-		
+
 		if(!Arrays.asList(getParentIDs()).contains(variableIndex)) return new RandomVariable(0.0);
-		
+
 		RandomVariableUniqueVariable currentRandomVariable = (RandomVariableUniqueVariable) getListOfAllVariables().get(functionIndex);
 		ArrayList<RandomVariableInterface> currentParentRandomVaribles = currentRandomVariable.getParentRandomVariables();
-		
+
 		RandomVariableInterface resultrandomvariable;
-		
+
 		switch(currentRandomVariable.getParentOperatorType()){
 		/* functions with one argument  */
 		case SQUARED:
@@ -819,8 +819,8 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		case COS:
 			resultrandomvariable = currentParentRandomVaribles.get(0).sin().mult(-1.0);
 			break;
-			
-		/* functions with two arguments */
+
+			/* functions with two arguments */
 		case ADD:
 			resultrandomvariable = new RandomVariable(1.0);
 			break;
@@ -844,19 +844,20 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 				resultrandomvariable = currentParentRandomVaribles.get(0).div(currentParentRandomVaribles.get(1).squared()).mult(-1);
 			}
 			break;
-			
-		/* if non of the above throw exception */
+
+			/* if non of the above throw exception */
 		default:
 			throw new IllegalArgumentException("Operation not supported!\n");
 		}
-		
+
 		return resultrandomvariable;
 	}
 
+	@Override
 	public String toString(){
-		return super.toString() + "\n" + 
-				"time: " + getFiltrationTime() + "\n" + 
-				"realizations: " + Arrays.toString(getRealizations()) + "\n" + 
+		return super.toString() + "\n" +
+				"time: " + getFiltrationTime() + "\n" +
+				"realizations: " + Arrays.toString(getRealizations()) + "\n" +
 				"variableID: " + variableID + "\n" +
 				"parentIDs: " + Arrays.toString(getParentIDs()) + ((getParentIDs() == null) ? "" : (" type: " + parentOperatorType.name())) + "\n" +
 				"isTrueVariable: " + isVariable() + "";

@@ -6,12 +6,12 @@
 
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
+import java.util.Map;
+
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-
-import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -37,14 +37,14 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	 */
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
-		
+
 		barrierDiracWidth = 0.05;	// Corresponds to 2% of paths used for estimation bin  0.05 = 2%,  0.025 = 1%
 		isGradientRetainsLeafNodesOnly = true;
 	}
 
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
 		super(randomVariableFactoryForNonDifferentiable);
-		
+
 		barrierDiracWidth = (Double) properties.getOrDefault("barrierDiracWidth", new Double(0.05));
 		isGradientRetainsLeafNodesOnly = (Boolean) properties.getOrDefault("isGradientRetainsLeafNodesOnly", new Boolean(true));
 	}

@@ -5,13 +5,12 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
-import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
@@ -19,14 +18,20 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
+import net.finmath.stochastic.RandomVariableInterface;
+
 /**
  * Implementation of <code>RandomVariableDifferentiableInterface</code> using
  * the backward algorithmic differentiation (adjoint algorithmic differentiation, AAD).
- * 
+ *
  * This class implements the optimized stochastic ADD as it is described in
  * <a href="https://ssrn.com/abstract=2995695">ssrn.com/abstract=2995695</a>.
  * For details see <a href="http://christianfries.com/finmath/stochasticautodiff/">http://christianfries.com/finmath/stochasticautodiff/</a>.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.1
@@ -38,9 +43,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
 
 	private enum OperatorType {
-		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
-		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE, 
-		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2, 
+		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS,
+		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE,
+		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2,
 		STDEV2, STDERROR2, CONDITIONAL_EXPECTATION
 	}
 
@@ -48,7 +53,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 * A node in the <i>operator tree</i>. It
 	 * stores an id (the index m), the operator (the function f_m), and the arguments.
 	 * It also stores reference to the argument values, if required.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	private static class OperatorTreeNode {
@@ -85,21 +90,35 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.MULT)) {
 				// Product only needs to retain factors on differentiables
-				if(arguments.get(0) == null) argumentValues.set(1, null);
-				if(arguments.get(1) == null) argumentValues.set(0, null);
+				if(arguments.get(0) == null) {
+					argumentValues.set(1, null);
+				}
+				if(arguments.get(1) == null) {
+					argumentValues.set(0, null);
+				}
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.ADDPRODUCT)) {
 				// Addition does not need to retain arguments
 				argumentValues.set(0, null);
 				// Addition of product only needs to retain factors on differentiables
-				if(arguments.get(1) == null) argumentValues.set(2, null);
-				if(arguments.get(2) == null) argumentValues.set(1, null);
+				if(arguments.get(1) == null) {
+					argumentValues.set(2, null);
+				}
+				if(arguments.get(2) == null) {
+					argumentValues.set(1, null);
+				}
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.ACCRUE)) {
 				// Addition of product only needs to retain factors on differentiables
-				if(arguments.get(1) == null && arguments.get(2) == null) argumentValues.set(0, null);
-				if(arguments.get(0) == null && arguments.get(1) == null) argumentValues.set(1, null);
-				if(arguments.get(0) == null && arguments.get(2) == null) argumentValues.set(2, null);
+				if(arguments.get(1) == null && arguments.get(2) == null) {
+					argumentValues.set(0, null);
+				}
+				if(arguments.get(0) == null && arguments.get(1) == null) {
+					argumentValues.set(1, null);
+				}
+				if(arguments.get(0) == null && arguments.get(2) == null) {
+					argumentValues.set(2, null);
+				}
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.BARRIER)) {
 				if(arguments.get(0) == null) {
@@ -238,11 +257,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));
 				break;
-			case STDEV2:		
+			case STDEV2:
 				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));
 				break;
-			case STDERROR2:				
+			case STDERROR2:
 				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
@@ -330,13 +349,13 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					).collect(Collectors.toList()) : null;
 		}
 
-        private static List<RandomVariableInterface> extractOperatorValues(List<RandomVariableInterface> arguments) {
+		private static List<RandomVariableInterface> extractOperatorValues(List<RandomVariableInterface> arguments) {
 			return arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
 				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getValues() : x;
 			}
 					).collect(Collectors.toList()) : null;
 		}
-    }
+	}
 
 	/*
 	 * Data model. We maintain the underlying values and a link to the node in the operator tree.
@@ -382,7 +401,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	/**
 	 * Returns the underlying values.
-	 * 
+	 *
 	 * @return The underling values.
 	 */
 	private RandomVariableInterface getValues(){
@@ -393,6 +412,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return factory;
 	}
 
+	@Override
 	public Long getID(){
 		return getOperatorTreeNode().id;
 	}
@@ -400,9 +420,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	/**
 	 * Returns the gradient of this random variable with respect to all its leaf nodes.
 	 * The method calculated the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes <code>this</code>.
-	 * 
+	 *
 	 * Performs a backward automatic differentiation.
-	 * 
+	 *
 	 * @return The gradient map.
 	 */
 	@Override
@@ -431,16 +451,22 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				independent.propagateDerivativesFromResultToArgument(derivatives);
 
 				// Remove id of this node from derivatives - keep only leaf nodes.
-				if(isGradientRetainsLeafNodesOnly()) derivatives.remove(id);
+				if(isGradientRetainsLeafNodesOnly()) {
+					derivatives.remove(id);
+				}
 
 				// Add all non leaf node arguments to the list of independents
 				for(OperatorTreeNode argument : arguments) {
 					// If an argument is null, it is a (non-differentiable) constant.
-					if(argument != null) independents.put(argument.id, argument);
+					if(argument != null) {
+						independents.put(argument.id, argument);
+					}
 				}
 			}
 
-			if(independentIDs != null && independentIDs.contains(id))  derivatives.remove(id);
+			if(independentIDs != null && independentIDs.contains(id)) {
+				derivatives.remove(id);
+			}
 		}
 
 		return derivatives;
@@ -454,7 +480,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	public Map<Long, RandomVariableInterface> getTangents(Set<Long> dependentIDs) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	/*
 	 * The following methods are end points since they return <code>double</double> values.
 	 * You cannot differentiate these results.
@@ -723,6 +749,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				getFactory());
 	}
 
+	@Override
 	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface estimator) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().getConditionalExpectation(estimator),
@@ -788,7 +815,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {	
+	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().add(randomVariable),
 				Arrays.asList(this, randomVariable),

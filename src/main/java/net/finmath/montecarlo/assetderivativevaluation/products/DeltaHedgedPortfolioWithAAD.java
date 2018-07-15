@@ -1,9 +1,13 @@
 /*
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  *
  * Created on 27.04.2012
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
@@ -12,10 +16,6 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * This class implements a delta hedged portfolio (a hedge simulator).
@@ -98,12 +98,16 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 			// Get delta
 			RandomVariableInterface delta = gradient.get(((RandomVariableDifferentiableInterface)underlyingAtTimeIndex).getID());
-			if(delta == null) delta = underlyingAtTimeIndex.mult(0.0);
+			if(delta == null) {
+				delta = underlyingAtTimeIndex.mult(0.0);
+			}
 
 			delta = delta.mult(numeraireAtTimeIndex);
-			
+
 			RandomVariableInterface indicator = new RandomVariable(1.0);
-			if(exerciseTime != null) indicator = exerciseTime.barrier(exerciseTime.sub(model.getTime(timeIndex)+0.001), new RandomVariable(1.0), 0.0);
+			if(exerciseTime != null) {
+				indicator = exerciseTime.barrier(exerciseTime.sub(model.getTime(timeIndex)+0.001), new RandomVariable(1.0), 0.0);
+			}
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
 			ArrayList<RandomVariableInterface> basisFunctions = getRegressionBasisFunctionsBinning(underlyingAtTimeIndex, indicator);

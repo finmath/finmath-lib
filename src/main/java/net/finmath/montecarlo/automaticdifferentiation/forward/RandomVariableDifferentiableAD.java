@@ -1,17 +1,16 @@
 /*
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christianfries.com.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
  *
  * Created on 17.06.2017
  */
 package net.finmath.montecarlo.automaticdifferentiation.forward;
 
-import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
@@ -19,13 +18,19 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
+import net.finmath.stochastic.RandomVariableInterface;
+
 /**
  * Implementation of <code>RandomVariableDifferentiableInterface</code> using
  * the forward algorithmic differentiation (AD).
- * 
+ *
  * This class implements the optimized stochastic AD as it is described in
  * <a href="https://ssrn.com/abstract=2995695">ssrn.com/abstract=2995695</a>.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.0
@@ -37,9 +42,9 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
 
 	private enum OperatorType {
-		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
-		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE, 
-		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2, 
+		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS,
+		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE,
+		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2,
 		STDEV2, STDERROR2, CONDITIONAL_EXPECTATION
 	}
 
@@ -47,7 +52,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 * A node in the <i>operator tree</i>. It
 	 * stores an id (the index m), the operator (the function f_m), and the arguments.
 	 * It also stores reference to the argument values, if required.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	private static class OperatorTreeNode {
@@ -87,21 +92,35 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.MULT)) {
 				// Product only needs to retain factors on differentiables
-				if(arguments.get(0) == null) argumentValues.set(1, null);
-				if(arguments.get(1) == null) argumentValues.set(0, null);
+				if(arguments.get(0) == null) {
+					argumentValues.set(1, null);
+				}
+				if(arguments.get(1) == null) {
+					argumentValues.set(0, null);
+				}
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.ADDPRODUCT)) {
 				// Addition does not need to retain arguments
 				argumentValues.set(0, null);
 				// Addition of product only needs to retain factors on differentiables
-				if(arguments.get(1) == null) argumentValues.set(2, null);
-				if(arguments.get(2) == null) argumentValues.set(1, null);
+				if(arguments.get(1) == null) {
+					argumentValues.set(2, null);
+				}
+				if(arguments.get(2) == null) {
+					argumentValues.set(1, null);
+				}
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.ACCRUE)) {
 				// Addition of product only needs to retain factors on differentiables
-				if(arguments.get(1) == null && arguments.get(2) == null) argumentValues.set(0, null);
-				if(arguments.get(0) == null && arguments.get(1) == null) argumentValues.set(1, null);
-				if(arguments.get(0) == null && arguments.get(2) == null) argumentValues.set(2, null);
+				if(arguments.get(1) == null && arguments.get(2) == null) {
+					argumentValues.set(0, null);
+				}
+				if(arguments.get(0) == null && arguments.get(1) == null) {
+					argumentValues.set(1, null);
+				}
+				if(arguments.get(0) == null && arguments.get(2) == null) {
+					argumentValues.set(2, null);
+				}
 			}
 			else if(operatorType != null && operatorType.equals(OperatorType.BARRIER)) {
 				if(arguments.get(0) == null) {
@@ -116,7 +135,9 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			for(OperatorTreeNode argument : arguments) {
 				if(argument != null) {
 					Long argumentID = argument.id;
-					if(!derivatives.containsKey(argumentID)) derivatives.put(argumentID, new RandomVariable(0.0));
+					if(!derivatives.containsKey(argumentID)) {
+						derivatives.put(argumentID, new RandomVariable(0.0));
+					}
 
 					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
 					RandomVariableInterface derivative			= derivatives.get(id);
@@ -234,11 +255,11 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));
 				break;
-			case STDEV2:		
+			case STDEV2:
 				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));
 				break;
-			case STDERROR2:				
+			case STDERROR2:
 				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
@@ -361,6 +382,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		return operatorTreeNode;
 	}
 
+	@Override
 	public Long getID(){
 		return getOperatorTreeNode().id;
 	}
@@ -368,9 +390,9 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	/**
 	 * Returns the gradient of this random variable with respect to all its leaf nodes.
 	 * The method calculated the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes <code>this</code>.
-	 * 
+	 *
 	 * Performs a backward automatic differentiation.
-	 * 
+	 *
 	 * @return The gradient map.
 	 */
 	@Override
@@ -423,7 +445,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 
 	/**
 	 * Returns the underlying values.
-	 * 
+	 *
 	 * @return The underling values.
 	 */
 	private RandomVariableInterface getValues(){
@@ -690,6 +712,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				OperatorType.AVERAGE);
 	}
 
+	@Override
 	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface estimator) {
 		return new RandomVariableDifferentiableAD(
 				getValues().average(),
@@ -748,7 +771,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {	
+	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 		return new RandomVariableDifferentiableAD(
 				getValues().add(randomVariable),
 				Arrays.asList(this, randomVariable),
@@ -914,7 +937,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	/*
 	 * The following methods are experimental - will be removed
 	 */
-	
+
 	private RandomVariableInterface getAverageAsRandomVariableAAD(RandomVariableInterface probabilities) {
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAD(

@@ -11,22 +11,22 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * Abstract base class and interface description of a volatility model
  * (as it is used in {@link LIBORCovarianceModelFromVolatilityAndCorrelation}).
- * 
+ *
  * Derive from this class and implement the <code>getVolatlity</code> method.
  * You have to call the constructor of this class to set the time
  * discretizations.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class LIBORVolatilityModel {
-    private TimeDiscretizationInterface	timeDiscretization;
-    private TimeDiscretizationInterface	liborPeriodDiscretization;
-	
-    // You cannot instantiate the class empty
-    @SuppressWarnings("unused")
+	private TimeDiscretizationInterface	timeDiscretization;
+	private TimeDiscretizationInterface	liborPeriodDiscretization;
+
+	// You cannot instantiate the class empty
+	@SuppressWarnings("unused")
 	private LIBORVolatilityModel() {
 	}
-    
+
 	/**
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
@@ -37,11 +37,11 @@ public abstract class LIBORVolatilityModel {
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
 	}
 
-    public abstract RandomVariableInterface[]	getParameter();
-    public abstract void							setParameter(RandomVariableInterface[] parameter);
+	public abstract RandomVariableInterface[]	getParameter();
+	public abstract void							setParameter(RandomVariableInterface[] parameter);
 
-    /**
-     * Implement this method to complete the implementation.
+	/**
+	 * Implement this method to complete the implementation.
 	 * @param timeIndex The time index (for timeDiscretization)
 	 * @param component The libor index (for liborPeriodDiscretization)
 	 * @return A random variable (e.g. as a vector of doubles) representing the volatility for each path.
@@ -62,5 +62,6 @@ public abstract class LIBORVolatilityModel {
 		return timeDiscretization;
 	}
 
+	@Override
 	public abstract Object clone();
 }

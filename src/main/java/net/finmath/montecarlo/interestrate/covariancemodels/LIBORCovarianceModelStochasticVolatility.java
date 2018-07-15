@@ -6,17 +6,16 @@
 
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
+import java.util.Map;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
-
-import java.util.Map;
 
 /**
  * Simple stochastic volatility model, using a process
@@ -24,27 +23,27 @@ import java.util.Map;
  * 	d\lambda(t) = \nu \lambda(t) \left( \rho \mathrm{d} W_{1}(t) + \sqrt{1-\rho^{2}} \mathrm{d} W_{2}(t) \right) \text{,}
  * \]
  * where \( \lambda(0) = 1 \) to scale all factor loadings \( f_{i} \) returned by a given covariance model.
- * 
+ *
  * The model constructed is \( \lambda(t) F(t) \) where \( \lambda(t) \) is
  * the (Euler discretization of the) above process and \( F = ( f_{1}, \ldots, f_{m} ) \) is the factor loading
  * from the given covariance model.
- * 
+ *
  * The process uses the first two factors of the Brownian motion provided by an object implementing
  * {@link net.finmath.montecarlo.BrownianMotionInterface}. This can be used to generate correlations to
  * other objects. If you like to reuse a factor of another Brownian motion use a
  * {@link net.finmath.montecarlo.BrownianMotionView}
  * to delegate \( ( \mathrm{d} W_{1}(t) , \mathrm{d} W_{2}(t) ) \) to a different object.
- * 
+ *
  * The parameter of this model is a joint parameter vector, consisting
  * of the parameter vector of the given base covariance model and
  * appending the parameters <i>&nu;</i> and <i>&rho;</i> at the end.
- * 
+ *
  * If this model is not calibrateable, its parameter vector is that of the
  * covariance model, i.e., <i>&nu;</i> and <i>&rho;</i> will be not
  * part of the calibration.
- * 
+ *
  * For an illustration of its usage see the associated unit test.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovarianceModelParametric {
@@ -59,7 +58,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 	/**
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
-	 * 
+	 *
 	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
 	 * @param brownianMotion An object implementing {@link BrownianMotionInterface} with at least two factors. This class uses the first two factors, but you may use {@link BrownianMotionView} to change this.
 	 * @param nu The initial value for <i>&nu;</i>, the volatility of the volatility.
@@ -73,7 +72,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		this.brownianMotion = brownianMotion;
 		this.nu		= nu;
 		this.rho		= rho;
-		
+
 		this.isCalibrateable = isCalibrateable;
 	}
 
@@ -93,7 +92,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		return jointParameters;
 	}
 
-//	@Override
+	//	@Override
 	private void setParameter(RandomVariableInterface[] parameter) {
 		if(parameter == null || parameter.length == 0) return;
 
@@ -106,7 +105,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
-		
+
 		nu	= parameter[covarianceParameters.length + 0];
 		rho	= parameter[covarianceParameters.length + 1];
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.finmath.montecarlo.interestrate.products;
 
@@ -29,28 +29,28 @@ public class ATMSwaption extends AbstractLIBORMonteCarloProduct {
 		this.tenor = new TimeDiscretization(swapTenor);
 		this.valueUnit = valueUnit;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct#getValue(double, net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface)
 	 */
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		
+
 		ForwardCurveInterface forwardCurve	 = model.getModel().getForwardRateCurve();
 		DiscountCurveInterface discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
-		
+
 		double optionMaturity = tenor.getTime(0);
 		double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);
-		
+
 		// Swaption is per definition at the money in this class
 		double parSwapRate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());
-		
+
 		// define an atm swaption
 		AbstractLIBORMonteCarloProduct swaption = new Swaption(tenor.getTime(0), tenor, parSwapRate);
-		
+
 		// get swaption value
 		RandomVariableInterface optionValue = swaption.getValue(evaluationTime, model);
-		
+
 		switch (valueUnit) {
 		case VALUE:
 			return optionValue;
@@ -70,5 +70,5 @@ public class ATMSwaption extends AbstractLIBORMonteCarloProduct {
 	public RandomVariableInterface getImpliedBachelierOptionVolatility(RandomVariableInterface optionValue, double optionMaturity, double swapAnnuity){
 		return optionValue.average().div(Math.sqrt(optionMaturity / Math.PI / 2.0)).div(swapAnnuity);
 	}
-	
+
 }

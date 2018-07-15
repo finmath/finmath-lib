@@ -5,12 +5,12 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
-import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.RandomVariableInterface;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
@@ -18,10 +18,15 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
+
 /**
  * Implementation of <code>RandomVariableDifferentiableInterface</code> using
  * the backward algorithmic differentiation (adjoint algorithmic differentiation, AAD).
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.0
@@ -33,9 +38,9 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
 
 	private enum OperatorType {
-		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS, 
-		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE, 
-		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2, 
+		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS,
+		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE,
+		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2,
 		STDEV2, STDERROR2
 	}
 
@@ -51,8 +56,8 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 						return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getOperatorTreeNode(): null;
 					}).collect(Collectors.toList()) : null,
 							arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
-						return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getValues() : x;
-					}).collect(Collectors.toList()) : null
+								return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getValues() : x;
+							}).collect(Collectors.toList()) : null
 					);
 
 		}
@@ -63,13 +68,15 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 			this.arguments = arguments;
 			this.argumentValues = argumentValues;
 		}
-		
+
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
 
 			for(OperatorTreeNode argument : arguments) {
 				if(argument != null) {
 					Long argumentID = argument.id;
-					if(!derivatives.containsKey(argumentID)) derivatives.put(argumentID, new RandomVariable(0.0));
+					if(!derivatives.containsKey(argumentID)) {
+						derivatives.put(argumentID, new RandomVariable(0.0));
+					}
 
 					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
 					RandomVariableInterface derivative			= derivatives.get(id);
@@ -174,11 +181,11 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));
 				break;
-			case STDEV2:		
+			case STDEV2:
 				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));
 				break;
-			case STDERROR2:				
+			case STDERROR2:
 				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
@@ -284,6 +291,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 		return operatorTreeNode;
 	}
 
+	@Override
 	public Long getID(){
 		return getOperatorTreeNode().id;
 	}
@@ -336,7 +344,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 		throw new UnsupportedOperationException();
 	}
 
-	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD 
+	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD
 	 * that is deterministic by its nature. For their double-returning pendant just return the average of the deterministic RandomVariableAAD  */
 
 	public RandomVariableInterface getAverageAsRandomVariableAAD(RandomVariableInterface probabilities) {
@@ -739,7 +747,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.RandomVariableInterface)
 	 */
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {	
+	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().add(randomVariable),
 				Arrays.asList(this, randomVariable),

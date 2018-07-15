@@ -1,13 +1,13 @@
 /**
- * 
+ *
  */
 package net.finmath.rootfinder;
 
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * {@link NewtonsMethod} implemented using {@link RandomVariableInterface}s. 
- * 
+ * {@link NewtonsMethod} implemented using {@link RandomVariableInterface}s.
+ *
  * @author Stefan Sedlmair
  * @version 1.0
  */
@@ -15,19 +15,19 @@ public class NewtonMethodUsingRandomVariableInterfaces implements RandomVariable
 
 	private enum MethodForAccuracy {AVERAGE, MAX, MIN}
 
-    /**
-	 * 
+	/**
+	 *
 	 */
 	private RandomVariableInterface	nextPoint;											// Stores the next point to be returned by getPoint()
-	private RandomVariableInterface	bestPoint;				              				// Best point so far	
+	private RandomVariableInterface	bestPoint;				              				// Best point so far
 
 	private int	numberOfIterations				= 0;           							// Number of numberOfIterations
 	private double	accuracy					= Double.MAX_VALUE;						// Current accuracy of solution
 	private boolean	isDone						= false;             					// Will be true if machine accuracy has been reached
-	
+
 	private MethodForAccuracy method;
-	
-	/** 
+
+	/**
 	 * @param guess {@link RandomVariableInterface} representing a first guess to start of the Newton Method
 	 * @param method defines the Method used to gain the accuracy for the Newton Iteration
 	 */
@@ -50,9 +50,9 @@ public class NewtonMethodUsingRandomVariableInterfaces implements RandomVariable
 	 */
 	@Override
 	public void setValueAndDerivative(RandomVariableInterface value, RandomVariableInterface derivative) {
-		
+
 		double currentAccuracy;
-		
+
 		switch (method) {
 		case AVERAGE:
 			currentAccuracy = value.abs().getAverage();
@@ -66,8 +66,8 @@ public class NewtonMethodUsingRandomVariableInterfaces implements RandomVariable
 		default:
 			throw new IllegalArgumentException("Method to get current accuracy from RandomVariableInterface not supported!");
 		}
-		
-		
+
+
 		if(currentAccuracy < accuracy)
 		{
 			accuracy	= currentAccuracy;
@@ -75,7 +75,7 @@ public class NewtonMethodUsingRandomVariableInterfaces implements RandomVariable
 		}
 
 		// Calculate next point
-        nextPoint = nextPoint.addRatio(value,derivative);
+		nextPoint = nextPoint.addRatio(value,derivative);
 
 		numberOfIterations++;
 

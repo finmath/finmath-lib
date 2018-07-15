@@ -5,13 +5,13 @@
  */
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
-import net.finmath.time.TimeDiscretizationInterface;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
@@ -36,7 +36,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		for(int simulationTime=0; simulationTime<simulationTimeDiscretization.getNumberOfTimes(); simulationTime++) {
 			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<Integer, Integer>();
 			for(int timeToMaturity=0; timeToMaturity<timeToMaturityDiscretization.getNumberOfTimes(); timeToMaturity++) {
-				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) continue;
+				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) {
+					continue;
+				}
 
 				timeToMaturityIndexing.put(timeToMaturity,volatilityIndex++);
 			}
@@ -67,7 +69,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		for(int simulationTime=0; simulationTime<simulationTimeDiscretization.getNumberOfTimes(); simulationTime++) {
 			HashMap<Integer, Integer> timeToMaturityIndexing = new HashMap<Integer, Integer>();
 			for(int timeToMaturity=0; timeToMaturity<timeToMaturityDiscretization.getNumberOfTimes(); timeToMaturity++) {
-				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) continue;
+				if(simulationTimeDiscretization.getTime(simulationTime)+timeToMaturityDiscretization.getTime(timeToMaturity) > maxMaturity) {
+					continue;
+				}
 
 				timeToMaturityIndexing.put(timeToMaturity,volatilityIndex++);
 			}
@@ -100,7 +104,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 
 	@Override
 	public void setParameter(RandomVariableInterface[] parameter) {
-		if(isCalibrateable)	this.volatilities = parameter;
+		if(isCalibrateable) {
+			this.volatilities = parameter;
+		}
 	}
 
 	@Override
@@ -110,22 +116,32 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
 		double timeToMaturity   = maturity-time;
 
-		double volatilityInstanteaneous; 
+		double volatilityInstanteaneous;
 		if(timeToMaturity <= 0)
-		{
 			return new RandomVariable(0.0);  // This forward rate is already fixed, no volatility
-		}
 		else
 		{
 			int timeIndexSimulationTime = simulationTimeDiscretization.getTimeIndex(time);
-			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = -timeIndexSimulationTime-1-1;
-			if(timeIndexSimulationTime < 0) timeIndexSimulationTime = 0;
-			if(timeIndexSimulationTime >= simulationTimeDiscretization.getNumberOfTimes()) timeIndexSimulationTime--;
+			if(timeIndexSimulationTime < 0) {
+				timeIndexSimulationTime = -timeIndexSimulationTime-1-1;
+			}
+			if(timeIndexSimulationTime < 0) {
+				timeIndexSimulationTime = 0;
+			}
+			if(timeIndexSimulationTime >= simulationTimeDiscretization.getNumberOfTimes()) {
+				timeIndexSimulationTime--;
+			}
 
 			int timeIndexTimeToMaturity = timeToMaturityDiscretization.getTimeIndex(timeToMaturity);
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
-			if(timeIndexTimeToMaturity < 0) timeIndexTimeToMaturity = 0;
-			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) timeIndexTimeToMaturity--;
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = -timeIndexTimeToMaturity-1-1;
+			}
+			if(timeIndexTimeToMaturity < 0) {
+				timeIndexTimeToMaturity = 0;
+			}
+			if(timeIndexTimeToMaturity >= timeToMaturityDiscretization.getNumberOfTimes()) {
+				timeIndexTimeToMaturity--;
+			}
 
 			return volatilities[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];
 		}

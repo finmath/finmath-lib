@@ -34,5 +34,5 @@ public interface RandomVariableRootFinder {
 	/**
 	 * @return Returns true if further improvement is not possible.
 	 */
-	boolean isDone();	
+	boolean isDone();
 }

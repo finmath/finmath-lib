@@ -13,7 +13,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * A random variable factory extending <code>AbstractRandomVariableFactory</code> providing
  * random variables implementing <code>RandomVariableDifferentiableInterface</code>.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class AbstractRandomVariableDifferentiableFactory extends AbstractRandomVariableFactory {
@@ -23,24 +23,27 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	/**
 	 * Construct an object extending <code>AbstractRandomVariableDifferentiableFactory</code>
 	 * with a specific <code>AbstractRandomVariableFactory</code> for the storage of values.
-	 * 
+	 *
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory to be used for the storage of values.
 	 */
 	public AbstractRandomVariableDifferentiableFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super();
 		this.randomVariableFactoryForNonDifferentiable = randomVariableFactoryForNonDifferentiable;
 	}
-	
+
 	public AbstractRandomVariableDifferentiableFactory() {
 		this(new RandomVariableFactory());
 	}
 
+	@Override
 	public RandomVariableDifferentiableInterface createRandomVariable(double value) {
 		return createRandomVariable(0.0, value);
 	}
 
+	@Override
 	public abstract RandomVariableDifferentiableInterface createRandomVariable(double time, double value);
 
+	@Override
 	public abstract RandomVariableDifferentiableInterface createRandomVariable(double time, double[] values);
 
 	public RandomVariableInterface createRandomVariableNonDifferentiable(double time, double value) {

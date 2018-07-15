@@ -1,15 +1,15 @@
 /*
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  *
  * Created on 16.06.2006
  */
 package net.finmath.optimizer;
 
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.RandomVariableInterface;
-
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
@@ -19,14 +19,14 @@ import java.util.concurrent.ExecutorService;
  * separate class. The objective function is defined by overriding a class
  * method, see the sample code below.
  * </p>
- * 
+ *
  * <p>
  * The Levenberg-Marquardt solver is implemented in using multi-threading.
  * The calculation of the derivatives (in case a specific implementation of
  * {@code setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives)} is not
  * provided) may be performed in parallel by setting the parameter <code>numberOfThreads</code>.
  * </p>
- * 
+ *
  * <p>
  * To use the solver inherit from it and implement the objective function as
  * {@code setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values)} where values has
@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutorService;
  * Note, however, that is is an error if the initial parameter guess results in an NaN value.
  * That is, the solver should be initialized with an initial parameter in an admissible region.
  * </p>
- * 
+ *
  * The following simple example finds a solution for the equation <br>
  * <center>
  * <table>
@@ -58,7 +58,7 @@ import java.util.concurrent.ExecutorService;
  * </td></tr>
  * </table>
  * </center>
- * 
+ *
  * <pre>
  * <code>
  * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
@@ -68,37 +68,37 @@ import java.util.concurrent.ExecutorService;
  * 			values[1] = parameters[0] * 2.0 + parameters[1];
  * 		}
  * 	};
- * 
+ *
  * 	// Set solver parameters
  * 	optimizer.setInitialParameters(new RandomVariableInterface[] { 0, 0 });
  * 	optimizer.setWeights(new RandomVariableInterface[] { 1, 1 });
  * 	optimizer.setMaxIteration(100);
  * 	optimizer.setTargetValues(new RandomVariableInterface[] { 5, 10 });
- * 
+ *
  * 	optimizer.run();
- * 
+ *
  * 	RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
  * </code>
  * </pre>
- * 
+ *
  * See the example in the main method below.
- * 
+ *
  * <p>
  * The class can be initialized to use a multi-threaded valuation. If initialized
  * this way the implementation of <code>setValues</code> must be thread-safe.
  * The solver will evaluate the gradient of the value vector in parallel, i.e.,
  * use as many threads as the number of parameters.
  * </p>
- * 
+ *
  * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
- * 
+ *
  * @author Christian Fries
  * @version 1.6
  */
 public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenbergMarquardt {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -8852002990042152135L;
 
@@ -112,18 +112,21 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 	}
 
 
+	@Override
 	protected void prepareAndSetValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
 		/**
 		 * Small modification to avoid growing operator trees.
 		 */
 		for(int i=0; i<parameters.length; i++) {
-			if(parameters[i] instanceof RandomVariableDifferentiableInterface)
+			if(parameters[i] instanceof RandomVariableDifferentiableInterface) {
 				parameters[i] = ((RandomVariableDifferentiableInterface) parameters[i]).getCloneIndependent();
+			}
 		}
 
 		setValues(parameters, values);
 	}
 
+	@Override
 	protected void prepareAndSetDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[] values, RandomVariableInterface[][] derivatives) throws SolverException {
 		/*
 		 * Check if random variable is differentiable

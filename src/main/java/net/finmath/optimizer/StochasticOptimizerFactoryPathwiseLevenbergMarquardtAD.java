@@ -42,7 +42,7 @@ public class StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD implements S
 	@Override
 	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] lowerBound, RandomVariableInterface[]  upperBound, RandomVariableInterface[] parameterSteps, RandomVariableInterface[] targetValues) {
 		return new StochasticPathwiseLevenbergMarquardtAD(initialParameters, targetValues, null, null, maxIterations, errorTolerance, null)
-		{	
+		{
 			private static final long serialVersionUID = -4802903981061716810L;
 
 			@Override

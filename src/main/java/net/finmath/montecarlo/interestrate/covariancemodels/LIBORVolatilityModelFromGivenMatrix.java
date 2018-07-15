@@ -5,21 +5,21 @@
  */
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
+import java.util.ArrayList;
+
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
-
-import java.util.ArrayList;
 
 /**
  * Implements a simple volatility model using given piece-wise constant values on
  * a given discretization grid.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
 	private final RandomVariableInterface[][]	volatility;
-	
+
 	/**
 	 * A cache for the parameter associated with this model, it is only used when getParameter is
 	 * called repeatedly.
@@ -28,8 +28,8 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
- 	 * a given discretization grid.
- 	 * 
+	 * a given discretization grid.
+	 *
 	 * @param timeDiscretization Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
@@ -47,7 +47,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
 	 */
 	@Override
-    public RandomVariableInterface getVolatility(int timeIndex, int component) {
+	public RandomVariableInterface getVolatility(int timeIndex, int component) {
 
 		return volatility[timeIndex][component];
 	}
@@ -88,10 +88,10 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
 	@Override
 	public Object clone() {
-	    // Clone the outer array.
+		// Clone the outer array.
 		RandomVariableInterface[][] newVolatility = volatility.clone();
 
-	    // Clone the contents of the array
+		// Clone the contents of the array
 		return new LIBORVolatilityModelFromGivenMatrix(
 				getTimeDiscretization(),
 				getLiborPeriodDiscretization(),

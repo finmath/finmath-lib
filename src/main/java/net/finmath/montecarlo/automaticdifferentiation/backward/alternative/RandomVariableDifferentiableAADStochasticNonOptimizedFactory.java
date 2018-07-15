@@ -18,7 +18,7 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
 public class RandomVariableDifferentiableAADStochasticNonOptimizedFactory extends AbstractRandomVariableDifferentiableFactory {
 
 	/**
-	 * 
+	 *
 	 */
 	public RandomVariableDifferentiableAADStochasticNonOptimizedFactory() {
 		super();
