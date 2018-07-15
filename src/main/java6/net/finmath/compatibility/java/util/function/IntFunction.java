@@ -7,9 +7,11 @@
 package net.finmath.compatibility.java.util.function;
 
 /**
- * Interface mimiking Java 8.
+ * Interface mimicking Java 8.
  *
  * @author Christian Fries
+ *
+ * @param <R> The argument type.
  */
 public interface IntFunction<R> {
 

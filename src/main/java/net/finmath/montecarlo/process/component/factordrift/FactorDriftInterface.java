@@ -3,6 +3,10 @@ package net.finmath.montecarlo.process.component.factordrift;
 import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariableInterface;
 
+/**
+ * @author Christian Fries
+ *
+ */
 public interface FactorDriftInterface {
 
 	/**

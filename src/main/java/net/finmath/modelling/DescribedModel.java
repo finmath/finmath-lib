@@ -1,5 +1,12 @@
 package net.finmath.modelling;
 
+/**
+ * Interface for models which can provide a complete description of their model parameters (independent of the implementation of the numerical method).
+ *
+ * @author Christian Fries
+ *
+ * @param <M> An interface extending the <code>ModelDescriptor</code> interface, being rich enough to describe the model implementing this interface.
+ */
 public interface DescribedModel<M extends ModelDescriptor> extends ModelInterface {
 
 	/**

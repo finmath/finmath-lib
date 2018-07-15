@@ -14,6 +14,11 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public interface StochasticOptimizerInterface {
 
+	/**
+	 * The interface describing the objective function of a <code>StochasticOptimizerInterface</code>.
+	 *
+	 * @author Christian Fries
+	 */
 	interface ObjectiveFunction {
 		void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException;
 	}

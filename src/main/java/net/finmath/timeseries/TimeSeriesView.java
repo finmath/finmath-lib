@@ -2,6 +2,11 @@ package net.finmath.timeseries;
 
 import java.util.Iterator;
 
+/**
+ * A time series created from a sup-interval of another time series.
+ *
+ * @author Christian Fries
+ */
 public class TimeSeriesView implements TimeSeriesInterface {
 
 	private final TimeSeriesInterface timeSeries;

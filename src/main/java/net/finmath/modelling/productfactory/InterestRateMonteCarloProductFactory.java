@@ -6,6 +6,10 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 
+/**
+ * @author Christian Fries
+ *
+ */
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
 	@Override

@@ -165,6 +165,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
 	private AbstractProcessInterface									numerairesProcess = null;
 
+	/**
+	 * A class for calibration items, that is a tripple (P,V,w) where P is a product, V is a target value and w is a weight.
+	 *
+	 * @author Christian Fries
+	 */
 	public static class CalibrationItem {
 		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
 		public final double								calibrationTargetValue;

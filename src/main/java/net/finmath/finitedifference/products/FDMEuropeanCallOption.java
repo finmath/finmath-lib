@@ -3,6 +3,12 @@ package net.finmath.finitedifference.products;
 import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
+/**
+ * Implementation of a European option to be valued by a the finite difference method.
+ *
+ * @author Christian Fries
+ * @author Ralph Rudd
+ */
 public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteDifference1DBoundary {
 	private final double maturity;
 	private final double strike;

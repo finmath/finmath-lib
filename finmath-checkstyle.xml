@@ -64,9 +64,13 @@
 		<!--
 		<module name="JavadocMethod" />
 		-->
-		<!--
-  		<module name="JavadocType" />
-		-->
+		<module name="JavadocType">
+			<property name="scope" value="public"/>
+			<property name="allowUnknownTags" value="true"/>
+			<!--  Add ENUM_DEF, ANNOTATION_DEF in future version. 
+			 -->
+			<property name="tokens" value="INTERFACE_DEF, CLASS_DEF"/>
+		</module>
 		<!--
 		<module name="JavadocVariable" />
 		-->

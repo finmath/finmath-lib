@@ -6,6 +6,12 @@
 package net.finmath.compatibility.java.util.function;
 
 /**
+ * Interface mimicking <code>java.util.function.Function</code>.
+ *
+ * @author Christian Fries
+ *
+ * @param <T> Argument type.
+ * @param <R> Result type.
  */
 public interface Function<T, R> {
 

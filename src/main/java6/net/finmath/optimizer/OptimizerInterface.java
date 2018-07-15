@@ -7,11 +7,17 @@
 package net.finmath.optimizer;
 
 /**
- * @author Christian Fries
+ * Interface for numerical optimizers.
  *
+ * @author Christian Fries
  */
 public interface OptimizerInterface {
 
+	/**
+	 * Interface for the objective function.
+	 *
+	 * @author Christian Fries
+	 */
 	interface ObjectiveFunction {
 		void setValues(double[] parameters, double[] values) throws SolverException;
 	}

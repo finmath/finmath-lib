@@ -26,6 +26,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  * which operates an a single parameter vector.
  *
  * @author Christian Fries
+ *
+ * @param <E> A class implementing the ParameterObjectInterface
  */
 public class ParameterAggregation<E extends ParameterObjectInterface> implements ParameterObjectInterface {
 

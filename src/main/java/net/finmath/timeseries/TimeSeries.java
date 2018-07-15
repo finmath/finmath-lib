@@ -2,6 +2,11 @@ package net.finmath.timeseries;
 
 import java.util.Iterator;
 
+/**
+ * A discrete time series.
+ *
+ * @author Christian Fries
+ */
 public class TimeSeries implements TimeSeriesInterface {
 
 	private final double[] times;

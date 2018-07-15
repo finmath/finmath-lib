@@ -7,6 +7,13 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
+/**
+ * Implementation of the theta schemes for the Black-Scholes model (still experimental).
+ *
+ * @author Ralph Rudd
+ * @author Christian Fries
+ * @author Jörg Kienitz
+ */
 public class BlackScholesTheta {
 
 	// Option Parameters
