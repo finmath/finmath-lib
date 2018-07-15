@@ -22,7 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * A portfolio of products, each product being of AbstractMonteCarloProduct type.
  * The valuation is performed multi-threaded over the portfolio of products.
- * 
+ *
  * @author Christian Fries
  */
 public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
@@ -32,7 +32,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 
 	/**
 	 * Create a portfolio of products, each product being of AbstractMonteCarloProduct type.
-	 * 
+	 *
 	 * @param products An array of products.
 	 */
 	public PortfolioMonteCarloProduct(
@@ -43,7 +43,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	/**
 	 * Create a portfolio of products, each product being of AbstractMonteCarloProduct type
 	 * and weighted with a given weight.
-	 * 
+	 *
 	 * @param products An array of products.
 	 * @param weights An array of weights.
 	 */
@@ -57,7 +57,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 
 	/**
 	 * Helper returns an array of 1.0's with given length.
-	 * 
+	 *
 	 * @param length Length of the array.
 	 * @return Array of double with given length, each entry being 1.0.
 	 */

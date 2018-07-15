@@ -32,13 +32,13 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
  * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
- * 
+ *
  * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
  * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
  * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
- * 
+ *
  * For details on the construction of the model see {@link net.finmath.montecarlo.assetderivativevaluation.MertonModel}.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.assetderivativevaluation.MertonModel
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
@@ -52,7 +52,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization and given parameters.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param seed The seed used for the random number generator.
@@ -72,7 +72,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 			final double volatility,
 			final double jumpIntensity,
 			final double jumpSizeMean,
-			final double jumpSizeStDev			
+			final double jumpSizeStDev
 			) {
 		super();
 

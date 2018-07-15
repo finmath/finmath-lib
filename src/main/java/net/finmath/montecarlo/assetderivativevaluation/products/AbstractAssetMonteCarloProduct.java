@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
@@ -11,13 +11,13 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Base calls for product that need an AbstractLIBORMarketModel as base class
- * 
+ *
  * @author Christian Fries
  */
 public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloProduct {
 
 	/**
-	 * 
+	 *
 	 */
 	public AbstractAssetMonteCarloProduct() {
 		super();

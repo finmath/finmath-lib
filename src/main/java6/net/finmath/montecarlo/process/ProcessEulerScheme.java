@@ -21,22 +21,22 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * This class implements some numerical schemes for multi-dimensional multi-factor Ito process.
- * 
+ *
  * It features the standard Euler scheme and the standard predictor-corrector Euler scheme
  * for <i>Y</i>, then applies the <i>state space transform</i> \( X = f(Y) \). For the standard Euler scheme
  * the process Y is discretized as
  * \[
- * 	Y(t_{i+1}) = Y(t_{i}) + \mu(t_{i}) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \text{.} 
+ * 	Y(t_{i+1}) = Y(t_{i}) + \mu(t_{i}) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \text{.}
  * \]
 
- * 
+ *
  * Hence, using the <i>state space transform</i>, it is possible to create a log-Euler scheme, i.e.,
  * \[
- * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (\mu(t_{i}) - \frac{1}{2} \sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.} 
+ * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (\mu(t_{i}) - \frac{1}{2} \sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.}
  * \]
- * 
+ *
  * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
- * 
+ *
  * @author Christian Fries
  * @see AbstractProcessInterface The interface definition contains more details.
  * @version 1.4
@@ -69,7 +69,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	/**
 	 * Create an Euler discretization scheme.
-	 * 
+	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 * @param scheme The scheme to use. See {@link Scheme}.
 	 */
@@ -81,7 +81,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	/**
 	 * Create an Euler discretization scheme.
-	 * 
+	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
 	public ProcessEulerScheme(IndependentIncrementsInterface stochasticDriver) {
@@ -91,7 +91,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	/**
 	 * This method returns the realization of the process at a certain time index.
-	 * 
+	 *
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of process realizations (on path)
 	 */
@@ -114,7 +114,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
-	 * 
+	 *
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights
 	 */

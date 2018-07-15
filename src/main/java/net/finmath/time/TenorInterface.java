@@ -21,7 +21,7 @@ public interface TenorInterface {
 
 	/**
 	 * Returns the date for the given time index.
-	 * 
+	 *
 	 * @param timeIndex Time index
 	 * @return Returns the date for a given time index.
 	 */
@@ -29,7 +29,7 @@ public interface TenorInterface {
 
 	/**
 	 * Returns the day count fraction for the period form timeIndex to to timeIndex+1.
-	 * 
+	 *
 	 * @param timeIndex Time index
 	 * @return Returns the day count fraction.
 	 */

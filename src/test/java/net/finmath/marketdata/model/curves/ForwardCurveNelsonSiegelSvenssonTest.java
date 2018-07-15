@@ -30,7 +30,7 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 
 		final double[] nssParameters = new double[] { 0.02, -0.010, 0.16, -0.17, 4.50, 3.5 };
 
-		LocalDate referenceDate = LocalDate.of(2014, Month.AUGUST, 16); 
+		LocalDate referenceDate = LocalDate.of(2014, Month.AUGUST, 16);
 		String paymentOffsetCode = "3M";
 		BusinessdayCalendarInterface paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;

@@ -15,16 +15,18 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 
 /**
  * Combine a set of parameter vectors to a single parameter vector.
- * 
+ *
  * The class is a little helper class which can combine a set of double[] parameter-vectors to a
  * single large double[] parameter-vector. More precisely: this class combines a set of objects
  * implementing ParameterObjectInterface to a single object by implementing ParameterObjectInterface
  * with the combined parameter.
- * 
+ *
  * An application is an optimization problem which depends on different parametrized objects, using a solver/optimizer
  * which operates an a single parameter vector.
- * 
+ *
  * @author Christian Fries
+ *
+ * @param <E> A class implementing the ParameterObjectInterface
  */
 public class ParameterAggregation<E extends ParameterObjectInterface> implements ParameterObjectInterface {
 
@@ -40,7 +42,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	/**
 	 * Create a collection of parametrized objects. The constructor will internally create a
 	 * (shallow) copy of the set passed to it.
-	 * 
+	 *
 	 * @param parameters A set of objects implementing ParameterObjectInterface to be combined to a single object.
 	 */
 	public ParameterAggregation(Set<E> parameters) {
@@ -50,7 +52,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	/**
 	 * Create a collection of parametrized objects. The constructor will internally create a
 	 * (shallow) copy of the set passed to it.
-	 * 
+	 *
 	 * @param parameters A set of objects implementing ParameterObjectInterface to be combined to a single object.
 	 */
 	public ParameterAggregation(E[] parameters) {
@@ -59,7 +61,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 
 	/**
 	 * Add an object this parameterization.
-	 * 
+	 *
 	 * @param parameterObject The parameter object to add to this parameterization
 	 */
 	public void add(E parameterObject) {
@@ -68,7 +70,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 
 	/**
 	 * Remove an object from this parameterization.
-	 * 
+	 *
 	 * @param parameterObject The parameter object to remove.
 	 */
 	public void remove(E parameterObject) {

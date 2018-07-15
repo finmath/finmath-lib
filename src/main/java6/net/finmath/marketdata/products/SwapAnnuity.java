@@ -19,7 +19,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Implements the valuation of a swap annuity using curves (discount curve).
  * Support for day counting is limited to the capabilities of
  * <code>TimeDiscretizationInterface</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -29,7 +29,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 
 	/**
 	 * Creates a swap annuity for a given schedule and discount curve.
-	 * 
+	 *
 	 * @param schedule Tenor of the swap annuity.
 	 * @param discountCurveName Name of the discount curve for the swap annuity.
 	 */
@@ -40,7 +40,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 		DiscountCurveInterface discountCurve = (DiscountCurveInterface) model.getCurve(discountCurveName);
 
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, model);
@@ -48,7 +48,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
-	 * 
+	 *
 	 * @param tenor The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
@@ -61,7 +61,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * Function to calculate an (idealized) single curve swap annuity for a given schedule and forward curve.
 	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
 	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
-	 * 
+	 *
 	 * @param tenor The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
@@ -72,9 +72,9 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
-	 * 
+	 *
 	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, ScheduleInterface, DiscountCurveInterface, AnalyticModelInterface)}.
-	 * 
+	 *
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
@@ -88,9 +88,9 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * Function to calculate an (idealized) single curve swap annuity for a given schedule and forward curve.
 	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
 	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
-	 * 
+	 *
 	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, ScheduleInterface, DiscountCurveInterface, AnalyticModelInterface)}.
-	 * 
+	 *
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
@@ -103,10 +103,10 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
-	 * 
+	 *
 	 * Note that, the value returned is divided by the discount factor at evaluation.
 	 * This matters, if the discount factor at evaluationTime is not equal to 1.0.
-	 * 
+	 *
 	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.

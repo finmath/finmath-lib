@@ -32,7 +32,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \[
  * 	dW_{i} dW_{j} = \rho_{i,j} dt,
  * \]
- * 
+ *
  * The class provides the model of \( S_{i} \) to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
  * \( f = exp \), \( \mu_{i} = r - \frac{1}{2} \sigma_{i}^2 \), \( \lambda_{i,j} = \sigma_{i} g_{i,j} \), i.e.,
  * of the SDE
@@ -40,7 +40,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 	dX_{i} = \mu_{i} dt + \lambda_{i,j} dW, \quad X_{i}(0) = \log(S_{i,0}),
  * \]
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
@@ -60,7 +60,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
@@ -112,7 +112,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValues Spot values.
@@ -224,7 +224,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 
 	/**
 	 * Returns the volatility parameters of this model.
-	 * 
+	 *
 	 * @return Returns the volatilities.
 	 */
 	public double[] getVolatilities() {

@@ -10,7 +10,7 @@ public class DiscountCurveNelsonSiegelSvenssonTest {
 	@Test
 	public void test() {
 
-		LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16); 
+		LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16);
 		double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
 
 		DiscountCurveInterface discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR Curve", referenceDate, nssParameters, 1.0);

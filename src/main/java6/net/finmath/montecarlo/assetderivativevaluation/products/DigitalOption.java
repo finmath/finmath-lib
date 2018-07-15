@@ -11,19 +11,19 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements the valuation of a digital option on a single asset.
- * 
+ *
  * Given a model for an asset <i>S</i>, the digital option with strike <i>K</i>, maturity <i>T</i>
  * pays
  * <br>
  * 	<i>V(T) = indicator(S(T) - K)</i> in <i>T</i>.
  * <br>
  * That is 1 if <i>S(T) &gt; 0</i> otherwise 0.
- * 
+ *
  * The <code>getValue</code> method of this class will return the random variable <i>N(t) * V(T) / N(T)</i>,
  * where <i>N</i> is the numeraire provided by the model. If <i>N(t)</i> is deterministic,
  * calling <code>getAverage</code> on this random variable will result in the value. Otherwise a
  * conditional expectation has to be applied.
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  */
@@ -61,7 +61,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time

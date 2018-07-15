@@ -7,7 +7,7 @@ import org.junit.Test;
 
 /**
  * Provides a few simple tests for Business Day Calendars.
- * 
+ *
  * @author Christian Fries
  */
 public class BusinessdayCalendarTest {
@@ -98,9 +98,9 @@ public class BusinessdayCalendarTest {
 		// independence day
 		dateToTest = LocalDate.of(2017, 7, 4);
 		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
-		// summer bank holiday 
+		// summer bank holiday
 		dateToTest = LocalDate.of(2017, 8, 28);
-		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));		
+		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class BusinessdayCalendarTest {
 		// weekend
 		dateToTest = LocalDate.of(2017, 6, 10);
 		Assert.assertTrue(!londonCalendar.isBusinessday(dateToTest));
-		// summer bank holiday 
+		// summer bank holiday
 		dateToTest = LocalDate.of(2017, 8, 28);
 		Assert.assertTrue(!londonCalendar.isBusinessday(dateToTest));
 	}

@@ -21,9 +21,7 @@
 
 	<!-- Checks whether files end with a new line. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
-	<!-- 
 	<module name="NewlineAtEndOfFile" />
-	--> 
 
 	<!-- Checks that property files contain the same keys. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
@@ -45,14 +43,12 @@
 
 	<!-- Miscellaneous other checks. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html -->
-	<!-- 
 	<module name="RegexpSingleline">
 		<property name="format" value="\s+$" />
 		<property name="minimum" value="0" />
 		<property name="maximum" value="0" />
 		<property name="message" value="Line has trailing spaces." />
 	</module>
-	--> 
 
 	<!-- Checks for Headers -->
 	<!-- See http://checkstyle.sf.net/config_header.html -->
@@ -68,9 +64,13 @@
 		<!--
 		<module name="JavadocMethod" />
 		-->
-		<!--
-  		<module name="JavadocType" />
-		-->
+		<module name="JavadocType">
+			<property name="scope" value="public"/>
+			<property name="allowUnknownTags" value="true"/>
+			<!--  Add ENUM_DEF, ANNOTATION_DEF in future version. 
+			 -->
+			<property name="tokens" value="INTERFACE_DEF, CLASS_DEF"/>
+		</module>
 		<!--
 		<module name="JavadocVariable" />
 		-->
@@ -156,7 +156,12 @@
 		<module name="AvoidNestedBlocks" />
 		<module name="EmptyBlock" />
 		<module name="LeftCurly" />
-		<module name="NeedBraces" />
+		-->
+		
+		<module name="NeedBraces">
+			<property name="allowSingleLineStatement" value="true"/>
+		</module>
+		<!-- 
 		<module name="RightCurly" />
 		-->
 

@@ -14,7 +14,7 @@ import org.junit.Test;
 
 /**
  * Unit test for the SimpsonRealIntegrator.
- * 
+ *
  * @author Christian Fries
  */
 public class SimpsonRealIntegratorTest {

@@ -19,7 +19,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * and implements <code>AssetModelMonteCarloSimulationInterface</code>.
  *
  * The model is specified via the object implementing <code>AbstractModelInterface</code>.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
@@ -30,7 +30,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
-	 * 
+	 *
 	 * @param model The model to be used.
 	 * @param process The numerical scheme to be used.
 	 */
@@ -115,7 +115,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 
 		// In the case where the model has changed we need a new process anyway
 		if(newModel != model && newProcess == process) {
-			newProcess = process.clone();			
+			newProcess = process.clone();
 		}
 
 		return new MonteCarloAssetModel(newModel, newProcess);
@@ -179,7 +179,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 
 	/**
 	 * Returns the {@link AbstractModel} used for this Monte-Carlo simulation.
-	 * 
+	 *
 	 * @return the model
 	 */
 	public AbstractModelInterface getModel() {

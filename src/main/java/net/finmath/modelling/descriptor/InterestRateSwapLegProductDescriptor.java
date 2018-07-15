@@ -5,6 +5,12 @@ import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.time.ScheduleInterface;
 
+/**
+ * Describes an interest rate swap.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
 public class InterestRateSwapLegProductDescriptor implements InterestRateProductDescriptor {
 
 	private static final String productName = "Interest Rate Swap Leg";

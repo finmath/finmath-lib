@@ -12,9 +12,9 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A power index.
- * 
+ *
  * Provides the function <i>index(t)<sup>exponent</sup></i>, i.e. pow(index(t), exponent).
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  */
@@ -27,7 +27,7 @@ public class PowIndex extends AbstractIndex {
 
 	/**
 	 * Creates the function pow(index(t), exponent)
-	 * 
+	 *
 	 * @param index An index.
 	 * @param exponent The exponent.
 	 */

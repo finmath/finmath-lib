@@ -34,7 +34,7 @@ import net.finmath.time.TimeDiscretization;
 
 
 /**
- * This class tests the some LIBOR market model and products. 
+ * This class tests the some LIBOR market model and products.
  *
  * @author Christian Fries
  */
@@ -104,7 +104,7 @@ public class InterestRateProductTest {
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
 		double a = 0.2, b = 0.0, c = 0.25, d = 0.3;
-		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);		
+		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -250,7 +250,7 @@ public class InterestRateProductTest {
 			double deviation2 = (priceSimulation2 - priceAnalytic);
 			System.out.println(formatterDeviation.format(deviation2));
 		}
-		System.out.println("");     
+		System.out.println("");
 	}
 
 	@Test
@@ -329,7 +329,7 @@ public class InterestRateProductTest {
 		}
 		System.out.println("1: Constructor:"+constructor1/1000.0+"sec. Valuation:"+valuation1/1000.0);
 		System.out.println("2: Constructor:"+constructor2/1000.0+"sec. Valuation:"+valuation2/1000.0);
-		System.out.println("");     
+		System.out.println("");
 	}
 
 	@SuppressWarnings("unused")
@@ -346,7 +346,7 @@ public class InterestRateProductTest {
 		for(int periodIndex=0; periodIndex<swapEndIndex; periodIndex++) {
 			double libor = liborMarketModel.getLIBOR(0, periodIndex).doubleValue();
 			double periodLength = liborMarketModel.getLiborPeriod(periodIndex+1) - liborMarketModel.getLiborPeriod(periodIndex);
-			discountFactors[periodIndex+1] = discountFactors[periodIndex] / (1.0 + libor * periodLength); 
+			discountFactors[periodIndex+1] = discountFactors[periodIndex] / (1.0 + libor * periodLength);
 
 		}
 
@@ -354,7 +354,7 @@ public class InterestRateProductTest {
 		double swapAnnuity = 0.0;
 		for(int swapPeriodIndex=0; swapPeriodIndex<swapTenor.length-1; swapPeriodIndex++) {
 			int periodEndIndex = liborMarketModel.getLiborPeriodIndex(swapTenor[swapPeriodIndex+1]);
-			swapAnnuity += discountFactors[periodEndIndex] * (swapTenor[swapPeriodIndex+1] - swapTenor[swapPeriodIndex]); 
+			swapAnnuity += discountFactors[periodEndIndex] * (swapTenor[swapPeriodIndex+1] - swapTenor[swapPeriodIndex]);
 		}
 
 		// Calculate swaprate
@@ -399,27 +399,28 @@ public class InterestRateProductTest {
 
 				out.write(strike + " " + price + "\n");
 			}
-			out.close();		
+			out.close();
 		} catch (IOException e) {
 			System.out.println("Could not write FexiCap.data file.");
 		}
 	}
+
 	/*
 	@Test
 	public void testTarnPrice(LIBORModelMonteCarloSimulationInterface liborMarketModel) throws CalculationException {
-        double[] periodLengths = { 0.5, 0.5, 0.5, 0.5, 0.5 };
+		double[] periodLengths = { 0.5, 0.5, 0.5, 0.5, 0.5 };
 
 		double[] fixingDates = { 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5 };
 		double[] paymentDates = { 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0 };
 
 		double targetCoupon = 0.05;
-        TargetRedemptionNote product1 = new TargetRedemptionNote(fixingDates, paymentDates, 0.0, targetCoupon, 0.0, null, true, false);
-        TargetRedemptionNote product2 = new TargetRedemptionNote(fixingDates, paymentDates, 0.0, targetCoupon, 0.0, new ConstantMaturitySwaprate(periodLengths), true, false);
+		TargetRedemptionNote product1 = new TargetRedemptionNote(fixingDates, paymentDates, 0.0, targetCoupon, 0.0, null, true, false);
+		TargetRedemptionNote product2 = new TargetRedemptionNote(fixingDates, paymentDates, 0.0, targetCoupon, 0.0, new ConstantMaturitySwaprate(periodLengths), true, false);
 
-        System.out.println("TARN:("+targetCoupon+"):"
-					+ "\t" + product1.getValue(liborMarketModel)
-					+ "\t" + product2.getValue(liborMarketModel)
-        );
+		System.out.println("TARN:("+targetCoupon+"):"
+				+ "\t" + product1.getValue(liborMarketModel)
+				+ "\t" + product2.getValue(liborMarketModel)
+				);
 	}
 	 */
 }

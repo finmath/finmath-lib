@@ -47,14 +47,14 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 /**
  * Test the call to getValue on a product using different casts of the model.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORMarketModelHierarchyTest {
 
 	/**
 	 * Test the call to getValue on a product using different casts of the model.
-	 * 
+	 *
 	 * @throws CalculationException Thrown if calculation fails.
 	 */
 	@Test
@@ -109,7 +109,7 @@ public class LIBORMarketModelHierarchyTest {
 
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
-		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 
 		// Create the forward curve (initial value of the LIBOR market model)
@@ -149,7 +149,7 @@ public class LIBORMarketModelHierarchyTest {
 		 */
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 40.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);		
+		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		/*
 		 * Create a simulation time discretization

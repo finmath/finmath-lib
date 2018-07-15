@@ -25,17 +25,17 @@ import net.finmath.time.ScheduleInterface;
 /**
  * Implements the valuation of a cap via an analytic model,
  * i.e. the specification of a forward curve, discount curve and volatility surface.
- * 
+ *
  * A cap is a portfolio of Caplets with a common strike, i.e., the strike is the same for all Caplets.
- * 
+ *
  * The class can value a caplet with a given strike or given moneyness. If moneyness is given,
  * the class calculates the ATM forward. Note that this is done by omitting the first (fixed) period,
  * see {@link #getATMForward(AnalyticModelInterface, boolean)}.
- * 
+ *
  * Note: A fixing in arrears is not handled correctly since a convexity adjustment is currently not applied.
- * 
+ *
  * @TODO: Support convexity adjustment if fixing is in arrears.
- * 
+ *
  * @author Christian Fries
  */
 public class Cap extends AbstractAnalyticProduct {
@@ -56,9 +56,9 @@ public class Cap extends AbstractAnalyticProduct {
 	/**
 	 * Create a Caplet with a given schedule, strike on a given forward curve (by name)
 	 * with a given discount curve and volatility surface (by name).
-	 * 
+	 *
 	 * The valuation is performed using analytic valuation formulas for the underlying caplets.
-	 * 
+	 *
 	 * @param schedule A given payment schedule, i.e., a collection of <code>Period</code>s with fixings, payments and period length.
 	 * @param forwardCurveName The forward curve to be used for the forward of the index.
 	 * @param strike The given strike (or moneyness).
@@ -81,9 +81,9 @@ public class Cap extends AbstractAnalyticProduct {
 	/**
 	 * Create a Caplet with a given schedule, strike on a given forward curve (by name)
 	 * with a given discount curve and volatility surface (by name).
-	 * 
+	 *
 	 * The valuation is performed using analytic valuation formulas for the underlying caplets.
-	 * 
+	 *
 	 * @param schedule A given payment schedule, i.e., a collection of <code>Period</code>s with fixings, payments and period length.
 	 * @param forwardCurveName The forward curve to be used for the forward of the index.
 	 * @param strike The given strike (or moneyness).
@@ -106,7 +106,7 @@ public class Cap extends AbstractAnalyticProduct {
 
 	/**
 	 * Returns the value of this product under the given model.
-	 * 
+	 *
 	 * @param evaluationTime Evaluation time.
 	 * @param model The model.
 	 * @return Value of this product und the given model.
@@ -189,7 +189,7 @@ public class Cap extends AbstractAnalyticProduct {
 	 * Note however that the is a convention to determine the ATM forward of a cap
 	 * from the payoffs excluding the first one. The reason here is that for non-forward starting
 	 * cap, the first period is already fixed, i.e. it has no vega.
-	 * 
+	 *
 	 * @param model The model to retrieve the forward curve from (by name).
 	 * @param isFirstPeriodIncluded If true, the forward will be determined by considering the periods after removal of the first periods (except, if the Cap consists only of 1 period).
 	 * @return The ATM forward of this cap.
@@ -222,7 +222,7 @@ public class Cap extends AbstractAnalyticProduct {
 
 	/**
 	 * Returns the value of this cap in terms of an implied volatility (of a flat caplet surface).
-	 * 
+	 *
 	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
 	 * @param model The model under which the product is valued.
 	 * @param quotingConvention The quoting convention requested for the return value.
@@ -254,7 +254,7 @@ public class Cap extends AbstractAnalyticProduct {
 
 		int		maxIterations	= 100;
 		double	maxAccuracy		= 0.0;
-		GoldenSectionSearch solver = new GoldenSectionSearch(lowerBound, upperBound);		
+		GoldenSectionSearch solver = new GoldenSectionSearch(lowerBound, upperBound);
 		while(solver.getAccuracy() > maxAccuracy && !solver.isDone() && solver.getNumberOfIterations() < maxIterations) {
 			double volatility = solver.getNextPoint();
 			double[] maturities		= { 1.0 };
@@ -272,7 +272,7 @@ public class Cap extends AbstractAnalyticProduct {
 
 	/**
 	 * Returns the name of the forward curve references by this cap.
-	 * 
+	 *
 	 * @return the forward curve name.
 	 */
 	public String getForwardCurveName() {
@@ -281,7 +281,7 @@ public class Cap extends AbstractAnalyticProduct {
 
 	/**
 	 * Returns the strike of this caplet.
-	 * 
+	 *
 	 * @return the strike
 	 */
 	public double getStrike() {
@@ -290,7 +290,7 @@ public class Cap extends AbstractAnalyticProduct {
 
 	/**
 	 * Returns the name of the discount curve referenced by this cap.
-	 * 
+	 *
 	 * @return the discount curve name
 	 */
 	public String getDiscountCurveName() {

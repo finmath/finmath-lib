@@ -197,9 +197,9 @@ public class LevenbergMarquardtTest {
 	/**
 	 * Optimization of booth function \( f(x,y) = \left(x+2y-7\right)^{2}+\left(2x+y-5\right)^{2} \).
 	 * The solution of \( f(x,y) = 0 \) is \( x=1 \), \( y=3 \).
-	 * 
+	 *
 	 * The test uses a finite difference approximation for the derivative.
-	 * 
+	 *
 	 * @throws SolverException
 	 */
 	@Test
@@ -245,9 +245,9 @@ public class LevenbergMarquardtTest {
 	/**
 	 * Optimization of booth function \( f(x,y) = \left(x+2y-7\right)^{2}+\left(2x+y-5\right)^{2} \).
 	 * The solution of \( f(x,y) = 0 \) is \( x=1 \), \( y=3 \).
-	 * 
+	 *
 	 * The test uses a a analytic calculation of derivative.
-	 * 
+	 *
 	 * @throws SolverException
 	 */
 	@Test

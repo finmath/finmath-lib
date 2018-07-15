@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 15.07.2012
  */
 
@@ -25,23 +25,23 @@ import net.finmath.timeseries.TimeSeriesView;
 
 /**
  * Displaced log-normal process with ARMAGARCH(1,1) volatility.
- * 
+ *
  * This class estimate the process
  * \[
  *   \mathrm{d} \log(X + a) = \frac{\sigma}{b + a} \mathrm{d}W(t)
  * \]
  * where \( a &gt; -min(X(t_{i}) \) and thus \( X+a &gt; 0 \) and \( b = 1 - -min(X(t_{i}) \) \) and
  * \( \sigma \) is given by a ARMAGARCH(1,1) process.
- * 
+ *
  * The choice of b ensures that b+a &ge; 1.
  * For a=0 we have a log-normal process with volatility &sigma;/(b + a).
  * For a=infinity we have a normal process with volatility &sigma;.
- * 
+ *
  * @author Christian Fries
  */
 public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
 
-	private TimeSeriesInterface timeSeries;	
+	private TimeSeriesInterface timeSeries;
 
 	private double lowerBoundDisplacement;
 	private double upperBoundDisplacement = 10000000;
@@ -53,7 +53,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 	 */
 	private final String[] parameterNames	= new String[] { "omega", "alpha", "beta", "displacement", "theta", "mu" };
 	private final double[] parameterGuess	= new double[] { 0.10, 0.2, 0.2, 10.0, 0.0, 0.0 };
-	private final double[] parameterStep	= new double[] { 0.01, 0.1, 0.1, 5.0, 0.1, 0.1 }; 
+	private final double[] parameterStep	= new double[] { 0.01, 0.1, 0.1, 5.0, 0.1, 0.1 };
 	private final double[] lowerBound;
 	private final double[] upperBound;
 

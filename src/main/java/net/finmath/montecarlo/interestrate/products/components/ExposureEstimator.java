@@ -21,9 +21,9 @@ import net.finmath.stochastic.RandomVariableInterface;
  * \)
  * where \( V(t) \) is the (sum of) discounted future value(s) of an underlying \( V \), discounted to \( t \)
  * and \( t \) is a given evaluation time.
- * 
+ *
  * The conditional expectation is estimated using a regression.
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct
@@ -42,7 +42,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 	 * \)
 	 * where \( V(t) \) is the (sum of) discounted future value(s) of an underlying \( V \), discounted to \( t \)
 	 * and \( t \) is a given evaluation time.
-	 * 
+	 *
 	 * @param underlying The underlying.
 	 */
 	public ExposureEstimator(AbstractLIBORMonteCarloProduct underlying) {
@@ -68,14 +68,14 @@ public class ExposureEstimator extends AbstractProductComponent {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		final RandomVariableInterface one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariableInterface zero	= model.getRandomVariableForConstant(0.0);
@@ -114,16 +114,16 @@ public class ExposureEstimator extends AbstractProductComponent {
 		}
 
 		// Return values
-		return values;	
+		return values;
 	}
 
 	/**
 	 * Return the regression basis functions.
-	 * 
+	 *
 	 * @param evaluationTime The date w.r.t. which the basis functions should be measurable.
 	 * @param model The model.
 	 * @return Array of random variables.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 

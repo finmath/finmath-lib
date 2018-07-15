@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Unit test for <code>LIBORVolatilityModelFourParameterExponentialFormIntegrated</code>.
- * 
+ *
  * This test shows that the analytic formula used in <code>LIBORVolatilityModelFourParameterExponentialFormIntegrated</code>
  * - in the limit - agrees with the result obtained from <code>LIBORVolatilityModelFourParameterExponentialForm</code>
  * given that its time discretization step size is going to zero.

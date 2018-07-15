@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * WARNING: If the model used for calculating the delta is "slow" (e.g., a Monte-Carlo simulation)
  * then the calculation might take very long.
  * <br>
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
@@ -35,7 +35,7 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 	 * Construction of a delta hedge portfolio using finite differences on every path and
 	 * in every time-step. Note that this requires many revaluations of the product
 	 * provided.
-	 * 
+	 *
 	 * @param productToHedge The financial product for which the hedge portfolio should be constructed.
 	 * @param modelUsedForHedging The model used for calculating the hedge rations (deltas). This may differ from the model passed to <code>getValue</code>.
 	 */
@@ -76,7 +76,7 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			double time = model.getTime(timeIndex);
 
-			// Get value of underlying and numeraire assets			
+			// Get value of underlying and numeraire assets
 			RandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
 			RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 			for(int path=0; path<model.getNumberOfPaths(); path++)
@@ -117,7 +117,7 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 		 */
 		double[] portfolioValue				= new double[numberOfPath];
 
-		// Get value of underlying and numeraire assets			
+		// Get value of underlying and numeraire assets
 		RandomVariableInterface underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
 		RandomVariableInterface numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 		for(int path=0; path<underlyingAtEvaluationTime.size(); path++)

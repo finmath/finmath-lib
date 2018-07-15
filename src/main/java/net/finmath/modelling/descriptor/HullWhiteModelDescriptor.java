@@ -6,6 +6,14 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
+/**
+ * A descriptor describing the Hull-White model.
+ *
+ * @TODO Note that discretization of forward rates should maybe NOT be part of the descriptor. It belongs to the numerical methods.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
 public class HullWhiteModelDescriptor implements InterestRateModelDescriptor {
 
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;

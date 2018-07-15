@@ -19,28 +19,28 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \), where \( \Gamma_{i} \) is
  * a Gamma process and \( \Gamma_{i} \), \( \Gamma_{j} \) are
  * independent for <i>i</i> not equal <i>j</i>.
- * 
+ *
  * The increments \( \Delta \Gamma \) are Gamma distributed with shape parameter <code>shape * (t-s)</code>
  * for \( t-s = \Delta t \) and scale parameter 1.
- * 
+ *
  * Here the dimension <i>n</i> is called factors since this Gamma process is used to
  * generate multi-dimensional multi-factor Levy processes and there one might
  * use a different number of factors to generate Levy processes of different
- * dimension. 
+ * dimension.
  *
  * The quintruppel (time discretization, number of factors, number of paths, seed, shape)
  * defines the state of an object of this class, i.e., GammaProcess for which
  * there parameters agree, generate the same random numbers.
  *
  * The class is immutable and thread safe. It uses lazy initialization.
- * 
+ *
  * @author Christian Fries
  * @version 1.6
  */
 public class GammaProcess implements IndependentIncrementsInterface, Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5430067621669213475L;
 
@@ -59,7 +59,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 
 	/**
 	 * Construct a Gamma process with a given shape parameter.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the Gamma increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
@@ -87,7 +87,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 
 	/**
 	 * Construct a Gamma process with a given shape parameter.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the Gamma increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
@@ -159,11 +159,11 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 		for(int timeIndex=0; timeIndex<gammaDistributions.length; timeIndex++) {
 			double deltaT = timeDiscretization.getTimeStep(timeIndex);
 			gammaDistributions[timeIndex] = new GammaDistribution(shape * deltaT, scale);
-		}   
+		}
 
 		/*
 		 * Generate gamma distributed independent increments.
-		 * 
+		 *
 		 * The inner loop goes over time and factors.
 		 * MersenneTwister is known to generate "independent" increments in 623 dimensions.
 		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
@@ -175,7 +175,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 				for(int factor=0; factor<numberOfFactors; factor++) {
 					double uniformIncrement = mersenneTwister.nextDouble();
 					gammaIncrementsArray[timeIndex][factor][path] = gammaDistribution.inverseCumulativeDistribution(uniformIncrement);
-				}				
+				}
 			}
 		}
 

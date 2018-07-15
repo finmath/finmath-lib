@@ -26,7 +26,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
  * which provide interpolation of market data or other derived quantities
  * ("calibrated curves"). This can be seen as a model to be used in analytic pricing
  * formulas - hence this class is termed <code>AnalyticModel</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable {
@@ -44,7 +44,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Create an analytic model with the given curves.
-	 * 
+	 *
 	 * @param curves The vector of curves.
 	 */
 	public AnalyticModel(CurveInterface[] curves) {
@@ -55,7 +55,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Create an analytic model with the given curves.
-	 * 
+	 *
 	 * @param curves A collection of curves.
 	 */
 	public AnalyticModel(Collection<CurveInterface> curves) {
@@ -118,7 +118,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Set some curves.
-	 * 
+	 *
 	 * @param curves Array of curves to set.
 	 * @deprecated This class will become immutable. Use addCurve instead.
 	 */

@@ -14,9 +14,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \( n \) Eigenvectors of \( \tilde{R} \) belonging to the \( n \) largest non-negative Eigenvalues,
  * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and
  * \[ \tilde{\rho}_{i,j} = b + (1-b) * \exp(-a |T_{i} - T_{j}| - c \max(T_{i},T_{j}))
- * 
+ *
  * @see net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCorrelationModel {
@@ -77,7 +77,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		synchronized (lazyInitLock) {
 			if(factorMatrix == null) {
 				initialize(numberOfFactors, a, b, c);
-			}			
+			}
 		}
 
 		return factorMatrix[component][factor];

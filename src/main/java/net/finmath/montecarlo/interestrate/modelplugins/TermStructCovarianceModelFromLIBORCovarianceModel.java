@@ -22,7 +22,7 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 	/**
 	 * Create a term structure covariance model model implementing TermStructureCovarianceModelInterface
 	 * using a given model implementing AbstractLIBORCovarianceModelParametric.
-	 * 
+	 *
 	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
 	 */
 	public TermStructCovarianceModelFromLIBORCovarianceModel(AbstractLIBORCovarianceModelParametric covarianceModel) {

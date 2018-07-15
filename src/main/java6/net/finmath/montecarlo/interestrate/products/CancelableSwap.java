@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements the pricing of a cancelable swap under a <code>LIBORModelMonteCarloSimulationInterface</code>
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  * @date 11.03.2006, 31.05.2009
@@ -53,14 +53,14 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
 		RandomVariableInterface values = new RandomVariable(fixingDates[fixingDates.length-1], 0.0);
@@ -100,8 +100,8 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 			}
 		}
 
-		RandomVariableInterface	numeraireAtZero						= model.getNumeraire(evaluationTime);		
-		RandomVariableInterface	monteCarloProbabilitiesAtZero		= model.getMonteCarloWeights(evaluationTime);		
+		RandomVariableInterface	numeraireAtZero						= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtZero		= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return values;
@@ -111,7 +111,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param fixingDateIndex
 	 * @param model
 	 * @return
-	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	private ConditionalExpectationEstimatorInterface getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		ConditionalExpectationEstimatorInterface condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(fixingDates[fixingDateIndex], model));
@@ -120,11 +120,11 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Return the basis functions for the regression suitable for this product.
-	 * 
+	 *
 	 * @param fixingDateIndex The time index corresponding to the fixing date
 	 * @param model The model
 	 * @return The basis functions for the regression suitable for this product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 

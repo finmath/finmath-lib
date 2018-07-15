@@ -15,7 +15,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * If the <code>time</code> parameter of the {@link #getValue(AnalyticModelInterface, double)}
  * method falls inside a pre-defined open interval, it is delegated to the second curve,
  * otherwise it is delegated to the base curve.
- * 
+ *
  * @author Christian Fries
  */
 public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
@@ -32,7 +32,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	/**
 	 * A builder (following the builder pattern) for PiecewiseCurve objects.
 	 * Allows to successively construct a curve object by adding points to its base points.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public static class CurveBuilder extends Curve.CurveBuilder implements CurveBuilderInterface {
@@ -41,7 +41,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 
 		/**
 		 * Create a CurveBuilder from a given piecewiseCurve
-		 * 
+		 *
 		 * @param piecewiseCurve The piecewise curve from which to copy the fixed part upon build().
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */

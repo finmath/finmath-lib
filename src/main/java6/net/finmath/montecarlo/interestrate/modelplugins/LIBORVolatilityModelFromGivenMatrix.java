@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * Implements a simple volatility model using given piece-wise constant values on
  * a given discretization grid.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
@@ -39,8 +39,8 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
 	 * a given discretization grid.
-	 * 
-	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters. 
+	 *
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
@@ -64,8 +64,8 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
 	 * a given discretization grid.
-	 * 
-	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters. 
+	 *
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
@@ -81,7 +81,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
 	 * a given discretization grid.
-	 * 
+	 *
 	 * @param timeDiscretization Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization

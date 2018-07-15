@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * This class implements a Brownian bridge, i.e., samples of realizations of a Brownian motion
  * conditional to a given start and end value.
- * 
+ *
  * <p>
  * A Brownian bridge is a conditional Brownian motion, i.e. for given random variables
  * <i>X</i> and  <i>Y</i> the Brownian bridge is
@@ -38,7 +38,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * may be not stochastic, i.e. it is not possible to infer this quantity
  * from the specified start and end.
  * </p>
- * 
+ *
  * @author Christian Fries
  * @date 24.11.2013
  */
@@ -60,7 +60,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
@@ -79,7 +79,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.

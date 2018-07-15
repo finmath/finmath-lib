@@ -90,7 +90,7 @@ public class DepositTest {
 		// set up deposit
 		Deposit depo = new Deposit(sched, 0.1, dcName);
 		double rate = depo.getRate(model);
-		depo =  new Deposit(sched, rate, dcName); 
+		depo =  new Deposit(sched, rate, dcName);
 
 		// deposit has been fixed at market conditions => value 0
 		Assert.assertEquals("Value today", 0.,
@@ -98,7 +98,7 @@ public class DepositTest {
 		// after maturity deposit has value 0
 		Assert.assertEquals("Value after maturity", 0.,
 				depo.getValue(1., model), accuracy);
-		// after payout only the payback is expected and rate > 0 => value > 0 
+		// after payout only the payback is expected and rate > 0 => value > 0
 		Assert.assertTrue("Value after payout must be positive",
 				depo.getValue(5 / 360., model)>0.);
 

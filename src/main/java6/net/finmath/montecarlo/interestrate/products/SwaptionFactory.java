@@ -10,10 +10,10 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * A factory (helper class) to create swaptions extending {@link AbstractLIBORMonteCarloProduct}
  * according to some (simplified) specifications.
- * 
+ *
  * The class is useful if you like to create, e.g., calibration products depending
  * on some parameters.
- * 
+ *
  * @author Christian Fries
  */
 public class SwaptionFactory {

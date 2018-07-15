@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * Implements the valuation of a portfolio of products implementing
  * <code>AnalyticProductInterface</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class Portfolio extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -33,10 +33,10 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * <code>
 	 * 	weights[i] * products.get(i).getValue(evaluationTime, model)
 	 * </code>
-	 * 
+	 *
 	 * Note that a product in the array of products may itself be
 	 * a <code>Portfolio</code> (hence you may easily combine portfolios).
-	 * 
+	 *
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 * @param weights Array of weights used in the valuation as a multiplicator.
 	 */
@@ -56,10 +56,10 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * <code>
 	 * 	weights[i] * products.get(i).getValue(evaluationTime, model)
 	 * </code>
-	 * 
+	 *
 	 * The portfolio is created by taking all products and weights of a given portfolio
 	 * and adding other given products and weights.
-	 * 
+	 *
 	 * @param portfolio A given portfolio, which will become part of this portfolio.
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 * @param weights Array of weights used in the valuation as a multiplicator.
@@ -76,7 +76,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 
 	/**
 	 * Create a portfolio consisting of a single product with a given weight.
-	 * 
+	 *
 	 * @param product A product, implementing  implementing <code>AnalyticProductInterface</code>.
 	 * @param weight A weight used in the valuation as a multiplicator.
 	 */
@@ -91,19 +91,19 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	/**
 	 * Create a portfolio of products implementing
 	 * <code>AnalyticProductInterface</code>.
-	 * 
+	 *
 	 * The value of the portfolio is given by the sum over
 	 * <code>
 	 * 	products.get(i).getValue(evaluationTime, model)
 	 * </code>
-	 * 
+	 *
 	 * Note that a product in the array of products may itself be
 	 * a <code>Portfolio</code> (hence you may easily combine portfolios).
-	 * 
+	 *
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 */
 	public Portfolio(List<AnalyticProductInterface> products) {
-		this(products, Collections.nCopies(products.size(), new Double(1.0)));
+		this(products, Collections.nCopies(products.size(), Double.valueOf(1.0)));
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	/**
 	 * Returns the list of products as an unmodifiable list.
 	 * Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
-	 * 
+	 *
 	 * @return The list of products as an unmodifiable list.
 	 */
 	public List<AnalyticProductInterface> getProducts() {
@@ -131,7 +131,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	/**
 	 * Returns the list of weights as an unmodifiable list.
 	 * Calling <code>add</code> on this list will result in an {@link UnsupportedOperationException}.
-	 * 
+	 *
 	 * @return The list of weights as an unmodifiable list.
 	 */
 	public List<Double> getWeights() {

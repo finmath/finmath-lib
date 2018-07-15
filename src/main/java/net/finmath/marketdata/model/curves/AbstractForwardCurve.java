@@ -16,9 +16,9 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 /**
  * Abstract base class for a forward curve, extending a curve object
- * 
+ *
  * It stores the maturity of the underlying index (paymentOffset) and the associated discount curve.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class AbstractForwardCurve extends Curve implements ForwardCurveInterface {
@@ -36,7 +36,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 
 	/**
 	 * Construct a base forward curve with a reference date and a payment offset.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
@@ -60,7 +60,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 
 	/**
 	 * Construct a base forward curve with a reference date and a payment offset.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
@@ -74,7 +74,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 
 	/**
 	 * Construct a base forward curve with a reference date and a payment offset.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param paymentOffset The maturity of the index modeled by this curve.
@@ -127,7 +127,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 
 	/**
 	 * Returns the forwards for a given vector fixing times.
-	 * 
+	 *
 	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.

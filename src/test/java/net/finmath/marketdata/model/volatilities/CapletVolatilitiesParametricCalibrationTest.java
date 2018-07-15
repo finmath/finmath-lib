@@ -42,7 +42,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_360;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
- * 
+ *
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
@@ -55,7 +55,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 	/**
 	 * The parameters for this test, that is an error consisting of
 	 * { numberOfPaths, setup }.
-	 * 
+	 *
 	 * @return Array of parameters.
 	 */
 	@Parameters(name="{0}")
@@ -78,7 +78,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
-	 * 
+	 *
 	 * @param args Arguments - not used.
 	 * @throws SolverException Thrown if the solver cannot find a solution to the calibration problem.
 	 * @throws CalculationException Thrown if the calibration product failed.
@@ -112,7 +112,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 						}
 				, 365.0/365.0);
 
-		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD", LocalDate.of(2014, Month.JULY, 17), 
+		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD", LocalDate.of(2014, Month.JULY, 17),
 				"3M", new BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendarInterface.DateRollConvention.MODIFIED_FOLLOWING, new DayCountConvention_ACT_360(),
 				discountCurve.getParameter(), 365.0/365.0, 0.0);
 

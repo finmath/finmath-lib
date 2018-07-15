@@ -9,8 +9,9 @@ package net.finmath.modelling.descriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 
 /**
- * @author Christian Fries
+ * Describes a European option.
  *
+ * @author Christian Fries
  */
 public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetProductDescriptor {
 

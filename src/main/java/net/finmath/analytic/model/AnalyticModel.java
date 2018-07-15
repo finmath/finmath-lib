@@ -28,13 +28,13 @@ import net.finmath.stochastic.RandomVariableInterface;
  * which provide interpolation of market data or other derived quantities
  * ("calibrated curves"). This can be seen as a model to be used in analytic pricing
  * formulas - hence this class is termed <code>AnalyticModel</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1551367852009541732L;
 	private final AbstractRandomVariableFactory			randomVariableFactory;
@@ -50,7 +50,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Create an empty analytic model using a given AbstractRandomVariableFactory for construction of result types.
-	 * 
+	 *
 	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 */
 	public AnalyticModel(AbstractRandomVariableFactory randomVariableFactory) {
@@ -59,7 +59,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Create an analytic model with the given curves.
-	 * 
+	 *
 	 * @param curves The vector of curves.
 	 */
 	public AnalyticModel(CurveInterface[] curves) {
@@ -71,7 +71,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Create an analytic model with the given curves  using a given AbstractRandomVariableFactory for construction of result types.
-	 * 
+	 *
 	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 * @param curves The vector of curves.
 	 */
@@ -84,7 +84,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Create an analytic model with the given curves.
-	 * 
+	 *
 	 * @param curves A collection of curves.
 	 */
 	public AnalyticModel(Collection<CurveInterface> curves) {
@@ -152,7 +152,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	/**
 	 * Set some curves.
-	 * 
+	 *
 	 * @param curves Array of curves to set.
 	 * @deprecated This class will become immutable. Use addCurve instead.
 	 */

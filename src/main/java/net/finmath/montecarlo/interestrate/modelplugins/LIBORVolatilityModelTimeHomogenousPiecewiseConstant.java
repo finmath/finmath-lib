@@ -13,7 +13,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Implements a piecewise constant volatility model, where
  * \( \sigma(t,T) = sigma_{i} \) where \( i = \max \{ j : \tau_{j} \leq T-t \} \) and
  * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVolatilityModel {
@@ -27,7 +27,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	 * Create a piecewise constant volatility model, where
 	 * \( \sigma(t,T) = sigma_{i} \) where \( i = \max \{ j : \tau_{j} \leq T-t \} \) and
 	 * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param timeToMaturityDiscretization The discretization \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \)  of the piecewise constant volatility function.
@@ -68,7 +68,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
 		double timeToMaturity   = maturity-time;
 
-		double volatilityInstanteaneous; 
+		double volatilityInstanteaneous;
 		if(timeToMaturity <= 0)
 		{
 			volatilityInstanteaneous = 0.0;   // This forward rate is already fixed, no volatility

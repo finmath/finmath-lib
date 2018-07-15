@@ -30,7 +30,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * This class tests the LIBOR market model and products.
- * 
+ *
  * @author Christian Fries
  * @author Lorenzo Torricelli
  */
@@ -99,9 +99,9 @@ public class SwaptionNormalTest {
 
 			// Value of the analytic approximation
 			SwaptionGeneralizedAnalyticApproximation swaptionAnalytic = new SwaptionGeneralizedAnalyticApproximation(swaprate, swapTenor, SwaptionGeneralizedAnalyticApproximation.ValueUnit.VALUE,
-					SwaptionGeneralizedAnalyticApproximation.StateSpace.NORMAL); 
+					SwaptionGeneralizedAnalyticApproximation.StateSpace.NORMAL);
 			SwaptionGeneralizedAnalyticApproximation swaptionBachelierVol = new SwaptionGeneralizedAnalyticApproximation(swaprate, swapTenor, SwaptionGeneralizedAnalyticApproximation.ValueUnit.VOLATILITY,
-					SwaptionGeneralizedAnalyticApproximation.StateSpace.NORMAL); 
+					SwaptionGeneralizedAnalyticApproximation.StateSpace.NORMAL);
 
 
 			double valueAnalytic = swaptionAnalytic.getValue(liborModel);

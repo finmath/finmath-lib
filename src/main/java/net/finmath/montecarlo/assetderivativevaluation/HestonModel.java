@@ -32,7 +32,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	dN(t) = r^{\text{d}} N(t) dt, \quad N(0) = N_{0},
  * \]
  * where \( W \) is a Brownian motion.
- * 
+ *
  * The class provides the model of (S,V) to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
  * \( f_{1} = exp , f_{2} = identity \), \( \mu_{1} = r^{\text{c}} - \frac{1}{2} V^{+}(t) , \mu_{2} = \kappa ( \theta - V^{+}(t) ) \), \( \lambda_{1,1} = \sqrt{V^{+}(t)} , \lambda_{1,2} = 0  ,\lambda_{2,1} = \xi \sqrt{V^+(t)} \rho  , \lambda_{2,2} = \xi \sqrt{V^+(t)} \sqrt{1-\rho^{2}} \), i.e.,
  * of the SDE
@@ -44,15 +44,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  * \]
  * with \( S = f_{1}(X_{1}) , V = f_{2}(X_{2}) \).
  * See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
- * 
+ *
  * Here \( V^{+} \) denotes a <i>truncated</i> value of V. Different truncation schemes are available:
  * <code>FULL_TRUNCATION</code>: \( V^{+} = max(V,0) \),
  * <code>REFLECTION</code>: \( V^{+} = abs(V) \).
- * 
+ *
  * The model allows to specify two independent rate for forwarding (\( r^{\text{c}} \)) and discounting (\( r^{\text{d}} \)).
  * It thus allow for a simple modelling of a funding / collateral curve (via (\( r^{\text{d}} \)) and/or the specification of
  * a dividend yield.
- * 
+ *
  * The free parameters of this model are:
  * <dl>
  * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
@@ -64,7 +64,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 	<dt>\( \kappa \)</dt> <dd>the mean reversion speed of the stochastic volatility</dd>
  * 	<dt>\( \rho \)</dt> <dd>the correlation of the Brownian drivers</dd>
  * </dl>
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
@@ -115,7 +115,7 @@ public class HestonModel extends AbstractModel {
 
 	/**
 	 * Create the model from a descriptor.
-	 * 
+	 *
 	 * @param descriptor A descriptor of the product.
 	 * @param scheme The scheme.
 	 * @param randomVariableFactory A random variable factory to be used for the parameters.
@@ -139,7 +139,7 @@ public class HestonModel extends AbstractModel {
 
 	/**
 	 * Create a Heston model.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate the discount curve  \( df^{\text{c}} \) used to calculate the risk free rate \( r^{\text{c}}(t_{i},t_{i+1}) = \frac{\ln(\frac{df^{\text{c}}(t_{i})}{df^{\text{c}}(t_{i+1})}}{t_{i+1}-t_{i}} \)
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -184,7 +184,7 @@ public class HestonModel extends AbstractModel {
 
 	/**
 	 * Create a Heston model.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -229,7 +229,7 @@ public class HestonModel extends AbstractModel {
 
 	/**
 	 * Create a Heston model.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
@@ -268,7 +268,7 @@ public class HestonModel extends AbstractModel {
 
 	/**
 	 * Create a Heston model.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
@@ -295,7 +295,7 @@ public class HestonModel extends AbstractModel {
 
 	/**
 	 * Create a Heston model.
-	 * 
+	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
@@ -482,7 +482,7 @@ public class HestonModel extends AbstractModel {
 
 	/**
 	 * Returns the volatility parameter of this model.
-	 * 
+	 *
 	 * @return Returns the volatility.
 	 */
 	public RandomVariableInterface getVolatility() {

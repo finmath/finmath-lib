@@ -24,12 +24,10 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.TermStructureModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
@@ -47,14 +45,14 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 /**
  * Test the call to getValue on a product using different casts of the model.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORMarketModelHierarchyTest {
 
 	/**
 	 * Test the call to getValue on a product using different casts of the model.
-	 * 
+	 *
 	 * @throws CalculationException Thrown if calculation fails.
 	 */
 	@Test
@@ -109,7 +107,7 @@ public class LIBORMarketModelHierarchyTest {
 
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
-		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 
 		// Create the forward curve (initial value of the LIBOR market model)
@@ -149,7 +147,7 @@ public class LIBORMarketModelHierarchyTest {
 		 */
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 40.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);		
+		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		/*
 		 * Create a simulation time discretization

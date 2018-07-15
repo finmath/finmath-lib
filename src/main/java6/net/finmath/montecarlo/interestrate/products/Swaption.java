@@ -22,12 +22,12 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationInterface
- * 
+ *
  * Important: If the LIBOR Market Model is a multi-curve model in the sense that the
  * numeraire is not calculated from the forward curve, then this valuation does
  * assume that the basis deterministic. For the valuation of a fully generalize swaption,
  * you have to use the <code>Option</code> component on a <code>Swap</code>.
- * 
+ *
  * @author Christian Fries
  * @version 1.3
  */
@@ -40,7 +40,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a swaption.
-	 * 
+	 *
 	 * @param exerciseDate Vector of exercise dates.
 	 * @param fixingDates Vector of fixing dates.
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates).
@@ -58,7 +58,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a swaption.
-	 * 
+	 *
 	 * @param exerciseDate Vector of exercise dates.
 	 * @param fixingDates Vector of fixing dates.
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates).
@@ -79,7 +79,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Creates a swaption using a TimeDiscretization
-	 * 
+	 *
 	 * @param exerciseDate Exercise date.
 	 * @param swapTenor Object specifying period start and end dates.
 	 * @param swaprate Strike.
@@ -108,7 +108,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
@@ -181,7 +181,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * This method returns the value of the product using a Black-Scholes model for the swap rate
 	 * The model is determined by a discount factor curve and a swap rate volatility.
-	 * 
+	 *
 	 * @param forwardCurve The forward curve on which to value the swap.
 	 * @param swaprateVolatility The Black volatility.
 	 * @return Value of this product

@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A product index being index1(t) * index2(t)
- * 
+ *
  * @author Christian Fries
  */
 public class ProductIndex extends AbstractIndex {
@@ -26,7 +26,7 @@ public class ProductIndex extends AbstractIndex {
 
 	/**
 	 * Create a performance index being numeratorIndex(t) / denominatorIndex(t)
-	 * 
+	 *
 	 * @param index1 First index.
 	 * @param index2 Second index.
 	 */

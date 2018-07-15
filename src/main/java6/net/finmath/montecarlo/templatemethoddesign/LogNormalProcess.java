@@ -11,7 +11,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * This class is an abstract base class to implement an Euler scheme of a multi-dimensional multi-factor log-normal Ito process.
  * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
- * 
+ *
  * @author Christian Fries
  * @date 19.04.2008
  * @version 1.5
@@ -34,7 +34,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * Create a log normal process.
-	 * 
+	 *
 	 * @param numberOfComponents The number of components (scalar processes).
 	 * @param brownianMotion A Brownian motion
 	 */
@@ -51,7 +51,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * Create a simulation of log normal process.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization of the process.
 	 * @param numberOfComponents The number of components (the dimension of the process).
 	 * @param numberOfPaths The number of path of the simulation.
@@ -76,7 +76,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * Create a simulation of log normal process.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization of the process.
 	 * @param numberOfComponents The number of components (the dimension of the process).
 	 * @param numberOfFactors The number of factors of the process.
@@ -109,7 +109,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * Get the the drift.
-	 * 
+	 *
 	 * @param timeIndex The time index (related to the model times discretization).
 	 * @param realizationAtTimeIndex The given realization at timeIndex
 	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
@@ -135,7 +135,7 @@ public abstract class LogNormalProcess {
 	 * in an m-factor model. Here j denotes index of the component of the resulting
 	 * log-normal process and i denotes the index of the factor.<p>
 	 * Overwrite this method if you would like to implement a multi factor model.
-	 * 
+	 *
 	 * @param timeIndex The time index of the simulation time discretization.
 	 * @param factor The factor index.
 	 * @param component The component index.
@@ -146,7 +146,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * This method returns the realization of the process at a certain time index.
-	 * 
+	 *
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of process realizations (on path)
 	 */
@@ -166,7 +166,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * This method returns the realization of the process at a certain time index.
-	 * 
+	 *
 	 * @param timeIndex Time index at which the process should be observed
 	 * @param componentIndex Component of the process vector
 	 * @return A vector of process realizations (on path)
@@ -190,7 +190,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
-	 * 
+	 *
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
 	 */
@@ -245,9 +245,9 @@ public abstract class LogNormalProcess {
 				RandomVariableInterface varianceOfComponent  = new RandomVariable(getTime(timeIndex-1),0.0);
 				RandomVariableInterface diffusionOfComponent = new RandomVariable(getTime(timeIndex-1),0.0);
 
-				// Generate values for diffusionOfComponent and varianceOfComponent 
+				// Generate values for diffusionOfComponent and varianceOfComponent
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					RandomVariableInterface factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);               
+					RandomVariableInterface factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);
 					RandomVariableInterface brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);
 
 					varianceOfComponent = varianceOfComponent.addProduct(factorLoading, factorLoading);
@@ -283,7 +283,7 @@ public abstract class LogNormalProcess {
 				// Euler Scheme
 				RandomVariableInterface previouseRealization		= discreteProcess[timeIndex-1][componentIndex];
 
-				// Generate values 
+				// Generate values
 				for(int pathIndex = 0; pathIndex < numberOfPaths; pathIndex++)
 				{
 					double previousValue	= previouseRealization.get(pathIndex);
@@ -299,7 +299,7 @@ public abstract class LogNormalProcess {
 				discreteProcess[timeIndex][componentIndex] = new RandomVariable(getTime(timeIndex),newRealization);
 			}
 
-			if(scheme == Scheme.PREDICTOR_USING_EULERSTEP) {   
+			if(scheme == Scheme.PREDICTOR_USING_EULERSTEP) {
 				RandomVariableInterface[] newRealization = new RandomVariable[numberOfComponents];
 
 				// Note: This is actually more than a predictor corrector: The drift of componentIndex already uses the corrected predictor from the previous components
@@ -325,7 +325,7 @@ public abstract class LogNormalProcess {
 			} // End if(scheme == LogNormalProcess.SCHEME_PREDICTOR_USES_EULER)
 
 			// Set Monte-Carlo weights (since there is no Monte-Carlo weighting, the weights remain the same (namely 1.0/numberOfPaths).
-			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex-1];				
+			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex-1];
 		} // End for(timeIndex)
 	}
 
@@ -360,7 +360,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * Returns the time for a given simulation time index.
-	 * 
+	 *
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
@@ -370,7 +370,7 @@ public abstract class LogNormalProcess {
 
 	/**
 	 * Returns the time index for a given simulation time.
-	 * 
+	 *
 	 * @param time A simulation time
 	 * @return Returns the time index for a given time.
 	 */
@@ -395,7 +395,7 @@ public abstract class LogNormalProcess {
 	/**
 	 * A derived class may change the Brownian motion. This is only allowed prior to lazy initialization.
 	 * The method should be used only while constructing new object. Do not use in flight.
-	 * 
+	 *
 	 * @param brownianMotion The brownianMotion to set.
 	 */
 	protected synchronized void setBrownianMotion(BrownianMotionInterface brownianMotion) {

@@ -16,7 +16,7 @@ import net.finmath.time.FloatingpointDate;
 /**
  * An index which maps is evaluation point to a fixed discrete point, the end of the month,
  * then takes the value of a given base index at this point.
- * 
+ *
  * @author Christian Fries
  */
 public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
@@ -27,7 +27,7 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 
 	/**
 	 * Creates a time discrete index.
-	 * 
+	 *
 	 * @param name The name of this index. Used to map an index on a curve.
 	 * @param baseIndex The base index (will be referenced at end of month points).
 	 * @param fixingOffsetMonths A given fixing offset in month.

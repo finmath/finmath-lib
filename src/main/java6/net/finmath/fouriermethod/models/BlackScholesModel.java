@@ -12,7 +12,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 
 /**
  * Implements the characteristic function of a Black Scholes model.
- * 
+ *
  * @author Christian Fries
  * @author Alessandro Gnoatto
  */

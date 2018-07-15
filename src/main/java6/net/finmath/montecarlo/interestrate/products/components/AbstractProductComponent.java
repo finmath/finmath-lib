@@ -22,18 +22,18 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Base class for product components.
- * 
+ *
  * Product components are small functions mapping a vector of
  * random variables to a random variable.
- * 
+ *
  * Components are numeraire adjusted and can be valued on its own.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloProduct  implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -916286619811716575L;
 
@@ -59,7 +59,7 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 
 	/**
 	 * Returns a set of underlying names referenced by this product component (i.e., required for valuation) or null if none.
-	 * 
+	 *
 	 * @return A set of underlying names referenced by this product component (i.e., required for valuation) or null if none.
 	 */
 	public abstract Set<String> queryUnderlyings();

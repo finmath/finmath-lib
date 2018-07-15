@@ -11,9 +11,9 @@ import java.time.LocalDate;
 /**
  * Implements a time discretization based on dates using a reference
  * date and an daycount convention / year fraction.
- * 
+ *
  * The time as a double is represented as the year fraction from the reference date.
- * 
+ *
  * @author Christian Fries
  */
 public class Tenor extends TimeDiscretization implements TenorInterface {
@@ -52,7 +52,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 	/**
 	 * Construct a tenor from a time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization A time discretization.
 	 */
 	public Tenor(double[] timeDiscretization) {
@@ -62,7 +62,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 	/**
 	 * Construct a tenor from a time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization A time discretization.
 	 */
 	public Tenor(Double[] timeDiscretization) {
@@ -72,7 +72,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 	/**
 	 * Construct a tenor from meta data.
-	 * 
+	 *
 	 * @param initial First discretization point.
 	 * @param numberOfTimeSteps Number of time steps.
 	 * @param deltaT Time step size.
@@ -84,7 +84,7 @@ public class Tenor extends TimeDiscretization implements TenorInterface {
 
 	/**
 	 * Construct a tenor from meta data.
-	 * 
+	 *
 	 * @param initial First discretization point.
 	 * @param last Last time steps.
 	 * @param deltaT Time step size.

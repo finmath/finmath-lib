@@ -45,7 +45,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class tests the LIBOR market model and products.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORMarketModelValuationTest {
@@ -53,7 +53,7 @@ public class LIBORMarketModelValuationTest {
 	private final int numberOfPaths		= 20000;
 	private final int numberOfFactors	= 6;
 
-	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
+	private LIBORModelMonteCarloSimulationInterface liborMarketModel;
 
 	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -96,7 +96,7 @@ public class LIBORMarketModelValuationTest {
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
 		double a = 0.2, b = 0.0, c = 0.25, d = 0.3;
-		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);		
+		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -629,7 +629,7 @@ public class LIBORMarketModelValuationTest {
 		System.out.println("Forward value:\n");
 		System.out.println("Maturity \tRate");
 
-		double fixing = 5.0;		
+		double fixing = 5.0;
 		for(double payment = 5.0; payment < 20; payment += 0.5) {
 			double periodStart = fixing;
 			double periodEnd = fixing + 0.5;
@@ -788,5 +788,5 @@ public class LIBORMarketModelValuationTest {
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
-	}	
+	}
 }

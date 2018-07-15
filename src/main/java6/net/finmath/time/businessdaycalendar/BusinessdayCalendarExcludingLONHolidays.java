@@ -9,13 +9,13 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 /**
  * A business day calendar, where every day is a business day, except for weekends and London holidays
- * 
+ *
  * @author Niklas Rodi
  */
 public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7451923974528392081L;
 	/*
@@ -119,7 +119,7 @@ public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendar
 
 	/**
 	 * Create LONDON business day calendar using a given business day calendar as basis.
-	 * 
+	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
 	public BusinessdayCalendarExcludingLONHolidays(BusinessdayCalendarInterface baseCalendar) {

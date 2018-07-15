@@ -29,7 +29,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \[
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
- * 
+ *
  * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
  * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 \), \( \lambda_{1,1} = \sigma \), i.e.,
  * of the SDE
@@ -37,7 +37,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
  * \]
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
@@ -50,7 +50,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValue Spot value.
@@ -80,7 +80,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
-	 * 
+	 *
 	 * @param initialValue Spot value
 	 * @param riskFreeRate The risk free rate
 	 * @param volatility The log volatility
@@ -195,7 +195,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 			brownianMotion = brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
 		}
 		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
-		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);    		
+		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);
 	}
 
 	/* (non-Javadoc)
@@ -259,7 +259,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	/**
 	 * Returns the {@link AbstractModel} used for this Monte-Carlo simulation.
-	 * 
+	 *
 	 * @return the model
 	 */
 	public BlackScholesModel getModel() {

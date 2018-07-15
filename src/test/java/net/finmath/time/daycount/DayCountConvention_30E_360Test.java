@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * Testing the 30E/360 DCC.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_30E_360Test {
@@ -90,7 +90,7 @@ public class DayCountConvention_30E_360Test {
 			0.4972222222,
 			0.5027777778,
 			0.4944444444,
-			0.5055555556		
+			0.5055555556
 	};
 
 	@Test

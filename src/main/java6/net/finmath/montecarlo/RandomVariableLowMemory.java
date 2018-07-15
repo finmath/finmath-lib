@@ -27,7 +27,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * This implementation uses floats for the realizations (consuming less memory compared to using doubles). However,
  * the calculation of the average is performed using double precision.
- * 
+ *
  * @author Christian Fries
  * @version 1.8
  */

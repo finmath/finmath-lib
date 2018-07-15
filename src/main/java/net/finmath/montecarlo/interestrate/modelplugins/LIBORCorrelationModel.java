@@ -13,11 +13,11 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * Abstract base class and interface description of a correlation model
  * (as it is used in {@link LIBORCovarianceModelFromVolatilityAndCorrelation}).
- * 
+ *
  * Derive from this class and implement the <code>getFactorLoading</code> method.
  * You have to call the constructor of this class to set the time
  * discretizations.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class LIBORCorrelationModel implements Serializable {

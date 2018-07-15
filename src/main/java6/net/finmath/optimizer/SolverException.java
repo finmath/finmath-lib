@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 21.06.2008
  */
 package net.finmath.optimizer;
@@ -16,7 +16,7 @@ public class SolverException extends Exception {
 
 	/**
 	 * Create an exception with error message.
-	 * 
+	 *
 	 * @param message The error message.
 	 */
 	public SolverException(String message) {
@@ -25,7 +25,7 @@ public class SolverException extends Exception {
 
 	/**
 	 * Create an exception from another exception.
-	 * 
+	 *
 	 * @param cause The cause.
 	 */
 	public SolverException(Throwable cause) {
@@ -34,7 +34,7 @@ public class SolverException extends Exception {
 
 	/**
 	 * Create an exception from another exception with error message.
-	 * 
+	 *
 	 * @param message The error message.
 	 * @param cause The cause.
 	 */

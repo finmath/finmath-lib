@@ -72,7 +72,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 		}
 
 		return new HestonMonteCarloModel(
-				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(modelDescriptor, scheme, randomVariableFactory), 
+				new net.finmath.montecarlo.assetderivativevaluation.HestonModel(modelDescriptor, scheme, randomVariableFactory),
 				new ProcessEulerScheme(brownianMotion)
 				);
 	}

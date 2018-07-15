@@ -20,7 +20,7 @@ import net.finmath.functions.AnalyticFormulas;
 /**
  * Test class for the valuation of a call option under Black Scholes
  * model using Fourier transforms / characteristic functions.
- * 
+ *
  * @author Christian Fries
  */
 public class BlackScholesCallOptionTest {

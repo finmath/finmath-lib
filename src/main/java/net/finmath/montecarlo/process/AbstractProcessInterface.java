@@ -17,7 +17,7 @@ import net.finmath.montecarlo.model.AbstractModelInterface;
  * \[
  * dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
  * \]
- * 
+ *
  * The parameters are provided by a model implementing {@link net.finmath.montecarlo.model.AbstractModelInterface}:
  * <ul>
  * <li>The value of <i>Y(0)</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getInitialState}.
@@ -27,7 +27,7 @@ import net.finmath.montecarlo.model.AbstractModelInterface;
  * </ul>
  * Here, &mu; and &lambda;<sub>j</sub> may depend on <i>X</i>, which allows to implement stochastic drifts (like in a LIBOR market model)
  * of local volatility models.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.model.AbstractModelInterface The definition of the model.
  */
@@ -57,18 +57,18 @@ public interface AbstractProcessInterface extends ProcessInterface {
 
 	/**
 	 * Sets the model to be used. Should be called only once (at construction).
-	 * 
+	 *
 	 * @param model The model to be used.
 	 */
 	void setModel(AbstractModelInterface model);
 
 	/**
 	 * Returns a clone of this model where the specified properties have been modified.
-	 * 
+	 *
 	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
 	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
 	 * no exception may be thrown.
-	 * 
+	 *
 	 * @param dataModified Key-value-map of parameters to modify.
 	 * @return A clone of this model (or this model if no parameter was modified).
 	 */
@@ -77,7 +77,7 @@ public interface AbstractProcessInterface extends ProcessInterface {
 	/**
 	 * Create and return a clone of this process. The clone is not tied to any model, but has the same
 	 * process specification, that is, if the model is the same, it would generate the same paths.
-	 * 
+	 *
 	 * @return Clone of the process
 	 */
 	AbstractProcessInterface clone();

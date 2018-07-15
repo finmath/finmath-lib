@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <i>j &lt; i</i> such that <i>L(T<sub>j</sub>) - K<sub>j</sub></i> if <i>L(T<sub>j</sub>) - K<sub>j</sub> &gt; 0</i>
  * is less than <code>maximumNumberOfExercises</code>, where <i>T<sub>i</sub></i> is an
  * element of <code>fixingDates</code>.
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
@@ -31,7 +31,7 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Create a Flexi Cap (aka Auto Cap).
 	 * If <code>maximumNumberOfExercises = fixingDates.length</code> then this is a Cap.
-	 * 
+	 *
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param strikes Vector of strikes (must have same length as fixing dates)
@@ -53,7 +53,7 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
@@ -106,7 +106,7 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 
-		return values;	
+		return values;
 	}
 
 	/**

@@ -29,14 +29,14 @@ import net.finmath.stochastic.RandomVariableInterface;
  * separate class. The objective function is defined by overriding a class
  * method, see the sample code below.
  * </p>
- * 
+ *
  * <p>
  * The Levenberg-Marquardt solver is implemented in using multi-threading.
  * The calculation of the derivatives (in case a specific implementation of
  * {@code setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives)} is not
  * provided) may be performed in parallel by setting the parameter <code>numberOfThreads</code>.
  * </p>
- * 
+ *
  * <p>
  * To use the solver inherit from it and implement the objective function as
  * {@code setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values)} where values has
@@ -55,7 +55,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Note, however, that is is an error if the initial parameter guess results in an NaN value.
  * That is, the solver should be initialized with an initial parameter in an admissible region.
  * </p>
- * 
+ *
  * The following simple example finds a solution for the equation <br>
  * <center>
  * <table>
@@ -68,7 +68,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * </td></tr>
  * </table>
  * </center>
- * 
+ *
  * <pre>
  * <code>
  * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
@@ -78,30 +78,30 @@ import net.finmath.stochastic.RandomVariableInterface;
  * 			values[1] = parameters[0] * 2.0 + parameters[1];
  * 		}
  * 	};
- * 
+ *
  * 	// Set solver parameters
  * 	optimizer.setInitialParameters(new RandomVariableInterface[] { 0, 0 });
  * 	optimizer.setWeights(new RandomVariableInterface[] { 1, 1 });
  * 	optimizer.setMaxIteration(100);
  * 	optimizer.setTargetValues(new RandomVariableInterface[] { 5, 10 });
- * 
+ *
  * 	optimizer.run();
- * 
+ *
  * 	RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
  * </code>
  * </pre>
- * 
+ *
  * See the example in the main method below.
- * 
+ *
  * <p>
  * The class can be initialized to use a multi-threaded valuation. If initialized
  * this way the implementation of <code>setValues</code> must be thread-safe.
  * The solver will evaluate the gradient of the value vector in parallel, i.e.,
  * use as many threads as the number of parameters.
  * </p>
- * 
+ *
  * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
- * 
+ *
  * @author Christian Fries
  * @version 1.6
  */
@@ -112,7 +112,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * The regularization method used to invert the approximation of the
 	 * Hessian matrix.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public enum RegularizationMethod {
@@ -216,7 +216,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 	/**
 	 * Create a Levenberg-Marquardt solver.
-	 * 
+	 *
 	 * @param regularizationMethod The regularization method to use. See {@link RegularizationMethod}.
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
@@ -239,7 +239,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 	/**
 	 * Create a Levenberg-Marquardt solver.
-	 * 
+	 *
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
 	 * @param parameterSteps Step used for finite difference approximation.
@@ -254,7 +254,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Get the parameter &lambda; used in the Tikhonov-like regularization of the Hessian matrix,
 	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
-	 * 
+	 *
 	 * @return the parameter \( \lambda \).
 	 */
 	public double getLambda() {
@@ -264,7 +264,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Set the parameter &lambda; used in the Tikhonov-like regularization of the Hessian matrix,
 	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
-	 * 
+	 *
 	 * @param lambda the lambda to set
 	 */
 	public void setLambda(double lambda) {
@@ -274,7 +274,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Get the multiplicator applied to lambda if the inversion of regularized
 	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
-	 * 
+	 *
 	 * @return the lambdaMultiplicator
 	 */
 	public double getLambdaMultiplicator() {
@@ -284,9 +284,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Set the multiplicator applied to lambda if the inversion of regularized
 	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
-	 * 
+	 *
 	 * This will make lambda larger, hence let the stepping move slower.
-	 * 
+	 *
 	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &gt; 1.
 	 */
 	public void setLambdaMultiplicator(double lambdaMultiplicator) {
@@ -299,7 +299,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Get the divisor applied to lambda (for the next iteration) if the inversion of regularized
 	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
-	 * 
+	 *
 	 * @return the lambdaDivisor
 	 */
 	public double getLambdaDivisor() {
@@ -309,9 +309,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Set the divisor applied to lambda (for the next iteration) if the inversion of regularized
 	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
-	 * 
+	 *
 	 * This will make lambda smaller, hence let the stepping move faster.
-	 * 
+	 *
 	 * @param lambdaDivisor the lambdaDivisor to set. Should be &gt; 1.
 	 */
 	public void setLambdaDivisor(double lambdaDivisor) {
@@ -354,7 +354,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * The objective function. Override this method to implement your custom
 	 * function.
-	 * 
+	 *
 	 * @param parameters Input value. The parameter vector.
 	 * @param values Output value. The vector of values f(i,parameters), i=1,...,n
 	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
@@ -364,7 +364,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * The derivative of the objective function. You may override this method
 	 * if you like to implement your own derivative.
-	 * 
+	 *
 	 * @param parameters Input value. The parameter vector.
 	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
 	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
@@ -437,14 +437,14 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 	/**
 	 * You may override this method to implement a custom stop condition.
-	 * 
+	 *
 	 * @return Stop condition.
 	 */
 	boolean done() {
 		// The solver terminates if...
-		return 
+		return
 				// Maximum number of iterations is reached
-				(iteration > maxIteration)	
+				(iteration > maxIteration)
 				||
 				// Error does not improve by more that the given error tolerance
 				(errorRootMeanSquaredChange <= errorTolerance);
@@ -617,7 +617,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 	/**
 	 * Create a clone of this LevenbergMarquardt optimizer.
-	 * 
+	 *
 	 * The clone will use the same objective function than this implementation,
 	 * i.e., the implementation of {@link #setValues(RandomVariableInterface[], RandomVariableInterface[])} and
 	 * that of {@link #setDerivatives(RandomVariableInterface[], RandomVariableInterface[][])} is reused.
@@ -630,15 +630,15 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
 	 * target values and weights.
-	 * 
+	 *
 	 * The clone will use the same objective function than this implementation,
 	 * i.e., the implementation of {@link #setValues(RandomVariableInterface[], RandomVariableInterface[])} and
 	 * that of {@link #setDerivatives(RandomVariableInterface[], RandomVariableInterface[][])} is reused.
-	 * 
+	 *
 	 * The initial values of the cloned optimizer will either be the original
 	 * initial values of this object or the best parameters obtained by this
 	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
-	 * 
+	 *
 	 * @param newTargetVaues New array of target values.
 	 * @param newWeights New array of weights.
 	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
@@ -659,15 +659,15 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
 	 * target values and weights.
-	 * 
+	 *
 	 * The clone will use the same objective function than this implementation,
 	 * i.e., the implementation of {@link #setValues(RandomVariableInterface[], RandomVariableInterface[])} and
 	 * that of {@link #setDerivatives(RandomVariableInterface[], RandomVariableInterface[][])} is reused.
-	 * 
+	 *
 	 * The initial values of the cloned optimizer will either be the original
 	 * initial values of this object or the best parameters obtained by this
 	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
-	 * 
+	 *
 	 * @param newTargetVaues New list of target values.
 	 * @param newWeights New list of weights.
 	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.

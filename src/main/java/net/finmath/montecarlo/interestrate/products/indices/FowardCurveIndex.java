@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A fixed coupon index paying coupon calculated from a forward curve.
- * 
+ *
  * @see net.finmath.marketdata.model.curves.ForwardCurveInterface
  * @author Christian Fries
  */
@@ -26,7 +26,7 @@ public class FowardCurveIndex extends AbstractIndex {
 
 	/**
 	 * Creates a forward curve index.
-	 * 
+	 *
 	 * @param fowardCurve The forward curve.
 	 */
 	public FowardCurveIndex(ForwardCurveInterface fowardCurve) {

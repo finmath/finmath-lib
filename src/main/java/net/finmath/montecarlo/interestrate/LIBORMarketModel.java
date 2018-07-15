@@ -57,10 +57,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  *	</li>
  * 	<li>
  * 		The class allows to configure a discounting curve (e.g.&nbsp;for "OIS discounting") using a simple deterministic zero spread.
- * 		In this case, the numeraire \( N(t) \) is adjusted by \( \exp( \int_0^t -\lambda(\tau) d\tau ) \). 
+ * 		In this case, the numeraire \( N(t) \) is adjusted by \( \exp( \int_0^t -\lambda(\tau) d\tau ) \).
  *	</li>
  * </ul>
- * 
+ *
  * <br>
  * The class specifies a LIBOR market model, that is
  * <i>L<sub>j</sub> = f(Y<sub>j</sub>) </i> where
@@ -121,11 +121,11 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <br>
  * The main task of this class is to calculate the risk-neutral drift and the
  * corresponding numeraire given the covariance model.
- * 
+ *
  * The calibration of the covariance structure is not part of this class. For the calibration
  * of parametric models of the instantaneous covariance see
  * {@link net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric#getCloneCalibrated(LIBORMarketModelInterface, AbstractLIBORMonteCarloProduct[], double[], double[], Map)}.
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
@@ -165,6 +165,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
 	private AbstractProcessInterface									numerairesProcess = null;
 
+	/**
+	 * A class for calibration items, that is a tripple (P,V,w) where P is a product, V is a target value and w is a weight.
+	 *
+	 * @author Christian Fries
+	 */
 	public static class CalibrationItem {
 		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
 		public final double								calibrationTargetValue;
@@ -238,7 +243,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 *			</ul>
 	 *		</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
@@ -367,7 +372,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 *			</ul>
 	 *		</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
@@ -391,7 +396,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param covarianceModel The covariance model to use.
@@ -407,7 +412,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -426,7 +431,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	/**
 	 * Creates a LIBOR Market Model using a given covariance model and calibrating this model
 	 * to given swaption volatility data.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param covarianceModel The covariance model to use.
@@ -444,7 +449,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -471,7 +476,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -555,7 +560,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 *			</ul>
 	 *		</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -648,11 +653,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Return the numeraire at a given time.
-	 * 
+	 *
 	 * The numeraire is provided for interpolated points. If requested on points which are not
 	 * part of the tenor discretization, the numeraire uses a linear interpolation of the reciprocal
 	 * value. See ISBN 0470047224 for details.
-	 * 
+	 *
 	 * @param time Time time <i>t</i> for which the numeraire should be returned <i>N(t)</i>.
 	 * @return The numeraire at the specified time as <code>RandomVariableInterface</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
@@ -729,7 +734,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				throw new CalculationException("Numeraire not implemented for specified measure.");
 			}
 
-			// The product 
+			// The product
 			for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
 				RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
 
@@ -775,7 +780,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	/**
 	 * Return the complete vector of the drift for the time index timeIndex, given that current state is realizationAtTimeIndex.
 	 * The drift will be zero for rates being already fixed.
-	 * 
+	 *
 	 * The method currently provides the drift for either <code>Measure.SPOT</code> or <code>Measure.TERMINAL</code> - depending how the
 	 * model object was constructed. For <code>Measure.TERMINAL</code> the j-th entry of the return value is the random variable
 	 * \[
@@ -787,15 +792,15 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 * \]
 	 * where \( \lambda_{j} \) is the vector for factor loadings for the j-th component of the stochastic process (that is, the diffusion part is
 	 * \( \sum_{k=1}^m \lambda_{j,k} \mathrm{d}W_{k} \)).
-	 * 
+	 *
 	 * Note: The scalar product of the factor loadings determines the instantaneous covariance. If the model is written in log-coordinates (using exp as a state space transform), we find
 	 * \(\lambda_{j} \cdot \lambda_{l} = \sum_{k=1}^m \lambda_{j,k} \lambda_{l,k} = \sigma_{j} \sigma_{l} \rho_{j,l} \).
 	 * If the model is written without a state space transformation (in its orignial coordinates) then \(\lambda_{j} \cdot \lambda_{l} = \sum_{k=1}^m \lambda_{j,k} \lambda_{l,k} = L_{j} L_{l} \sigma_{j} \sigma_{l} \rho_{j,l} \).
-	 * 
-	 * 
+	 *
+	 *
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getNumeraire(double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getFactorLoading(int, int, RandomVariableInterface[]) The factor loading \( \lambda_{j,k} \).
-	 * 
+	 *
 	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
 	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
 	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariable[]</code>
@@ -1145,7 +1150,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	/**
 	 * Return the swaption market data used for calibration (if any, may be null).
-	 * 
+	 *
 	 * @return The swaption market data used for calibration (if any, may be null).
 	 */
 	public AbstractSwaptionMarketData getSwaptionMarketData() {
@@ -1218,5 +1223,4 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				+ ", measure=" + measure + ", stateSpace=" + stateSpace + "]";
 	}
 }
-
 

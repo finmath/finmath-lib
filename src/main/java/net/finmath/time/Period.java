@@ -10,16 +10,16 @@ import java.time.LocalDate;
 
 /**
  * A period, i.e. a time interval suitable for securities with regular payment schedules.
- * 
+ *
  * For example, the accrual period is usually given by the interval periodStart, periodEnd, where as fixing date and payment date
  * can be adjusted versions of periodStart and periodsEnd, e.g. via fixing offsets and payment offsets.
- * 
+ *
  * Period implement the <code>Comparable</code> interface by simply using getPeriodEnd().compareTo(), i.e., the ordering is
  * determined by periodEnd only.
- * 
+ *
  * For a list of subsequent (sorted) periods it is often assumed that periodStart agrees with the periodEnd of the preceeding period,
  * resulting in a time-discretization.
- * 
+ *
  * @author Christian Fries
  */
 public class Period implements Comparable<Period> {

@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 03.02.2004
  */
 package net.finmath.functions;
@@ -18,7 +18,7 @@ public class NormalDistribution {
 
 	/**
 	 * Returns the value of the density at x.
-	 * 
+	 *
 	 * @param x Argument
 	 * @return The value of the density at x.
 	 */
@@ -29,7 +29,7 @@ public class NormalDistribution {
 	/**
 	 * Cumulative distribution function of the standard normal distribution.
 	 * The implementation is currently using Jakarta commons-math
-	 * 
+	 *
 	 * @param x A sample point
 	 * @return The probability of being below x, given x is standard normal
 	 */
@@ -50,16 +50,16 @@ public class NormalDistribution {
 
 	/**
 	 * Inverse of the cumulative distribution function of the standard normal distribution
-	 * 
+	 *
 	 * Java Version of
-	 * 
+	 *
 	 * Michael J. Wichura: Algorithm AS241 Appl. Statist. (1988) Vol. 37, No. 3 Produces the normal
 	 * deviate z corresponding to a given lower tail area of p; z is accurate
 	 * to about 1 part in 10**16.
-	 * 
+	 *
 	 * The hash sums below are the sums of the mantissas of the coefficients.
 	 * they are included for use in checking transcription.
-	 * 
+	 *
 	 * @param p The probablity (quantile).
 	 * @return The argument of the cumulative distribution function being assigned to p.
 	 */

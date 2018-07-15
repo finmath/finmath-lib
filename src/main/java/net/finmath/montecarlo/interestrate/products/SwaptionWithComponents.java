@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements the pricing of a swap under a AbstractLIBORMarketModel
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  */
@@ -43,7 +43,7 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 
 		/*
 		 * Create components.
-		 * 
+		 *
 		 * The interesting part here is, that the creation of the components implicitly
 		 * constitutes the (traditional) pricing algorithms (e.g., loop over all periods).
 		 * Hence, the definition of the product is the definition of the pricing algorithm.
@@ -84,14 +84,14 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
 	 * @throws CalculationException Thrown when valuation fails from valuation model.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface	values	= 	option.getValue(evaluationTime, model);
 
 		return values;

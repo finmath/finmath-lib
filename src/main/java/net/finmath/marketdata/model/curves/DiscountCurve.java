@@ -15,16 +15,16 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.Curve}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
- * 
+ *
  * It thus features all interpolation and extrapolation methods and interpolation entities
  * as {@link net.finmath.marketdata.model.curves.Curve} and implements the {@link net.finmath.marketdata.model.curves.DiscountCurveInterface}.
- * 
+ *
  * Note that this version of the DiscountCurve will no longer make the
  * assumption that at t=0 its value is 1.0. Such a norming is not
  * necessary since valuation will always divide by the corresponding
  * discount factor at evaluation time. See the implementation of {@link net.finmath.marketdata.products.SwapLeg}
  * for an example.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.marketdata.products.SwapLeg
  * @see net.finmath.marketdata.model.curves.Curve
@@ -35,7 +35,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create an empty discount curve using default interpolation and extrapolation methods.
-	 * 
+	 *
 	 * @param name The name of this discount curve.
 	 */
 	private DiscountCurve(String name) {
@@ -146,7 +146,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given discount factors using default interpolation and extrapolation methods.
-	 * 
+	 *
 	 * @param name The name of this discount curve.
 	 * @param times Array of times as doubles.
 	 * @param givenDiscountFactors Array of corresponding discount factors.
@@ -164,7 +164,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
 	 * </code>
@@ -195,7 +195,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
 	 * </code>
@@ -220,7 +220,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
 	 * </code>
@@ -246,7 +246,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
 	 * </code>
@@ -278,11 +278,11 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given zero rates using default interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
 	 * </code>
-	 * 
+	 *
 	 * @param name The name of this discount curve.
 	 * @param times Array of times as doubles.
 	 * @param givenZeroRates Array of corresponding zero rates.
@@ -300,7 +300,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given annualized zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
 	 * </code>
@@ -331,7 +331,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Create a discount curve from given times and given annualized zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
 	 * </code>
@@ -364,7 +364,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	/**
 	 * Create a discount curve from given time discretization and forward rates.
 	 * This function is provided for "single interest rate curve" frameworks.
-	 * 
+	 *
 	 * @param name The name of this discount curve.
 	 * @param tenor Time discretization for the forward rates
 	 * @param forwardRates Array of forward rates.
@@ -404,7 +404,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	/**
 	 * Returns the zero rate for a given maturity, i.e., -ln(df(T)) / T where T is the given maturity and df(T) is
 	 * the discount factor at time $T$.
-	 * 
+	 *
 	 * @param maturity The given maturity.
 	 * @return The zero rate.
 	 */
@@ -419,7 +419,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 	/**
 	 * Returns the zero rates for a given vector maturities.
-	 * 
+	 *
 	 * @param maturities The given maturities.
 	 * @return The zero rates.
 	 */

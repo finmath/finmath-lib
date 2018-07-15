@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * This class implements an analytic approximation of the integrated instantaneous covariance
  * of two swap rates under a LIBOR market model.
- * 
+ *
  * @author Christian Fries
  */
 public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloProduct {
@@ -26,7 +26,7 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 
 	/**
 	 * Create the product implementing the analytic approximation of a swap rate covariance in a forward rate model.
-	 * 
+	 *
 	 * @param swapTenor1 The swap tenor of the first rate in doubles.
 	 * @param swapTenor2 The swap tenor of the second rate in doubles.
 	 */
@@ -47,7 +47,7 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	/**
 	 * Calculates the approximated integrated instantaneous covariance of two swap rates,
 	 * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
-	 * 
+	 *
 	 * @param evaluationTime The evaluation time.
 	 * @param model A model implementing the LIBORMarketModel
 	 * @return Returns the approximated integrated instantaneous covariance of two swap rates.

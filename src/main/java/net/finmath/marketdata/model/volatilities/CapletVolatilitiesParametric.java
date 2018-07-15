@@ -16,13 +16,13 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * A parametric caplet volatility surface created form the four parameter model
  * for the instantaneous forward rate lognormal volatility given by
  * \( \sigma(t) = (a + b t) \exp(- c t) + d \).
- * 
+ *
  * In other words, the Black volatility for maturity T is given by
  * \[ \sqrt{ \frac{1}{T} \int_0^T ((a + b t) \exp(- c t) + d)^2 dt } \].
- * 
+ *
  * Note: quoting convention of the functional form is LOGNORMAL, but container may
  * provide data in other conventions.
- * 
+ *
  * @author Christian Fries
  */
 public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParametric {
@@ -32,7 +32,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	/**
 	 * Create a model with parameters a,b,c,d defining a lognormal volatility surface.
-	 * 
+	 *
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param forwardCurve The underlying forward curve.
@@ -61,7 +61,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	/**
 	 * Create a model with parameters a,b,c,d defining a lognormal volatility surface.
-	 * 
+	 *
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param forwardCurve The underlying forward curve.
@@ -89,7 +89,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	/**
 	 * Create a model with parameters a,b,c,d.
-	 * 
+	 *
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param a The parameter a
@@ -105,7 +105,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	/**
 	 * Create a model with parameters a,b,c,d.
-	 * 
+	 *
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param a The parameter a

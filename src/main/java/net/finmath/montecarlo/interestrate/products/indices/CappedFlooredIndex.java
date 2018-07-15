@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * An capped and floored index paying min(max(index(t),floor(t)),cap(t)), where index, floor and cap are indices,
  * i.e., objects implementing <code>AbstractIndex</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class CappedFlooredIndex extends AbstractIndex {
@@ -27,7 +27,7 @@ public class CappedFlooredIndex extends AbstractIndex {
 
 	/**
 	 * Create an capped and floored index paying min(max(index(t),floor(t)),cap(t)).
-	 * 
+	 *
 	 * @param index An index.
 	 * @param cap An index.
 	 * @param floor An index.

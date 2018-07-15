@@ -9,6 +9,10 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
+/**
+ * @author Christian Fries
+ *
+ */
 public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCovarianceModelParametric {
 
 	private static final long serialVersionUID = -7980504204664006566L;

@@ -14,10 +14,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Implements the valuation of a forward using curves (discount curve, forward curve).
  * The forward value is simply the product of a discount factor and a forward.
  * This is similar to a FRA (a forward rate), except that there is no scaling with a period length.
- * 
+ *
  * The class can be used to define equity forwards. Here the discount curve can be interpreted
  * as a repo curve.
- * 
+ *
  * @author Christian Fries
  */
 public class Forward extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -30,7 +30,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 
 	/**
 	 * Creates a forward. The forward has a unit notional of 1.
-	 * 
+	 *
 	 * @param maturity Maturity, i.e., fixing on the forward curve.
 	 * @param paymentOffset Payment offset, i.e. payment is maturity + paymentOffset.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix payment.
@@ -50,7 +50,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 

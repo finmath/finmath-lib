@@ -10,7 +10,7 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * A real integral with lower and upper integration bounds.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class AbstractRealIntegral implements RealIntegralInterface {
@@ -21,7 +21,7 @@ public abstract class AbstractRealIntegral implements RealIntegralInterface {
 
 	/**
 	 * Create a real integral with lower and upper integration bounds.
-	 * 
+	 *
 	 * @param lowerBound Lower integration bound.
 	 * @param upperBound Upper integration bound.
 	 */
@@ -34,7 +34,7 @@ public abstract class AbstractRealIntegral implements RealIntegralInterface {
 
 	/**
 	 * Get the lower integration bound.
-	 * 
+	 *
 	 * @return the lower integration bound.
 	 */
 	public double getLowerBound() {
@@ -43,7 +43,7 @@ public abstract class AbstractRealIntegral implements RealIntegralInterface {
 
 	/**
 	 * Get the upper integration bound.
-	 * 
+	 *
 	 * @return the upper integration bound.
 	 */
 	public double getUpperBound() {

@@ -70,7 +70,7 @@ public class LIBORIndexTest {
 	/**
 	 * The parameters for this test, that is an array consisting of
 	 * { numberOfPaths, setup, isVolatility }.
-	 * 
+	 *
 	 * @return Array of parameters.
 	 */
 	@Parameters(name="Curve={1}-Paths={0}-IsVolatility={2}")
@@ -99,7 +99,7 @@ public class LIBORIndexTest {
 	private double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50, 2.50, 2.50, 2.50, 5.00 };
 	private double[] tolerance		= { 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4, 1E-4 };		// Tolerance at 100.000 path
 
-	private LIBORModelMonteCarloSimulationInterface liborMarketModel; 
+	private LIBORModelMonteCarloSimulationInterface liborMarketModel;
 	private Double volatilityScaling;
 	private CurveSetup curveSetup;
 
@@ -139,7 +139,7 @@ public class LIBORIndexTest {
 			}
 
 			System.out.println(
-					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
+					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
 							formatDec6.format(value) + "\t < " +
 							formatDec6.format(toleranceThisTest));
 			Assert.assertTrue(Math.abs(value) < toleranceThisTest);
@@ -207,7 +207,7 @@ public class LIBORIndexTest {
 			}
 
 			System.out.println(
-					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
+					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
 							formatDec6.format(value) + "\t< " + formatDec6.format(toleranceThisTest) );
 
 			Assert.assertEquals(0.0, value / periodLength, toleranceThisTest);
@@ -240,7 +240,7 @@ public class LIBORIndexTest {
 			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 
 			System.out.println(
-					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
+					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );
 
 			Assert.assertEquals(valueAnalytic, value, toleranceThisTest);
@@ -282,7 +282,7 @@ public class LIBORIndexTest {
 			}
 
 			System.out.println(
-					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
+					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );
 
 			Assert.assertEquals(valueAnalytic, value, toleranceThisTest);
@@ -319,7 +319,7 @@ public class LIBORIndexTest {
 			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 
 			System.out.println(
-					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
+					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );
 
 			Assert.assertEquals(valueAnalytic, value, toleranceThisTest);
@@ -357,7 +357,7 @@ public class LIBORIndexTest {
 			double toleranceThisTest = oneBasisPoint * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 
 			System.out.println(
-					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" + 
+					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
 							formatDec6.format(value-valueAnalytic) + "\t< " + formatDec6.format(toleranceThisTest) );
 
 			Assert.assertEquals(valueAnalytic, value, toleranceThisTest);

@@ -10,7 +10,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolatilityModel {
@@ -24,7 +24,7 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
-	 * 
+	 *
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -36,7 +36,7 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
-	 * 
+	 *
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -88,7 +88,7 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
 		double timeToMaturity   = maturity-time;
 
-		double volatilityInstanteaneous; 
+		double volatilityInstanteaneous;
 		if(timeToMaturity <= 0)
 		{
 			volatilityInstanteaneous = 0;   // This forward rate is already fixed, no volatility

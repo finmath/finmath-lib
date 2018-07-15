@@ -54,7 +54,7 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInter
 				targetValues,
 				maxIterations,
 				Executors.newFixedThreadPool(maxThreads))
-		{	
+		{
 			private static final long serialVersionUID = -1628631567190057495L;
 
 			@Override

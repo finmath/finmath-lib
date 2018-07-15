@@ -15,7 +15,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * A selection of a value on another component.
  * Implements this.getValue(time, model) via underlying.getValues(time, model)[key].
- * 
+ *
  * @author Christian Fries
  * @version 1.1
  */
@@ -28,7 +28,7 @@ public class Selector extends AbstractProductComponent {
 
 	/**
 	 * Creates the function underlying.getValues()[key]
-	 * 
+	 *
 	 * @param key Name of the key to be selected.
 	 * @param underlying Underlying to which the selector should be applied.
 	 */
@@ -51,11 +51,11 @@ public class Selector extends AbstractProductComponent {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
 	public RandomVariableInterface getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationInterface model) throws CalculationException {

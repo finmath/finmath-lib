@@ -6,13 +6,17 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 
+/**
+ * @author Christian Fries
+ *
+ */
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
 	@Override
 	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product = 
+			DescribedProduct<InterestRateSwapLegProductDescriptor> product =
 					new net.finmath.montecarlo.interestrate.products.SwapLeg((InterestRateSwapLegProductDescriptor) descriptor);
 			return product;
 		} else {

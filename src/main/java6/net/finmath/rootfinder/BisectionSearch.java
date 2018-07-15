@@ -9,7 +9,7 @@ package net.finmath.rootfinder;
 /**
  * This class implements a Bisection search algorithm,
  * implemented as a question-and-answer search algorithm.
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  * @date 2008-03-15
@@ -21,7 +21,7 @@ public class BisectionSearch implements RootFinder {
 	private final double[] values = new double[2]; // left, right
 
 	/*
-	 * State of solver 
+	 * State of solver
 	 */
 
 	private double	nextPoint;						// Stores the next point to return by getPoint()
@@ -78,7 +78,7 @@ public class BisectionSearch implements RootFinder {
 				/**
 				 * @todo Check if values[0]*values[1] < 0 here
 				 */
-			}			
+			}
 		}
 		else {
 			/**
@@ -108,7 +108,7 @@ public class BisectionSearch implements RootFinder {
 			}
 
 			// Update accuracy
-			accuracy = points[1]-points[0];			
+			accuracy = points[1]-points[0];
 		}
 
 		numberOfIterations++;

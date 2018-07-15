@@ -28,10 +28,10 @@ public class RootFindersTest {
 		RootFinder rootFinder;
 
 		rootFinder = new BisectionSearch(-10.0,10.0);
-		testRootFinder(rootFinder);	    
+		testRootFinder(rootFinder);
 
 		rootFinder = new RiddersMethod(-10.0,10.0);
-		testRootFinder(rootFinder);	    
+		testRootFinder(rootFinder);
 
 		rootFinder = new SecantMethod(2.0,10.0);
 		testRootFinder(rootFinder);
@@ -44,10 +44,10 @@ public class RootFindersTest {
 		RootFinderWithDerivative rootFinderWithDerivative;
 
 		rootFinderWithDerivative = new NewtonsMethod(2.0);
-		testRootFinderWithDerivative(rootFinderWithDerivative);	    	    
+		testRootFinderWithDerivative(rootFinderWithDerivative);
 
 		rootFinderWithDerivative = new SecantMethod(2.0,10.0);
-		testRootFinderWithDerivative(rootFinderWithDerivative);	    	    
+		testRootFinderWithDerivative(rootFinderWithDerivative);
 	}
 
 	public static void testRootFinder(RootFinder rootFinder) {
@@ -84,7 +84,7 @@ public class RootFindersTest {
 			double p = 3*x*x + 2*x + 1;
 
 			rootFinder.setValueAndDerivative(y,p);
-		}	    
+		}
 
 		// Print result:
 		DecimalFormat formatter = new DecimalFormat("0.00E00");

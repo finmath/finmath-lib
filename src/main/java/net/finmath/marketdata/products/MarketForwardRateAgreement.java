@@ -12,15 +12,15 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 /**
  * Implements the valuation of a market forward rate agreement using curves
  * (discount curve, forward curve).
- * 
+ *
  * The value of the forward rate agreement at its maturity time <i>t</i> is
  * <br>
  * <i>
  * (F(t)-K) / (1 + F(t) * dcf(periodStart,periodEnd))
  * </i>
- * where <i>F(t)</i> is the forward evaluated at maturity and 
+ * where <i>F(t)</i> is the forward evaluated at maturity and
  * dcf(periodStart,periodEnd) is a given paymentOffset.
- * 
+ *
  * The value of the forward rate agreement returned for an earlier time is
  * the above payoff multiplied with the corresponding discount factor curve.
  * Note that this valuation ignores a possible convexity adjustment between
@@ -28,7 +28,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * linear function of <i>F</i>. Put differently, if this product is used
  * to calibrate a forward curve to a forward rate agreement, then the
  * calibrated forward curve will include the convexity adjustment.
- * 
+ *
  * @author Christian Fries
  */
 public class MarketForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -41,7 +41,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 
 	/**
 	 * Creates a market forward rate agreement.
-	 * 
+	 *
 	 * @param maturity Maturity, i.e., fixing on the forward curve.
 	 * @param paymentOffset Payment offset.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix payment.
@@ -58,7 +58,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 

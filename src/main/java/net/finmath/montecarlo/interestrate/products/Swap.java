@@ -15,13 +15,13 @@ import net.finmath.time.ScheduleInterface;
 
 /**
  * Create a swap from schedules, notional, indices and spreads (fixed coupons).
- * 
+ *
  * The getValue method of this class simple returns
  * <code>
  * 	legReceiver.getValue(evaluationTime, model).sub(legPayer.getValue(evaluationTime, model))
  * </code>
  * where <code>legReceiver</code> and <code>legPayer</code> are {@link net.finmath.montecarlo.interestrate.products.SwapLeg}s.
- * 
+ *
  * @author Christian Fries
  */
 public class Swap extends AbstractLIBORMonteCarloProduct {
@@ -31,7 +31,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a swap which values as <code>legReceiver - legPayer</code>.
-	 * 
+	 *
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payer leg.
 	 */
@@ -43,7 +43,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a swap from schedules, notional, indices and spreads (fixed coupons).
-	 * 
+	 *
 	 * @param notional The notional.
 	 * @param scheduleReceiveLeg The period schedule for the receiver leg.
 	 * @param indexReceiveLeg The index of the receiver leg, may be null if no index is received.
@@ -65,7 +65,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a payer swap from idealized data.
-	 * 
+	 *
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)

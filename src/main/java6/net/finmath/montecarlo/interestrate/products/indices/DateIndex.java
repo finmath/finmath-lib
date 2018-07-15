@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * An index whose value is a function of the fixing date, for example the DAY, MONTH or NUMBER_OF_DAYS_IN_MONTH.
  * This index is useful in building date based interpolation formulas using other indices.
- * 
+ *
  * @author Christian Fries
  */
 public class DateIndex extends AbstractIndex {
@@ -35,7 +35,7 @@ public class DateIndex extends AbstractIndex {
 
 	/**
 	 * Construct a date index.
-	 * 
+	 *
 	 * @param name Name of this index.
 	 * @param currency Currency (if any - in natural situations this index is a scalar).
 	 * @param dateIndexType The date index type.
@@ -47,7 +47,7 @@ public class DateIndex extends AbstractIndex {
 
 	/**
 	 * Construct a date index.
-	 * 
+	 *
 	 * @param name Name of this index.
 	 * @param dateIndexType The date index type.
 	 */

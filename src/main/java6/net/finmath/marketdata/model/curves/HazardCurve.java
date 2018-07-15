@@ -12,7 +12,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * Hazard Curve
- * 
+ *
  * @author Alessandro Gnoatto
  */
 public class HazardCurve extends Curve implements Serializable, HazardCurveInterface{
@@ -22,7 +22,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 
 	/**
 	 * Create an empty discount curve using default interpolation and extrapolation methods.
-	 * 
+	 *
 	 * @param name The name of this hazard curve.
 	 */
 	private HazardCurve(String name){
@@ -142,7 +142,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 
 	/**
 	 * Create a hazard curve from given times and given discount factors using default interpolation and extrapolation methods.
-	 * 
+	 *
 	 * @param name The name of this hazard curve.
 	 * @param times Array of times as doubles.
 	 * @param givenSurvivalProbabilities Array of corresponding survival probabilities.
@@ -160,7 +160,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 
 	/**
 	 * Create a hazard curve from given times and given hazard rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenSurvivalProbabilities[timeIndex] = givenSurvivalProbabilities[timeIndex-1] * Math.exp(- givenHazardRates[timeIndex] * (times[timeIndex]-times[timeIndex-1]));
 	 * </code>
@@ -207,7 +207,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 
 	/**
 	 * Create a hazard curve from given times and given zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenSurvivalProbabilities[timeIndex] = givenSurvivalProbabilities[timeIndex-1] * Math.exp(- givenHazardRates[timeIndex] * (times[timeIndex]-times[timeIndex-1]));
 	 * </code>
@@ -233,7 +233,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 
 	/**
 	 * Create a discount curve from given times and given zero rates using given interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenSurvivalProbabilities[timeIndex] = givenSurvivalProbabilities[timeIndex-1] * Math.exp(- givenHazardRates[timeIndex] * (times[timeIndex]-times[timeIndex-1]));
 	 * </code>
@@ -282,11 +282,11 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 
 	/**
 	 * Create a discount curve from given times and given zero rates using default interpolation and extrapolation methods.
-	 * The discount factor is determined by 
+	 * The discount factor is determined by
 	 * <code>
 	 * 		givenSurvivalProbabilities[timeIndex] = givenSurvivalProbabilities[timeIndex-1] * Math.exp(- givenHazardRates[timeIndex] * (times[timeIndex]-times[timeIndex-1]));
 	 * </code>
-	 * 
+	 *
 	 * @param name The name of this discount curve.
 	 * @param times Array of times as doubles.
 	 * @param givenHazardRates Array of corresponding zero rates.
@@ -344,7 +344,7 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 			return 1.0E-14;
 		}
 
-		return -Math.log(getSurvivalProbability(model, maturity))/maturity;		
+		return -Math.log(getSurvivalProbability(model, maturity))/maturity;
 
 	}
 
@@ -364,5 +364,5 @@ public class HazardCurve extends Curve implements Serializable, HazardCurveInter
 	@Override
 	public String toString() {
 		return super.toString();
-	}	
+	}
 }

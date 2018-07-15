@@ -22,12 +22,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  * the {@link ProcessInterface} and creates a stochastic process \( t \mapsto X(t) \)
  * where
  * \[
- * 	X(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} X(t_{i}) + \frac{t - t_{i}}{t_{i+1}-t_{i}} X(t_{i+1}) 
+ * 	X(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} X(t_{i}) + \frac{t - t_{i}}{t_{i+1}-t_{i}} X(t_{i+1})
  * \]
  * with \( t_{i} \leq t \leq t_{i+1} \).
- * 
+ *
  * Note: this is the interpolation scheme used in the convergence of the Euler-Maruyama scheme.
- * 
+ *
  * @author Christian Fries
  */
 public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
@@ -37,7 +37,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 
 	/**
 	 * Create a time discrete process by linear interpolation of random variables.
-	 * 
+	 *
 	 * @param realizations Given map from time to random variable. The map must not be modified.
 	 */
 	public LinearInterpolatedTimeDiscreteProcess(Map<Double, RandomVariableInterface> realizations) {
@@ -49,7 +49,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 
 	/**
 	 * Private constructor. Note: The arguments are not cloned.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 * @param realizations The map from Double to RandomVariableInterface.
 	 */
@@ -62,7 +62,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * Create a new linear interpolated time discrete process by
 	 * using the time discretization of this process and the sum of this process and the given one
 	 * as its values.
-	 * 
+	 *
 	 * @param process A given process.
 	 * @return A new process representing the of this and the given process.
 	 * @throws CalculationException Thrown if the given process fails to evaluate at a certain time point.
@@ -83,10 +83,10 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * That is \( t \mapsto Y(t) \)
 	 * where
 	 * \[
-	 * 	Y(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} f(X(t_{i})) + \frac{t - t_{i}}{t_{i+1}-t_{i}} f(X(t_{i+1})) 
+	 * 	Y(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} f(X(t_{i})) + \frac{t - t_{i}}{t_{i+1}-t_{i}} f(X(t_{i+1}))
 	 * \]
 	 * with \( t_{i} \leq t \leq t_{i+1} \) and a given function \( f \).
-	 * 
+	 *
 	 * @param function The function \( f \), a univariate function.
 	 * @return A new process consisting of the interpolation of the random variables obtained by applying the given function to this process discrete set of random variables.
 	 */
@@ -102,7 +102,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 
 	/**
 	 * Returns the (possibly interpolated) value of this stochastic process at a given time \( t \).
-	 * 
+	 *
 	 * @param time The time \( t \).
 	 * @param component The component to be returned (if this is a vector valued process), otherwise 0.
 	 * @return The random variable \( X(t) \).

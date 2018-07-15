@@ -11,14 +11,14 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 
 /**
  * A discount curve derived from a given forward curve.
- * 
+ *
  * The discount factors <i>df(t)</i> are defined at <i>t = k * d</i>
  * for integers <i>k</i> via
  * <i>df(t+d) = df(t) / (1 + f(t) * d)</i> and
  * for <i>t = k * d</i> and <i>0 &lt; r &lt; d</i>
  * via <i>df(t+r) = df(t) / (1 + f(t) * r)</i>
  * where <i>d</i> is a given the payment offset and <i>f(t)</i> is the forward curve.
- * 
+ *
  * <p>
  * <i>Note that a special interpolation is performed for in-between points.
  * Hence, creating a {@link ForwardCurveFromDiscountCurve} and from it
@@ -26,7 +26,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * since interpolation points may be lost.
  * </i>
  * </p>
- * 
+ *
  * @author Christian Fries
  */
 public class DiscountCurveFromForwardCurve extends AbstractCurve implements Serializable, DiscountCurveInterface {
@@ -45,7 +45,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * for t = k * d and 0 &lt; r &lt; d
 	 * via df(t+r) = df(t) / (1 + f(t) * r)
 	 * where d is a given the payment offset and f(t) is the forward curve.
-	 * 
+	 *
 	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
 	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
 	 */
@@ -63,7 +63,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * for t = k * d and 0 &lt; r &lt; d
 	 * via df(t+r) = df(t) / (1 + f(t) * r)
 	 * where d is a given the payment offset and f(t) is the forward curve.
-	 * 
+	 *
 	 * @param forwardCurve The forward curve used for calculation of the discount factors.
 	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
 	 */
@@ -81,7 +81,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * for t = k * d and 0 &lt; r &lt; d
 	 * via df(t+r) = df(t) / (1 + f(t) * r)
 	 * where d is a given the payment offset and f(t) is the forward curve.
-	 * 
+	 *
 	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
 	 */
 	public DiscountCurveFromForwardCurve(String forwardCurveName) {
@@ -95,7 +95,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * for t = k * d and 0 &lt; r &lt; d
 	 * via df(t+r) = df(t) / (1 + f(t) * r)
 	 * where d is a given the payment offset and f(t) is the forward curve.
-	 * 
+	 *
 	 * @param forwardCurve The forward curve used for calculation of the discount factors.
 	 */
 	public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {

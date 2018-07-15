@@ -20,7 +20,7 @@ public class GammaDistribution {
 
 	/**
 	 * Return the inverse cumulative distribution function at x.
-	 * 
+	 *
 	 * @param x Argument
 	 * @return Inverse cumulative distribution function at x.
 	 */

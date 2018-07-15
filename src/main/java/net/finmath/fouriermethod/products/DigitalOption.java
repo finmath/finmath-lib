@@ -12,16 +12,16 @@ import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescripto
 
 /**
  * Implements valuation of a European option on a single asset.
- * 
+ *
  * Given a model for an asset <i>S</i>, the European option with strike <i>K</i>, maturity <i>T</i>
  * pays
  * <br>
  * 	<i>indicator(S(T) - K)</i> in <i>T</i>
  * <br>
- * 
+ *
  * The class implements the characteristic function of the call option
  * payoff, i.e., its Fourier transform.
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
@@ -55,7 +55,7 @@ public class DigitalOption extends AbstractProductFourierTransform implements De
 		Complex iargument = argument.multiply(Complex.I);
 		Complex exponent = iargument.add(1.0);
 		Complex numerator = (new Complex(strike)).pow(exponent.subtract(1.0)).multiply(exponent);
-		Complex denominator = (argument.multiply(argument)).subtract(iargument);	
+		Complex denominator = (argument.multiply(argument)).subtract(iargument);
 
 		return numerator.divide(denominator);
 	}

@@ -12,7 +12,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements the pricing of a Caplet using a given <code>AbstractLIBORMarketModel</code>.
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
@@ -43,13 +43,13 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a caplet or a floorlet.
-	 * 
+	 *
 	 * A caplet pays \( max(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
-	 * 
+	 *
 	 * A floorlet pays \( -min(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
-	 * 
+	 *
 	 * @param maturity The fixing date given as double. The payment is at the period end.
 	 * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
@@ -69,15 +69,15 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a caplet or a floorlet.
-	 * 
+	 *
 	 * A caplet pays \( max(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
-	 * 
+	 *
 	 * A floorlet pays \( -min(L-K,0) * daycountFraction \) at maturity+periodLength
 	 * where L is fixed at maturity.
-	 * 
+	 *
 	 * This simplified constructor uses daycountFraction = periodLength.
-	 * 
+	 *
 	 * @param maturity The fixing date given as double. The payment is at the period end.
 	 * @param periodLength The length of the forward rate period in ACT/365 convention.
 	 * @param strike The strike given as double.
@@ -89,10 +89,10 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Create a caplet.
-	 * 
+	 *
 	 * A caplet pays \( max(L-K,0) * periodLength \) at maturity+periodLength
 	 * where L is fixed at maturity.
-	 * 
+	 *
 	 * @param maturity The fixing date given as double. The payment is at the period end.
 	 * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
@@ -105,14 +105,14 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		// This is on the LIBOR discretization
 		double	paymentDate	= maturity+periodLength;
 
@@ -126,7 +126,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		 *    max(L-K,0) * periodLength         for caplet or
 		 *   -min(L-K,0) * periodLength         for floorlet.
 		 */
-		RandomVariableInterface values = libor;		
+		RandomVariableInterface values = libor;
 		if(!isFloorlet) {
 			values = values.sub(strike).floor(0.0).mult(daycountFraction);
 		} else {
@@ -135,8 +135,8 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
-		RandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);		
-		RandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);		
+		RandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);
+		RandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);
 
 		if(valueUnit == ValueUnit.VALUE) {

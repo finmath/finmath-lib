@@ -30,7 +30,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
- * 
+ *
  * @author Christian Fries
  */
 public class CalibrationMultiCurveTest {
@@ -277,5 +277,5 @@ public class CalibrationMultiCurveTest {
 		System.out.println(forwardCurve6MCalibrated);
 
 		Assert.assertEquals("Calibration error", 0.0, Math.sqrt(sumOfSquaredErrors)/calibrationSpecs.size(), 1E-10);
-	}	
+	}
 }

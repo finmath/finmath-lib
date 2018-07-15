@@ -10,22 +10,22 @@ import java.time.LocalDate;
 
 /**
  * Implementation of ACT/360.
- * 
+ *
  * Calculates the day count by calculating the actual number of days between startDate and endDate.
- * 
+ *
  * A fractional day is rounded to the approximately nearest day.
- * 
+ *
  * The day count fraction is calculated using ACT/360 convention, that is, the
  * day count divided by 360.
- * 
+ *
  * This day count convention is sometime called <i>Money Market basis</i>.
- * 
+ *
  * <ul>
  * 	<li>
  * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the "ACT/360 method" of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,2).
  * 	</li>
  * </ul>
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implements DayCountConventionInterface {

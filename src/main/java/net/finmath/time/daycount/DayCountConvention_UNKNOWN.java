@@ -11,10 +11,10 @@ import java.time.LocalDate;
 /**
  * Implements a placeholder object for an unknown day count convention, throwing an exception,
  * whenever a day count or day count fraction is requested.
- * 
+ *
  * This class may become handy, if you like to construct products based on possibly incomplete data
  * where an exception is thrown late, i.e., not at construction time, but at evaluation time.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConvention_UNKNOWN implements DayCountConventionInterface {
@@ -30,7 +30,7 @@ public class DayCountConvention_UNKNOWN implements DayCountConventionInterface {
 
 	/**
 	 * Create the unknown day count convention.
-	 * 
+	 *
 	 * @param name A given name, which will be shown in the {@link IllegalArgumentException} when any method is called on this object.
 	 */
 	public DayCountConvention_UNKNOWN(String name) {

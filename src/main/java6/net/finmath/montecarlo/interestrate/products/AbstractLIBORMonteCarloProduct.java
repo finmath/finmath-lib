@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Base calls for product that need an AbstractLIBORMarketModel as base class
- * 
+ *
  * @author Christian Fries
  */
 public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloProduct {
@@ -29,7 +29,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public AbstractLIBORMonteCarloProduct() {
 		super(null);
@@ -39,7 +39,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
@@ -67,7 +67,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 
 	/**
 	 * Overwrite this method if the product supplies a custom FactorDriftInterface to be used in proxy simulation.
-	 * 
+	 *
 	 * @param referenceScheme The reference scheme
 	 * @param targetScheme The target scheme
 	 * @return The FactorDriftInterface

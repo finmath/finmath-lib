@@ -11,18 +11,18 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implements valuation of a European option on a basket of asset.
- * 
+ *
  * Given a model for asset \( S_{i} \), the European option with
  * basket weights \( \alpha_{i} \), strike <i>K</i>, maturity <i>T</i>
  * pays \[ max\left( \sum_{i} \alpha_{i} S_{i}(T) - K , 0 \right) \] in <i>T</i>.
- * 
+ *
  * Note that the specification of \( \alpha_{i} \) and \( K \) allows to construct some
  * special cases, like
  * <ul>
  * 	<li>a European option \( \alpha_{1} = 1 \), \( \alpha_{j} = 0 \) for \( j \neq 1 \) </li>
  * 	<li>an exchange option \( \alpha_{1} = 1 \), \( \alpha_{2} = -1 \), \( K = 0 \) </li>
  * </ul>
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
@@ -51,7 +51,7 @@ public class BasketOption extends AbstractAssetMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time

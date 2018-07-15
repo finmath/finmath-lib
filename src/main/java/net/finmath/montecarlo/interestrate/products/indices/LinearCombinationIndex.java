@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
- * 
+ *
  * @author Christian Fries
  */
 public class LinearCombinationIndex extends AbstractIndex {
@@ -28,7 +28,7 @@ public class LinearCombinationIndex extends AbstractIndex {
 
 	/**
 	 * Create a linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
-	 * 
+	 *
 	 * @param scaling1 Scaling for first index.
 	 * @param index1 First index.
 	 * @param scaling2 Scaling for second index.
@@ -50,7 +50,7 @@ public class LinearCombinationIndex extends AbstractIndex {
 
 	/**
 	 * Returns the index 1.
-	 * 
+	 *
 	 * @return the index 1.
 	 */
 	public AbstractProductComponent getIndex1() {
@@ -59,7 +59,7 @@ public class LinearCombinationIndex extends AbstractIndex {
 
 	/**
 	 * Returns the index 2.
-	 * 
+	 *
 	 * @return the index 2
 	 */
 	public AbstractProductComponent getIndex2() {
@@ -68,7 +68,7 @@ public class LinearCombinationIndex extends AbstractIndex {
 
 	/**
 	 * Returns the scaling 1.
-	 * 
+	 *
 	 * @return the scaling 1
 	 */
 	public double getScaling1() {
@@ -77,7 +77,7 @@ public class LinearCombinationIndex extends AbstractIndex {
 
 	/**
 	 * Returns the scaling 2.
-	 * 
+	 *
 	 * @return the scaling 2
 	 */
 	public double getScaling2() {

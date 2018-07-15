@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class RandomVariableLazyEvaluationFactory extends AbstractRandomVariableFactory {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 5474699190536441150L;
 

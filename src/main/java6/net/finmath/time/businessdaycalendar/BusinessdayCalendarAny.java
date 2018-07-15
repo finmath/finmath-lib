@@ -10,7 +10,7 @@ import org.threeten.bp.LocalDate;
 
 /**
  * A business day calendar, where every day is a business day.
- * 
+ *
  * @author Christian Fries
  */
 public class BusinessdayCalendarAny extends BusinessdayCalendar {

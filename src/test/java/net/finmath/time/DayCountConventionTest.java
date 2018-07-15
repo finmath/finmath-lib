@@ -22,7 +22,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_YEARFRAC;
 
 /**
  * Unit test for day count convention implementations.
- * 
+ *
  * @author Christian Fries
  */
 public class DayCountConventionTest {
@@ -82,7 +82,7 @@ public class DayCountConventionTest {
 		double daycountFraction;
 
 		/*
-		 * 
+		 *
 		 */
 		daycountFraction = daycountConvention.getDaycountFraction(LocalDate.of(2003, Month.NOVEMBER,1), LocalDate.of(2004,Month.MAY,1));
 		Assert.assertTrue(Math.abs(daycountFraction - 0.5) < 1.0E-8);
@@ -102,7 +102,7 @@ public class DayCountConventionTest {
 		Assert.assertEquals(487.0/365.0, daycountFraction, 1.0E-4);
 
 		daycountFraction = daycountConvention.getDaycountFraction(LocalDate.of(1999,Month.FEBRUARY,1), LocalDate.of(1999,Month.JULY,1));
-		Assert.assertEquals(150.0/365.0, daycountFraction, 1.0E-8); 
+		Assert.assertEquals(150.0/365.0, daycountFraction, 1.0E-8);
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class DayCountConventionTest {
 		Assert.assertEquals(487.0/360.0, daycountFraction, 1.0E-4);
 
 		daycountFraction = daycountConvention.getDaycountFraction(LocalDate.of(1999,Month.FEBRUARY,1), LocalDate.of(1999,Month.JULY,1));
-		Assert.assertEquals(150.0/360.0, daycountFraction, 1.0E-8); 
+		Assert.assertEquals(150.0/360.0, daycountFraction, 1.0E-8);
 	}
 
 	@Test
@@ -139,7 +139,7 @@ public class DayCountConventionTest {
 		ArrayList<Period> periods = new ArrayList<>();
 		LocalDate start, end;
 		for(int i=1980; i<2100; i++) {
-			start	= LocalDate.of(i, Month.FEBRUARY, 15); 
+			start	= LocalDate.of(i, Month.FEBRUARY, 15);
 			end		= LocalDate.of(i, Month.FEBRUARY.plus(3), 31);
 			periods.add(new Period(start, end, start, end));
 

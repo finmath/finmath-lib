@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 15.07.2012
  */
 
@@ -25,18 +25,18 @@ import net.finmath.timeseries.TimeSeriesView;
 
 /**
  * Lognormal process with ARMAGARCH(1,1) volatility.
- * 
+ *
  * This class estimates the process
  * \[
  *   \mathrm{d} \log(X) = \sigma(t) \mathrm{d}W(t)
  * \]
  * where \( \sigma \) is given by a ARMAGARCH(1,1) process.
- * 
+ *
  * @author Christian Fries
  */
 public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
 
-	private TimeSeriesInterface timeSeries;	
+	private TimeSeriesInterface timeSeries;
 
 	private int maxIterations = 10000000;
 
@@ -45,7 +45,7 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 	 */
 	private final String[] parameterNames	= new String[] { "omega", "alpha", "beta", "theta", "mu", "phi" };
 	private final double[] parameterGuess	= new double[] { 0.10, 0.3, 0.3, 0.0, 0.0, 0.0 };
-	private final double[] parameterStep	= new double[] { 0.001, 0.001, 0.001, 0.001, 0.0001, 0.001 }; 
+	private final double[] parameterStep	= new double[] { 0.001, 0.001, 0.001, 0.001, 0.0001, 0.001 };
 	private final double[] lowerBound;
 	private final double[] upperBound;
 

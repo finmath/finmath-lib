@@ -2,6 +2,12 @@ package net.finmath.modelling.descriptor;
 
 import net.finmath.modelling.SingleAssetProductDescriptor;
 
+/**
+ * Describes a European digital option.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
 public class SingleAssetDigitalOptionProductDescriptor implements SingleAssetProductDescriptor {
 
 	private static final String productName = "Single asset Digital option";

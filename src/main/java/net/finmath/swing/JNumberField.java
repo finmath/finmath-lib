@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * A Java swing bean to represent a number field in a GUI. Features admissible values.
- * 
+ *
  * @author Christian Fries
  */
 public class JNumberField extends JTextField implements ActionListener {
@@ -174,7 +174,7 @@ public class JNumberField extends JTextField implements ActionListener {
 				this.setColumns(1+Math.max(formatter.format(lowerBound).length(), formatter.format(upperBound).length()));
 			} else {
 				this.setColumns(1+this.getText().length());
-			}        
+			}
 
 		}
 	}
@@ -192,6 +192,6 @@ public class JNumberField extends JTextField implements ActionListener {
 			return index;
 		} else {
 			return -1;
-		}    	
+		}
 	}
 }

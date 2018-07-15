@@ -12,7 +12,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the valuation of an Asian option.
- * 
+ *
  * Given a model for an asset <i>S</i>, the Asian option with strike <i>K</i>, maturity <i>T</i>
  * and averaging points <i>T<sub>i</sub></i> for <i>i = 1,...,n</i> pays
  * <br>
@@ -22,7 +22,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <br>
  * 	<i>A(T) = 1/n (S(T<sub>1</sub>)+ ... + S(T<sub>n</sub>))</i>
  * <br>
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  */
@@ -37,7 +37,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	/**
 	 * Construct a product representing an Asian option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * A(T) = 1/n sum_{i=1,...,n} S(t_i), where t_i are given observation times.
-	 * 
+	 *
 	 * @param strike The strike K in the option payoff max(A(T)-K,0).
 	 * @param maturity The maturity T in the option payoff maxAS(T)-K,0)
 	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
@@ -54,7 +54,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	/**
 	 * Construct a product representing an Asian option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * A(T) = 1/n sum_{i=1,...,n} S(t_i), where t_i are given observation times.
-	 * 
+	 *
 	 * @param strike The strike K in the option payoff max(A(T)-K,0).
 	 * @param maturity The maturity T in the option payoff maxAS(T)-K,0)
 	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
@@ -67,7 +67,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time

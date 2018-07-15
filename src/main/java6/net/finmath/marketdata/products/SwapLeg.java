@@ -12,12 +12,12 @@ import net.finmath.time.ScheduleInterface;
 
 /**
  * Implements the valuation of a swap leg with unit notional of 1 using curves (discount curve, forward curve).
- * 
+ *
  * The swap leg valuation supports distinct discounting and forward curves.
- * 
+ *
  * Support for day counting is provided via the class implementing
  * <code>ScheduleInterface</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -30,8 +30,8 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	private boolean						isNotionalExchanged = false;
 
 	/**
-	 * Creates a swap leg. 
-	 * 
+	 * Creates a swap leg.
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spread Fixed spread on the forward or fix rate.
@@ -51,7 +51,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	/**
 	 * Creates a swap leg without notional reset.
-	 * 
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spread Fixed spread on the forward or fix rate.
@@ -64,7 +64,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	/**
 	 * Creates a swap leg without notional reset and without notional exchange.
-	 * 
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spread Fixed spread on the forward or fix rate.
@@ -76,7 +76,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -145,8 +145,8 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	@Override
 	public String toString() {
-		return "SwapLeg [legSchedule=" + legSchedule 
-				+ ", forwardCurveName=" + forwardCurveName 
+		return "SwapLeg [legSchedule=" + legSchedule
+				+ ", forwardCurveName=" + forwardCurveName
 				+ ", spread=" + spread
 				+ ", discountCurveName=" + discountCurveName
 				+ ", discountCurveForNotionalResetName=" + discountCurveForNotionalResetName

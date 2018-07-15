@@ -7,18 +7,24 @@
 package net.finmath.optimizer;
 
 /**
- * @author Christian Fries
+ * Interface for numerical optimizers.
  *
+ * @author Christian Fries
  */
 public interface OptimizerInterface {
 
+	/**
+	 * Interface for the objective function.
+	 *
+	 * @author Christian Fries
+	 */
 	interface ObjectiveFunction {
 		void setValues(double[] parameters, double[] values) throws SolverException;
 	}
 
 	/**
 	 * Get the best fit parameter vector.
-	 * 
+	 *
 	 * @return The best fit parameter.
 	 */
 	double[] getBestFitParameters();
@@ -30,14 +36,14 @@ public interface OptimizerInterface {
 
 	/**
 	 * Get the number of iterations.
-	 * 
+	 *
 	 * @return The number of iterations required
 	 */
 	int getIterations();
 
 	/**
 	 * Runs the optimization.
-	 * 
+	 *
 	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	void run() throws SolverException;

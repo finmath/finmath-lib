@@ -40,7 +40,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
-	 * 
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param notional The notional.
 	 * @param index The index.
@@ -61,7 +61,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 
 		/*
 		 * Create components.
-		 * 
+		 *
 		 * The interesting part here is, that the creation of the components implicitly
 		 * constitutes the (traditional) pricing algorithms (e.g., loop over all periods).
 		 * Hence, the definition of the product is the definition of the pricing algorithm.
@@ -106,7 +106,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components
-	 * 
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param notional The notional.
 	 * @param index The index.

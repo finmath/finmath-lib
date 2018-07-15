@@ -9,9 +9,11 @@ import net.finmath.modelling.ProductFactory;
 
 /**
  * Implements a product factory based on a cascade of given factories.
- * 
+ *
  * @author Christian Fries
  * @author Roland Bachl
+ *
+ * @param <T> The base class of the product descriptors which can be handled by this <code>ProductFactory</code>.
  */
 public abstract class ProductFactoryCascade<T extends ProductDescriptor> implements ProductFactory<T> {
 

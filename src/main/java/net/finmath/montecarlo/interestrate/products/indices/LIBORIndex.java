@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * A forward rate index for a given period start offset (offset from fixing) and period length.
- * 
+ *
  * @author Christian Fries
  */
 public class LIBORIndex extends AbstractIndex {
@@ -27,7 +27,7 @@ public class LIBORIndex extends AbstractIndex {
 
 	/**
 	 * Creates a forward rate index for a given period start offset (offset from fixing) and period length.
-	 * 
+	 *
 	 * @param name The name of an index. Used to map an index on a curve.
 	 * @param periodStartOffset An offset added to the fixing to define the period start.
 	 * @param periodLength The period length
@@ -40,7 +40,7 @@ public class LIBORIndex extends AbstractIndex {
 
 	/**
 	 * Creates a forward rate index for a given period start offset (offset from fixing) and period length.
-	 * 
+	 *
 	 * @param periodStartOffset An offset added to the fixing to define the period start.
 	 * @param periodLength The period length
 	 */
@@ -68,7 +68,7 @@ public class LIBORIndex extends AbstractIndex {
 
 	/**
 	 * Returns the periodStartOffset as an act/365 daycount.
-	 * 
+	 *
 	 * @return the periodStartOffset
 	 */
 	public double getPeriodStartOffset() {
@@ -77,7 +77,7 @@ public class LIBORIndex extends AbstractIndex {
 
 	/**
 	 * Returns the tenor encoded as an pseudo act/365 daycount fraction.
-	 * 
+	 *
 	 * @return the periodLength The tenor as an act/365 daycount fraction.
 	 */
 	public double getPeriodLength() {

@@ -7,7 +7,14 @@ package net.finmath.randomnumbers;
 
 import java.util.function.DoubleUnaryOperator;
 
-public class AccceptanceRejectionRandomNumberGenerator implements  RandomNumberGenerator {
+/**
+ * Class implementing <code>RandomNumberGenerator</code> by the acceptance rejection method.
+ *
+ * Note that the acceptance rejection methods requires a two dimensional uniform random number sequence with independent components.
+ *
+ * @author Christian Fries
+ */
+public class AccceptanceRejectionRandomNumberGenerator implements RandomNumberGenerator {
 
 	private final RandomNumberGenerator uniformRandomNumberGenerator;
 	private final DoubleUnaryOperator targetDensity;

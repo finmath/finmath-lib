@@ -21,37 +21,37 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements a Hull-White model with time dependent mean reversion speed and time dependent short rate volatility.
- * 
+ *
  * <i>
  * Note: This implementation is for illustrative purposes.
  * For a numerically equivalent, more efficient implementation see {@link net.finmath.montecarlo.interestrate.HullWhiteModel}.
  * Please use {@link net.finmath.montecarlo.interestrate.HullWhiteModel} for real applications.
  * </i>
- * 
+ *
  * <p>
  * <b>Model Dynamics</b>
  * </p>
- * 
+ *
  * The Hull-While model assumes the following dynamic for the short rate:
  * \[ d r(t) = ( \theta(t) - a(t) r(t) ) d t + \sigma(t) d W(t) \text{,} \quad r(t_{0}) = r_{0} \text{,} \]
  * where the function \( \theta \) determines the calibration to the initial forward curve,
  * \( a \) is the mean reversion and \( \sigma \) is the instantaneous volatility.
- * 
+ *
  * The dynamic above is under the equivalent martingale measure corresponding to the numeraire
  * \[ N(t) = \exp\left( \int_0^t r(\tau) \mathrm{d}\tau \right) \text{.} \]
- * 
+ *
  * The main task of this class is to provide the risk-neutral drift and the volatility to the numerical scheme (given the volatility model), simulating
  * \( r(t_{i}) \). The class then also provides and the corresponding numeraire and forward rates (LIBORs).
- * 
+ *
  * <p>
  * <b>Time Discrete Model</b>
  * </p>
- * 
+ *
  * Assuming piecewise constant coefficients (mean reversion speed \( a \) and short
  * rate volatility \( \sigma \) the class specifies the drift and factor loadings as
  * piecewise constant functions for an Euler-scheme.
  * The class provides the exact Euler step for the short rate r.
- * 
+ *
  * More specifically (assuming a constant mean reversion speed \( a \) for a moment), considering
  * \[ \Delta \bar{r}(t_{i}) = \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} d r(t) \]
  * we find from
@@ -60,44 +60,44 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \[ \exp(a t_{i+1}) r(t_{i+1}) - \exp(a t_{i}) r(t_{i}) \ = \ \int_{t_{i}}^{t_{i+1}} \left[ \exp(a t) \theta(t) \mathrm{d}t + \exp(a t) \sigma(t) \mathrm{d}W(t) \right] \]
  * that is
  * \[ r(t_{i+1}) - r(t_{i}) \ = \ -(1-\exp(-a (t_{i+1}-t_{i})) r(t_{i}) + \int_{t_{i}}^{t_{i+1}} \left[ \exp(-a (t_{i+1}-t)) \theta(t) \mathrm{d}t + \exp(-a (t_{i+1}-t)) \sigma(t) \mathrm{d}W(t) \right] \]
- * 
+ *
  * Assuming piecewise constant \( \sigma \) and \( \theta \), being constant over \( (t_{i},t_{i}+\Delta t_{i}) \), we thus find
  * \[ r(t_{i+1}) - r(t_{i}) \ = \ \frac{1-\exp(-a \Delta t_{i})}{a \Delta t_{i}} \left( ( \theta(t_{i}) - a \bar{r}(t_{i})) \Delta t_{i} \right) + \sqrt{\frac{1-\exp(-2 a \Delta t_{i})}{2 a \Delta t_{i}}} \sigma(t_{i}) \Delta W(t_{i}) \] .
- * 
+ *
  * In other words, the Euler scheme is exact if the mean reversion \( a \) is replaced by the effective mean reversion
  * \( \frac{1-\exp(-a \Delta t_{i})}{a \Delta t_{i}} a \) and the volatility is replaced by the
  * effective volatility \( \sqrt{\frac{1-\exp(-2 a \Delta t_{i})}{2 a \Delta t_{i}}} \sigma(t_{i}) \).
- * 
+ *
  * In the calculations above the mean reversion speed is treated as a constants, but it is straight
  * forward to see that the same holds for piecewise constant mean reversion speeds, replacing
  * the expression \( a \ t \) by \( \int_{0}^t a(s) \mathrm{d}s \).
- * 
+ *
  * <p>
  * <b>Calibration</b>
  * </p>
- * 
+ *
  * The drift of the short rate is calibrated to the given forward curve using
  * \[ \theta(t) = \frac{\partial}{\partial T} f(0,t) + a(t) f(0,t) + \phi(t) \text{,} \]
- * where the function \( f \) denotes the instantanenous forward rate and 
- * \( \phi(t) = \frac{1}{2} a \sigma^{2}(t) B(t)^{2} + \sigma^{2}(t) B(t) \frac{\partial}{\partial t} B(t) \) with \( B(t) = \frac{1-\exp(-a t)}{a} \). 
- * 
+ * where the function \( f \) denotes the instantanenous forward rate and
+ * \( \phi(t) = \frac{1}{2} a \sigma^{2}(t) B(t)^{2} + \sigma^{2}(t) B(t) \frac{\partial}{\partial t} B(t) \) with \( B(t) = \frac{1-\exp(-a t)}{a} \).
+ *
  * <p>
  * <b>Volatility Model</b>
  * </p>
- * 
+ *
  * The Hull-White model is essentially equivalent to LIBOR Market Model where the forward rate <b>normal</b> volatility \( \sigma(t,T) \) is
  * given by
  * \[  \sigma(t,T_{i}) \ = \ (1 + L_{i}(t) (T_{i+1}-T_{i})) \sigma(t) \exp(-a (T_{i}-t)) \frac{1-\exp(-a (T_{i+1}-T_{i}))}{a (T_{i+1}-T_{i})} \]
  * (where \( \{ T_{i} \} \) is the forward rates tenor time discretization (note that this is the <b>normal</b> volatility, not the <b>log-normal</b> volatility).
  * Hence, we interpret both, short rate mean reversion speed and short rate volatility as part of the <i>volatility model</i>.
- * 
+ *
  * The mean reversion speed and the short rate volatility have to be provided to this class via an object implementing
- * {@link net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface}. 
- * 
- * 
+ * {@link net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface}.
+ *
+ *
  * @see net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface
  * @see net.finmath.montecarlo.interestrate.HullWhiteModel
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  */
@@ -126,7 +126,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
 	 * @param analyticModel The analytic model to be used (currently not used, may be null).
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
@@ -360,7 +360,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		/*
 		 * One may try different drifts here. The value
 		 * getDV(0,time)
-		 * would correspond to the analytic value (for dt -> 0). The value 
+		 * would correspond to the analytic value (for dt -> 0). The value
 		 * getIntegratedDriftAdjustment(timeIndex)
 		 * is the correct one given the discretized numeraire.
 		 */
@@ -386,7 +386,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	/**
 	 * This is the shift alpha of the process, which essentially represents
 	 * the integrated drift of the short rate (without the interest rate curve related part).
-	 * 
+	 *
 	 * @param timeIndex Time index associated with the time discretization obtained from <code>getProcess</code>
 	 * @return The integrated drift (integrating from 0 to getTime(timeIndex)).
 	 */
@@ -414,7 +414,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	 * and
 	 * \( \phi(t,T) \) is the value calculated from integrating \( ( \sigma(s) exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau ) )^{2} \) with respect to s from t to T
 	 * in <code>getShortRateConditionalVariance</code>.
-	 * 
+	 *
 	 * @param time The parameter t.
 	 * @param maturity The parameter T.
 	 * @return The value A(t,T).
@@ -436,7 +436,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 
 	/**
 	 * Calculates \( \int_{t}^{T} a(s) \mathrm{d}s \), where \( a \) is the mean reversion parameter.
-	 * 
+	 *
 	 * @param time The parameter t.
 	 * @param maturity The parameter T.
 	 * @return The value of \( \int_{t}^{T} a(s) \mathrm{d}s \).
@@ -473,7 +473,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	/**
 	 * Calculates \( B(t,T) = \int_{t}^{T} \exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau) \mathrm{d}s \), where a is the mean reversion parameter.
 	 * For a constant \( a \) this results in \( \frac{1-\exp(-a (T-t)}{a} \), but the method also supports piecewise constant \( a \)'s.
-	 * 
+	 *
 	 * @param time The parameter t.
 	 * @param maturity The parameter T.
 	 * @return The value of B(t,T).
@@ -512,7 +512,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	 * \(
 	 * \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s
 	 * \) where \( B(t,T) = \int_{t}^{T} \exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau) \mathrm{d}s \).
-	 * 
+	 *
 	 * @param time The parameter t in \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \)
 	 * @param maturity The parameter T in \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \)
 	 * @return The integral \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \).
@@ -596,7 +596,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	 * \(
 	 * \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau
 	 * \) where \( a \) is the meanReversion and \( \sigma \) is the short rate instantaneous volatility.
-	 * 
+	 *
 	 * @param time The parameter s in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau \)
 	 * @param maturity The parameter t in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau \)
 	 * @return The conditional variance of the short rate, \( \mathop{Var}(r(t) \vert r(s) ) \).
@@ -636,5 +636,4 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 		return getShortRateConditionalVariance(0, time) * getB(time,maturity) * getB(time,maturity);
 	}
 }
-
 

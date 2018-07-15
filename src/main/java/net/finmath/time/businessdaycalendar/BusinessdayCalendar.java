@@ -11,10 +11,10 @@ import java.util.StringTokenizer;
 
 /**
  * Base class for all business day calendars.
- * 
+ *
  * Implements date rolling and date adjustment.
  * For the supported date roll conventions see {@link BusinessdayCalendarInterface.DateRollConvention}.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class BusinessdayCalendar implements BusinessdayCalendarInterface {

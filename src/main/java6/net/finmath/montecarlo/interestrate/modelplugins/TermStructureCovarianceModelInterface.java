@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 /**
  * A base class and interface description for the instantaneous covariance of
  * an forward rate interest rate model.
- * 
+ *
  * @author Christian Fries
  */
 public interface TermStructureCovarianceModelInterface extends TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelInterface {

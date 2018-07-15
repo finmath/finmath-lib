@@ -98,7 +98,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
 		double timeToMaturity   = maturity-time;
 
-		double volatilityInstanteaneous; 
+		double volatilityInstanteaneous;
 		if(timeToMaturity <= 0)
 		{
 			volatilityInstanteaneous = 0.0;   // This forward rate is already fixed, no volatility

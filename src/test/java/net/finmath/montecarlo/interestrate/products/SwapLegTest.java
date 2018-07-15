@@ -55,7 +55,7 @@ public class SwapLegTest {
 
 	/**
 	 * Test a floating rate leg.
-	 * 
+	 *
 	 * @throws CalculationException Thrown if calculation fails.
 	 */
 	@Test
@@ -113,13 +113,13 @@ public class SwapLegTest {
 
 	/**
 	 * Test a floating rate leg.
-	 * 
+	 *
 	 * @throws CalculationException Thrown if calculation fails.
 	 */
 	@Test
 	public void testFixLeg() throws CalculationException {
 
-		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 		int			spotOffsetDays = 2;
 		String		forwardStartPeriod = "0D";
 		String		maturity = "35Y";
@@ -230,7 +230,7 @@ public class SwapLegTest {
 
 	/**
 	 * Test a CMS spread floating rate leg.
-	 * 
+	 *
 	 * @throws CalculationException Thrown if calculation fails.
 	 */
 	@Test
@@ -359,7 +359,7 @@ public class SwapLegTest {
 
 	public static LIBORModelMonteCarloSimulationInterface createMultiCurveLIBORMarketModel(int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
-		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12); 
+		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 
 		// Create the forward curve (initial value of the LIBOR market model)
@@ -399,7 +399,7 @@ public class SwapLegTest {
 		 */
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 40.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);		
+		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		/*
 		 * Create a simulation time discretization

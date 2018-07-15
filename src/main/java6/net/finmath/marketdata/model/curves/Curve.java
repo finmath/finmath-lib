@@ -24,7 +24,7 @@ import net.finmath.time.FloatingpointDate;
 
 /**
  * This class represents a curve build from a set of points in 2D.
- * 
+ *
  * It provides different interpolation and extrapolation methods applied to a transformation of the input point,
  * examples are
  * <ul>
@@ -35,25 +35,25 @@ import net.finmath.time.FloatingpointDate;
  * 	<li>Akima interpolation of the input points (or a function of the input points).</li>
  *  <li>etc.</li>
  * </ul>
- * 
+ *
  * <br>
- * 
+ *
  * For the interpolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.InterpolationMethod}.
  * For the extrapolation methods provided see {@link net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod}.
  * For the possible interpolation entities see {@link net.finmath.marketdata.model.curves.Curve.InterpolationEntity}.
- * 
+ *
  * To construct the curve, please use the inner class CurveBuilder (a builder pattern).
- * 
+ *
  * For a demo on how to construct and/or calibrate a curve see, e.g.
  * net.finmath.tests.marketdata.curves.CurveTest.
- * 
+ *
  * @author Christian Fries
  */
 public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Possible interpolation methods.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public enum InterpolationMethod {
@@ -73,13 +73,13 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		AKIMA_CONTINUOUS,
 		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
 		HARMONIC_SPLINE,
-		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/	
+		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/
 		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING
 	}
 
 	/**
 	 * Possible extrapolation methods.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public enum ExtrapolationMethod {
@@ -145,7 +145,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	/**
 	 * A builder (following the builder pattern) for Curve objects.
 	 * Allows to successively construct a curve object by adding points.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public static class CurveBuilder implements CurveBuilderInterface {
@@ -160,7 +160,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 		/**
 		 * Build a curve with a given name and given reference date.
-		 * 
+		 *
 		 * @param name The name of this curve.
 		 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 		 */
@@ -170,7 +170,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 		/**
 		 * Build a curve by cloning a given curve.
-		 * 
+		 *
 		 * @param curve A curve to be used as starting point for the new curve.
 		 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 		 */
@@ -190,7 +190,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 		/**
 		 * Set the interpolation method of the curve.
-		 * 
+		 *
 		 * @param interpolationMethod The interpolation method of the curve.
 		 * @return A self reference to this curve build object.
 		 */
@@ -201,7 +201,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 		/**
 		 * Set the extrapolation method of the curve.
-		 * 
+		 *
 		 * @param extrapolationMethod The extrapolation method of the curve.
 		 * @return A self reference to this curve build object.
 		 */
@@ -212,7 +212,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 		/**
 		 * Set the interpolationEntity of the curve.
-		 * 
+		 *
 		 * @param interpolationEntity The interpolation entity of the curve.
 		 * @return A self reference to this curve build object.
 		 */
@@ -247,7 +247,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Create a curve with a given name, reference date and an interpolation method from given points
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param interpolationMethod The interpolation method used for the curve.
@@ -271,7 +271,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Create a curve with a given name, reference date and an interpolation method.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 * @param interpolationMethod The interpolation method used for the curve.
@@ -287,7 +287,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Create a curve with a given name, reference date.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 */
@@ -345,7 +345,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	/**
 	 * Add a point to this curve. The method will throw an exception if the point
 	 * is already part of the curve.
-	 * 
+	 *
 	 * @param time The x<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
@@ -393,7 +393,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Returns the interpolation method used by this curve.
-	 * 
+	 *
 	 * @return The interpolation method used by this curve.
 	 */
 	public InterpolationMethod getInterpolationMethod() {
@@ -402,7 +402,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Returns the extrapolation method used by this curve.
-	 * 
+	 *
 	 * @return The extrapolation method used by this curve.
 	 */
 	public ExtrapolationMethod getExtrapolationMethod() {
@@ -411,7 +411,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Returns the interpolation entity used by this curve.
-	 * 
+	 *
 	 * @return The interpolation entity used by this curve.
 	 */
 	public InterpolationEntity getInterpolationEntity() {

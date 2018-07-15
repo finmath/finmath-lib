@@ -14,17 +14,17 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 /**
  * A forward curve derived from a given discount curve.
- * 
+ *
  * The forward with fixing in \( t \) is calculated as
  * \(
  * 		(\frac{1}{dcf(t,t+d)} ( \frac{df(t)}{df(t+d)}-1 )
  * \)
  * where \( dcf(t,t+d) \) is the daycount-fraction between t and t+d and \( t \mapsto df(t) \) is the given referenceDiscountCurveNameForForwardCurve.
  * The payment offset \( t+d \) is either generated from the paymentOffsetCode or directly specified if paymentOffsetCode=NaN.
- * 
+ *
  * The referenceDiscountCurveNameForForwardCurve is referenced by name and evaluated late (which allows use of
  * this construct in a calibration process referencing changing discount curves.
- * 
+ *
  * @author Christian Fries
  */
 public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implements Serializable {
@@ -38,7 +38,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 
 	/**
 	 * Create a forward curve using a given referenceDiscountCurveForForwards.
-	 * 
+	 *
 	 * @param name The name under which the forward curve can be referenced.
 	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (usually OIS).
@@ -58,9 +58,9 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	}
 
 	/**
-	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
 	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
-	 * 
+	 *
 	 * @param name The name under which the forward curve can be referenced.
 	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
@@ -75,9 +75,9 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	}
 
 	/**
-	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
 	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
-	 * 
+	 *
 	 * @param name The name under which the forward curve can be referenced.
 	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
@@ -90,9 +90,9 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	}
 
 	/**
-	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
 	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
-	 * 
+	 *
 	 * @param name The name under which the forward curve can be referenced.
 	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
@@ -103,15 +103,15 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	}
 
 	/**
-	 * Create a forward curve using a given referenceDiscountCurveForForwards. 
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
 	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
-	 * 
+	 *
 	 * The name of the this forward curve will be
 	 * <code>
 	 * 	"ForwardCurveFromDiscountCurve(" +  referenceDiscountCurveName + "," + paymentOffsetCode + ")",
 	 * </code>
 	 * but code should not reply on this. Instead you should use getName() to get the name of the curve.
-	 * 
+	 *
 	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
 	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
 	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.

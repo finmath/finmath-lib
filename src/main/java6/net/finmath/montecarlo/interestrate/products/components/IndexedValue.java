@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * An indexed value. Implements the function J(t) V(t), where J(t) = E(I(t)|F_t) for the given I(t).
- * 
+ *
  * @author Christian Fries
  * @version 1.1
  */
@@ -27,7 +27,7 @@ public class IndexedValue extends AbstractProductComponent {
 
 	/**
 	 * Creates the function J(t) V(t), where J(t) = E(I(t)|F_t) for the given I(t).
-	 * 
+	 *
 	 * @param exerciseDate The time t at which the index I is requested (and to which it is conditioned if necessary).
 	 * @param index The index I.
 	 * @param underlying The value V.
@@ -64,14 +64,14 @@ public class IndexedValue extends AbstractProductComponent {
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cash flows prior evaluationTime are not considered.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {        
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		double evaluationTimeUnderlying = Math.max(evaluationTime, exerciseDate);
 
@@ -97,14 +97,14 @@ public class IndexedValue extends AbstractProductComponent {
 		}
 
 		// Return values
-		return underlyingValues;	
+		return underlyingValues;
 	}
 
 	/**
 	 * @param exerciseDate
 	 * @param model
 	 * @return
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method. 
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	private RandomVariableInterface[] getRegressionBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 

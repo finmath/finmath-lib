@@ -13,7 +13,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Monte Carlo simulation of a simple Black-Scholes model for a stock generated discrete process
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  */
@@ -29,7 +29,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization
 	 * @param numberOfPaths The number of Monte-Carlo path to be used
 	 * @param initialValue Spot value
@@ -59,7 +59,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValue Spot value.
@@ -157,7 +157,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	/**
 	 * Returns the riskFreeRate.
-	 * 
+	 *
 	 * @return The riskFreeRate.
 	 */
 	public double getRiskFreeRate() {
@@ -166,7 +166,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 	/**
 	 * Returns the volatility.
-	 * 
+	 *
 	 * @return The volatility.
 	 */
 	public double getVolatility() {

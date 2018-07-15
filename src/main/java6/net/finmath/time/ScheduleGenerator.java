@@ -32,14 +32,14 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 /**
  * Generates a schedule based on some meta data (frequency, maturity, date roll convention, etc.).
  * A schedule is just a collection of {@link net.finmath.time.Period}s.
- * 
+ *
  * <ul>
  * 	<li>The period length is specified via {@link net.finmath.time.ScheduleGenerator.Frequency}.
  * 	<li>The schedule generation considers short periods via the specification of {@link net.finmath.time.ScheduleGenerator.DaycountConvention}.</li>
  * 	<li>The schedule may use an externally provided business day adjustment via an object implementing {@link net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface}</li>
  * 	<li>You may specify fixing and payment adjustments.
  * </ul>
- * 
+ *
  * @author Christian Fries
  * @date 02.03.2014
  */
@@ -47,7 +47,7 @@ public class ScheduleGenerator {
 
 	/**
 	 * Possible frequencies supported by {@link ScheduleGenerator}.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public enum Frequency {
@@ -69,7 +69,7 @@ public class ScheduleGenerator {
 
 	/**
 	 * Possible day count conventions supported by {@link DaycountConvention}.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public enum DaycountConvention {
@@ -131,7 +131,7 @@ public class ScheduleGenerator {
 
 	/**
 	 * Possible stub period conventions supported.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public enum ShortPeriodConvention {
@@ -146,16 +146,16 @@ public class ScheduleGenerator {
 
 	/**
 	 * Schedule generation for given {referenceDate,startDate,maturityDate}.
-	 * 
+	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
 	 * 	<li>The schedule generation considers short stub periods at beginning or at the end.</li>
 	 * 	<li>Date rolling is performed using the provided businessdayCalendar.</li>
 	 * </ul>
-	 * 
+	 *
 	 * The reference date is used internally to represent all dates as doubles, i.e.
 	 * t = 0 corresponds to the reference date.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
 	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
@@ -166,7 +166,7 @@ public class ScheduleGenerator {
 	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
 	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
-	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM. 
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
@@ -249,7 +249,7 @@ public class ScheduleGenerator {
 			 * Going forward on periodStartDate, starting with startDate as periodStartDate
 			 */
 			LocalDate periodStartDateUnadjusted	= startDate;
-			LocalDate periodEndDateUnadjusted	= startDate;		
+			LocalDate periodEndDateUnadjusted	= startDate;
 			LocalDate periodStartDate			= businessdayCalendar.getAdjustedDate(periodStartDateUnadjusted, dateRollConvention);
 
 			int periodIndex = 0;
@@ -360,16 +360,16 @@ public class ScheduleGenerator {
 
 	/**
 	 * Schedule generation for given {referenceDate,startDate,maturityDate}.
-	 * 
+	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
 	 * 	<li>The schedule generation considers short stub periods at beginning or at the end.</li>
 	 * 	<li>Date rolling is performed using the provided businessdayCalendar.</li>
 	 * </ul>
-	 * 
+	 *
 	 * The reference date is used internally to represent all dates as doubles, i.e.
 	 * t = 0 corresponds to the reference date.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
 	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
@@ -400,15 +400,15 @@ public class ScheduleGenerator {
 
 	/**
 	 * Schedule generation for given {referenceDate,startDate,maturityDate}.
-	 * 
+	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
 	 * 	<li>The schedule generation considers short stub periods at beginning or at the end.</li>
 	 * 	<li>Date rolling is performed using the provided businessdayCalendar.</li>
 	 * </ul>
-	 * 
+	 *
 	 * The reference date is used internally to represent all dates as doubles.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
 	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
@@ -438,7 +438,7 @@ public class ScheduleGenerator {
 				referenceDate,
 				startDate,
 				maturityDate,
-				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()),
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
 				DateRollConvention.getEnum(dateRollConvention),
@@ -450,15 +450,15 @@ public class ScheduleGenerator {
 
 	/**
 	 * Schedule generation for given {referenceDate,startDate,maturityDate}. Method using Date instead of LocalDate for backward compatibility.
-	 * 
+	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
 	 * 	<li>The schedule generation considers short stub periods at beginning or at the end.</li>
 	 * 	<li>Date rolling is performed using the provided businessdayCalendar.</li>
 	 * </ul>
-	 * 
+	 *
 	 * The reference date is used internally to represent all dates as doubles.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
 	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
@@ -500,9 +500,9 @@ public class ScheduleGenerator {
 
 	/**
 	 * Simple schedule generation where startDate and maturityDate are calculated based on tradeDate, spotOffsetDays, startOffsetString and maturityString.
-	 * 
+	 *
 	 * The schedule generation considers short periods. Date rolling is ignored.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param tradeDate Base date for the schedule generation (used to build spot date).
 	 * @param spotOffsetDays Number of business days to be added to the trade date to obtain the spot date.
@@ -541,9 +541,9 @@ public class ScheduleGenerator {
 
 	/**
 	 * Simple schedule generation where startDate and maturityDate are calculated based on referenceDate, spotOffsetDays, startOffsetString and maturityString.
-	 * 
+	 *
 	 * The schedule generation considers short periods. Date rolling is ignored.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotOffsetDays Number of business days to be added to the reference date to obtain the spot date.
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
@@ -555,7 +555,7 @@ public class ScheduleGenerator {
 	 * @param businessdayCalendar Business day calendar (holiday calendar) to be used for date roll adjustment.
 	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
-	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM. 
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 * @return The corresponding schedule
 	 */
 	public static ScheduleInterface createScheduleFromConventions(
@@ -581,7 +581,7 @@ public class ScheduleGenerator {
 				referenceDate,
 				startDate,
 				maturityDate,
-				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()),
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
 				DateRollConvention.getEnum(dateRollConvention),
@@ -594,9 +594,9 @@ public class ScheduleGenerator {
 
 	/**
 	 * Simple schedule generation where startDate and maturityDate are calculated based on referenceDate, spotOffsetDays, startOffsetString and maturityString.
-	 * 
+	 *
 	 * The schedule generation considers short periods. Date rolling is ignored.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param spotOffsetDays Number of business days to be added to the trade date to obtain the spot date.
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
@@ -630,9 +630,9 @@ public class ScheduleGenerator {
 
 	/**
 	 * Simple schedule generation where startDate and maturityDate are calculated based on referenceDate, startOffsetString and maturityString.
-	 * 
+	 *
 	 * The schedule generation considers short periods. Date rolling is ignored.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
 	 * @param maturityString The end date of the last period entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
@@ -664,7 +664,7 @@ public class ScheduleGenerator {
 
 	/**
 	 * Schedule generation with futureCodes (in the format DEC17). Futures are assumed to expire on the third wednesday in the respective month.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param futureCode Future code in the format DEC17
 	 * @param startOffsetString The start date as an offset from the spotDate (build from tradeDate and spotOffsetDays) entered as a code like 1D, 1W, 1M, 2M, 3M, 1Y, etc.
@@ -715,7 +715,7 @@ public class ScheduleGenerator {
 				referenceDate,
 				futureExpiryDate,
 				maturityDate,
-				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()), 
+				Frequency.valueOf(frequency.replace("/", "_").toUpperCase()),
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.replace("/", "_").toUpperCase()),
 				DateRollConvention.getEnum(dateRollConvention),
@@ -728,7 +728,7 @@ public class ScheduleGenerator {
 	/**
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period.
 	 * @param frequency The frequency.
@@ -762,7 +762,7 @@ public class ScheduleGenerator {
 				referenceDate,
 				startDate,
 				maturityDate,
-				Frequency.valueOf(frequency.toUpperCase()), 
+				Frequency.valueOf(frequency.toUpperCase()),
 				DaycountConvention.getEnum(daycountConvention),
 				ShortPeriodConvention.valueOf(shortPeriodConvention.toUpperCase()),
 				DateRollConvention.getEnum(dateRollConvention),
@@ -776,7 +776,7 @@ public class ScheduleGenerator {
 	/**
 	 * Generates a schedule based on some meta data. The schedule generation
 	 * considers short periods. Date rolling is ignored.
-	 * 
+	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param startDate The start date of the first period.
 	 * @param frequency The frequency.
@@ -813,9 +813,9 @@ public class ScheduleGenerator {
 	 * The year fraction is interpreted in a 30/360 way. More specifically,
 	 * every integer unit advances by a year, each remaining fraction of 12
 	 * advances by a month and each remaining fraction of 30 advances a day.
-	 * 
+	 *
 	 * The function may be used to ease the creation of maturities in spreadsheets.
-	 * 
+	 *
 	 * @param baseDate The start date.
 	 * @param offsetYearFrac The year fraction in 30/360 to be used for adding to the start date.
 	 * @return A date corresponding the maturity.

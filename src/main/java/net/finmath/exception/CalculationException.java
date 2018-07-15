@@ -11,7 +11,7 @@ package net.finmath.exception;
 public class CalculationException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 6848163003188948320L;
 
@@ -24,7 +24,7 @@ public class CalculationException extends Exception {
 
 	/**
 	 * Create an exception with error message.
-	 * 
+	 *
 	 * @param message The error message.
 	 */
 	public CalculationException(String message) {
@@ -34,7 +34,7 @@ public class CalculationException extends Exception {
 
 	/**
 	 * Create an exception from another exception.
-	 * 
+	 *
 	 * @param cause The cause.
 	 */
 	public CalculationException(Throwable cause) {
@@ -44,7 +44,7 @@ public class CalculationException extends Exception {
 
 	/**
 	 * Create an exception from another exception with error message.
-	 * 
+	 *
 	 * @param message The error message.
 	 * @param cause The cause.
 	 */

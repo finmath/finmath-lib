@@ -22,21 +22,21 @@ public interface LIBORModelInterface extends TermStructureModelInterface {
 
 	/**
 	 * The tenor time discretization of the forward rate curve.
-	 * 
+	 *
 	 * @return The tenor time discretization of the forward rate curve.
 	 */
 	TimeDiscretizationInterface getLiborPeriodDiscretization();
 
 	/**
 	 * Get the number of LIBORs in the LIBOR discretization.
-	 *  
+	 *
 	 * @return The number of LIBORs in the LIBOR discretization
 	 */
 	int getNumberOfLibors();
 
 	/**
 	 * The period start corresponding to a given forward rate discretization index.
-	 * 
+	 *
 	 * @param timeIndex The index corresponding to a given time (interpretation is start of period)
 	 * @return The period start corresponding to a given forward rate discretization index.
 	 */
@@ -44,7 +44,7 @@ public interface LIBORModelInterface extends TermStructureModelInterface {
 
 	/**
 	 * Same as java.util.Arrays.binarySearch(liborPeriodDiscretization,time). Will return a negative value if the time is not found, but then -index-1 corresponds to the index of the smallest time greater than the given one.
-	 * 
+	 *
 	 * @param time The period start.
 	 * @return The index corresponding to a given time (interpretation is start of period)
 	 */
@@ -52,7 +52,7 @@ public interface LIBORModelInterface extends TermStructureModelInterface {
 
 	/**
 	 * Create a new object implementing LIBORModelInterface, using the new data.
-	 * 
+	 *
 	 * @param dataModified A map with values to be used in constructions (keys are identical to parameter names of the constructors).
 	 * @return A new object implementing LIBORModelInterface, using the new data.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.

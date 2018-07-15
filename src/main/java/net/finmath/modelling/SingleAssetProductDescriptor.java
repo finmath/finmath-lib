@@ -9,7 +9,7 @@ package net.finmath.modelling;
 /**
  * Interface for a product descriptor.
  * For a description of the general concept see <a href="http://finmath.net/finmath-lib/concepts/separationofproductandmodel">http://finmath.net/finmath-lib/concepts/separationofproductandmodel</a>.
- * 
+ *
  * @author Christian Fries
  */
 public interface SingleAssetProductDescriptor extends ProductDescriptor {

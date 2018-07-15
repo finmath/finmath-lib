@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.finmath.optimizer;
 

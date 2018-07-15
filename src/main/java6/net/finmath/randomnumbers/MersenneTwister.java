@@ -24,7 +24,7 @@ public class MersenneTwister implements Serializable {
 
 	/**
 	 * Returns the next random number in the sequence.
-	 * 
+	 *
 	 * @return The next random number in the sequence.
 	 */
 	public double nextDouble() {

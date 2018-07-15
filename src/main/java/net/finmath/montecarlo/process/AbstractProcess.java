@@ -13,9 +13,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This class is an abstract base class to implement a multi-dimensional multi-factor Ito process.
  * The dimension is called <code>numberOfComponents</code> here.
  * The default for <code>numberOfFactors</code> is 1.
- * 
+ *
  * This base class manages the time discretization and delegation to the model.
- * 
+ *
  * @author Christian Fries
  * @see AbstractProcessInterface The interface definition contains more details.
  * @version 1.5
@@ -27,7 +27,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 
 	/**
 	 * Create a discretization scheme / a time discrete process.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization used for the discretization scheme.
 	 */
 	public AbstractProcess(TimeDiscretizationInterface timeDiscretization) {
@@ -35,7 +35,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 		this.timeDiscretization	= timeDiscretization;
 	}
 
-	public abstract Object getCloneWithModifiedSeed(int seed);	
+	public abstract Object getCloneWithModifiedSeed(int seed);
 
 	/*
 	 * Delegation to model

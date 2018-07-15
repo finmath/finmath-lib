@@ -32,7 +32,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
- * 
+ *
  * @author Christian Fries
  * @author Moritz Scherrmann
  */
@@ -50,7 +50,7 @@ public class BondValuationTest {
 	/**
 	 * The parameters for this test, that is an error consisting of
 	 * { numberOfPaths, setup }.
-	 * 
+	 *
 	 * @return Array of parameters.
 	 */
 
@@ -68,7 +68,7 @@ public class BondValuationTest {
 
 	/**
 	 * Run some test using discount curves and forward curves and the solver to create a calibrated model.
-	 * 
+	 *
 	 * @param args Arguments - not used.
 	 * @throws SolverException Thrown if the solver cannot find a solution to the calibration problem.
 	 */
@@ -94,18 +94,18 @@ public class BondValuationTest {
 
 
 		// Create a survival probability curve which is constant 1 ( non defaultable)
-		CurveInterface	survivalProbabilityCurve	= new Curve("survivalProbabilityCurve", 
-				LocalDate.now() , 
-				InterpolationMethod.LINEAR, 
-				ExtrapolationMethod.CONSTANT, 
-				InterpolationEntity.VALUE, 
-				new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0}, 
+		CurveInterface	survivalProbabilityCurve	= new Curve("survivalProbabilityCurve",
+				LocalDate.now() ,
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT,
+				InterpolationEntity.VALUE,
+				new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0},
 				new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
 
 		// Create a basis factor curve which is constant 1 ( start value)
 		Curve basisFactorCurve	= DiscountCurve.createDiscountCurveFromDiscountFactors(
-				"basisFactorCurve",  
-				new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0}, 
+				"basisFactorCurve",
+				new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0},
 				new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
 
 
@@ -179,7 +179,7 @@ public class BondValuationTest {
 
 
 
-	}	
+	}
 
 
 

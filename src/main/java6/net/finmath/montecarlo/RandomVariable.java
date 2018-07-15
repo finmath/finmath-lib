@@ -91,9 +91,9 @@ public class RandomVariable implements RandomVariableInterface {
 
 	/**
 	 * Create a stochastic random variable.
-	 * 
+	 *
 	 * Important: The realizations array is not cloned (not defensive copy is made).
-	 * 
+	 *
 	 * @TODO A future version should perform a defensive copy.
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.

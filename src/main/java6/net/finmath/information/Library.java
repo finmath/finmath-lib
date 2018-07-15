@@ -10,7 +10,7 @@ import java.util.Properties;
 
 /**
  * Provides information on the finmath-lib library, e.g., the version.
- * 
+ *
  * @author Christian Fries
  */
 public class Library {
@@ -33,7 +33,7 @@ public class Library {
 
 	/**
 	 * Return the version string of this instance of finmath-lib.
-	 * 
+	 *
 	 * @return The version string of this instance of finmath-lib.
 	 */
 	public static String getVersionString() {
@@ -48,7 +48,7 @@ public class Library {
 	/**
 	 * Return the build string of this instance of finmath-lib.
 	 * Currently this is the Git commit hash.
-	 * 
+	 *
 	 * @return The build string of this instance of finmath-lib.
 	 */
 	public static String getBuildString() {

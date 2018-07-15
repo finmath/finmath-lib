@@ -26,7 +26,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * Implements a discretized Heath-Jarrow-Morton model / LIBOR market model with dynamic tenor refinement, see
  * <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699</a>.
- * 
+ *
  * <br><br>
  * In its default case the class specifies a multi-factor LIBOR market model, that is
  * \( L_{j} = \frac{1}{T_{j+1}-T_{j}} ( exp(Y_{j}) - 1 ) \), where
@@ -56,12 +56,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  *		</li>
  * </ul>
  * <br>
- * 
+ *
  * The main task of this class is to calculate the risk-neutral drift and the
  * corresponding numeraire given the covariance model.
- * 
+ *
  * The calibration of the covariance structure is not part of this class.
- * 
+ *
  * @author Christian Fries
  * @version 1.2
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
@@ -87,6 +87,11 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
 	private AbstractProcessInterface									numerairesProcess = null;
 
+	/**
+	 * A class for calibration items, that is a tripple (P,V,w) where P is a product, V is a target value and w is a weight.
+	 *
+	 * @author Christian Fries
+	 */
 	public static class CalibrationItem {
 		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
 		public final double								calibrationTargetValue;
@@ -109,7 +114,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 	/**
 	 * Creates a model for given covariance.
-	 * 
+	 *
 	 * Creates a discretized Heath-Jarrow-Morton model / LIBOR market model with dynamic tenor refinement, see
 	 * <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699</a>.
 	 * <br>
@@ -141,7 +146,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 *			</ul>
 	 *		</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param liborPeriodDiscretizations A vector of tenor discretizations of the interest rate curve into forward rates (tenor structure), finest first.
 	 * @param numberOfDiscretizationIntervalls A vector of number of periods to be taken from the liborPeriodDiscretizations.
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
@@ -203,11 +208,11 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 	/**
 	 * Return the numeraire at a given time.
-	 * 
+	 *
 	 * The numeraire is provided for interpolated points. If requested on points which are not
 	 * part of the tenor discretization, the numeraire uses a linear interpolation of the reciprocal
 	 * value. See ISBN 0470047224 for details.
-	 * 
+	 *
 	 * @param time Time time <i>t</i> for which the numeraire should be returned <i>N(t)</i>.
 	 * @return The numeraire at the specified time as <code>RandomVariableInterface</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
@@ -301,7 +306,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	/**
 	 * Return the complete vector of the drift for the time index timeIndex, given that current state is realizationAtTimeIndex.
 	 * The drift will be zero for rates being already fixed.
-	 * 
+	 *
 	 * The method currently provides the drift for either <code>Measure.SPOT</code> or <code>Measure.TERMINAL</code> - depending how the
 	 * model object was constructed. For <code>Measure.TERMINAL</code> the j-th entry of the return value is the random variable
 	 * \[
@@ -313,15 +318,15 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 * \]
 	 * where \( \lambda_{j} \) is the vector for factor loadings for the j-th component of the stochastic process (that is, the diffusion part is
 	 * \( \sum_{k=1}^m \lambda_{j,k} \mathrm{d}W_{k} \)).
-	 * 
+	 *
 	 * Note: The scalar product of the factor loadings determines the instantaneous covariance. If the model is written in log-coordinates (using exp as a state space transform), we find
 	 * \(\lambda_{j} \cdot \lambda_{l} = \sum_{k=1}^m \lambda_{j,k} \lambda_{l,k} = \sigma_{j} \sigma_{l} \rho_{j,l} \).
 	 * If the model is written without a state space transformation (in its orignial coordinates) then \(\lambda_{j} \cdot \lambda_{l} = \sum_{k=1}^m \lambda_{j,k} \lambda_{l,k} = L_{j} L_{l} \sigma_{j} \sigma_{l} \rho_{j,l} \).
-	 * 
-	 * 
+	 *
+	 *
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelWithTenorRefinement#getNumeraire(double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelWithTenorRefinement#getFactorLoading(int, int, RandomVariableInterface[]) The factor loading \( \lambda_{j,k} \).
-	 * 
+	 *
 	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
 	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
 	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariable[]</code>
@@ -354,7 +359,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		/*
 		 * Standard HJM drift part of log-forward-bond
 		 */
-		TimeDiscretizationInterface liborPeriodDiscretization = getLiborPeriodDiscretization(timeNext);		
+		TimeDiscretizationInterface liborPeriodDiscretization = getLiborPeriodDiscretization(timeNext);
 		// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
 		for(int componentIndex=0; componentIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
 			drift[componentIndex] = zero;
@@ -759,12 +764,11 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 	/**
 	 * Returns the term structure covariance model.
-	 * 
+	 *
 	 * @return the term structure covariance model.
 	 */
 	public TermStructureCovarianceModelInterface getCovarianceModel() {
 		return covarianceModel;
 	}
 }
-
 

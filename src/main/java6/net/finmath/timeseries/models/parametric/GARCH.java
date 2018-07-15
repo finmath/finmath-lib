@@ -1,6 +1,6 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- * 
+ *
  * Created on 15.07.2012
  */
 
@@ -22,7 +22,7 @@ import net.finmath.timeseries.HistoricalSimulationModel;
 
 /**
  * Log-normal process with GARCH(1,1) volatility.
- * 
+ *
  * This class estimate the process
  * \[
  *   \mathrm{d} \log(X) = \sigma(t) \mathrm{d}W(t)
@@ -31,19 +31,19 @@ import net.finmath.timeseries.HistoricalSimulationModel;
  * realizations \( X_{i} \). That is, given a time series of values \( X_{i} \)
  * the GARCH(1,1) volatility of the log-returns \( \log(X_{i+1}/X_{i}) \) is
  * estimated.
- * 
+ *
  * @author Christian Fries
  */
 public class GARCH implements HistoricalSimulationModel {
 
-	private double[] values;	
+	private double[] values;
 	private int windowIndexStart;
 	private int windowIndexEnd;
 	private int maxIterations = 1000000;
 
 	/**
 	 * Create GARCH model estimated form the given time series of values.
-	 * 
+	 *
 	 * @param values Given set of values.
 	 */
 	public GARCH(double[] values) {
@@ -54,7 +54,7 @@ public class GARCH implements HistoricalSimulationModel {
 
 	/**
 	 * Create GARCH model estimated form the given time series of values.
-	 * 
+	 *
 	 * @param values Given set of values.
 	 * @param windowIndexStart First index to consider in the given set of values.
 	 * @param windowIndexEnd Last index to consider in the given set of values.
@@ -71,7 +71,7 @@ public class GARCH implements HistoricalSimulationModel {
 
 	/**
 	 * Get log likelihood of the sample time series for given model parameters.
-	 * 
+	 *
 	 * @param omega The parameter &omega; of the GARCH model.
 	 * @param alpha The parameter &alpha; of the GARCH model.
 	 * @param beta The parameter &beta; of the GARCH model.
@@ -98,7 +98,7 @@ public class GARCH implements HistoricalSimulationModel {
 
 	/**
 	 * Returns the last estimate of the time series volatility.
-	 * 
+	 *
 	 * @param omega The parameter &omega; of the GARCH model.
 	 * @param alpha The parameter &alpha; of the GARCH model.
 	 * @param beta The parameter &beta; of the GARCH model.
@@ -150,7 +150,7 @@ public class GARCH implements HistoricalSimulationModel {
 					(quantileIndexHi-quantileIndex) * Math.exp(szenarios[Math.max(quantileIndexLo,0               )] * vol)
 					+ (quantileIndex-quantileIndexLo) * Math.exp(szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);
 
-			double quantileValue = (values[windowIndexEnd]) * szenarioRelativeChange; 
+			double quantileValue = (values[windowIndexEnd]) * szenarioRelativeChange;
 			quantileValues[i] = quantileValue;
 		}
 
@@ -258,7 +258,7 @@ public class GARCH implements HistoricalSimulationModel {
 						maxIterations,
 						objectiveFunction,
 						GoalType.MAXIMIZE,
-						guessParameters 
+						guessParameters
 						);
 				bestParameters = result.getPoint();
 			} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {

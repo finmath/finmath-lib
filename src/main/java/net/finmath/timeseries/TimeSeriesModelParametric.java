@@ -8,7 +8,7 @@ package net.finmath.timeseries;
 
 /**
  * A parametric time series model
- * 
+ *
  * @author Christian Fries
  */
 public interface TimeSeriesModelParametric {

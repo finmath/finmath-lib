@@ -12,7 +12,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Blended model (or displaced diffusion model) build on top of a standard covariance model.
- * 
+ *
  * The model constructed for the <i>i</i>-th factor loading is
  * \[
  * 	( a + (1-a) L_{i}(t) ) F_{i}(t) \text{,}
@@ -25,19 +25,19 @@ import net.finmath.stochastic.RandomVariableInterface;
  * where <i>a</i> is the displacement or blending parameter and <i>L<sub>i</sub></i> is
  * the realization of the <i>i</i>-th component of the stochastic process and
  * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
- * 
+ *
  * If a forward curve is provided, the deterministic value L<sub>i,0</sub> is
  * calculated form this curve (using fixing in <i>T<sub>i</sub></i>),
  * otherwise it is replaced by 1.
- * 
+ *
  * The parameter of this model is a joint parameter vector, consisting
  * of the parameter vector of the given base covariance model and
  * appending the displacement parameter at the end.
- * 
+ *
  * If this model is not calibrateable, its parameter vector is that of the
  * covariance model, i.e., only the displacement parameter will be not
  * part of the calibration.
- * 
+ *
  * @author Christian Fries
  */
 public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
@@ -58,14 +58,14 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * the displacement and <i>L</i> is
 	 * the component of the stochastic process and <i>F</i> is the factor loading
 	 * from the given covariance model.
-	 * 
+	 *
 	 * The parameter of this model is a joint parameter vector, where the first
 	 * entry is the displacement and the remaining entries are the parameter vector
 	 * of the given base covariance model.
-	 * 
+	 *
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
-	 * 
+	 *
 	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param forwardCurve The given forward curve L<sub>0</sub>
@@ -84,21 +84,21 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	/**
 	 * Displaced diffusion model build on top of a standard covariance model.
-	 * 
+	 *
 	 * The model performs a linear interpolation of a log-normal model (a = 0) and a normal model (a = 1).
-	 * 
+	 *
 	 * The model constructed is <i>(a + (1-a)L) F</i> where <i>a</i> is
 	 * the displacement and <i>L</i> is
 	 * the component of the stochastic process and <i>F</i> is the factor loading
 	 * loading from the given covariance model.
-	 * 
+	 *
 	 * The parameter of this model is a joint parameter vector, where the first
 	 * entry is the displacement and the remaining entries are the parameter vector
 	 * of the given base covariance model.
-	 * 
+	 *
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
-	 * 
+	 *
 	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param displacement The displacement <i>a</i>.
@@ -110,21 +110,21 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	/**
 	 * Displaced diffusion model build on top of a standard covariance model.
-	 * 
+	 *
 	 * The model performs a linear interpolation of a log-normal model (a = 0) and a normal model (a = 1).
-	 * 
+	 *
 	 * The model constructed is <i>(a + (1-a)L) F</i> where <i>a</i> is
 	 * the displacement and <i>L</i> is
 	 * the component of the stochastic process and <i>F</i> is the factor loading
 	 * loading from the given covariance model.
-	 * 
+	 *
 	 * The parameter of this model is a joint parameter vector, where the first
 	 * entry is the displacement and the remaining entries are the parameter vector
 	 * of the given base covariance model.
-	 * 
+	 *
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
-	 * 
+	 *
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
@@ -147,7 +147,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * where <i>a</i> is the displacement and <i>L<sub>i</sub></i> is
 	 * the realization of the <i>i</i>-th component of the stochastic process and
 	 * <i>F<sub>i</sub></i> is the factor loading loading from the given covariance model.
-	 * 
+	 *
 	 * @return The base covariance model.
 	 */
 	public AbstractLIBORCovarianceModelParametric getBaseCovarianceModel() {

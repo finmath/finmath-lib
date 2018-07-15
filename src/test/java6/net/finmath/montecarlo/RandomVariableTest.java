@@ -19,7 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Test cases for the class net.finmath.montecarlo.RandomVariable.
- * 
+ *
  * @author Christian Fries
  * @see net.finmath.montecarlo.RandomVariable
  */

@@ -24,7 +24,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * The curve returns a value depending on the month of the time argument, that is,
  * a call <code>getValue(model, time)</code> will map time to a 30/360 value using
  * the day and month only and delegate the call to a given base curve.
- * 
+ *
  * The value returned then is <code>baseCurve.getValue(model, season)</code>
  * where
  * <code>season = (month-1) / 12.0 + (day-1) / (double)numberOfDays / 12.0;</code>
@@ -32,7 +32,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * The base curve has to be constructed according to this time convention (e.g.,
  * as a piecewise constant curve with values at i / 12 for i=1,...,12 using
  * {@link Curve.InterpolationMethod} with <code>PIECEWISE_CONSTANT_RIGHTPOINT</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class SeasonalCurve extends AbstractCurve implements CurveInterface {
@@ -44,7 +44,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	/**
 	 * A builder (following the builder pattern) for SeasonalCurve objects.
 	 * Allows to successively construct a curve object by adding points to its base points.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	public static class CurveBuilder extends Curve.CurveBuilder implements CurveBuilderInterface {
@@ -53,7 +53,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 
 		/**
 		 * Create a CurveBuilder from a given seasonalCurve.
-		 * 
+		 *
 		 * @param seasonalCurve The seasonal curve from which to copy the fixed part upon build().
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
@@ -73,7 +73,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 
 	/**
 	 * Create a monthly seasonality adjustment curve by estimating historic log-returns from monthly index fixings.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve (i.e. t=0).
 	 * @param indexFixings A <code>Map&lt;Date, Double&gt;</code> of consecutive monthly index fixings.
@@ -166,7 +166,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 
 	/**
 	 * Computes annualized seasonal adjustments from given monthly realized CPI values.
-	 * 
+	 *
 	 * @param realizedCPIValues An array of consecutive monthly CPI values (minimum size is 12*numberOfYearsToAverage))
 	 * @param lastMonth The index of the last month in the sequence of realizedCPIValues (corresponding to the enums in <code>{@link java.time.Month}</code>).
 	 * @param numberOfYearsToAverage The number of years to go back in the array of realizedCPIValues.
@@ -196,7 +196,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 		}
 		double averageSeasonal = sum / averageLogReturn.length;
 
-		double[] seasonalAdjustments = new double[averageLogReturn.length]; 
+		double[] seasonalAdjustments = new double[averageLogReturn.length];
 		for(int index = 0; index < seasonalAdjustments.length; index++){
 			seasonalAdjustments[index] = averageLogReturn[index] - averageSeasonal;
 		}

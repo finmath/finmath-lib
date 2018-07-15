@@ -67,7 +67,7 @@ public class AccruedInterestTest {
 	public static void main(String[] args) {
 		AccruedInterestTest test=new AccruedInterestTest();
 		LocalDate testDate= LocalDate.of(2017, 7, 17);
-		System.out.println(test.getAccruedInterest(testDate));	
+		System.out.println(test.getAccruedInterest(testDate));
 		System.out.println(test.getAccruedInterest(testDate)-4.48843195598473);
 
 		LocalDate startDate = test.testSchedule.getPeriod(test.getPeriodIndex(testDate)).getPeriodStart();

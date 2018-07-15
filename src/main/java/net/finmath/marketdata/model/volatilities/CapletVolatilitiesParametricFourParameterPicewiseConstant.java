@@ -16,11 +16,11 @@ import net.finmath.time.TimeDiscretizationInterface;
  * picewise constant (numerical integration) of the four parameter model
  * for the instantaneous forward rate volatility given by
  * \( \sigma(t) = (a + b t) \exp(- c t) + d \).
- * 
+ *
  * In other words, the Black volatility for maturity T is given by
  * \[ \sqrt{ \frac{1}{t_{n}} \sum_{i=0}^{n-1} ((a + b t_{i}) \exp(- c t_{i}) + d)^2 (t_{i+1}-t_{i}) } \],
  * where \( t_{i} \) is given time discretization.
- * 
+ *
  * @author Christian Fries
  */
 public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends AbstractVolatilitySurfaceParametric {
@@ -30,7 +30,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 
 	/**
 	 * Create a model with parameters a,b,c,d.
-	 * 
+	 *
 	 * @param name The name of this volatility surface.
 	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
 	 * @param a The parameter a

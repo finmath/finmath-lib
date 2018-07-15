@@ -7,20 +7,20 @@ import net.finmath.time.ScheduleInterface;
 
 /**
  * Implements the valuation of the (overnight) deposit (maturity t+1 or t+2). May be used in curve calibration.
- * 
+ *
  * For definition and convention see Ametrano/Bianchetti (2013). Following the notation there,...
  * <ul>
  * 	<li>for deposit ON set spot offset = 0, start = 0D, maturity = 1D</li>
  *  <li>for deposit TN set spot offset = 1, start = 0D, maturity = 1D</li>
  *  <li>for deposit ST set spot offset = 2, start = 0D, maturity as given.</li>
  * </ul>
- * Date rolling convention: "following" for T &lt; 1M, "modified following, eom" for T &ge; 1 
- * 
+ * Date rolling convention: "following" for T &lt; 1M, "modified following, eom" for T &ge; 1
+ *
  * The getValue method returns the value df(T) * (1.0+rate*periodLength) - df(t),
  * where t = schedule.getPeriodStart(0), T = schedule.getPayment(0) and df denotes discountCurve.getDiscountFactor.
- * 
+ *
  * This corresponds to the valuation of an investment of 1 in t, paid back as (1.0+rate*periodLength) in time T.
- * 
+ *
  * @author Rebecca Declara
  * @author Christian Fries
  */
@@ -83,7 +83,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 
 	/**
 	 * Return the deposit rate implied by the given model's curve.
-	 * 
+	 *
 	 * @param model The given model containing the curve of name <code>discountCurveName</code>.
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */

@@ -42,7 +42,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
-	 * 
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param notional The notional.
 	 * @param index The index.
@@ -63,7 +63,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 		/*
 		 * Create components.
-		 * 
+		 *
 		 * The interesting part here is, that the creation of the components implicitly
 		 * constitutes the (traditional) pricing algorithms (e.g., loop over all periods).
 		 * Hence, the definition of the product is the definition of the pricing algorithm.
@@ -108,7 +108,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components
-	 * 
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param notional The notional.
 	 * @param index The index.
@@ -120,7 +120,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 	}
 
 	public SwapLeg(InterestRateSwapLegProductDescriptor descriptor) {
-		this(descriptor.getLegSchedule(), descriptor.getNotional(), descriptor.getIndex(), descriptor.getSpread(), descriptor.isCouponFlow(), 
+		this(descriptor.getLegSchedule(), descriptor.getNotional(), descriptor.getIndex(), descriptor.getSpread(), descriptor.isCouponFlow(),
 				descriptor.isNotionalExchanged(), descriptor.isNotionalAccruing());
 	}
 

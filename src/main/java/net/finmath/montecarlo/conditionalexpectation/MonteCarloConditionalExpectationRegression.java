@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A service that allows to estimate conditional expectation via regression.
  * In oder to estimate the conditional expectation, basis functions have to be
  * specified.
- * 
+ *
  * The class can either estimate and predict the conditional expectation within
  * the same simulation (which will eventually introduce a small foresight bias)
  * or use a different simulation for estimation (using <code>basisFunctionsEstimator</code>)
@@ -25,7 +25,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * (using <code>basisFunctionsPredictor</code>). In the latter case, the
  * basis functions have to correspond to the same entities, however, generated in
  * different simulations (number of path, etc., may be different).
- *  
+ *
  * @author Christian Fries
  */
 public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimatorInterface {
@@ -43,7 +43,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 	/**
 	 * Creates a class for conditional expectation estimation.
-	 * 
+	 *
 	 * @param basisFunctions A vector of random variables to be used as basis functions.
 	 */
 	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctions) {
@@ -54,7 +54,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 	/**
 	 * Creates a class for conditional expectation estimation.
-	 * 
+	 *
 	 * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
 	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
 	 */
@@ -82,7 +82,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	/**
 	 * Return the solution x of XTX x = XT y for a given y.
 	 * @TODO Performance upon repeated call can be optimized by caching XTX.
-	 * 
+	 *
 	 * @param dependents The sample vector of the random variable y.
 	 * @return The solution x of XTX x = XT y.
 	 */

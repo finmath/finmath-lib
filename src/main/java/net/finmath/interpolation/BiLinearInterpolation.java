@@ -10,7 +10,7 @@ import java.util.function.BiFunction;
 
 /**
  * Simple bi-linear interpolation of data points \( z_{i,j} \) over a Cartesian grid \( (x_{i},y_{j}) \).
- * 
+ *
  * The interpolation function is
  * \[
  *	z = f(x,y) =
@@ -20,7 +20,7 @@ import java.util.function.BiFunction;
  *		(1-\alpha_{x}) (1-\alpha_{y}) z_{k_{x}+1,k_{y}+1}
  * \]
  * where \( x_{k_{x}} \leq x \leq x_{k_{x}+1} \) and \( y_{k_{y}} \leq y \leq y_{k_{x}+1} \) and \( \alpha_{x} = (x_{k_{x}+1}-x)/(x_{k_{x}+1}-x_{k_{x}}) \) and \( \alpha_{y} = (x_{k_{y}+1}-x)/(x_{k_{y}+1}-x_{k_{y}}) \).
- * 
+ *
  * @author Christian Fries
  */
 public class BiLinearInterpolation implements BiFunction<Double, Double, Double> {
@@ -66,7 +66,7 @@ public class BiLinearInterpolation implements BiFunction<Double, Double, Double>
 		double alphaX = (this.x[upperIndexX]-x)/(this.x[upperIndexX]-this.x[lowerIndexX]);
 		double alphaY = (this.y[upperIndexY]-y)/(this.y[upperIndexY]-this.y[lowerIndexY]);
 
-		double interpolatedValue = 
+		double interpolatedValue =
 				alphaX * alphaY * z[lowerIndexX][lowerIndexY] +
 				alphaX * (1.0-alphaY) * z[lowerIndexX][upperIndexY] +
 				(1-alphaX) * alphaY * z[upperIndexX][lowerIndexY] +

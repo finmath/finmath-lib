@@ -14,13 +14,13 @@ import net.finmath.time.TimeDiscretizationInterface;
  * i.e., for a given multi-factorial Brownian motion W, this Brownian motion is
  * given by ( W(i[0]), W(i[1]) W(i[2]), ..., W(i[n-1]) )
  * where i is a given array of integers.
- * 
+ *
  * You may use this class to change the number of factors and/or the order of
  * a given Brownian motion.
- * 
+ *
  * You may use this, to create a link between two models, where each model requires
  * an individual object of type {@link BrownianMotionInterface}.
- * 
+ *
  * @author Christian Fries
  */
 public class BrownianMotionView implements BrownianMotionInterface {
@@ -32,9 +32,9 @@ public class BrownianMotionView implements BrownianMotionInterface {
 	 * Create a sub-view on a Brownian motion. The result is an object
 	 * implementing {@link BrownianMotionInterface}, i.e. a Brownian motion,
 	 * which maps factor indices to possilby other factors of the given Brownian motion.
-	 * 
+	 *
 	 * You may use this class to change the number of factors and/or the order.
-	 * 
+	 *
 	 * @param brownianMotion A given Brownian motion.
 	 * @param factors A map of indices i &rarr; j for i = 0,1,2,3,... given as an array of j's
 	 */

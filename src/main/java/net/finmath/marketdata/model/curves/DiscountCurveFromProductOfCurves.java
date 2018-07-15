@@ -13,7 +13,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 /**
  * A discount curve derived from other discount curves
  * by multiplying the discount factors.
- * 
+ *
  * @author Christian Fries
  */
 public class DiscountCurveFromProductOfCurves extends AbstractCurve implements Serializable, DiscountCurveInterface {
@@ -24,7 +24,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 
 	/**
 	 * Create a discount curve using one or more curves.
-	 * 
+	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date of this curve.
 	 * @param curves Argument list or array of curves.

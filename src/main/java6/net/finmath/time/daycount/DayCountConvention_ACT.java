@@ -10,9 +10,9 @@ import org.threeten.bp.LocalDate;
 
 /**
  * Base class which calculates the day count by calculating the actual number of days between startDate and endDate.
- * 
+ *
  * A fractional day is rounded to the approximately nearest day.
- * 
+ *
  * @author Christian Fries
  */
 public abstract class DayCountConvention_ACT implements DayCountConventionInterface {
@@ -37,20 +37,20 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 
 	/**
 	 * Returns the number of days, between two dates.
-	 * 
+	 *
 	 * A fractional day is rounded to the approximately nearest day.
-	 * 
+	 *
 	 * The formula implemented is
 	 * <code>
-	 * 
+	 *
 	 * (endDate.toEpochDay() - startDate.toEpochDay());
 	 * </code>
-	 * 
+	 *
 	 * @param startDate The start date of the interval.
 	 * @param endDate The end date of the interval.
 	 * @return Number of days between startDate and endDate.
 	 */
 	public static double daysBetween(LocalDate startDate, LocalDate endDate) {
-		return (endDate.toEpochDay() - startDate.toEpochDay()); 
+		return (endDate.toEpochDay() - startDate.toEpochDay());
 	}
 }

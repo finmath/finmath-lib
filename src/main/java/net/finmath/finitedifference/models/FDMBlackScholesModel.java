@@ -6,7 +6,7 @@ import net.finmath.finitedifference.solvers.FDMThetaMethod;
 
 /**
  * Black Scholes model using finite difference method.
- * 
+ *
  * @author Ralph Rudd
  * @author Christian Fries
  * @author Jörg Kienitz

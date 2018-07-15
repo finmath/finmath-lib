@@ -12,9 +12,9 @@ import net.finmath.time.ScheduleInterface;
 
 /**
  * Implements the valuation of a swap leg with notional reset using curves (discount curve, forward curve).
- * 
+ *
  * The swap leg valuation supports distinct discounting and forward curves.
- * 
+ *
  * The swap leg uses the notional
  * \[
  * 	N_{i} := df^{2}(T_{i}) / df^{1}(T_{i})
@@ -22,14 +22,14 @@ import net.finmath.time.ScheduleInterface;
  * for each period \( i \), where \( T_{i} \) is the period start date fetched form the
  * leg schedule, \( df^{1} \) is the swap legs collateral discount curve and \( df^{2} \)
  * is an additional discount curve.
- * 
+ *
  * Effectively this implies that the value of the period start notional payment of this leg
  * agrees with a leg discounted with curve \( df^{2} \), that is, the notional is reset to make
  * the two notionals being at par.
- * 
+ *
  * Support for day counting is provided via the class implementing
  * <code>ScheduleInterface</code>.
- * 
+ *
  * @author Christian Fries
  */
 public class SwapLegWithResetting extends AbstractAnalyticProduct implements AnalyticProductInterface {
@@ -71,7 +71,7 @@ public class SwapLegWithResetting extends AbstractAnalyticProduct implements Ana
 
 	/**
 	 * Creates a swap leg (without notional exchange). The swap leg has a unit notional of 1.
-	 * 
+	 *
 	 * @param legSchedule Schedule of the leg.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spread Fixed spread on the forward or fix rate.
@@ -84,7 +84,7 @@ public class SwapLegWithResetting extends AbstractAnalyticProduct implements Ana
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {	
+	public double getValue(double evaluationTime, AnalyticModelInterface model) {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 		DiscountCurveInterface	discountCurveForNotionalReset	= model.getDiscountCurve(discountCurveForNotionalResetName);

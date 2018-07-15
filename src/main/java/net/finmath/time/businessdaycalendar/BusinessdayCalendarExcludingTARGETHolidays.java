@@ -11,13 +11,13 @@ import java.time.LocalDate;
 /**
  * A business day calendar, where every day is a business day, expect
  * the TARGET holidays.
- * 
+ *
  * @author Christian Fries
  */
 public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalendar {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -607317161321548729L;
 	private BusinessdayCalendarInterface baseCalendar;
@@ -31,7 +31,7 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 
 	/**
 	 * Create TARGET business day calendar using a given business day calendar as basis.
-	 * 
+	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
 	public BusinessdayCalendarExcludingTARGETHolidays(BusinessdayCalendarInterface baseCalendar) {
@@ -56,10 +56,10 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 
 	/**
 	 * Test a given date for being easter sunday.
-	 * 
+	 *
 	 * The method uses the algorithms sometimes cited as Meeus,Jones, Butcher Gregorian algorithm.
 	 * Taken from http://en.wikipedia.org/wiki/Computus
-	 * 
+	 *
 	 * @param date The date to check.
 	 * @return True, if date is easter sunday.
 	 */
