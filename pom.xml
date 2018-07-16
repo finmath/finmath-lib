@@ -49,6 +49,21 @@
 		</developer>
 	</developers>
 
+	<dependencies>
+		<dependency>
+			<groupId>net.finmath</groupId>
+			<artifactId>finmath-lib</artifactId>
+			<version>3.2.14</version>
+			<classifier />
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<defaultGoal>clean install javadoc:javadoc</defaultGoal>
 		<finalName>${project.artifactId}-${project.version}</finalName>
@@ -73,34 +88,6 @@
 					<reuseForks>false</reuseForks>
 					 <argLine>-mx6G</argLine>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.7</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.4</version>
-				<dependencies>
-					<dependency>
-						<!-- add support for ssh/scp -->
-						<groupId>org.apache.maven.wagon</groupId>
-						<artifactId>wagon-ssh</artifactId>
-						<version>1.0</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.doxia</groupId>
-						<artifactId>doxia-module-markdown</artifactId>
-						<version>1.6</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -149,22 +136,36 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.6</version>
+				<dependencies>
+					<dependency>
+						<!-- add support for ssh/scp -->
+						<groupId>org.apache.maven.wagon</groupId>
+						<artifactId>wagon-ssh</artifactId>
+						<version>1.0</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-markdown</artifactId>
+						<version>1.7</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>net.finmath</groupId>
-			<artifactId>finmath-lib</artifactId>
-			<version>3.2.14</version>
-			<classifier />
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 
 	<issueManagement>
 		<system>GitHub</system>
