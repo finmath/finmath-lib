@@ -24,6 +24,7 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.optimizer.SolverException;
@@ -53,8 +54,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @date 23.02.2014
  * @version 1.1
  */
-public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel {
+public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIBORCovarianceModel implements LIBORCovarianceModelCalibrateable {
 
+	private static final long serialVersionUID = -8862324851354806307L;
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
 	/**
