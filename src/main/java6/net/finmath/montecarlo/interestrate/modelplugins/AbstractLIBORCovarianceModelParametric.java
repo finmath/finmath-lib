@@ -200,8 +200,16 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
-						public RandomVariableInterface call() throws CalculationException {
-							return calibrationProducts[workerCalibrationProductIndex].getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationTargetValues[workerCalibrationProductIndex]);
+						public RandomVariableInterface call() {
+							try {
+								return calibrationProducts[workerCalibrationProductIndex].getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationTargetValues[workerCalibrationProductIndex]);
+							} catch (CalculationException e) {
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+								return null;
+							} catch (Exception e) {
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+								return null;
+							}
 						}
 					};
 					if(executor != null) {
@@ -217,7 +225,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
 						RandomVariableInterface value = valueFutures.get(calibrationProductIndex).get();
-						values[calibrationProductIndex] = value.getAverage();
+						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;;
 					}
 					catch (InterruptedException e) {
 						throw new SolverException(e);
