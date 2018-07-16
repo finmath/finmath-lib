@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 3.2.12 (15.07.2018)
+## 3.2.13 (16.07.2018)
 
 ### General
 
@@ -13,6 +13,14 @@ finmath lib Release Notes
 - Improving API documentation (JavaDoc).
 - Improvements to TimeDiscretizationInterface and TimeDiscretization (see pull request #60).
 - More unit tests.
+
+### LIBOR Market Model
+
+- Small internal change: Introduced interface LIBORCovarianceModelCalibrateable and changed argument calibrationTargetValues 
+  to RandomVariableInterface[]. This step was just to ease the integration of the AAD 
+  calibration, where the getParameters method of the covariance models results in a 
+  RandomVariableInterface[].
+  
 
 ## 3.2.11 (07.07.2018)
 
