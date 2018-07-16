@@ -13,7 +13,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>3.2.13-SNAPSHOT</version>
+	<version>3.2.12-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -597,7 +597,7 @@
 						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
 					</links>
 					<detectLinks>true</detectLinks>
-					<additionalOptions>--allow-script-in-comments</additionalOptions>
+					<additionalparam>--allow-script-in-comments</additionalparam>
 				</configuration>
 			</plugin>
 			<plugin>
