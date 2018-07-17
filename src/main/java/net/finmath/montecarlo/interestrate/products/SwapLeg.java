@@ -119,11 +119,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 		this(legSchedule, notional, index, spread, true, isNotionalExchanged, false);
 	}
 
-	public SwapLeg(InterestRateSwapLegProductDescriptor descriptor) {
-		this(descriptor.getLegSchedule(), descriptor.getNotional(), descriptor.getIndex(), descriptor.getSpread(), descriptor.isCouponFlow(),
-				descriptor.isNotionalExchanged(), descriptor.isNotionalAccruing());
-	}
-
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		return components.getValue(evaluationTime, model);
@@ -131,6 +126,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 	@Override
 	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(legSchedule, notional, index, spread, couponFlow, isNotionalExchanged, isNotionalAccruing);
+		return new InterestRateSwapLegProductDescriptor(legSchedule, spread, isNotionalExchanged);
 	}
 }

@@ -16,25 +16,24 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	private static final String productName = "Interest Rate Swap Leg";
 
 	private final ScheduleInterface				legSchedule;
-	private final AbstractNotional				notional;
-	private final AbstractIndex					index;
+	// analytic implementation defaults notional to 1
+//	private final AbstractNotional				notional;
+//	private final AbstractIndex					index;
 	private final double						spread;
-	private final boolean						couponFlow;
+//	private final boolean						couponFlow;
 	private final boolean						isNotionalExchanged;
-	private final boolean						isNotionalAccruing;
+//	private final boolean						isNotionalAccruing;
 
 
-	public InterestRateSwapLegProductDescriptor(ScheduleInterface legSchedule, AbstractNotional notional,
-			AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged,
-			boolean isNotionalAccruing) {
+	public InterestRateSwapLegProductDescriptor(ScheduleInterface legSchedule, double spread, boolean isNotionalExchanged) {
 		super();
 		this.legSchedule = legSchedule;
-		this.notional = notional;
-		this.index = index;
+//		this.notional = notional;
+//		this.index = index;
 		this.spread = spread;
-		this.couponFlow = couponFlow;
+//		this.couponFlow = couponFlow;
 		this.isNotionalExchanged = isNotionalExchanged;
-		this.isNotionalAccruing = isNotionalAccruing;
+//		this.isNotionalAccruing = isNotionalAccruing;
 	}
 
 	public static String getProductname() {
@@ -49,15 +48,15 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 
 
-	public AbstractNotional getNotional() {
-		return notional;
-	}
-
-
-
-	public AbstractIndex getIndex() {
-		return index;
-	}
+//	public AbstractNotional getNotional() {
+//		return notional;
+//	}
+//
+//
+//
+//	public AbstractIndex getIndex() {
+//		return index;
+//	}
 
 
 
@@ -67,9 +66,9 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 
 
-	public boolean isCouponFlow() {
-		return couponFlow;
-	}
+//	public boolean isCouponFlow() {
+//		return couponFlow;
+//	}
 
 
 
@@ -79,9 +78,9 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 
 
-	public boolean isNotionalAccruing() {
-		return isNotionalAccruing;
-	}
+//	public boolean isNotionalAccruing() {
+//		return isNotionalAccruing;
+//	}
 
 
 
