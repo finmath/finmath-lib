@@ -29,7 +29,7 @@ import net.finmath.time.ScheduleInterface;
  *
  * @author Christian Fries
  */
-public class Swap extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapProductDescriptor>{
+public class Swap extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapProductDescriptor> {
 
 	private final AbstractLIBORMonteCarloProduct legReceiver;
 	private final AbstractLIBORMonteCarloProduct legPayer;

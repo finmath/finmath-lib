@@ -11,6 +11,9 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.InterestRateProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -26,7 +29,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  *
  * @author Christian Fries
  */
-public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface, DescribedProduct<InterestRateSwapProductDescriptor> {
 
 	private final AnalyticProductInterface legReceiver;
 	private final AnalyticProductInterface legPayer;
@@ -184,5 +187,16 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	public String toString() {
 		return "Swap [legReceiver=" + legReceiver + ", legPayer=" + legPayer
 				+ "]";
+	}
+
+	@Override
+	public InterestRateSwapProductDescriptor getDescriptor() {
+		// TODO what if it is not a swap leg?
+		if(!(legReceiver instanceof DescribedProduct<?>) || !(legPayer instanceof DescribedProduct<?>)) {
+			throw new RuntimeException("One or both of the legs of this swap do not support extraction of a descriptor."); 
+		}
+		InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legReceiver).getDescriptor();
+		InterestRateProductDescriptor payerDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legPayer).getDescriptor();
+		return new  InterestRateSwapProductDescriptor(receiverDescriptor, payerDescriptor);
 	}
 }
