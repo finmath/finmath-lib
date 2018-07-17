@@ -1,2 +1,2 @@
 language: java
-script: "mvn install -DskipTests=true -B -V"
+script: "mvn checkstyle:check test -B -V"
