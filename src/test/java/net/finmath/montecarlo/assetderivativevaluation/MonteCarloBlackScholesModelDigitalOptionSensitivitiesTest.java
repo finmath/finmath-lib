@@ -6,6 +6,11 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
@@ -19,10 +24,6 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -39,7 +40,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 	private final int		numberOfPaths		= 1000000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
-	
+
 	private final int		seed				= 31415;
 
 	// Product properties
@@ -78,16 +79,16 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		 * Calculate sensitivities using AAD
 		 */
 		Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
-		
+
 		double valueMonteCarlo = value.getAverage();
 		double deltaAAD = derivative.get(initialValue.getID()).getAverage();
 		double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
 		double vegaAAD = derivative.get(volatility.getID()).getAverage();
-		
+
 		/*
 		 * Calculate sensitivities using finite differences
 		 */
-		
+
 		double eps = 1E-3;
 
 		double epsDelta = eps;
@@ -116,7 +117,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
 		System.out.println();
-		
+
 		System.out.println("delta using adj. auto diff....: " + deltaAAD);
 		System.out.println("delta using finite differences: " + deltaFiniteDifference);
 		System.out.println("delta using analytic formula..: " + deltaAnalytic);
@@ -132,6 +133,6 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		System.out.println("vega using analytic formula..: " + vegaAnalytic);
 		System.out.println();
 
-//		Assert.assertEquals(valueAnalytic, value, 0.005);
+		//		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
 }

@@ -1,11 +1,12 @@
 package net.finmath.optimizer;
 
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import java.util.Arrays;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
+import net.finmath.montecarlo.RandomVariable;
+import net.finmath.stochastic.RandomVariableInterface;
 
 
 /**

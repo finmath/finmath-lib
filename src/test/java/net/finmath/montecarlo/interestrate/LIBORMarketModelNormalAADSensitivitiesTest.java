@@ -5,6 +5,21 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -13,7 +28,11 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
-import net.finmath.montecarlo.interestrate.modelplugins.*;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialForm;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
@@ -21,23 +40,14 @@ import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.*;
 
 /**
  * This class tests the LIBOR market model and products.
- * 
+ *
  * The unit test has currently ony an assert for the valuation,
  * because a finite difference benchmark would simply take far too long (hours!).
  * (But I did that benchmark once ;-).
- * 
+ *
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
@@ -219,14 +229,18 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
 		double a = 0.0 / 20.0, b = 0.0, c = 0.25, d = 0.3 / 20.0 / 2.0;
-		//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);		
+		//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
 		volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
 		double[][] volatilityMatrix = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
-		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) Arrays.fill(volatilityMatrix[timeIndex], d);
+		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
+			Arrays.fill(volatilityMatrix[timeIndex], d);
+		}
 		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatilityMatrix);
 
 		volatilityMatrix = new double[timeDiscretizationSmall.getNumberOfTimeSteps()][timeDiscretizationSmall.getNumberOfTimeSteps()];
-		for(int timeIndex=0; timeIndex<timeDiscretizationSmall.getNumberOfTimeSteps(); timeIndex++) Arrays.fill(volatilityMatrix[timeIndex], d);
+		for(int timeIndex=0; timeIndex<timeDiscretizationSmall.getNumberOfTimeSteps(); timeIndex++) {
+			Arrays.fill(volatilityMatrix[timeIndex], d);
+		}
 		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretizationSmall, timeDiscretizationSmall, volatilityMatrix);
 
 		/*
@@ -321,9 +335,9 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 							numberOfVegasEffective++;
 						}
 					}
-//					System.out.println(volatilityModel.getTimeDiscretization().getTime(timeIndex) + "\t" + volatilityModel.getLiborPeriodDiscretization().getTime(componentIndex) + "\t" + modelVega);
+					//					System.out.println(volatilityModel.getTimeDiscretization().getTime(timeIndex) + "\t" + volatilityModel.getLiborPeriodDiscretization().getTime(componentIndex) + "\t" + modelVega);
 					modelVegas[timeIndex][componentIndex] = modelVega;
-//					System.out.print(formatSci.format(modelVega) + "\t");
+					//					System.out.print(formatSci.format(modelVega) + "\t");
 				}
 				System.out.println();
 			}
@@ -336,7 +350,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 		liborMarketModel = null;
 		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */);
-	
+
 		/*
 		 * Test valuation
 		 */
@@ -358,7 +372,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		System.out.println("number of vegas (effective).....: " + numberOfVegasEffective);
 		System.out.println("memory..........................: " + ((double)(memoryEnd-memoryStart))/1024.0/1024.0 + " M");
 		System.out.println("\n");
-		
+
 		Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
 	}
 
@@ -368,9 +382,9 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
 		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
-	}	
+	}
 
-	
+
 	static long getAllocatedMemory() {
 		System.gc();
 		System.gc();

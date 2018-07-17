@@ -1,7 +1,18 @@
 /**
- * 
+ *
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Random;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
@@ -11,20 +22,10 @@ import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDif
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Random;
 
 /**
  * Unit test for random variables implementing <code>RandomVariableDifferentiableInterface</code>.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  */
@@ -352,15 +353,15 @@ public class RandomVariableDifferentiableInterfaceTest {
 		int seed = 3141;
 		BrownianMotionInterface brownianMotion = new BrownianMotion(new TimeDiscretization(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
 		RandomVariableInterface brownianIncrement = brownianMotion.getIncrement(0, 0);
-		
+
 		RandomVariableDifferentiableInterface x = randomVariableFactory.createRandomVariable(1.0);
-		
+
 		RandomVariableInterface y = x.mult(brownianIncrement.sub(brownianIncrement.average())).average().mult(brownianIncrement);
 
 		Map<Long, RandomVariableInterface> aadGradient = ((RandomVariableDifferentiableInterface) y).getGradient();
 
 		RandomVariableInterface derivative = aadGradient.get(x.getID());
-		
+
 		System.out.println(randomVariableFactory.toString());
 		System.out.println(y.getAverage());
 		System.out.println(brownianIncrement.squared().getAverage());
@@ -369,7 +370,9 @@ public class RandomVariableDifferentiableInterfaceTest {
 		Assert.assertEquals(0.0, y.getAverage(), 1E-8);
 
 		// Test RandomVariableDifferentiableAADFactory (the others currently fail)
-		if(randomVariableFactory instanceof RandomVariableDifferentiableAADFactory) Assert.assertEquals(0.0, derivative.getAverage(), 1E-8);
+		if(randomVariableFactory instanceof RandomVariableDifferentiableAADFactory) {
+			Assert.assertEquals(0.0, derivative.getAverage(), 1E-8);
+		}
 	}
 
 	@Test
@@ -380,7 +383,9 @@ public class RandomVariableDifferentiableInterfaceTest {
 
 		// Generate some random Vector
 		double[] x = new double[lengthOfVectors];
-		for(int i=0; i < lengthOfVectors; i++) x[i] = Math.random();
+		for(int i=0; i < lengthOfVectors; i++) {
+			x[i] = Math.random();
+		}
 
 		RandomVariable randomVariable01 = new RandomVariable(0.0, x);
 		RandomVariable randomVariable02 = new RandomVariable(0.0, x);
@@ -432,19 +437,21 @@ public class RandomVariableDifferentiableInterfaceTest {
 
 		Random random = new Random(2);
 		for(int j = 0; j < numberOfRandomVariables; j++) {
-			for(int i=0; i < lengthOfVectors; i++) values[i] = random.nextDouble();
+			for(int i=0; i < lengthOfVectors; i++) {
+				values[i] = random.nextDouble();
+			}
 			randomVariables[j] = randomVariableFactory.createRandomVariable(0.0, values);
 		}
 
 		/*
-		 * Calcuate gradient using auto differentiation (factory implementation) 
+		 * Calcuate gradient using auto differentiation (factory implementation)
 		 */
 		long startAAD = System.currentTimeMillis();
 		Map<Long, RandomVariableInterface> gradientAutoDiff = ((RandomVariableDifferentiableInterface) testFunction(randomVariables)).getGradient();
 		long endAAD = System.currentTimeMillis();
 
 		/*
-		 * Calcuate gradient using auto differentiation (factory implementation) 
+		 * Calcuate gradient using auto differentiation (factory implementation)
 		 */
 
 		// Note: copy random variable into a RandomVariable to ensure that an alternative implementation is used
@@ -456,7 +463,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 
 		long startFD = System.currentTimeMillis();
 
-		RandomVariableInterface[] gradientNumeric = new RandomVariableInterface[numberOfRandomVariables];		
+		RandomVariableInterface[] gradientNumeric = new RandomVariableInterface[numberOfRandomVariables];
 		for(int j = 0; j < numberOfRandomVariables; j++) {
 
 			RandomVariableInterface[] randomVariables_p = randomVariablesValues.clone();
@@ -486,8 +493,9 @@ public class RandomVariableDifferentiableInterfaceTest {
 	private RandomVariableInterface testFunction(RandomVariableInterface[] randomVariables){
 
 		RandomVariableInterface result = randomVariables[0];
-		for(int i = 1; i < randomVariables.length; i++)
+		for(int i = 1; i < randomVariables.length; i++) {
 			result = result.addProduct(randomVariables[i-1].abs(), randomVariables[i].exp());
+		}
 
 		result = result.cap(randomVariables[randomVariables.length-1]).add(result.cap(randomVariables[randomVariables.length-1]));
 

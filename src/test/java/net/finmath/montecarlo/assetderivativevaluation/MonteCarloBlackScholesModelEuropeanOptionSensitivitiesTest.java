@@ -6,6 +6,15 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
@@ -19,14 +28,6 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryUsage;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -151,7 +152,7 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 		for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
 			MemoryUsage peak = pool.getPeakUsage();
 			sumOfPeak += peak.getUsed();
-		}		
+		}
 		return sumOfPeak;
 	}
 }

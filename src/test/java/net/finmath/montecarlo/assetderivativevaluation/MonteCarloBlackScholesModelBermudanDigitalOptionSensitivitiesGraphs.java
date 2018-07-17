@@ -6,6 +6,11 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -20,10 +25,6 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -40,7 +41,7 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 	private final int		numberOfPaths		= 1000000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
-	
+
 	private final int		seed				= 31415; //501; //101; //21781; //31415;
 
 	// Product properties
@@ -80,20 +81,20 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 		double[] strikes = new double[] { 0.50, 0.60, 0.80, 1.00 };
 		Map<String, Object> properties = new HashMap<String, Object>(); properties.put("orderOfRegressionPolynomial",new Integer(1));
 		BermudanDigitalOption bermudanOption = new BermudanDigitalOption(exerciseDates, notionals, strikes, ExerciseMethod.ESTIMATE_COND_EXPECTATION, properties);
-//		double[] strikes = new double[] { optionStrike, optionStrike, optionStrike, optionStrike };
-//		BermudanOption bermudanOption = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.ESTIMATE_COND_EXPECTATION);
+		//		double[] strikes = new double[] { optionStrike, optionStrike, optionStrike, optionStrike };
+		//		BermudanOption bermudanOption = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.ESTIMATE_COND_EXPECTATION);
 		RandomVariableInterface value = bermudanOption.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate sensitivities using AAD
 		 */
 		Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
-		
+
 		double valueMonteCarlo = value.getAverage();
 		double deltaAAD = derivative.get(initialValue.getID()).getAverage();
 		double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
 		double vegaAAD = derivative.get(volatility.getID()).getAverage();
-		
+
 		/*
 		 * Calculate sensitivities using finite differences
 		 */
@@ -112,10 +113,10 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 			Map<String, Object> dataModifiedVolatility = new HashMap<String, Object>();
 			dataModifiedVolatility.put("volatility", modelVolatility+eps);
 			double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
-			
+
 			System.out.println(eps + "\t" + deltaAAD + "\t" + deltaFiniteDifference);
 		}
-		
+
 		double eps = 1E-3;
 		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
@@ -131,7 +132,7 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println();
-		
+
 		System.out.println("delta using adj. auto diff....: " + deltaAAD);
 		System.out.println("delta using finite differences: " + deltaFiniteDifference);
 		System.out.println();
@@ -144,6 +145,6 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 		System.out.println("vega using finite differences: " + vegaFiniteDifference);
 		System.out.println();
 
-//		Assert.assertEquals(valueAnalytic, value, 0.005);
+		//		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
 }

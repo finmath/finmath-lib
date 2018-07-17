@@ -6,6 +6,20 @@
 
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
@@ -23,15 +37,6 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.*;
 
 @RunWith(Parameterized.class)
 public class RandomVariableDifferentiableAADPerformanceTest {
@@ -42,7 +47,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			(new RandomVariableDifferentiableAADPerformanceTest((String) testData[0], (Object[]) testData[1], (AbstractRandomVariableFactory)testData[2])).test();
 		}
 	}
-	
+
 	private interface TestFunction {
 		RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
 		RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
@@ -53,6 +58,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	private static class TestFunctionBigSum implements TestFunction {
 		private static final int numberOfIterations = 7500;
 
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface x = arguments[0];
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
@@ -62,18 +68,21 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return sum;
 		}
 
+		@Override
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			return new RandomVariableInterface[] {
 					(new RandomVariableFactory()).createRandomVariable(numberOfIterations)
 			};
 		}
 
+		@Override
 		public long getPeakMemory() { return 0; }
 	}
 
 	private static class TestFunctionGeometricSum implements TestFunction {
 		private static final int numberOfIterations = 5000;
 
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface x = arguments[0];
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
@@ -83,6 +92,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return sum;
 		}
 
+		@Override
 		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface x = arguments[0];
 			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
@@ -92,12 +102,14 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return new RandomVariableInterface[] { sum };
 		}
 
+		@Override
 		public long getPeakMemory() { return 0; }
 	}
 
 	private static class TestFunctionSumOfProducts implements TestFunction {
 		private static final int numberOfIterations = 5;
 
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
@@ -120,11 +132,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return new RandomVariableInterface[] { sum };
 		}
 
+		@Override
 		public long getPeakMemory() { return 0; }
 	}
 
 	private static class TestFunctionSumOfProductsWithAddAndMult implements TestFunction {
 		private static final int numberOfIterations = 10;
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
@@ -147,11 +161,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return new RandomVariableInterface[] { sum };
 		}
 
+		@Override
 		public long getPeakMemory() { return 0; }
 	}
 
 	private static class TestFunctionAccrue implements TestFunction {
 		private static final int numberOfIterations = 1;
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface product = randomVariableFactory.createRandomVariable(1.0);
 			for(int i = 0; i < numberOfIterations; i++){
@@ -167,12 +183,14 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return null;
 		}
 
+		@Override
 		public long getPeakMemory() { return 0; }
 	}
 
 	private static class TestFunctionAccrueWithAddAndMult implements TestFunction {
 		private static final int numberOfIterations = 1;
 
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			RandomVariableInterface product = randomVariableFactory.createRandomVariable(1.0);
 			for(int i = 0; i < numberOfIterations; i++){
@@ -188,6 +206,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return null;
 		}
 
+		@Override
 		public long getPeakMemory() { return 0; }
 	}
 
@@ -214,6 +233,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		private long peakMemory;
 
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			long startMem = getAllocatedMemory();
 
@@ -257,6 +277,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return null;
 		}
 
+		@Override
 		public long getPeakMemory() { return peakMemory; }
 	}
 
@@ -283,6 +304,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		private long peakMemory;
 
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			long startMem = getAllocatedMemory();
 
@@ -326,6 +348,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return null;
 		}
 
+		@Override
 		public long getPeakMemory() { return peakMemory; }
 	}
 
@@ -347,6 +370,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		private long peakMemory;
 
+		@Override
 		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
 			long startMem = getAllocatedMemory();
 
@@ -396,6 +420,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			return null;
 		}
 
+		@Override
 		public long getPeakMemory() { return peakMemory; }
 	}
 
@@ -586,8 +611,12 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		long endAutoDiff = System.currentTimeMillis();
 		long endMemAutoDiff = getAllocatedMemory();
 
-		if(y.isNaN().getAverage() > 0) System.out.println("error");
-		if(dydx[0].isNaN().getAverage() > 0) System.out.println("error");
+		if(y.isNaN().getAverage() > 0) {
+			System.out.println("error");
+		}
+		if(dydx[0].isNaN().getAverage() > 0) {
+			System.out.println("error");
+		}
 
 		RandomVariableInterface[] dydxAnalytic = function.derivative(x, c);
 
@@ -600,7 +629,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		System.out.println();
 
-		if(dydxAnalytic != null) Assert.assertEquals(0.0, dydxAnalytic[0].sub(dydx[0]).getStandardError(), 1E-4);
+		if(dydxAnalytic != null) {
+			Assert.assertEquals(0.0, dydxAnalytic[0].sub(dydx[0]).getStandardError(), 1E-4);
+		}
 	}
 
 	static long getAllocatedMemory() {

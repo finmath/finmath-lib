@@ -6,6 +6,11 @@
 
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -18,10 +23,6 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -38,7 +39,7 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 	private final int		numberOfPaths		= 20000; // 20000; possible, but requires more memory in unit test configuration
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
-	
+
 	private final int		seed				= 31415;
 
 	// Product properties
@@ -80,16 +81,16 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 		 * Calculate sensitivities using AAD
 		 */
 		Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
-		
+
 		double valueMonteCarlo = value.getAverage();
 		double deltaAAD = derivative.get(initialValue.getID()).getAverage();
 		double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
 		double vegaAAD = derivative.get(volatility.getID()).getAverage();
-		
+
 		/*
 		 * Calculate sensitivities using finite differences
 		 */
-		
+
 		double eps = 1E-6;
 
 		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
@@ -106,7 +107,7 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println();
-		
+
 		System.out.println("delta using adj. auto diff....: " + deltaAAD);
 		System.out.println("delta using finite differences: " + deltaFiniteDifference);
 		System.out.println();
@@ -119,6 +120,6 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 		System.out.println("vega using finite differences: " + vegaFiniteDifference);
 		System.out.println();
 
-//		Assert.assertEquals(valueAnalytic, value, 0.005);
+		//		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
 }

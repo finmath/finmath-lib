@@ -5,6 +5,17 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
@@ -22,16 +33,6 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Christian Fries
@@ -55,7 +56,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 	private static final double modelRho = 0.1;
 
 	private final static Scheme scheme = Scheme.REFLECTION;
-	
+
 	// Process discretization properties
 	private static final int	numberOfPaths		= 50000;
 	private static final int	numberOfTimeSteps	= 100;
@@ -88,8 +89,8 @@ public class DeltaHedgedPortfolioWithAADTest {
 		 */
 		testParameters.add(new Object[] { blackScholesModel, europeanOption });
 		testParameters.add(new Object[] { blackScholesModel, bermudanOption });
-//		testParameters.add(new Object[] { hestonModel, europeanOption });
-//		testParameters.add(new Object[] { hestonModel, bermudanOption });
+		//		testParameters.add(new Object[] { hestonModel, europeanOption });
+		//		testParameters.add(new Object[] { hestonModel, bermudanOption });
 
 		return testParameters;
 	}
@@ -164,7 +165,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 		return monteCarloHestonModel;
 	}
-	
+
 	@Test
 	public void testHedgePerformance() throws CalculationException {
 
@@ -206,7 +207,9 @@ public class DeltaHedgedPortfolioWithAADTest {
 				}
 			}
 			for(int i=0; i<hedgeError.size(); i++) {
-				if(i==10000) break;
+				if(i==10000) {
+					break;
+				}
 				System.out.println(underlyingAtMaturity.get(i) + "\t" + hedgeValue.get(i) + "\t" + optionValue.get(i));
 			}
 		}

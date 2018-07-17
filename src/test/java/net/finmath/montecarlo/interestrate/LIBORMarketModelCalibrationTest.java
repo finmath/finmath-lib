@@ -5,6 +5,28 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
@@ -14,7 +36,12 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
-import net.finmath.marketdata.model.curves.*;
+import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
@@ -24,7 +51,11 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
-import net.finmath.montecarlo.interestrate.covariancemodels.*;
+import net.finmath.montecarlo.interestrate.covariancemodels.AbstractLIBORCovarianceModelParametric;
+import net.finmath.montecarlo.interestrate.covariancemodels.DisplacedLocalVolatilityModel;
+import net.finmath.montecarlo.interestrate.covariancemodels.LIBORCovarianceModelFromVolatilityAndCorrelation;
+import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModel;
+import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModelPiecewiseConstant;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.products.ATMSwaption;
@@ -46,22 +77,10 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.*;
 
 /**
  * This class tests the LIBOR market model and products.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  */
@@ -77,7 +96,7 @@ public class LIBORMarketModelCalibrationTest {
 		VECTOR,
 		SCALAR
 	}
-	
+
 	public enum OptimizerType {
 		STOCHASTIC_LEVENBERG_MARQUARDT
 	}
@@ -90,9 +109,9 @@ public class LIBORMarketModelCalibrationTest {
 		// Caibration for VOLATILITYNORMALS
 		// vector valued calibration
 		config.add(new Object[] {OptimizerSolverType.VECTOR, OptimizerDerivativeType.FINITE_DIFFERENCES, OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT, ValueUnit.VOLATILITYNORMAL});
-//		config.add(new Object[] {OptimizerSolverType.SCALAR, OptimizerDerivativeType.FINITE_DIFFERENCES, OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT, ValueUnit.VOLATILITYNORMAL});
+		//		config.add(new Object[] {OptimizerSolverType.SCALAR, OptimizerDerivativeType.FINITE_DIFFERENCES, OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT, ValueUnit.VOLATILITYNORMAL});
 		config.add(new Object[] {OptimizerSolverType.VECTOR, OptimizerDerivativeType.ADJOINT_AUTOMATIC_DIFFERENTIATION, OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT, ValueUnit.VOLATILITYNORMAL});
-//		config.add(new Object[] {OptimizerSolverType.SCALAR, OptimizerDerivativeType.ADJOINT_AUTOMATIC_DIFFERENTIATION, OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT, ValueUnit.VOLATILITYNORMAL});
+		//		config.add(new Object[] {OptimizerSolverType.SCALAR, OptimizerDerivativeType.ADJOINT_AUTOMATIC_DIFFERENTIATION, OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT, ValueUnit.VOLATILITYNORMAL});
 
 		/*
 		config.add(new Object[] {OptimizerSolverType.VECTOR, OptimizerDerivativeType.FiniteDifferences, OptimizerType.LevenbergMarquardt, ValueUnit.VOLATILITYNORMAL});
@@ -122,7 +141,7 @@ public class LIBORMarketModelCalibrationTest {
 		 */
 
 		return config;
-	}	
+	}
 
 	private Map<String, Object> testProperties;
 
@@ -163,7 +182,7 @@ public class LIBORMarketModelCalibrationTest {
 		testProperties.put("maxIterations", 	100);
 		testProperties.put("errorTolerance", 	1E-5);
 
-		//		testProperties.put("maxRunTime", 		(long) (30 * /*min->sec*/ 60 * /*sec->millis*/ 1E3));	
+		//		testProperties.put("maxRunTime", 		(long) (30 * /*min->sec*/ 60 * /*sec->millis*/ 1E3));
 
 		testProperties.put("stepSize", 	0.00001);
 
@@ -172,7 +191,7 @@ public class LIBORMarketModelCalibrationTest {
 
 	/**
 	 * Brute force Monte-Carlo calibration of swaptions.
-	 * 
+	 *
 	 * @throws CalculationException
 	 * @throws SolverException
 	 */
@@ -186,10 +205,10 @@ public class LIBORMarketModelCalibrationTest {
 		final AbstractRandomVariableFactory randomVariableFactory = (AbstractRandomVariableFactory) properties.getOrDefault("RandomVariableFactory", new RandomVariableFactory());
 		final ValueUnit valueUnit 						= (ValueUnit) 		properties.getOrDefault(	"ValueUnit", ValueUnit.VOLATILITYNORMAL);
 		final OptimizerType optimizerType 				= (OptimizerType) 	properties.getOrDefault(	"OptimizerType", OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT);
-		final OptimizerDerivativeType derivativeType 	= (OptimizerDerivativeType) properties.getOrDefault(	"DerivativeType", OptimizerDerivativeType.FINITE_DIFFERENCES); 
-		final OptimizerSolverType solverType 			= (OptimizerSolverType) 	properties.getOrDefault(	"SolverType", OptimizerSolverType.VECTOR); 
-		final int maxIterations 						= (int) properties.getOrDefault("maxIterations", 400); 
-		final long maxRunTimeInMillis 	= (long) 	properties.getOrDefault("maxRunTime", (long)6E5 /*10min*/); 
+		final OptimizerDerivativeType derivativeType 	= (OptimizerDerivativeType) properties.getOrDefault(	"DerivativeType", OptimizerDerivativeType.FINITE_DIFFERENCES);
+		final OptimizerSolverType solverType 			= (OptimizerSolverType) 	properties.getOrDefault(	"SolverType", OptimizerSolverType.VECTOR);
+		final int maxIterations 						= (int) properties.getOrDefault("maxIterations", 400);
+		final long maxRunTimeInMillis 	= (long) 	properties.getOrDefault("maxRunTime", (long)6E5 /*10min*/);
 		final double errorTolerance 	= (double) 	properties.getOrDefault("errorTolerance", 0.0);
 		final int numberOfThreads 		= (int) 	properties.getOrDefault("numberOfThreads", 2);
 		final int numberOfFactors 		= (int) 	properties.getOrDefault("numberOfFactors", 1);
@@ -230,7 +249,9 @@ public class LIBORMarketModelCalibrationTest {
 						public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
 							objectiveFunction.setValues(parameters, valuesVector);
 							RandomVariableInterface valueMeanSquared = valuesVector[0].sub(targetValues[0]).squared();
-							for(int i=1; i<valuesVector.length; i++) valueMeanSquared = valueMeanSquared.add(valuesVector[i].sub(targetValues[i]).squared());
+							for(int i=1; i<valuesVector.length; i++) {
+								valueMeanSquared = valueMeanSquared.add(valuesVector[i].sub(targetValues[i]).squared());
+							}
 							values[0] = valueMeanSquared.sqrt();
 						}
 					};
@@ -241,16 +262,20 @@ public class LIBORMarketModelCalibrationTest {
 				ObjectiveFunction objectiveFunctionEffectiveFinale = objectiveFunctionEffective;
 
 				RandomVariableInterface[] initialParametersRV = new RandomVariableInterface[initialParameters.length];
-				for(int i=0; i<initialParameters.length; i++) initialParametersRV[i] = randomVariableFactory.createRandomVariable(initialParameters[i].doubleValue());
-				
+				for(int i=0; i<initialParameters.length; i++) {
+					initialParametersRV[i] = randomVariableFactory.createRandomVariable(initialParameters[i].doubleValue());
+				}
+
 				RandomVariableInterface[] parameterSteps = null;
 
 				RandomVariableInterface[] targetValuesRV = new RandomVariableInterface[targetValues.length];
-				for(int i=0; i<targetValues.length; i++) targetValuesRV[i] = new RandomVariable(targetValues[i]);
+				for(int i=0; i<targetValues.length; i++) {
+					targetValuesRV[i] = new RandomVariable(targetValues[i]);
+				}
 
 
 				RandomVariableInterface[] targetValuesScalar = new RandomVariableInterface[] { new RandomVariable(0.0) };
-				
+
 				StochasticLevenbergMarquardtAD optimizer = new StochasticLevenbergMarquardtAD(RegularizationMethod.LEVENBERG, initialParametersRV, solverType == OptimizerSolverType.SCALAR ? targetValuesScalar : targetValuesRV, parameterSteps, maxIterations, errorTolerance, null) {
 					private static final long serialVersionUID = 4132021362554841700L;
 
@@ -304,7 +329,7 @@ public class LIBORMarketModelCalibrationTest {
 			String[] atmTenors = { "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "15Y", "20Y", "25Y", "30Y" };
 			double[] atmNormalVolatilities = { 0.00151, 0.00169, 0.0021, 0.00248, 0.00291, 0.00329, 0.00365, 0.004, 0.00437, 0.00466, 0.00527, 0.00571, 0.00604, 0.00625, 0.0016, 0.00174, 0.00217, 0.00264, 0.00314, 0.00355, 0.00398, 0.00433, 0.00469, 0.00493, 0.00569, 0.00607, 0.00627, 0.00645, 0.00182, 0.00204, 0.00238, 0.00286, 0.00339, 0.00384, 0.00424, 0.00456, 0.00488, 0.0052, 0.0059, 0.00623, 0.0064, 0.00654, 0.00205, 0.00235, 0.00272, 0.0032, 0.00368, 0.00406, 0.00447, 0.00484, 0.00515, 0.00544, 0.00602, 0.00629, 0.0064, 0.00646, 0.00279, 0.00319, 0.0036, 0.00396, 0.00436, 0.00469, 0.00503, 0.0053, 0.00557, 0.00582, 0.00616, 0.00628, 0.00638, 0.00641, 0.00379, 0.00406, 0.00439, 0.00472, 0.00504, 0.00532, 0.0056, 0.00582, 0.00602, 0.00617, 0.0063, 0.00636, 0.00638, 0.00639, 0.00471, 0.00489, 0.00511, 0.00539, 0.00563, 0.00583, 0.006, 0.00618, 0.0063, 0.00644, 0.00641, 0.00638, 0.00635, 0.00634, 0.00544, 0.00557, 0.00572, 0.00591, 0.00604, 0.00617, 0.0063, 0.00641, 0.00651, 0.00661, 0.00645, 0.00634, 0.00627, 0.00624, 0.00625, 0.00632, 0.00638, 0.00644, 0.0065, 0.00655, 0.00661, 0.00667, 0.00672, 0.00673, 0.00634, 0.00614, 0.00599, 0.00593, 0.00664, 0.00671, 0.00675, 0.00676, 0.00676, 0.00675, 0.00676, 0.00674, 0.00672, 0.00669, 0.00616, 0.00586, 0.00569, 0.00558, 0.00647, 0.00651, 0.00651, 0.00651, 0.00652, 0.00649, 0.00645, 0.0064, 0.00637, 0.00631, 0.00576, 0.00534, 0.00512, 0.00495, 0.00615, 0.0062, 0.00618, 0.00613, 0.0061, 0.00607, 0.00602, 0.00596, 0.00591, 0.00586, 0.00536, 0.00491, 0.00469, 0.0045, 0.00578, 0.00583, 0.00579, 0.00574, 0.00567, 0.00562, 0.00556, 0.00549, 0.00545, 0.00538, 0.00493, 0.00453, 0.00435, 0.0042, 0.00542, 0.00547, 0.00539, 0.00532, 0.00522, 0.00516, 0.0051, 0.00504, 0.005, 0.00495, 0.00454, 0.00418, 0.00404, 0.00394 };
 
-			LocalDate referenceDate = LocalDate.of(2016, Month.SEPTEMBER, 30); 
+			LocalDate referenceDate = LocalDate.of(2016, Month.SEPTEMBER, 30);
 			BusinessdayCalendarExcludingTARGETHolidays cal = new BusinessdayCalendarExcludingTARGETHolidays();
 			DayCountConvention_ACT_365 modelDC = new DayCountConvention_ACT_365();
 			for(int i=0; i<atmNormalVolatilities.length; i++ ) {
@@ -318,7 +343,9 @@ public class LIBORMarketModelCalibrationTest {
 				exercise	= Math.round(exercise/0.25)*0.25;
 				tenor		= Math.round(tenor/0.25)*0.25;
 
-				if(exercise < 1.0) continue;
+				if(exercise < 1.0) {
+					continue;
+				}
 
 				int numberOfPeriods = (int)Math.round(tenor / swapPeriodLength);
 
@@ -343,7 +370,7 @@ public class LIBORMarketModelCalibrationTest {
 			final TimeDiscretizationInterface liborPeriodDiscretization = timeDiscretization;
 
 			/*
-			 * Create Brownian motions 
+			 * Create Brownian motions
 			 */
 			final BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
@@ -402,8 +429,8 @@ public class LIBORMarketModelCalibrationTest {
 			evaluateCalibration(liborMarketModelCalibrated, brownianMotion,
 					calibrationItemNames, calibrationItemsVALUE, calibrationItemsVOLATILITYNORMAL,
 					valueUnit == ValueUnit.VALUE ? 1E-4 : 1E-2 /*assertTrueVALUE*/,
-					valueUnit == ValueUnit.VOLATILITYNORMAL ? 2E-4 : 1E-2 /*assertTrueVOLATILITYNORMAL*/, 
-					"ATM" + "-" + derivativeType + "-" + optimizerType + "-" + valueUnit + "-" + numberOfPaths);		
+							valueUnit == ValueUnit.VOLATILITYNORMAL ? 2E-4 : 1E-2 /*assertTrueVOLATILITYNORMAL*/,
+									"ATM" + "-" + derivativeType + "-" + optimizerType + "-" + valueUnit + "-" + numberOfPaths);
 	}
 
 	public static AnalyticModelInterface getCalibratedCurve() throws SolverException {
@@ -416,7 +443,7 @@ public class LIBORMarketModelCalibrationTest {
 
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 
-		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30)); 
+		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30));
 		parameters.put("currency", "EUR");
 		parameters.put("forwardCurveTenor", "6M");
 		parameters.put("maturities", maturity);
@@ -456,7 +483,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * We create a forward curve by referencing the same discount curve, since
 		 * this is a single curve setup.
-		 * 
+		 *
 		 * Note that using an independent NSS forward curve with its own NSS parameters
 		 * would result in a problem where both, the forward curve and the discount curve
 		 * have free parameters.
@@ -550,7 +577,7 @@ public class LIBORMarketModelCalibrationTest {
 			double swapannuity = SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve);
 			double targetPrice = AnalyticFormulas.bachelierOptionValue(
 					new RandomVariable(swaprate),
-					new RandomVariable(targetVolatility), swapTenor[0], swaprate, 
+					new RandomVariable(targetVolatility), swapTenor[0], swaprate,
 					new RandomVariable(swapannuity)).doubleValue();
 			calibrationItem  = new CalibrationItem(swaptionMonteCarlo, targetPrice, weight);
 			break;
@@ -597,8 +624,8 @@ public class LIBORMarketModelCalibrationTest {
 		switch (valueUnit) {
 		case VALUE:
 			double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(
-					swaprate, targetVolatility, 
-					fixingDates[0], swaprate, 
+					swaprate, targetVolatility,
+					fixingDates[0], swaprate,
 					SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve));
 			calibrationItem = new CalibrationItem(swaptionMonteCarlo, targetValuePrice, weight);
 			break;
@@ -614,14 +641,16 @@ public class LIBORMarketModelCalibrationTest {
 		return calibrationItem;
 	}
 
-	private static void evaluateCalibration(LIBORModelInterface liborMarketModelCalibrated, BrownianMotionInterface brownianMotion, 
+	private static void evaluateCalibration(LIBORModelInterface liborMarketModelCalibrated, BrownianMotionInterface brownianMotion,
 			List<String> calibrationItemNames ,List<CalibrationItem> calibrationItemsVALUE, List<CalibrationItem> calibrationItemsVOLATILITYNORMAL,
 			double assertTrueVALUE, double assertTrueVOLATILITYNORMAL, String FileName){
 
 		System.out.println("\nCalibrated parameters are:");
 		AbstractLIBORCovarianceModelParametric calibratedCovarianceModel = (AbstractLIBORCovarianceModelParametric) ((LIBORMarketModel) liborMarketModelCalibrated).getCovarianceModel();
 		RandomVariableInterface[] param = calibratedCovarianceModel.getParameter();
-		for (RandomVariableInterface p : param) System.out.println(formatterParam.format(p.doubleValue()));
+		for (RandomVariableInterface p : param) {
+			System.out.println(formatterParam.format(p.doubleValue()));
+		}
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 		LIBORModelMonteCarloSimulationInterface simulationCalibrated = new LIBORModelMonteCarloSimulation(liborMarketModelCalibrated, process);
@@ -689,7 +718,7 @@ public class LIBORMarketModelCalibrationTest {
 		System.out.println("Value Unit.............." + valueUnit);
 		System.out.println("Optimizer Type.........." + optimizerType);
 		System.out.println("Derivative Type........." + derivativeType);
-		System.out.println("Solver Type............." + solverType);	
+		System.out.println("Solver Type............." + solverType);
 		System.out.println("maxNumberOfIterations..." + maxIterations);
 		System.out.println("maxRunTimeInMillis......" + maxRunTimeInMillis);
 		System.out.println("errorTolerance.........." + errorTolerance);
@@ -707,7 +736,7 @@ public class LIBORMarketModelCalibrationTest {
 
 	private static AbstractLIBORCovarianceModelParametric createInitialCovarianceModel(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
 		/* volatility model from piecewise constant interpolated matrix */
-		TimeDiscretizationInterface volatilitySurfaceDiscretization = new TimeDiscretization(0.00, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0); 
+		TimeDiscretizationInterface volatilitySurfaceDiscretization = new TimeDiscretization(0.00, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0);
 		RandomVariableInterface[] initialVolatility = new RandomVariableInterface[] { randomVariableFactory.createRandomVariable(0.50 / 100) };
 		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelPiecewiseConstant(timeDiscretization, liborPeriodDiscretization, volatilitySurfaceDiscretization, volatilitySurfaceDiscretization, initialVolatility, true);
 
@@ -723,7 +752,7 @@ public class LIBORMarketModelCalibrationTest {
 		// Create a covariance model
 		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization, liborPeriodDiscretization, volatilityModel, correlationModel);
 
-		// Create blended local volatility model with fixed parameter (0=lognormal, > 1 = almost a normal model).			
+		// Create blended local volatility model with fixed parameter (0=lognormal, > 1 = almost a normal model).
 		AbstractLIBORCovarianceModelParametric covarianceModelDisplaced = new DisplacedLocalVolatilityModel(covarianceModelParametric, randomVariableFactory.createRandomVariable(1.0/0.25), false /* isCalibrateable */);
 
 		return covarianceModelDisplaced;

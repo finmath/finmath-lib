@@ -115,6 +115,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
+	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final RandomVariableInterface[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
