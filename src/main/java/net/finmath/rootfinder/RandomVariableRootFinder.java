@@ -2,6 +2,10 @@ package net.finmath.rootfinder;
 
 import net.finmath.stochastic.RandomVariableInterface;
 
+/**
+ * @author Christian Fries
+ * @author Stefan Sedlmair
+ */
 public interface RandomVariableRootFinder {
 
 	/**

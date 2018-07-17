@@ -70,8 +70,9 @@ public class RandomVariableAAD implements RandomVariableInterface {
 
 		/* TODO: how to handle cases with different realization lengths? */
 		if(!arrayListOfAllAADRandomVariables.isEmpty()){
-			if(arrayListOfAllAADRandomVariables.get(0).size() != randomVariable.size() && !randomVariable.isDeterministic())
+			if(arrayListOfAllAADRandomVariables.get(0).size() != randomVariable.size() && !randomVariable.isDeterministic()) {
 				throw new IllegalArgumentException("RandomVariables with different sizes are not supported at the moment!");
+			}
 		}
 
 		/* get index of this random variable */
@@ -261,9 +262,10 @@ public class RandomVariableAAD implements RandomVariableInterface {
 			default:
 				throw new IllegalArgumentException();
 			}
-		} else
+		} else {
 			/* if non of the above throw exception */
 			throw new IllegalArgumentException("Operation not supported!\n");
+		}
 
 		/* create new RandomVariableUniqueVariable which is definitely NOT Constant */
 		RandomVariableAAD newRandomVariableAAD =  constructNewAADRandomVariable(resultrandomvariable, futureParentIndices, operator, /*no children*/ null ,/*not constant*/ false);
@@ -478,9 +480,10 @@ public class RandomVariableAAD implements RandomVariableInterface {
 			default:
 				break;
 			}
-		} else
+		} else {
 			/* if non of the above throw exception */
 			throw new IllegalArgumentException("Operation not supported!\n");
+		}
 
 		return resultrandomvariable;
 	}

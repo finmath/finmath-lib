@@ -62,7 +62,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		private final List<RandomVariableInterface> argumentValues;
 		private final Object operator;
 
-		public OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator) {
+		OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator) {
 			this(operatorType,
 					arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
 						return (x != null && x instanceof RandomVariableDifferentiableAD) ? ((RandomVariableDifferentiableAD)x).getOperatorTreeNode(): null;
@@ -74,7 +74,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					);
 
 		}
-		public OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator) {
+		OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator) {
 			super();
 			this.id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;

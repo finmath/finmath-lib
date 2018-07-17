@@ -11,6 +11,11 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
+/**
+ * Basic test for RandomVariableDifferentiableAAD.
+ *
+ * @author Christian Fries
+ */
 public class RandomVariableDifferentiableAADTest {
 
 	@Test

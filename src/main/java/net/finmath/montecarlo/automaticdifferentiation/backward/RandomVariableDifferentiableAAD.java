@@ -67,11 +67,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		private static final RandomVariableInterface zero = new RandomVariable(0.0);
 		private static final RandomVariableInterface one = new RandomVariable(1.0);
 
-		public OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator, RandomVariableDifferentiableAADFactory factory) {
+		OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator, RandomVariableDifferentiableAADFactory factory) {
 			this(operatorType, extractOperatorTreeNodes(arguments), extractOperatorValues(arguments), operator, factory);
 		}
 
-		public OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator, RandomVariableDifferentiableAADFactory factory) {
+		OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator, RandomVariableDifferentiableAADFactory factory) {
 			super();
 			this.id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;

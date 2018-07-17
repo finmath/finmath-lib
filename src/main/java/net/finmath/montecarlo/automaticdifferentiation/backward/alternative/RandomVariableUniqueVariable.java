@@ -82,8 +82,10 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	 *  @param isConstant
 	 * */
 	private void constructRandomVariableUniqueVariable(RandomVariableInterface randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
-		/* 	by calling the method in the factory it will produce a new object of RandomVariableInterface and
-	 	the new item will be stored in its factory internal array list */
+		/*
+		 * by calling the method in the factory it will produce a new object of RandomVariableInterface and
+		 * the new item will be stored in its factory internal array list
+		 */
 		RandomVariableInterface normalrandomvariable = factory.createRandomVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
 
 		/* by construction this object can be up-casted to RandomVariableUniqueVariable */

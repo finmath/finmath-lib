@@ -50,7 +50,7 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 		private final List<OperatorTreeNode> arguments;
 		private final List<RandomVariableInterface> argumentValues;
 
-		public OperatorTreeNode(OperatorType operator, List<RandomVariableInterface> arguments) {
+		OperatorTreeNode(OperatorType operator, List<RandomVariableInterface> arguments) {
 			this(operator,
 					arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
 						return (x != null && x instanceof RandomVariableDifferentiableAADPathwise) ? ((RandomVariableDifferentiableAADPathwise)x).getOperatorTreeNode(): null;
@@ -61,7 +61,7 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 					);
 
 		}
-		public OperatorTreeNode(OperatorType operator, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues) {
+		OperatorTreeNode(OperatorType operator, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues) {
 			super();
 			this.id = indexOfNextRandomVariable.getAndIncrement();
 			this.operator = operator;

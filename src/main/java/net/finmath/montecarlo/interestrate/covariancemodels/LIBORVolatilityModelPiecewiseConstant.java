@@ -117,8 +117,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		double timeToMaturity   = maturity-time;
 
 		double volatilityInstanteaneous;
-		if(timeToMaturity <= 0)
+		if(timeToMaturity <= 0) {
 			return new RandomVariable(0.0);  // This forward rate is already fixed, no volatility
+		}
 		else
 		{
 			int timeIndexSimulationTime = simulationTimeDiscretization.getTimeIndex(time);

@@ -17,10 +17,10 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	/**
 	 *
 	 */
-	static private ArrayList<RandomVariableInterface> listOfAllVariables = new ArrayList<>();
+	private static ArrayList<RandomVariableInterface> listOfAllVariables = new ArrayList<>();
 
 	/* starting index for adding variables to array list. */
-	static private int currentFactoryID = 0;
+	private static int currentFactoryID = 0;
 
 	/**
 	 *  empty constructor: does nothing since all elements of this class are static!

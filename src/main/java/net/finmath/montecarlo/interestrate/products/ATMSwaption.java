@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;

@@ -83,15 +83,15 @@ public class StochasticLevenbergMarquardtTestInverse {
 		return inverse;
 	}
 
-	public RandomVariableInterface[][] multiply(RandomVariableInterface[][] A,RandomVariableInterface[][] B){
-		RandomVariableInterface[][] AB = new RandomVariableInterface[A.length][B.length];
+	public RandomVariableInterface[][] multiply(RandomVariableInterface[][] matrixA, RandomVariableInterface[][] matrixB){
+		RandomVariableInterface[][] AB = new RandomVariableInterface[matrixA.length][matrixB.length];
 		RandomVariableInterface ABproduct;
-		for(int i=0;i<A.length;i++){
-			for(int j=0; j<B.length; j++){
+		for(int i=0;i<matrixA.length;i++){
+			for(int j=0; j<matrixB.length; j++) {
 				AB[i][j] = new RandomVariable(0.0);
-				for(int k=0;k<B.length;k++) {
-					if(A[i][k]==null || B[k][j]==null) {ABproduct = new RandomVariable(0.0);}
-					else {ABproduct = A[i][k].mult(B[k][j]);}
+				for(int k=0;k<matrixB.length;k++) {
+					if(matrixA[i][k]==null || matrixB[k][j]==null) {ABproduct = new RandomVariable(0.0);}
+					else {ABproduct = matrixA[i][k].mult(matrixB[k][j]);}
 					AB[i][j]=AB[i][j].add(ABproduct);
 				}
 			}

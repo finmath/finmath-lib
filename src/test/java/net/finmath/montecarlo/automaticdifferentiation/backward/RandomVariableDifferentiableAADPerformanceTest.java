@@ -38,6 +38,10 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
+/**
+ * @author Christian Fries
+ * @author Stefan Sedlmair
+ */
 @RunWith(Parameterized.class)
 public class RandomVariableDifferentiableAADPerformanceTest {
 	private static DecimalFormat formatReal1 = new DecimalFormat("####0.00", new DecimalFormatSymbols(Locale.ENGLISH));

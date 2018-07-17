@@ -53,8 +53,8 @@ import net.finmath.time.TimeDiscretization;
 @RunWith(Parameterized.class)
 public class LIBORMarketModelNormalAADSensitivitiesTest {
 
-	private final static int numberOfPaths		= 5000; // 15000; more possible if memory of unit test is increased.
-	private final static int numberOfFactors	= 1;
+	private static final int numberOfPaths		= 5000; // 15000; more possible if memory of unit test is increased.
+	private static final int numberOfFactors	= 1;
 
 	private static DecimalFormat formatReal1		= new DecimalFormat("####0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatSci		= new DecimalFormat(" 0.0000E0", new DecimalFormatSymbols(Locale.ENGLISH));

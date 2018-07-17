@@ -55,7 +55,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 	private static final double modelXi = 0.0;//0.5;		// For a pure delta hedge, quality depends on vol-of-vol
 	private static final double modelRho = 0.1;
 
-	private final static Scheme scheme = Scheme.REFLECTION;
+	private static final Scheme scheme = Scheme.REFLECTION;
 
 	// Process discretization properties
 	private static final int	numberOfPaths		= 50000;
