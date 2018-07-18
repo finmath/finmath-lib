@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>net.finmath</groupId>
 			<artifactId>finmath-lib</artifactId>
-			<version>3.2.16</version>
+			<version>3.2.17</version>
 			<classifier />
 		</dependency>
 		<dependency>
