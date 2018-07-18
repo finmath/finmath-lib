@@ -6,13 +6,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @author Stefan Sedlmair
  */
-public interface RandomVariableRootFinder {
+public interface StochasticRootFinder {
 
 	/**
-	 * @return Next point for which a value should be set
-	 * using <code>setValue</code>.
+	 * @return Next point for which a value should be set using <code>setValue</code>.
 	 */
-	double getNextPoint();
+	RandomVariableInterface getNextPoint();
 
 	/**
 	 * @param value Value corresponding to point returned
@@ -28,7 +27,7 @@ public interface RandomVariableRootFinder {
 	/**
 	 * @return Best point obtained so far
 	 */
-	double getBestPoint();
+	RandomVariableInterface getBestPoint();
 
 	/**
 	 * @return Returns the accuracy.

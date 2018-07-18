@@ -1,23 +1,18 @@
-/**
- *
- */
 package net.finmath.rootfinder;
 
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * {@link NewtonsMethod} implemented using {@link RandomVariableInterface}s.
- *
+ * Implementation of Newtons method for maps on random variables.
+ * 
+ * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.0
  */
-public class NewtonMethodUsingRandomVariableInterfaces implements RandomVariableRootFinderUsingDerivative {
+public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivative {
 
-	private enum MethodForAccuracy {AVERAGE, MAX, MIN}
+	public enum MethodForAccuracy {AVERAGE, MAX, MIN}
 
-	/**
-	 *
-	 */
 	private RandomVariableInterface	nextPoint;											// Stores the next point to be returned by getPoint()
 	private RandomVariableInterface	bestPoint;				              				// Best point so far
 
@@ -31,7 +26,7 @@ public class NewtonMethodUsingRandomVariableInterfaces implements RandomVariable
 	 * @param guess {@link RandomVariableInterface} representing a first guess to start of the Newton Method
 	 * @param method defines the Method used to gain the accuracy for the Newton Iteration
 	 */
-	public NewtonMethodUsingRandomVariableInterfaces(RandomVariableInterface guess, MethodForAccuracy method) {
+	public StochasticNewtonMethod(RandomVariableInterface guess, MethodForAccuracy method) {
 		bestPoint = guess;
 		nextPoint = guess;
 		this.method = method;
