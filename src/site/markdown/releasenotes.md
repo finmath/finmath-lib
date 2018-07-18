@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 3.2.16 (18.07.2018)
+## 3.2.17 (19.07.2018)
 
 ### Interest Rate Products
 
