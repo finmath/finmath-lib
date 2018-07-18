@@ -19,6 +19,10 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.descriptor.AnalyticModelDescriptor;
 
 /**
  * Implements a collection of market data objects (e.g., discount curves, forward curve)
@@ -28,7 +32,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
  *
  * @author Christian Fries
  */
-public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable {
+public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable, DescribedModel<AnalyticModelDescriptor> {
 
 	private static final long serialVersionUID = 6906386712907555046L;
 
@@ -230,5 +234,16 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	@Override
 	public String toString() {
 		return "AnalyticModel: curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
+	}
+
+	@Override
+	public AnalyticModelDescriptor getDescriptor() {
+		return new AnalyticModelDescriptor(getCurves(), Collections.unmodifiableMap(volatilitySurfaceMap));
+	}
+
+	@Override
+	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
