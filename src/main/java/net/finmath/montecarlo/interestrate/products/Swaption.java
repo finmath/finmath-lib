@@ -15,6 +15,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
@@ -32,11 +33,32 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @version 1.3
  */
 public class Swaption extends AbstractLIBORMonteCarloProduct {
-	private double     exerciseDate;	// Exercise date
-	private double[]   fixingDates;		// Vector of fixing dates (must be sorted)
-	private double[]   paymentDates;	// Vector of payment dates (same length as fixing dates)
-	private double[]   periodLengths;	// Vector of payment dates (same length as fixing dates)
-	private double[]   swaprates;		// Vector of strikes
+	private final double    exerciseDate;	// Exercise date
+	private final double[]  fixingDates;		// Vector of fixing dates (must be sorted)
+	private final double[]  paymentDates;	// Vector of payment dates (same length as fixing dates)
+	private final double[]  periodLengths;	// Vector of payment dates (same length as fixing dates)
+	private final double[]  swaprates;		// Vector of strikes
+	private final double	notional;
+
+	/**
+	 * Create a swaption.
+	 *
+	 * @param exerciseDate The exercise date of the swaption.
+	 * @param fixingDates Vector of fixing dates.
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates).
+	 * @param periodLengths Vector of period lengths.
+	 * @param swaprates Vector of strikes (must have same length as fixing dates).
+	 * @param notional The notional date of the swaption.
+	 */
+	public Swaption(double exerciseDate, double[] fixingDates, double[] paymentDates, double[] periodLengths, double[] swaprates, double notional) {
+		super();
+		this.exerciseDate = exerciseDate;
+		this.fixingDates = fixingDates;
+		this.paymentDates = paymentDates;
+		this.periodLengths = periodLengths;
+		this.swaprates = swaprates;
+		this.notional = notional;
+	}
 
 	/**
 	 * Create a swaption.
@@ -48,12 +70,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates).
 	 */
 	public Swaption(double exerciseDate, double[] fixingDates, double[] paymentDates, double[] periodLengths, double[] swaprates) {
-		super();
-		this.exerciseDate = exerciseDate;
-		this.fixingDates = fixingDates;
-		this.paymentDates = paymentDates;
-		this.periodLengths = periodLengths;
-		this.swaprates = swaprates;
+		this(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates, 1.0 /* notional */);
 	}
 
 	/**
@@ -69,12 +86,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			double[] fixingDates,
 			double[] paymentDates,
 			double[] swaprates) {
-		super();
-		this.exerciseDate = exerciseDate;
-		this.fixingDates = fixingDates;
-		this.paymentDates = paymentDates;
-		this.periodLengths = null;
-		this.swaprates = swaprates;
+		this(exerciseDate, fixingDates, paymentDates,  null /* periodLengths */, swaprates, 1.0 /* notional */);
 	}
 
 	/**
@@ -102,6 +114,8 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 
 		this.swaprates = new double[swapTenor.getNumberOfTimeSteps()];
 		java.util.Arrays.fill(swaprates, swaprate);
+		
+		this.notional = 1.0;
 	}
 
 	/**
@@ -138,12 +152,12 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
 
 			// Calculate payoff
-			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength);
+			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength).mult(notional);
 
 			// Calculated the adjustment for the discounting curve, assuming a deterministic basis
 			// @TODO: Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
 			double discountingDate = Math.max(fixingDate,exerciseDate);
-			double discountingAdjustment = 1.0;
+			RandomVariableInterface discountingAdjustment;
 			if(model.getModel() != null && model.getModel().getDiscountCurve() != null) {
 				AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
 				DiscountCurveInterface discountCurve = model.getModel().getDiscountCurve();
@@ -151,8 +165,10 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 				DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 
 				double forwardBondOnForwardCurve = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurveFromForwardCurve.getDiscountFactor(analyticModel, paymentDate);
-				double forwardBondOnDiscountCurve = discountCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurve.getDiscountFactor(analyticModel, paymentDate);
-				discountingAdjustment = forwardBondOnForwardCurve / forwardBondOnDiscountCurve;
+				RandomVariableInterface forwardBondOnDiscountCurve = new RandomVariable(discountCurve.getDiscountFactor(discountingDate)).div(discountCurve.getDiscountFactor(paymentDate));
+				discountingAdjustment =  forwardBondOnDiscountCurve.pow(-1.0).mult(forwardBondOnForwardCurve);
+			} else {
+				discountingAdjustment = model.getRandomVariableForConstant(1.0);
 			}
 
 			// Add payment received at end of period
@@ -207,6 +223,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "exerciseDate: " + exerciseDate
@@ -214,5 +231,34 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 				+ "\n" + "paymentDates: " + Arrays.toString(paymentDates)
 				+ "\n" + "periodLengths: " + Arrays.toString(periodLengths)
 				+ "\n" + "swaprates: " + Arrays.toString(swaprates);
+	}
+
+	@Deprecated
+	public RandomVariableInterface getExerciseIndicator(LIBORModelMonteCarloSimulationInterface model) throws CalculationException{
+		return new RandomVariable(1.0).barrier(new RandomVariable(getValue(exerciseDate, model).mult(-1.0)), new RandomVariable(0.0), new RandomVariable(1.0));
+	}
+
+	public double getExerciseDate(){
+		return this.exerciseDate;
+	}
+
+	public double[]  getFixingDates(){
+		return this.fixingDates;
+	}
+
+	public double[] getPaymentDates(){
+		return this.paymentDates;
+	}
+
+	public double[] getPeriodLengths(){
+		return this.periodLengths;
+	}
+
+	public double[] getSwaprates(){
+		return this.swaprates;
+	}
+
+	public double getNotional(){
+		return this.notional;
 	}
 }
