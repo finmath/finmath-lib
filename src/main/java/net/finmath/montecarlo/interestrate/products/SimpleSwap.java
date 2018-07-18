@@ -80,7 +80,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
-	 * @param constantNotional The constant notional
+	 * @param notional The constant notional
 	 */
 	public SimpleSwap(
 			double[] fixingDates,
