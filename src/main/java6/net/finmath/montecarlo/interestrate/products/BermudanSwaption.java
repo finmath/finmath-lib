@@ -7,6 +7,8 @@ package net.finmath.montecarlo.interestrate.products;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
@@ -16,7 +18,7 @@ import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * Implements the valuation of a cancelable swap under a <code>LIBORModelMonteCarloSimulationInterface</code>
+ * Implements the valuation of a Bermudan swaption under a <code>LIBORModelMonteCarloSimulationInterface</code>
  *
  * @author Christian Fries
  * @version 1.2
@@ -30,6 +32,27 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 	private final double[]	paymentDates;	                // Vector of payment dates (same length as fixing dates)
 	private final double[]	periodNotionals;				// Vector of notionals for each period
 	private final double[]	swaprates;	                 	// Vector of strikes
+	private boolean         isCallable;						// If true: the right to enter into a swap, else the right to terminate a swap.
+
+	/**
+	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
+	 * @param fixingDates Vector of fixing dates
+	 * @param periodLength Period lengths (must have same length as fixing dates)
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param periodNotionals Period notionals (must have same length as fixing dates)
+	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @param isCallable If true, the product represent the Bemrudan right to enter into a swap. If false the product represents the Bermudan right to terminate a running swap.
+	 */
+	public BermudanSwaption(boolean[] isPeriodStartDateExerciseDate, double[] fixingDates, double[] periodLength, double[] paymentDates, double[] periodNotionals, double[] swaprates, boolean isCallable) {
+		super();
+		this.isPeriodStartDateExerciseDate = isPeriodStartDateExerciseDate;
+		this.fixingDates = fixingDates;
+		this.periodLengths = periodLength;
+		this.paymentDates = paymentDates;
+		this.periodNotionals = periodNotionals;
+		this.swaprates = swaprates;
+		this.isCallable = isCallable;
+	}
 
 	/**
 	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
@@ -40,36 +63,21 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public BermudanSwaption(boolean[] isPeriodStartDateExerciseDate, double[] fixingDates, double[] periodLength, double[] paymentDates, double[] periodNotionals, double[] swaprates) {
-		super();
-		this.isPeriodStartDateExerciseDate = isPeriodStartDateExerciseDate;
-		this.fixingDates = fixingDates;
-		this.periodLengths = periodLength;
-		this.paymentDates = paymentDates;
-		this.periodNotionals = periodNotionals;
-		this.swaprates = swaprates;
+		this(isPeriodStartDateExerciseDate, fixingDates, periodLength, paymentDates, periodNotionals, swaprates, true /* isCallable */);
 	}
 
-	/**
-	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-	 * Cashflows prior evaluationTime are not considered.
-	 *
-	 * @param evaluationTime The time on which this products value should be observed.
-	 * @param model The model used to price the product.
-	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 */
-	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
 		RandomVariableInterface values				= model.getRandomVariableForConstant(0.0);
 		RandomVariableInterface valuesUnderlying	= model.getRandomVariableForConstant(0.0);
+		RandomVariableInterface	exerciseTime	    = model.getRandomVariableForConstant(Double.POSITIVE_INFINITY);
 
 		// Loop backward over the swap periods
 		for(int period=fixingDates.length-1; period>=0; period--)
 		{
 			double fixingDate	= fixingDates[period];
+			double exerciseDate = fixingDate;
 			double periodLength	= periodLengths[period];
 			double paymentDate	= paymentDates[period];
 			double notional		= periodNotionals[period];
@@ -87,7 +95,13 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			//			model.discount(paymentDate, values);
-			valuesUnderlying = valuesUnderlying.add(payoff);
+			if(isCallable) {
+				valuesUnderlying = valuesUnderlying.add(payoff);
+			}
+			else
+			{
+				values = values.add(payoff); // cancelable
+			}
 
 			if(isPeriodStartDateExerciseDate[period]) {
 				RandomVariableInterface triggerValuesDiscounted = values.sub(valuesUnderlying);
@@ -101,6 +115,8 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
 				values = values.barrier(triggerValues, values, valuesUnderlying);
+
+				exerciseTime	= exerciseTime.barrier(triggerValues, exerciseTime, exerciseDate);
 			}
 		}
 
@@ -111,7 +127,26 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
-		return values;
+		Map<String, Object> results = new HashMap<String, Object>();
+		results.put("value", values);
+		results.put("error", values.getStandardError());
+		results.put("exerciseTime", exerciseTime);
+		return results;
+	}
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	@Override
+	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		return (RandomVariableInterface) getValues(evaluationTime, model).get("value");
 	}
 
 	/**
@@ -177,4 +212,65 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
+
+	public double[] getExerciseTimes(){
+		ArrayList<Double> exerciseTimes = new ArrayList<Double>();
+		for(int i=0;i<isPeriodStartDateExerciseDate.length;i++) {
+			if(isPeriodStartDateExerciseDate[i]){
+				exerciseTimes.add(fixingDates[i]);
+			}
+		}
+
+		// Convert to primitive
+		double[] times = new double[exerciseTimes.size()];
+		for(int i=0;i<times.length;i++) {
+			times[i]=exerciseTimes.get(i).doubleValue();
+		}
+		return times;
+	}
+
+	public double[] getFixingDates(double evaluationTime){ // return the remaining fixing dates after evaluationTime
+		ArrayList<Double> remainingFixingTimes = new ArrayList<Double>();
+		for(int i=0;i<fixingDates.length;i++) {
+			if(fixingDates[i]>=evaluationTime){
+				remainingFixingTimes.add(fixingDates[i]);
+			}
+		}
+		// Convert to primitive
+		double[] times = new double[remainingFixingTimes.size()];
+		for(int i=0;i<times.length;i++) {
+			times[i]=remainingFixingTimes.get(i).doubleValue();
+		}
+		return times;
+	}
+
+	public SimpleSwap getSwap() {
+		return new SimpleSwap(fixingDates, paymentDates, swaprates, true, periodNotionals);
+	}
+
+	public double[] getPaymentDates(){
+		return this.paymentDates;
+	}
+
+	public double[] getPeriodNotionals(){
+		return this.periodNotionals;
+	}
+
+	public double[] getSwapRates(){
+		return this.swaprates;
+	}
+
+	public double[] getPeriodLengths(){
+		return this.periodLengths;
+	}
+
+	public double getFinalMaturity() {
+		return paymentDates[paymentDates.length-1];
+	}
+
+	public boolean getIsCallable(){
+		return this.isCallable;
+	}
+
+
 }
