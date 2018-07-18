@@ -157,18 +157,17 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			// Calculated the adjustment for the discounting curve, assuming a deterministic basis
 			// @TODO: Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
 			double discountingDate = Math.max(fixingDate,exerciseDate);
-			RandomVariableInterface discountingAdjustment;
+			double discountingAdjustment = 1.0;
 			if(model.getModel() != null && model.getModel().getDiscountCurve() != null) {
 				AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
 				DiscountCurveInterface discountCurve = model.getModel().getDiscountCurve();
 				ForwardCurveInterface forwardCurve = model.getModel().getForwardRateCurve();
 				DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 
+				// @TODO: Need to add functional dependency for ADD on discounting adjustment
 				double forwardBondOnForwardCurve = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurveFromForwardCurve.getDiscountFactor(analyticModel, paymentDate);
-				RandomVariableInterface forwardBondOnDiscountCurve = new RandomVariable(discountCurve.getDiscountFactor(discountingDate)).div(discountCurve.getDiscountFactor(paymentDate));
-				discountingAdjustment =  forwardBondOnDiscountCurve.pow(-1.0).mult(forwardBondOnForwardCurve);
-			} else {
-				discountingAdjustment = model.getRandomVariableForConstant(1.0);
+				double forwardBondOnDiscountCurve = discountCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurve.getDiscountFactor(analyticModel, paymentDate);
+				discountingAdjustment = forwardBondOnForwardCurve / forwardBondOnDiscountCurve;
 			}
 
 			// Add payment received at end of period
