@@ -30,6 +30,27 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 	private final double[]	paymentDates;	                // Vector of payment dates (same length as fixing dates)
 	private final double[]	periodNotionals;				// Vector of notionals for each period
 	private final double[]	swaprates;	                 	// Vector of strikes
+	private boolean         isCallable;						// If true: the right to enter into a swap, else the right to terminate a swap.
+
+	/**
+	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
+	 * @param fixingDates Vector of fixing dates
+	 * @param periodLength Period lengths (must have same length as fixing dates)
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param periodNotionals Period notionals (must have same length as fixing dates)
+	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @param isCallable If true, the product represent the Bemrudan right to enter into a swap. If false the product represents the Bermudan right to terminate a running swap.
+	 */
+	public BermudanSwaption(boolean[] isPeriodStartDateExerciseDate, double[] fixingDates, double[] periodLength, double[] paymentDates, double[] periodNotionals, double[] swaprates, boolean isCallable) {
+		super();
+		this.isPeriodStartDateExerciseDate = isPeriodStartDateExerciseDate;
+		this.fixingDates = fixingDates;
+		this.periodLengths = periodLength;
+		this.paymentDates = paymentDates;
+		this.periodNotionals = periodNotionals;
+		this.swaprates = swaprates;
+		this.isCallable = isCallable;
+	}
 
 	/**
 	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
@@ -40,13 +61,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public BermudanSwaption(boolean[] isPeriodStartDateExerciseDate, double[] fixingDates, double[] periodLength, double[] paymentDates, double[] periodNotionals, double[] swaprates) {
-		super();
-		this.isPeriodStartDateExerciseDate = isPeriodStartDateExerciseDate;
-		this.fixingDates = fixingDates;
-		this.periodLengths = periodLength;
-		this.paymentDates = paymentDates;
-		this.periodNotionals = periodNotionals;
-		this.swaprates = swaprates;
+		this(isPeriodStartDateExerciseDate, fixingDates, periodLength, paymentDates, periodNotionals, swaprates, true /* isCallable */);
 	}
 
 	/**
@@ -87,7 +102,13 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			//			model.discount(paymentDate, values);
-			valuesUnderlying = valuesUnderlying.add(payoff);
+			if(isCallable) {
+				valuesUnderlying = valuesUnderlying.add(payoff);
+			}
+			else
+			{
+				values = values.add(payoff); // cancelable
+			}
 
 			if(isPeriodStartDateExerciseDate[period]) {
 				RandomVariableInterface triggerValuesDiscounted = values.sub(valuesUnderlying);
@@ -177,4 +198,64 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
+
+	public double[] getExerciseTimes(){
+		ArrayList<Double> exerciseTimes = new ArrayList<Double>();
+		for(int i=0;i<isPeriodStartDateExerciseDate.length;i++) {
+			if(isPeriodStartDateExerciseDate[i]){
+				exerciseTimes.add(fixingDates[i]);
+			}
+		}
+		// Convert to primitive
+		double[] times = new double[exerciseTimes.size()];
+		for(int i=0;i<times.length;i++) {
+			times[i]=exerciseTimes.get(i).doubleValue();
+		}
+		return times;
+	}
+
+	public double[] getFixingDates(double evaluationTime){ // return the remaining fixing dates after evaluationTime
+		ArrayList<Double> remainingFixingTimes = new ArrayList<Double>();
+		for(int i=0;i<fixingDates.length;i++) {
+			if(fixingDates[i]>=evaluationTime){
+				remainingFixingTimes.add(fixingDates[i]);
+			}
+		}
+		// Convert to primitive
+		double[] times = new double[remainingFixingTimes.size()];
+		for(int i=0;i<times.length;i++) {
+			times[i]=remainingFixingTimes.get(i).doubleValue();
+		}
+		return times;
+	}
+
+	public SimpleSwap getSwap() {
+		return new SimpleSwap(fixingDates, paymentDates, swaprates, true, periodNotionals);
+	}
+
+	public double[] getPaymentDates(){
+		return this.paymentDates;
+	}
+
+	public double[] getPeriodNotionals(){
+		return this.periodNotionals;
+	}
+
+	public double[] getSwapRates(){
+		return this.swaprates;
+	}
+
+	public double[] getPeriodLengths(){
+		return this.periodLengths;
+	}
+
+	public double getFinalMaturity() {
+		return paymentDates[paymentDates.length-1];
+	}
+
+	public boolean getIsCallable(){
+		return this.isCallable;
+	}
+
+
 }
