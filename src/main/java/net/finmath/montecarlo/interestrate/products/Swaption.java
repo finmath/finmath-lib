@@ -114,7 +114,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 
 		this.swaprates = new double[swapTenor.getNumberOfTimeSteps()];
 		java.util.Arrays.fill(swaprates, swaprate);
-		
+
 		this.notional = 1.0;
 	}
 
