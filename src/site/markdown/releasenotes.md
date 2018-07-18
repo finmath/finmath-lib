@@ -5,6 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.2.16 (18.07.2018)
+
+### Interest Rate Products
+
+- Added additional features to Bermudan Swaption, Swaption and Swap to support initial 
+  margin project. The Bermudan swaption reports the stochastic exerciseTime in the result map.
+
 ## 3.2.14 (16.07.2018)
 
 ### General
