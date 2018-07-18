@@ -8,7 +8,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * Interface for root finders for stochastic maps \( y = f(x) \) where \( x,y \) are random variables, the map is pathwise and the pathwise derivative
  * is known.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  */

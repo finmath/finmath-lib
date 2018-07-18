@@ -4,7 +4,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Implementation of Newtons method for maps on random variables.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.0
