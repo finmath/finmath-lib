@@ -193,7 +193,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	public InterestRateSwapProductDescriptor getDescriptor() {
 		// TODO what if it is not a swap leg?
 		if(!(legReceiver instanceof DescribedProduct<?>) || !(legPayer instanceof DescribedProduct<?>)) {
-			throw new RuntimeException("One or both of the legs of this swap do not support extraction of a descriptor."); 
+			throw new RuntimeException("One or both of the legs of this swap do not support extraction of a descriptor.");
 		}
 		InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legReceiver).getDescriptor();
 		InterestRateProductDescriptor payerDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legPayer).getDescriptor();

@@ -41,7 +41,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	private final Map<String, CurveInterface>				curvesMap				= new HashMap<>();
 	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap	= new HashMap<>();
-	
+
 	private ProductFactory<InterestRateProductDescriptor> factory;
 
 	/**
@@ -248,15 +248,15 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	@Override
 	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-		
+
 		if(factory != null) {
 			return factory.getProductFromDescriptor(productDescriptor);
 		}
-		
+
 		// Trying to generate a default factory.
 		String discountCurve = "";
 		String forwardCurve = "";
-		
+
 		for(CurveInterface curve : curvesMap.values()) {
 			if(curve instanceof DiscountCurveInterface) {
 				if(discountCurve.equals("")) {

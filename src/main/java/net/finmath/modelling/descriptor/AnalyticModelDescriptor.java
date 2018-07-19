@@ -14,14 +14,14 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
  *
  */
 public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
-	
+
 	private final Map<String, CurveInterface>				curvesMap;
 	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap;
-	
-	
+
+
 	/**
 	 * Construct an AnalyticModelDescriptor mapping the collections of curves and volatility surfaces provided.
-	 * 
+	 *
 	 * @param curves
 	 * @param surfaces
 	 */
@@ -29,7 +29,7 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 		super();
 		curvesMap = new HashMap<String, CurveInterface>();
 		volatilitySurfaceMap = new HashMap<String, VolatilitySurfaceInterface>();
-		
+
 		if(curves != null) {
 			for(CurveInterface curve : curves) {
 				curvesMap.put(curve.getName(), curve);
@@ -38,20 +38,20 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 		if (surfaces != null) {
 			for (VolatilitySurfaceInterface surface : surfaces) {
 				volatilitySurfaceMap.put(surface.getName(), surface);
-			} 
+			}
 		}
 	}
 
 	/**
 	 * Construct an AnalyticModelDescriptor holding copies of the maps provided.
-	 * 
+	 *
 	 * @param curvesMap
 	 * @param volatilitySurfaceMap
 	 */
 	public AnalyticModelDescriptor(Map<String, CurveInterface> curvesMap, Map<String, VolatilitySurfaceInterface> volatilitySurfaceMap) {
 		this.curvesMap = new HashMap<String, CurveInterface>();
 		this.volatilitySurfaceMap = new HashMap<String, VolatilitySurfaceInterface>();
-		
+
 		this.curvesMap.putAll(curvesMap);
 		this.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
 	}

@@ -18,16 +18,16 @@ import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
  *
  */
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
-	
+
 	private final AbstractNotional				notional;
 	private final AbstractIndex					index;
 	private final boolean						couponFlow = true;
 	private final boolean						isNotionalAccruing = false;
-	
+
 	public InterestRateMonteCarloProductFactory(AbstractIndex index) {
 		this(new Notional(1.0), index);
 	}
-	
+
 	public InterestRateMonteCarloProductFactory(AbstractNotional notional, AbstractIndex index) {
 		this.notional = notional;
 		this.index = index;
@@ -38,17 +38,17 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
 			InterestRateSwapLegProductDescriptor swapLeg = (InterestRateSwapLegProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegSchedule(), notional, index, swapLeg.getSpread(), couponFlow, 
+			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegSchedule(), notional, index, swapLeg.getSpread(), couponFlow,
 					swapLeg.isNotionalExchanged(), isNotionalAccruing);
 			return product;
 		}else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;
 			// TODO what if these are not SwapLegs? Is that a realistic case?
 			InterestRateSwapLegProductDescriptor legDescriptor = (InterestRateSwapLegProductDescriptor) swap.getLegReceiver();
-			AbstractLIBORMonteCarloProduct legReceiver =  new SwapLeg(legDescriptor.getLegSchedule(), notional, index, legDescriptor.getSpread(), couponFlow, 
+			AbstractLIBORMonteCarloProduct legReceiver =  new SwapLeg(legDescriptor.getLegSchedule(), notional, index, legDescriptor.getSpread(), couponFlow,
 					legDescriptor.isNotionalExchanged(), isNotionalAccruing);
 			legDescriptor = (InterestRateSwapLegProductDescriptor) swap.getLegPayer();
-			AbstractLIBORMonteCarloProduct legPayer =  new SwapLeg(legDescriptor.getLegSchedule(), notional, index, legDescriptor.getSpread(), couponFlow, 
+			AbstractLIBORMonteCarloProduct legPayer =  new SwapLeg(legDescriptor.getLegSchedule(), notional, index, legDescriptor.getSpread(), couponFlow,
 					legDescriptor.isNotionalExchanged(), isNotionalAccruing);
 			DescribedProduct<InterestRateSwapProductDescriptor> product = new Swap(legReceiver, legPayer);
 			return product;

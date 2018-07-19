@@ -10,7 +10,6 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.InterestRateProductDescriptor;
-import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
@@ -100,7 +99,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct implements DescribedPro
 	public InterestRateSwapProductDescriptor getDescriptor() {
 		// TODO what if it is not a swap leg?
 		if(!(legReceiver instanceof DescribedProduct<?>) || !(legPayer instanceof DescribedProduct<?>)) {
-			throw new RuntimeException("One or both of the legs of this swap do not support extraction of a descriptor."); 
+			throw new RuntimeException("One or both of the legs of this swap do not support extraction of a descriptor.");
 		}
 		InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legReceiver).getDescriptor();
 		InterestRateProductDescriptor payerDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legPayer).getDescriptor();

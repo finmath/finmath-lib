@@ -32,8 +32,6 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
-import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -45,9 +43,9 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 public class InterestRateSwapLegDescriptorTest {
-	
+
 	static LocalDate referenceDate = LocalDate.of(2018, Month.JULY, 18);
-	
+
 	/**
 	 * Test a floating rate leg.
 	 *
@@ -61,7 +59,7 @@ public class InterestRateSwapLegDescriptorTest {
 		String		maturity = "35Y";
 		String		frequency = "semiannual";
 		String		daycountConvention = "30/360";
-		
+
 		/*
 		 * Create leg descriptor
 		 */
@@ -84,7 +82,7 @@ public class InterestRateSwapLegDescriptorTest {
 		 */
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(index)).getProductFromDescriptor(legDescriptor);
-		
+
 		/*
 		 * Monte-Carlo value
 		 */
@@ -92,14 +90,14 @@ public class InterestRateSwapLegDescriptorTest {
 		double valueSimulation = value.getAverage();
 		System.out.println("Float leg (simulation): " + value.getAverage() + "\t +/-" + value.getStandardError());
 
-		
+
 		/*
 		 * Create Analytic model
 		 */
 		AnalyticModelDescriptor modelAnalyticDescriptor = new AnalyticModelDescriptor(Arrays.asList(new CurveInterface[] {createDiscountCurve(), createForwardCurve()}) , null);
 		DescribedModel<AnalyticModelDescriptor> modelAnalytic = (new AnalyticModelFactory()).getModelFromDescriptor(modelAnalyticDescriptor);
-		
-		
+
+
 		/*
 		 * Create analytic leg
 		 */
@@ -116,8 +114,8 @@ public class InterestRateSwapLegDescriptorTest {
 		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 5E-3);
 	}
 
-	
-	
+
+
 	/**
 	 * Test a fixed rate leg.
 	 *
@@ -131,7 +129,7 @@ public class InterestRateSwapLegDescriptorTest {
 		String		maturity = "35Y";
 		String		frequency = "semiannual";
 		String		daycountConvention = "30/360";
-		
+
 		/*
 		 * Create leg descriptor
 		 */
@@ -147,7 +145,7 @@ public class InterestRateSwapLegDescriptorTest {
 		int numberOfFactors = 5;
 		double correlationDecayParam = 0.2;
 		LIBORModelMonteCarloSimulationInterface model = createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, createDiscountCurve(), createForwardCurve());
-		
+
 		/*
 		 * Create Monte-Carlo leg
 		 */
@@ -166,7 +164,7 @@ public class InterestRateSwapLegDescriptorTest {
 		 */
 		AnalyticModelDescriptor modelAnalyticDescriptor = new AnalyticModelDescriptor(Arrays.asList(new CurveInterface[] {createDiscountCurve(), createForwardCurve()}) , null);
 		DescribedModel<AnalyticModelDescriptor> modelAnalytic = (new AnalyticModelFactory()).getModelFromDescriptor(modelAnalyticDescriptor);
-		
+
 		/*
 		 * Create analytic leg
 		 */
@@ -185,7 +183,7 @@ public class InterestRateSwapLegDescriptorTest {
 
 		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 4E-3);
 	}
-	
+
 	public static DiscountCurve createDiscountCurve() {
 		return DiscountCurve.createDiscountCurveFromZeroRates(
 				"discountCurve"								/* name of the curve */,
@@ -193,7 +191,7 @@ public class InterestRateSwapLegDescriptorTest {
 				new double[] {0.04, 0.04, 0.04, 0.04, 0.05}	/* zero rates */
 				);
 	}
-	
+
 	public static ForwardCurve createForwardCurve() {
 		return ForwardCurve.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
@@ -211,7 +209,7 @@ public class InterestRateSwapLegDescriptorTest {
 				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */
 				);
 	}
-	
+
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
 			int numberOfPaths, int numberOfFactors, double correlationDecayParam, DiscountCurveInterface discountCurve, ForwardCurveInterface forwardCurve) throws CalculationException {
