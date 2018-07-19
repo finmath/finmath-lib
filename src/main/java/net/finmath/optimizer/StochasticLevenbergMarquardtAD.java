@@ -145,6 +145,9 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 				Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient();
 				for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
 					derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameters[parameterIndex]).getID());
+					if(derivatives[parameterIndex][valueIndex] != null) {
+						derivatives[parameterIndex][valueIndex] = derivatives[parameterIndex][valueIndex].average();
+					}
 				}
 			}
 		}
