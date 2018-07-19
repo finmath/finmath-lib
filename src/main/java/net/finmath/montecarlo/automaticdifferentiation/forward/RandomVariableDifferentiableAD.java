@@ -99,6 +99,12 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					argumentValues.set(0, null);
 				}
 			}
+			else if(operatorType != null && operatorType.equals(OperatorType.DIV)) {
+				// Division only needs to retain numerator if denominator is differentiable
+				if(arguments.get(1) == null) {
+					argumentValues.set(0, null);
+				}
+			}
 			else if(operatorType != null && operatorType.equals(OperatorType.ADDPRODUCT)) {
 				// Addition does not need to retain arguments
 				argumentValues.set(0, null);
