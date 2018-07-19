@@ -119,7 +119,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	@Deprecated
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 		RandomVariableInterface[] calibrationTargetValuesAsRandomVariabls = new RandomVariableInterface[calibrationTargetValues.length];
-		for(int i=0; i<calibrationTargetValues.length; i++) calibrationTargetValuesAsRandomVariabls[i] = new RandomVariable(calibrationTargetValues[i]);
+		for(int i=0; i<calibrationTargetValues.length; i++) {
+			calibrationTargetValuesAsRandomVariabls[i] = new RandomVariable(calibrationTargetValues[i]);
+		}
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValuesAsRandomVariabls, calibrationWeights, calibrationParameters);
 	}
 

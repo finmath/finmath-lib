@@ -86,7 +86,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 			this.volatilities = volatility;
 		}
 
-		if(volatilityIndex != this.volatilities.length) throw new IllegalArgumentException("volatility.length should equal simulationTimeDiscretization.getNumberOfTimes()*timeToMaturityDiscretization.getNumberOfTimes().");
+		if(volatilityIndex != this.volatilities.length) {
+			throw new IllegalArgumentException("volatility.length should equal simulationTimeDiscretization.getNumberOfTimes()*timeToMaturityDiscretization.getNumberOfTimes().");
+		}
 		this.simulationTimeDiscretization = simulationTimeDiscretization;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.isCalibrateable = isCalibrateable;
@@ -98,8 +100,11 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 
 	@Override
 	public RandomVariableInterface[] getParameter() {
-		if(isCalibrateable)	return volatilities;
-		else return null;
+		if(isCalibrateable) {
+			return volatilities;
+		} else {
+			return null;
+		}
 	}
 
 	@Override

@@ -92,7 +92,9 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	@Override
 	public RandomVariableInterface[] getParameter() {
-		if(!isCalibrateable) return null;
+		if(!isCalibrateable) {
+			return null;
+		}
 
 		RandomVariableInterface[] parameter = new RandomVariableInterface[4];
 		parameter[0] = a;
@@ -105,7 +107,9 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	@Override
 	public void setParameter(RandomVariableInterface[] parameter) {
-		if(!isCalibrateable) return;
+		if(!isCalibrateable) {
+			return;
+		}
 
 		this.a = parameter[0];
 		this.b = parameter[1];

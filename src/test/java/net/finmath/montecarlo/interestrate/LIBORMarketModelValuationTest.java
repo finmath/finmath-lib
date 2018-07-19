@@ -778,11 +778,11 @@ public class LIBORMarketModelValuationTest {
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
 		}
 		double diviationRMS = Math.sqrt(deviationSquaredSum/calibrationItems.size());
-		
+
 		System.out.println("Mean Deviation...............:" + formatterValue.format(deviationSum/calibrationItems.size()));
 		System.out.println("Root Mean Squared Deviation..:" + formatterValue.format(diviationRMS));
 		System.out.println("__________________________________________________________________________________________\n");
-		
+
 		Assert.assertEquals("RMS Deviation", 0.0, diviationRMS, 0.025);
 	}
 

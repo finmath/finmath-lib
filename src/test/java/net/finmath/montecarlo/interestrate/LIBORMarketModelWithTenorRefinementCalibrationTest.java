@@ -50,7 +50,6 @@ import net.finmath.montecarlo.interestrate.modelplugins.BlendedLocalVolatilityMo
 import net.finmath.montecarlo.interestrate.modelplugins.DisplacedLocalVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelExponentialForm5Param;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel;

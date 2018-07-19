@@ -78,10 +78,14 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 	@Override
 	public RandomVariableInterface[] getParameter() {
-		if(!isCalibrateable) return covarianceModel.getParameter();
+		if(!isCalibrateable) {
+			return covarianceModel.getParameter();
+		}
 
 		RandomVariableInterface[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new RandomVariableInterface[] { nu, rho };
+		if(covarianceParameters == null) {
+			return new RandomVariableInterface[] { nu, rho };
+		}
 
 		// Append nu and rho to the end of covarianceParameters
 		RandomVariableInterface[] jointParameters = new RandomVariableInterface[covarianceParameters.length+2];
@@ -94,7 +98,9 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 	//	@Override
 	private void setParameter(RandomVariableInterface[] parameter) {
-		if(parameter == null || parameter.length == 0) return;
+		if(parameter == null || parameter.length == 0) {
+			return;
+		}
 
 		if(!isCalibrateable) {
 			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);

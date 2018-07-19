@@ -38,7 +38,9 @@ public abstract class ProductFactoryCascade<T extends ProductDescriptor> impleme
 		DescribedProduct<T> product;
 		for(ProductFactory<?> factory : factories) {
 			product = (DescribedProduct<T>) factory.getProductFromDescriptor(productDescriptor);
-			if(product != null) return product;
+			if(product != null) {
+				return product;
+			}
 		}
 
 		// Product not found
