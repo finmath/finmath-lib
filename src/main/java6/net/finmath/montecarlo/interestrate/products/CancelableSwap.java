@@ -34,9 +34,9 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
 	 * @param fixingDates Vector of fixing dates
-	 * @param periodLength
+	 * @param periodLength Vector of periodLength
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
-	 * @param periodNotionals
+	 * @param periodNotionals Vector of period notionals.
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public CancelableSwap(boolean[] isPeriodStartDateExerciseDate, double[] fixingDates, double[] periodLength, double[] paymentDates, double[] periodNotionals, double[] swaprates) {

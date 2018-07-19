@@ -2,4 +2,4 @@ language: java
 env:
   - MVN_PROFILE=java-6
   - MVN_PROFILE=java-8
-script: "mvn checkstyle:check test -B -P ${MVN_PROFILE}"
+script: "mvn checkstyle:check test -B -V -P ${MVN_PROFILE}"

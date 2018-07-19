@@ -23,6 +23,7 @@ import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
+import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
@@ -295,25 +296,25 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 		// Perform calibration, if data is given
 		if(calibrationItems != null && calibrationItems.length > 0) {
-			AbstractLIBORCovarianceModelParametric covarianceModelParametric = null;
+			LIBORCovarianceModelCalibrateable covarianceModelParametric = null;
 			try {
-				covarianceModelParametric = (AbstractLIBORCovarianceModelParametric)covarianceModel;
+				covarianceModelParametric = (LIBORCovarianceModelCalibrateable)covarianceModel;
 			}
 			catch(Exception e) {
-				throw new ClassCastException("Calibration is currently restricted to parametric covariance models (AbstractLIBORCovarianceModelParametric).");
+				throw new ClassCastException("Calibration restricted to covariance models implementing LIBORCovarianceModelCalibrateable.");
 			}
 
 			// @TODO Should be more elegant. Convert array for constructor
 			AbstractLIBORMonteCarloProduct[]	calibrationProducts		= new AbstractLIBORMonteCarloProduct[calibrationItems.length];
-			double[]							calibrationTargetValues	= new double[calibrationItems.length];
+			RandomVariableInterface[]			calibrationTargetValues	= new RandomVariableInterface[calibrationItems.length];
 			double[]							calibrationWeights		= new double[calibrationItems.length];
 			for(int i=0; i<calibrationTargetValues.length; i++) {
 				calibrationProducts[i]		= calibrationItems[i].calibrationProduct;
-				calibrationTargetValues[i]	= calibrationItems[i].calibrationTargetValue;
+				calibrationTargetValues[i]	= randomVariableFactory.createRandomVariable(calibrationItems[i].calibrationTargetValue);
 				calibrationWeights[i]		= calibrationItems[i].calibrationWeight;
 			}
 
-			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
+			this.covarianceModel    = (AbstractLIBORCovarianceModel) covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
 		}
 
 		numeraires = new ConcurrentHashMap<>();

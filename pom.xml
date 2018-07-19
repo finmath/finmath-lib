@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- For publishing to sonatype / central maven repo -->
@@ -13,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>3.2.12-SNAPSHOT</version>
+	<version>3.2.18-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -105,12 +103,6 @@
 			<version>${kotlin.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>
@@ -130,6 +122,12 @@
 			<artifactId>jblas</artifactId>
 			<version>1.2.4</version>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -141,7 +139,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.6.1</version>
 				<executions>
 					<!-- Replacing default-compile as it is treated specially by maven -->
 					<execution>
@@ -244,7 +242,9 @@
 						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.3</link>
 					</links>
 					<detectLinks>true</detectLinks>
-					<additionalOptions>--allow-script-in-comments</additionalOptions>
+					<additionalOptions>
+						<additionalOption>--allow-script-in-comments</additionalOption>
+					</additionalOptions>
 				</configuration>
 				<executions>
 					<execution>
@@ -578,7 +578,7 @@
 					</header>
 					<footer>
 			   			<![CDATA[
-						<i>Copyright &copy; 2017 Christian&nbsp;P.&nbsp;Fries.</i>
+						<i>Copyright &copy; 2018 Christian&nbsp;P.&nbsp;Fries.</i>
 			   			]]>
 					</footer>
 					<tags>
@@ -597,7 +597,9 @@
 						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
 					</links>
 					<detectLinks>true</detectLinks>
-					<additionalparam>--allow-script-in-comments</additionalparam>
+					<additionalOptions>
+						<additionalOption>--allow-script-in-comments</additionalOption>
+					</additionalOptions>
 				</configuration>
 			</plugin>
 			<plugin>

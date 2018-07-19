@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
@@ -18,11 +19,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.2
  */
 public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
-	private final double[] fixingDates;	// Vector of fixing dates
+	private final double[] fixingDates;		// Vector of fixing dates
 	private final double[] paymentDates;	// Vector of payment dates (same length as fixing dates)
 	private final double[] swaprates;		// Vector of strikes
 
 	private final boolean isPayFix;
+	private final double[] notional;		// Vector of notionals
 
 	/**
 	 * Create a swap.
@@ -31,17 +33,20 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 * @param isPayFix If true, the swap is receive float - pay fix, otherwise its receive fix - pay float.
+	 * @param notional The notional as a vector for all periods
 	 */
 	public SimpleSwap(
 			double[] fixingDates,
 			double[] paymentDates,
 			double[] swaprates,
-			boolean isPayFix) {
+			boolean isPayFix,
+			double[] notional) {
 		super();
 		this.fixingDates = fixingDates;
 		this.paymentDates = paymentDates;
 		this.swaprates = swaprates;
 		this.isPayFix = isPayFix;
+		this.notional = notional;
 	}
 
 	/**
@@ -50,12 +55,71 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param fixingDates Vector of fixing dates
 	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @param isPayFix If true, the swap is receive float - pay fix, otherwise its receive fix - pay float.
+	 * @param notional The constant notional
 	 */
 	public SimpleSwap(
 			double[] fixingDates,
 			double[] paymentDates,
+			double[] swaprates,
+			boolean isPayFix,
+			double notional) {
+		super();
+		this.fixingDates = fixingDates;
+		this.paymentDates = paymentDates;
+		this.swaprates = swaprates;
+		this.isPayFix = isPayFix;
+		this.notional = new double[swaprates.length];
+		Arrays.fill(this.notional, notional);
+	}
+
+
+	/**
+	 * Create a swap.
+	 *
+	 * @param fixingDates Vector of fixing dates
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @param notional The constant notional
+	 */
+	public SimpleSwap(
+			double[] fixingDates,
+			double[] paymentDates,
+			double[] swaprates,
+			double notional) {
+		this(fixingDates, paymentDates, swaprates, true, notional);
+	}
+
+	/**
+	 * Create a swap.
+	 *
+	 * @param fixingDates Vector of fixing dates
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @param notional The notional as a vector for all periods
+	 */
+	public SimpleSwap(
+			double[] fixingDates,
+			double[] paymentDates,
+			double[] swaprates,
+			double[] notional) {
+		this(fixingDates, paymentDates, swaprates, true, notional);
+	}
+
+	/**
+	 * Create a swap.
+	 *
+	 * @param fixingDates Vector of fixing dates
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 * @deprecated
+	 */
+	@Deprecated
+	public SimpleSwap(
+			double[] fixingDates,
+			double[] paymentDates,
 			double[] swaprates) {
-		this(fixingDates, paymentDates, swaprates, true);
+		this(fixingDates, paymentDates, swaprates, true, 1.0);
 	}
 
 	/**
@@ -85,7 +149,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 
 			// Get random variables
 			RandomVariableInterface libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
-			RandomVariableInterface payoff	= libor.sub(swaprate).mult(periodLength);
+			RandomVariableInterface payoff	= libor.sub(swaprate).mult(periodLength).mult(notional[period]);
 			if(!isPayFix) {
 				payoff = payoff.mult(-1.0);
 			}
@@ -111,4 +175,32 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 				+ "\n" + "paymentDates: " + Arrays.toString(paymentDates)
 				+ "\n" + "swaprates: " + Arrays.toString(swaprates);
 	}
+
+	public double getStartTime(){
+		return this.fixingDates[0];
+	}
+
+	public double[] getFixingDates(){
+		return this.fixingDates;
+	}
+
+	public double[] getNotional(){
+		return this.notional;
+	}
+
+	public double[] getSwapRates(){
+		return this.swaprates;
+	}
+
+	public double[] getPaymentDates(){
+		return this.paymentDates;
+	}
+
+	public double[] getPeriodLengths(){
+		double[] periodLengths = new double[paymentDates.length];
+		periodLengths = IntStream.range(0, periodLengths.length).mapToDouble(i -> paymentDates[i]-fixingDates[i]).toArray();
+		return periodLengths;
+	}
+
+
 }
