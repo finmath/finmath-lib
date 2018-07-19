@@ -33,7 +33,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	 * @param model The LIBORMarketModel.
 	 * @param process The process.
 	 */
-	public LIBORModelMonteCarloSimulation(LIBORModelInterface model, AbstractProcess process) {
+	public LIBORModelMonteCarloSimulation(LIBORModelInterface model, AbstractProcessInterface process) {
 		super();
 		this.model		= model;
 

@@ -667,7 +667,7 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * Calibration test
 		 */
-		System.out.println("Calibration to Swaptions:");
+		System.out.println("Calibration to Swaptions (on lognormal volatilities):");
 
 		/*
 		 * Create a set of calibration products.
@@ -777,9 +777,13 @@ public class LIBORMarketModelValuationTest {
 			deviationSquaredSum += Math.pow(valueModel-valueTarget,2);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
 		}
-		System.out.println("Mean Deviation...............:" + deviationSum/calibrationItems.size());
-		System.out.println("Root Mean Squared Deviation..:" + Math.sqrt(deviationSquaredSum)/calibrationItems.size());
+		double diviationRMS = Math.sqrt(deviationSquaredSum/calibrationItems.size());
+
+		System.out.println("Mean Deviation...............:" + formatterValue.format(deviationSum/calibrationItems.size()));
+		System.out.println("Root Mean Squared Deviation..:" + formatterValue.format(diviationRMS));
 		System.out.println("__________________________________________________________________________________________\n");
+
+		Assert.assertEquals("RMS Deviation", 0.0, diviationRMS, 0.025);
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {

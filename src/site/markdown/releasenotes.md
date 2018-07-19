@@ -5,6 +5,30 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.2.17 (19.07.2018)
+
+### Interest Rate Products
+
+- Added additional features to Bermudan Swaption, Swaption and Swap to support initial 
+  margin project. The Bermudan swaption reports the stochastic exerciseTime in the result map.
+
+## 3.2.14 (16.07.2018)
+
+### General
+
+- Requiring some checkstyle checks to be passed.
+- Improving API documentation (JavaDoc).
+- Improvements to TimeDiscretizationInterface and TimeDiscretization (see pull request #60).
+- More unit tests.
+
+### LIBOR Market Model
+
+- Small internal change: Introduced interface LIBORCovarianceModelCalibrateable and changed argument calibrationTargetValues 
+  to RandomVariableInterface[]. This step was just to ease the integration of the AAD 
+  calibration, where the getParameters method of the covariance models results in a 
+  RandomVariableInterface[].
+  
+
 ## 3.2.11 (07.07.2018)
 
 ### General

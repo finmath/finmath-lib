@@ -86,6 +86,9 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs a time discretization using the given tick size.
 	 * The iteration of the iterable does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
 	public TimeDiscretization(Iterable<Double> times, double tickSize) {
 		this(StreamSupport.stream(times.spliterator(), false), tickSize);
@@ -94,6 +97,8 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	/**
 	 * Constructs a time discretization from an iterable of doubles.
 	 * The iteration does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
 	 */
 	public TimeDiscretization(Iterable<Double> times) {
 		this(StreamSupport.stream(times.spliterator(), false));
@@ -124,6 +129,7 @@ public class TimeDiscretization implements Serializable, TimeDiscretizationInter
 	 * The given array does not need to be sorted.
 	 *
 	 * @param times Given boxed array of discretization points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
 	public TimeDiscretization(Double[] times, double tickSize) {
 		this(Arrays.stream(times), tickSize);
