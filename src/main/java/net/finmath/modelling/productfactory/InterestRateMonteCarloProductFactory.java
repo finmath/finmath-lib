@@ -10,6 +10,7 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.Swap;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
+import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 
 /**
@@ -22,6 +23,10 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	private final AbstractIndex					index;
 	private final boolean						couponFlow = true;
 	private final boolean						isNotionalAccruing = false;
+	
+	public InterestRateMonteCarloProductFactory(AbstractIndex index) {
+		this(new Notional(1.0), index);
+	}
 	
 	public InterestRateMonteCarloProductFactory(AbstractNotional notional, AbstractIndex index) {
 		this.notional = notional;

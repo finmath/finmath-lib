@@ -32,7 +32,6 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
@@ -83,9 +82,8 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		AbstractNotional notional = new Notional(1.0);
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(notional, index)).getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(index)).getProductFromDescriptor(legDescriptor);
 		
 		/*
 		 * Monte-Carlo value
@@ -105,9 +103,6 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create analytic leg
 		 */
-//		String forwardCurveName = "forwardCurve";
-//		String discountCurveName = "discountCurve";
-//		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateAnalyticProductFactory(forwardCurveName, discountCurveName, discountCurveName)).getProductFromDescriptor(legDescriptor);
 		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
 
 		/*
@@ -121,63 +116,75 @@ public class InterestRateSwapLegDescriptorTest {
 		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 5E-3);
 	}
 
-//	/**
-//	 * Test a fixed rate leg.
-//	 *
-//	 * @throws CalculationException Thrown if calculation fails.
-//	 */
-//	@Test
-//	public void testFixLeg() throws CalculationException {
-//
-//		int			spotOffsetDays = 2;
-//		String		forwardStartPeriod = "0D";
-//		String		maturity = "35Y";
-//		String		frequency = "semiannual";
-//		String		daycountConvention = "30/360";
-//
-//		/*
-//		 * Create Monte-Carlo leg
-//		 */
-//		AbstractNotional notional = new Notional(1.0);
-//		AbstractIndex index = null;
-//		double spread = 0.05;
-//		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-//		SwapLeg leg = new SwapLeg(schedule, notional, index, spread, false /* isNotionalExchanged */);
-//
-//		/*
-//		 * Create Monte-Carlo model
-//		 */
-//		int numberOfPaths = 10000;
-//		int numberOfFactors = 5;
-//		double correlationDecayParam = 0.2;
-////		LIBORModelMonteCarloSimulationInterface model = createMultiCurveLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam);
-//		LIBORModelMonteCarloSimulationInterface model = createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, createDiscountCurve(), createForwardCurve());
-//
-//		/*
-//		 * Monte-Carlo value
-//		 */
-//		RandomVariableInterface value = leg.getValue(0.0, model);
-//		double valueSimulation = value.getAverage();
-//		System.out.println("Fixed leg (simulation): " + value.getAverage() + "\t +/-" + value.getStandardError());
-//
-//		/*
-//		 * Create analytic leg
-//		 */
-//		String forwardCurveName = null;
-//		String discountCurveName = "discountCurve";
-//		net.finmath.marketdata.products.SwapLeg legAnalytic = new net.finmath.marketdata.products.SwapLeg(schedule, forwardCurveName, spread, discountCurveName, false /* isNotionalExchanged */);
-//
-//		/*
-//		 * Analytic value
-//		 */
-//		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
-//		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
-//		System.out.println("Fixed leg (analytic)..: " + valueAnalytic);
-//
-//		System.out.println();
-//
-//		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 4E-3);
-//	}
+	
+	
+	/**
+	 * Test a fixed rate leg.
+	 *
+	 * @throws CalculationException Thrown if calculation fails.
+	 */
+	@Test
+	public void testFixLeg() throws CalculationException {
+
+		int			spotOffsetDays = 2;
+		String		forwardStartPeriod = "0D";
+		String		maturity = "35Y";
+		String		frequency = "semiannual";
+		String		daycountConvention = "30/360";
+		
+		/*
+		 * Create leg descriptor
+		 */
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+		double spread = 0.05;
+		boolean isNotionalExchanged = false;
+		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor(schedule, spread, isNotionalExchanged);
+
+		/*
+		 * Create Monte-Carlo model
+		 */
+		int numberOfPaths = 10000;
+		int numberOfFactors = 5;
+		double correlationDecayParam = 0.2;
+		LIBORModelMonteCarloSimulationInterface model = createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, createDiscountCurve(), createForwardCurve());
+		
+		/*
+		 * Create Monte-Carlo leg
+		 */
+		AbstractIndex index = null;
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(index)).getProductFromDescriptor(legDescriptor);
+
+		/*
+		 * Monte-Carlo value
+		 */
+		RandomVariableInterface value = (RandomVariableInterface) legMC.getValue(0.0, model);
+		double valueSimulation = value.getAverage();
+		System.out.println("Fixed leg (simulation): " + value.getAverage() + "\t +/-" + value.getStandardError());
+
+		/*
+		 * Create Analytic model
+		 */
+		AnalyticModelDescriptor modelAnalyticDescriptor = new AnalyticModelDescriptor(Arrays.asList(new CurveInterface[] {createDiscountCurve(), createForwardCurve()}) , null);
+		DescribedModel<AnalyticModelDescriptor> modelAnalytic = (new AnalyticModelFactory()).getModelFromDescriptor(modelAnalyticDescriptor);
+		
+		/*
+		 * Create analytic leg
+		 */
+		String forwardCurveName = null;
+		String discountCurveName = "discountCurve";
+		((AnalyticModel) modelAnalytic).setFactory(new InterestRateAnalyticProductFactory(forwardCurveName, discountCurveName, discountCurveName));
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
+
+		/*
+		 * Analytic value
+		 */
+		double valueAnalytic = ((AnalyticProductInterface) legAnalytic).getValue(0.0, (AnalyticModelInterface) modelAnalytic);
+		System.out.println("Fixed leg (analytic)..: " + valueAnalytic);
+
+		System.out.println();
+
+		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 4E-3);
+	}
 	
 	public static DiscountCurve createDiscountCurve() {
 		return DiscountCurve.createDiscountCurveFromZeroRates(
