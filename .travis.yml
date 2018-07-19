@@ -1,2 +1,5 @@
 language: java
+jdk:
+  - oraclejdk8
+dist: precise
 script: "mvn checkstyle:check test -B -V"
