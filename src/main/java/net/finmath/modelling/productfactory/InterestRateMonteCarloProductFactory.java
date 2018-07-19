@@ -20,7 +20,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	
 	private final AbstractNotional				notional;
 	private final AbstractIndex					index;
-	private final boolean						couponFlow = false;
+	private final boolean						couponFlow = true;
 	private final boolean						isNotionalAccruing = false;
 	
 	public InterestRateMonteCarloProductFactory(AbstractNotional notional, AbstractIndex index) {

@@ -30,11 +30,15 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 		curvesMap = new HashMap<String, CurveInterface>();
 		volatilitySurfaceMap = new HashMap<String, VolatilitySurfaceInterface>();
 		
-		for(CurveInterface curve : curves) {
-			curvesMap.put(curve.getName(), curve);
+		if(curves != null) {
+			for(CurveInterface curve : curves) {
+				curvesMap.put(curve.getName(), curve);
+			}
 		}
-		for(VolatilitySurfaceInterface surface : surfaces) {
-			volatilitySurfaceMap.put(surface.getName(), surface);
+		if (surfaces != null) {
+			for (VolatilitySurfaceInterface surface : surfaces) {
+				volatilitySurfaceMap.put(surface.getName(), surface);
+			} 
 		}
 	}
 
