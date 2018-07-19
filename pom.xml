@@ -11,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib-automaticdifferentiation-extensions</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>0.9.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib automatic differentiation extensions</name>
