@@ -91,10 +91,14 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 
 	@Override
 	public RandomVariableInterface[] getParameter() {
-		if(!isCalibrateable) return covarianceModel.getParameter();
+		if(!isCalibrateable) {
+			return covarianceModel.getParameter();
+		}
 
 		RandomVariableInterface[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new RandomVariableInterface[] { displacement };
+		if(covarianceParameters == null) {
+			return new RandomVariableInterface[] { displacement };
+		}
 
 		// Append displacement to the end of covarianceParameters
 		RandomVariableInterface[] jointParameters = new RandomVariableInterface[covarianceParameters.length+1];
@@ -107,7 +111,9 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariableInterface[] parameters) {
 		DisplacedLocalVolatilityModel model = (DisplacedLocalVolatilityModel)this.clone();
-		if(parameters == null || parameters.length == 0) return model;
+		if(parameters == null || parameters.length == 0) {
+			return model;
+		}
 
 		if(!isCalibrateable) {
 			model.covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameters);

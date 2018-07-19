@@ -154,10 +154,14 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	@Override
 	public RandomVariableInterface[] getParameter() {
-		if(!isCalibrateable) return covarianceModel.getParameter();
+		if(!isCalibrateable) {
+			return covarianceModel.getParameter();
+		}
 
 		RandomVariableInterface[] covarianceParameters = covarianceModel.getParameter();
-		if(covarianceParameters == null) return new RandomVariableInterface[] { displacement };
+		if(covarianceParameters == null) {
+			return new RandomVariableInterface[] { displacement };
+		}
 
 		// Append displacement to the end of covarianceParameters
 		RandomVariableInterface[] jointParameters = new RandomVariableInterface[covarianceParameters.length+1];
@@ -168,7 +172,9 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	}
 
 	private void setParameter(RandomVariableInterface[] parameter) {
-		if(parameter == null || parameter.length == 0) return;
+		if(parameter == null || parameter.length == 0) {
+			return;
+		}
 
 		if(!isCalibrateable) {
 			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);
