@@ -125,7 +125,9 @@
 						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
 					</links>
 					<detectLinks>true</detectLinks>
-					<additionalOptions>--allow-script-in-comments</additionalOptions>
+					<additionalOptions>
+						<additionalOption>--allow-script-in-comments</additionalOption>
+					</additionalOptions>
 				</configuration>
 				<executions>
 					<execution>
