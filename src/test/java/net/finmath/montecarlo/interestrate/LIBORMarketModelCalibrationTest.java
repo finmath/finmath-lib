@@ -58,8 +58,8 @@ import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModel
 import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModelPiecewiseConstant;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
-import net.finmath.montecarlo.interestrate.products.ATMSwaption;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.SwaptionATM;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -604,7 +604,7 @@ public class LIBORMarketModelCalibrationTest {
 		}
 		swapTenor[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
 
-		AbstractLIBORMonteCarloProduct swaptionMonteCarlo = new ATMSwaption(swapTenor, valueUnit);
+		AbstractLIBORMonteCarloProduct swaptionMonteCarlo = new SwaptionATM(swapTenor, valueUnit);
 
 		/*
 		 * We use Monte-Carlo calibration on implied volatility.
