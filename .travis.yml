@@ -1,5 +1,6 @@
 language: java
 jdk:
   - oraclejdk8
-dist: precise
+sudo: required 
+dist: trusty
 script: "mvn checkstyle:check test -B -V"
