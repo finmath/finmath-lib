@@ -13,23 +13,22 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
+ * A lightweight ATM swaption product used for calibration.
+ * 
  * @author Stefan Sedlmair
- * @version 0.1
+ * @author Christian Fries
  */
-public class ATMSwaption extends AbstractLIBORMonteCarloProduct {
+public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 
 	private final TimeDiscretizationInterface	tenor;
 	private final ValueUnit						valueUnit;
 
-	public ATMSwaption(double[] swapTenor, ValueUnit valueUnit) {
+	public SwaptionATM(double[] swapTenor, ValueUnit valueUnit) {
 		super();
 		this.tenor = new TimeDiscretization(swapTenor);
 		this.valueUnit = valueUnit;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct#getValue(double, net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface)
-	 */
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
@@ -52,20 +51,25 @@ public class ATMSwaption extends AbstractLIBORMonteCarloProduct {
 		case VALUE:
 			return optionValue;
 		case VOLATILITYNORMAL:
-			return getImpliedBachelierOptionVolatility(optionValue, optionMaturity, swapAnnuity);
+			return getImpliedBachelierATMOptionVolatility(optionValue, optionMaturity, swapAnnuity);
 		case INTEGRATEDNORMALVARIANCE:
-			return getImpliedBachelierOptionVolatility(optionValue, optionMaturity, swapAnnuity).squared().mult(optionMaturity);
+			return getImpliedBachelierATMOptionVolatility(optionValue, optionMaturity, swapAnnuity).squared().mult(optionMaturity);
 		default:
-			throw new UnsupportedOperationException();
+			throw new IllegalArgumentException("Unknown valueUnit: " + valueUnit.name());
 		}
 	}
 
 	/**
-	 * 	calculate ATM Bachelier Implied Volatilities
-	 * 	@see net.finmath.functions.AnalyticFormulas#bachelierOptionImpliedVolatility(double, double, double, double, double)
-	 * */
-	public RandomVariableInterface getImpliedBachelierOptionVolatility(RandomVariableInterface optionValue, double optionMaturity, double swapAnnuity){
+	 * 	Calculates ATM Bachelier implied volatilities.
+	 * 
+	 * @see net.finmath.functions.AnalyticFormulas#bachelierOptionImpliedVolatility(double, double, double, double, double)
+	 * 
+	 * @param optionValue RandomVarable representing the value of the option
+	 * @param optionMaturity Time to maturity.
+	 * @param swapAnnuity The swap annuity as seen on valuation time.
+	 * @return The Bachelier implied volatility.
+	 */
+	public RandomVariableInterface getImpliedBachelierATMOptionVolatility(RandomVariableInterface optionValue, double optionMaturity, double swapAnnuity){
 		return optionValue.average().div(Math.sqrt(optionMaturity / Math.PI / 2.0)).div(swapAnnuity);
 	}
-
 }
