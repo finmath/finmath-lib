@@ -61,15 +61,15 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 
 	/**
 	 * 	Calculates ATM Bachelier implied volatilities.
-	 * 
+	 *
 	 * @see net.finmath.functions.AnalyticFormulas#bachelierOptionImpliedVolatility(double, double, double, double, double)
-	 * 
+	 *
 	 * @param optionValue RandomVarable representing the value of the option
 	 * @param optionMaturity Time to maturity.
 	 * @param swapAnnuity The swap annuity as seen on valuation time.
 	 * @return The Bachelier implied volatility.
 	 */
 	public RandomVariableInterface getImpliedBachelierATMOptionVolatility(RandomVariableInterface optionValue, double optionMaturity, double swapAnnuity){
-		return optionValue.average().div(Math.sqrt(optionMaturity / Math.PI / 2.0)).div(swapAnnuity);
+		return optionValue.average().mult(Math.sqrt(2.0 * Math.PI / optionMaturity) / swapAnnuity);
 	}
 }
