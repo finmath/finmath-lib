@@ -14,7 +14,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * A lightweight ATM swaption product used for calibration.
- * 
+ *
  * @author Stefan Sedlmair
  * @author Christian Fries
  */
