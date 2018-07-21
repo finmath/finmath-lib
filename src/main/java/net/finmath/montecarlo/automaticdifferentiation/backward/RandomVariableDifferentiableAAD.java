@@ -130,34 +130,32 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
 			if(arguments == null) return;
-			synchronized (derivatives) {
-				for(OperatorTreeNode argument : arguments) {
-					if(argument != null) {
-						Long argumentID = argument.id;
+			for(OperatorTreeNode argument : arguments) {
+				if(argument != null) {
+					Long argumentID = argument.id;
 
-						RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
-						RandomVariableInterface derivative			= derivatives.get(id);
-						RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
+					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
+					RandomVariableInterface derivative			= derivatives.get(id);
+					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
 
-						// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
-						if(operatorType == OperatorType.AVERAGE) {
-							derivative = derivative.average();
-						}
-						// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
-						if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
-							ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
-							derivative = estimator.getConditionalExpectation(derivative);
-						}
-
-						if(argumentDerivative == null) {
-							argumentDerivative = derivative.mult(partialDerivative);
-						}
-						else {
-							argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
-						}
-
-						derivatives.put(argumentID, argumentDerivative);
+					// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
+					if(operatorType == OperatorType.AVERAGE) {
+						derivative = derivative.average();
 					}
+					// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
+					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
+						ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
+						derivative = estimator.getConditionalExpectation(derivative);
+					}
+
+					if(argumentDerivative == null) {
+						argumentDerivative = derivative.mult(partialDerivative);
+					}
+					else {
+						argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
+					}
+
+					derivatives.put(argumentID, argumentDerivative);
 				}
 			}
 		}
