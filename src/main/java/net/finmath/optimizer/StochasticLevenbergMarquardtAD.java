@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -100,18 +101,25 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenbergMarquardt {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -8852002990042152135L;
+	private final boolean isGradientValuationParallel;
 
+	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
+			RandomVariableInterface[] initialParameters,
+			RandomVariableInterface[] targetValues,
+			RandomVariableInterface[] parameterSteps, int maxIteration, double errorTolerance,
+			ExecutorService executorService,
+			boolean isGradientValuationParallel) {
+		super(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);
+		this.isGradientValuationParallel = isGradientValuationParallel;
+	}
 
 	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
 			RandomVariableInterface[] initialParameters,
 			RandomVariableInterface[] targetValues,
 			RandomVariableInterface[] parameterSteps, int maxIteration, double errorTolerance,
 			ExecutorService executorService) {
-		super(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);
+		this(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService, false /* isGradientValuationParallel */);
 	}
 
 
@@ -144,7 +152,11 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 
 		if(isRandomVariableDifferentiable) {
 			// Parallel evaluation of gradients for each value function
-			Map<Integer,Map<Long, RandomVariableInterface>> gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient()));
+			IntStream gradientIndices = IntStream.range(0, values.length);
+			if(isGradientValuationParallel) {
+				gradientIndices = gradientIndices.parallel();
+			}
+			Map<Integer,Map<Long, RandomVariableInterface>> gradients = gradientIndices.boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient()));
 
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
 				Map<Long, RandomVariableInterface> gradient = gradients.get(valueIndex);
