@@ -1,4 +1,4 @@
-### Maven template
+### Maven related files
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -11,6 +11,9 @@ buildNumber.properties
 
 ### Java template
 *.class
+
+### Eclipse related files
+.settings/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -69,5 +72,3 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
-
-# Created by .ignore support plugin (hsz.mobi)
