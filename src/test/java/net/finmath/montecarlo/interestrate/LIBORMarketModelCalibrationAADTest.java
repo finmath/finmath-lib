@@ -86,7 +86,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 
 @RunWith(Parameterized.class)
-public class LIBORMarketModelCalibrationTest {
+public class LIBORMarketModelCalibrationAADTest {
 
 	public enum OptimizerDerivativeType{
 		FINITE_DIFFERENCES, ADJOINT_AUTOMATIC_DIFFERENTIATION, AUTOMATIC_DIFFERENTIATION
@@ -150,7 +150,7 @@ public class LIBORMarketModelCalibrationTest {
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
 
-	public LIBORMarketModelCalibrationTest(OptimizerSolverType solverType, OptimizerDerivativeType derivativeType, OptimizerType optimizerType, ValueUnit valueUnit) {
+	public LIBORMarketModelCalibrationAADTest(OptimizerSolverType solverType, OptimizerDerivativeType derivativeType, OptimizerType optimizerType, ValueUnit valueUnit) {
 
 		System.out.println("\n" + solverType + " - " + optimizerType + " - " + derivativeType + "\n");
 
