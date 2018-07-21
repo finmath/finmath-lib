@@ -214,6 +214,7 @@
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
+					<excludePackageNames>net.finmath.montecarlo.automaticdifferentiation.backward.alternative:net.finmath.rootfinder</excludePackageNames>
 					<header>
 			   			<![CDATA[
 						<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
@@ -260,7 +261,9 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.21.0</version>
 				<configuration>
-					<argLine>-mx4G</argLine>
+					<forkCount>1</forkCount>
+					<reuseForks>false</reuseForks>
+					 <argLine>-mx6G</argLine>
 				</configuration>
 			</plugin>
 
@@ -570,6 +573,7 @@
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
+					<excludePackageNames>net.finmath.montecarlo.automaticdifferentiation.backward.alternative:net.finmath.rootfinder</excludePackageNames>
 					<header>
 			   			<![CDATA[
 						<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
