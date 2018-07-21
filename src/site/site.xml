@@ -7,7 +7,7 @@
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
 		<artifactId>maven-fluido-skin</artifactId>
-		<version>1.6</version>
+		<version>1.7</version>
 	</skin>
 	<!-- <skin> <groupId>lt.velykis.maven.skins</groupId> <artifactId>reflow-maven-skin</artifactId> 
 		<version>1.1.1</version> </skin> -->
