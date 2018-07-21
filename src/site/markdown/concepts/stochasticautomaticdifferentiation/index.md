@@ -51,7 +51,8 @@ with respect to *all* its input <code>RandomVariableDifferentiableInterface</cod
 
 ### AAD on Cuda GPUs
 
-It is possible to combine the automatic-differentiation-extensions with the cuda-extensions.
+It is possible to combine the automatic-differentiation-extensions with the cuda-extensions. 
+See https://github.com/finmath/finmath-lib-cuda-extensions 
 
 Using
 
