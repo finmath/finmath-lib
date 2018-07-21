@@ -11,8 +11,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.jblas.util.Functions;
-
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -147,7 +145,7 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 		if(isRandomVariableDifferentiable) {
 			// Parallel evaluation of gradients for each value function
 			Map<Integer,Map<Long, RandomVariableInterface>> gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient()));
-			
+
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
 				Map<Long, RandomVariableInterface> gradient = gradients.get(valueIndex);
 				for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
