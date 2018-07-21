@@ -197,28 +197,25 @@ public class LIBORMarketModelCalibrationAADTest {
 	 */
 	@Test
 	public void testATMSwaptionCalibration() throws CalculationException, SolverException {
-		ATMSwaptionCalibration(testProperties);
-	}
 
-	//------------------------------------------------------------------------------------------
-	public static void ATMSwaptionCalibration(Map<String, Object> properties) throws CalculationException, SolverException{
-		final AbstractRandomVariableFactory randomVariableFactory = (AbstractRandomVariableFactory) properties.getOrDefault("RandomVariableFactory", new RandomVariableFactory());
-		final ValueUnit valueUnit 						= (ValueUnit) 		properties.getOrDefault(	"ValueUnit", ValueUnit.VOLATILITYNORMAL);
-		final OptimizerType optimizerType 				= (OptimizerType) 	properties.getOrDefault(	"OptimizerType", OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT);
-		final OptimizerDerivativeType derivativeType 	= (OptimizerDerivativeType) properties.getOrDefault(	"DerivativeType", OptimizerDerivativeType.FINITE_DIFFERENCES);
-		final OptimizerSolverType solverType 			= (OptimizerSolverType) 	properties.getOrDefault(	"SolverType", OptimizerSolverType.VECTOR);
-		final int maxIterations 						= (int) properties.getOrDefault("maxIterations", 400);
-		final long maxRunTimeInMillis 	= (long) 	properties.getOrDefault("maxRunTime", (long)6E5 /*10min*/);
-		final double errorTolerance 	= (double) 	properties.getOrDefault("errorTolerance", 0.0);
-		final int numberOfThreads 		= (int) 	properties.getOrDefault("numberOfThreads", 2);
-		final int numberOfFactors 		= (int) 	properties.getOrDefault("numberOfFactors", 1);
-		final int numberOfPaths 		= (int) 	properties.getOrDefault("numberOfPathsATM", (int)1E3);
-		final int seed 					= (int) 	properties.getOrDefault("seed", 1234);
+		long startMillis	= System.currentTimeMillis();
 
+		final AbstractRandomVariableFactory randomVariableFactory = (AbstractRandomVariableFactory) testProperties.getOrDefault("RandomVariableFactory", new RandomVariableFactory());
+		final ValueUnit valueUnit 						= (ValueUnit) 		testProperties.getOrDefault(	"ValueUnit", ValueUnit.VOLATILITYNORMAL);
+		final OptimizerType optimizerType 				= (OptimizerType) 	testProperties.getOrDefault(	"OptimizerType", OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT);
+		final OptimizerDerivativeType derivativeType 	= (OptimizerDerivativeType) testProperties.getOrDefault(	"DerivativeType", OptimizerDerivativeType.FINITE_DIFFERENCES);
+		final OptimizerSolverType solverType 			= (OptimizerSolverType) 	testProperties.getOrDefault(	"SolverType", OptimizerSolverType.VECTOR);
+		final int maxIterations 						= (int) testProperties.getOrDefault("maxIterations", 400);
+		final long maxRunTimeInMillis 	= (long) 	testProperties.getOrDefault("maxRunTime", (long)6E5 /*10min*/);
+		final double errorTolerance 	= (double) 	testProperties.getOrDefault("errorTolerance", 0.0);
+		final int numberOfThreads 		= (int) 	testProperties.getOrDefault("numberOfThreads", 2);
+		final int numberOfFactors 		= (int) 	testProperties.getOrDefault("numberOfFactors", 1);
+		final int numberOfPaths 		= (int) 	testProperties.getOrDefault("numberOfPathsATM", (int)1E3);
+		final int seed 					= (int) 	testProperties.getOrDefault("seed", 1234);
 
-		StochasticOptimizerFactoryInterface optimizerFactory = (StochasticOptimizerFactoryInterface) properties.get("OptimizerFactory");
+		StochasticOptimizerFactoryInterface optimizerFactory = (StochasticOptimizerFactoryInterface) testProperties.get("OptimizerFactory");
 		Map<String, Object> optimizerProperties = new HashMap<>();
-		optimizerProperties.putAll(properties);
+		optimizerProperties.putAll(testProperties);
 		optimizerProperties.putIfAbsent("maxIterations", 	maxIterations);
 		optimizerProperties.putIfAbsent("maxRunTime", 		maxRunTimeInMillis);
 		optimizerProperties.putIfAbsent("errorTolerance", 	errorTolerance);
@@ -472,6 +469,10 @@ public class LIBORMarketModelCalibrationAADTest {
 					valueUnit == ValueUnit.VALUE ? 1E-4 : 1E-2 /*assertTrueVALUE*/,
 							valueUnit == ValueUnit.VOLATILITYNORMAL ? 2E-4 : 1E-2 /*assertTrueVOLATILITYNORMAL*/,
 									"ATM" + "-" + derivativeType + "-" + optimizerType + "-" + valueUnit + "-" + numberOfPaths);
+
+			long endMillis		= System.currentTimeMillis();
+
+			System.out.println("Calculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
 	}
 
 	public static AnalyticModelInterface getCalibratedCurve() throws SolverException {
