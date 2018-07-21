@@ -151,15 +151,14 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 		}
 
 		if(isRandomVariableDifferentiable) {
-			// Parallel evaluation of gradients for each value function
-			IntStream gradientIndices = IntStream.range(0, values.length);
+			Map<Integer,Map<Long, RandomVariableInterface>> gradients = null;
 			if(isGradientValuationParallel) {
-				gradientIndices = gradientIndices.parallel();
+				// Parallel pre-calculation of gradients for each value function
+				gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient()));
 			}
-			Map<Integer,Map<Long, RandomVariableInterface>> gradients = gradientIndices.boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient()));
 
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
-				Map<Long, RandomVariableInterface> gradient = gradients.get(valueIndex);
+				Map<Long, RandomVariableInterface> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient();
 				for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
 					derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameters[parameterIndex]).getID());
 					if(derivatives[parameterIndex][valueIndex] != null) {
