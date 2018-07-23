@@ -5,6 +5,12 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.3.1 (22.07.2018)
+
+### General
+
+- Integrated finmath-lib-automaticdifferentiation-extensions (1.1.0) into finmath-lib.
+
 ## 3.2.17 (19.07.2018)
 
 ### Interest Rate Products
