@@ -1,4 +1,4 @@
-package net.finmath.fourier.calibration;
+package net.finmath.fouriermethod.calibration;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

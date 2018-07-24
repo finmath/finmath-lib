@@ -1,6 +1,7 @@
 package net.finmath.fouriermethod.products;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
@@ -42,10 +43,10 @@ public interface SmileByIntegralTransform extends CharacteristicFunctionInterfac
 	/**
 	 * Return the value of a family of options with the same maturity for different strikes.
 	 *
-	 * @param model The model agains which the product should be values.
+	 * @param model The model against which the product should be values.
 	 * @return The map of product values mapping from strike to value.
 	 * @throws CalculationException Thrown if the valuation failed.
 	 */
-	Map<Double, Double> getValue(ProcessCharacteristicFunctionInterface model) throws CalculationException;
+	Map<String, Function<Double,Double>> getValue(double evaluationTime, ProcessCharacteristicFunctionInterface model) throws CalculationException;
 
 }

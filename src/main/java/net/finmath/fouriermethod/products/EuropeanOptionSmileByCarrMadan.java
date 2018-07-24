@@ -2,6 +2,7 @@ package net.finmath.fouriermethod.products;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
@@ -30,11 +31,12 @@ import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMeth
  * From a financial point of view the choice of this strip corresponds to transforming a covered call position.
  *
  * References:
- *
- *  - Carr. P. and Madan, D. (1999) Option Valuation Using the Fast Fourier Transform. Journal of Computational Finance.
- *  - Lee, R. (2004) Option pricing by transform methods: extensions, unification and error control. Journal of Computational Finance.
- *  - Lewis, A. (2002) A simple option formula for general jump diffusion and other exponential Levy processes.
- *
+ *<p><ul>
+ * <li> Carr. P. and Madan, D. (1999) Option Valuation Using the Fast Fourier Transform. Journal of Computational Finance.
+ * <li> Lee, R. (2004) Option pricing by transform methods: extensions, unification and error control. Journal of Computational Finance.
+ * <li> Lewis, A. (2002) A simple option formula for general jump diffusion and other exponential Levy processes.
+ * <li> Lukacks, E. (1970) Characteristic Functions. 2nd edition.
+ *</p></ul>
  * @author Alessandro Gnoatto
  *
  */
@@ -72,7 +74,7 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 		this.extMethod = extMethod;
 	}
 
-	public Map<Double, Double> getValue(ProcessCharacteristicFunctionInterface model) throws CalculationException {
+	public Map<String, Function<Double, Double>> getValue(double evaluationTime, ProcessCharacteristicFunctionInterface model) throws CalculationException {
 
 		CharacteristicFunctionInterface modelCF = model.apply(getMaturity());
 
@@ -126,20 +128,20 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 
 		RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(strikeVector, optionPriceVector,intMethod, extMethod);
 
-		double[] strikes = getStrikes();
-
-		int numberOfStrikes = strikes.length;
-		HashMap<Double, Double> results = new HashMap<Double, Double>();
-
 		Complex minusI = new Complex(0,-1);
 		double residueTerm = (modelCF.apply(minusI)).getReal();
 
-		for(int k = 0; k<numberOfStrikes; k++) {
-			double myStrike = strikes[k];
-			double kthPrice = residueTerm + interpolation.getValue(myStrike);
-			results.put(myStrike, kthPrice);
-		}
+		Function<Double, Double> strikeToPrice = new Function<Double, Double>(){
 
+			@Override
+			public Double apply(Double t) {
+				return residueTerm + interpolation.getValue(t);
+			}
+
+		};
+
+		HashMap<String, Function<Double, Double>> results = new HashMap<String, Function<Double, Double>>();
+		results.put("valuePerStrike", strikeToPrice);
 		return results;
 	}
 

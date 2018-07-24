@@ -2,6 +2,7 @@ package net.finmath.fouriermethod.products;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.commons.math3.complex.Complex;
 
@@ -58,7 +59,7 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 		return -1;
 	}
 
-	public abstract Map<Double, Double> getValue(ProcessCharacteristicFunctionInterface model) throws CalculationException;
+	public abstract Map<String, Function<Double,Double>> getValue(double evaluationTime, ProcessCharacteristicFunctionInterface model) throws CalculationException;
 
 	/**
 	 * This method allows us to reuse the same pricer (same pricing algorithm) over different option smiles.
