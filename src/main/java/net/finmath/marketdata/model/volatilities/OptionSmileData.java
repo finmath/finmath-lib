@@ -8,19 +8,19 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.Quot
 
 /**
  * A collection of option prices or implied volatilities for a given maturity.
- * 
+ *
  * This object is natural in conjunction with FFT methods that run over a whole smile for a fixed maturity.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */
 public class OptionSmileData{
-	private final String underlying;	
+	private final String underlying;
 	private final LocalDate referenceDate;
 	private final double[] strikes;
 	private final double maturity;
 	private final HashMap<Double,OptionData> smile;
-	
+
 	public OptionSmileData(String underlying, LocalDate referenceDate, double[] strikes, double maturity, double[] values, QuotingConvention convention){
 		if(strikes.length != values.length) {
 			throw new IllegalArgumentException("Number of strikes and market quotes does not coincide");
@@ -40,7 +40,7 @@ public class OptionSmileData{
 	public String getUnderlying() {
 		return underlying;
 	}
-	
+
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
@@ -56,7 +56,7 @@ public class OptionSmileData{
 	public HashMap<Double, OptionData> getSmile() {
 		return smile;
 	}
-	
+
 	public OptionData getOption(double strike) {
 		return smile.get(strike);
 	}
@@ -64,7 +64,7 @@ public class OptionSmileData{
 	@Override
 	public String toString() {
 		return "EquityOptionSmile [underlying=" + underlying + ", strikes=" + Arrays.toString(strikes)
-				+ ", maturity=" + maturity + ", smile=" + smile + "]";
+		+ ", maturity=" + maturity + ", smile=" + smile + "]";
 	}
-	
+
 }

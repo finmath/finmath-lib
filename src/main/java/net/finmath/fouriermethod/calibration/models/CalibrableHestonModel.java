@@ -13,7 +13,7 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
 
 /**
  * This class is creates new instances of HestonModel and communicates with the optimization algorithm.
- * 
+ *
  * @author Alessandro Gnoatto
  */
 public class CalibrableHestonModel implements  CalibrableProcessInterface {
@@ -31,7 +31,7 @@ public class CalibrableHestonModel implements  CalibrableProcessInterface {
 		double kappa = parameters[2];
 		double xi = parameters[3];
 		double rho = parameters[4];
-		return new HestonModel(descriptor.getInitialValue(), 
+		return new HestonModel(descriptor.getInitialValue(),
 				descriptor.getDiscountCurveForForwardRate(),
 				volatility, descriptor.getDiscountCurveForForwardRate(), theta, kappa, xi, rho);
 	}
