@@ -7,7 +7,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.Quot
 /**
  * An Equity option quote is a function of strike and maturity. The quote can be represented in terms of prices or volatilities.
  * Concerning the strike: being a double, one might decide to store there a moneyness instead of a price, i.e. a relative strike where ATM = 0.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */
@@ -18,7 +18,7 @@ public class OptionData{
 	private final double maturity;
 	private final double value;
 	private final QuotingConvention convention;
-	
+
 	public OptionData(String underlying, LocalDate referenceDate, double strike, double maturity, double value, QuotingConvention convention) {
 		super();
 		this.underlying = underlying;
@@ -58,6 +58,6 @@ public class OptionData{
 		return "EquityOptionQuote [underlying=" + underlying + ", referenceDate=" + referenceDate + ", strike="
 				+ strike + ", maturity=" + maturity + ", value=" + value + ", convention=" + convention + "]";
 	}
-	
+
 
 }
