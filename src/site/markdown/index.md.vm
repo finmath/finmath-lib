@@ -171,19 +171,11 @@ Extensions
 The finmath-lib-cuda-extensions implement the RandomVariableInterface via Cuda GPU code. This allows to perform Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
 
 The finmath-lib-automaticdifferentiation-extensions implement the RandomVariableInterface via an AAD enabled version. This allows to access automatic differentiations with a minimal change: a replacement of the random variable factory.
-
+Starting with version 3.3.1 the finmath-lib-automaticdifferentiation-extensions is part of finmath-lib.
 
 Coding Conventions
 -------------------------------------
 
 We follow losely the Eclipse coding conventions, which are a minimal modification of the original Java coding conventions. See https://wiki.eclipse.org/Coding_Conventions
 
-We deviate in some places:
-
--   We allow for long code lines. Some coding conventions limit the length of a line to something like 80 characters (like FORTRAN did in the 70'ies). Given widescreen monitors we believe that line wrapping makes code much harder to read than code with long(er) lines.
-
--	We usually do not make a space after statements like `íf`, `for`. We interpret `íf` and `for` as functions and for functions and methods we do not have a space between the name and the argument list either. That is, we write
-
-    if(condition) {
-      // code
-    }
+We deviate in some places. See [[codingconventions]] for details.
