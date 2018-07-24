@@ -2,6 +2,7 @@ package net.finmath.fouriermethod.calibration;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -89,7 +90,7 @@ public class CalibratedModel {
 					EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
 
 					try {
-						Map<Double, Double> currentModelPrices = newPricer.getValue(newModel);
+						Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModel);
 
 						for(int i = 0; i<currentStrikes.length;i++) {
 
@@ -99,7 +100,7 @@ public class CalibratedModel {
 								double optionMaturity =mats[t];
 								double optionStrike = currentStrikes[i];
 								double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-								double optionValue = currentModelPrices.get(currentStrikes[i]);
+								double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
 								values[i] = net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
 
@@ -109,11 +110,11 @@ public class CalibratedModel {
 								double optionMaturity =mats[t];
 								double optionStrike = currentStrikes[i];
 								double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-								double optionValue = currentModelPrices.get(currentStrikes[i]);
+								double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
 								values[i] = net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 							}else {
 								//just output the prices
-								values[i] = currentModelPrices.get(currentStrikes[i]);
+								values[i] = currentModelPrices.get("valuePerStrike").apply(currentStrikes[i]);
 							}
 
 						}
@@ -200,7 +201,7 @@ public class CalibratedModel {
 			EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
 
 			try {
-				Map<Double, Double> currentModelPrices = newPricer.getValue(newModel);
+				Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModel);
 
 				for(int i = 0; i<currentStrikes.length;i++) {
 					K = currentStrikes[i];
@@ -212,7 +213,7 @@ public class CalibratedModel {
 						double optionMaturity =mats[t];
 						double optionStrike = currentStrikes[i];
 						double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-						double optionValue = currentModelPrices.get(currentStrikes[i]);
+						double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);
 						value = net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
 
@@ -222,11 +223,11 @@ public class CalibratedModel {
 						double optionMaturity =mats[t];
 						double optionStrike = currentStrikes[i];
 						double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-						double optionValue = currentModelPrices.get(currentStrikes[i]);
+						double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);
 						value = net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 					}else {
 						//just output the prices
-						value = currentModelPrices.get(currentStrikes[i]);
+						value = currentModelPrices.get("valuePerStrike").apply(currentStrikes[i]);//currentModelPrices.get(currentStrikes[i]);
 					}
 					calibrationOutput.add(K+ "\t" + T + "\t" + targetValue + "\t" + value+ "\t" + Math.pow(targetValue-value,2));
 				}

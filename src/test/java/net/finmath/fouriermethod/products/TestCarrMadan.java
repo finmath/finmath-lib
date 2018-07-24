@@ -1,6 +1,7 @@
 package net.finmath.fouriermethod.products;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class TestCarrMadan {
 
 		long startMillis	= System.currentTimeMillis();
 
-		Map<Double, Double> results = mySmile.getValue(model);
+		Map<String, Function<Double, Double>> results = mySmile.getValue(0.0,model);
 
 		long endMillis		= System.currentTimeMillis();
 
@@ -49,7 +50,7 @@ public class TestCarrMadan {
 
 		for(int i = 0; i<strikes.length; i++) {
 			double valueAnalytic	= AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, maturity, strikes[i]);
-			double value = results.get(strikes[i]);
+			double value = results.get("valuePerStrike").apply(strikes[i]);
 			double relativeError			= (value-valueAnalytic)/valueAnalytic;
 			System.out.println("FFT Value: " + value + "\tAnalytic Value: " + valueAnalytic + ". \t Relative Error: " + relativeError + ".");
 			Assert.assertEquals("Value", valueAnalytic, value, 1E-2);
