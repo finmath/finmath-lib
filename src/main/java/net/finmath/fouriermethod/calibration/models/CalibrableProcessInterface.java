@@ -1,4 +1,4 @@
-package net.finmath.fourier.calibration.models;
+package net.finmath.fouriermethod.calibration.models;
 
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.modelling.ModelDescriptor;

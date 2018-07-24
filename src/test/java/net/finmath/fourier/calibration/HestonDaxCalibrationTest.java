@@ -7,8 +7,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fourier.calibration.CalibrationProblem.OptimizationResult;
-import net.finmath.fourier.calibration.models.CalibrableHestonModel;
+import net.finmath.fouriermethod.calibration.CalibrationProblem;
+import net.finmath.fouriermethod.calibration.CalibrationProblem.OptimizationResult;
+import net.finmath.fouriermethod.calibration.models.CalibrableHestonModel;
 import net.finmath.fouriermethod.products.EuropeanOptionSmileByCarrMadan;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;

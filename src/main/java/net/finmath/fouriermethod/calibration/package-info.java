@@ -4,4 +4,4 @@
  * @author Alessandro Gnoatto
  * @author Christian Fries
  */
-package net.finmath.fourier.calibration.models;
+package net.finmath.fouriermethod.calibration;
