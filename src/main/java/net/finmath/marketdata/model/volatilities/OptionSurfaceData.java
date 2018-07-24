@@ -97,16 +97,18 @@ public class OptionSurfaceData{
 			double maturity = smiles[t].getMaturity();
 			mats[t] = maturity;
 
-			if(!(smiles[t].getReferenceDate().equals(myReferenceDate)))
+			if(!(smiles[t].getReferenceDate().equals(myReferenceDate))) {
 				throw new IllegalArgumentException("All reference dates must be equal");
+			}
 
-			if(!(smiles[t].getUnderlying().equals(myUnderlying)))
+			if(!(smiles[t].getUnderlying().equals(myUnderlying))) {
 				throw new IllegalArgumentException("Option must be written on the same underlying");
+			}
 
 			QuotingConvention testConvention = smiles[t].getSmile().get(smiles[t].getStrikes()[0]).getConvention();
-
-			if(!(testConvention.equals(myConvention)))
+			if(!(testConvention.equals(myConvention))) {
 				throw new IllegalArgumentException("Convention must be the same for all points in the surface");
+			}
 
 			mySurface.put(maturity, smiles[t]);
 		}
@@ -190,5 +192,4 @@ public class OptionSurfaceData{
 	public OptionSmileData getSmile(double maturity) {
 		return surface.get(maturity);
 	}
-
 }
