@@ -145,7 +145,6 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 
 	@Override
 	public EuropeanOptionSmile getCloneWithModifiedParameters(double maturity, double[] strikes) {
-
 		return new EuropeanOptionSmileByCarrMadan(maturity, strikes);
 	}
 
