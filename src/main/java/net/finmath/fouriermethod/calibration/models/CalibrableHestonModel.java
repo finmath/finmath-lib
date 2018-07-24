@@ -4,7 +4,7 @@
  * Created on 23.03.2014
  */
 
-package net.finmath.fourier.calibration.models;
+package net.finmath.fouriermethod.calibration.models;
 
 import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;

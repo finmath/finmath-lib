@@ -1,4 +1,4 @@
-package net.finmath.fourier.calibration;
+package net.finmath.fouriermethod.calibration;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fourier.calibration.models.CalibrableProcessInterface;
+import net.finmath.fouriermethod.calibration.models.CalibrableProcessInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.EuropeanOptionSmile;
 import net.finmath.marketdata.model.volatilities.OptionSmileData;
