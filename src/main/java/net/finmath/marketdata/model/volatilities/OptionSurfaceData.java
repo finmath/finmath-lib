@@ -166,7 +166,7 @@ public class OptionSurfaceData {
 			OptionSmileData relevantSmile = this.surface.get(maturity);
 
 			return relevantSmile.getSmile().get(strike).getValue();
-		}else {
+		} else {
 			if(quotingConvention == QuotingConvention.PRICE && this.convention == QuotingConvention.VOLATILITYLOGNORMAL) {
 
 				double forwardPrice = equityForwardCurve.getValue(maturity);
@@ -175,7 +175,7 @@ public class OptionSurfaceData {
 				double volatility = relevantSmile.getSmile().get(strike).getValue();
 				return net.finmath.functions.AnalyticFormulas.blackScholesGeneralizedOptionValue(forwardPrice, volatility, maturity, strike, discountBond);
 
-			}else if(quotingConvention == QuotingConvention.VOLATILITYLOGNORMAL && this.convention == QuotingConvention.PRICE) {
+			} else if(quotingConvention == QuotingConvention.VOLATILITYLOGNORMAL && this.convention == QuotingConvention.PRICE) {
 				double forwardPrice = equityForwardCurve.getValue(maturity);
 				double discountBond = discountCurve.getValue(maturity);
 				OptionSmileData relevantSmile = this.surface.get(maturity);
