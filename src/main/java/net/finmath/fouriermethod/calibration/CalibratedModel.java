@@ -17,26 +17,26 @@ import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
 
 /**
- * This class solves a calibration problem. The problem is parametrized in terms of:
- *
- * 1) a generic container of market data OptionSurfaceData.
- * 2) a generic pricing model.
- * 3) a generic calibration algorithm.
- * 4) a generic pricer for claims.
- *
+ * This class solves a calibration problem. The problem is defined in terms of:
+ * <p><ul>
+ * <li> a generic container of market data OptionSurfaceData.
+ * <li> a generic pricing model.
+ * <li> a generic calibration algorithm.
+ * <li> a generic pricer for claims.
+ * </ul><p>
  * The class supports both calibration in terms of:
- *
- * - Prices
- * - Lognormal implied volatilities.
- * - Normal implied volatilities.
- *
+ * <p><ul>
+ * <li> Prices
+ * <li> Log-normal implied volatilities.
+ * <li> Normal implied volatilities.
+ * </ul><p>
  * To change the calibration entity please change the convention in the option surface.
  * The calibration entity (i.e. price/vol/normal vol) is directly detected from market data.
  *
  * @author Alessandro Gnoatto
  *
  */
-public class CalibrationProblem {
+public class CalibratedModel {
 
 	private final OptionSurfaceData surface; //target calibration instruments. They dictate the calibration entity: vol/price.
 	private final CalibrableProcessInterface model; //Pricing model
@@ -49,7 +49,7 @@ public class CalibrationProblem {
 	private final double[] upperBound;
 	private final double[] parameterStep;
 
-	public CalibrationProblem(OptionSurfaceData surface, CalibrableProcessInterface model,
+	public CalibratedModel(OptionSurfaceData surface, CalibrableProcessInterface model,
 			OptimizerFactoryInterface optimizerFactory, EuropeanOptionSmile pricer, double[] initialParameters,
 			double[] lowerBound, double[] upperBound, double[] parameterStep) {
 		super();
@@ -63,7 +63,12 @@ public class CalibrationProblem {
 		this.parameterStep = parameterStep;
 	}
 
-	public OptimizationResult runCalibration() throws SolverException {
+	/**
+	 * Solves the calibration problem thus providing a calibrated model.
+	 * @return the calibrated model
+	 * @throws SolverException
+	 */
+	public OptimizationResult getCalibration() throws SolverException {
 
 		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
 			@Override

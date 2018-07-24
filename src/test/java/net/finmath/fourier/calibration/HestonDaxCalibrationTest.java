@@ -7,8 +7,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.calibration.CalibrationProblem;
-import net.finmath.fouriermethod.calibration.CalibrationProblem.OptimizationResult;
+import net.finmath.fouriermethod.calibration.CalibratedModel;
+import net.finmath.fouriermethod.calibration.CalibratedModel.OptimizationResult;
 import net.finmath.fouriermethod.calibration.models.CalibrableHestonModel;
 import net.finmath.fouriermethod.products.EuropeanOptionSmileByCarrMadan;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
@@ -146,13 +146,13 @@ public class HestonDaxCalibrationTest {
 		 */
 		EuropeanOptionSmileByCarrMadan pricer = new EuropeanOptionSmileByCarrMadan(maturity, strike1);
 
-		CalibrationProblem problem = new CalibrationProblem(surface, model, optimizerFactory, pricer,initialParameters,
+		CalibratedModel problem = new CalibratedModel(surface, model, optimizerFactory, pricer,initialParameters,
 				lowerBound, upperBound, parameterStep);
 
 		System.out.println("Calibration started");
 
 		long startMillis	= System.currentTimeMillis();
-		OptimizationResult result = problem.runCalibration();
+		OptimizationResult result = problem.getCalibration();
 		long endMillis		= System.currentTimeMillis();
 
 		double calculationTime = ((endMillis-startMillis)/1000.0);
