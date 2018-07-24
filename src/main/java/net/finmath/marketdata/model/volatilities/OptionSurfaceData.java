@@ -19,16 +19,15 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.Quot
  * The class currently does not cover normal volatilities. Lognormal volatilities are more common in the equity space. The extension is not problematic.
  *
  * @author Alessandro Gnoatto
- *
  */
-public class OptionSurfaceData{
+public class OptionSurfaceData {
 
 	private final String underlying;
 	private final LocalDate referenceDate;
 	private final DiscountCurveInterface discountCurve; //\exp(-r*T) needed e.g. for application of the B&S formula
 	private final DiscountCurveInterface equityForwardCurve; //S0*\exp((r-d)*T)
 	private final QuotingConvention convention; //either price or volatility (lognormal/normal)
-	private final HashMap<Double, OptionSmileData>surface;
+	private final HashMap<Double, OptionSmileData> surface;
 	private final double[] maturities;
 
 	/**
@@ -71,7 +70,6 @@ public class OptionSurfaceData{
 			this.maturities = maturities;
 
 		}
-
 	}
 
 

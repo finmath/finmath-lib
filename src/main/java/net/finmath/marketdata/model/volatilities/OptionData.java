@@ -9,9 +9,9 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.Quot
  * Concerning the strike: being a double, one might decide to store there a moneyness instead of a price, i.e. a relative strike where ATM = 0.
  *
  * @author Alessandro Gnoatto
- *
  */
-public class OptionData{
+public class OptionData {
+	
 	private final String underlying;
 	private final LocalDate referenceDate;
 	private final double strike;
