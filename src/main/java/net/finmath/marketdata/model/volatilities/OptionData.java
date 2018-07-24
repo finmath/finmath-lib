@@ -11,7 +11,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.Quot
  * @author Alessandro Gnoatto
  */
 public class OptionData {
-	
+
 	private final String underlying;
 	private final LocalDate referenceDate;
 	private final double strike;
