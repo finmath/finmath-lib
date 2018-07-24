@@ -58,6 +58,4 @@ public class OptionData{
 		return "EquityOptionQuote [underlying=" + underlying + ", referenceDate=" + referenceDate + ", strike="
 				+ strike + ", maturity=" + maturity + ", value=" + value + ", convention=" + convention + "]";
 	}
-
-
 }
