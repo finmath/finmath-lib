@@ -132,13 +132,17 @@ public class HestonDaxCalibrationTest {
 
 		HestonModelDescriptor hestonModelDescriptor = new HestonModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility, theta, kappa, xi, rho);
 
-		CalibrableHestonModel model = new CalibrableHestonModel(hestonModelDescriptor);
+		ScalarParameterInformation volatilityInformation = new ScalarParameterInformation(true, new BoundConstraint(0.01,1.0));
+		ScalarParameterInformation thetaInformation = new ScalarParameterInformation(true, new BoundConstraint(0.01,0.2));
+		ScalarParameterInformation kappaInformation = new ScalarParameterInformation(true, new BoundConstraint(0.01,1.0));
+		ScalarParameterInformation xiInformation = new ScalarParameterInformation(true, new BoundConstraint(0.01,1.0));
+		ScalarParameterInformation rhoInformation = new ScalarParameterInformation(true, new BoundConstraint(-1.0,1.0));
+
+		CalibrableHestonModel model = new CalibrableHestonModel(hestonModelDescriptor,volatilityInformation,thetaInformation,kappaInformation,xiInformation,rhoInformation,false);
 
 		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(300 /* maxIterations */, 2 /* maxThreads */);
 
 		double[] initialParameters = new double[] { 0.0423,0.0818,0.8455,0.4639,-0.7} /* initialParameters */;
-		double[] lowerBound = new double[] { 0.01,0.01,0.01,0.01,-1.0} /* lowerBound */;
-		double[] upperBound = new double[] { 1.0,1.0,1.0,1.0,1.0} /* upperBound */;
 		double[] parameterStep = new double[] { 0.01,0.01,0.01,0.01,0.01} /* parameterStep */;
 
 		/*
@@ -146,8 +150,7 @@ public class HestonDaxCalibrationTest {
 		 */
 		EuropeanOptionSmileByCarrMadan pricer = new EuropeanOptionSmileByCarrMadan(maturity, strike1);
 
-		CalibratedModel problem = new CalibratedModel(surface, model, optimizerFactory, pricer,initialParameters,
-				lowerBound, upperBound, parameterStep);
+		CalibratedModel problem = new CalibratedModel(surface, model, optimizerFactory, pricer,initialParameters,parameterStep);
 
 		System.out.println("Calibration started");
 
@@ -162,10 +165,13 @@ public class HestonDaxCalibrationTest {
 		System.out.println("The solver required " + result.getIterations() + " iterations.");
 		System.out.println("RMSQE " +result.getRootMeanSquaredError());
 
-		double[] parameters = result.getBestFitParameters();
-		for(int i =0; i<parameters.length; i++) {
-			System.out.println(parameters[i]);
-		}
+		HestonModelDescriptor hestonDescriptor = (HestonModelDescriptor) result.getModel().getModelDescriptor();
+		
+		System.out.println(hestonDescriptor.getVolatility());
+		System.out.println(hestonDescriptor.getTheta());
+		System.out.println(hestonDescriptor.getKappa());
+		System.out.println(hestonDescriptor.getXi());
+		System.out.println(hestonDescriptor.getRho());
 
 		ArrayList<String> errorsOverview = result.getCalibrationOutput();
 
