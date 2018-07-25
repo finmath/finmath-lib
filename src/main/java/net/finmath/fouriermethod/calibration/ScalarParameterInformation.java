@@ -6,7 +6,7 @@ package net.finmath.fouriermethod.calibration;
  *
  */
 public class ScalarParameterInformation implements ScalarParameterInformationInterface{
-	
+
 	private final boolean isParameterToCalibrate;
 	private final ScalarConstraintInterface constraint;
 
@@ -30,7 +30,7 @@ public class ScalarParameterInformation implements ScalarParameterInformationInt
 		this.isParameterToCalibrate = isParameterToCalibrate;
 		this.constraint = new Unconstrained();
 	}
-	
+
 	/**
 	 * Constructs a parameter that needs to be calibrated.
 	 * @param constraint
@@ -39,7 +39,7 @@ public class ScalarParameterInformation implements ScalarParameterInformationInt
 		super();
 		this.isParameterToCalibrate = true;
 		this.constraint = constraint;
-	}	
+	}
 
 	@Override
 	public boolean getIsParameterToCalibrate() {

@@ -12,12 +12,12 @@ public interface ScalarParameterInformationInterface extends ParameterInformatio
 	 * boolean flag for parameters that need to be calibrated.
 	 * @return true if the parameter must be calibrated.
 	 */
-	public boolean getIsParameterToCalibrate();
+	boolean getIsParameterToCalibrate();
 
 	/**
 	 * Returns the constraint.
 	 * @return the constraint.
 	 */
-	public ScalarConstraintInterface getConstraint();
+	ScalarConstraintInterface getConstraint();
 
 }
