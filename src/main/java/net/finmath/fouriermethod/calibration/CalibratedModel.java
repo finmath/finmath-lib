@@ -52,15 +52,15 @@ public class CalibratedModel {
 
 	public CalibratedModel(OptionSurfaceData surface, CalibrableProcessInterface model,
 			OptimizerFactoryInterface optimizerFactory, EuropeanOptionSmile pricer, double[] initialParameters,
-			double[] lowerBound, double[] upperBound, double[] parameterStep) {
+			double[] parameterStep) {
 		super();
 		this.surface = surface;
 		this.model = model;
 		this.optimizerFactory = optimizerFactory;
 		this.pricer = pricer;
 		this.initialParameters = initialParameters;
-		this.lowerBound = lowerBound;
-		this.upperBound = upperBound;
+		this.lowerBound = model.getParameterLowerBounds();
+		this.upperBound = model.getParameterUpperBounds();
 		this.parameterStep = parameterStep;
 	}
 
@@ -76,7 +76,8 @@ public class CalibratedModel {
 			public void setValues(double[] parameters, double[] values) {
 
 				//We change the parameters of the model
-				ProcessCharacteristicFunctionInterface newModel = model.getCloneForModifiedParameters(parameters);
+				CalibrableProcessInterface newModel = model.getCloneForModifiedParameters(parameters);
+				ProcessCharacteristicFunctionInterface newModelFourier = newModel.getCharacteristiFunction();
 
 				int numberOfMaturities = surface.getMaturities().length;
 				double mats[] = surface.getMaturities();
@@ -90,7 +91,7 @@ public class CalibratedModel {
 					EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
 
 					try {
-						Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModel);
+						Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModelFourier);
 
 						for(int i = 0; i<currentStrikes.length;i++) {
 
@@ -139,7 +140,7 @@ public class CalibratedModel {
 
 		ArrayList<String> calibrationOutput = outputCalibrationResult(optimizer.getBestFitParameters());
 
-		ProcessCharacteristicFunctionInterface calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
+		CalibrableProcessInterface calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
 
 		return new OptimizationResult(calibratedModel,optimizer.getBestFitParameters(),optimizer.getIterations(),optimizer.getRootMeanSquaredError(),calibrationOutput);
 	}
@@ -179,7 +180,8 @@ public class CalibratedModel {
 		ArrayList<String> calibrationOutput = new ArrayList<String>();
 
 		//We change the parameters of the model
-		ProcessCharacteristicFunctionInterface newModel = model.getCloneForModifiedParameters(parameters);
+		CalibrableProcessInterface newModel = model.getCloneForModifiedParameters(parameters);
+		ProcessCharacteristicFunctionInterface newModelFourier = newModel.getCharacteristiFunction();
 
 		int numberOfMaturities = surface.getMaturities().length;
 		double mats[] = surface.getMaturities();
@@ -201,7 +203,7 @@ public class CalibratedModel {
 			EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
 
 			try {
-				Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModel);
+				Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModelFourier);
 
 				for(int i = 0; i<currentStrikes.length;i++) {
 					K = currentStrikes[i];
@@ -247,13 +249,13 @@ public class CalibratedModel {
 	 *
 	 */
 	public class OptimizationResult{
-		private final ProcessCharacteristicFunctionInterface model; //the calibrated model
+		private final CalibrableProcessInterface model; //the calibrated model
 		private final double[] bestFitParameters;
 		private final int iterations;
 		private final double rootMeanSquaredError;
 		private final ArrayList<String> calibrationOutput;
 
-		public OptimizationResult(ProcessCharacteristicFunctionInterface model, double[] bestFitParameters,
+		public OptimizationResult(CalibrableProcessInterface model, double[] bestFitParameters,
 				int iterations, double rootMeanSquaredError, ArrayList<String> calibrationOutput) {
 			super();
 			this.model = model;
@@ -263,7 +265,7 @@ public class CalibratedModel {
 			this.calibrationOutput = calibrationOutput;
 		}
 
-		public ProcessCharacteristicFunctionInterface getModel() {
+		public CalibrableProcessInterface getModel() {
 			return model;
 		}
 

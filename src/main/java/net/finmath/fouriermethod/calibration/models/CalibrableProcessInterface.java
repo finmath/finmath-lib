@@ -19,22 +19,37 @@ import net.finmath.modelling.ModelDescriptor;
  *
  */
 public interface CalibrableProcessInterface {
-
 	/**
 	 * Calibration substitutes in the model the parameters of the process with calibrated ones.
 	 * Market observables such as the initial stock value should not be changed.
-	 *
-	 * @param parameters The set of parameters to be used for the new model clone.
+	 * @param parameters
 	 * @return a clone of the original model with modified parameters.
 	 */
-	ProcessCharacteristicFunctionInterface getCloneForModifiedParameters(double[] parameters);
+	CalibrableProcessInterface getCloneForModifiedParameters(double[] parameters);
 
 	/**
 	 * Every class implementing this interface must contain a ModelDescriptor from which we can create
 	 * some concrete model.
-	 *
-	 * @return The model descriptor.
+	 * @return
 	 */
 	ModelDescriptor getModelDescriptor();
+
+	/**
+	 * Directly returns the characteristic function.
+	 * @return the characteristic function
+	 */
+	ProcessCharacteristicFunctionInterface getCharacteristiFunction();
+
+	/**
+	 * Extracts parameter lower bounds for the optimizer factory.
+	 * @return parameter lower bounds for the optimizer factory.
+	 */
+	double[] getParameterLowerBounds();
+
+	/**
+	 * Extracts parameter upper bounds for the optimizer factory.
+	 * @return parameter upper bounds for the optimizer factory.
+	 */
+	double[] getParameterUpperBounds();
 
 }
