@@ -33,7 +33,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Merton Model (as Monte-Carlo Simulation)
     - Heston Model (as Monte-Carlo Simulation)
 - **American Monte-Carlo**: Estimation of conditional expectations in a Monte-Carlo framework
-- **Stochastic Automatic Differentiation** (AAD) (requires finmath-lib-automaticdifferentiation-extensions https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions )
+- **Stochastic Automatic Differentiation** (AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
 - Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
 	- **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
