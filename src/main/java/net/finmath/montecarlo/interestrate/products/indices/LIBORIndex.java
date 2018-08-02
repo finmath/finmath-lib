@@ -72,7 +72,7 @@ public class LIBORIndex extends AbstractIndex {
 			// Perform a multiplicative adjustment on the forward bonds
 			AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
 			ForwardCurveInterface indexForwardCurve = analyticModel.getForwardCurve(getName());
-			ForwardCurveInterface modelForwardCurve = analyticModel.getForwardCurve(getName());
+			ForwardCurveInterface modelForwardCurve = model.getModel().getForwardRateCurve();
 			double adjustment = (1.0 + indexForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength) * periodLength) / (1.0 + modelForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength) * periodLength);
 			forwardRate = forwardRate.mult(periodLength).add(1.0).mult(adjustment).sub(1.0).div(periodLength);
 		}
