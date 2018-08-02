@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -52,16 +54,28 @@ public class LIBORIndex extends AbstractIndex {
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Check if model provides this index
-		if(model.getModel().getForwardRateCurve().getName() != null && getName() != null && !model.getModel().getForwardRateCurve().getName().contains(getName())) {
-			throw new IllegalArgumentException("No curve for index " + getName() + " found in model.");
+		if(getName() != null && model.getModel().getForwardRateCurve().getName() != null) {
+			// Check if analytic adjustment would be possible
+			if(!model.getModel().getForwardRateCurve().getName().contains(getName()) || !(model.getModel().getAnalyticModel() != null && model.getModel().getAnalyticModel().getForwardCurve(getName()) == null)) {
+				throw new IllegalArgumentException("No curve for index " + getName() + " found in model.");
+			}
 		}
 
 		// If evaluationTime < 0 take fixing from curve (note: this is a fall-back, fixing should be provided by product, if possible).
 		if(evaluationTime < 0) {
-			return model.getRandomVariableForConstant(model.getModel().getForwardRateCurve().getForward(model.getModel().getAnalyticModel(), periodStartOffset));
+			return model.getRandomVariableForConstant(model.getModel().getForwardRateCurve().getForward(model.getModel().getAnalyticModel(), evaluationTime+periodStartOffset));
 		}
 
 		RandomVariableInterface forwardRate = model.getLIBOR(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
+
+		if(getName() != null && !model.getModel().getForwardRateCurve().getName().contains(getName())) {
+			// Perform a multiplicative adjustment on the forward bonds
+			AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
+			ForwardCurveInterface indexForwardCurve = analyticModel.getForwardCurve(getName());
+			ForwardCurveInterface modelForwardCurve = analyticModel.getForwardCurve(getName());
+			double adjustment = (1.0 + indexForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength) * periodLength) / (1.0 + modelForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength) * periodLength);
+			forwardRate = forwardRate.mult(periodLength).add(1.0).mult(adjustment).sub(1.0).div(periodLength);
+		}
 
 		return forwardRate;
 	}
