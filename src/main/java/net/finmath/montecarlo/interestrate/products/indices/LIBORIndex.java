@@ -56,7 +56,7 @@ public class LIBORIndex extends AbstractIndex {
 		// Check if model provides this index
 		if(getName() != null && model.getModel().getForwardRateCurve().getName() != null) {
 			// Check if analytic adjustment would be possible
-			if(!model.getModel().getForwardRateCurve().getName().contains(getName()) || !(model.getModel().getAnalyticModel() != null && model.getModel().getAnalyticModel().getForwardCurve(getName()) == null)) {
+			if(!model.getModel().getForwardRateCurve().getName().contains(getName()) && !(model.getModel().getAnalyticModel() != null && model.getModel().getAnalyticModel().getForwardCurve(getName()) == null)) {
 				throw new IllegalArgumentException("No curve for index " + getName() + " found in model.");
 			}
 		}
