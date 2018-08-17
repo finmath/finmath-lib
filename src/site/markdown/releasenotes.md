@@ -5,6 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.3.2 (29.07.2018)
+
+### General
+
+- Minor improvements.
+- Fixed an incompatibility in the LIBOR Market Model spreadsheet.
+
 ## 3.3.1 (22.07.2018)
 
 ### General

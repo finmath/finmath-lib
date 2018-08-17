@@ -18,25 +18,25 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @see net.finmath.marketdata.model.curves.ForwardCurveInterface
  * @author Christian Fries
  */
-public class FowardCurveIndex extends AbstractIndex {
+public class ForwardCurveIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 5375406324063846793L;
 
-	private final ForwardCurveInterface fowardCurve;
+	private final ForwardCurveInterface forwardCurve;
 
 	/**
 	 * Creates a forward curve index.
 	 *
-	 * @param fowardCurve The forward curve.
+	 * @param forwardCurve The forward curve.
 	 */
-	public FowardCurveIndex(ForwardCurveInterface fowardCurve) {
+	public ForwardCurveIndex(ForwardCurveInterface forwardCurve) {
 		super();
-		this.fowardCurve = fowardCurve;
+		this.forwardCurve = forwardCurve;
 	}
 
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
-		return new RandomVariable(fowardCurve.getForward(null,  evaluationTime));
+		return new RandomVariable(forwardCurve.getForward(null,  evaluationTime));
 	}
 
 	@Override
@@ -46,6 +46,7 @@ public class FowardCurveIndex extends AbstractIndex {
 
 	@Override
 	public String toString() {
-		return "FowardCurveIndex [fowardCurve=" + fowardCurve + "]";
+		return "ForwardCurveIndex [forwardCurve=" + forwardCurve + "]";
 	}
 }
+

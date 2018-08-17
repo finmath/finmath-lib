@@ -110,6 +110,29 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	/**
 	 * Displaced diffusion model build on top of a standard covariance model.
+	 * The model constructed is <i>(a L<sub>0</sub> + (1-a)L) F</i> where <i>a</i> is
+	 * the displacement and <i>L</i> is
+	 * the component of the stochastic process and <i>F</i> is the factor loading
+	 * from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, where the first
+	 * entry is the displacement and the remaining entries are the parameter vector
+	 * of the given base covariance model.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model.
+	 *
+	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
+	 * @param forwardCurve The given forward curve L<sub>0</sub>
+	 * @param displacement The displacement <i>a</i>.
+	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public BlendedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurveInterface forwardCurve, double displacement, boolean isCalibrateable) {
+		this(new RandomVariableFactory(), covarianceModel, forwardCurve, displacement, isCalibrateable);
+	}
+
+	/**
+	 * Displaced diffusion model build on top of a standard covariance model.
 	 *
 	 * The model performs a linear interpolation of a log-normal model (a = 0) and a normal model (a = 1).
 	 *

@@ -22,7 +22,7 @@ public class AccceptanceRejectionRandomNumberGenerator implements RandomNumberGe
 	private final DoubleUnaryOperator referenceDistributionICDF;
 	private final double acceptanceLevel;
 
-	AccceptanceRejectionRandomNumberGenerator(RandomNumberGenerator uniformRandomNumberGenerator,
+	public AccceptanceRejectionRandomNumberGenerator(RandomNumberGenerator uniformRandomNumberGenerator,
 			DoubleUnaryOperator targetDensity,
 			DoubleUnaryOperator referenceDensity,
 			DoubleUnaryOperator referenceDistributionICDF,
