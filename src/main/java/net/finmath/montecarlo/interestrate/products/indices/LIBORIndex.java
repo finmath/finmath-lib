@@ -15,7 +15,7 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
- * A forward rate index for a given period start offset (offset from fixing) and period length.
+ * A (floating) forward rate index for a given period start offset (offset from fixing) and period length.
  *
  * @author Christian Fries
  */
