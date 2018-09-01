@@ -135,9 +135,7 @@ Source code and demos are provided via Github repository.
 				</li>
 			</ul>
 
-Although not recommended, the repository contains an Eclipse project and classpath file including all dependencies. We provide this for convenience. We provide <a href="/java/subversion">instructions</a> on how to checkout the code using the Eclipse IDE.
-Of course, you may use the IDE of your choice by simply importing the maven pom.
-
+Although not recommended, the repository contains an Eclipse project and classpath file including all dependencies.
 
 Documentation
 -------
