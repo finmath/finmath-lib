@@ -695,7 +695,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 */
 
 		/*
-		 * Check if numeraire cache is values (i.e. process did not change)
+		 * Check if numeraire cache is valid (i.e. process did not change)
 		 */
 		if(getProcess() != numerairesProcess) {
 			numeraires.clear();
