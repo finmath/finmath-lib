@@ -9,9 +9,12 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -42,7 +45,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.2
  * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct
  */
-public class Option extends AbstractProductComponent {
+public class Option extends AbstractProductComponent implements RegressionBasisFunctionsProvider {
 
 	private static final long serialVersionUID = 2987369289230532162L;
 
@@ -52,14 +55,68 @@ public class Option extends AbstractProductComponent {
 	private final AbstractLIBORMonteCarloProduct	strikeProduct;
 	private final boolean							isCall;
 
+	private final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider;
+
 	/**
-	 * Creates the function underlying(exerciseDate) &ge; 0 ? underlying : 0
+	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
 	 *
 	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param strikePrice The strike price.
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
+	 * @param underlying The underlying.
+	 * @param regressionBasisFunctionsProvider Used to determine the regresssion basis functions for the conditional expectation operator.
+	 */
+	public Option(double exerciseDate, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+		super();
+		this.exerciseDate	= exerciseDate;
+		this.strikePrice	= strikePrice;
+		this.underlying		= underlying;
+		this.isCall			= isCall;
+		this.strikeProduct	= null;
+		this.regressionBasisFunctionsProvider = regressionBasisFunctionsProvider;
+	}
+
+	/**
+	 * Creates the function underlying(exerciseDate) &ge; strikeProduct ? underlying : strikeProduct
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
+	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
+	 * @param underlying The underlying.
+	 * @param regressionBasisFunctionsProvider Used to determine the regresssion basis functions for the conditional expectation operator.
+	 */
+	public Option(double exerciseDate, boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+		super();
+		this.exerciseDate	= exerciseDate;
+		this.strikePrice	= Double.NaN;
+		this.strikeProduct	= strikeProduct;
+		this.underlying		= underlying;
+		this.isCall			= isCall;
+		this.regressionBasisFunctionsProvider = regressionBasisFunctionsProvider;
+	}
+
+	/**
+	 * Creates the function underlying(exerciseDate) &ge; strikeProduct ? underlying : strikeProduct
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
+	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
 	 * @param underlying The underlying.
 	 */
-	public Option(double exerciseDate, AbstractLIBORMonteCarloProduct underlying) {
-		this(exerciseDate, 0.0, underlying);
+	public Option(double exerciseDate, boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying) {
+		this(exerciseDate, isCall, strikeProduct, underlying, null);
+	}
+
+	/**
+	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param strikePrice The strike price.
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
+	 * @param underlying The underlying.
+	 */
+	public Option(double exerciseDate, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying) {
+		this(exerciseDate, strikePrice, isCall, underlying, null);
 	}
 
 	/**
@@ -74,37 +131,13 @@ public class Option extends AbstractProductComponent {
 	}
 
 	/**
-	 * Creates the function underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice
+	 * Creates the function underlying(exerciseDate) &ge; 0 ? underlying : 0
 	 *
 	 * @param exerciseDate The exercise date of the option (given as a double).
-	 * @param strikePrice The strike price.
-	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
 	 * @param underlying The underlying.
 	 */
-	public Option(double exerciseDate, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying) {
-		super();
-		this.exerciseDate	= exerciseDate;
-		this.strikePrice	= strikePrice;
-		this.underlying		= underlying;
-		this.isCall			= isCall;
-		this.strikeProduct	= null;
-	}
-
-	/**
-	 * Creates the function underlying(exerciseDate) &ge; strikeProduct ? underlying : strikeProduct
-	 *
-	 * @param exerciseDate The exercise date of the option (given as a double).
-	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
-	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
-	 * @param underlying The underlying.
-	 */
-	public Option(double exerciseDate,boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying) {
-		super();
-		this.exerciseDate	= exerciseDate;
-		this.strikePrice	= Double.NaN;
-		this.strikeProduct	= strikeProduct;
-		this.underlying		= underlying;
-		this.isCall			= isCall;
+	public Option(double exerciseDate, AbstractLIBORMonteCarloProduct underlying) {
+		this(exerciseDate, 0.0, underlying);
 	}
 
 	@Override
@@ -114,11 +147,23 @@ public class Option extends AbstractProductComponent {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		if(underlying instanceof AbstractProductComponent) {
-			return ((AbstractProductComponent)underlying).queryUnderlyings();
-		} else {
-			throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+		Set<String> underlyingNames = null;
+		for(AbstractLIBORMonteCarloProduct product : new AbstractLIBORMonteCarloProduct[] {underlying, strikeProduct}) {
+			if(product instanceof AbstractProductComponent) {
+				Set<String> productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
+				if(productUnderlyingNames != null) {
+					if(underlyingNames == null) {
+						underlyingNames = productUnderlyingNames;
+					} else {
+						underlyingNames.addAll(productUnderlyingNames);
+					}
+				}
+				else {
+					throw new IllegalArgumentException("Underlying cannot be queried for underlyings.");
+				}
+			}
 		}
+		return underlyingNames;
 	}
 
 	/**
@@ -170,17 +215,17 @@ public class Option extends AbstractProductComponent {
 			// Filter exerciseTrigger and regressionBasisFunctions
 			exerciseTrigger = exerciseTrigger.mult(filter);
 
-			RandomVariableInterface[] regressionBasisFunctions			= getRegressionBasisFunctions(exerciseDate, model);
+			RandomVariableInterface[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(evaluationTime, model) : getBasisFunctions(exerciseDate, model);
 			RandomVariableInterface[] filteredRegressionBasisFunctions	= new RandomVariableInterface[regressionBasisFunctions.length];
 			for(int i=0; i<regressionBasisFunctions.length; i++) {
 				filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
 			}
 
 			// Remove foresight through conditional expectation
-			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
+			ConditionalExpectationEstimatorInterface conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
-			exerciseTrigger         = condExpEstimator.getConditionalExpectation(exerciseTrigger);
+			exerciseTrigger         = exerciseTrigger.getConditionalExpectation(conditionalExpectationOperator);
 		}
 
 		// Apply exercise criteria
@@ -201,6 +246,16 @@ public class Option extends AbstractProductComponent {
 		return values;
 	}
 
+	@Override
+	public RandomVariableInterface[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
+		if(model instanceof LIBORModelMonteCarloSimulationInterface) {
+			return getBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationInterface)model);
+		}
+		else {
+			throw new IllegalArgumentException("getBasisFunctions requires an model of type LIBORModelMonteCarloSimulationInterface.");
+		}
+	}
+
 	/**
 	 * Return the regression basis functions.
 	 *
@@ -209,7 +264,7 @@ public class Option extends AbstractProductComponent {
 	 * @return Array of random variables.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private RandomVariableInterface[] getRegressionBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariableInterface[] getBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
 

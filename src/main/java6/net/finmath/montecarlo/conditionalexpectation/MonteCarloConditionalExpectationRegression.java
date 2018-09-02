@@ -26,8 +26,36 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimatorInterface {
 
-	private RandomVariableInterface[]    basisFunctionsEstimator		= null;
-	private RandomVariableInterface[]    basisFunctionsPredictor		= null;
+	public interface RegressionBasisFunctions {
+		RandomVariableInterface[] getBasisFunctions();
+	}
+	
+	public class RegressionBasisFunctionsGiven implements RegressionBasisFunctions {
+		private final RandomVariableInterface[] basisFunctions;
+		
+		public RegressionBasisFunctionsGiven(RandomVariableInterface[] basisFunctions) {
+			super();
+			this.basisFunctions = basisFunctions;
+		}
+
+		@Override
+		public RandomVariableInterface[] getBasisFunctions() {
+			return basisFunctions;
+		}
+	}
+
+
+	private RegressionBasisFunctions basisFunctionsEstimator		= null;
+	private RegressionBasisFunctions basisFunctionsPredictor		= null;
+
+	
+	private transient DecompositionSolver solver;
+	private final transient Object solverLock;
+
+	public MonteCarloConditionalExpectationRegression() {
+		super();
+		solverLock = new Object();	// Lock for LazyInit of solver.
+	}
 
 	/**
 	 * Creates a class for conditional expectation estimation.
@@ -35,9 +63,9 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @param basisFunctions A vector of random variables to be used as basis functions.
 	 */
 	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctions) {
-		super();
-		this.basisFunctionsEstimator = basisFunctions;
-		this.basisFunctionsPredictor = basisFunctions;
+		this();
+		this.basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctions));
+		this.basisFunctionsPredictor = basisFunctionsEstimator;
 	}
 
 	/**
@@ -47,9 +75,9 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
 	 */
 	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctionsEstimator, RandomVariableInterface[] basisFunctionsPredictor) {
-		super();
-		this.basisFunctionsEstimator = basisFunctionsEstimator;
-		this.basisFunctionsPredictor = basisFunctionsPredictor;
+		this();
+		this.basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctionsEstimator));
+		this.basisFunctionsPredictor = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctionsPredictor));
 	}
 
 	@Override
@@ -58,7 +86,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
 		// Calculate estimate, i.e. X x
-		RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsPredictor);
+		RandomVariableInterface[] basisFunctions = this.basisFunctionsPredictor.getBasisFunctions();
 		RandomVariableInterface conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
 		for(int i=1; i<basisFunctions.length; i++) {
 			conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
