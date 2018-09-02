@@ -5,12 +5,33 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 3.3.3 (02.09.2018)
+
+### General
+
+- Fixed typos.
+
+### Monte-Carlo Simulation
+
+- Added the interface RegressionBasisFunctionProvider for American Monte-Carlo algorithms.
+- Added the ability to use products implementing AbstractMonteCarloProduct as regression basis functions.
+
+### Monte-Carlo Interest Rate Models
+
+- The Option component allows specification of a RegressionBasisFunctionsProvider.
+ 
+### LIBOR Market Model
+
+- The LIBORIndex supports automatic adjustment of a tenor basis spread if the index name relates to a curve in the LIBOR market model analytic model.
+- Added a unit test for the LIBORIndex testing the value of a FRA on different forward curves.
+
 ## 3.3.2 (29.07.2018)
 
 ### General
 
 - Minor improvements.
 - Fixed an incompatibility in the LIBOR Market Model spreadsheet.
+
 
 ## 3.3.1 (22.07.2018)
 
@@ -24,6 +45,7 @@ finmath lib Release Notes
 
 - Added additional features to Bermudan Swaption, Swaption and Swap to support initial 
   margin project. The Bermudan swaption reports the stochastic exerciseTime in the result map.
+
 
 ## 3.2.14 (16.07.2018)
 
