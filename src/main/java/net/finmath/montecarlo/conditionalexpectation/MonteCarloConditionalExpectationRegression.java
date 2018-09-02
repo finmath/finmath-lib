@@ -30,13 +30,22 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimatorInterface {
 
+	/**
+	 * Interface for objects specifying regression basis functions (a vector of random variables).
+	 *
+	 * @author Christian Fries
+	 */
 	public interface RegressionBasisFunctions {
 		RandomVariableInterface[] getBasisFunctions();
 	}
-	
+
+	/**
+	 * Wrapper to an array of RandomVariableInterface[] implementing RegressionBasisFunctions
+	 * @author Christian Fries
+	 */
 	public class RegressionBasisFunctionsGiven implements RegressionBasisFunctions {
 		private final RandomVariableInterface[] basisFunctions;
-		
+
 		public RegressionBasisFunctionsGiven(RandomVariableInterface[] basisFunctions) {
 			super();
 			this.basisFunctions = basisFunctions;
@@ -52,7 +61,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	private RegressionBasisFunctions basisFunctionsEstimator		= null;
 	private RegressionBasisFunctions basisFunctionsPredictor		= null;
 
-	
+
 	private transient DecompositionSolver solver;
 	private final transient Object solverLock;
 

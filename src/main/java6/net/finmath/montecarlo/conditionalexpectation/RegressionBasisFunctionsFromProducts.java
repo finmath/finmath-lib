@@ -1,3 +1,8 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.08.2018
+ */
 package net.finmath.montecarlo.conditionalexpectation;
 
 import java.util.List;
@@ -8,6 +13,15 @@ import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
+/**
+ * An implementation of an RegressionBasisFunctionsProvider using a list of AbstractMonteCarloProduct-s.
+
+ * The getBasisFunctions method will perform a check if the products getValue method returns an
+ * \( \mathcal{F}_{t} \)-measurable random variable if called with evaluationTime being \( t \).
+ * If this test fails an IllegalArgumentException exception is thrown.
+ *
+ * @author Christian Fries
+ */
 public class RegressionBasisFunctionsFromProducts implements RegressionBasisFunctionsProvider {
 
 	private final List<AbstractMonteCarloProduct> products;
