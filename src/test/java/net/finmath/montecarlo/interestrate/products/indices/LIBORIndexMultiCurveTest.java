@@ -61,9 +61,9 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 /**
  * Implements a test valuing a FRA on a LIBOR Market Model referencing different forward rates curves
  * and comparing the Monte-Carlo valuation with the analytic valuation.
- * 
+ *
  * The model created features three curves: OIS, 3M, 6M.
- * 
+ *
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
