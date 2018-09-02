@@ -5,7 +5,11 @@
  */
 package net.finmath.montecarlo.conditionalexpectation;
 
-import net.finmath.functions.LinearAlgebra;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
+
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -104,13 +108,20 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 */
 	public double[] getLinearRegressionParameters(RandomVariableInterface dependents) {
 
-		// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
-		RandomVariableInterface[] basisFunctions = getNonZeroBasisFunctions(basisFunctionsEstimator);
-		double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
-		for(int i=0; i<basisFunctions.length; i++) {
-			for(int j=i; j<basisFunctions.length; j++) {
-				XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
-				XTX[j][i] = XTX[i][j];												// Symmetric matrix
+		RandomVariableInterface[] basisFunctions = basisFunctionsEstimator.getBasisFunctions();
+
+		synchronized (solverLock) {
+			if(solver == null) {
+				// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
+				double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
+				for(int i=0; i<basisFunctions.length; i++) {
+					for(int j=i; j<basisFunctions.length; j++) {
+						XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
+						XTX[j][i] = XTX[i][j];												// Symmetric matrix
+					}
+				}
+
+				solver = new SingularValueDecomposition(new Array2DRowRealMatrix(XTX, false)).getSolver();
 			}
 		}
 
@@ -121,8 +132,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		}
 
 		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
-		// @TODO A performance improvement is possible here by caching the SVD decomposition of the basis functions
-		double[] linearRegressionParameters = LinearAlgebra.solveLinearEquationLeastSquare(XTX, XTy);
+		double[] linearRegressionParameters = solver.solve(new ArrayRealVector(XTy)).toArray();
 
 		return linearRegressionParameters;
 	}
