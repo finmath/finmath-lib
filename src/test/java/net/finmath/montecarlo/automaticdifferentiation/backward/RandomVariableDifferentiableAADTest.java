@@ -1,5 +1,7 @@
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
+import static org.junit.Assert.assertSame;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +21,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class RandomVariableDifferentiableAADTest {
 
 	@Test
-	public void testTypePriority() {
+	public void testTypePriorityAdd() {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("isGradientRetainsLeafNodesOnly", false);
 
@@ -31,13 +33,113 @@ public class RandomVariableDifferentiableAADTest {
 		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
 		
-		RandomVariableInterface z1 = x.mult(y);
-		System.out.println(z1.getAverage() + "\t" + z1.getClass());
+		System.out.println("Checking the return type of operators upon commutation:");
 
-		RandomVariableInterface z2 = x.mult(y);
-		System.out.println(z2.getAverage() + "\t" + z2.getClass());
+		/*
+		 * add
+		 */
+		
+		RandomVariableInterface z1 = x.add(y);
+		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
+
+		RandomVariableInterface z2 = y.add(x);
+		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
+		
+		Assert.assertEquals("Value upon commutation", z1.getAverage(), z2.getAverage(), 0.0);
 	}
 	
+	@Test
+	public void testTypePriorityMult() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+						new RandomVariableFactory(), properties);
+
+		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		
+		System.out.println("Checking the return type of operators upon commutation:");
+
+		/*
+		 * mult
+		 */
+		
+		RandomVariableInterface z1 = x.mult(y);
+		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
+
+		RandomVariableInterface z2 = y.mult(x);
+		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
+		
+		Assert.assertEquals("Value upon commutation", z1.getAverage(), z2.getAverage(), 0.0);
+	}
+	
+	@Test
+	public void testTypePriorityCap() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+						new RandomVariableFactory(), properties);
+
+		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		
+		System.out.println("Checking the return type of operators upon commutation:");
+
+		/*
+		 * add
+		 */
+		
+		RandomVariableInterface z1 = x.cap(y);
+		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
+
+		RandomVariableInterface z2 = y.cap(x);
+		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
+		
+		Assert.assertEquals("Value upon commutation", z1.getAverage(), z2.getAverage(), 0.0);
+	}
+	
+	@Test
+	public void testTypePriorityFloor() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+						new RandomVariableFactory(), properties);
+
+		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		
+		System.out.println("Checking the return type of operators upon commutation:");
+
+		/*
+		 * add
+		 */
+		
+		RandomVariableInterface z1 = x.floor(y);
+		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
+
+		RandomVariableInterface z2 = y.floor(x);
+		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
+		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
+		
+		Assert.assertEquals("Value upon commutation", z1.getAverage(), z2.getAverage(), 0.0);
+	}
+
 	@Test
 	public void testSecondOrderDerivative() {
 
@@ -76,6 +178,7 @@ public class RandomVariableDifferentiableAADTest {
 
 		System.out.println("AAD value     : " + derivativeAAD);
 		System.out.println("expeted value : " + derivativeExpected);
+		System.out.println();
 
 		Assert.assertEquals(derivativeExpected, derivativeAAD, 1E-15);
 	}
