@@ -819,7 +819,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	@Override
 	public RandomVariableInterface floor(RandomVariableInterface floor) {
 		return new RandomVariableDifferentiableAD(
-				getValues().cap(floor),
+				getValues().floor(floor),
 				Arrays.asList(this, floor),
 				OperatorType.FLOOR);
 	}
