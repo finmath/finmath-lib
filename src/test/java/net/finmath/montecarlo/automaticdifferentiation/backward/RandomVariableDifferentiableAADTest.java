@@ -19,6 +19,26 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class RandomVariableDifferentiableAADTest {
 
 	@Test
+	public void testTypePriority() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+						new RandomVariableFactory(), properties);
+
+		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		
+		RandomVariableInterface z1 = x.mult(y);
+		System.out.println(z1.getAverage() + "\t" + z1.getClass());
+
+		RandomVariableInterface z2 = x.mult(y);
+		System.out.println(z2.getAverage() + "\t" + z2.getClass());
+	}
+	
+	@Test
 	public void testSecondOrderDerivative() {
 
 		/*
@@ -29,7 +49,7 @@ public class RandomVariableDifferentiableAADTest {
 		AbstractRandomVariableFactory randomVariableFactoryParameters = new RandomVariableFactory();
 
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
+		properties.put("isGradientRetainsLeafNodesOnly", false);
 
 		AbstractRandomVariableFactory randomVariableFactoryVariable = new RandomVariableDifferentiableAADFactory(
 				new RandomVariableDifferentiableAADFactory(

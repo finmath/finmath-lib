@@ -39,7 +39,11 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class RandomVariableDifferentiableAAD implements RandomVariableDifferentiableInterface {
 
 	private static final long serialVersionUID = 2459373647785530657L;
-
+	
+	private static final int typePriorityDefault = 3;
+	
+	private final int typePriority;
+	
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
 
 	private enum OperatorType {
@@ -93,6 +97,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				if(arguments.get(0) == null) {
 					argumentValues.set(1, null);
 				}
+				if(arguments.get(1) == null) {
+					argumentValues.set(0, null);
+				}
+			}
+			else if(operatorType != null && operatorType.equals(OperatorType.DIV)) {
+				// Division only needs to retain numerator if denominator is differentiable
 				if(arguments.get(1) == null) {
 					argumentValues.set(0, null);
 				}
@@ -387,10 +397,16 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	public RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, ConditionalExpectationEstimatorInterface estimator, OperatorType operator, RandomVariableDifferentiableAADFactory factory) {
+		this(values, arguments, estimator, operator, factory, typePriorityDefault);
+	}
+
+	public RandomVariableDifferentiableAAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, ConditionalExpectationEstimatorInterface estimator, OperatorType operator, RandomVariableDifferentiableAADFactory factory, int methodArgumentTypePriority) {
 		super();
 		this.values = values;
 		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator, factory);
 		this.factory = factory != null ? factory : new RandomVariableDifferentiableAADFactory();
+		
+		this.typePriority = methodArgumentTypePriority;
 	}
 
 	public OperatorTreeNode getOperatorTreeNode() {
@@ -500,6 +516,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return getValues().getFiltrationTime();
 	}
 
+	@Override
+	public int getTypePriority() {
+		return typePriority;
+	}
+	
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
 	 */

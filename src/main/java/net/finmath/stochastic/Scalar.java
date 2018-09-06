@@ -39,6 +39,11 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
+	public int getTypePriority() {
+		return 0;
+	}
+
+	@Override
 	public double get(int pathOrState) {
 		return value;
 	}

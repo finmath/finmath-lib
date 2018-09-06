@@ -59,6 +59,13 @@ public interface RandomVariableInterface extends Serializable {
 	double getFiltrationTime();
 
 	/**
+	 * Returns the type priority.
+	 * 
+	 * @return The type priority-
+	 */
+	int getTypePriority();
+
+	/**
 	 * Evaluate at a given path or state.
 	 *
 	 * @param pathOrState Index of the path or state.

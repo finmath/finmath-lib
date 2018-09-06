@@ -167,17 +167,16 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
 	@Override
 	public double getFiltrationTime() {
 		return getRandomVariable().getFiltrationTime();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
+	@Override
+	public int getTypePriority() {
+		return 3;
+	}
+
 	@Override
 	public double get(int pathOrState) {
 		return getRandomVariable().get(pathOrState);

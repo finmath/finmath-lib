@@ -137,19 +137,6 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return arrayOfDouble;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMutableCopy()
-	 */
-	public RandomVariableLowMemory getMutableCopy() {
-		return this;
-
-		//if(isDeterministic())	return new RandomVariable(time, valueIfNonStochastic);
-		//else					return new RandomVariable(time, realizations.clone());
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.montecarlo.RandomVariable)
-	 */
 	@Override
 	public boolean equals(RandomVariableInterface randomVariable) {
 		if(this.time != randomVariable.getFiltrationTime()) {
@@ -172,17 +159,16 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
 	@Override
 	public double getFiltrationTime() {
 		return time;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
+	@Override
+	public int getTypePriority() {
+		return 0;
+	}
+
 	@Override
 	public double get(int pathOrState) {
 		if(isDeterministic()) {

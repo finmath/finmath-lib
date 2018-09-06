@@ -687,7 +687,10 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		return getRandomVariableInterface().getFiltrationTime();
 	}
 
-
+	@Override
+	public int getTypePriority() {
+		return 3;
+	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)

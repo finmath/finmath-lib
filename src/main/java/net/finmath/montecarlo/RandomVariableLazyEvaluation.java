@@ -169,17 +169,17 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
 	@Override
 	public double getFiltrationTime() {
 		return time;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
+	@Override
+	public int getTypePriority() {
+		return 0;
+	}
+
+
 	@Override
 	public double get(int pathOrState) {
 		if(isDeterministic()) {

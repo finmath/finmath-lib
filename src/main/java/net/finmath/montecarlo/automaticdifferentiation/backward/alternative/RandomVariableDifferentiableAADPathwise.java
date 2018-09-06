@@ -456,9 +456,11 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 		return getValues().getFiltrationTime();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
+	@Override
+	public int getTypePriority() {
+		return 3;
+	}
+
 	@Override
 	public double get(int pathOrState) {
 		return getValues().get(pathOrState);
