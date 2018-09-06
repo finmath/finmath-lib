@@ -870,7 +870,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().cap(randomVariable),
+				getValues().floor(randomVariable),
 				Arrays.asList(this, randomVariable),
 				OperatorType.FLOOR);
 	}
