@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
+import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 
 /**
@@ -32,9 +34,11 @@ public class RandomVariableTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */)},
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)},
-			{ new RandomVariableLazyEvaluationFactory()}
+			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableLazyEvaluationFactory() },
+			{ new RandomVariableDifferentiableAADFactory() },
+			{ new RandomVariableDifferentiableADFactory() },
 		});
 	}
 
@@ -164,5 +168,62 @@ public class RandomVariableTest {
 
 		double q99 = normalDistributedRandomVariable.getQuantile(0.99);
 		Assert.assertEquals(2.33, q99, 1E-2);
+	}
+
+	@Test
+	public void testAdd() {
+
+		// Create a stochastic random variable
+		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+				new double[] {-4.0, -2.0, 0.0,  2.0, 4.0} );
+
+		RandomVariableInterface randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+				new double[] { 4.0,  2.0, 0.0, -2.0, -4.0} );
+
+		RandomVariableInterface valueAdd = randomVariable.add(randomVariable2);
+
+		// The random variable average
+		Assert.assertEquals(valueAdd.getAverage(), 0.0, 1E-15);
+
+		// The random variable has variance value 0
+		Assert.assertEquals(valueAdd.getVariance(), 0.0, 1E-15);
+	}
+
+	@Test
+	public void testCap() {
+
+		// Create a stochastic random variable
+		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+
+		RandomVariableInterface randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+				new double[] {-3.0, -3.0, -3.0, -3.0, -3.0} );
+
+		RandomVariableInterface valueCapped = randomVariable.cap(randomVariable2);
+
+		// The random variable has average value 3.0
+		Assert.assertEquals(valueCapped.getAverage(), -3.0 - 1.0/5, 1E-15);
+
+		// The random variable has variance value 0
+		Assert.assertEquals(valueCapped.getVariance(), Math.pow(1.0/5.0,2)*4.0/5.0 + Math.pow(1.0-1.0/5-0,2)*1.0/5.0, 1E-15);
+	}
+
+	@Test
+	public void testFloor() {
+
+		// Create a stochastic random variable
+		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+
+		RandomVariableInterface randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+				new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
+
+		RandomVariableInterface valueFloored = randomVariable.floor(randomVariable2);
+
+		// The random variable has average value 3.0
+		Assert.assertEquals(valueFloored.getAverage(), 3.0 + 1.0/5, 1E-15);
+
+		// The random variable has variance value 0
+		Assert.assertEquals(valueFloored.getVariance(), Math.pow(1.0/5.0,2)*4.0/5.0 + Math.pow(1.0-1.0/5-0,2)*1.0/5.0, 1E-15);
 	}
 }
