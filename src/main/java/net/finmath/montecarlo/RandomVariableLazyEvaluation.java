@@ -895,6 +895,11 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		return apply((x, y) -> x - y, randomVariable);
 	}
 
+	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		return apply((x, y) -> -x + y, randomVariable);
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -909,6 +914,10 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
 		return apply((x, y) -> x / y, randomVariable);
+	}
+
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		return apply((x, y) -> y / x, randomVariable);
 	}
 
 	/* (non-Javadoc)

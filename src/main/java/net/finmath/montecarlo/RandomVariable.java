@@ -925,7 +925,7 @@ public class RandomVariable implements RandomVariableInterface {
 	/*
 	 * Binary operators: checking for return type priority.
 	 */
-	
+
 	@Override
 	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
@@ -955,7 +955,7 @@ public class RandomVariable implements RandomVariableInterface {
 	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
-			return randomVariable.mult(-1).add(this);
+			return randomVariable.bus(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
@@ -976,6 +976,36 @@ public class RandomVariable implements RandomVariableInterface {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] - randomVariable.get(i);
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+	}
+
+	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.sub(this);
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = randomVariable.get(0) - valueIfNonStochastic;
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 =  randomVariable.get(i) - valueIfNonStochastic;
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = randomVariable.get(i) - realizations[i];
 			}
 			return new RandomVariable(newTime, newRealizations);
 		}
@@ -1011,7 +1041,7 @@ public class RandomVariable implements RandomVariableInterface {
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
-			return randomVariable.invert().mult(this);
+			return randomVariable.vid(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
@@ -1032,6 +1062,36 @@ public class RandomVariable implements RandomVariableInterface {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / randomVariable.get(i);
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+	}
+
+	@Override
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.div(this);
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = randomVariable.get(0) / valueIfNonStochastic;
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = randomVariable.get(i) / valueIfNonStochastic;
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = randomVariable.get(i) / realizations[i];
 			}
 			return new RandomVariable(newTime, newRealizations);
 		}

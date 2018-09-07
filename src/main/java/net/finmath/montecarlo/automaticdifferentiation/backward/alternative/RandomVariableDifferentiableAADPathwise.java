@@ -436,7 +436,8 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 				OperatorType.MAX);
 	}
 
-	private RandomVariableInterface getValues(){
+	@Override
+	public RandomVariableInterface getValues(){
 		return values;
 	}
 
@@ -768,6 +769,14 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 				OperatorType.SUB);
 	}
 
+	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		return new RandomVariableDifferentiableAADPathwise(
+				getValues().bus(randomVariable),
+				Arrays.asList(randomVariable, this),
+				OperatorType.SUB);
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -784,6 +793,14 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 		return new RandomVariableDifferentiableAADPathwise(
 				getValues().div(randomVariable),
 				Arrays.asList(this, randomVariable),
+				OperatorType.DIV);
+	}
+
+	@Override
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		return new RandomVariableDifferentiableAADPathwise(
+				getValues().vid(randomVariable),
+				Arrays.asList(randomVariable, this),
 				OperatorType.DIV);
 	}
 

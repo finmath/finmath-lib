@@ -89,6 +89,15 @@ public interface RandomVariableInterface extends Serializable {
 	boolean isDeterministic();
 
 	/**
+	 * Returns the underlying values and a random variable.
+	 * 
+	 * If the implementation supports an "inner representation", returns the inner representation. Otherwise just returns this.
+	 *
+	 * @return The underling values.
+	 */
+	default public RandomVariableInterface getValues() { return this; }
+
+	/**
 	 * Returns a vector representing the realization of this random variable.
 	 * This method is merely useful for analysis. Its interpretation depends on the context (Monte-Carlo or lattice).
 	 * The method does not expose an internal data model.
@@ -468,6 +477,13 @@ public interface RandomVariableInterface extends Serializable {
 	RandomVariableInterface sub(RandomVariableInterface randomVariable);
 
 	/**
+	 * Applies x &rarr; randomVariable-x to this random variable.
+	 * @param randomVariable A random variable (compatible with this random variable).
+	 * @return New random variable with the result of the function.
+	 */
+	RandomVariableInterface bus(RandomVariableInterface randomVariable);
+
+	/**
 	 * Applies x &rarr; x*randomVariable to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
@@ -480,6 +496,13 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return New random variable with the result of the function.
 	 */
 	RandomVariableInterface div(RandomVariableInterface randomVariable);
+
+	/**
+	 * Applies x &rarr; randomVariable/x to this random variable.
+	 * @param randomVariable A random variable (compatible with this random variable).
+	 * @return New random variable with the result of the function.
+	 */
+	RandomVariableInterface vid(RandomVariableInterface randomVariable);
 
 	/**
 	 * Applies x &rarr; min(x,cap) to this random variable.

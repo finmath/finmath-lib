@@ -461,12 +461,8 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * Returns the underlying values.
-	 *
-	 * @return The underling values.
-	 */
-	private RandomVariableInterface getValues(){
+	@Override
+	public RandomVariableInterface getValues() {
 		return values;
 	}
 
@@ -814,12 +810,25 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
-			return randomVariable.mult(-1).add(this);
+			return randomVariable.bus(this);
 		}
 
 		return new RandomVariableDifferentiableAD(
 				getValues().sub(randomVariable),
 				Arrays.asList(this, randomVariable),
+				OperatorType.SUB);
+	}
+
+	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.sub(this);
+		}
+
+		return new RandomVariableDifferentiableAD(
+				getValues().bus(randomVariable),
+				Arrays.asList(randomVariable, this), // SUB with swapped arguments
 				OperatorType.SUB);
 	}
 
@@ -840,7 +849,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
-			return randomVariable.invert().mult(this);
+			return randomVariable.vid(this);
 		}
 
 		return new RandomVariableDifferentiableAD(
@@ -849,6 +858,19 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				OperatorType.DIV);
 	}
 
+	@Override
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.div(this);
+		}
+
+		return new RandomVariableDifferentiableAD(
+				getValues().vid(randomVariable),
+				Arrays.asList(randomVariable, this),	// DIV with swapped arguments
+				OperatorType.DIV);
+	}
+	
 	@Override
 	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {

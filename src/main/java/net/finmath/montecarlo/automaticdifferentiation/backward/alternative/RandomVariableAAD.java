@@ -987,6 +987,11 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		return apply(OperatorType.SUB, new RandomVariableInterface[]{this, randomVariable});
 	}
 
+	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		return apply(OperatorType.SUB, new RandomVariableInterface[]{randomVariable,this});	// SUB with swapped arguments
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -1001,6 +1006,11 @@ public class RandomVariableAAD implements RandomVariableInterface {
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
 		return apply(OperatorType.DIV, new RandomVariableInterface[]{this, randomVariable});
+	}
+
+	@Override
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		return apply(OperatorType.DIV, new RandomVariableInterface[]{randomVariable, this}); // DIV with swapped arguments
 	}
 
 	/* (non-Javadoc)
