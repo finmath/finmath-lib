@@ -96,7 +96,7 @@ public interface RandomVariableInterface extends Serializable {
 	 *
 	 * @return The underling values.
 	 */
-	default public RandomVariableInterface getValues() { return this; }
+	default RandomVariableInterface getValues() { return this; }
 
 	/**
 	 * Returns a vector representing the realization of this random variable.
