@@ -10,6 +10,7 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -39,7 +40,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	private static final long serialVersionUID = -1352953450936857742L;
 
 	private static final int typePriorityDefault = 1;
-	
+
 	private final int typePriority;
 
 	private final double      time;	                // Time (filtration)
@@ -170,6 +171,38 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 	public RandomVariableLowMemory(double time, double[] realisations) {
 		this(time, getFloatArray(realisations), typePriorityDefault);
+	}
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
+	 * @param size The size, i.e., number of paths.
+	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
+	 */
+	public RandomVariableLowMemory(double time, IntToDoubleFunction realizations, int size, int typePriority) {
+		super();
+		this.time = time;
+		this.realizations = size == 1 ? null : new float[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
+		this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
+		if(size > 1) {
+			IntStream.range(0,size).parallel().forEach(i ->
+			this.realizations[i] = (float) realizations.applyAsDouble(i)
+					);
+		}
+		this.typePriority = typePriority;
+	}
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
+	 * @param size The size, i.e., number of paths.
+	 */
+	public RandomVariableLowMemory(double time, IntToDoubleFunction realizations, int size) {
+		this(time, realizations, size, typePriorityDefault);
 	}
 
 	private static float[] getFloatArray(double[] arrayOfDouble) {
@@ -632,7 +665,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	@Override
 	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
 		if(isDeterministic()) {
-			return new RandomVariable(time, operator.applyAsDouble(valueIfNonStochastic));
+			return new RandomVariableLowMemory(time, operator.applyAsDouble(valueIfNonStochastic));
 		}
 		else
 		{
@@ -641,7 +674,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i]);
 			}
-			return new RandomVariable(time, result);
+			return new RandomVariableLowMemory(time, result);
 		}
 	}
 
@@ -656,7 +689,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		IntToDoubleFunction argument1Operator = argument.getOperator();
 		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
 
-		return new RandomVariable(newTime, result, newSize);
+		return new RandomVariableLowMemory(newTime, result, newSize);
 	}
 
 	@Override
@@ -671,7 +704,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		IntToDoubleFunction argument2Operator = argument2.getOperator();
 		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
 
-		return new RandomVariable(newTime, result, newSize);
+		return new RandomVariableLowMemory(newTime, result, newSize);
 	}
 
 	public RandomVariableInterface cap(double cap) {
@@ -1045,7 +1078,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = randomVariable.get(0) / valueIfNonStochastic;
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableLowMemory(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
@@ -1062,7 +1095,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
 	}
-	
+
 	@Override
 	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
