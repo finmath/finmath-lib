@@ -60,8 +60,8 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Returns the type priority.
-	 * 
-	 * @see http://ssrn.com/abstract=3246127
+	 * @see <a href="http://ssrn.com/abstract=3246127">ssrn.com/abstract=3246127</a>.
+	 *
 	 * @return The type priority-
 	 */
 	int getTypePriority();
@@ -91,7 +91,7 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Returns the underlying values and a random variable.
-	 * 
+	 *
 	 * If the implementation supports an "inner representation", returns the inner representation. Otherwise just returns this.
 	 *
 	 * @return The underling values.
