@@ -5,6 +5,16 @@ finmath lib Release Notes
 
 # Release Notes
 
+
+## 3.3.4 (07.09.2018)
+
+### Adjoint Algorithmic Differentiation
+
+- Fixed bug in the implementation of floor operator.
+- Improved unit test for vega test. 
+- Preparations for Operator Result Type Priorities.
+
+
 ## 3.3.3 (02.09.2018)
 
 ### General
@@ -24,6 +34,7 @@ finmath lib Release Notes
 
 - The LIBORIndex supports automatic adjustment of a tenor basis spread if the index name relates to a curve in the LIBOR market model analytic model.
 - Added a unit test for the LIBORIndex testing the value of a FRA on different forward curves.
+
 
 ## 3.3.2 (29.07.2018)
 
