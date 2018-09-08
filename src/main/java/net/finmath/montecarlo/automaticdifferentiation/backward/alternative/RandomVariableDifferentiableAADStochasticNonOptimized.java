@@ -435,7 +435,8 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				OperatorType.MAX);
 	}
 
-	private RandomVariableInterface getValues(){
+	@Override
+	public RandomVariableInterface getValues(){
 		return values;
 	}
 
@@ -455,9 +456,11 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 		return getValues().getFiltrationTime();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
+	@Override
+	public int getTypePriority() {
+		return 3;
+	}
+
 	@Override
 	public double get(int pathOrState) {
 		return getValues().get(pathOrState);
@@ -765,6 +768,14 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				OperatorType.SUB);
 	}
 
+	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		return new RandomVariableDifferentiableAADStochasticNonOptimized(
+				getValues().bus(randomVariable),
+				Arrays.asList(randomVariable, this), // SUB with switched arguments
+				OperatorType.SUB);
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -781,6 +792,14 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().div(randomVariable),
 				Arrays.asList(this, randomVariable),
+				OperatorType.DIV);
+	}
+
+	@Override
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		return new RandomVariableDifferentiableAADStochasticNonOptimized(
+				getValues().vid(randomVariable),
+				Arrays.asList(randomVariable, this), // DIV with switched arguments
 				OperatorType.DIV);
 	}
 

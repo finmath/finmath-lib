@@ -167,17 +167,16 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
 	@Override
 	public double getFiltrationTime() {
 		return getRandomVariable().getFiltrationTime();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
+	@Override
+	public int getTypePriority() {
+		return 3;
+	}
+
 	@Override
 	public double get(int pathOrState) {
 		return getRandomVariable().get(pathOrState);
@@ -488,6 +487,11 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return apply(OperatorType.SUB, new RandomVariableInterface[] {this, randomVariable});
 	}
 
+	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		return apply(OperatorType.SUB, new RandomVariableInterface[] {randomVariable, this});
+	}
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
 	 */
@@ -502,6 +506,10 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
 		return apply(OperatorType.DIV, new RandomVariableInterface[] {this, randomVariable});
+	}
+
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		return apply(OperatorType.DIV, new RandomVariableInterface[] {randomVariable, this});
 	}
 
 	/* (non-Javadoc)
