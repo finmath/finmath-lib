@@ -10,8 +10,8 @@ finmath lib Release Notes
 
 ### Adjoint Algorithmic Differentiation
 
-- Added Operator Result Type Priorities to RandomVariableInterface implementations.
-
+- Added Operator Result Type Priorities to RandomVariableInterface implementations. For details on the concet of "Operator Result Type Priorities" see https://ssrn.com/abstract=3246127
+- Improved test coverage: adding forward mode differentiation to some parametrized unit test.
 
 ## 3.3.4 (07.09.2018)
 
