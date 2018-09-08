@@ -116,25 +116,6 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		Arrays.fill(isPeriodStartDateExerciseDate, true);
 
 		/*
-		 * The first three are just for the JVM warm up
-		 * (following timings will be a little more accurate).
-		 */
-		testParameters.add(new Object[] {
-				"Caplet maturity " + exerciseDate,
-				new Caplet(exerciseDate, swapPeriodLength, swaprate)
-		});
-
-		testParameters.add(new Object[] {
-				"Caplet maturity " + 5.0,
-				new Caplet(5.0, swapPeriodLength, swaprate)
-		});
-
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-
-		/*
 		 * Test cases
 		 */
 
@@ -157,6 +138,14 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
 				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
 		});
+
+		/*
+		 * If you like to measure the performance, add the following test cases because
+		 * the result will bekome more accurate after JVM warm up / hot spot optimization.
+		 */
+		boolean isRunPerformanceMesurement = true;
+
+		if(isRunPerformanceMesurement) {
 		testParameters.add(new Object[] {
 				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
 				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
@@ -185,6 +174,21 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
 				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
 		});
+		testParameters.add(new Object[] {
+				"Caplet maturity " + exerciseDate,
+				new Caplet(exerciseDate, swapPeriodLength, swaprate)
+		});
+
+		testParameters.add(new Object[] {
+				"Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates)
+		});
+
+		testParameters.add(new Object[] {
+				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+		});
+		}
 
 		return testParameters;
 	}
@@ -296,6 +300,9 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	@Test
 	public void testVega() throws CalculationException {
 
+		System.out.println(product.getClass().getSimpleName() + ": " + productName);
+		System.out.println("_______________________________________________________________________");
+
 		// Create a libor market model
 		AbstractRandomVariableFactory randomVariableFactoryInitialValue = new RandomVariableFactory();
 		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableDifferentiableAADFactory();
@@ -355,6 +362,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		// Free memory
 		liborMarketModel = null;
+		gradient = null;
 
 		/*
 		 * Test valuation
@@ -367,6 +375,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		double valueSimulation2 = product.getValue(liborMarketModelPlain);
 
 		long timingCalculation2End = System.currentTimeMillis();
+		
+		// Free memory
 		liborMarketModelPlain = null;
 
 		/*
@@ -378,7 +388,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		int bucketVegaTimeIndex = 2;
 		int bucketVegaLIBORIndex = 3;
-		double bucketShift = 1E-7;
+		double bucketShift = 1E-8;
 
 		LIBORModelMonteCarloSimulationInterface liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				bucketVegaTimeIndex, bucketVegaLIBORIndex, -bucketShift);
@@ -392,12 +402,15 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		long timingCalculation3End = System.currentTimeMillis();
 
+		// Free memory
+		liborMarketModelDnShift = null;
+		liborMarketModelUpShift = null;
+
+		long memoryEnd2 = getAllocatedMemory();
+
 		/*
 		 * Print status
 		 */
-
-		System.out.println(product.getClass().getSimpleName() + ": " + productName);
-		System.out.println("_______________________________________________________________________");
 
 		System.out.println("FD vega..." + bucketVega);
 		System.out.println("AD vega..." + modelVegas[bucketVegaTimeIndex][bucketVegaLIBORIndex]);
@@ -406,15 +419,16 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		System.out.println("value (plain)...................: " + formatterValue.format(valueSimulation2));
 		System.out.println("evaluation (plain)..............: " + formatReal1.format((timingCalculation2End-timingCalculation2Start)/1000.0) + " s");
 		System.out.println("evaluation (AAD)................: " + formatReal1.format((timingCalculationEnd-timingCalculationStart)/1000.0) + " s");
-		System.out.println("derivative (plain) (1 bucket)...: " + formatReal1.format((timingCalculation2End-timingCalculation2Start)/1000.0) + " s");
+		System.out.println("derivative (plain) (1 bucket)...: " + formatReal1.format((timingCalculation3End-timingCalculation3Start)/1000.0) + " s");
 		System.out.println("derivative (AAD).(all buckets)..: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
 		System.out.println("number of vegas (theoretical)...: " + numberOfVegasTheoretical);
 		System.out.println("number of vegas (effective).....: " + numberOfVegasEffective);
-		System.out.println("memory..........................: " + formatReal1.format(((double)(memoryEnd-memoryStart))/1024.0/1024.0) + " M");
+		System.out.println("memory (AAD)....................: " + formatReal1.format(((double)(memoryEnd-memoryStart))/1024.0/1024.0) + " M");
+		System.out.println("memory (check)-.................: " + formatReal1.format(((double)(memoryEnd2-memoryStart))/1024.0/1024.0) + " M");
 		System.out.println("\n");
 
 		Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
-		Assert.assertEquals("Comparing FD and AD vega", bucketVega, modelVegas[bucketVegaTimeIndex][bucketVegaLIBORIndex], 1.5E-2);
+		Assert.assertEquals("Comparing FD and AD vega", bucketVega, modelVegas[bucketVegaTimeIndex][bucketVegaLIBORIndex], 1.2E-2);
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
