@@ -143,51 +143,51 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 * If you like to measure the performance, add the following test cases because
 		 * the result will bekome more accurate after JVM warm up / hot spot optimization.
 		 */
-		boolean isRunPerformanceMesurement = true;
+		boolean isRunPerformanceMesurement = false;
 
 		if(isRunPerformanceMesurement) {
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
-		testParameters.add(new Object[] {
-				"Caplet maturity " + exerciseDate,
-				new Caplet(exerciseDate, swapPeriodLength, swaprate)
-		});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
+			testParameters.add(new Object[] {
+					"Caplet maturity " + exerciseDate,
+					new Caplet(exerciseDate, swapPeriodLength, swaprate)
+			});
 
-		testParameters.add(new Object[] {
-				"Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates)
-		});
+			testParameters.add(new Object[] {
+					"Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates)
+			});
 
-		testParameters.add(new Object[] {
-				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
-		});
+			testParameters.add(new Object[] {
+					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+			});
 		}
 
 		return testParameters;
@@ -375,7 +375,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		double valueSimulation2 = product.getValue(liborMarketModelPlain);
 
 		long timingCalculation2End = System.currentTimeMillis();
-		
+
 		// Free memory
 		liborMarketModelPlain = null;
 
@@ -428,7 +428,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		System.out.println("\n");
 
 		Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
-		Assert.assertEquals("Comparing FD and AD vega", bucketVega, modelVegas[bucketVegaTimeIndex][bucketVegaLIBORIndex], 1.2E-2);
+		Assert.assertEquals("Comparing FD and AD vega", bucketVega, modelVegas[bucketVegaTimeIndex][bucketVegaLIBORIndex], 1.3E-2);
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
