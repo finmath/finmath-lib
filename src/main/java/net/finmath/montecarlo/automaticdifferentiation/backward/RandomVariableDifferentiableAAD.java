@@ -660,7 +660,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 */
 	@Override
 	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
-		return ((RandomVariableDifferentiableAAD) getValues()).getValues().getQuantile(quantile, probabilities);
+		return getValues().getQuantile(quantile, probabilities);
 	}
 
 	/* (non-Javadoc)
@@ -668,7 +668,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
-		return ((RandomVariableDifferentiableAAD) getValues()).getValues().getQuantileExpectation(quantileStart, quantileEnd);
+		return getValues().getQuantileExpectation(quantileStart, quantileEnd);
 	}
 
 	/* (non-Javadoc)
@@ -834,8 +834,17 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				getFactory());
 	}
 
+	/*
+	 * Binary operators: checking for return type priority.
+	 */
+
 	@Override
 	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.add(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().add(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
@@ -845,6 +854,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.bus(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().sub(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
@@ -854,6 +868,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.sub(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().bus(randomVariable.getValues()),
 				Arrays.asList(randomVariable, this),	// SUB with swapped arguments
@@ -862,7 +881,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	@Override
-	public RandomVariableDifferentiableInterface mult(RandomVariableInterface randomVariable) {
+	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.mult(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().mult(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
@@ -872,8 +896,13 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.vid(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
-				getValues().div(randomVariable),
+				getValues().div(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
 				OperatorType.DIV,
 				getFactory());
@@ -881,6 +910,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.div(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().vid(randomVariable.getValues()),
 				Arrays.asList(randomVariable, this),	// DIV with swapped arguments
@@ -889,16 +923,26 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface cap) {
+	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.cap(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
-				getValues().cap(cap.getValues()),
-				Arrays.asList(this, cap),
+				getValues().cap(randomVariable.getValues()),
+				Arrays.asList(this, randomVariable),
 				OperatorType.CAP,
 				getFactory());
 	}
 
 	@Override
 	public RandomVariableInterface floor(RandomVariableInterface floor) {
+		if(floor.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return floor.floor(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().floor(floor.getValues()),
 				Arrays.asList(this, floor),
@@ -908,6 +952,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+		if(rate.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return rate.mult(periodLength).add(1.0).mult(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().accrue(rate.getValues(), periodLength),
 				Arrays.asList(this, rate, new RandomVariable(periodLength)),
@@ -917,6 +966,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+		if(rate.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return rate.mult(periodLength).add(1.0).invert().mult(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().discount(rate.getValues(), periodLength),
 				Arrays.asList(this, rate, new RandomVariable(periodLength)),
@@ -964,6 +1018,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
+		if(factor1.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return factor1.mult(factor2).add(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().addProduct(factor1.getValues(), factor2),
 				Arrays.asList(this, factor1, new RandomVariable(factor2)),
@@ -973,6 +1032,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+		if(factor1.getTypePriority() > this.getTypePriority() || factor2.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return factor1.mult(factor2).add(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().addProduct(factor1.getValues(), factor2.getValues()),
 				Arrays.asList(this, factor1, factor2),
@@ -982,6 +1046,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return numerator.div(denominator).add(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().addRatio(numerator.getValues(), denominator.getValues()),
 				Arrays.asList(this, numerator, denominator),
@@ -991,6 +1060,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return numerator.div(denominator).mult(-1).add(this);
+		}
+
 		return new RandomVariableDifferentiableAAD(
 				getValues().subRatio(numerator.getValues(), denominator.getValues()),
 				Arrays.asList(this, numerator, denominator),

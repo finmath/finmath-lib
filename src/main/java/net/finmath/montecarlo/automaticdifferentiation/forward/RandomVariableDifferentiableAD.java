@@ -145,9 +145,6 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			for(OperatorTreeNode argument : arguments) {
 				if(argument != null) {
 					Long argumentID = argument.id;
-					if(!derivatives.containsKey(argumentID)) {
-						derivatives.put(argumentID, new RandomVariable(0.0));
-					}
 
 					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
 					RandomVariableInterface derivative			= derivatives.get(id);
@@ -163,7 +160,12 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 						derivative = estimator.getConditionalExpectation(derivative);
 					}
 
-					argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
+					if(argumentDerivative == null) {
+						argumentDerivative = derivative.mult(partialDerivative);
+					}
+					else {
+						argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
+					}
 
 					derivatives.put(argumentID, argumentDerivative);
 				}
@@ -396,7 +398,8 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 *
 	 * @return The underling values.
 	 */
-	public RandomVariableInterface getRandomVariable() {
+	@Override
+	public RandomVariableInterface getValues(){
 		return values;
 	}
 
@@ -459,11 +462,6 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	@Override
 	public Map<Long, RandomVariableInterface> getTangents(Set<Long> dependentIDs) {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public RandomVariableInterface getValues() {
-		return values;
 	}
 
 	/*
@@ -630,7 +628,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 	@Override
 	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
-		return ((RandomVariableDifferentiableAD) getValues()).getValues().getQuantile(quantile, probabilities);
+		return getValues().getQuantile(quantile, probabilities);
 	}
 
 	/* (non-Javadoc)
@@ -638,7 +636,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
-		return ((RandomVariableDifferentiableAD) getValues()).getValues().getQuantileExpectation(quantileStart, quantileEnd);
+		return getValues().getQuantileExpectation(quantileStart, quantileEnd);
 	}
 
 	/* (non-Javadoc)
@@ -658,7 +656,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	/*
-	 * The following methods are operations with are differntiable.
+	 * The following methods are operations with are differentiable.
 	 */
 
 	@Override
@@ -792,7 +790,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	/*
 	 * Binary operators: checking for return type priority.
 	 */
-	
+
 	@Override
 	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
@@ -801,7 +799,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().add(randomVariable),
+				getValues().add(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
 				OperatorType.ADD);
 	}
@@ -814,7 +812,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().sub(randomVariable),
+				getValues().sub(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
 				OperatorType.SUB);
 	}
@@ -827,8 +825,8 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().bus(randomVariable),
-				Arrays.asList(randomVariable, this), // SUB with swapped arguments
+				getValues().bus(randomVariable.getValues()),
+				Arrays.asList(randomVariable, this),	// SUB with swapped arguments
 				OperatorType.SUB);
 	}
 
@@ -840,7 +838,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().mult(randomVariable),
+				getValues().mult(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
 				OperatorType.MULT);
 	}
@@ -853,7 +851,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().div(randomVariable),
+				getValues().div(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
 				OperatorType.DIV);
 	}
@@ -866,11 +864,11 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().vid(randomVariable),
+				getValues().vid(randomVariable.getValues()),
 				Arrays.asList(randomVariable, this),	// DIV with swapped arguments
 				OperatorType.DIV);
 	}
-	
+
 	@Override
 	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
@@ -879,21 +877,21 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().cap(randomVariable),
+				getValues().cap(randomVariable.getValues()),
 				Arrays.asList(this, randomVariable),
 				OperatorType.CAP);
 	}
 
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface randomVariable) {
-		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+	public RandomVariableInterface floor(RandomVariableInterface floor) {
+		if(floor.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
-			return randomVariable.floor(this);
+			return floor.floor(this);
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().floor(randomVariable),
-				Arrays.asList(this, randomVariable),
+				getValues().floor(floor.getValues()),
+				Arrays.asList(this, floor),
 				OperatorType.FLOOR);
 	}
 
@@ -905,7 +903,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().accrue(rate, periodLength),
+				getValues().accrue(rate.getValues(), periodLength),
 				Arrays.asList(this, rate, new RandomVariable(periodLength)),
 				OperatorType.ACCRUE);
 	}
@@ -918,7 +916,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().discount(rate, periodLength),
+				getValues().discount(rate.getValues(), periodLength),
 				Arrays.asList(this, rate, new RandomVariable(periodLength)),
 				OperatorType.DISCOUNT);
 	}
@@ -932,7 +930,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAD ? ((RandomVariableDifferentiableAD)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAD(
-				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative),
 				Arrays.asList(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
 				OperatorType.BARRIER);
 	}
@@ -941,7 +939,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
 		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAD ? ((RandomVariableDifferentiableAD)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAD(
-				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative, valueIfTriggerNegative),
 				Arrays.asList(trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative)),
 				OperatorType.BARRIER);
 	}
@@ -970,7 +968,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().addProduct(factor1, factor2),
+				getValues().addProduct(factor1.getValues(), factor2),
 				Arrays.asList(this, factor1, new RandomVariable(factor2)),
 				OperatorType.ADDPRODUCT);
 	}
@@ -983,7 +981,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().addProduct(factor1, factor2),
+				getValues().addProduct(factor1.getValues(), factor2.getValues()),
 				Arrays.asList(this, factor1, factor2),
 				OperatorType.ADDPRODUCT);
 	}
@@ -996,7 +994,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().addRatio(numerator, denominator),
+				getValues().addRatio(numerator.getValues(), denominator.getValues()),
 				Arrays.asList(this, numerator, denominator),
 				OperatorType.ADDRATIO);
 	}
@@ -1009,7 +1007,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		return new RandomVariableDifferentiableAD(
-				getValues().subRatio(numerator, denominator),
+				getValues().subRatio(numerator.getValues(), denominator.getValues()),
 				Arrays.asList(this, numerator, denominator),
 				OperatorType.SUBRATIO);
 	}

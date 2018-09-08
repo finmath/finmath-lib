@@ -17,13 +17,14 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.functions.JarqueBeraTest;
+import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
+import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
- *
  */
 @RunWith(Parameterized.class)
 public class BrownianMotionTest {
@@ -38,8 +39,10 @@ public class BrownianMotionTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */)},
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)},
+			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableDifferentiableAADFactory() },
+			{ new RandomVariableDifferentiableADFactory() },
 		});
 	}
 

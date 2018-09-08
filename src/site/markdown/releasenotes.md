@@ -6,6 +6,13 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 3.4.0 (07.09.2018)
+
+### Adjoint Algorithmic Differentiation
+
+- Added Operator Result Type Priorities to RandomVariableInterface implementations.
+
+
 ## 3.3.4 (07.09.2018)
 
 ### Adjoint Algorithmic Differentiation
