@@ -9,16 +9,29 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
+import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
+import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.montecarlo.process.AbstractProcess;
+import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -26,12 +39,24 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class represents a collection of several "tests" illustrating different aspects
- * related to the Monte-Carlo Simulation and derivative pricing (using a simple
+ * related to the Monte-Carlo Simulation and derivative valuation (using a simple
  * Black-Scholes model.
  *
  * @author Christian Fries
  */
+@RunWith(Parameterized.class)
 public class BlackScholesMonteCarloValuationTest {
+
+	@Parameters(name="{0}")
+	public static Collection<Object[]> generateData()
+	{
+		return Arrays.asList(new Object[][] {
+			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableDifferentiableAADFactory() },
+			{ new RandomVariableDifferentiableADFactory() },
+		});
+	}
 
 	// Model properties
 	private final double	initialValue   = 1.0;
@@ -43,8 +68,10 @@ public class BlackScholesMonteCarloValuationTest {
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 
+	private final int		seed				= 3141;
 
 	private AssetModelMonteCarloSimulationInterface model = null;
+	private AbstractRandomVariableFactory randomVariableFactory = null;
 
 	/**
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
@@ -56,7 +83,7 @@ public class BlackScholesMonteCarloValuationTest {
 	 */
 	public static void main(String[] args) throws CalculationException, InterruptedException
 	{
-		BlackScholesMonteCarloValuationTest pricingTest = new BlackScholesMonteCarloValuationTest();
+		BlackScholesMonteCarloValuationTest pricingTest = new BlackScholesMonteCarloValuationTest(new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */));
 
 		/*
 		 * Read input
@@ -97,8 +124,9 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("\nCalculation time required: " + (end-start)/1000.0 + " seconds.");
 	}
 
-	public BlackScholesMonteCarloValuationTest() {
+	public BlackScholesMonteCarloValuationTest(AbstractRandomVariableFactory randomVariableFactory) {
 		super();
+		this.randomVariableFactory  = randomVariableFactory;
 	}
 
 	private static int readTestNumber() {
@@ -138,13 +166,13 @@ public class BlackScholesMonteCarloValuationTest {
 			// Create the time discretization
 			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, deltaT);
 
-			// Create an instance of a black scholes monte carlo model
-			model = new MonteCarloBlackScholesModel(
-					timeDiscretization,
-					numberOfPaths,
-					initialValue,
-					riskFreeRate,
-					volatility);
+			// Create the model
+			AbstractModelInterface blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+
+			// Create a corresponding MC process
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
+
+			model = new MonteCarloAssetModel(blackScholesModel, process);
 		}
 
 		return model;
@@ -161,11 +189,6 @@ public class BlackScholesMonteCarloValuationTest {
 		 */
 		AssetModelMonteCarloSimulationInterface model = getModel();
 
-		/*
-		 * Cast the model to a MonteCarloBlackScholesModel - to get the parameters for analytic valuation
-		 */
-		MonteCarloBlackScholesModel blackScholesModel = (MonteCarloBlackScholesModel)model;
-
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
 		DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
@@ -175,10 +198,13 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("Valuation of European Options");
 		System.out.println(" Strike \t Monte-Carlo \t Analytic \t Deviation");
 
-		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
+		/*
+		 * Cast the model to to get the parameters for analytic valuation
+		 */
+		double initialValue	= model.getAssetValue(0.0, 0).get(0);
 		// @TODO This needs to be changes to use random variables.
-		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
-		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
+		double riskFreeRate	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getRiskFreeRate().getAverage();
+		double volatility	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getVolatility().getAverage();
 
 		double optionMaturity	= 1.0;
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.05) {
@@ -370,20 +396,18 @@ public class BlackScholesMonteCarloValuationTest {
 		 */
 		AssetModelMonteCarloSimulationInterface model = getModel();
 
-		/*
-		 * Cast the model to a MonteCarloBlackScholesModel - to get the parameters for analytic valuation
-		 */
-		MonteCarloBlackScholesModel blackScholesModel = (MonteCarloBlackScholesModel)model;
-
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
 		DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
-		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
+		/*
+		 * Cast the model to to get the parameters for analytic valuation
+		 */
+		double initialValue	= model.getAssetValue(0.0, 0).get(0);
 		// @TODO This needs to be changes to use random variables.
-		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
-		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
+		double riskFreeRate	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getRiskFreeRate().getAverage();
+		double volatility	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getVolatility().getAverage();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Delta (European options with maturity 1.0):");
@@ -443,20 +467,18 @@ public class BlackScholesMonteCarloValuationTest {
 		 */
 		AssetModelMonteCarloSimulationInterface model = getModel();
 
-		/*
-		 * Cast the model to a MonteCarloBlackScholesModel - to get the parameters for analytic valuation
-		 */
-		MonteCarloBlackScholesModel blackScholesModel = (MonteCarloBlackScholesModel)model;
-
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
 		DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
-		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
+		/*
+		 * Cast the model to to get the parameters for analytic valuation
+		 */
+		double initialValue	= model.getAssetValue(0.0, 0).get(0);
 		// @TODO This needs to be changes to use random variables.
-		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
-		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
+		double riskFreeRate	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getRiskFreeRate().getAverage();
+		double volatility	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getVolatility().getAverage();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Vega (European options with maturity 1.0):");

@@ -9,17 +9,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
+import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
+import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
@@ -33,7 +44,19 @@ import net.finmath.time.TimeDiscretizationInterface;
  *
  * @author Christian Fries
  */
+@RunWith(Parameterized.class)
 public class BachelierModelMonteCarloValuationTest {
+
+	@Parameters(name="{0}")
+	public static Collection<Object[]> generateData()
+	{
+		return Arrays.asList(new Object[][] {
+			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableDifferentiableAADFactory() },
+			{ new RandomVariableDifferentiableADFactory() },
+		});
+	}
 
 	// Model properties
 	private final double	initialValue   = 1.0;
@@ -45,8 +68,10 @@ public class BachelierModelMonteCarloValuationTest {
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 
+	private final int		seed				= 3141;
 
 	private AssetModelMonteCarloSimulationInterface model = null;
+	private AbstractRandomVariableFactory randomVariableFactory = null;
 
 	/**
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
@@ -58,7 +83,7 @@ public class BachelierModelMonteCarloValuationTest {
 	 */
 	public static void main(String[] args) throws CalculationException, InterruptedException
 	{
-		BachelierModelMonteCarloValuationTest pricingTest = new BachelierModelMonteCarloValuationTest();
+		BachelierModelMonteCarloValuationTest pricingTest = new BachelierModelMonteCarloValuationTest(new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */));
 
 		/*
 		 * Read input
@@ -99,8 +124,9 @@ public class BachelierModelMonteCarloValuationTest {
 		System.out.println("\nCalculation time required: " + (end-start)/1000.0 + " seconds.");
 	}
 
-	public BachelierModelMonteCarloValuationTest() {
+	public BachelierModelMonteCarloValuationTest(AbstractRandomVariableFactory randomVariableFactory) {
 		super();
+		this.randomVariableFactory  = randomVariableFactory;
 	}
 
 	private static int readTestNumber() {
@@ -140,11 +166,13 @@ public class BachelierModelMonteCarloValuationTest {
 			// Create the time discretization
 			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, deltaT);
 
-			int seed = 3141;
-			// Create an instance of a black scholes monte carlo model
-			model = new MonteCarloAssetModel(
-					new BachelierModel(initialValue, riskFreeRate, volatility),
-					new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed)));
+			// Create the model
+			AbstractModelInterface blackScholesModel = new BachelierModel(initialValue, riskFreeRate, volatility);
+
+			// Create a corresponding MC process
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
+
+			model = new MonteCarloAssetModel(blackScholesModel, process);
 		}
 
 		return model;
