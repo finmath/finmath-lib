@@ -50,7 +50,7 @@ import net.finmath.time.TimeDiscretization;
  *
  * The unit test uses a smaller volatility time discretization to reduce memory requirements
  * and allow the unit test to run on the continuous integration server.
- * 
+ *
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)

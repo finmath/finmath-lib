@@ -22,7 +22,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -33,7 +32,6 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
-import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelExponentialForm5Param;

@@ -60,9 +60,9 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Returns the type priority.
-	 * @see <a href="http://ssrn.com/abstract=3246127">ssrn.com/abstract=3246127</a>.
 	 *
-	 * @return The type priority-
+	 * @return The type priority.
+	 * @see <a href="http://ssrn.com/abstract=3246127">ssrn abstract 3246127</a>
 	 */
 	int getTypePriority();
 

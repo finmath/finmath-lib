@@ -39,11 +39,11 @@ import net.finmath.stochastic.RandomVariableInterface;
 public class RandomVariableDifferentiableAAD implements RandomVariableDifferentiableInterface {
 
 	private static final long serialVersionUID = 2459373647785530657L;
-	
+
 	private static final int typePriorityDefault = 3;
-	
+
 	private final int typePriority;
-	
+
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
 
 	private enum OperatorType {
@@ -405,7 +405,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		this.values = values;
 		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator, factory);
 		this.factory = factory != null ? factory : new RandomVariableDifferentiableAADFactory();
-		
+
 		this.typePriority = methodArgumentTypePriority;
 	}
 
@@ -521,7 +521,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	public int getTypePriority() {
 		return typePriority;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
 	 */

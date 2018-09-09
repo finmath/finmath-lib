@@ -41,7 +41,7 @@ public class RandomVariable implements RandomVariableInterface {
 	private static final long serialVersionUID = -1352953450936857742L;
 
 	private static final int typePriorityDefault = 1;
-	
+
 	private final int typePriority;
 
 	private final double      time;	                // Time (filtration)
@@ -1231,7 +1231,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * Ternary operators: checking for return type priority.
 	 * @TODO add checking for return type priority.
 	 */
-	
+
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
