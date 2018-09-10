@@ -6,6 +6,7 @@ package net.finmath.modelling;
  * @author Christian Fries
  *
  * @param <T> An interface extending the <code>ProductDescriptor</code> interface, being rich enough to describe the product implementing this interface.
+ * @version 1.0
  */
 public interface DescribedProduct<T extends ProductDescriptor> extends ProductInterface {
 

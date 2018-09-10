@@ -10,6 +10,7 @@ import net.finmath.finitedifference.solvers.FDMThetaMethod;
  * @author Ralph Rudd
  * @author Christian Fries
  * @author Jörg Kienitz
+ * @version 1.0
  */
 public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	private final double initialValue;

@@ -17,6 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Base class for products requiring an MonteCarloSimulationInterface for valuation.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractMonteCarloProduct implements ProductInterface {
 

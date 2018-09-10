@@ -9,6 +9,7 @@ import org.threeten.bp.LocalDate;
  * weekends days provided by a <code>Set</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 

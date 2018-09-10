@@ -10,6 +10,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractRandomVariableFactory {
 

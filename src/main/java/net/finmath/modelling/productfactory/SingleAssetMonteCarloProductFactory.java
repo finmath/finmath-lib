@@ -15,6 +15,7 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public class SingleAssetMonteCarloProductFactory implements ProductFactory<SingleAssetProductDescriptor> {
 

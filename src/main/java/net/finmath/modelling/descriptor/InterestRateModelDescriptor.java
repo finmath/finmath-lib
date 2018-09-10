@@ -7,6 +7,7 @@ import net.finmath.modelling.ModelDescriptor;
  *
  * @author Christian Fries
  * @author Roland Bachl
+ * @version 1.0
  */
 public interface InterestRateModelDescriptor extends ModelDescriptor {
 

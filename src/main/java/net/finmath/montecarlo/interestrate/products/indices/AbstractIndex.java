@@ -18,6 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * is the fixing time of the index.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractIndex extends AbstractProductComponent {
 

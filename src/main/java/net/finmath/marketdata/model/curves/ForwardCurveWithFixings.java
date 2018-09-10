@@ -11,6 +11,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCurveInterface {
 

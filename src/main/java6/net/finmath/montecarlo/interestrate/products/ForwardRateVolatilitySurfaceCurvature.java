@@ -52,6 +52,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * @author Christian Fries
  * @date 12.04.2014.
+ * @version 1.0
  */
 public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCarloProduct {
 

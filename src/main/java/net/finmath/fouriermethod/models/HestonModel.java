@@ -56,6 +56,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
  * @author Christian Fries
  * @author Andy Graf
  * @author Lorenzo Toricelli
+ * @version 1.0
  */
 public class HestonModel implements ProcessCharacteristicFunctionInterface, DescribedModel<HestonModelDescriptor> {
 

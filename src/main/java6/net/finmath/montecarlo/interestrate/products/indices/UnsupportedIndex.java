@@ -22,6 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * date, but no necessarily as of a past date.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class UnsupportedIndex extends AbstractIndex {
 

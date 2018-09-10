@@ -15,6 +15,7 @@ import net.finmath.modelling.ModelInterface;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public abstract class AbstractAnalyticProduct implements AnalyticProductInterface {
 

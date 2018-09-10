@@ -13,6 +13,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * The interface for a stochastic process <i>X</i>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ProcessInterface {
 

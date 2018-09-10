@@ -11,6 +11,7 @@ import java.io.Serializable;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class MersenneTwister implements Serializable {
 

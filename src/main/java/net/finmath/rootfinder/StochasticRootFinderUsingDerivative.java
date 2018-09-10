@@ -11,6 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * @author Christian Fries
  * @author Stefan Sedlmair
+ * @version
  */
 public interface StochasticRootFinderUsingDerivative {
 

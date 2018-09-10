@@ -1,5 +1,7 @@
-/**
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  *
+ * Created on 17.02.2013
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
@@ -13,6 +15,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Base calls for product that need an AbstractLIBORMarketModel as base class
  *
  * @author Christian Fries
+ * @version
  */
 public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloProduct {
 

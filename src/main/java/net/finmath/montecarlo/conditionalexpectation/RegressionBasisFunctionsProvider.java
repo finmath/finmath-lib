@@ -13,6 +13,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Interfaces for object providing regression basis functions.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface RegressionBasisFunctionsProvider {
 

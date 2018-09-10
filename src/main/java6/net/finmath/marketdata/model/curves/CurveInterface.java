@@ -16,6 +16,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * The interface which is implemented by a general curve.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface CurveInterface extends ParameterObjectInterface, Serializable, Cloneable {
 

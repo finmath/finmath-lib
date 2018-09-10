@@ -18,6 +18,7 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
  * This class can be used to created products trigger an exception only upon valuation (i.e., late).
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class UnsupportedProduct implements ProductInterface, AnalyticProductInterface, Serializable {
 

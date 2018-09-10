@@ -23,6 +23,7 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFactory<BlackScholesModelDescriptor> {
 

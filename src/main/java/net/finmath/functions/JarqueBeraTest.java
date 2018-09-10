@@ -18,6 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * where \( S \) is the skewness and \( K \) is the kurtosis of the given random variable.
  *
  * @author Christian Fries
+ * @version
  */
 public class JarqueBeraTest {
 

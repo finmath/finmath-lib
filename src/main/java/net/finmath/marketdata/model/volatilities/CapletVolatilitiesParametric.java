@@ -24,6 +24,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * provide data in other conventions.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParametric {
 

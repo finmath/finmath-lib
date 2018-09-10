@@ -13,6 +13,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class AccruingNotional implements AbstractNotional {
 

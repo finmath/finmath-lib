@@ -37,6 +37,7 @@ import net.finmath.time.ScheduleInterface;
  * @TODO: Support convexity adjustment if fixing is in arrears.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Cap extends AbstractAnalyticProduct {
 

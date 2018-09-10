@@ -11,6 +11,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * The interface which is implemented by forward curves.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ForwardCurveInterface extends CurveInterface {
 

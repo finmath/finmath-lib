@@ -14,6 +14,7 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
 /**
  * @author Christian Fries
  *
+ * @version
  */
 public class RandomVariableDifferentiableAADPathwiseFactory extends AbstractRandomVariableDifferentiableFactory {
 

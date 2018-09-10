@@ -17,6 +17,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * otherwise it is delegated to the base curve.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 

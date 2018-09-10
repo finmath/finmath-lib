@@ -12,6 +12,7 @@ import net.finmath.optimizer.SolverException;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class SABRModel {
 

@@ -15,6 +15,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A fixed coupon index paying constant coupon..
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class FixedCoupon extends AbstractIndex {
 

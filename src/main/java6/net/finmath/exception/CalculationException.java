@@ -7,6 +7,7 @@ package net.finmath.exception;
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public class CalculationException extends Exception {
 

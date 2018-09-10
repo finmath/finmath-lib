@@ -15,6 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVolatilityModel {
 

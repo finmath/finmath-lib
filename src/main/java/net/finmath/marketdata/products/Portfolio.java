@@ -18,6 +18,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * <code>AnalyticProductInterface</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Portfolio extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

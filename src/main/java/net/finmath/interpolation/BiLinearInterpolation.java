@@ -22,6 +22,7 @@ import java.util.function.BiFunction;
  * where \( x_{k_{x}} \leq x \leq x_{k_{x}+1} \) and \( y_{k_{y}} \leq y \leq y_{k_{x}+1} \) and \( \alpha_{x} = (x_{k_{x}+1}-x)/(x_{k_{x}+1}-x_{k_{x}}) \) and \( \alpha_{y} = (x_{k_{y}+1}-x)/(x_{k_{y}+1}-x_{k_{y}}) \).
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class BiLinearInterpolation implements BiFunction<Double, Double, Double> {
 

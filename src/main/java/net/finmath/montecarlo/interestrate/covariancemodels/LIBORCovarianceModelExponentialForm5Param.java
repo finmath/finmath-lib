@@ -19,6 +19,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * {@link LIBORCorrelationModelExponentialDecay}.
  *
  * @author Christian Fries
+ * @version
  */
 public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCovarianceModelParametric {
 

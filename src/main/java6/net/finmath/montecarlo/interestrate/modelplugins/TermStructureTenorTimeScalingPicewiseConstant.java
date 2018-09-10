@@ -11,6 +11,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class TermStructureTenorTimeScalingPicewiseConstant implements TermStructureTenorTimeScalingInterface {
 

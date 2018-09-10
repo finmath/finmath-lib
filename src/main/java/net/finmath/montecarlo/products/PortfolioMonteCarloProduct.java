@@ -24,6 +24,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * The valuation is performed multi-threaded over the portfolio of products.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 

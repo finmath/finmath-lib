@@ -26,6 +26,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * the getCloneForParameter method which either requires a double[4] or a double[5] argument.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends AbstractVolatilitySurfaceParametric {
 

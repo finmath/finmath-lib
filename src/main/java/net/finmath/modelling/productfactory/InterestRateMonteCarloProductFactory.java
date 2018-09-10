@@ -9,6 +9,7 @@ import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 

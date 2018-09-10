@@ -14,6 +14,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * A curve derived from other curves by multiplying the values.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class CurveFromProductOfCurves extends AbstractCurve implements Serializable, CurveInterface {
 

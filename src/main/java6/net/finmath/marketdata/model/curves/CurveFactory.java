@@ -24,6 +24,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * A collection of convenient methods constructing some more specialized curves.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class CurveFactory {
 

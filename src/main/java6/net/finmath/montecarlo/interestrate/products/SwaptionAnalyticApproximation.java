@@ -53,6 +53,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  *
  * @author Christian Fries
  * @date 17.05.2007.
+ * @version 1.0
  */
 public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduct {
 

@@ -44,6 +44,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Note: Some implementations may allow limit the result of the gradient to leave nodes or the result of the tangent to terminal nodes.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface RandomVariableDifferentiableInterface extends RandomVariableInterface {
 

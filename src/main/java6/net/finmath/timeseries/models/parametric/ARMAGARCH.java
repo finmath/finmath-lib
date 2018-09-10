@@ -33,6 +33,7 @@ import net.finmath.timeseries.TimeSeriesView;
  * where \( \sigma \) is given by a ARMAGARCH(1,1) process.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
 

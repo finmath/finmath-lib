@@ -28,6 +28,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * The parameter of this model is the parameter vector of the given base covariance model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 

@@ -49,6 +49,7 @@ import net.finmath.time.FloatingpointDate;
  * net.finmath.tests.marketdata.curves.CurveTest.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Curve extends AbstractCurve implements Serializable, Cloneable {
 

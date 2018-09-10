@@ -12,6 +12,7 @@ import org.threeten.bp.LocalDate;
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public interface BusinessdayCalendarInterface extends Serializable {
 

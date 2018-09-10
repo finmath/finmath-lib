@@ -15,6 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
+ * @version
  */
 public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel {
 

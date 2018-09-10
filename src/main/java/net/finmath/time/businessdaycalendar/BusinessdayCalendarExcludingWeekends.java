@@ -13,6 +13,7 @@ import java.time.LocalDate;
  * A business day calendar, where every day is a business day, expect SATURDAY and SUNDAY.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 

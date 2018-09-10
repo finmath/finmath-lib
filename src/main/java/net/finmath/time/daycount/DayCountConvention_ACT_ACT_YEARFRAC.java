@@ -38,6 +38,7 @@ import java.time.Month;
  * </p>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT {
 

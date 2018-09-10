@@ -19,6 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * as a repo curve.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Forward extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

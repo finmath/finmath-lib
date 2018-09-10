@@ -41,6 +41,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  *
  * @author Christian Fries
  * @date 24.11.2013
+ * @version 1.0
  */
 public class BrownianBridge implements BrownianMotionInterface {
 

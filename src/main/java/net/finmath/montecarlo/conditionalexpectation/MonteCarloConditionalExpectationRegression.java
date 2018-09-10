@@ -27,6 +27,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * different simulations (number of path, etc., may be different).
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimatorInterface {
 

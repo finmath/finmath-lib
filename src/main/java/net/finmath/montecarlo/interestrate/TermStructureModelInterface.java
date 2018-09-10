@@ -18,6 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public interface TermStructureModelInterface extends AbstractModelInterface {
 

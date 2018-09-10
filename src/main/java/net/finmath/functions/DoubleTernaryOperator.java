@@ -10,6 +10,7 @@ package net.finmath.functions;
  *
  * @author Christian Fries
  * @see java.util.function.DoubleUnaryOperator
+ * @version 1.0
  */
 @FunctionalInterface
 public interface DoubleTernaryOperator {

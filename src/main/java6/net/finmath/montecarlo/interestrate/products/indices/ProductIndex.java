@@ -16,6 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A product index being index1(t) * index2(t)
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class ProductIndex extends AbstractIndex {
 

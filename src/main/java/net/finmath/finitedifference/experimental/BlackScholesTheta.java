@@ -13,6 +13,7 @@ import org.apache.commons.math3.linear.RealMatrix;
  * @author Ralph Rudd
  * @author Christian Fries
  * @author Jörg Kienitz
+ * @version 1.0
  */
 public class BlackScholesTheta {
 

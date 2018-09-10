@@ -24,6 +24,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
  *
  * @author Christian Fries
  * @author Alessandro Gnoatto
+ * @version 1.0
  */
 public class BlackScholesModel implements ProcessCharacteristicFunctionInterface, DescribedModel<BlackScholesModelDescriptor> {
 

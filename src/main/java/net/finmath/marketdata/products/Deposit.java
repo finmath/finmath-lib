@@ -22,6 +22,7 @@ import net.finmath.time.ScheduleInterface;
  *
  * @author Rebecca Declara
  * @author Christian Fries
+ * @version 1.0
  */
 public class Deposit extends AbstractAnalyticProduct implements AnalyticProductInterface{
 

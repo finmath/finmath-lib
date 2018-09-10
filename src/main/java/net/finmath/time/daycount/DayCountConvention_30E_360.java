@@ -31,6 +31,7 @@ import java.time.LocalDate;
  * The day count of 30E+/360 is that of 30E/360 whenever endDateDay is &le; 30, otherwise it is that of 30E/360 plus one.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_30E_360 implements DayCountConventionInterface {
 

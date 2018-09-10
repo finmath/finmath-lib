@@ -18,6 +18,7 @@ import org.threeten.bp.LocalDate;
  * a given interval.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface DayCountConventionInterface {
 

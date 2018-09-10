@@ -18,6 +18,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * as a repo curve.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Forward extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

@@ -30,6 +30,7 @@ import net.finmath.montecarlo.model.AbstractModelInterface;
  *
  * @author Christian Fries
  * @see net.finmath.montecarlo.model.AbstractModelInterface The definition of the model.
+ * @version 1.0
  */
 public interface AbstractProcessInterface extends ProcessInterface {
 

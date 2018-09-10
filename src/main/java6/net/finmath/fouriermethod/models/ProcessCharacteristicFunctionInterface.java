@@ -13,6 +13,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * characteristic functions of stochastic processes.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ProcessCharacteristicFunctionInterface {
 

@@ -9,6 +9,7 @@ package net.finmath.compatibility.java.util.function;
  * Interface mimiking Java 8.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface DoubleUnaryOperator {
 

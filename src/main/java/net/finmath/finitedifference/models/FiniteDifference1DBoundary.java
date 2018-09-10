@@ -4,6 +4,7 @@ package net.finmath.finitedifference.models;
  * Interface for boundaries conditions provided to one dimensional finite difference solvers.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface FiniteDifference1DBoundary {
 

@@ -30,6 +30,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * Note that the index is fixed in \( t \). For
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class AccruedInterest extends AbstractIndex {
 

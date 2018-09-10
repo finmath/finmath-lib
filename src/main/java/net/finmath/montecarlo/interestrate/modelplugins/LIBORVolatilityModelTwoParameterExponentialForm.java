@@ -12,6 +12,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Implements the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolatilityModel {
 

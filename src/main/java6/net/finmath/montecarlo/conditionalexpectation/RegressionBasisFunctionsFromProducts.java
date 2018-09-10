@@ -21,6 +21,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * If this test fails an IllegalArgumentException exception is thrown.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class RegressionBasisFunctionsFromProducts implements RegressionBasisFunctionsProvider {
 

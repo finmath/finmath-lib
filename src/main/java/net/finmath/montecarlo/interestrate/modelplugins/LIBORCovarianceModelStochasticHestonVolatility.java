@@ -44,6 +44,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * For an illustration of its usage see the associated unit test.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBORCovarianceModelParametric {
 

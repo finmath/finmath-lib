@@ -18,6 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A (floating) forward rate index for a given period start offset (offset from fixing) and period length.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORIndex extends AbstractIndex {
 

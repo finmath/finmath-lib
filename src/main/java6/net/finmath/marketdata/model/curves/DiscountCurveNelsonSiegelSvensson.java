@@ -32,6 +32,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * year fraction from the given reference date.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, DiscountCurveInterface {
 

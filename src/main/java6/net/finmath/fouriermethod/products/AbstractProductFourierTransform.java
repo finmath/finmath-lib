@@ -17,6 +17,7 @@ import net.finmath.integration.SimpsonRealIntegrator;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public abstract class AbstractProductFourierTransform implements CharacteristicFunctionInterface {
 

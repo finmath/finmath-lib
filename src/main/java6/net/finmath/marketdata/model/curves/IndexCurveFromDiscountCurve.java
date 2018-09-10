@@ -12,6 +12,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * An index curve there the value at time t is given by indexValue / discountCurve.getValue(t).
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class IndexCurveFromDiscountCurve extends AbstractCurve implements CurveInterface {
 

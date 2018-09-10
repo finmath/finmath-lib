@@ -17,6 +17,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class RegularSchedule implements ScheduleInterface {
 

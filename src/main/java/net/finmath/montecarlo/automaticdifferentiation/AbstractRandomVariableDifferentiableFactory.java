@@ -15,6 +15,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * random variables implementing <code>RandomVariableDifferentiableInterface</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractRandomVariableDifferentiableFactory extends AbstractRandomVariableFactory {
 

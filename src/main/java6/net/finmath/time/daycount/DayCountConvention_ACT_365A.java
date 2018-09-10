@@ -25,6 +25,7 @@ import org.threeten.bp.chrono.IsoChronology;
  * @see DayCountConvention_ACT_365L
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_ACT_365A extends DayCountConvention_ACT {
 

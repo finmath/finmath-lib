@@ -11,6 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Interface for covariance models which may perform a calibration by providing the corresponding <code>getCloneCalibrated</code>-method.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface LIBORCovarianceModelCalibrateable {
 

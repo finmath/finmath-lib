@@ -15,6 +15,7 @@ package net.finmath.modelling;
  * @author Luca Del Re
  *
  * @param <T> An interface extending model descriptor given the descriptor describing the class impelmenting this interface.
+ * @version 1.0
  */
 public interface ModelFactory<T extends ModelDescriptor> {
 

@@ -22,6 +22,7 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDescriptor> {
 

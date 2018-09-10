@@ -15,6 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * on some parameters.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SwaptionFactory {
 

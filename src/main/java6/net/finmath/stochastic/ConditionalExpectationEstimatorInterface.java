@@ -10,6 +10,7 @@ package net.finmath.stochastic;
  *  i.e., E( &middot; | Z ) for a fixed Z.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ConditionalExpectationEstimatorInterface {
 

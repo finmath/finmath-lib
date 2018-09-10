@@ -17,6 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  *
  * @see net.finmath.marketdata.model.curves.ForwardCurveInterface
  * @author Christian Fries
+ * @version 1.0
  */
 public class ForwardCurveIndex extends AbstractIndex {
 

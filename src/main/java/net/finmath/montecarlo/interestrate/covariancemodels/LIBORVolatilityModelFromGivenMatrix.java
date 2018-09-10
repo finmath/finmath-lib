@@ -15,6 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * a given discretization grid.
  *
  * @author Christian Fries
+ * @version
  */
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 

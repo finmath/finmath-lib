@@ -18,6 +18,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * provides some convenient way of getting values.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInterface, Cloneable {
 

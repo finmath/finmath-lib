@@ -28,6 +28,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <b>The interest rate model needs to be in spot measure.</b>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIBORModelMonteCarloSimulationInterface {
 

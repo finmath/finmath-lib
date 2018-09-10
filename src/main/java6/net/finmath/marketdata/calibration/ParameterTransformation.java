@@ -16,6 +16,7 @@ package net.finmath.marketdata.calibration;
  * getParameter is just Math:exp and getSolverParameter is Math:log.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ParameterTransformation {
 

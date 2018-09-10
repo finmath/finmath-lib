@@ -13,6 +13,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Base class for notional classes.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface AbstractNotional {
 

@@ -22,6 +22,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
  * For the curve types provided see {@link net.finmath.marketdata.model.bond.BondCurve.Type}.
  *
  * @author Moritz Scherrmann
+ * @version 1.0
  */
 public class BondCurve extends AbstractCurve  {
 

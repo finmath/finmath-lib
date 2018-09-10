@@ -17,6 +17,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * An idealized (single curve) CMS index with given maturity and given period length.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class ConstantMaturitySwaprate extends AbstractIndex {
 

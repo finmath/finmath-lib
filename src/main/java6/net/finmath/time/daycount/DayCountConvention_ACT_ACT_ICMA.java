@@ -46,6 +46,7 @@ import net.finmath.time.Period;
  * for frequency being one, having annual periods from January 1st to December 31st.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT {
 

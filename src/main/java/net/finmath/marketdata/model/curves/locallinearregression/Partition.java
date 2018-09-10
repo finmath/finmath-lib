@@ -11,6 +11,7 @@ import java.util.Arrays;
  * This class represents a set of discrete points in time with weighted interval reference points.
  *
  * @author Moritz Scherrmann
+ * @version 1.0
  */
 public class Partition {
 

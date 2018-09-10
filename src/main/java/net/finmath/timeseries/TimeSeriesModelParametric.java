@@ -10,6 +10,7 @@ package net.finmath.timeseries;
  * A parametric time series model
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface TimeSeriesModelParametric {
 

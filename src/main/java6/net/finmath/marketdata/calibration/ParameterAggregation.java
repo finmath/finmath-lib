@@ -27,6 +27,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
  * @author Christian Fries
  *
  * @param <E> A class implementing the ParameterObjectInterface
+ * @version 1.0
  */
 public class ParameterAggregation<E extends ParameterObjectInterface> implements ParameterObjectInterface {
 

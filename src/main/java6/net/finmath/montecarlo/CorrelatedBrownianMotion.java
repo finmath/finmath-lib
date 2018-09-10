@@ -26,6 +26,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * already correlated. The factors loadings will be applied accordingly.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 

@@ -13,6 +13,7 @@ import java.time.LocalDate;
  * the TARGET holidays.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalendar {
 

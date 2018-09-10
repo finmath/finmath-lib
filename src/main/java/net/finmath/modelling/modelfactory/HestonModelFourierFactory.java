@@ -12,6 +12,7 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public class HestonModelFourierFactory implements ModelFactory<HestonModelDescriptor> {
 

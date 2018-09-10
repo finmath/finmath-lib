@@ -14,6 +14,7 @@ import java.time.LocalDate;
  * A fractional day is rounded to the approximately nearest day.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class DayCountConvention_ACT implements DayCountConventionInterface {
 

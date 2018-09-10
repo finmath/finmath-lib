@@ -29,6 +29,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * </p>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DiscountCurveFromForwardCurve extends AbstractCurve implements Serializable, DiscountCurveInterface {
 

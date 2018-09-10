@@ -13,6 +13,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class BlackScholesModelDescriptor implements AssetModelDescriptor {
 

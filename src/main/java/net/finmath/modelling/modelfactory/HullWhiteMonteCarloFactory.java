@@ -12,6 +12,7 @@ import net.finmath.modelling.descriptor.HullWhiteModelDescriptor;
  * @author Luca Del Re
  * @author Roland Bachl
  *
+ * @version 1.0
  */
 public class HullWhiteMonteCarloFactory implements ModelFactory<HullWhiteModelDescriptor> {
 

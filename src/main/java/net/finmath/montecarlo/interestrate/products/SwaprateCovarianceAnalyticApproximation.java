@@ -18,6 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * of two swap rates under a LIBOR market model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloProduct {
 

@@ -14,6 +14,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * and piecewise constant short rate mean reversion speed \( t \mapsto a(t) \).
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ShortRateVolailityModelInterface {
 

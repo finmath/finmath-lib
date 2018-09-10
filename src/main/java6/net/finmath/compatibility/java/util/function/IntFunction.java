@@ -12,6 +12,7 @@ package net.finmath.compatibility.java.util.function;
  * @author Christian Fries
  *
  * @param <R> The argument type.
+ * @version 1.0
  */
 public interface IntFunction<R> {
 

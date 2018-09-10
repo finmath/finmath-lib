@@ -7,6 +7,7 @@ package net.finmath.rootfinder;
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractRootFinder implements RootFinder, RootFinderWithDerivative {
 

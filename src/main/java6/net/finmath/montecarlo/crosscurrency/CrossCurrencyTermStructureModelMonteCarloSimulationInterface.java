@@ -16,6 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Interface for cross currency term structure models.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface CrossCurrencyTermStructureModelMonteCarloSimulationInterface extends MonteCarloSimulationInterface {
 

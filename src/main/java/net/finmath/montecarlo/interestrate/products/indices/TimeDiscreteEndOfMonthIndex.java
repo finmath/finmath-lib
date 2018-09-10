@@ -18,6 +18,7 @@ import net.finmath.time.FloatingpointDate;
  * then takes the value of a given base index at this point.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 

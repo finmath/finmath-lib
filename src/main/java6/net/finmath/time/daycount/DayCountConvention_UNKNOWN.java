@@ -16,6 +16,7 @@ import org.threeten.bp.LocalDate;
  * where an exception is thrown late, i.e., not at construction time, but at evaluation time.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_UNKNOWN implements DayCountConventionInterface {
 

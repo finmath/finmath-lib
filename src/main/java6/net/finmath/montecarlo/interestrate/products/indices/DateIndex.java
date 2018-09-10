@@ -19,6 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * This index is useful in building date based interpolation formulas using other indices.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DateIndex extends AbstractIndex {
 

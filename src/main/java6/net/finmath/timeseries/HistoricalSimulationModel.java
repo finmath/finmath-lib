@@ -11,6 +11,7 @@ import java.util.Map;
  * A parametric time series model based on a given times series.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface HistoricalSimulationModel {
 

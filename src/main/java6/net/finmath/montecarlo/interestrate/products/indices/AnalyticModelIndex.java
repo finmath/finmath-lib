@@ -18,6 +18,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * An index which is given by a name referencing a curve of an analytic model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class AnalyticModelIndex extends AbstractIndex {
 

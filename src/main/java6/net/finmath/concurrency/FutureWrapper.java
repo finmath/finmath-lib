@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
  * @author Christian Fries
  *
  * @param <V> The result type returned by this Future's get method.
+ * @version 1.0
  */
 public class FutureWrapper<V> implements Future<V> {
 

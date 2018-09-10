@@ -29,6 +29,7 @@ import org.threeten.bp.Month;
  * </ul>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 

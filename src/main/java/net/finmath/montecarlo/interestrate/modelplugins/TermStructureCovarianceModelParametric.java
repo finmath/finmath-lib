@@ -35,6 +35,7 @@ import net.finmath.optimizer.SolverException;
  * an forward rate interest rate model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModelInterface, TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelParametricInterface {
 

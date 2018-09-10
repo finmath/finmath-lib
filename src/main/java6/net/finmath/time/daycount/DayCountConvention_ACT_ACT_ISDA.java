@@ -36,6 +36,7 @@ import org.threeten.bp.Month;
  * </p>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 

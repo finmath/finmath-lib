@@ -27,6 +27,7 @@ import net.finmath.time.ScheduleInterface;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class SwapLeg extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapLegProductDescriptor> {
 

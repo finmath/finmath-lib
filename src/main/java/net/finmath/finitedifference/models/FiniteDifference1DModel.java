@@ -8,6 +8,7 @@ import net.finmath.modelling.ModelInterface;
  * Interface one dimensional finite difference models.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface FiniteDifference1DModel extends ModelInterface {
 

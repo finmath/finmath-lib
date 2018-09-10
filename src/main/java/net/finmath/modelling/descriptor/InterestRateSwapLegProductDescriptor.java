@@ -10,6 +10,7 @@ import net.finmath.time.ScheduleInterface;
  *
  * @author Christian Fries
  * @author Roland Bachl
+ * @version 1.0
  */
 public class InterestRateSwapLegProductDescriptor implements InterestRateProductDescriptor {
 
