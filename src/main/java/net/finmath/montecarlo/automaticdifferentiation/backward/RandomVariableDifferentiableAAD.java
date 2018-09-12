@@ -23,6 +23,7 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Implementation of <code>RandomVariableDifferentiableInterface</code> using
@@ -68,8 +69,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		private final Object operator;
 		private final RandomVariableDifferentiableAADFactory factory;
 
-		private static final RandomVariableInterface zero = new RandomVariable(0.0);
-		private static final RandomVariableInterface one = new RandomVariable(1.0);
+		private static final RandomVariableInterface zero = new Scalar(0.0);
+		private static final RandomVariableInterface one = new Scalar(1.0);
+		private static final RandomVariableInterface minusOne = new Scalar(-1.0);
 
 		OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator, RandomVariableDifferentiableAADFactory factory) {
 			this(operatorType, extractOperatorTreeNodes(arguments), extractOperatorValues(arguments), operator, factory);
@@ -80,10 +82,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			this.id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;
 			this.arguments = arguments;
-			// This is the simple modification which reduces memory requirements.
-			this.argumentValues = (operatorType != null && operatorType.equals(OperatorType.ADD)) ? null: argumentValues;
 			this.operator = operator;
 			this.factory = factory;
+			// This is the simple modification which reduces memory requirements.
 			if(operatorType != null && (operatorType.equals(OperatorType.ADD) || operatorType.equals(OperatorType.SUB))) {
 				// Addition does not need to retain arguments
 				argumentValues = null;
@@ -136,6 +137,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					argumentValues.set(2, null);
 				}
 			}
+
+			this.argumentValues = argumentValues;
 		}
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
@@ -222,7 +225,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				derivative = X.apply(x -> (x == max) ? 1.0 : 0.0);
 				break;
 			case ABS:
-				derivative = X.barrier(X, one, new RandomVariable(-1.0));
+				derivative = X.barrier(X, one, minusOne);
 				break;
 			case STDERROR:
 				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
@@ -234,7 +237,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				derivative = one;
 				break;
 			case SUB:
-				derivative = new RandomVariable(differentialIndex == 0 ? 1.0 : -1.0);
+				derivative = differentialIndex == 0 ? one : minusOne;
 				break;
 			case MULT:
 				derivative = differentialIndex == 0 ? Y : X;
