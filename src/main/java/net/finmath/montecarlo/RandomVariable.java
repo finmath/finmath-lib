@@ -71,7 +71,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param value the value, a constant.
 	 */
 	public RandomVariable(double value) {
-		this(-Double.MAX_VALUE, value);
+		this(Double.NEGATIVE_INFINITY, value);
 	}
 
 	/**

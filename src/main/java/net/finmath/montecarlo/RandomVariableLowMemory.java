@@ -70,7 +70,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 * @param value the value, a constant.
 	 */
 	public RandomVariableLowMemory(double value) {
-		this(-Double.MAX_VALUE, value, typePriorityDefault);
+		this(Double.NEGATIVE_INFINITY, value, typePriorityDefault);
 	}
 
 	/**
@@ -291,7 +291,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
-		double max = -Double.MAX_VALUE;
+		double max = Double.NEGATIVE_INFINITY;
 		if(realizations.length != 0) {
 			max = realizations[0];
 		}

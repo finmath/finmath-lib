@@ -28,11 +28,10 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
+import net.finmath.montecarlo.interestrate.covariancemodels.LIBORCovarianceModelFromVolatilityAndCorrelation;
+import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModel;
+import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialForm;
-import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
@@ -232,28 +231,27 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
 
-		// Use smaller volatility discretizaiton.
+		// Use smaller volatility discretization.
 		TimeDiscretization timeDiscretizationSmall = new TimeDiscretization(0.0, 8, 8.0);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double a = 0.0 / 20.0, b = 0.0, c = 0.25, d = 0.3 / 20.0 / 2.0;
-		//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
-		volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactoryVolatility, timeDiscretization, liborPeriodDiscretization, a, b, c, d, false);
-		double[][] volatilityMatrix = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
-		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			Arrays.fill(volatilityMatrix[timeIndex], d);
+		double d = 0.3 / 20.0 / 2.0;
+		RandomVariableInterface[][] volatilityMatrix = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		volatilityMatrix = new RandomVariableInterface[timeDiscretizationSmall.getNumberOfTimeSteps()][timeDiscretizationSmall.getNumberOfTimeSteps()];
+		for(int timeIndex=0; timeIndex<volatilityMatrix.length; timeIndex++) {
+			for(int componentIndex=0; componentIndex<volatilityMatrix[timeIndex].length; componentIndex++) {
+				if(timeIndex < volatilityBucketTimeIndex) {
+					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryInitialValue.createRandomVariable(d);					
+				}
+				else {
+					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryVolatility.createRandomVariable(d);
+				}
+			}
 		}
-		volatilityMatrix[volatilityBucketTimeIndex][volatilityBucketLiborIndex] += shift;
-		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactoryVolatility, timeDiscretization, liborPeriodDiscretization, volatilityMatrix);
-
-		volatilityMatrix = new double[timeDiscretizationSmall.getNumberOfTimeSteps()][timeDiscretizationSmall.getNumberOfTimeSteps()];
-		for(int timeIndex=0; timeIndex<timeDiscretizationSmall.getNumberOfTimeSteps(); timeIndex++) {
-			Arrays.fill(volatilityMatrix[timeIndex], d);
-		}
-		volatilityMatrix[volatilityBucketTimeIndex][volatilityBucketLiborIndex] += shift;
-		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactoryVolatility, timeDiscretizationSmall, timeDiscretizationSmall, volatilityMatrix);
+		volatilityMatrix[volatilityBucketTimeIndex][volatilityBucketLiborIndex] = volatilityMatrix[volatilityBucketTimeIndex][volatilityBucketLiborIndex].add(shift);
+		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationSmall, timeDiscretizationSmall, volatilityMatrix);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -300,13 +298,17 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	@Test
 	public void testVega() throws CalculationException {
 
+		int bucketVegaTimeIndex = 2;
+		int bucketVegaLIBORIndex = 3;
+		double bucketShift = 1E-8;
+
 		System.out.println(product.getClass().getSimpleName() + ": " + productName);
 		System.out.println("_______________________________________________________________________");
 
 		// Create a libor market model
 		AbstractRandomVariableFactory randomVariableFactoryInitialValue = new RandomVariableFactory();
 		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableDifferentiableAADFactory();
-		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, 0, 0, 0.0);
+		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, bucketVegaTimeIndex, 0, 0.0);
 
 		/*
 		 * Test valuation
@@ -342,10 +344,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			for(int timeIndex=0; timeIndex<volatilityModel.getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 				for(int componentIndex=0; componentIndex<volatilityModel.getLiborPeriodDiscretization().getNumberOfTimeSteps(); componentIndex++) {
 					double modelVega = 0.0;
-					RandomVariableDifferentiableInterface volatility = ((RandomVariableDifferentiableInterface)volatilityModel.getVolatility(timeIndex, componentIndex));
-					if(volatility != null) {
+					RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, componentIndex);
+					if(volatility != null && volatility instanceof RandomVariableDifferentiableInterface) {
 						numberOfVegasTheoretical++;
-						RandomVariableInterface modelVegaRandomVariable = gradient.get(volatility.getID());
+						RandomVariableInterface modelVegaRandomVariable = gradient.get(((RandomVariableDifferentiableInterface)volatility).getID());
 						if(modelVegaRandomVariable != null) {
 							modelVega = modelVegaRandomVariable.getAverage();
 							numberOfVegasEffective++;
@@ -385,10 +387,6 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 
 		long timingCalculation3Start = System.currentTimeMillis();
-
-		int bucketVegaTimeIndex = 2;
-		int bucketVegaLIBORIndex = 3;
-		double bucketShift = 1E-8;
 
 		LIBORModelMonteCarloSimulationInterface liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				bucketVegaTimeIndex, bucketVegaLIBORIndex, -bucketShift);
