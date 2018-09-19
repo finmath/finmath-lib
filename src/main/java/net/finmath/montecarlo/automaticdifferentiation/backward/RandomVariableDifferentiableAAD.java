@@ -143,11 +143,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
 			if(arguments == null) return;
-			for(OperatorTreeNode argument : arguments) {
+			for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
+				OperatorTreeNode argument = arguments.get(argumentIndex);
 				if(argument != null) {
 					Long argumentID = argument.id;
 
-					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
+					RandomVariableInterface partialDerivative	= getPartialDerivative(argument, argumentIndex);
 					RandomVariableInterface derivative			= derivatives.get(id);
 					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
 
@@ -173,11 +174,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 		}
 
-		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential) {
+		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
 
 			if(!arguments.contains(differential)) return zero;
 
-			int differentialIndex = arguments.indexOf(differential);
 			RandomVariableInterface X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
 			RandomVariableInterface Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
 			RandomVariableInterface Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
