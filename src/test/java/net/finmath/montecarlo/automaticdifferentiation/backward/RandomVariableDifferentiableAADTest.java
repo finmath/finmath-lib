@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 
@@ -17,6 +18,64 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  */
 public class RandomVariableDifferentiableAADTest {
+
+	@Test
+	public void testArithmeticSubSelf() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", true);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+				randomVariableFactoryValue, properties);
+
+		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+
+		System.out.println("Checking x.sub(x):");
+
+		/*
+		 * x.sub(x)
+		 */
+
+		RandomVariableInterface z = x.sub(x);
+		System.out.println("Value:" + z.getAverage());
+
+		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
+		RandomVariableInterface dx = gradient.get(x.getID());
+
+		System.out.println("Derivative:" + z.getAverage());
+
+		Assert.assertEquals("Derivative d/dx (x-x)", dx.getAverage(), 0.0, 0.0);
+	}
+
+	@Test
+	public void testArithmeticDivSelf() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", true);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+				randomVariableFactoryValue, properties);
+
+		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+
+		System.out.println("Checking x.sub(x):");
+
+		/*
+		 * x.div(x)
+		 */
+
+		RandomVariableInterface z = x.div(x);
+		System.out.println("Value:" + z.getAverage());
+
+		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
+		RandomVariableInterface dx = gradient.get(x.getID());
+
+		System.out.println("Derivative:" + z.getAverage());
+
+		Assert.assertEquals("Derivative d/dx (x/x)", dx.getAverage(), 0.0, 0.0);
+	}
 
 	@Test
 	public void testTypePriorityAdd() {
@@ -94,7 +153,7 @@ public class RandomVariableDifferentiableAADTest {
 		System.out.println("Checking the return type of operators upon commutation:");
 
 		/*
-		 * add
+		 * cap
 		 */
 
 		RandomVariableInterface z1 = x.cap(y);
@@ -124,7 +183,7 @@ public class RandomVariableDifferentiableAADTest {
 		System.out.println("Checking the return type of operators upon commutation:");
 
 		/*
-		 * add
+		 * floor
 		 */
 
 		RandomVariableInterface z1 = x.floor(y);
