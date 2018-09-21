@@ -45,7 +45,9 @@ public class RandomVariableDifferentiableAADTest {
 
 		System.out.println("Derivative:" + z.getAverage());
 
-		Assert.assertEquals("Derivative d/dx (x-x)", dx.getAverage(), 0.0, 0.0);
+		System.out.println();
+
+		Assert.assertEquals("Derivative d/dx (x-x)", 0.0, dx.getAverage(), 0.0);
 	}
 
 	@Test
@@ -60,7 +62,7 @@ public class RandomVariableDifferentiableAADTest {
 
 		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
-		System.out.println("Checking x.sub(x):");
+		System.out.println("Checking x.div(x):");
 
 		/*
 		 * x.div(x)
@@ -74,8 +76,103 @@ public class RandomVariableDifferentiableAADTest {
 
 		System.out.println("Derivative:" + z.getAverage());
 
-		Assert.assertEquals("Derivative d/dx (x/x)", dx.getAverage(), 0.0, 0.0);
+		System.out.println();
+
+		Assert.assertEquals("Derivative d/dx (x/x)", 0.0, dx.getAverage(), 0.0);
 	}
+
+	@Test
+	public void testArithmeticExpLog() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", true);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+				randomVariableFactoryValue, properties);
+
+		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+
+		System.out.println("Checking x.log().exp():");
+
+		/*
+		 * x.log.exp()
+		 */
+
+		RandomVariableInterface z = x.log().exp();
+		System.out.println("Value:" + z.getAverage());
+
+		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
+		RandomVariableInterface dx = gradient.get(x.getID());
+
+		System.out.println("Derivative:" + dx.getAverage());
+
+		System.out.println();
+
+		Assert.assertEquals("Derivative d/dx (x/x)", 1.0, dx.getAverage(), 0.0);
+	}
+
+	@Test
+	public void testArithmeticSqrtSquared() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", true);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+				randomVariableFactoryValue, properties);
+
+		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+
+		System.out.println("Checking x.sqrt().squared():");
+
+		/*
+		 * x.sqrt.squared()
+		 */
+
+		RandomVariableInterface z = x.sqrt().squared();
+		System.out.println("Value:" + z.getAverage());
+
+		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
+		RandomVariableInterface dx = gradient.get(x.getID());
+
+		System.out.println("Derivative:" + dx.getAverage());
+
+		System.out.println();
+
+		Assert.assertEquals("Derivative d/dx (x/x)", 1.0, dx.getAverage(), 0.0);
+	}
+
+	@Test
+	public void testArithmeticSqrtMultSqrt() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("isGradientRetainsLeafNodesOnly", true);
+
+		AbstractRandomVariableFactory randomVariableFactoryValue = new RandomVariableFactory();
+
+		AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable = new RandomVariableDifferentiableAADFactory(
+				randomVariableFactoryValue, properties);
+
+		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+
+		System.out.println("Checking x.sqrt().mult(x.sqrt()):");
+
+		/*
+		 * x.sqrt.mult(x.sqrt())
+		 */
+
+		RandomVariableInterface z = x.sqrt().mult(x.sqrt());
+		System.out.println("Value:" + z.getAverage());
+
+		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
+		RandomVariableInterface dx = gradient.get(x.getID());
+
+		System.out.println("Derivative:" + dx.getAverage());
+
+		System.out.println();
+
+		Assert.assertEquals("Derivative d/dx (x/x)", 1.0, dx.getAverage(), 0.0);
+	}	
 
 	@Test
 	public void testTypePriorityAdd() {
@@ -103,6 +200,8 @@ public class RandomVariableDifferentiableAADTest {
 		RandomVariableInterface z2 = y.add(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
+
+		System.out.println();
 
 		Assert.assertEquals("Value upon commutation", z1.getAverage(), z2.getAverage(), 0.0);
 	}
