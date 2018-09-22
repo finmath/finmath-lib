@@ -277,7 +277,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
 			case POW:
-				/* second argument will always be deterministic and constant! */
+				// second argument will always be deterministic and constant.
+				// @TODO: Optimize this part by making use of Y being scalar.
 				derivative = (differentialIndex == 0) ? X.pow(Y.getAverage() - 1.0).mult(Y) : zero;
 				break;
 			case ADDPRODUCT:
