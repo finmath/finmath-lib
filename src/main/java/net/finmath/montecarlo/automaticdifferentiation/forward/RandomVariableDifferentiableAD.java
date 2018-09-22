@@ -23,6 +23,7 @@ import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Implementation of <code>RandomVariableDifferentiableInterface</code> using
@@ -66,6 +67,10 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		private final List<RandomVariableInterface> argumentValues;
 		private final Object operator;
 
+		private static final RandomVariableInterface zero = new Scalar(0.0);
+		private static final RandomVariableInterface one = new Scalar(1.0);
+		private static final RandomVariableInterface minusOne = new Scalar(-1.0);
+
 		OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator) {
 			this(operatorType,
 					arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
@@ -83,9 +88,8 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			this.id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;
 			this.arguments = arguments;
-			// This is the simple modification which reduces memory requirements.
-			this.argumentValues = (operatorType != null && operatorType.equals(OperatorType.ADD)) ? null: argumentValues;
 			this.operator = operator;
+			// This is the simple modification which reduces memory requirements.
 			if(operatorType != null && (operatorType.equals(OperatorType.ADD) || operatorType.equals(OperatorType.SUB))) {
 				// Addition does not need to retain arguments
 				argumentValues = null;
@@ -138,15 +142,18 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					argumentValues.set(2, null);
 				}
 			}
+
+			this.argumentValues = argumentValues;
 		}
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
 			if(arguments == null) return;
-			for(OperatorTreeNode argument : arguments) {
+			for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
+				OperatorTreeNode argument = arguments.get(argumentIndex);
 				if(argument != null) {
 					Long argumentID = argument.id;
 
-					RandomVariableInterface partialDerivative	= getPartialDerivative(argument);
+					RandomVariableInterface partialDerivative	= getPartialDerivative(argument, argumentIndex);
 					RandomVariableInterface derivative			= derivatives.get(id);
 					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
 
@@ -172,156 +179,156 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			}
 		}
 
-		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential){
+		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
 
-			if(!arguments.contains(differential)) return new RandomVariable(0.0);
+			if(!arguments.contains(differential)) return zero;
 
-			int differentialIndex = arguments.indexOf(differential);
 			RandomVariableInterface X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
 			RandomVariableInterface Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
 			RandomVariableInterface Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
 
-			RandomVariableInterface resultrandomvariable = null;
+			RandomVariableInterface derivative = null;
 
 			switch(operatorType) {
 			/* functions with one argument  */
 			case SQUARED:
-				resultrandomvariable = X.mult(2.0);
+				derivative = X.mult(2.0);
 				break;
 			case SQRT:
-				resultrandomvariable = X.sqrt().invert().mult(0.5);
+				derivative = X.sqrt().invert().mult(0.5);
 				break;
 			case EXP:
-				resultrandomvariable = X.exp();
+				derivative = X.exp();
 				break;
 			case LOG:
-				resultrandomvariable = X.invert();
+				derivative = X.invert();
 				break;
 			case SIN:
-				resultrandomvariable = X.cos();
+				derivative = X.cos();
 				break;
 			case COS:
-				resultrandomvariable = X.sin().mult(-1.0);
+				derivative = X.sin().mult(-1.0);
 				break;
 			case AVERAGE:
-				resultrandomvariable = new RandomVariable(1.0);
+				derivative = one;
 				break;
 			case CONDITIONAL_EXPECTATION:
-				resultrandomvariable = new RandomVariable(1.0);
+				derivative = one;
 				break;
 			case VARIANCE:
-				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size());
+				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size());
 				break;
 			case STDEV:
-				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));
+				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));
 				break;
 			case MIN:
 				double min = X.getMin();
-				resultrandomvariable = X.apply(x -> (x == min) ? 1.0 : 0.0);
+				derivative = X.apply(x -> (x == min) ? 1.0 : 0.0);
 				break;
 			case MAX:
 				double max = X.getMax();
-				resultrandomvariable = X.apply(x -> (x == max) ? 1.0 : 0.0);
+				derivative = X.apply(x -> (x == max) ? 1.0 : 0.0);
 				break;
 			case ABS:
-				resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(-1.0));
+				derivative = X.barrier(X, one, minusOne);
 				break;
 			case STDERROR:
-				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
+				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
 				break;
 			case SVARIANCE:
-				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/(X.size()-1));
+				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/(X.size()-1));
 				break;
 			case ADD:
-				resultrandomvariable = new RandomVariable(1.0);
+				derivative = one;
 				break;
 			case SUB:
-				resultrandomvariable = new RandomVariable(differentialIndex == 0 ? 1.0 : -1.0);
+				derivative = differentialIndex == 0 ? one : minusOne;
 				break;
 			case MULT:
-				resultrandomvariable = differentialIndex == 0 ? Y : X;
+				derivative = differentialIndex == 0 ? Y : X;
 				break;
 			case DIV:
-				resultrandomvariable = differentialIndex == 0 ? Y.invert() : X.div(Y.squared()).mult(-1);
+				derivative = differentialIndex == 0 ? Y.invert() : X.div(Y.squared()).mult(-1);
 				break;
 			case CAP:
 				if(differentialIndex == 0) {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					derivative = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
 				}
 				else {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					derivative = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
 				}
 				break;
 			case FLOOR:
 				if(differentialIndex == 0) {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					derivative = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
 				}
 				else {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					derivative = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
 				}
 				break;
 			case AVERAGE2:
-				resultrandomvariable = differentialIndex == 0 ? Y : X;
+				derivative = differentialIndex == 0 ? Y : X;
 				break;
 			case VARIANCE2:
-				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
+				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));
 				break;
 			case STDEV2:
-				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
+				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));
 				break;
 			case STDERROR2:
-				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
+				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
 			case POW:
-				/* second argument will always be deterministic and constant! */
-				resultrandomvariable = (differentialIndex == 0) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariable(0.0);
+				// second argument will always be deterministic and constant.
+				// @TODO: Optimize this part by making use of Y being scalar.
+				derivative = (differentialIndex == 0) ? X.pow(Y.getAverage() - 1.0).mult(Y) : zero;
 				break;
 			case ADDPRODUCT:
 				if(differentialIndex == 0) {
-					resultrandomvariable = new RandomVariable(1.0);
+					derivative = one;
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = Z;
+					derivative = Z;
 				} else {
-					resultrandomvariable = Y;
+					derivative = Y;
 				}
 				break;
 			case ADDRATIO:
 				if(differentialIndex == 0) {
-					resultrandomvariable = new RandomVariable(1.0);
+					derivative = one;
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = Z.invert();
+					derivative = Z.invert();
 				} else {
-					resultrandomvariable = Y.div(Z.squared()).mult(-1.0);
+					derivative = Y.div(Z.squared()).mult(-1.0);
 				}
 				break;
 			case SUBRATIO:
 				if(differentialIndex == 0) {
-					resultrandomvariable = new RandomVariable(1.0);
+					derivative = one;
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = Z.invert().mult(-1.0);
+					derivative = Z.invert().mult(-1.0);
 				} else {
-					resultrandomvariable = Y.div(Z.squared());
+					derivative = Y.div(Z.squared());
 				}
 				break;
 			case ACCRUE:
 				if(differentialIndex == 0) {
-					resultrandomvariable = Y.mult(Z).add(1.0);
+					derivative = Y.mult(Z).add(1.0);
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = X.mult(Z);
+					derivative = X.mult(Z);
 				} else {
-					resultrandomvariable = X.mult(Y);
+					derivative = X.mult(Y);
 				}
 				break;
 			case DISCOUNT:
 				if(differentialIndex == 0) {
-					resultrandomvariable = Y.mult(Z).add(1.0).invert();
+					derivative = Y.mult(Z).add(1.0).invert();
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = X.mult(Z).div(Y.mult(Z).add(1.0).squared()).mult(-1.0);
+					derivative = X.mult(Z).div(Y.mult(Z).add(1.0).squared()).mult(-1.0);
 				} else {
-					resultrandomvariable = X.mult(Y).div(Y.mult(Z).add(1.0).squared()).mult(-1.0);
+					derivative = X.mult(Y).div(Y.mult(Z).add(1.0).squared()).mult(-1.0);
 				}
 				break;
 			case BARRIER:
@@ -329,21 +336,21 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					/*
 					 * Experimental version - This should be specified as a parameter.
 					 */
-					resultrandomvariable = Y.sub(Z);
+					derivative = Y.sub(Z);
 					double epsilon = 0.2*X.getStandardDeviation();
-					resultrandomvariable = resultrandomvariable.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
-					resultrandomvariable = resultrandomvariable.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
-					resultrandomvariable = resultrandomvariable.div(epsilon);
+					derivative = derivative.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
+					derivative = derivative.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
+					derivative = derivative.div(epsilon);
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
+					derivative = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
 				} else {
-					resultrandomvariable = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
+					derivative = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
 				}
 			default:
 				break;
 			}
 
-			return resultrandomvariable;
+			return derivative;
 		}
 	}
 
