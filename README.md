@@ -16,17 +16,17 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Generation of random numbers
     - Optimization (a Levenberg–Marquardt algorithm is provided)
 - Valuation using **Fourier transforms** / **characteristic functions**
-	- Black-Scholes model
-	- Heston model
-	- Bates model
-	- Two factor Bates model
+    - Black-Scholes model
+    - Heston model
+    - Bates model
+    - Two factor Bates model
 - **Finite difference methods**
-	- Numerical schemes using finite differences
-		- Theta-scheme
-	- Models
-		- Black-Scholes model
-	- Products
-		- European option
+    - Numerical schemes using finite differences
+        - Theta-scheme
+    - Models
+        - Black-Scholes model
+    - Products
+        - European option
 - **Monte-Carlo simulation** of multi-dimensional, multi-factor stochastic differential equations (SDEs)
     - LIBOR Market Model
     - Black-Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
@@ -35,11 +35,12 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Merton Model (as Monte-Carlo Simulation)
     - Heston Model (as Monte-Carlo Simulation)
 - **American Monte-Carlo**: Estimation of conditional expectations in a Monte-Carlo framework
-- **Stochastic Automatic Differentiation** (AAD) (requires finmath-lib-automaticdifferentiation-extensions https://github.com/finmath/finmath-lib-automaticdifferentiation-extensions )
+- **Stochastic Automatic Differentiation** (AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
-- Calibration of market data objects like curves (discount and forward curve) or volatility surfaces
-	- **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
-	- **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
+- Dependency injection on numerical algorithms (Monte-Carlo simulations) with custom return type priorities (see http://ssrn.com/abstract=3246127 ).
+- **Calibration** of market data objects like curves (discount and forward curve) or volatility surfaces
+    - **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
+    - **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
     - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
     - Various interpolation entities (value, log-value, rate, etc.).
     - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
