@@ -5,7 +5,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 /**
  * @author Christian Fries
  * @author Stefan Sedlmair
- * @version
+ * @version 1.0
  */
 public interface StochasticRootFinder {
 

@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * change which implementation of random variable is used.
  *
  * @author Christian Fries
- * @version
+ * @version 1.0
  */
 public class RandomVariableFactory extends AbstractRandomVariableFactory {
 

@@ -39,7 +39,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * part of the calibration.
  *
  * @author Christian Fries
- * @version
+ * @version 1.0
  */
 public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 

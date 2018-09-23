@@ -16,7 +16,7 @@ import net.finmath.functions.DoubleTernaryOperator;
  * A scalar value implementing the RandomVariableInterface.
  *
  * @author Christian Fries
- * @version
+ * @version 1.0
  */
 public class Scalar implements RandomVariableInterface {
 

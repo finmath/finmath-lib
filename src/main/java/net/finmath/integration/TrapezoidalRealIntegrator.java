@@ -11,7 +11,7 @@ import java.util.function.DoubleUnaryOperator;
  * A simple integrator using the trapezoidal rule.
  *
  * @author Christian Fries
- * @version
+ * @version 1.0
  */
 public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 
