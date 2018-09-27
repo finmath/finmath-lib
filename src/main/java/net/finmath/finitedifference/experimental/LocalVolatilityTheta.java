@@ -31,6 +31,8 @@ public class LocalVolatilityTheta {
     private double maximumStock = 160;
     private int numStockSteps = 160;
     private int numTimeSteps = 80;
+//    private int numStockSteps = 3;
+//    private int numTimeSteps = 3;
     private double deltaStock = (maximumStock - minimumStock) / numStockSteps;
     private double deltaTau = optionMaturity / numTimeSteps;
 
@@ -122,7 +124,7 @@ public class LocalVolatilityTheta {
         for (int i = 0; i < len; i++) {
             b.setEntry(i,0,0);
             b2.setEntry(i, 0, 0);
-            U.setEntry(i,1, U_initial(stock[i]));
+            U.setEntry(i,0, U_initial(stock[i]));
         }
 
         // Theta finite difference method
@@ -130,10 +132,10 @@ public class LocalVolatilityTheta {
             double[] sigma = new double[len];
             double[] sigma2 = new double[len];
             for (int i = 0; i < len; i++) {
-                sigma[i] = localVolatility(minimumStock + (i + 1) * deltaStock,
-                        optionMaturity - m * deltaTau);
-                sigma2[i] = localVolatility(minimumStock + (i + 1) * deltaStock,
-                        optionMaturity - (m + 1) * deltaTau);
+                sigma[i] = Math.pow(localVolatility(minimumStock + (i + 1) * deltaStock,
+                        optionMaturity - m * deltaTau), 2);
+                sigma2[i] = Math.pow(localVolatility(minimumStock + (i + 1) * deltaStock,
+                        optionMaturity - (m + 1) * deltaTau), 2);
             }
             RealMatrix Sigma = MatrixUtils.createRealDiagonalMatrix(sigma);
             RealMatrix Sigma2 = MatrixUtils.createRealDiagonalMatrix(sigma2);
@@ -144,15 +146,16 @@ public class LocalVolatilityTheta {
 
             double Sl = (minimumStock / deltaStock + 1);
             double Su = (maximumStock / deltaStock - 1);
-            double vl = localVolatility(minimumStock + deltaStock,
-                    optionMaturity - m * deltaTau);
-            double vu = localVolatility(maximumStock - deltaStock,
-                    optionMaturity - m * deltaTau);
-            double vl2 = localVolatility(minimumStock + deltaStock,
-                    optionMaturity - (m + 1) * deltaTau);
-            double vu2 = localVolatility(maximumStock - deltaStock,
-                    optionMaturity - (m + 1) * deltaTau);
+            double vl = Math.pow(localVolatility(minimumStock + deltaStock,
+                    optionMaturity - m * deltaTau), 2);
+            double vu = Math.pow(localVolatility(maximumStock - deltaStock,
+                    optionMaturity - m * deltaTau), 2);
+            double vl2 = Math.pow(localVolatility(minimumStock + deltaStock,
+                    optionMaturity - (m + 1) * deltaTau), 2);
+            double vu2 = Math.pow(localVolatility(maximumStock - deltaStock,
+                    optionMaturity - (m + 1) * deltaTau), 2);
 
+            double test = U_minimumStock(minimumStock, tau[m]);
             b.setEntry(0,0,
                     0.5 * deltaTau * Sl * (vl * Sl - riskFreeRate) * U_minimumStock(minimumStock, tau[m]));
             b.setEntry(len - 1, 0,
@@ -162,7 +165,7 @@ public class LocalVolatilityTheta {
             b2.setEntry(len - 1, 0,
                     0.5 * deltaTau * Su * (vu2 * Su - riskFreeRate) * U_maximumStock(maximumStock, tau[m + 1]));
             RealMatrix U1 = (F.scalarMultiply(1 - theta).add(eye.scalarMultiply(theta))).multiply(U);
-            RealMatrix U2 = b.scalarMultiply(1 + theta).add(b2.scalarMultiply(theta));
+            RealMatrix U2 = b.scalarMultiply(1 - theta).add(b2.scalarMultiply(theta));
             U = solver.solve(U1.add(U2));
         }
         double[] optionPrice = U.getColumn(0);
