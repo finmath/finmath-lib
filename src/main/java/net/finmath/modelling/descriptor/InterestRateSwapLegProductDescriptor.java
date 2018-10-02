@@ -1,6 +1,9 @@
 package net.finmath.modelling.descriptor;
 
+import java.util.Arrays;
+
 import net.finmath.modelling.InterestRateProductDescriptor;
+import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.time.ScheduleInterface;
 
 /**
@@ -17,21 +20,35 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	private final String discountCurveName;
 	
 	private final ScheduleInterface				legSchedule;
-	// analytic implementation defaults notional to 1
-	//	private final AbstractNotional				notional;
+	private final double[]			notionals;
 	private final double						spread;
 	//	private final boolean						couponFlow;
 	private final boolean						isNotionalExchanged;
 	//	private final boolean						isNotionalAccruing;
 
-
-	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleInterface legSchedule, double spread, boolean isNotionalExchanged) {
+	//TODO
+	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleInterface legSchedule, double notional, double spread, boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
 		this.discountCurveName = discountCurveName;
 		
 		this.legSchedule = legSchedule;
-		//		this.notional = notional;
+		double[] notionals = new double[legSchedule.getNumberOfPeriods()];
+		Arrays.fill(notionals, notional);
+		this.notionals = notionals;
+		this.spread = spread;
+		//		this.couponFlow = couponFlow;
+		this.isNotionalExchanged = isNotionalExchanged;
+		//		this.isNotionalAccruing = isNotionalAccruing;
+	}
+
+	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleInterface legSchedule, double[] notionals, double spread, boolean isNotionalExchanged) {
+		super();
+		this.forwardCurveName = forwardCurveName;
+		this.discountCurveName = discountCurveName;
+		
+		this.legSchedule = legSchedule;
+		this.notionals = notionals;
 		this.spread = spread;
 		//		this.couponFlow = couponFlow;
 		this.isNotionalExchanged = isNotionalExchanged;
@@ -54,6 +71,10 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 	public ScheduleInterface getLegSchedule() {
 		return legSchedule;
+	}
+	
+	public double[] getNotionals() {
+		return notionals.clone();
 	}
 
 

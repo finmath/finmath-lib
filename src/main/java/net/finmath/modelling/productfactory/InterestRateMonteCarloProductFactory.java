@@ -1,5 +1,8 @@
 package net.finmath.modelling.productfactory;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.InterestRateProductDescriptor;
 import net.finmath.modelling.ProductDescriptor;
@@ -10,6 +13,7 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.Swap;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
+import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.time.ScheduleInterface;
@@ -20,13 +24,9 @@ import net.finmath.time.ScheduleInterface;
  */
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
-	private final AbstractNotional						notional;
 	private static final boolean						couponFlow = true;
-	private static final boolean						isNotionalAccruing = false;
+//	private static final boolean						isNotionalAccruing = false;
 
-	public InterestRateMonteCarloProductFactory(AbstractNotional notional) {
-		this.notional = notional;
-	}
 
 	@Override
 	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
@@ -40,8 +40,9 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 			} else {
 				index = null;
 			}
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegSchedule(), notional, index, swapLeg.getSpread(), couponFlow,
-					swapLeg.isNotionalExchanged(), isNotionalAccruing);
+			AbstractNotional[] notionals = Arrays.stream(swapLeg.getNotionals()).mapToObj(x -> new Notional(x)).toArray(Notional[]::new);
+			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegSchedule(), notionals, index, swapLeg.getSpread(), couponFlow,
+					swapLeg.isNotionalExchanged());
 			return product;
 		}else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;

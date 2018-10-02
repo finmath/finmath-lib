@@ -30,7 +30,31 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	private final String				discountCurveName;
 	private final String				discountCurveForNotionalResetName;
 	private boolean						isNotionalExchanged = false;
+	
+	private final double[] notionals;
 
+	/**
+	 * Creates a swap leg.
+	 *
+	 * @param legSchedule Schedule of the leg.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param notionals Array of notionals 
+	 * @param spread Fixed spread on the forward or fix rate.
+	 * @param discountCurveName Name of the discount curve for the leg.
+	 * @param discountCurveForNotionalResetName Name of the discount curve used for notional reset. If it is left empty or equal to discountCurveName then there is no notional reset.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
+	 */
+	public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double[] notionals, double spread, String discountCurveName, boolean isNotionalExchanged) {
+		super();
+		this.legSchedule = legSchedule;
+		this.forwardCurveName = forwardCurveName;
+		this.spread = spread;
+		this.discountCurveName = discountCurveName;
+		this.discountCurveForNotionalResetName = discountCurveName;
+		this.isNotionalExchanged = isNotionalExchanged;
+		this.notionals = notionals;
+	}
+	
 	/**
 	 * Creates a swap leg.
 	 *
@@ -49,6 +73,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		this.discountCurveName = discountCurveName;
 		this.discountCurveForNotionalResetName = discountCurveForNotionalResetName=="" ? discountCurveName : discountCurveForNotionalResetName; // empty discountCurveForNotionalResetName is interpreted as no notional reset
 		this.isNotionalExchanged = isNotionalExchanged;
+		this.notionals = null;
 	}
 
 	/**
@@ -88,7 +113,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
-		if(discountCurveForNotionalReset == null) {
+		if(discountCurveForNotionalReset == null  && notionals == null) {
 			throw new IllegalArgumentException("No discountCurveForNotionalReset with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
 		}
 
@@ -111,7 +136,13 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			}
 
 			// note that notional=1 if discountCurveForNotionalReset=discountCurve
-			double notional = discountCurveForNotionalReset.getDiscountFactor(model,periodStart) / discountCurve.getDiscountFactor(model,periodStart);
+			double notional;
+			if(notionals != null) {
+				notional = notionals[periodIndex];
+			}
+			else {
+				notional = discountCurveForNotionalReset.getDiscountFactor(model,periodStart) / discountCurve.getDiscountFactor(model,periodStart);
+			}
 			double discountFactor = paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += notional * forward * periodLength * discountFactor;
 
@@ -157,6 +188,6 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	@Override
 	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, legSchedule, spread, isNotionalExchanged);
+		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, legSchedule, notionals, spread, isNotionalExchanged);
 	}
 }

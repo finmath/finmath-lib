@@ -39,6 +39,9 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 //	private final boolean						isNotionalAccruing;
 
 	private final ProductCollection				components;
+	
+	//need this as collection does not guarantee order.
+	private final double[] notionals;
 
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
@@ -60,6 +63,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 //		this.couponFlow = couponFlow;
 		this.isNotionalExchanged = isNotionalExchanged;
 //		this.isNotionalAccruing = isNotionalAccruing;
+		this.notionals = new double[legSchedule.getNumberOfPeriods()];
 
 		/*
 		 * Create components.
@@ -97,6 +101,12 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false);
 			periods.add(period);
+			try {
+				notionals[periodIndex] = notional.getNotionalAtPeriodStart(period, null).getRealizations()[0];
+			} catch (CalculationException e) {
+				// TODO Auto-generated catch block
+				notionals[periodIndex] = 0;
+			}
 
 			if(isNotionalAccruing) {
 				notional = new AccruingNotional(notional, period);
@@ -126,6 +136,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 		this.spread = spread;
 //		this.couponFlow = couponFlow;
 		this.isNotionalExchanged = isNotionalExchanged;
+		this.notionals = new double[notionals.length];
 
 		/*
 		 * Create components.
@@ -163,6 +174,12 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notionals[periodIndex], coupon, periodLength, couponFlow, isNotionalExchanged, false);
 			periods.add(period);
+			try {
+				this.notionals[periodIndex] = notionals[periodIndex].getNotionalAtPeriodStart(period, null).getRealizations()[0];
+			} catch (CalculationException e) {
+				// TODO Auto-generated catch block
+				this.notionals[periodIndex] = 0;
+			}
 
 		}
 
@@ -189,6 +206,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 	@Override
 	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(null, null, legSchedule, spread, isNotionalExchanged);
+		return new InterestRateSwapLegProductDescriptor(null, null, legSchedule, notionals, spread, isNotionalExchanged);
 	}
 }

@@ -23,8 +23,9 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
 			InterestRateSwapLegProductDescriptor swapLeg = (InterestRateSwapLegProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegSchedule(), swapLeg.getForwardCurveName(), swapLeg.getSpread(), swapLeg.getDiscountCurveName(),
-					swapLeg.getDiscountCurveName(), swapLeg.isNotionalExchanged());
+			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegSchedule(), 
+					swapLeg.getForwardCurveName(), swapLeg.getNotionals(), swapLeg.getSpread(), swapLeg.getDiscountCurveName(),
+					swapLeg.isNotionalExchanged());
 			return product;
 		}else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;
