@@ -32,6 +32,7 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
+import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -81,7 +82,7 @@ public class InterestRateSwapLegDescriptorTest {
 		 * Create Monte-Carlo leg
 		 */
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(index)).getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(new Notional(1))).getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Monte-Carlo value
@@ -149,8 +150,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		AbstractIndex index = null;
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(index)).getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(new Notional(1))).getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Monte-Carlo value
