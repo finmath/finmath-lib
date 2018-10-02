@@ -20,7 +20,7 @@ import net.finmath.time.ScheduleInterface;
  */
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
-	private final AbstractNotional				notional;
+	private final AbstractNotional						notional;
 	private static final boolean						couponFlow = true;
 	private static final boolean						isNotionalAccruing = false;
 
