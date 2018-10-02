@@ -157,6 +157,6 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	@Override
 	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(legSchedule, spread, isNotionalExchanged);
+		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, legSchedule, spread, isNotionalExchanged);
 	}
 }

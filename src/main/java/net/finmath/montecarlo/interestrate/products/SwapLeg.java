@@ -126,6 +126,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 	@Override
 	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(legSchedule, spread, isNotionalExchanged);
+		return new InterestRateSwapLegProductDescriptor(null, null, legSchedule, spread, isNotionalExchanged);
 	}
 }

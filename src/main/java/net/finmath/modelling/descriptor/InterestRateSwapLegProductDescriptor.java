@@ -13,21 +13,25 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 	private static final String productName = "Interest Rate Swap Leg";
 
+	private final String forwardCurveName;
+	private final String discountCurveName;
+	
 	private final ScheduleInterface				legSchedule;
 	// analytic implementation defaults notional to 1
 	//	private final AbstractNotional				notional;
-	//	private final AbstractIndex					index;
 	private final double						spread;
 	//	private final boolean						couponFlow;
 	private final boolean						isNotionalExchanged;
 	//	private final boolean						isNotionalAccruing;
 
 
-	public InterestRateSwapLegProductDescriptor(ScheduleInterface legSchedule, double spread, boolean isNotionalExchanged) {
+	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleInterface legSchedule, double spread, boolean isNotionalExchanged) {
 		super();
+		this.forwardCurveName = forwardCurveName;
+		this.discountCurveName = discountCurveName;
+		
 		this.legSchedule = legSchedule;
 		//		this.notional = notional;
-		//		this.index = index;
 		this.spread = spread;
 		//		this.couponFlow = couponFlow;
 		this.isNotionalExchanged = isNotionalExchanged;
@@ -40,6 +44,14 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 
 
+	public String getForwardCurveName() {
+		return forwardCurveName;
+	}
+
+	public String getDiscountCurveName() {
+		return discountCurveName;
+	}
+
 	public ScheduleInterface getLegSchedule() {
 		return legSchedule;
 	}
@@ -48,12 +60,6 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 	//	public AbstractNotional getNotional() {
 	//		return notional;
-	//	}
-	//
-	//
-	//
-	//	public AbstractIndex getIndex() {
-	//		return index;
 	//	}
 
 
