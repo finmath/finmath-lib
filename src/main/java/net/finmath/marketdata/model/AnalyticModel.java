@@ -42,7 +42,6 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	private final Map<String, CurveInterface>				curvesMap				= new HashMap<>();
 	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap	= new HashMap<>();
 
-	private ProductFactory<InterestRateProductDescriptor> factory;
 
 	/**
 	 * Create an empty analytic model.
@@ -249,44 +248,8 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	@Override
 	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 
-		if(factory != null) {
-			return factory.getProductFromDescriptor(productDescriptor);
-		}
+		return new  InterestRateAnalyticProductFactory().getProductFromDescriptor(productDescriptor);
 
-		// Trying to generate a default factory.
-		String discountCurve = "";
-		String forwardCurve = "";
-
-		for(CurveInterface curve : curvesMap.values()) {
-			if(curve instanceof DiscountCurveInterface) {
-				if(discountCurve.equals("")) {
-					discountCurve = curve.getName();
-				} else {
-					throw new RuntimeException("Failed to create default product factory as there are multiple discount curves in the model. Please provide specific factory to create "
-							+productDescriptor.name()+".");
-				}
-			}
-			if(curve instanceof ForwardCurveInterface) {
-				if (forwardCurve.equals("")) {
-					forwardCurve = curve.getName();
-				} else {
-					throw new RuntimeException("Failed to create default product factory as there are multiple forward curves in the model. Please provide specific factory to create "
-							+productDescriptor.name()+".");
-				}
-			}
-		}
-		if(!discountCurve.equals("") && !forwardCurve.equals("")) {
-			factory = new InterestRateAnalyticProductFactory(forwardCurve, discountCurve, discountCurve);
-			return factory.getProductFromDescriptor(productDescriptor);
-		}
-		throw new RuntimeException("Failed to create default product factory due to missing curves.");
 	}
 
-	public ProductFactory<InterestRateProductDescriptor> getFactory() {
-		return factory;
-	}
-
-	public void setFactory(ProductFactory<InterestRateProductDescriptor> factory) {
-		this.factory = factory;
-	}
 }
