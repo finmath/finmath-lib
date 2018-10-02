@@ -66,7 +66,7 @@ public class InterestRateSwapLegDescriptorTest {
 		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		double spread = 0.0;
 		boolean isNotionalExchanged = false;
-		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor(schedule, spread, isNotionalExchanged);
+		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor("forwardCurve", "discountCurve", schedule, spread, isNotionalExchanged);
 
 		/*
 		 * Create Monte-Carlo model
@@ -136,7 +136,7 @@ public class InterestRateSwapLegDescriptorTest {
 		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		double spread = 0.05;
 		boolean isNotionalExchanged = false;
-		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor(schedule, spread, isNotionalExchanged);
+		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor(null, "discountCurve", schedule, spread, isNotionalExchanged);
 
 		/*
 		 * Create Monte-Carlo model
@@ -168,9 +168,6 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create analytic leg
 		 */
-		String forwardCurveName = null;
-		String discountCurveName = "discountCurve";
-		((AnalyticModel) modelAnalytic).setFactory(new InterestRateAnalyticProductFactory(forwardCurveName, discountCurveName, discountCurveName));
 		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
 
 		/*
