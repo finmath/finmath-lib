@@ -26,7 +26,6 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	private final boolean						isNotionalExchanged;
 	//	private final boolean						isNotionalAccruing;
 
-	//TODO
 	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleInterface legSchedule, double notional, double spread, boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
