@@ -130,7 +130,7 @@ public class FIPXMLParser implements XMLParser {
 				throw new IllegalArgumentException("Unknown swap configuration. Number of swap legs was "+doc.getElementsByTagName("legAgreement").getLength());
 			}
 		} else {
-			throw new IllegalArgumentException("This xml parser is not set up to process trade of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
+			throw new IllegalArgumentException("This xml parser is not set up to process trades of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 		
 		LocalDate referenceDate = LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate();

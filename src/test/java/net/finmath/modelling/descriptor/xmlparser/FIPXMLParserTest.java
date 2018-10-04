@@ -33,7 +33,15 @@ public class FIPXMLParserTest {
 	
 	@Test
 	public void testGetSwapProductDescriptor() throws SAXException, IOException, ParserConfigurationException {
-		InterestRateSwapProductDescriptor descriptor = FIPXMLParser.getSwapProductDescriptor(file);
+		
+		InterestRateSwapProductDescriptor descriptor;
+		try {
+			descriptor = FIPXMLParser.getSwapProductDescriptor(file);
+		} catch (IllegalArgumentException e) {
+			System.out.println("There was a problem with the file: "+e.getMessage());
+//			e.printStackTrace();
+			return;
+		}
 		
 		InterestRateSwapLegProductDescriptor legReceiver	= (InterestRateSwapLegProductDescriptor) descriptor.getLegReceiver();
 		InterestRateSwapLegProductDescriptor legPayer		= (InterestRateSwapLegProductDescriptor) descriptor.getLegPayer();
