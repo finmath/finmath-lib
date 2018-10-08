@@ -31,7 +31,8 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  */
 public class FIPXMLParser implements XMLParser {
 
-	public static ProductDescriptor getProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
+	@Override
+	public ProductDescriptor getProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
 		
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file); 
 		doc.getDocumentElement().normalize();
