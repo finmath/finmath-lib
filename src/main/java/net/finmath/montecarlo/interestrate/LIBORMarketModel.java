@@ -665,7 +665,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	 */
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
-		
 		RandomVariableInterface numeraire = getUnAdjustedNumeraire(time);
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization
@@ -676,6 +675,68 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
 		return numeraire;
+	}
+	
+	private RandomVariableInterface getUnAdjustedNumeraire(double time) throws CalculationException {
+		/*
+		 * Check if numeraire cache is valid (i.e. process did not change)
+		 */
+		if(getProcess() != numerairesProcess) {
+			numeraires.clear();
+			numerairesProcess = getProcess();
+		}
+		int timeIndex = getLiborPeriodIndex(time);
+		RandomVariableInterface unAdjustedNumeraire;
+		if(timeIndex < 0) {
+		/*
+		 * Interpolation of Numeraire: use already interpolated short Libor
+		 */
+			int upperIndex = -timeIndex-1;
+			int lowerIndex = upperIndex-1;
+			if(lowerIndex < 0) {
+				throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
+			}
+			unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(upperIndex))
+										.discount(getLIBOR(time, time, getLiborPeriod(upperIndex)), getLiborPeriod(upperIndex) - time);		
+		}
+		/*
+		 * Calculate the numeraire, when time is part of liborPeriodDiscretization
+		 */
+		else {
+			/*
+			 * Check if numeraire is part of the cache
+			 */
+			unAdjustedNumeraire = numeraires.get(timeIndex);
+			if(unAdjustedNumeraire == null) {
+				// Initialize to 1.0
+				unAdjustedNumeraire = getRandomVariableForConstant(1.0);			
+				if(measure == Measure.TERMINAL) {
+					/*
+					 * If numeraire is not P(Tn;Tn), discount (1 + L(Ti)*dt) on N(Ti+1)
+					 */
+					if(timeIndex != liborPeriodDiscretization.getNumberOfTimeSteps()) {
+						RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time, liborPeriodDiscretization.getTime(timeIndex))), timeIndex);
+						double periodLength = liborPeriodDiscretization.getTimeStep(timeIndex);
+						unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(timeIndex +  1)).discount(libor, periodLength);
+					}
+				}
+				else if(measure == Measure.SPOT) {
+					/*
+					 * If numeraire is not N(0), multiply (1 + L(Ti-1)*dt) on N(Ti-1)
+					 */
+					if(timeIndex != 0) {
+						double periodLength = liborPeriodDiscretization.getTimeStep(timeIndex - 1);
+						RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(timeIndex - 1))), timeIndex - 1);
+						unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(timeIndex - 1)).accrue(libor, periodLength);
+					}
+				}
+				else {
+					throw new CalculationException("Numeraire not implemented for specified measure.");
+				}
+				numeraires.put(timeIndex, unAdjustedNumeraire);
+			}
+		}
+		return unAdjustedNumeraire;
 	}
 
 	@Override
@@ -1128,75 +1189,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		newModel.curveModel = analyticModel;
 		return newModel;
 	}
-	
-	private RandomVariableInterface getUnAdjustedNumeraire(double time) throws CalculationException {
-		/*
-		 * Check if numeraire cache is valid (i.e. process did not change)
-		 */
-		if(getProcess() != numerairesProcess) {
-			numeraires.clear();
-			numerairesProcess = getProcess();
-		}
-		
-		int timeIndex = getLiborPeriodIndex(time);
-		
-		RandomVariableInterface unAdjustedNumeraire;
-		
-		if(timeIndex < 0) {
-		/*
-		 * Interpolation of Numeraire: use already interpolated short Libor
-		 */
-			int upperIndex = -timeIndex-1;
-			int lowerIndex = upperIndex-1;
-			if(lowerIndex < 0) {
-				throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
-			}
-			unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(upperIndex))
-										.discount(getLIBOR(time, time, getLiborPeriod(upperIndex)), getLiborPeriod(upperIndex) - time);
-					
-		}
-		/*
-		 * Calculate the numeraire, when time is part of liborPeriodDiscretization
-		 */
-		else {
-			/*
-			 * Check if numeraire is part of the cache
-			 */
-			unAdjustedNumeraire = numeraires.get(timeIndex);
-			if(unAdjustedNumeraire == null) {
-	
-				// Initialize to 1.0
-				unAdjustedNumeraire = getRandomVariableForConstant(1.0);			
-				
-				if(measure == Measure.TERMINAL) {
-					/*
-					 * If numeraire is not P(Tn;Tn), discount (1 + L(Ti)*dt) on N(Ti+1)
-					 */
-					if(timeIndex != liborPeriodDiscretization.getNumberOfTimeSteps()) {
-						RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time, liborPeriodDiscretization.getTime(timeIndex))), timeIndex);
-						double periodLength = liborPeriodDiscretization.getTimeStep(timeIndex);
-						unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(timeIndex +  1)).discount(libor, periodLength);
-					}
-				}
-				else if(measure == Measure.SPOT) {
-					/*
-					 * If numeraire is not N(0), multiply (1 + L(Ti-1)*dt) on N(Ti-1)
-					 */
-					if(timeIndex != 0) {
-						double periodLength = liborPeriodDiscretization.getTimeStep(timeIndex - 1);
-						RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(timeIndex - 1))), timeIndex - 1);
-						unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(timeIndex - 1)).accrue(libor, periodLength);
-					}
-				}
-				else {
-					throw new CalculationException("Numeraire not implemented for specified measure.");
-				}
-				numeraires.put(timeIndex, unAdjustedNumeraire);
-			}
-		}
-		return unAdjustedNumeraire;
-	}
-	
 
 	@Override
 	public String toString() {
