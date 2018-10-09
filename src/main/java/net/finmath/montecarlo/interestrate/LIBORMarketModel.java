@@ -1172,7 +1172,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					 * If numeraire is not P(Tn;Tn), discount (1 + L(Ti)*dt) on N(Ti+1)
 					 */
 					if(timeIndex != liborPeriodDiscretization.getNumberOfTimeSteps()) {
-						RandomVariableInterface libor = getLIBOR(timeIndex, timeIndex);
+						RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time, liborPeriodDiscretization.getTime(timeIndex))), timeIndex);
 						double periodLength = liborPeriodDiscretization.getTimeStep(timeIndex);
 						unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(timeIndex +  1)).discount(libor, periodLength);
 					}
@@ -1183,7 +1183,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					 */
 					if(timeIndex != 0) {
 						double periodLength = liborPeriodDiscretization.getTimeStep(timeIndex - 1);
-						RandomVariableInterface libor = getLIBOR(timeIndex - 1, timeIndex - 1);
+						RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(timeIndex - 1))), timeIndex - 1);
 						unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(timeIndex - 1)).accrue(libor, periodLength);
 					}
 				}
