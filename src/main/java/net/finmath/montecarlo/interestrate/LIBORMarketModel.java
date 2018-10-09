@@ -1151,8 +1151,9 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			if(lowerIndex < 0) {
 				throw new IllegalArgumentException("Numeraire requested for time " + time + ". Unsupported");
 			}
-			unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(upperIndex)).div( 
-					getLIBOR(time, time, getLiborPeriod(upperIndex)).mult(getLiborPeriod(upperIndex) - time).add(1.0) );		
+			unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(upperIndex))
+										.discount(getLIBOR(time, time, getLiborPeriod(upperIndex)), getLiborPeriod(upperIndex) - time);
+					
 		}
 		/*
 		 * Calculate the numeraire, when time is part of liborPeriodDiscretization
