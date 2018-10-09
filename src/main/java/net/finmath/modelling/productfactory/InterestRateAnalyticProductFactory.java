@@ -1,5 +1,7 @@
 package net.finmath.modelling.productfactory;
 
+import java.time.LocalDate;
+
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapLeg;
@@ -18,12 +20,19 @@ import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
  */
 public class InterestRateAnalyticProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
+	private final LocalDate 						referenceDate;
+
+
+	public InterestRateAnalyticProductFactory(LocalDate referenceDate) {
+		super();
+		this.referenceDate = referenceDate;
+	}
 
 	@Override
 	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
 			InterestRateSwapLegProductDescriptor swapLeg = (InterestRateSwapLegProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegSchedule(), 
+			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegScheduleDescriptor().getSchedule(referenceDate), 
 					swapLeg.getForwardCurveName(), swapLeg.getNotionals(), swapLeg.getSpread(), swapLeg.getDiscountCurveName(),
 					swapLeg.isNotionalExchanged());
 			return product;

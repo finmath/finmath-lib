@@ -248,7 +248,9 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	@Override
 	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 
-		return new  InterestRateAnalyticProductFactory().getProductFromDescriptor(productDescriptor);
+		//TODO reenable
+//		return new  InterestRateAnalyticProductFactory().getProductFromDescriptor(productDescriptor);
+		return null;
 
 	}
 

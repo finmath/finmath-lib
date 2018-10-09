@@ -3,8 +3,6 @@ package net.finmath.modelling.descriptor;
 import java.util.Arrays;
 
 import net.finmath.modelling.InterestRateProductDescriptor;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
-import net.finmath.time.ScheduleInterface;
 
 /**
  * Describes an interest rate swap.
@@ -19,14 +17,14 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	private final String forwardCurveName;
 	private final String discountCurveName;
 	
-	private final ScheduleInterface				legSchedule;
-	private final double[]			notionals;
+	private final ScheduleDescriptor			legSchedule;
+	private final double[]						notionals;
 	private final double						spread;
 	//	private final boolean						couponFlow;
 	private final boolean						isNotionalExchanged;
 	//	private final boolean						isNotionalAccruing;
 
-	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleInterface legSchedule, double notional, double spread, boolean isNotionalExchanged) {
+	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double notional, double spread, boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
 		this.discountCurveName = discountCurveName;
@@ -41,7 +39,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 		//		this.isNotionalAccruing = isNotionalAccruing;
 	}
 
-	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleInterface legSchedule, double[] notionals, double spread, boolean isNotionalExchanged) {
+	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double[] notionals, double spread, boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
 		this.discountCurveName = discountCurveName;
@@ -68,7 +66,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 		return discountCurveName;
 	}
 
-	public ScheduleInterface getLegSchedule() {
+	public ScheduleDescriptor getLegScheduleDescriptor() {
 		return legSchedule;
 	}
 	

@@ -10,6 +10,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.ScheduleInterface;
 
 /**
@@ -188,6 +189,6 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	@Override
 	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, legSchedule, notionals, spread, isNotionalExchanged);
+		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, new ScheduleDescriptor(legSchedule), notionals, spread, isNotionalExchanged);
 	}
 }

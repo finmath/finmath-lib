@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.Period;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleInterface;
@@ -222,7 +223,7 @@ public class FIPXMLParser implements XMLParser {
 			spread = rates.stream().mapToDouble(Double::doubleValue).average().orElseThrow(IllegalStateException::new);
 		}
 		
-		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, schedule, notionals, spread, false);
+		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, new ScheduleDescriptor(schedule), notionals, spread, false);
 	}
 
 }

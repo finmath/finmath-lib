@@ -10,6 +10,7 @@ import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
 import net.finmath.time.ScheduleInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 import net.finmath.time.daycount.DayCountConventionInterface;
@@ -29,6 +30,11 @@ public class ScheduleDescriptor {
 		descriptor = new ScheduleDescriptorFromPeriods(periods, daycountConvention);
 	}
 	
+	public ScheduleDescriptor(ScheduleInterface schedule) {
+		super();
+		descriptor = new ScheduleDescriptorFromPeriods(schedule.getPeriods(), schedule.getDaycountconvention());
+	}
+	
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention, BusinessdayCalendarInterface businessdayCalendar,
@@ -38,11 +44,14 @@ public class ScheduleDescriptor {
 				paymentOffsetDays, isUseEndOfMonth);
 	}
 	
-	public ScheduleDescriptor(ScheduleInterface schedule) {
-		super();
-		descriptor = new ScheduleDescriptorFromPeriods(schedule.getPeriods(), schedule.getDaycountconvention());
+	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
+			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
+			DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar, int fixingOffsetDays,
+			int paymentOffsetDays) {
+		this(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
+				dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays, false);
 	}
-	
+
 	public ScheduleInterface getSchedule(LocalDate referenceDate) {
 		return descriptor.getSchedule(referenceDate);
 	}
@@ -117,5 +126,9 @@ public class ScheduleDescriptor {
 					businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
 		}
 		
+	}
+
+	public int getNumberOfPeriods() {
+		return descriptor.getSchedule(LocalDate.parse("1970-01-01")).getNumberOfPeriods();
 	}
 }

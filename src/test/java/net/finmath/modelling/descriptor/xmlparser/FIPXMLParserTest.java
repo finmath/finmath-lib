@@ -52,7 +52,7 @@ public class FIPXMLParserTest {
 		System.out.println(legReceiver.getDiscountCurveName());
 		System.out.println(Arrays.toString(legReceiver.getNotionals()));
 		System.out.println(legReceiver.getSpread());
-		System.out.println(legReceiver.getLegSchedule());
+		System.out.println(legReceiver.getLegScheduleDescriptor());
 		
 		System.out.println("\n\nPayer leg:");
 		System.out.println(legPayer.name());
@@ -60,6 +60,6 @@ public class FIPXMLParserTest {
 		System.out.println(legPayer.getDiscountCurveName());
 		System.out.println(Arrays.toString(legPayer.getNotionals()));
 		System.out.println(legPayer.getSpread());
-		System.out.println(legPayer.getLegSchedule());
+		System.out.println(legPayer.getLegScheduleDescriptor());
 	}
 }

@@ -12,6 +12,7 @@ import java.util.Collection;
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
@@ -206,6 +207,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 	@Override
 	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(null, null, legSchedule, notionals, spread, isNotionalExchanged);
+		return new InterestRateSwapLegProductDescriptor(null, null, new ScheduleDescriptor(legSchedule), notionals, spread, isNotionalExchanged);
 	}
 }

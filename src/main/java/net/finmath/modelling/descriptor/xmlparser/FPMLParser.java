@@ -16,8 +16,8 @@ import org.xml.sax.SAXException;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.ScheduleGenerator;
-import net.finmath.time.ScheduleInterface;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
@@ -34,7 +34,6 @@ public class FPMLParser implements XMLParser {
 	
 	private final String homePartyId;
 	private final String discountCurveName;
-	private final LocalDate referenceDate;
 	
 	private BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 	private ShortPeriodConvention shortPeriodConvention= ScheduleGenerator.ShortPeriodConvention.LAST;
@@ -43,7 +42,6 @@ public class FPMLParser implements XMLParser {
 		super();
 		this.homePartyId = homePartyId;
 		this.discountCurveName = discountCurveName;
-		this.referenceDate = referenceDate;
 	}
 
 	public ProductDescriptor getProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
@@ -149,7 +147,7 @@ public class FPMLParser implements XMLParser {
 		}
 
 		//build schedule
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
+		ScheduleDescriptor schedule = new ScheduleDescriptor(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
 				dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 		
 		// get notional

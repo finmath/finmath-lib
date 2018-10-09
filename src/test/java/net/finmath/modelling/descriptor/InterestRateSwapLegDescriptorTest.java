@@ -64,11 +64,12 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create leg descriptor
 		 */
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, 
+				"first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		double notional = 2;
 		double spread = 0.0;
 		boolean isNotionalExchanged = false;
-		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor("forwardCurve", "discountCurve", schedule, notional, spread, isNotionalExchanged);
+		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor("forwardCurve", "discountCurve", new ScheduleDescriptor(schedule), notional, spread, isNotionalExchanged);
 
 		/*
 		 * Create Monte-Carlo model
@@ -83,7 +84,8 @@ public class InterestRateSwapLegDescriptorTest {
 		 * Create Monte-Carlo leg
 		 */
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory()).getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = 
+				(DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Monte-Carlo value
@@ -103,7 +105,10 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create analytic leg
 		 */
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
+		//TODO
+//		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) 
+				(new InterestRateAnalyticProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Analytic value
@@ -135,11 +140,12 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create leg descriptor
 		 */
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, 
+				"first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		double notional = 2;
 		double spread = 0.05;
 		boolean isNotionalExchanged = false;
-		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor(null, "discountCurve", schedule, notional, spread, isNotionalExchanged);
+		InterestRateSwapLegProductDescriptor legDescriptor = new InterestRateSwapLegProductDescriptor(null, "discountCurve", new ScheduleDescriptor(schedule), notional, spread, isNotionalExchanged);
 
 		/*
 		 * Create Monte-Carlo model
@@ -152,7 +158,8 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = (DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory()).getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = 
+				(DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Monte-Carlo value
@@ -170,7 +177,10 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create analytic leg
 		 */
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
+		//TODO
+//		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) 
+				(new InterestRateAnalyticProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Analytic value
