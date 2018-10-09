@@ -32,9 +32,9 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
  */
 public class FPMLParser implements XMLParser {
 	
-	private String homePartyId;
-	private String discountCurveName;
-	private LocalDate referenceDate;
+	private final String homePartyId;
+	private final String discountCurveName;
+	private final LocalDate referenceDate;
 	
 	private BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 	private ShortPeriodConvention shortPeriodConvention= ScheduleGenerator.ShortPeriodConvention.LAST;

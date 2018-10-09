@@ -30,6 +30,21 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  *
  */
 public class FIPXMLParser implements XMLParser {
+	
+	private final boolean agentIsBuyer;
+	private final String discountCurveName;
+	private final LocalDate referenceDate;
+
+	public FIPXMLParser() {
+		this(false, null, null);
+	}
+	
+	public FIPXMLParser(boolean agentIsBuyer, String discountCurveName, LocalDate referenceDate) {
+		super();
+		this.agentIsBuyer = agentIsBuyer;
+		this.discountCurveName = discountCurveName;
+		this.referenceDate = referenceDate;
+	}
 
 	@Override
 	public ProductDescriptor getProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
@@ -55,7 +70,7 @@ public class FIPXMLParser implements XMLParser {
 	}
 	
 	
-	public static InterestRateSwapProductDescriptor getSwapProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
+	public InterestRateSwapProductDescriptor getSwapProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
 		
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file); 
 		doc.getDocumentElement().normalize();
@@ -73,7 +88,7 @@ public class FIPXMLParser implements XMLParser {
 			throw new IllegalArgumentException("This xml parser is not set up to process trade of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 		
-		LocalDate referenceDate = LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate();
+		LocalDate referenceDate = this.referenceDate == null ? LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate() : this.referenceDate;
 		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
 		
 		//TODO try to get curves from file. Problems if there are two float/fixed legs
@@ -90,7 +105,7 @@ public class FIPXMLParser implements XMLParser {
 		
 		//Discount curve
 		String[] split = forwardCurveName.split("_");
-		String discountCurveName = split[0] +"_"+split[1];
+		String discountCurveName = this.discountCurveName == null ? split[0] +"_"+split[1] : this.discountCurveName;
 		
 		InterestRateSwapLegProductDescriptor legReceiver = null;
 		InterestRateSwapLegProductDescriptor legPayer = null;
@@ -100,8 +115,8 @@ public class FIPXMLParser implements XMLParser {
 		for(int legIndex = 0; legIndex < legs.getLength(); legIndex++) {
 			Element leg = (Element) legs.item(legIndex);
 			
-			//assuming agent is seller
-			boolean isPayer = leg.getElementsByTagName("payDirection").item(0).getTextContent().equalsIgnoreCase("SELLER_TO_BUYER");
+			boolean isPayer = (leg.getElementsByTagName("payDirection").item(0).getTextContent().equalsIgnoreCase("SELLER_TO_BUYER") && !agentIsBuyer)
+								|| (leg.getElementsByTagName("payDirection").item(0).getTextContent().equalsIgnoreCase("BUYER_TO_SELLER") && agentIsBuyer);
 			boolean isFixed = leg.getElementsByTagName("interestType").item(0).getTextContent().equals("FIX");
 			
 			if(isPayer) {
@@ -116,7 +131,7 @@ public class FIPXMLParser implements XMLParser {
 		
 	}
 	
-	public static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
+	public InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
 		
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file); 
 		doc.getDocumentElement().normalize();
@@ -134,7 +149,7 @@ public class FIPXMLParser implements XMLParser {
 			throw new IllegalArgumentException("This xml parser is not set up to process trades of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 		
-		LocalDate referenceDate = LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate();
+		LocalDate referenceDate = this.referenceDate == null ? LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate() : this.referenceDate;
 		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
 		
 		//TODO try to get curves from file. If fixed leg, cannot derive discount curve.
@@ -153,7 +168,7 @@ public class FIPXMLParser implements XMLParser {
 		String discountCurveName = null;
 		if(!forwardCurveName.isEmpty()) {
 			String[] split = forwardCurveName.split("_");
-			discountCurveName = split[0] +"_"+split[1];
+			discountCurveName = this.discountCurveName == null ? split[0] +"_"+split[1] : this.discountCurveName;
 		}
 		
 		//Return the leg descriptor

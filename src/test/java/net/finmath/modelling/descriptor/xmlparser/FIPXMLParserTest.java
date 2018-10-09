@@ -36,7 +36,7 @@ public class FIPXMLParserTest {
 		
 		InterestRateSwapProductDescriptor descriptor;
 		try {
-			descriptor = FIPXMLParser.getSwapProductDescriptor(file);
+			descriptor = (new FIPXMLParser()).getSwapProductDescriptor(file);
 		} catch (IllegalArgumentException e) {
 			System.out.println("There was a problem with the file: "+e.getMessage());
 //			e.printStackTrace();
