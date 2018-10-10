@@ -1,6 +1,7 @@
 package net.finmath.finitedifference;
 
 import net.finmath.finitedifference.experimental.LocalVolatilityTheta;
+import net.finmath.functions.AnalyticFormulas;
 import net.finmath.functions.NonCentralChiSquaredDistribution;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,20 +12,24 @@ public class LocalVolatilityThetaTest {
 
     @Test
     public void test() throws AssertionError {
+        double riskFreeRate = 0.06;
+        double exponent = 0.9;
+        double volatility = 0.4;
+        double optionMaturity = 1;
+        double optionStrike = 40;
+        boolean isCall = false;
+
         LocalVolatilityTheta localVolatilityFD = new LocalVolatilityTheta();
         double[][] stockAndOptionPrice = localVolatilityFD.solve();
         double[] initialStockPrice = stockAndOptionPrice[0];
         double[] optionValue = stockAndOptionPrice[1];
-        System.out.println(Arrays.toString(optionValue));
-        Assert.assertEquals(1, 1, 1e-3);
+        double[] analyticalOptionValue = new double[initialStockPrice.length];
+
+        for (int i = 0; i < initialStockPrice.length; i++) {
+            analyticalOptionValue[i] = AnalyticFormulas.constantElasticityOfVarianceOptionValue(
+                    initialStockPrice[i], riskFreeRate, exponent, volatility, optionMaturity, optionStrike, isCall);
+        }
+        Assert.assertArrayEquals(analyticalOptionValue, optionValue, 5e-3);
     }
 
-    @Test
-    public void testNonCentralChiSquaredDistribution() throws AssertionError{
-        double degreesOfFreedom = 0.01;
-        double nonCentrality = 5;
-        NonCentralChiSquaredDistribution ncx2k = new NonCentralChiSquaredDistribution(degreesOfFreedom, nonCentrality);
-        Assert.assertEquals(.590869982, ncx2k.getCDF(5.), 1e-6);
-
-    }
 }
