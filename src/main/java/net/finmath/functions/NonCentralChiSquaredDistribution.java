@@ -1,6 +1,7 @@
 /*
- * Refactored from https://github.com/charles-cooper/idylfin/blob/master/src/com/opengamma/analytics/math/statistics/distribution/NonCentralChiSquaredDistribution.java
- * OpenGamma licensing has changed since this file was created, please check implications.
+ * This code has been refactored from:
+ * https://github.com/charles-cooper/idylfin/blob/master/src/com/opengamma/analytics/math/statistics/distribution/NonCentralChiSquaredDistribution.java
+ * OpenGamma has now become the open-source Strata and the new licensing must be investigated.
  *
  */
 
@@ -19,13 +20,15 @@ public class NonCentralChiSquaredDistribution {
     private final double _eps = 1e-16;
 
     /**
-     * @param degrees       The number of degrees of freedom, positive
+     * Create noncentral chi-squared distribution.
+     *
+     * @param degreesOfFreedom       The number of degrees of freedom, positive
      * @param nonCentrality The non-centrality parameter, not negative
      */
-    public NonCentralChiSquaredDistribution(final double degrees, final double nonCentrality) {
-        Validate.isTrue(degrees > 0, "degrees of freedom must be > 0, have " + degrees);
+    public NonCentralChiSquaredDistribution(final double degreesOfFreedom, final double nonCentrality) {
+        Validate.isTrue(degreesOfFreedom > 0, "degrees of freedom must be > 0, have " + degreesOfFreedom);
         Validate.isTrue(nonCentrality >= 0, "non-centrality must be >= 0, have " + nonCentrality);
-        _dofOverTwo = degrees / 2.0;
+        _dofOverTwo = degreesOfFreedom / 2.0;
         _lambdaOverTwo = nonCentrality / 2.0;
         _k = (int) Math.round(_lambdaOverTwo);
 
@@ -37,20 +40,23 @@ public class NonCentralChiSquaredDistribution {
         }
     }
 
-    private double getFraserApproxCDF(final double x) {
-        final double s = Math.sqrt(_lambdaOverTwo * 2.0);
-        final double mu = Math.sqrt(x);
-        double z;
-        if (Double.doubleToLongBits(mu) == Double.doubleToLongBits(s)) {
-            z = (1 - _dofOverTwo * 2.0) / 2 / s;
-        } else {
-            z = mu - s - (_dofOverTwo * 2.0 - 1) / 2 * (Math.log(mu) - Math.log(s)) / (mu - s);
-        }
-        return NormalDistribution.cumulativeDistribution(z);
+    /**
+     * Should return the value of the density at x.
+     *
+     * @return Not supported
+     * @throws NotImplementedException
+     */
+    public double density(final Double x) {
+        throw new NotImplementedException("NCX2: PDF not implemented.");
     }
 
-
-    public double getCDF(final Double x) {
+    /**
+     * Cumulative distribution function of the noncentral chi-squared distribution
+     *
+     * @param x A sample point
+     * @return The probability of X being below x, given that X is noncentral chi-squared distributed
+     */
+    public double cumulativeDistribution(final Double x) {
         Validate.notNull(x, "x");
         if (x < 0) {
             return 0.0;
@@ -103,34 +109,27 @@ public class NonCentralChiSquaredDistribution {
     }
 
     /**
-     * {@inheritDoc}
+     * Should return inverse of the cumulative distribution function of the noncentral chi-squared distribution.
      *
      * @return Not supported
      * @throws NotImplementedException
      */
-    public double getInverseCDF(final Double p) {
+    public double inverseCumulativeDistribution(final Double p) {
         throw new NotImplementedException("NCX2: Inverse CDF not implemented.");
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return Not supported
-     * @throws NotImplementedException
-     */
-    public double getPDF(final Double x) {
-        throw new NotImplementedException("NCX2: PDF not implemented.");
+    private double getFraserApproxCDF(final double x) {
+        final double s = Math.sqrt(_lambdaOverTwo * 2.0);
+        final double mu = Math.sqrt(x);
+        double z;
+        if (Double.doubleToLongBits(mu) == Double.doubleToLongBits(s)) {
+            z = (1 - _dofOverTwo * 2.0) / 2 / s;
+        } else {
+            z = mu - s - (_dofOverTwo * 2.0 - 1) / 2 * (Math.log(mu) - Math.log(s)) / (mu - s);
+        }
+        return NormalDistribution.cumulativeDistribution(z);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return Not supported
-     * @throws NotImplementedException
-     */
-    public double nextRandom() {
-        throw new NotImplementedException("NCX2: Random number generation not implemented.");
-    }
 
     /**
      * @return The number of degrees of freedom
