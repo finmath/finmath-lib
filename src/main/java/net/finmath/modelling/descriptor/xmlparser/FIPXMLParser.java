@@ -220,7 +220,12 @@ public class FIPXMLParser implements XMLParser {
 		
 		double spread = 0;
 		if(isFixed) {
-			spread = rates.stream().mapToDouble(Double::doubleValue).average().orElseThrow(IllegalStateException::new);
+//			spread = rates.stream().mapToDouble(Double::doubleValue).average().orElseThrow(IllegalStateException::new);
+			if(rates.stream().mapToDouble(Double::doubleValue).distinct().count() != 1) {
+				throw new IllegalStateException("Invalid specification of fixed rate.");
+			} else {
+				spread = rates.get(0).doubleValue();
+			}
 		}
 		
 		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, new ScheduleDescriptor(schedule), notionals, spread, false);
