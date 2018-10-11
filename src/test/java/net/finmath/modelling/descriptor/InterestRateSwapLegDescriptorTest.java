@@ -23,7 +23,6 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.modelfactory.AnalyticModelFactory;
-import net.finmath.modelling.productfactory.InterestRateAnalyticProductFactory;
 import net.finmath.modelling.productfactory.InterestRateMonteCarloProductFactory;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -32,7 +31,6 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
@@ -105,10 +103,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create analytic leg
 		 */
-		//TODO
-//		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) 
-				(new InterestRateAnalyticProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Analytic value
@@ -118,7 +113,7 @@ public class InterestRateSwapLegDescriptorTest {
 
 		System.out.println();
 
-		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 5E-3);
+		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 1E-2);
 	}
 
 
@@ -177,10 +172,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create analytic leg
 		 */
-		//TODO
-//		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) 
-				(new InterestRateAnalyticProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legAnalytic = (DescribedProduct<InterestRateSwapLegProductDescriptor>) modelAnalytic.getProductFromDescriptor(legDescriptor);
 
 		/*
 		 * Analytic value
@@ -190,7 +182,7 @@ public class InterestRateSwapLegDescriptorTest {
 
 		System.out.println();
 
-		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 4E-3);
+		assertEquals("Monte-Carlo value", valueAnalytic, valueSimulation, 1E-2);
 	}
 
 	public static DiscountCurve createDiscountCurve() {
