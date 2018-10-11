@@ -113,8 +113,22 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	}
 
 	public AnalyticModelInterface addCurve(String name, CurveInterface curve) {
-		AnalyticModel newModel = clone();
-		newModel.curvesMap.put(name, curve);
+		LocalDate curveDate = curve.getReferenceDate();
+		
+		if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
+			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
+		}
+		
+		AnalyticModel newModel;
+		if(referenceDate == null && curveDate != null) {
+			newModel = new AnalyticModel(curveDate);
+			newModel.curvesMap.putAll(curvesMap);
+			newModel.curvesMap.put(name, curve);
+		} else {
+			newModel = clone();
+			newModel.curvesMap.put(name, curve);
+		}
+		
 		return newModel;
 	}
 
@@ -122,7 +136,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		LocalDate curveDate = curve.getReferenceDate();
 		
 		if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
-			throw new IllegalArgumentException("Reference dates of curve does not match reference date of model.");
+			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 		
 		AnalyticModel newModel;
