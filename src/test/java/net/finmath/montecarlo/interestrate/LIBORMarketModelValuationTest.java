@@ -161,11 +161,27 @@ public class LIBORMarketModelValuationTest {
 	}
 
 	@Test
+	public void testNew() throws CalculationException {
+		
+		
+		System.out.println(liborMarketModel.getNumeraire(0.0).get(2));
+		System.out.println(liborMarketModel.getNumeraire(4.3).get(2));
+		System.out.println(liborMarketModel.getNumeraire(10.0).get(2));
+		System.out.println(liborMarketModel.getNumeraire(20.0).get(2));
+		System.out.println();
+		
+	
+	}
+	
+	
+	@Test
 	public void testBond() throws CalculationException {
 		/*
 		 * Value a bond
 		 */
-
+		System.out.println(liborMarketModel.getNumeraire(10.7).get(103));
+		
+		
 		DiscountCurveInterface discountCurve = liborMarketModel.getModel().getDiscountCurve();
 
 		System.out.println("Bond prices:\n");
