@@ -31,8 +31,6 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
-import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.ScheduleGenerator;
@@ -81,7 +79,6 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = 
 				(DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
 

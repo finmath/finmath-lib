@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.modelling.DescribedProduct;
-import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
-import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
@@ -29,20 +26,10 @@ import net.finmath.time.ScheduleInterface;
  * @author Christian Fries
  *
  */
-public class SwapLeg extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapLegProductDescriptor> {
-
-	private final ScheduleInterface				legSchedule;
-//	private final AbstractNotional				notional;
-//	private final AbstractIndex					index;
-	private final double						spread;
-//	private final boolean						couponFlow;
-	private final boolean						isNotionalExchanged;
-//	private final boolean						isNotionalAccruing;
+public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 
 	private final ProductCollection				components;
 	
-	//need this as collection does not guarantee order.
-	private final double[] notionals;
 
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
@@ -57,14 +44,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 	 */
 	public SwapLeg(ScheduleInterface legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged, boolean isNotionalAccruing) {
 		super();
-		this.legSchedule = legSchedule;
-//		this.notional = notional;
-//		this.index = index;
-		this.spread = spread;
-//		this.couponFlow = couponFlow;
-		this.isNotionalExchanged = isNotionalExchanged;
-//		this.isNotionalAccruing = isNotionalAccruing;
-		this.notionals = new double[legSchedule.getNumberOfPeriods()];
 
 		/*
 		 * Create components.
@@ -102,12 +81,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false);
 			periods.add(period);
-			try {
-				notionals[periodIndex] = notional.getNotionalAtPeriodStart(period, null).getRealizations()[0];
-			} catch (CalculationException e) {
-				// TODO Auto-generated catch block
-				notionals[periodIndex] = 0;
-			}
 
 			if(isNotionalAccruing) {
 				notional = new AccruingNotional(notional, period);
@@ -127,17 +100,11 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 	 * @param couponFlow If true, the coupon is payed. If false, the coupon is not payed, but may still be part of an accruing notional, see <code>isNotionalAccruing</code>.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-	public SwapLeg(ScheduleInterface legSchedule, AbstractNotional[] notionals, AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged) {
+	public SwapLeg(ScheduleInterface legSchedule, AbstractNotional[] notionals, AbstractIndex index, double[] spreads, boolean couponFlow, boolean isNotionalExchanged) {
 		super();
 		if(legSchedule.getNumberOfPeriods() != notionals.length) {
 			throw new IllegalArgumentException("Number of notionals ("+notionals.length+") must match number of periods ("+legSchedule.getNumberOfPeriods()+").");
 		}
-		this.legSchedule = legSchedule;
-//		this.index = index;
-		this.spread = spread;
-//		this.couponFlow = couponFlow;
-		this.isNotionalExchanged = isNotionalExchanged;
-		this.notionals = new double[notionals.length];
 
 		/*
 		 * Create components.
@@ -163,24 +130,18 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 
 			AbstractIndex coupon;
 			if(index != null) {
-				if(spread != 0) {
-					coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));
+				if(spreads[periodIndex] != 0) {
+					coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spreads[periodIndex]));
 				} else {
 					coupon = index;
 				}
 			}
 			else {
-				coupon = new FixedCoupon(spread);
+				coupon = new FixedCoupon(spreads[periodIndex]);
 			}
 
 			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notionals[periodIndex], coupon, periodLength, couponFlow, isNotionalExchanged, false);
 			periods.add(period);
-			try {
-				this.notionals[periodIndex] = notionals[periodIndex].getNotionalAtPeriodStart(period, null).getRealizations()[0];
-			} catch (CalculationException e) {
-				// TODO Auto-generated catch block
-				this.notionals[periodIndex] = 0;
-			}
 
 		}
 
@@ -205,8 +166,4 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct implements Described
 		return components.getValue(evaluationTime, model);
 	}
 
-	@Override
-	public InterestRateSwapLegProductDescriptor getDescriptor() {
-		return new InterestRateSwapLegProductDescriptor(null, null, new ScheduleDescriptor(legSchedule), notionals, spread, isNotionalExchanged);
-	}
 }

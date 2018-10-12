@@ -211,24 +211,17 @@ public class FIPXMLParser implements XMLParser {
 			if(isFixed) {
 				double fixedRate	= Double.parseDouble(periodXML.getElementsByTagName("fixedRate").item(0).getTextContent());
 				rates.add(new Double(fixedRate));
+			} else {
+				rates.add(new Double(0));
 			}
 
 		}
 
 		ScheduleInterface schedule = new Schedule(referenceDate, periods, daycountConvention);
-		double[] notionals = notionalsList.stream().mapToDouble(Double::doubleValue).toArray();
+		double[] notionals	= notionalsList.stream().mapToDouble(Double::doubleValue).toArray();
+		double[] spreads	= rates.stream().mapToDouble(Double::doubleValue).toArray();
 		
-		double spread = 0;
-		if(isFixed) {
-//			spread = rates.stream().mapToDouble(Double::doubleValue).average().orElseThrow(IllegalStateException::new);
-			if(rates.stream().mapToDouble(Double::doubleValue).distinct().count() != 1) {
-				throw new IllegalStateException("Invalid specification of fixed rate.");
-			} else {
-				spread = rates.get(0).doubleValue();
-			}
-		}
-		
-		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, new ScheduleDescriptor(schedule), notionals, spread, false);
+		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, new ScheduleDescriptor(schedule), notionals, spreads, false);
 	}
 
 }

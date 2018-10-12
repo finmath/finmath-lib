@@ -19,7 +19,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	
 	private final ScheduleDescriptor			legSchedule;
 	private final double[]						notionals;
-	private final double						spread;
+	private final double[]						spreads;
 	//	private final boolean						couponFlow;
 	private final boolean						isNotionalExchanged;
 	//	private final boolean						isNotionalAccruing;
@@ -33,20 +33,22 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 		double[] notionals = new double[legSchedule.getNumberOfPeriods()];
 		Arrays.fill(notionals, notional);
 		this.notionals = notionals;
-		this.spread = spread;
+		double[] spreads = new double[legSchedule.getNumberOfPeriods()];
+		Arrays.fill(spreads, spread);
+		this.spreads = spreads;
 		//		this.couponFlow = couponFlow;
 		this.isNotionalExchanged = isNotionalExchanged;
 		//		this.isNotionalAccruing = isNotionalAccruing;
 	}
 
-	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double[] notionals, double spread, boolean isNotionalExchanged) {
+	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double[] notionals, double[] spreads, boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
 		this.discountCurveName = discountCurveName;
 		
 		this.legSchedule = legSchedule;
 		this.notionals = notionals;
-		this.spread = spread;
+		this.spreads = spreads;
 		//		this.couponFlow = couponFlow;
 		this.isNotionalExchanged = isNotionalExchanged;
 		//		this.isNotionalAccruing = isNotionalAccruing;
@@ -82,8 +84,8 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 
 
 
-	public double getSpread() {
-		return spread;
+	public double[] getSpreads() {
+		return spreads;
 	}
 
 
