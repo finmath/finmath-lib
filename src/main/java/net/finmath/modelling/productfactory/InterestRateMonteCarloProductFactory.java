@@ -7,12 +7,12 @@ import net.finmath.modelling.InterestRateProductDescriptor;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.describedproducts.SwapLegMonteCarlo;
+import net.finmath.modelling.describedproducts.SwaptionPhysicalMonteCarlo;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwaptionProductDescriptor;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.Swap;
-import net.finmath.montecarlo.interestrate.products.SwaptionPhysical;
 
 /**
  * @author Christian Fries
@@ -51,9 +51,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		} 
 		else if(descriptor instanceof InterestRateSwaptionProductDescriptor) {
 			InterestRateSwaptionProductDescriptor swaption						= (InterestRateSwaptionProductDescriptor) descriptor;
-			InterestRateSwapProductDescriptor swap								= swaption.getUnderlyingSwap();
-			AbstractLIBORMonteCarloProduct describedSwap						= (AbstractLIBORMonteCarloProduct) getProductFromDescriptor(swap);
-			DescribedProduct<InterestRateSwaptionProductDescriptor> product		= new SwaptionPhysical(swaption, referenceDate, describedSwap);
+			DescribedProduct<InterestRateSwaptionProductDescriptor> product		= new SwaptionPhysicalMonteCarlo(swaption, referenceDate);
 			return product;
 			
 		} 
