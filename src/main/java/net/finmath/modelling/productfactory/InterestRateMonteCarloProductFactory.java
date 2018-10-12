@@ -53,7 +53,8 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 					swapLeg.isNotionalExchanged());
 			return product;
 			
-		}else if(descriptor instanceof InterestRateSwapProductDescriptor){
+		} 
+		else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap 							= (InterestRateSwapProductDescriptor) descriptor;
 			InterestRateProductDescriptor legDescriptor 					= (InterestRateProductDescriptor) swap.getLegReceiver();
 			AbstractLIBORMonteCarloProduct legReceiver 						= (AbstractLIBORMonteCarloProduct) getProductFromDescriptor(legDescriptor);  
@@ -62,14 +63,16 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 			DescribedProduct<InterestRateSwapProductDescriptor> product 	= new Swap(legReceiver, legPayer);
 			return product;
 			
-		} else if(descriptor instanceof InterestRateSwaptionProductDescriptor) {
+		} 
+		else if(descriptor instanceof InterestRateSwaptionProductDescriptor) {
 			InterestRateSwaptionProductDescriptor swaption						= (InterestRateSwaptionProductDescriptor) descriptor;
 			InterestRateSwapProductDescriptor swap								= swaption.getUnderlyingSwap();
 			AbstractLIBORMonteCarloProduct describedSwap						= (AbstractLIBORMonteCarloProduct) getProductFromDescriptor(swap);
 			DescribedProduct<InterestRateSwaptionProductDescriptor> product		= new SwaptionPhysical(swaption, referenceDate, describedSwap);
 			return product;
 			
-		} else {
+		} 
+		else {
 			String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}

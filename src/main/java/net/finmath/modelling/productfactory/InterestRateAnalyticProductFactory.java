@@ -36,7 +36,8 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 					swapLeg.getForwardCurveName(), swapLeg.getNotionals(), swapLeg.getSpread(), swapLeg.getDiscountCurveName(),
 					swapLeg.isNotionalExchanged());
 			return product;
-		}else if(descriptor instanceof InterestRateSwapProductDescriptor){
+		} 
+		else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;
 			InterestRateProductDescriptor legDescriptor = (InterestRateProductDescriptor) swap.getLegReceiver();
 			AnalyticProductInterface legReceiver =  (AnalyticProductInterface) getProductFromDescriptor(legDescriptor);
@@ -44,7 +45,8 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 			AnalyticProductInterface legPayer = (AnalyticProductInterface) getProductFromDescriptor(legDescriptor);
 			DescribedProduct<InterestRateSwapProductDescriptor> product = new Swap(legReceiver, legPayer);
 			return product;
-		} else {
+		} 
+		else {
 			String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}

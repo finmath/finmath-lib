@@ -34,10 +34,12 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
 			DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new EuropeanOptionMonteCarlo((SingleAssetEuropeanOptionProductDescriptor) descriptor, referenceDate);
 			return product;
-		} else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
+		} 
+		else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
 			DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new DigitalOptionMonteCarlo((SingleAssetDigitalOptionProductDescriptor) descriptor, referenceDate);
 			return product;
-		}else{
+		}
+		else {
 			String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}
