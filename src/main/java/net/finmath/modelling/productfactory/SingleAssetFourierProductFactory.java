@@ -13,6 +13,7 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.describedproducts.DigitalOptionFourierMethod;
+import net.finmath.modelling.describedproducts.EuropeanOptionFourierMethod;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 
@@ -34,7 +35,7 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
-			final DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.fouriermethod.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
+			final DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new EuropeanOptionFourierMethod((SingleAssetEuropeanOptionProductDescriptor) descriptor, referenceDate);
 			return product;
 		}
 		else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {

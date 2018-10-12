@@ -20,6 +20,7 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * @author Christian Fries
@@ -66,7 +67,9 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 					class FDCallOptionProduct extends FDMEuropeanCallOption implements DescribedProduct<SingleAssetProductDescriptor> {
 
 						FDCallOptionProduct() {
-							super(((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getMaturity(), ((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getStrike());
+							super(FloatingpointDate.getFloatingPointDateFromDate(modelDescriptor.getReferenceDate(),
+									((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getMaturity()), 
+										((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getStrike());
 							// TODO Auto-generated constructor stub
 						}
 

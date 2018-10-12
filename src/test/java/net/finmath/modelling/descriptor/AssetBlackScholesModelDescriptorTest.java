@@ -27,6 +27,7 @@ import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFiniteDiffe
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -39,15 +40,16 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class AssetBlackScholesModelDescriptorTest {
 
 	// Model properties
-	private final LocalDate referenceDate = LocalDate.of(2017,8,15);
+	private static final LocalDate referenceDate = LocalDate.of(2017,8,15);
 
-	private final double initialValue   = 1.0;
-	private final double riskFreeRate   = 0.05;
-	private final double volatility     = 0.30;
+	private static final double initialValue   = 1.0;
+	private static final double riskFreeRate   = 0.05;
+	private static final double volatility     = 0.30;
 
 	// Product properties
-	private static final double maturity = 1.0;
-	private static final double strike	= 0.95;
+	private static final double maturity			= 1.0;
+	private static final LocalDate maturityDate		= FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);
+	private static final double strike				= 0.95;
 
 	// Monte Carlo simulation  properties
 	private final int		numberOfPaths		= 1000000;
@@ -66,7 +68,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		 * Create European option descriptor
 		 */
 		String underlyingName = "eurostoxx";
-		ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturity, strike));
+		ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strike));
 
 		/*
 		 * Create Fourier implementation of model and product
@@ -120,7 +122,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		 * Calculate analytic benchmark.
 		 */
 
-		double optionMaturity = ((SingleAssetEuropeanOptionProductDescriptor) europeanOptionDescriptor).getMaturity();
+		double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, ((SingleAssetEuropeanOptionProductDescriptor) europeanOptionDescriptor).getMaturity());
 		double forward = blackScholesModelDescriptor.getInitialValue() / blackScholesModelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(optionMaturity);
 		double payOffUnit = blackScholesModelDescriptor.getDiscountCurveForDiscountRate().getDiscountFactor(optionMaturity);
 		double volatility = blackScholesModelDescriptor.getVolatility();

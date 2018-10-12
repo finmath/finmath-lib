@@ -13,6 +13,7 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.describedproducts.DigitalOptionMonteCarlo;
+import net.finmath.modelling.describedproducts.EuropeanOptionMonteCarlo;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 
@@ -31,7 +32,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
-			DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
+			DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new EuropeanOptionMonteCarlo((SingleAssetEuropeanOptionProductDescriptor) descriptor, referenceDate);
 			return product;
 		} else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
 			DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new DigitalOptionMonteCarlo((SingleAssetDigitalOptionProductDescriptor) descriptor, referenceDate);

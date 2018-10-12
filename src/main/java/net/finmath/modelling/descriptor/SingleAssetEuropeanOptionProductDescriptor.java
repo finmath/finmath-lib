@@ -6,6 +6,8 @@
 
 package net.finmath.modelling.descriptor;
 
+import java.time.LocalDate;
+
 import net.finmath.modelling.SingleAssetProductDescriptor;
 
 /**
@@ -17,11 +19,11 @@ public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetPr
 
 	private static final String productName = "Single asset European option";
 
-	private final String underlyingName;
-	private final Double maturity;
-	private final Double strike;
+	private final String 	underlyingName;
+	private final LocalDate maturity;
+	private final double 	strike;
 
-	public SingleAssetEuropeanOptionProductDescriptor(String underlyingName, Double maturity, Double strike) {
+	public SingleAssetEuropeanOptionProductDescriptor(String underlyingName, LocalDate maturity, double strike) {
 		super();
 		this.underlyingName = underlyingName;
 		this.maturity = maturity;
@@ -48,7 +50,7 @@ public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetPr
 	/**
 	 * @return Maturity as double.
 	 */
-	public Double getMaturity() {
+	public LocalDate getMaturity() {
 		return maturity;
 	}
 

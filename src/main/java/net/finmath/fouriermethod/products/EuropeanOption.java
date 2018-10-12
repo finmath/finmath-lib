@@ -7,9 +7,6 @@ package net.finmath.fouriermethod.products;
 
 import org.apache.commons.math3.complex.Complex;
 
-import net.finmath.modelling.DescribedProduct;
-import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
-
 /**
  * Implements valuation of a European option on a single asset.
  *
@@ -26,20 +23,11 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
  * @author Alessandro Gnoatto
  * @version 1.0
  */
-public class EuropeanOption extends AbstractProductFourierTransform implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
+public class EuropeanOption extends AbstractProductFourierTransform {
 
 	private final String underlyingName;
 	private final double maturity;
 	private final double strike;
-
-	/**
-	 * Create the product from a descriptor.
-	 *
-	 * @param descriptor A descriptor of the product.
-	 */
-	public EuropeanOption(SingleAssetEuropeanOptionProductDescriptor descriptor) {
-		this(descriptor.getUnderlyingName(), descriptor.getMaturity(), descriptor.getStrike());
-	}
 
 	public EuropeanOption(String underlyingName, double maturity, double strike) {
 		super();
@@ -82,8 +70,4 @@ public class EuropeanOption extends AbstractProductFourierTransform implements D
 		return 2.5;
 	}
 
-	@Override
-	public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
-		return new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturity, strike);
-	}
 }

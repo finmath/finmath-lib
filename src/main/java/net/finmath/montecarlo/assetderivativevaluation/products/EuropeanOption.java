@@ -32,20 +32,12 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.3
  */
-public class EuropeanOption extends AbstractAssetMonteCarloProduct implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
+public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 
 	private final double maturity;
 	private final double strike;
 	private final Integer underlyingIndex;
 	private final String nameOfUnderliyng;
-
-	/**
-	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
-	 * @param descriptor Implementation of SingleAssetEuropeanOptionProductDescriptor
-	 */
-	public EuropeanOption(SingleAssetEuropeanOptionProductDescriptor descriptor) {
-		this(descriptor.getUnderlyingName(), descriptor.getMaturity(), descriptor.getStrike());
-	}
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -115,11 +107,6 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct implements De
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;
-	}
-
-	@Override
-	public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
-		return new SingleAssetEuropeanOptionProductDescriptor(nameOfUnderliyng, maturity, strike);
 	}
 
 	@Override
