@@ -6,10 +6,13 @@
 
 package net.finmath.modelling.productfactory;
 
+import java.time.LocalDate;
+
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.describedproducts.DigitalOptionMonteCarlo;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 
@@ -17,6 +20,12 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
  * @author Christian Fries
  */
 public class SingleAssetMonteCarloProductFactory implements ProductFactory<SingleAssetProductDescriptor> {
+	
+	private final LocalDate referenceDate;
+	
+	public SingleAssetMonteCarloProductFactory(LocalDate referenceDate) {
+		this.referenceDate = referenceDate;
+	}
 
 	@Override
 	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
@@ -25,7 +34,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 			DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption((SingleAssetEuropeanOptionProductDescriptor) descriptor);
 			return product;
 		} else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
-			DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new net.finmath.montecarlo.assetderivativevaluation.products.DigitalOption((SingleAssetDigitalOptionProductDescriptor) descriptor);
+			DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new DigitalOptionMonteCarlo((SingleAssetDigitalOptionProductDescriptor) descriptor, referenceDate);
 			return product;
 		}else{
 			String name = descriptor.name();

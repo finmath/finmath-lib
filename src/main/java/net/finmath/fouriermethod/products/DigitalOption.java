@@ -25,7 +25,7 @@ import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescripto
  * @author Christian Fries
  * @version 1.0
  */
-public class DigitalOption extends AbstractProductFourierTransform implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>{
+public class DigitalOption extends AbstractProductFourierTransform {
 
 	private final double maturity;
 	private final double strike;
@@ -41,10 +41,6 @@ public class DigitalOption extends AbstractProductFourierTransform implements De
 		this.maturity			= maturity;
 		this.strike				= strike;
 		this.nameOfUnderlying	= null;		// Use asset with index 0
-	}
-
-	public DigitalOption(SingleAssetDigitalOptionProductDescriptor descriptor) {
-		this(descriptor.getMaturity(), descriptor.getStrike());
 	}
 
 	/* (non-Javadoc)
@@ -84,8 +80,4 @@ public class DigitalOption extends AbstractProductFourierTransform implements De
 		return 2.5;
 	}
 
-	@Override
-	public SingleAssetDigitalOptionProductDescriptor getDescriptor() {
-		return new SingleAssetDigitalOptionProductDescriptor(nameOfUnderlying, maturity, strike);
-	}
 }

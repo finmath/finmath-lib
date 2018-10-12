@@ -126,6 +126,6 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 
 	@Override
 	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-		return (new SingleAssetFourierProductFactory()).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+		return (new SingleAssetFourierProductFactory(referenceDate)).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 	}
 }

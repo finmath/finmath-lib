@@ -44,7 +44,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
 		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
 
-			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
+			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
 
 			/**
 			 * @param model

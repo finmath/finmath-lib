@@ -56,7 +56,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 
 		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {
 
-			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory();
+			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
 
 			BlackScholesMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
 				super(model, process);

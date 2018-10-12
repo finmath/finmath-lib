@@ -29,7 +29,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.3
  */
-public class DigitalOption extends AbstractAssetMonteCarloProduct implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor> {
+public class DigitalOption extends AbstractAssetMonteCarloProduct {
 
 	private final double maturity;
 	private final double strike;
@@ -67,10 +67,6 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct implements Des
 		this.underlyingIndex = 0;
 	}
 
-	public DigitalOption(SingleAssetDigitalOptionProductDescriptor descriptor) {
-		this(descriptor.getNameOfUnderlying(), descriptor.getMaturity(), descriptor.getStrike());
-	}
-
 	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
@@ -104,8 +100,4 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct implements Des
 		return values;
 	}
 
-	@Override
-	public SingleAssetDigitalOptionProductDescriptor getDescriptor() {
-		return new SingleAssetDigitalOptionProductDescriptor(nameOfUnderlying, maturity, strike);
-	}
 }

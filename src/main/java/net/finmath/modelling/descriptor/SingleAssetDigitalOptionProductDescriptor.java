@@ -1,5 +1,7 @@
 package net.finmath.modelling.descriptor;
 
+import java.time.LocalDate;
+
 import net.finmath.modelling.SingleAssetProductDescriptor;
 
 /**
@@ -12,11 +14,11 @@ public class SingleAssetDigitalOptionProductDescriptor implements SingleAssetPro
 
 	private static final String productName = "Single asset Digital option";
 
-	private final double maturity;
+	private final LocalDate maturity;
 	private final double strike;
 	private final String nameOfUnderlying;
 
-	public SingleAssetDigitalOptionProductDescriptor(String nameOfUnderlying, Double maturity, Double strike) {
+	public SingleAssetDigitalOptionProductDescriptor(String nameOfUnderlying, LocalDate maturity, double strike) {
 		super();
 		this.nameOfUnderlying = nameOfUnderlying;
 		this.maturity = maturity;
@@ -33,7 +35,7 @@ public class SingleAssetDigitalOptionProductDescriptor implements SingleAssetPro
 		return productName;
 	}
 
-	public double getMaturity() {
+	public LocalDate getMaturity() {
 		return maturity;
 	}
 
