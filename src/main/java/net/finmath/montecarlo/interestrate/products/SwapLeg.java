@@ -96,7 +96,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	 * @param legSchedule Schedule of the leg.
 	 * @param notionals An array of notionals for each period in the schedule.
 	 * @param index The index.
-	 * @param spread Fixed spread on the forward or fix rate.
+	 * @param spreads Fixed spreads on the forward or fix rate.
 	 * @param couponFlow If true, the coupon is payed. If false, the coupon is not payed, but may still be part of an accruing notional, see <code>isNotionalAccruing</code>.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */

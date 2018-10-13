@@ -45,7 +45,6 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param notionals Array of notionals for each period.
 	 * @param spreads Array of fixed spreads on the forward or fix rate for each period.
 	 * @param discountCurveName Name of the discount curve for the leg.
-	 * @param discountCurveForNotionalResetName Name of the discount curve used for notional reset. If it is left empty or equal to discountCurveName then there is no notional reset.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
 	public SwapLeg(ScheduleInterface legSchedule, String forwardCurveName, double[] notionals, double[] spreads, String discountCurveName, boolean isNotionalExchanged) {
