@@ -14,6 +14,7 @@ public class EuropeanOptionMonteCarlo extends EuropeanOption implements Describe
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param descriptor Implementation of SingleAssetEuropeanOptionProductDescriptor
+	 * @param referenceDate The reference date to be used to convert absolute maturities to relative maturities.
 	 */
 	public EuropeanOptionMonteCarlo(SingleAssetEuropeanOptionProductDescriptor descriptor, LocalDate referenceDate) {
 		super(descriptor.getUnderlyingName(), FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());

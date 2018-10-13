@@ -24,7 +24,12 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
 public class SingleAssetMonteCarloProductFactory implements ProductFactory<SingleAssetProductDescriptor> {
 	
 	private final LocalDate referenceDate;
-	
+
+	/**
+	 * Create the product factory.
+	 *
+	 * @param referenceDate The reference date to be used when products are generated with relative time offsets.
+	 */
 	public SingleAssetMonteCarloProductFactory(LocalDate referenceDate) {
 		this.referenceDate = referenceDate;
 	}

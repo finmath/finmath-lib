@@ -18,12 +18,11 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	private final Map<String, CurveInterface>				curvesMap;
 	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap;
 
-
 	/**
 	 * Construct an AnalyticModelDescriptor mapping the collections of curves and volatility surfaces provided.
 	 *
-	 * @param curves
-	 * @param surfaces
+	 * @param curves The collection of curves.
+	 * @param surfaces The collection of volatility surfaces.
 	 */
 	public AnalyticModelDescriptor(Collection<CurveInterface> curves, Collection<VolatilitySurfaceInterface> surfaces) {
 		super();
@@ -45,8 +44,8 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	/**
 	 * Construct an AnalyticModelDescriptor holding copies of the maps provided.
 	 *
-	 * @param curvesMap
-	 * @param volatilitySurfaceMap
+	 * @param curvesMap The map of curves.
+	 * @param volatilitySurfaceMap The map of volatility surfaces.
 	 */
 	public AnalyticModelDescriptor(Map<String, CurveInterface> curvesMap, Map<String, VolatilitySurfaceInterface> volatilitySurfaceMap) {
 		this.curvesMap = new HashMap<String, CurveInterface>();
