@@ -159,6 +159,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 		return values;
 	}
 
+	@Override
 	public String toString() {
 		return "AbstractForwardCurve [" + super.toString() + ", discountCurveName=" + discountCurveName + ", paymentOffsetCode=" + paymentOffsetCode + ", paymentBusinessdayCalendar=" + paymentBusinessdayCalendar + ", paymentDateRollConvention=" + paymentDateRollConvention + "]";
 	}

@@ -23,18 +23,18 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 public class ScheduleDescriptor {
 
 	private final InternalScheduleDescriptor descriptor;
-	
+
 	public ScheduleDescriptor(List<Period> periods,
 			DayCountConventionInterface daycountConvention) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(periods, daycountConvention);
 	}
-	
+
 	public ScheduleDescriptor(ScheduleInterface schedule) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(schedule.getPeriods(), schedule.getDaycountconvention());
 	}
-	
+
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention, BusinessdayCalendarInterface businessdayCalendar,
@@ -43,7 +43,7 @@ public class ScheduleDescriptor {
 		descriptor = new ScheduleDescriptorFromGenerator(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays,
 				paymentOffsetDays, isUseEndOfMonth);
 	}
-	
+
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar, int fixingOffsetDays,
@@ -55,41 +55,41 @@ public class ScheduleDescriptor {
 	public ScheduleInterface getSchedule(LocalDate referenceDate) {
 		return descriptor.getSchedule(referenceDate);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 	private static interface InternalScheduleDescriptor {
-		
+
 		ScheduleInterface getSchedule(LocalDate referenceDate);
-		
+
 	}
-	
+
 	private static class ScheduleDescriptorFromPeriods implements InternalScheduleDescriptor {
-		
+
 		private final List<Period> periods;
 		private final DayCountConventionInterface daycountConvention;
-		
+
 		private ScheduleDescriptorFromPeriods(List<Period> periods,
 				DayCountConventionInterface daycountConvention) {
 			super();
 			this.periods = periods;
 			this.daycountConvention = daycountConvention;
 		}
-		
+
 		@Override
 		public ScheduleInterface getSchedule(LocalDate referenceDate) {
 			return new Schedule(referenceDate, periods, daycountConvention);
 		}
-		
+
 	}
-	
+
 	private static class ScheduleDescriptorFromGenerator implements InternalScheduleDescriptor {
-		
+
 		private final LocalDate startDate;
 		private final LocalDate maturityDate;
 		private final Frequency frequency;
@@ -100,7 +100,7 @@ public class ScheduleDescriptor {
 		private final int fixingOffsetDays;
 		private final int paymentOffsetDays;
 		private final boolean isUseEndOfMonth;
-		
+
 
 		private ScheduleDescriptorFromGenerator(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 				DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
@@ -122,10 +122,10 @@ public class ScheduleDescriptor {
 
 		@Override
 		public ScheduleInterface getSchedule(LocalDate referenceDate) {
-			return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, 
+			return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention,
 					businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
 		}
-		
+
 	}
 
 	public int getNumberOfPeriods() {

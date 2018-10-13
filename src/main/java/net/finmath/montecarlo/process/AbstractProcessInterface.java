@@ -81,5 +81,6 @@ public interface AbstractProcessInterface extends ProcessInterface {
 	 *
 	 * @return Clone of the process
 	 */
+	@Override
 	AbstractProcessInterface clone();
 }

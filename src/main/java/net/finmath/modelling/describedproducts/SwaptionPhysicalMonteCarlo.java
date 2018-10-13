@@ -18,24 +18,24 @@ import net.finmath.time.FloatingpointDate;
  *
  */
 public class SwaptionPhysicalMonteCarlo extends AbstractLIBORMonteCarloProduct
-		implements DescribedProduct<InterestRateSwaptionProductDescriptor> {
+implements DescribedProduct<InterestRateSwaptionProductDescriptor> {
 
 	private final InterestRateSwaptionProductDescriptor descriptor;
-	
+
 	private final Option swaption;
-	
+
 	public SwaptionPhysicalMonteCarlo(InterestRateSwaptionProductDescriptor descriptor, LocalDate referenceDate) {
 		super();
 		this.descriptor = descriptor;
 		double excercise = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getExcerciseDate());
-		AbstractLIBORMonteCarloProduct swap = 
+		AbstractLIBORMonteCarloProduct swap =
 				(AbstractLIBORMonteCarloProduct) new InterestRateMonteCarloProductFactory(referenceDate).getProductFromDescriptor(descriptor.getUnderlyingSwap());
 		swaption = new Option(excercise, descriptor.getStrikeRate(), swap);
 	}
 
 	@Override
 	public InterestRateSwaptionProductDescriptor getDescriptor() {
-		
+
 		return descriptor;
 	}
 

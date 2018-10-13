@@ -10,7 +10,7 @@ import net.finmath.time.FloatingpointDate;
 public class EuropeanOptionFourierMethod extends EuropeanOption  implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
 
 	private final SingleAssetEuropeanOptionProductDescriptor descriptor;
-	
+
 	/**
 	 * Create the product from a descriptor.
 	 *

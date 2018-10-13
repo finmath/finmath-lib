@@ -22,6 +22,7 @@ public interface FiniteDifference1DProduct extends ProductInterface {
 	double[][] getValue(double evaluationTime, FiniteDifference1DModel model);
 
 
+	@Override
 	default Object getValue(double evaluationTime, ModelInterface model) {
 		if(model instanceof FiniteDifference1DModel) {
 			return getValue(evaluationTime, (FiniteDifference1DModel) model);

@@ -209,6 +209,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 		return seed;
 	}
 
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "timeDiscretization: " + timeDiscretization.toString()

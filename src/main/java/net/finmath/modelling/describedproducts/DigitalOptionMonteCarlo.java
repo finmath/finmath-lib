@@ -6,9 +6,9 @@ import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
 import net.finmath.time.FloatingpointDate;
 
-public class DigitalOptionMonteCarlo extends net.finmath.montecarlo.assetderivativevaluation.products.DigitalOption  
-							implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>  {
-	
+public class DigitalOptionMonteCarlo extends net.finmath.montecarlo.assetderivativevaluation.products.DigitalOption
+implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>  {
+
 	private final SingleAssetDigitalOptionProductDescriptor descriptor;
 
 	public DigitalOptionMonteCarlo(SingleAssetDigitalOptionProductDescriptor descriptor, LocalDate referenceDate) {

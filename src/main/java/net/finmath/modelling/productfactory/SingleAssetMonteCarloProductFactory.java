@@ -22,7 +22,7 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
  * @version 1.0
  */
 public class SingleAssetMonteCarloProductFactory implements ProductFactory<SingleAssetProductDescriptor> {
-	
+
 	private final LocalDate referenceDate;
 
 	/**
@@ -40,7 +40,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
 			DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new EuropeanOptionMonteCarlo((SingleAssetEuropeanOptionProductDescriptor) descriptor, referenceDate);
 			return product;
-		} 
+		}
 		else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
 			DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new DigitalOptionMonteCarlo((SingleAssetDigitalOptionProductDescriptor) descriptor, referenceDate);
 			return product;

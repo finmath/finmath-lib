@@ -133,6 +133,7 @@ public class JNumberField extends JTextField implements ActionListener {
 		return getValue().intValue();
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		parseField();
 		updateData();

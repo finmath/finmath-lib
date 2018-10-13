@@ -145,6 +145,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 		return model.getNumeraire(time);
 	}
 
+	@Override
 	public TermStructureModelInterface getModel() {
 		return model;
 	}
@@ -152,15 +153,18 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getProcess()
 	 */
+	@Override
 	public AbstractProcessInterface getProcess() {
 		return model.getProcess();
 	}
 
+	@Override
 	public Object getCloneWithModifiedSeed(int seed) {
 		AbstractProcess process = (AbstractProcess) ((AbstractProcess)getProcess()).getCloneWithModifiedSeed(seed);
 		return new TermStructureModelMonteCarloSimulation(model, process);
 	}
 
+	@Override
 	public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		TermStructureModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {

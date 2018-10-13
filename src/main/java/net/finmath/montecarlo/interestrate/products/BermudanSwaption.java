@@ -66,6 +66,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		this(isPeriodStartDateExerciseDate, fixingDates, periodLength, paymentDates, periodNotionals, swaprates, true /* isCallable */);
 	}
 
+	@Override
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.

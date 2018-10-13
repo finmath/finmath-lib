@@ -124,10 +124,12 @@ public class BondCurve extends AbstractCurve  {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}

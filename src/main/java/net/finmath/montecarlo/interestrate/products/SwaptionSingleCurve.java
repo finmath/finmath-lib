@@ -193,6 +193,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "exerciseDate: " + exerciseDate

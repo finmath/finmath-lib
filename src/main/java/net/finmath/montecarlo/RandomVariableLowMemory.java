@@ -653,6 +653,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
+	@Override
 	public IntToDoubleFunction getOperator() {
 		if(isDeterministic()) {
 			return i -> valueIfNonStochastic;
@@ -707,6 +708,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		return new RandomVariableLowMemory(newTime, result, newSize);
 	}
 
+	@Override
 	public RandomVariableInterface cap(double cap) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);
@@ -852,6 +854,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#exp()
 	 */
+	@Override
 	public RandomVariableLowMemory exp() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.exp(valueIfNonStochastic);
@@ -869,6 +872,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#log()
 	 */
+	@Override
 	public RandomVariableLowMemory log() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.log(valueIfNonStochastic);
@@ -886,6 +890,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#sin()
 	 */
+	@Override
 	public RandomVariableInterface sin() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.sin(valueIfNonStochastic);
@@ -903,6 +908,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariableInterface#cos()
 	 */
+	@Override
 	public RandomVariableInterface cos() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.cos(valueIfNonStochastic);
@@ -1121,6 +1127,7 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 	}
 
+	@Override
 	public RandomVariableInterface floor(RandomVariableInterface randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority

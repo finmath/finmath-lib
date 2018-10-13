@@ -65,6 +65,7 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 	 */
 	public abstract Set<String> queryUnderlyings();
 
+	@Override
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		RandomVariableInterface value = this.getValue(evaluationTime, model);
 		Map<String, Object> result = new HashMap<>();

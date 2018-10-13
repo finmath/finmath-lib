@@ -509,6 +509,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return apply(OperatorType.DIV, new RandomVariableInterface[] {this, randomVariable});
 	}
 
+	@Override
 	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
 		return apply(OperatorType.DIV, new RandomVariableInterface[] {randomVariable, this});
 	}

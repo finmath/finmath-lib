@@ -29,6 +29,7 @@ public class BusinessdayCalendarAny extends BusinessdayCalendar {
 		return true;
 	}
 
+	@Override
 	public String toString() {
 		return "BusinessdayCalendarAny";
 	}

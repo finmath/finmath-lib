@@ -17,5 +17,5 @@ import net.finmath.modelling.ProductDescriptor;
 public interface XMLParser {
 
 	public ProductDescriptor getProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException;
-	
+
 }

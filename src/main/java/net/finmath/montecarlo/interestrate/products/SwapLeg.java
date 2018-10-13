@@ -30,7 +30,7 @@ import net.finmath.time.ScheduleInterface;
 public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 
 	private final ProductCollection				components;
-	
+
 
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
@@ -90,7 +90,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 
 		components = new ProductCollection(periods);
 	}
-	
+
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
 	 *

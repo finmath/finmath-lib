@@ -10,7 +10,7 @@ import net.finmath.time.FloatingpointDate;
 public class EuropeanOptionMonteCarlo extends EuropeanOption implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
 
 	private final SingleAssetEuropeanOptionProductDescriptor descriptor;
-	
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param descriptor Implementation of SingleAssetEuropeanOptionProductDescriptor
@@ -20,7 +20,7 @@ public class EuropeanOptionMonteCarlo extends EuropeanOption implements Describe
 		super(descriptor.getUnderlyingName(), FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());
 		this.descriptor = descriptor;
 	}
-	
+
 	@Override
 	public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
 		return descriptor;

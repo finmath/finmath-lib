@@ -75,21 +75,21 @@ public class ModelWithProductFactoryTest {
 		// Create base Fourier implementation of Black-Scholes model
 		DescribedModel<BlackScholesModelDescriptor> blackScholesModelFourier = (new BlackScholesModelFourierFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
-//		// Add custom product factory
-//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
-//
-//			@Override
-//			public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
-//				if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
-//					final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new Digi((SingleAssetDigitalOptionProductDescriptor) descriptor);
-//					return product;
-//				}
-//				else {
-//					String name = descriptor.name();
-//					throw new IllegalArgumentException("Unsupported product type " + name);
-//				}
-//			}
-//		};
+		//		// Add custom product factory
+		//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
+		//
+		//			@Override
+		//			public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
+		//				if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
+		//					final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new Digi((SingleAssetDigitalOptionProductDescriptor) descriptor);
+		//					return product;
+		//				}
+		//				else {
+		//					String name = descriptor.name();
+		//					throw new IllegalArgumentException("Unsupported product type " + name);
+		//				}
+		//			}
+		//		};
 
 		// Create product implementation compatible with Black-Scholes model
 		ProductInterface digitalOptionFourier = blackScholesModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
@@ -176,20 +176,20 @@ public class ModelWithProductFactoryTest {
 		// Create base Fourier implementation of Heston model
 		DescribedModel<HestonModelDescriptor> hestonModelFourier = (new HestonModelFourierFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
-//		// Create custom product factory
-//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
-//			@Override
-//			public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
-//				if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
-//					final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new net.finmath.fouriermethod.products.DigitalOption((SingleAssetDigitalOptionProductDescriptor) descriptor);
-//					return product;
-//				}
-//				else {
-//					String name = descriptor.name();
-//					throw new IllegalArgumentException("Unsupported product type " + name);
-//				}
-//			}
-//		};
+		//		// Create custom product factory
+		//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
+		//			@Override
+		//			public DescribedProduct<? extends SingleAssetDigitalOptionProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
+		//				if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
+		//					final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new net.finmath.fouriermethod.products.DigitalOption((SingleAssetDigitalOptionProductDescriptor) descriptor);
+		//					return product;
+		//				}
+		//				else {
+		//					String name = descriptor.name();
+		//					throw new IllegalArgumentException("Unsupported product type " + name);
+		//				}
+		//			}
+		//		};
 
 		// Create product implementation compatible with Heston model
 		ProductInterface digitalOptionFourier = hestonModelFourier.getProductFromDescriptor(digitalOptionDescriptor);

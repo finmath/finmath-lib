@@ -39,6 +39,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 		return name;
 	}
 
+	@Override
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
@@ -72,6 +73,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	}
 
 
+	@Override
 	public CurveInterface getCloneForParameter(RandomVariableInterface[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}

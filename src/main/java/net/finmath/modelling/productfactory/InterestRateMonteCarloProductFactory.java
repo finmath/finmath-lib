@@ -22,15 +22,15 @@ import net.finmath.montecarlo.interestrate.products.Swap;
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
 	private final LocalDate 						referenceDate;
-	
-//	private static final boolean						couponFlow = true;
-//	private static final boolean						isNotionalAccruing = false;
+
+	//	private static final boolean						couponFlow = true;
+	//	private static final boolean						isNotionalAccruing = false;
 
 	public InterestRateMonteCarloProductFactory(LocalDate referenceDate) {
 		super();
 		this.referenceDate = referenceDate;
 	}
-	
+
 	@Override
 	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 
@@ -38,24 +38,24 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 			InterestRateSwapLegProductDescriptor swapLeg 					= (InterestRateSwapLegProductDescriptor) descriptor;
 			DescribedProduct<InterestRateSwapLegProductDescriptor> product 	= new SwapLegMonteCarlo(swapLeg, referenceDate);
 			return product;
-			
-		} 
+
+		}
 		else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap 							= (InterestRateSwapProductDescriptor) descriptor;
 			InterestRateProductDescriptor legDescriptor 					= (InterestRateProductDescriptor) swap.getLegReceiver();
-			AbstractLIBORMonteCarloProduct legReceiver 						= (AbstractLIBORMonteCarloProduct) getProductFromDescriptor(legDescriptor);  
+			AbstractLIBORMonteCarloProduct legReceiver 						= (AbstractLIBORMonteCarloProduct) getProductFromDescriptor(legDescriptor);
 			legDescriptor 													= (InterestRateProductDescriptor) swap.getLegPayer();
-			AbstractLIBORMonteCarloProduct legPayer 						= (AbstractLIBORMonteCarloProduct) getProductFromDescriptor(legDescriptor); 
+			AbstractLIBORMonteCarloProduct legPayer 						= (AbstractLIBORMonteCarloProduct) getProductFromDescriptor(legDescriptor);
 			DescribedProduct<InterestRateSwapProductDescriptor> product 	= new Swap(legReceiver, legPayer);
 			return product;
-			
-		} 
+
+		}
 		else if(descriptor instanceof InterestRateSwaptionProductDescriptor) {
 			InterestRateSwaptionProductDescriptor swaption						= (InterestRateSwaptionProductDescriptor) descriptor;
 			DescribedProduct<InterestRateSwaptionProductDescriptor> product		= new SwaptionPhysicalMonteCarlo(swaption, referenceDate);
 			return product;
-			
-		} 
+
+		}
 		else {
 			String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);

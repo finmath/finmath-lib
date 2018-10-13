@@ -92,6 +92,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 				final double weight = weights[i];
 
 				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
+					@Override
 					public RandomVariableInterface call() throws CalculationException {
 						return product.getValue(evaluationTime, model).mult(weight);
 					}

@@ -167,6 +167,7 @@ public class Solver {
 		java.util.Arrays.fill(upperBound, new RandomVariable(Double.POSITIVE_INFINITY));
 
 		StochasticOptimizerInterface.ObjectiveFunction objectiveFunction = new StochasticOptimizerInterface.ObjectiveFunction() {
+			@Override
 			public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
 				RandomVariableInterface[] modelParameters = parameters;
 				try {

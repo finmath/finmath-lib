@@ -126,5 +126,6 @@ public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendar
 		super(NAME, baseCalendar, true);
 	}
 
+	@Override
 	public Set<LocalDate> getHolidays() { return HOLIDAYS; }
 }

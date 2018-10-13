@@ -133,5 +133,6 @@ public class BusinessdayCalendarExcludingNYCHolidays extends BusinessdayCalendar
 		super(NAME, baseCalendar, true);
 	}
 
+	@Override
 	public Set<LocalDate> getHolidays() { return HOLIDAYS; }
 }

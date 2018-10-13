@@ -7,9 +7,6 @@ package net.finmath.fouriermethod.products;
 
 import org.apache.commons.math3.complex.Complex;
 
-import net.finmath.modelling.DescribedProduct;
-import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
-
 /**
  * Implements valuation of a European option on a single asset.
  *

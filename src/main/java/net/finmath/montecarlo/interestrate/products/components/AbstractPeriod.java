@@ -26,6 +26,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	private final AbstractProductComponent		index;
 	private final double						daycountFraction;
 
+	@Override
 	public abstract RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
 	public abstract RandomVariableInterface getCoupon(LIBORModelMonteCarloSimulationInterface model) throws CalculationException;

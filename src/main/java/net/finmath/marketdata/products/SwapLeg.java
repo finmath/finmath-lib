@@ -33,7 +33,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	private final String				discountCurveName;
 	private final String				discountCurveForNotionalResetName;
 	private boolean						isNotionalExchanged = false;
-	
+
 	private final double[] 				notionals;
 	private final double[]				spreads;
 
@@ -58,7 +58,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		this.isNotionalExchanged = isNotionalExchanged;
 		this.notionals = notionals;
 	}
-	
+
 	/**
 	 * Creates a swap leg.
 	 *
@@ -76,7 +76,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 		this.discountCurveName = discountCurveName;
 		this.discountCurveForNotionalResetName = discountCurveForNotionalResetName=="" ? discountCurveName : discountCurveForNotionalResetName; // empty discountCurveForNotionalResetName is interpreted as no notional reset
 		this.isNotionalExchanged = isNotionalExchanged;
-		
+
 		double[] notionals = new double[legSchedule.getNumberOfPeriods()];
 		Arrays.fill(notionals, 1);
 		this.notionals = notionals;

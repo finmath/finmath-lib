@@ -54,6 +54,7 @@ public abstract class AbstractIndex extends AbstractProductComponent {
 		this(null, null);
 	}
 
+	@Override
 	public abstract RandomVariableInterface getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
 	/**

@@ -48,6 +48,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 *
 	 * @return Parameter vector.
 	 */
+	@Override
 	public abstract double[]	getParameter();
 
 	@Override
@@ -60,6 +61,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
+	@Override
 	public abstract TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
 
 	/**
@@ -137,6 +139,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<Double> worker = new  Callable<Double>() {
+						@Override
 						public Double call() {
 							try {
 								return calibrationWeights[workerCalibrationProductIndex] * (calibrationProducts[workerCalibrationProductIndex].getValue(termStructureModelMonteCarloSimulation) - calibrationTargetValues[workerCalibrationProductIndex]);

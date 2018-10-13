@@ -68,5 +68,6 @@ public abstract class LIBORVolatilityModel implements Serializable {
 		return timeDiscretization;
 	}
 
+	@Override
 	public abstract Object clone();
 }

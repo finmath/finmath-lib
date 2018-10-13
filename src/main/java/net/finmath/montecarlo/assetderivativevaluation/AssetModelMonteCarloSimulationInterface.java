@@ -75,6 +75,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @return Returns a clone of this model, with some data modified (then it is no longer a clone :-)
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
+	@Override
 	AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 
 	/**

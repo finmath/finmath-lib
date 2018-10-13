@@ -145,6 +145,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
+	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final RandomVariableInterface[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
@@ -202,6 +203,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
+						@Override
 						public RandomVariableInterface call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationTargetValues[workerCalibrationProductIndex]);

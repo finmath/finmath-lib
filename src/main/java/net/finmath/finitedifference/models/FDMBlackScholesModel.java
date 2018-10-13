@@ -76,6 +76,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 		return initialValue;
 	}
 
+	@Override
 	public double getVolatility() {
 		return volatility;
 	}
@@ -84,10 +85,12 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 		return numTimesteps;
 	}
 
+	@Override
 	public int getNumSpacesteps() {
 		return numSpacesteps;
 	}
 
+	@Override
 	public double getNumStandardDeviations() {
 		return numStandardDeviations;
 	}

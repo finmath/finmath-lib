@@ -43,6 +43,7 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 
 		// We use commons-math RombergIntegrator
 		return new RombergIntegrator().integrate(numberOfEvaluationPoints, new UnivariateFunction() {
+			@Override
 			public double value(double argument) {
 				return integrand.applyAsDouble(argument);
 			}

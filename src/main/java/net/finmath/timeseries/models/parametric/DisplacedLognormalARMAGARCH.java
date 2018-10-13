@@ -202,6 +202,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 
 			private static final long serialVersionUID = 7072187082052755854L;
 
+			@Override
 			public double value(double[] variables) {
 
 				double omega	= variables[0];

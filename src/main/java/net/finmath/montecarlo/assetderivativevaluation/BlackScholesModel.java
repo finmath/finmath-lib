@@ -141,6 +141,7 @@ public class BlackScholesModel extends AbstractModel {
 		return 1;
 	}
 
+	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
@@ -171,6 +172,7 @@ public class BlackScholesModel extends AbstractModel {
 	 *
 	 * @return the initial value of this model.
 	 */
+	@Override
 	public RandomVariableInterface[] getInitialValue() {
 		return new RandomVariableInterface[] { initialValue };
 	}

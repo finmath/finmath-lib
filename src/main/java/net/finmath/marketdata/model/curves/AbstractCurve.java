@@ -40,6 +40,7 @@ public abstract class AbstractCurve implements CurveInterface, Serializable, Clo
 		return name;
 	}
 
+	@Override
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}

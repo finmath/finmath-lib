@@ -201,6 +201,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 		return seed;
 	}
 
+	@Override
 	public String toString() {
 		return super.toString()
 				+ "\n" + "timeDiscretization: " + timeDiscretization.toString()

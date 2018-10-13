@@ -89,6 +89,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		this.volatilityOnPaths		= new RandomVariable(0.0, volatility);
 	}
 
+	@Override
 	public int getNumberOfAssets() {
 		return 1;
 	}
@@ -115,18 +116,22 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
 	 */
+	@Override
 	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) {
 		return getProcessValue(timeIndex, assetIndex);
 	}
 
+	@Override
 	public RandomVariableInterface getAssetValue(double time, int assetIndex) {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
+	@Override
 	public RandomVariableInterface getMonteCarloWeights(double time) {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
+	@Override
 	public RandomVariableInterface getNumeraire(int timeIndex)
 	{
 		double time = getTime(timeIndex);
@@ -134,6 +139,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		return getNumeraire(time);
 	}
 
+	@Override
 	public RandomVariableInterface getNumeraire(double time)
 	{
 		double numeraireValue = Math.exp(riskFreeRate * time);

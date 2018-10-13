@@ -43,6 +43,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#setProcess(net.finmath.montecarlo.process.AbstractProcessInterface)
 	 */
+	@Override
 	public void setProcess(AbstractProcessInterface process) {
 		this.process = process;
 	}
@@ -50,6 +51,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getProcess()
 	 */
+	@Override
 	public AbstractProcessInterface getProcess() {
 		return process;
 	}
@@ -57,6 +59,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumberOfFactors()
 	 */
+	@Override
 	public int getNumberOfFactors() {
 		return process.getNumberOfFactors();
 	}
@@ -87,6 +90,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	 * @return The time discretization of the model (simulation time).
 	 * @see net.finmath.montecarlo.process.AbstractProcess#getTimeDiscretization()
 	 */
+	@Override
 	public final TimeDiscretizationInterface getTimeDiscretization() {
 		return process.getTimeDiscretization();
 	}

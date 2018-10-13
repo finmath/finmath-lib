@@ -95,6 +95,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		}
 	}
 
+	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
@@ -111,6 +112,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		return Collections.unmodifiableMap(curvesMap);
 	}
 
+	@Override
 	public AnalyticModelInterface addCurve(String name, CurveInterface curve) {
 		AnalyticModel newModel = clone();
 		newModel.curvesMap.put(name, curve);

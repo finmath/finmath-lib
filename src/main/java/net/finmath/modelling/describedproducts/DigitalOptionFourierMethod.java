@@ -8,7 +8,7 @@ import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescripto
 import net.finmath.time.FloatingpointDate;
 
 public class DigitalOptionFourierMethod extends DigitalOption  implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>{
-	
+
 	private final SingleAssetDigitalOptionProductDescriptor descriptor;
 
 	public DigitalOptionFourierMethod(SingleAssetDigitalOptionProductDescriptor descriptor, LocalDate referenceDate) {

@@ -32,11 +32,11 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
 			InterestRateSwapLegProductDescriptor swapLeg = (InterestRateSwapLegProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegScheduleDescriptor().getSchedule(referenceDate), 
+			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegScheduleDescriptor().getSchedule(referenceDate),
 					swapLeg.getForwardCurveName(), swapLeg.getNotionals(), swapLeg.getSpreads(), swapLeg.getDiscountCurveName(),
 					swapLeg.isNotionalExchanged());
 			return product;
-		} 
+		}
 		else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;
 			InterestRateProductDescriptor legDescriptor = (InterestRateProductDescriptor) swap.getLegReceiver();
@@ -45,7 +45,7 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 			AnalyticProductInterface legPayer = (AnalyticProductInterface) getProductFromDescriptor(legDescriptor);
 			DescribedProduct<InterestRateSwapProductDescriptor> product = new Swap(legReceiver, legPayer);
 			return product;
-		} 
+		}
 		else {
 			String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);

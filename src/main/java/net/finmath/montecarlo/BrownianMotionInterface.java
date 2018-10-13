@@ -41,6 +41,7 @@ public interface BrownianMotionInterface extends IndependentIncrementsInterface 
 	 *
 	 * @return The time discretization used for this set of time-discrete Brownian increments.
 	 */
+	@Override
 	TimeDiscretizationInterface getTimeDiscretization();
 
 	/**
@@ -48,6 +49,7 @@ public interface BrownianMotionInterface extends IndependentIncrementsInterface 
 	 *
 	 * @return The number of factors.
 	 */
+	@Override
 	int getNumberOfFactors();
 
 	/**
@@ -55,6 +57,7 @@ public interface BrownianMotionInterface extends IndependentIncrementsInterface 
 	 *
 	 * @return The number of paths.
 	 */
+	@Override
 	int getNumberOfPaths();
 
 	/**
@@ -64,6 +67,7 @@ public interface BrownianMotionInterface extends IndependentIncrementsInterface 
 	 * @param value The constant value to be used for initialized the random variable.
 	 * @return A new random variable.
 	 */
+	@Override
 	RandomVariableInterface getRandomVariableForConstant(double value);
 
 	/**
@@ -77,6 +81,7 @@ public interface BrownianMotionInterface extends IndependentIncrementsInterface 
 	 * @param seed New value for the seed.
 	 * @return New object implementing BrownianMotionInterface.
 	 */
+	@Override
 	BrownianMotionInterface getCloneWithModifiedSeed(int seed);
 
 
@@ -88,5 +93,6 @@ public interface BrownianMotionInterface extends IndependentIncrementsInterface 
 	 * @param newTimeDiscretization New time discretization
 	 * @return New object implementing BrownianMotionInterface.
 	 */
+	@Override
 	BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization);
 }

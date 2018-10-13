@@ -706,6 +706,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		}
 	}
 
+	@Override
 	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2)
 	{
 		double newTime = Math.max(time, argument1.getFiltrationTime());
@@ -916,6 +917,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		return apply((x, y) -> x / y, randomVariable);
 	}
 
+	@Override
 	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
 		return apply((x, y) -> y / x, randomVariable);
 	}

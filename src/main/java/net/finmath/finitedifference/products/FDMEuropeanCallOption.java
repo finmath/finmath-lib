@@ -19,6 +19,7 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 		this.strike = optionStrike;
 	}
 
+	@Override
 	public double[][] getValue(double evaluationTime, FiniteDifference1DModel model) {
 
 		/*

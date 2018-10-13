@@ -30,5 +30,6 @@ public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends Bus
 	/**
 	 * @return A set of (additional) holidays.
 	 */
+	@Override
 	public Set<LocalDate> getHolidays() { return holidays; }
 }

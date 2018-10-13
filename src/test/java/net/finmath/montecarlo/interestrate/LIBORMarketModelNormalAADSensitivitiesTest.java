@@ -230,7 +230,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 		double lastTime	= 40.0;
 		double dt		= 0.125;
-		
+
 		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
 
 		// Use smaller volatility discretization.
@@ -250,7 +250,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		for(int timeIndex=0; timeIndex<volatilityMatrix.length; timeIndex++) {
 			for(int componentIndex=0; componentIndex<volatilityMatrix[timeIndex].length; componentIndex++) {
 				if(isUsePartialSetOfDifferentiables && timeIndex < volatilityBucketTimeIndex) {
-					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryInitialValue.createRandomVariable(d);					
+					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryInitialValue.createRandomVariable(d);
 				}
 				else {
 					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryVolatility.createRandomVariable(d);

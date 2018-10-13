@@ -555,6 +555,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 			final int workerParameterIndex = parameterIndex;
 			Callable<double[]> worker = new  Callable<double[]>() {
+				@Override
 				public double[] call() {
 					double parameterFiniteDifference;
 					if(parameterSteps != null) {

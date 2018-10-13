@@ -41,6 +41,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	 * Delegation to model
 	 */
 
+	@Override
 	public void setModel(AbstractModelInterface model) {
 		if(this.model != null) {
 			throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
@@ -49,6 +50,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 		this.model = model;
 	}
 
+	@Override
 	public int getNumberOfComponents() {
 		return model.getNumberOfComponents();
 	}

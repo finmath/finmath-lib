@@ -46,6 +46,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 	 * @return Clone with new parameters.
 	 * @throws CloneNotSupportedException Thrown if this object cannot be cloned.
 	 */
+	@Override
 	public abstract AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException;
 
 	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModelInterface calibrationModel, final Vector<AnalyticProductInterface> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters) throws CalculationException, SolverException {

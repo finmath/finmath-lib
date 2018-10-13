@@ -18,10 +18,10 @@ import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 public class FIPXMLParserTest {
 
 	static private File file;
-	
+
 	@BeforeClass
 	public static void getFile() {
-		
+
 		JFileChooser jfc = new JFileChooser(System.getProperty("user.home"));
 		jfc.setDialogTitle("Choose XML");
 		jfc.setFileFilter(new FileNameExtensionFilter("FIPXML (.xml)", "xml"));
@@ -30,22 +30,22 @@ public class FIPXMLParserTest {
 		};
 		file = jfc.getSelectedFile();
 	}
-	
+
 	@Test
 	public void testGetSwapProductDescriptor() throws SAXException, IOException, ParserConfigurationException {
-		
+
 		InterestRateSwapProductDescriptor descriptor;
 		try {
 			descriptor = (new FIPXMLParser()).getSwapProductDescriptor(file);
 		} catch (IllegalArgumentException e) {
 			System.out.println("There was a problem with the file: "+e.getMessage());
-//			e.printStackTrace();
+			//			e.printStackTrace();
 			return;
 		}
-		
+
 		InterestRateSwapLegProductDescriptor legReceiver	= (InterestRateSwapLegProductDescriptor) descriptor.getLegReceiver();
 		InterestRateSwapLegProductDescriptor legPayer		= (InterestRateSwapLegProductDescriptor) descriptor.getLegPayer();
-		
+
 		System.out.println("Receiver leg:");
 		System.out.println(legReceiver.name());
 		System.out.println(legReceiver.getForwardCurveName());
@@ -53,7 +53,7 @@ public class FIPXMLParserTest {
 		System.out.println(Arrays.toString(legReceiver.getNotionals()));
 		System.out.println(Arrays.toString(legReceiver.getSpreads()));
 		System.out.println(legReceiver.getLegScheduleDescriptor());
-		
+
 		System.out.println("\n\nPayer leg:");
 		System.out.println(legPayer.name());
 		System.out.println(legPayer.getForwardCurveName());

@@ -42,7 +42,7 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 
 	@Test
 	public void testArithmeticSubSelf() {
-		
+
 		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.sub(x):");

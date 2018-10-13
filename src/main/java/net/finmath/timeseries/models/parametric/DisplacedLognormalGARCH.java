@@ -208,6 +208,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
 			private static final long serialVersionUID = 7072187082052755854L;
 
+			@Override
 			public double value(double[] variables) {
 				/*
 				 * Transform variables: The solver variables are in (-\infty, \infty).

@@ -115,6 +115,7 @@ public class DisplacedLognomalModelExperimental extends AbstractModel {
 		return 1;
 	}
 
+	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}

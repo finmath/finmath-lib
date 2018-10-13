@@ -35,6 +35,7 @@ public abstract class ProductFactoryCascade<T extends ProductDescriptor> impleme
 	 * @see net.finmath.modelling.DescribedModel#getProductFromDesciptor(net.finmath.modelling.ProductDescriptor)
 	 * @TODO: Fix unchecked cast
 	 */
+	@Override
 	public DescribedProduct<? extends T> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 		DescribedProduct<T> product;
 		for(ProductFactory<?> factory : factories) {

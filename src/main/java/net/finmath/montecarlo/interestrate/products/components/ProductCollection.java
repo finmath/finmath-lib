@@ -104,6 +104,7 @@ public class ProductCollection extends AbstractProductComponent {
 			try {
 				valueFuture = executor.submit(
 						new Callable<RandomVariableInterface>() {
+							@Override
 							public RandomVariableInterface call() throws CalculationException {
 								return product.getValue(evaluationTime, model);
 							}

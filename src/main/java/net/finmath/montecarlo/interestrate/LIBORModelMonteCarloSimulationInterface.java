@@ -85,6 +85,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends TermStructureMo
 	 *
 	 * @return The underlying model
 	 */
+	@Override
 	TermStructureModelInterface getModel();
 
 	/**

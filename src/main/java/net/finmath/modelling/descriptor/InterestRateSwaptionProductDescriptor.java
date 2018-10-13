@@ -10,9 +10,9 @@ import net.finmath.modelling.InterestRateProductDescriptor;
  *
  */
 public class InterestRateSwaptionProductDescriptor implements InterestRateProductDescriptor {
-	
+
 	private static final String productName = "Interest Rate Swap";
-	
+
 	private final InterestRateSwapProductDescriptor swap;
 	private final LocalDate excerciseDate;
 	private final double strikeRate;
@@ -34,7 +34,7 @@ public class InterestRateSwaptionProductDescriptor implements InterestRateProduc
 	public String name() {
 		return productName;
 	}
-	
+
 	public InterestRateSwapProductDescriptor getUnderlyingSwap() {
 		return swap;
 	}

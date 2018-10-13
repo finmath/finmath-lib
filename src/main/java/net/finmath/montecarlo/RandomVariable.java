@@ -628,6 +628,7 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 	}
 
+	@Override
 	public IntToDoubleFunction getOperator() {
 		if(isDeterministic()) {
 			return i -> valueIfNonStochastic;
@@ -717,6 +718,7 @@ public class RandomVariable implements RandomVariableInterface {
 		return apply((x,y,z) -> operatorOuter.applyAsDouble(x,operatorInner.applyAsDouble(y,z)), argument1, argument2);
 	}
 
+	@Override
 	public RandomVariableInterface cap(double cap) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);

@@ -203,6 +203,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 
 			private static final long serialVersionUID = 7072187082052755854L;
 
+			@Override
 			public double value(double[] parameters) {
 
 				double omega		= parameters[0];

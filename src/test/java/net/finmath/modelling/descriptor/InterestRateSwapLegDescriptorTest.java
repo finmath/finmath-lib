@@ -60,7 +60,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create leg descriptor
 		 */
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, 
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention,
 				"first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		double notional = 2;
 		double spread = 0.0;
@@ -79,7 +79,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = 
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC =
 				(DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
 
 		/*
@@ -132,7 +132,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create leg descriptor
 		 */
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, 
+		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention,
 				"first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 		double notional = 2;
 		double spread = 0.05;
@@ -150,7 +150,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC = 
+		DescribedProduct<InterestRateSwapLegProductDescriptor> legMC =
 				(DescribedProduct<InterestRateSwapLegProductDescriptor>) (new InterestRateMonteCarloProductFactory(referenceDate)).getProductFromDescriptor(legDescriptor);
 
 		/*
