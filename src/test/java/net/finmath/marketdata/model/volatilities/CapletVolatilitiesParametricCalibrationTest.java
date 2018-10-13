@@ -100,7 +100,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		// Create a discount curve
 		DiscountCurveInterface		discountCurve					= new DiscountCurveNelsonSiegelSvensson(
 				"EUR",
-				LocalDate.of(2014, Month.JULY, 15),
+				LocalDate.of(2014, Month.JULY, 17),
 				new double[]
 						{
 								0.02,
