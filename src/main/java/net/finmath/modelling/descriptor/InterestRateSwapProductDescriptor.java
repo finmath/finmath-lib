@@ -2,6 +2,13 @@ package net.finmath.modelling.descriptor;
 
 import net.finmath.modelling.InterestRateProductDescriptor;
 
+/**
+ * Product descriptor for an interest rate swap.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ * @version 1.0
+ */
 public class InterestRateSwapProductDescriptor implements InterestRateProductDescriptor {
 
 	private static final String productName = "Interest Rate Swap";

@@ -11,6 +11,12 @@ import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.time.ScheduleInterface;
 
+/**
+ * Contructing the swap leg valuation implementation using Monte-Carlo method from a product descriptor.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
 public class SwapLegMonteCarlo extends SwapLeg implements DescribedProduct<InterestRateSwapLegProductDescriptor> {
 
 	private static final boolean						couponFlow = true;

@@ -7,6 +7,12 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.time.FloatingpointDate;
 
+/**
+ * Contructing the european option valuation implementation using Monte-Carlo method from a product descriptor.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
 public class EuropeanOptionMonteCarlo extends EuropeanOption implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
 
 	private final SingleAssetEuropeanOptionProductDescriptor descriptor;

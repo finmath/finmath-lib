@@ -56,17 +56,8 @@ public class ScheduleDescriptor {
 		return descriptor.getSchedule(referenceDate);
 	}
 
-
-
-
-
-
-
-
-	private static interface InternalScheduleDescriptor {
-
+	private interface InternalScheduleDescriptor {
 		ScheduleInterface getSchedule(LocalDate referenceDate);
-
 	}
 
 	private static class ScheduleDescriptorFromPeriods implements InternalScheduleDescriptor {
