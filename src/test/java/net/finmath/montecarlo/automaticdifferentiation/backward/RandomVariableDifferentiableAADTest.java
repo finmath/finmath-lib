@@ -29,7 +29,7 @@ public class RandomVariableDifferentiableAADTest {
 		AbstractRandomVariableFactory randomVariableFactoryParameters = new RandomVariableFactory();
 
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
+		properties.put("isGradientRetainsLeafNodesOnly", false);
 
 		AbstractRandomVariableFactory randomVariableFactoryVariable = new RandomVariableDifferentiableAADFactory(
 				new RandomVariableDifferentiableAADFactory(
@@ -56,6 +56,7 @@ public class RandomVariableDifferentiableAADTest {
 
 		System.out.println("AAD value     : " + derivativeAAD);
 		System.out.println("expeted value : " + derivativeExpected);
+		System.out.println();
 
 		Assert.assertEquals(derivativeExpected, derivativeAAD, 1E-15);
 	}

@@ -12,6 +12,7 @@ import net.finmath.compatibility.java.util.function.DoubleUnaryOperator;
  * A real integral with lower and upper integration bounds.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractRealIntegral implements RealIntegralInterface {
 

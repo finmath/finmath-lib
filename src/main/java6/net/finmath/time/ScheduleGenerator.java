@@ -42,6 +42,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
  *
  * @author Christian Fries
  * @date 02.03.2014
+ * @version 1.0
  */
 public class ScheduleGenerator {
 

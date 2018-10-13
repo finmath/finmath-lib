@@ -11,6 +11,7 @@ import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * @author Stefan Sedlmair
+ * @version 1.0
  */
 public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableFactory {
 

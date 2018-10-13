@@ -17,6 +17,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  *
  * @author Stefan Sedlmair
  * @author Christian Fries
+ * @version 1.0
  */
 public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 

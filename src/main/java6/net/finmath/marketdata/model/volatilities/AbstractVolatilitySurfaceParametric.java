@@ -30,6 +30,7 @@ import net.finmath.optimizer.SolverException;
  * Base class for parametric volatility surfaces, implementing a generic calibration algorithm.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolatilitySurface implements ParameterObjectInterface {
 

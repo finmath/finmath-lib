@@ -26,6 +26,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * receiver leg and the payer leg. The value of the swap is the value of the receiver leg minus the value of the payer leg.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

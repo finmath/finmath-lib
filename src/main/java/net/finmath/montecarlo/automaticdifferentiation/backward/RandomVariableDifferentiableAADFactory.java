@@ -6,6 +6,7 @@
 
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
@@ -16,6 +17,7 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariableDifferentiableFactory {
 
@@ -28,25 +30,22 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	private final double barrierDiracWidth;
 	private final boolean isGradientRetainsLeafNodesOnly;
 
-	public RandomVariableDifferentiableAADFactory() {
-		this(new RandomVariableFactory());
+	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
+		super(randomVariableFactoryForNonDifferentiable);
+
+		barrierDiracWidth = (Double) properties.getOrDefault("barrierDiracWidth", 0.05); // Corresponds to 2% of paths used for estimation bin  0.05 = 2%,  0.025 = 1%
+		isGradientRetainsLeafNodesOnly = (Boolean) properties.getOrDefault("isGradientRetainsLeafNodesOnly", true);
 	}
 
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
 	 */
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
-		super(randomVariableFactoryForNonDifferentiable);
-
-		barrierDiracWidth = 0.05;	// Corresponds to 2% of paths used for estimation bin  0.05 = 2%,  0.025 = 1%
-		isGradientRetainsLeafNodesOnly = true;
+		this(randomVariableFactoryForNonDifferentiable, new HashMap<String, Object>());
 	}
 
-	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
-		super(randomVariableFactoryForNonDifferentiable);
-
-		barrierDiracWidth = (Double) properties.getOrDefault("barrierDiracWidth", new Double(0.05));
-		isGradientRetainsLeafNodesOnly = (Boolean) properties.getOrDefault("isGradientRetainsLeafNodesOnly", new Boolean(true));
+	public RandomVariableDifferentiableAADFactory() {
+		this(new RandomVariableFactory());
 	}
 
 	@Override

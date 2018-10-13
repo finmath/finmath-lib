@@ -14,6 +14,7 @@ import net.finmath.modelling.ModelInterface;
  * characteristic functions of stochastic processes.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 @FunctionalInterface
 public interface ProcessCharacteristicFunctionInterface extends ModelInterface {

@@ -6,6 +6,7 @@ import java.util.Iterator;
  * A discrete time series.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class TimeSeries implements TimeSeriesInterface {
 

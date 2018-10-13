@@ -30,6 +30,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * calibrated forward curve will include the convexity adjustment.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class MarketForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

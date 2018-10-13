@@ -18,6 +18,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * With respect to the implementation we do not make a difference here and implement the AbstractAnalyticProduct interface.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Performance extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

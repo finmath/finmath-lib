@@ -12,6 +12,7 @@ package net.finmath.modelling;
  * For a description of the general concept see <a href="http://finmath.net/finmath-lib/concepts/separationofproductandmodel">http://finmath.net/finmath-lib/concepts/separationofproductandmodel</a>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ModelInterface {
 

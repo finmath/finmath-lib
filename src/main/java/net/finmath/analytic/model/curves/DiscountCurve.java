@@ -37,6 +37,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @see net.finmath.marketdata.products.SwapLeg
  * @see net.finmath.marketdata.model.curves.Curve
+ * @version 1.0
  */
 public class DiscountCurve extends Curve implements Serializable, DiscountCurveInterface {
 

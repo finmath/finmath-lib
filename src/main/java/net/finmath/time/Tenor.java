@@ -15,6 +15,7 @@ import java.time.LocalDate;
  * The time as a double is represented as the year fraction from the reference date.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Tenor extends TimeDiscretization implements TenorInterface {
 

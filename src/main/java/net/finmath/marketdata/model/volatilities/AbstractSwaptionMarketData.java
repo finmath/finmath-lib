@@ -12,6 +12,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * providing swaption market data.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface AbstractSwaptionMarketData {
 

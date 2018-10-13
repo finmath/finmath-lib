@@ -43,6 +43,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @see net.finmath.montecarlo.assetderivativevaluation.MertonModel
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @version 1.0
  */
 public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInterface {
 

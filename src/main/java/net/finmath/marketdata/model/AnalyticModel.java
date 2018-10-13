@@ -33,6 +33,7 @@ import net.finmath.modelling.productfactory.InterestRateAnalyticProductFactory;
  * formulas - hence this class is termed <code>AnalyticModel</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable, DescribedModel<AnalyticModelDescriptor> {
 

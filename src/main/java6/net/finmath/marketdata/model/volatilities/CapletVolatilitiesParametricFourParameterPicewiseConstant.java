@@ -22,6 +22,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * where \( t_{i} \) is given time discretization.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends AbstractVolatilitySurfaceParametric {
 

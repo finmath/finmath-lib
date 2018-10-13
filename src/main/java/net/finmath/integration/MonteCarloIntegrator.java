@@ -15,6 +15,7 @@ import net.finmath.randomnumbers.MersenneTwister;
  * uses Java 8 parallel streams to evaluate.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class MonteCarloIntegrator extends AbstractRealIntegral{
 

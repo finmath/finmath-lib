@@ -14,6 +14,7 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
  * Describes a European option.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetProductDescriptor {
 

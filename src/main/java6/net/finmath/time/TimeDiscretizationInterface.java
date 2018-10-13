@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public interface TimeDiscretizationInterface extends Iterable<Double> {
 

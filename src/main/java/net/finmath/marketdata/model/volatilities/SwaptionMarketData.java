@@ -19,6 +19,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This will be added in a future version.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SwaptionMarketData implements AbstractSwaptionMarketData {
 

@@ -21,6 +21,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * <code>TimeDiscretizationInterface</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

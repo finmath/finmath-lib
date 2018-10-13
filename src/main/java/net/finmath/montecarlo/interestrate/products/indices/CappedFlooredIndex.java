@@ -16,6 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * i.e., objects implementing <code>AbstractIndex</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class CappedFlooredIndex extends AbstractIndex {
 

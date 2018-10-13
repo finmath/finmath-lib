@@ -22,6 +22,7 @@ import org.threeten.bp.Month;
  * A termination date is the endDate of the last period in a schedule.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_30E_360_ISDA implements DayCountConventionInterface {
 

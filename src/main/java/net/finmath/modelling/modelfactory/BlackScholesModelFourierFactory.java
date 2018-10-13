@@ -12,6 +12,7 @@ import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 
 /**
  * @author Christian Fries
+ * @version 1.0
  */
 public class BlackScholesModelFourierFactory implements ModelFactory<BlackScholesModelDescriptor> {
 

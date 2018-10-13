@@ -15,6 +15,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * i.e. European option prices.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface VolatilitySurfaceInterface {
 

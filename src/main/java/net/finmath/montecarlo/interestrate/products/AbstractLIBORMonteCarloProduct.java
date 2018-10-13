@@ -19,6 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Base calls for product that need an AbstractLIBORMarketModel as base class
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloProduct {
 

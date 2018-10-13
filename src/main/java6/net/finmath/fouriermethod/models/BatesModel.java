@@ -58,6 +58,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * @author Christian Fries
  * @author Andy Graf
  * @author Lorenzo Toricelli
+ * @version 1.0
  */
 public class BatesModel implements ProcessCharacteristicFunctionInterface {
 

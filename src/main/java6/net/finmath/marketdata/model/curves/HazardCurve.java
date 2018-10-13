@@ -14,6 +14,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * Hazard Curve
  *
  * @author Alessandro Gnoatto
+ * @version 1.0
  */
 public class HazardCurve extends Curve implements Serializable, HazardCurveInterface{
 

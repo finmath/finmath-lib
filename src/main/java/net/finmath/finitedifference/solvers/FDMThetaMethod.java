@@ -21,6 +21,7 @@ import net.finmath.finitedifference.models.FiniteDifference1DModel;
  * @author Ralph Rudd
  * @author Christian Fries
  * @author Jörg Kienitz
+ * @version 1.0
  */
 public class FDMThetaMethod {
 	private FiniteDifference1DModel model;

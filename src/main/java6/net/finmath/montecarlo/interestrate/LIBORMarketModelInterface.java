@@ -6,6 +6,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceM
  * Interface for LIBOR Market Models which are determined by a covariance structure defined on discrete forward rates.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface LIBORMarketModelInterface extends LIBORModelInterface {
 

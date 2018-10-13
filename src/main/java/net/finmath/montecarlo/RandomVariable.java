@@ -34,11 +34,15 @@ import net.finmath.stochastic.RandomVariableInterface;
  * The implementation require Java 8 or better.
  *
  * @author Christian Fries
- * @version 2.0
+ * @version 2.1
  */
 public class RandomVariable implements RandomVariableInterface {
 
 	private static final long serialVersionUID = -1352953450936857742L;
+
+	private static final int typePriorityDefault = 1;
+
+	private final int typePriority;
 
 	private final double      time;	                // Time (filtration)
 
@@ -58,6 +62,7 @@ public class RandomVariable implements RandomVariableInterface {
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : value.getRealizations();
 		this.valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
+		this.typePriority = typePriorityDefault;
 	}
 
 	/**
@@ -66,7 +71,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param value the value, a constant.
 	 */
 	public RandomVariable(double value) {
-		this(-Double.MAX_VALUE, value);
+		this(Double.NEGATIVE_INFINITY, value);
 	}
 
 	/**
@@ -80,6 +85,7 @@ public class RandomVariable implements RandomVariableInterface {
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : value.getRealizationsStream().map(function).toArray();
 		this.valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.get(0)) : Double.NaN;
+		this.typePriority = typePriorityDefault;
 	}
 
 
@@ -88,12 +94,24 @@ public class RandomVariable implements RandomVariableInterface {
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param value the value, a constant.
+	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
 	 */
-	public RandomVariable(double time, double value) {
+	public RandomVariable(double time, double value, int typePriority) {
 		super();
 		this.time = time;
 		this.realizations = null;
 		this.valueIfNonStochastic = value;
+		this.typePriority = typePriority;
+	}
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param value the value, a constant.
+	 */
+	public RandomVariable(double time, double value) {
+		this(time, value, typePriorityDefault);
 	}
 
 	/**
@@ -103,12 +121,33 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param numberOfPath The number of paths.
 	 * @param value the value, a constant.
 	 */
+	@Deprecated
 	public RandomVariable(double time, int numberOfPath, double value) {
 		super();
 		this.time = time;
 		this.realizations = new double[numberOfPath];
 		java.util.Arrays.fill(this.realizations, value);
 		this.valueIfNonStochastic = Double.NaN;
+		this.typePriority = typePriorityDefault;
+	}
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * Important: The realizations array is not cloned (not defensive copy is made).
+	 *
+	 * @TODO A future version should perform a defensive copy.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realisations the vector of realizations.
+	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
+	 */
+	public RandomVariable(double time, double[] realisations, int typePriority) {
+		super();
+		this.time = time;
+		this.realizations = realisations;
+		this.valueIfNonStochastic = Double.NaN;
+		this.typePriority = typePriority;
 	}
 
 	/**
@@ -122,10 +161,28 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param realisations the vector of realizations.
 	 */
 	public RandomVariable(double time, double[] realisations) {
+		this(time, realisations, typePriorityDefault);
+	}
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
+	 * @param size The size, i.e., number of paths.
+	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
+	 */
+	public RandomVariable(double time, IntToDoubleFunction realizations, int size, int typePriority) {
 		super();
 		this.time = time;
-		this.realizations = realisations;
-		this.valueIfNonStochastic = Double.NaN;
+		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
+		this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
+		if(size > 1) {
+			IntStream.range(0,size).parallel().forEach(i ->
+			this.realizations[i] = realizations.applyAsDouble(i)
+					);
+		}
+		this.typePriority = typePriority;
 	}
 
 	/**
@@ -136,15 +193,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param size The size, i.e., number of paths.
 	 */
 	public RandomVariable(double time, IntToDoubleFunction realizations, int size) {
-		super();
-		this.time = time;
-		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
-		this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
-		if(size > 1) {
-			IntStream.range(0,size).parallel().forEach(i ->
-			this.realizations[i] = realizations.applyAsDouble(i)
-					);
-		}
+		this(time, realizations, size, typePriorityDefault);
 	}
 
 	@Override
@@ -172,6 +221,11 @@ public class RandomVariable implements RandomVariableInterface {
 	@Override
 	public double getFiltrationTime() {
 		return time;
+	}
+
+	@Override
+	public int getTypePriority() {
+		return typePriority;
 	}
 
 	@Override
@@ -536,21 +590,6 @@ public class RandomVariable implements RandomVariableInterface {
 		return realizations == null;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#expand()
-	 */
-	public RandomVariableInterface expand(int numberOfPaths) {
-		if(isDeterministic()) {
-			// Expand random variable to a vector of path values
-			double[] clone = new double[numberOfPaths];
-			java.util.Arrays.fill(clone,valueIfNonStochastic);
-			return new RandomVariable(time,clone);
-
-		}
-
-		return new RandomVariable(time,realizations.clone());
-	}
-
 	@Override
 	public RandomVariableInterface cache() {
 		return this;
@@ -883,8 +922,17 @@ public class RandomVariable implements RandomVariableInterface {
 		}
 	}
 
+	/*
+	 * Binary operators: checking for return type priority.
+	 */
+
 	@Override
 	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.add(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -905,6 +953,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.bus(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -929,7 +982,42 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.sub(this);
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = randomVariable.get(0) - valueIfNonStochastic;
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 =  randomVariable.get(i) - valueIfNonStochastic;
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = randomVariable.get(i) - realizations[i];
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+	}
+
+	@Override
 	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.mult(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -951,6 +1039,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.vid(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -975,7 +1068,42 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.div(this);
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+
+		if(isDeterministic() && randomVariable.isDeterministic()) {
+			double newValueIfNonStochastic = randomVariable.get(0) / valueIfNonStochastic;
+			return new RandomVariable(newTime, newValueIfNonStochastic);
+		}
+		else if(isDeterministic()) {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = randomVariable.get(i) / valueIfNonStochastic;
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+		else {
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = randomVariable.get(i) / realizations[i];
+			}
+			return new RandomVariable(newTime, newRealizations);
+		}
+	}
+
+	@Override
 	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.cap(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -996,6 +1124,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface floor(RandomVariableInterface randomVariable) {
+		if(randomVariable.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return randomVariable.floor(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
@@ -1016,6 +1149,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+		if(rate.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return rate.mult(periodLength).add(1.0).mult(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, rate.getFiltrationTime());
 
@@ -1051,6 +1189,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+		if(rate.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return rate.mult(periodLength).add(1.0).invert().mult(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, rate.getFiltrationTime());
 
@@ -1083,6 +1226,11 @@ public class RandomVariable implements RandomVariableInterface {
 			return new RandomVariable(newTime, newRealizations);
 		}
 	}
+
+	/*
+	 * Ternary operators: checking for return type priority.
+	 * @TODO add checking for return type priority.
+	 */
 
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
@@ -1142,6 +1290,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
+		if(factor1.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return factor1.mult(factor2).add(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, factor1.getFiltrationTime());
 
@@ -1177,6 +1330,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+		if(factor1.getTypePriority() > this.getTypePriority() || factor2.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return factor1.mult(factor2).add(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(Math.max(time, factor1.getFiltrationTime()), factor2.getFiltrationTime());
 
@@ -1223,6 +1381,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return numerator.div(denominator).add(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
 
@@ -1241,6 +1404,11 @@ public class RandomVariable implements RandomVariableInterface {
 
 	@Override
 	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
+			// Check type priority
+			return numerator.div(denominator).mult(-1).add(this);
+		}
+
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
 

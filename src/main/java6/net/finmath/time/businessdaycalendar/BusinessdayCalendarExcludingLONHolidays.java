@@ -11,6 +11,7 @@ import org.threeten.bp.format.DateTimeFormatter;
  * A business day calendar, where every day is a business day, except for weekends and London holidays
  *
  * @author Niklas Rodi
+ * @version 1.0
  */
 public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendarExcludingGivenHolidays {
 

@@ -9,6 +9,7 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
  *
  * @author Christian Fries
  * @author Roland Bachl
+ * @version 1.0
  */
 public class SingleAssetDigitalOptionProductDescriptor implements SingleAssetProductDescriptor {
 

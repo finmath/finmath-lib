@@ -14,6 +14,7 @@ import org.threeten.bp.LocalDate;
  * provides some convenient way of getting values.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractCurve implements CurveInterface, Serializable, Cloneable {
 

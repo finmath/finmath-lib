@@ -59,6 +59,14 @@ public interface RandomVariableInterface extends Serializable {
 	double getFiltrationTime();
 
 	/**
+	 * Returns the type priority.
+	 *
+	 * @return The type priority.
+	 * @see <a href="http://ssrn.com/abstract=3246127">ssrn abstract 3246127</a>
+	 */
+	int getTypePriority();
+
+	/**
 	 * Evaluate at a given path or state.
 	 *
 	 * @param pathOrState Index of the path or state.
@@ -80,6 +88,15 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return True if this random variable is deterministic.
 	 */
 	boolean isDeterministic();
+
+	/**
+	 * Returns the underlying values and a random variable.
+	 *
+	 * If the implementation supports an "inner representation", returns the inner representation. Otherwise just returns this.
+	 *
+	 * @return The underling values.
+	 */
+	default RandomVariableInterface getValues() { return this; }
 
 	/**
 	 * Returns a vector representing the realization of this random variable.
@@ -461,6 +478,13 @@ public interface RandomVariableInterface extends Serializable {
 	RandomVariableInterface sub(RandomVariableInterface randomVariable);
 
 	/**
+	 * Applies x &rarr; randomVariable-x to this random variable.
+	 * @param randomVariable A random variable (compatible with this random variable).
+	 * @return New random variable with the result of the function.
+	 */
+	RandomVariableInterface bus(RandomVariableInterface randomVariable);
+
+	/**
 	 * Applies x &rarr; x*randomVariable to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
@@ -473,6 +497,13 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return New random variable with the result of the function.
 	 */
 	RandomVariableInterface div(RandomVariableInterface randomVariable);
+
+	/**
+	 * Applies x &rarr; randomVariable/x to this random variable.
+	 * @param randomVariable A random variable (compatible with this random variable).
+	 * @return New random variable with the result of the function.
+	 */
+	RandomVariableInterface vid(RandomVariableInterface randomVariable);
 
 	/**
 	 * Applies x &rarr; min(x,cap) to this random variable.

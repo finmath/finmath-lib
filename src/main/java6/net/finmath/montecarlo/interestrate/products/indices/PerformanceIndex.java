@@ -16,6 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A performance index being numeratorIndex(t) / denominatorIndex(t)
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class PerformanceIndex extends AbstractIndex {
 

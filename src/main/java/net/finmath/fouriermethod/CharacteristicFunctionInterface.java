@@ -17,6 +17,7 @@ import org.apache.commons.math3.complex.Complex;
  * This is a functional interface.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 @FunctionalInterface
 public interface CharacteristicFunctionInterface extends Function<Complex, Complex> {

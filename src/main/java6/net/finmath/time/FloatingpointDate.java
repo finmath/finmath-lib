@@ -32,6 +32,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * - in the textbook Black-Scholes models, multiplying volatility by W(t), changing from an ACT/365 to ACT/360 would represent a re-scaling of the volatilities.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class FloatingpointDate {
 

@@ -20,6 +20,7 @@ import net.finmath.time.ScheduleInterface;
  * <code>ScheduleInterface</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

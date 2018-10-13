@@ -26,6 +26,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
  * F(t) is the corresponding forward and D is the associated discount curve.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 

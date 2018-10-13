@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
  * uses Java 8 parallel streams to evaluate.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SimpsonRealIntegrator extends AbstractRealIntegral{
 

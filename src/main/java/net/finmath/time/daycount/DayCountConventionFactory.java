@@ -12,6 +12,7 @@ import java.time.LocalDate;
  * Factory methods for day count conventions.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConventionFactory {
 

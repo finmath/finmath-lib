@@ -9,6 +9,7 @@ package net.finmath.randomnumbers;
  * Implements a multi-dimensional Halton sequence (quasi random numbers) with the given bases.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class HaltonSequence implements RandomNumberGenerator {
 

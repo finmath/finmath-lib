@@ -28,6 +28,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Note: this is the interpolation scheme used in the convergence of the Euler-Maruyama scheme.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 

@@ -28,6 +28,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  *
  * @param <E> A class implementing the ParameterObjectInterface
+ * @version 1.0
  */
 public class ParameterAggregation<E extends ParameterObjectInterface> implements ParameterObjectInterface {
 

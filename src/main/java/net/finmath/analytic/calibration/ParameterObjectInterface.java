@@ -14,6 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Note that the parameter may alter the state of multiple depending objects (e.g. referenced members).
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ParameterObjectInterface {
 

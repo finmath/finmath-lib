@@ -23,6 +23,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * Within a schedule, the mapping from doubles to dates is one to one.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ScheduleInterface extends Iterable<Period> {
 

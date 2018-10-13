@@ -13,6 +13,7 @@ import java.util.Map;
  * A set of raw data associated with a given date.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class MarketData {
 

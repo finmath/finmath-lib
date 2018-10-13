@@ -12,6 +12,7 @@ import java.time.LocalDate;
  * A business day calendar, where every day is a business day.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class BusinessdayCalendarAny extends BusinessdayCalendar {
 

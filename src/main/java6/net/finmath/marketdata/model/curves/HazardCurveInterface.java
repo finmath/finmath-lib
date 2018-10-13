@@ -7,6 +7,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  *
  * @author Alessandro Gnoatto
  *
+ * @version 1.0
  */
 public interface HazardCurveInterface extends CurveInterface{
 

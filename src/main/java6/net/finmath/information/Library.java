@@ -12,6 +12,7 @@ import java.util.Properties;
  * Provides information on the finmath-lib library, e.g., the version.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Library {
 

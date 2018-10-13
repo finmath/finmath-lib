@@ -27,6 +27,7 @@ import org.threeten.bp.LocalDate;
  * </ul>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implements DayCountConventionInterface {
 

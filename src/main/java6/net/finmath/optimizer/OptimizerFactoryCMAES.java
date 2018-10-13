@@ -14,6 +14,7 @@ import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 

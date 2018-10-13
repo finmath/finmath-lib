@@ -43,6 +43,7 @@ import org.threeten.bp.Month;
  * </ul>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT {
 

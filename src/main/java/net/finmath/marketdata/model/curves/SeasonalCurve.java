@@ -34,6 +34,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * {@link Curve.InterpolationMethod} with <code>PIECEWISE_CONSTANT_RIGHTPOINT</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 

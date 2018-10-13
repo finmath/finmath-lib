@@ -8,6 +8,7 @@ import net.finmath.modelling.ProductInterface;
  * Interface one dimensional finite difference products.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface FiniteDifference1DProduct extends ProductInterface {
 

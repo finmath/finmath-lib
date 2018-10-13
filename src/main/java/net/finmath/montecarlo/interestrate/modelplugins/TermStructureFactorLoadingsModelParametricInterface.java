@@ -10,6 +10,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
  * an forward rate interest rate model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface TermStructureFactorLoadingsModelParametricInterface extends TermStructureFactorLoadingsModelInterface {
 	/**

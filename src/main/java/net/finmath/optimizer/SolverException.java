@@ -9,6 +9,7 @@ package net.finmath.optimizer;
  * Exception thrown by solvers {@link net.finmath.rootfinder} or {@link net.finmath.optimizer}.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class SolverException extends Exception {
 

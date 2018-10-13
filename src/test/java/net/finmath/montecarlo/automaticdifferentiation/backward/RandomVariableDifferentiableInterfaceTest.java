@@ -36,7 +36,8 @@ public class RandomVariableDifferentiableInterfaceTest {
 	@Parameters
 	public static Collection<Object[]> data(){
 		return Arrays.asList(new Object[][] {
-			{new RandomVariableDifferentiableAADFactory(new RandomVariableFactory()) },
+			{new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
 		});
 	}
 

@@ -1,3 +1,9 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2006
+ */
+
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
@@ -6,6 +12,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceM
  * Interface for LIBOR Market Models which are determined by a covariance structure defined on discrete forward rates.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface LIBORMarketModelInterface extends LIBORModelInterface {
 

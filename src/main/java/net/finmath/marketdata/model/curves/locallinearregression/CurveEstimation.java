@@ -33,6 +33,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
  *
  * @author Moritz Scherrmann
  * @author Christian Fries
+ * @version 1.0
  */
 public class CurveEstimation{
 

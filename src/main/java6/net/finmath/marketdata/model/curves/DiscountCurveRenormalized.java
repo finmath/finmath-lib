@@ -18,6 +18,7 @@ import net.finmath.time.FloatingpointDate;
  * \( t_{0} \) derived from a base discount curve by a constant skaling.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DiscountCurveRenormalized implements DiscountCurveInterface, Serializable {
 

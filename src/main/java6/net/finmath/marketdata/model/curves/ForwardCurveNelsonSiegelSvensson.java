@@ -26,6 +26,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  *
  * @see net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson
  * @author Christian Fries
+ * @version 1.0
  */
 public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, ForwardCurveInterface {
 

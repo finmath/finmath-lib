@@ -18,6 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * A Java swing bean to represent a number field in a GUI. Features admissible values.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class JNumberField extends JTextField implements ActionListener {
 

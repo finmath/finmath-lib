@@ -66,6 +66,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @version 1.0
  */
 public class HestonModel extends AbstractModel {
 

@@ -16,6 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A time-lagged index paying index(t+fixingOffset)
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LaggedIndex extends AbstractIndex {
 

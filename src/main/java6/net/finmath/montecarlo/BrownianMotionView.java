@@ -22,6 +22,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * an individual object of type {@link BrownianMotionInterface}.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class BrownianMotionView implements BrownianMotionInterface {
 

@@ -29,6 +29,7 @@ import net.finmath.optimizer.SolverException;
  * I will greatly profit from a multi-core architecture.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Solver {
 

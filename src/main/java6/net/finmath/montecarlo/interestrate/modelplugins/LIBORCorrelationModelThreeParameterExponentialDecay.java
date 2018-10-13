@@ -18,6 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @see net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCorrelationModel {
 

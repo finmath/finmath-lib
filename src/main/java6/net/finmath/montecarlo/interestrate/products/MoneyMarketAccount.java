@@ -24,6 +24,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * The value of the account at inception is 1.0. The value of the account prior to inception is zero.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 

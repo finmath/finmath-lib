@@ -17,6 +17,7 @@ import net.finmath.compatibility.java.util.function.Function;
  * This is a functional interface.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface CharacteristicFunctionInterface extends Function<Complex, Complex> {
 

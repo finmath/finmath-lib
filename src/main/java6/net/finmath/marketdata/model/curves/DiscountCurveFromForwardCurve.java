@@ -28,6 +28,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * </p>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DiscountCurveFromForwardCurve extends AbstractCurve implements Serializable, DiscountCurveInterface {
 

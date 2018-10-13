@@ -18,6 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * simulation.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface MonteCarloSimulationInterface extends ModelInterface {
 

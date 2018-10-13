@@ -29,6 +29,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Components are numeraire adjusted and can be valued on its own.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloProduct  implements Serializable {
 

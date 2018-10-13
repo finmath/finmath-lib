@@ -27,6 +27,7 @@ import net.finmath.time.ScheduleInterface;
  * where <code>legReceiver</code> and <code>legPayer</code> are {@link net.finmath.montecarlo.interestrate.products.SwapLeg}s.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Swap extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapProductDescriptor> {
 

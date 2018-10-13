@@ -16,6 +16,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * by multiplying the discount factors.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DiscountCurveFromProductOfCurves extends AbstractCurve implements Serializable, DiscountCurveInterface {
 

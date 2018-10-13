@@ -37,6 +37,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  *
  * @TODO: Need to add forward and discount curve to support implied vol.
  * @author Christian Fries
+ * @version 1.0
  */
 public class CapletVolatilities extends AbstractVolatilitySurface {
 

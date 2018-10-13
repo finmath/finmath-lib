@@ -17,6 +17,7 @@ import java.time.LocalDate;
  * {@link DayCountConventionInterface}.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_NONE implements DayCountConventionInterface {
 

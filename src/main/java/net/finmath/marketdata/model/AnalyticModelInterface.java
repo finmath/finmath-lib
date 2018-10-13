@@ -20,6 +20,7 @@ import net.finmath.modelling.ModelInterface;
  * A collection of objects representing analytic valuations, i.e., curves and volatility surfaces.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 

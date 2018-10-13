@@ -19,6 +19,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * a new curve by successively adding points use this builder.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface CurveBuilderInterface {
 

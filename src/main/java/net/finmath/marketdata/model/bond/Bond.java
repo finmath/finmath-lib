@@ -35,6 +35,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  *
  * @author Moritz Scherrmann
  * @author Chrisitan Fries
+ * @version 1.0
  */
 public class Bond extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

@@ -10,6 +10,7 @@ package net.finmath.optimizer;
  * Interface for numerical optimizers.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface OptimizerInterface {
 

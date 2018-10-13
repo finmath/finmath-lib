@@ -23,6 +23,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * </p>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLIBORCovarianceModelParametric {
 

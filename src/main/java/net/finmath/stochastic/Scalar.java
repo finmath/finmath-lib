@@ -16,6 +16,7 @@ import net.finmath.functions.DoubleTernaryOperator;
  * A scalar value implementing the RandomVariableInterface.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Scalar implements RandomVariableInterface {
 
@@ -36,6 +37,11 @@ public class Scalar implements RandomVariableInterface {
 	@Override
 	public double getFiltrationTime() {
 		return Double.NEGATIVE_INFINITY;
+	}
+
+	@Override
+	public int getTypePriority() {
+		return 0;
 	}
 
 	@Override
@@ -252,6 +258,11 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
+	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+		return randomVariable.sub(value);
+	}
+
+	@Override
 	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
 		if(value == 0) {
 			return new Scalar(0.0);
@@ -264,7 +275,15 @@ public class Scalar implements RandomVariableInterface {
 		if(value == 0) {
 			return new Scalar(0.0);
 		}
-		return randomVariable.mult(value);
+		return randomVariable.invert().mult(value);
+	}
+
+	@Override
+	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+		if(value == 0) {
+			return new Scalar(Double.NaN);
+		}
+		return randomVariable.div(value);
 	}
 
 	@Override

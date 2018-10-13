@@ -14,6 +14,7 @@ import net.finmath.modelling.ProductFactory;
  * @author Roland Bachl
  *
  * @param <T> The base class of the product descriptors which can be handled by this <code>ProductFactory</code>.
+ * @version 1.0
  */
 public abstract class ProductFactoryCascade<T extends ProductDescriptor> implements ProductFactory<T> {
 

@@ -28,6 +28,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * </i>
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LIBORModelInterface {
 

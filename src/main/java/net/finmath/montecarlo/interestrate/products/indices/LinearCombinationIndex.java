@@ -16,6 +16,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LinearCombinationIndex extends AbstractIndex {
 

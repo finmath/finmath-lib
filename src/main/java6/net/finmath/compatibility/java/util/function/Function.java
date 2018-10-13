@@ -12,6 +12,7 @@ package net.finmath.compatibility.java.util.function;
  *
  * @param <T> Argument type.
  * @param <R> Result type.
+ * @version 1.0
  */
 public interface Function<T, R> {
 

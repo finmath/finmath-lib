@@ -15,6 +15,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  *
  * @author Christian Fries
  * @author Alessandro Gnoatto
+ * @version 1.0
  */
 public class BlackScholesModel implements ProcessCharacteristicFunctionInterface {
 

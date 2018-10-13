@@ -17,6 +17,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * discretizations.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class LIBORVolatilityModel {
 	private TimeDiscretizationInterface	timeDiscretization;

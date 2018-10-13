@@ -13,6 +13,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * A constant (non-stochastic) notional.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Notional implements AbstractNotional {
 

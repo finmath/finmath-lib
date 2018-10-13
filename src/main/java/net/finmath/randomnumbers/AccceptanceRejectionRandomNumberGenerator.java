@@ -13,6 +13,7 @@ import java.util.function.DoubleUnaryOperator;
  * Note that the acceptance rejection methods requires a two dimensional uniform random number sequence with independent components.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class AccceptanceRejectionRandomNumberGenerator implements RandomNumberGenerator {
 

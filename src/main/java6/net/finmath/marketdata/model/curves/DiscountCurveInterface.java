@@ -12,6 +12,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * represents the present value of a cash flow or 1 in time T, with respect to a specific currency unit and collateralization.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface DiscountCurveInterface extends CurveInterface {
 

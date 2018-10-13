@@ -12,6 +12,7 @@ package net.finmath.modelling;
  * @author Luca Del Re
  *
  * @param <P> The base class of the product descriptors which can be handled by this <code>ProductFactory</code>.
+ * @version 1.0
  */
 public interface ProductFactory<P extends ProductDescriptor> {
 

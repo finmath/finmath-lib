@@ -9,6 +9,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 /**
  * @author Christian Fries
  *
+ * @version 1.0
  */
 public interface TermStructureTenorTimeScalingInterface {
 

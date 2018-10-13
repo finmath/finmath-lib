@@ -21,6 +21,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @see LIBORCorrelationModelThreeParameterExponentialDecay
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
 

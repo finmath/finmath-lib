@@ -5,6 +5,7 @@ package net.finmath.modelling;
  *
  * @author Christian Fries
  * @author Roland Bachl
+ * @version 1.0
  */
 public interface InterestRateProductDescriptor extends ProductDescriptor {
 }

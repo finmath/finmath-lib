@@ -12,6 +12,7 @@ import java.util.Map;
  * Interface implemented by all financial product which may be valued by a model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface ProductInterface {
 

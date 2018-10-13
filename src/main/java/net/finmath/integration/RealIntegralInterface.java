@@ -15,6 +15,7 @@ import java.util.function.DoubleUnaryOperator;
  * This is a functional interface.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 @FunctionalInterface
 public interface RealIntegralInterface {

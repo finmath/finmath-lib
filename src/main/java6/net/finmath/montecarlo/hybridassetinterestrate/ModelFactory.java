@@ -22,6 +22,7 @@ import net.finmath.optimizer.SolverException;
  * Helper factory to create a simple equity hybrid LIBOR market model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class ModelFactory {
 

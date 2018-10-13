@@ -26,6 +26,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
  * this construct in a calibration process referencing changing discount curves.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implements Serializable {
 

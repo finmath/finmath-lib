@@ -28,6 +28,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * part of the calibration.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 

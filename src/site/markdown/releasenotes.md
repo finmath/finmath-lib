@@ -5,12 +5,51 @@ finmath lib Release Notes
 
 # Release Notes
 
+
+## 3.4.0 (23.09.2018)
+
+### Adjoint Algorithmic Differentiation
+
+- Added Automatic Type Tracking / Operator Result Type Priorities to RandomVariableInterface implementations. For details on the concet of "Operator Result Type Priorities" see https://ssrn.com/abstract=3246127
+- Improved test coverage: adding forward mode differentiation to some parametrized unit test.
+
+## 3.3.4 (07.09.2018)
+
+### Adjoint Algorithmic Differentiation
+
+- Fixed bug in the implementation of floor operator.
+- Improved unit test for vega test. 
+- Preparations for Operator Result Type Priorities.
+
+
+## 3.3.3 (02.09.2018)
+
+### General
+
+- Fixed typos.
+
+### Monte-Carlo Simulation
+
+- Added the interface RegressionBasisFunctionProvider for American Monte-Carlo algorithms.
+- Added the ability to use products implementing AbstractMonteCarloProduct as regression basis functions.
+
+### Monte-Carlo Interest Rate Models
+
+- The Option component allows specification of a RegressionBasisFunctionsProvider.
+ 
+### LIBOR Market Model
+
+- The LIBORIndex supports automatic adjustment of a tenor basis spread if the index name relates to a curve in the LIBOR market model analytic model.
+- Added a unit test for the LIBORIndex testing the value of a FRA on different forward curves.
+
+
 ## 3.3.2 (29.07.2018)
 
 ### General
 
 - Minor improvements.
 - Fixed an incompatibility in the LIBOR Market Model spreadsheet.
+
 
 ## 3.3.1 (22.07.2018)
 
@@ -24,6 +63,7 @@ finmath lib Release Notes
 
 - Added additional features to Bermudan Swaption, Swaption and Swap to support initial 
   margin project. The Bermudan swaption reports the stochastic exerciseTime in the result map.
+
 
 ## 3.2.14 (16.07.2018)
 

@@ -33,6 +33,7 @@ import net.finmath.timeseries.HistoricalSimulationModel;
  * estimated.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class GARCH implements HistoricalSimulationModel {
 

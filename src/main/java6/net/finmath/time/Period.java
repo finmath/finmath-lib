@@ -21,6 +21,7 @@ import org.threeten.bp.LocalDate;
  * resulting in a time-discretization.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Period implements Comparable<Period> {
 

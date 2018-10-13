@@ -37,6 +37,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * on the time discretization \( \{ t_{j} \} \). For the exact integration of this formula see {@link LIBORVolatilityModelFourParameterExponentialFormIntegrated}.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolatilityModel {
 

@@ -6,6 +6,7 @@ import java.util.Iterator;
  * A time series created from a sup-interval of another time series.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class TimeSeriesView implements TimeSeriesInterface {
 

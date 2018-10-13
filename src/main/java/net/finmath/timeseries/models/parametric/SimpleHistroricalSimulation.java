@@ -16,6 +16,7 @@ import net.finmath.timeseries.HistoricalSimulationModel;
  * Implementation of standard historical simulation.
  *
  * @author Christian Fries, Norman Seeger
+ * @version 1.0
  */
 
 public class SimpleHistroricalSimulation implements HistoricalSimulationModel {

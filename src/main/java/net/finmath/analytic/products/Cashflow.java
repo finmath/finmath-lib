@@ -15,6 +15,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @TODO: Currency is neither checked nor used.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Cashflow extends AbstractAnalyticProduct implements AnalyticProductInterface {
 

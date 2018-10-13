@@ -11,6 +11,7 @@ package net.finmath.rootfinder;
  *
  * @author Christian Fries
  * @date 2008-04-06
+ * @version 1.0
  */
 public interface RootFinderWithDerivative {
 

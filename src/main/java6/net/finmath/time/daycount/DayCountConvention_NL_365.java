@@ -21,6 +21,7 @@ import org.threeten.bp.chrono.IsoChronology;
  * day count is divided by 365.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class DayCountConvention_NL_365 implements DayCountConventionInterface {
 

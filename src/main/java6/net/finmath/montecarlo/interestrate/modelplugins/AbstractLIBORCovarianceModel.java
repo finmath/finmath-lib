@@ -15,6 +15,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * an forward rate interest rate model.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class AbstractLIBORCovarianceModel implements Serializable {
 

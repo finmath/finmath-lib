@@ -14,6 +14,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * be evaluated using an <code>AnalyticModel</code>.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public interface AnalyticProductInterface extends ProductInterface {
 

@@ -16,6 +16,7 @@ import java.util.StringTokenizer;
  * For the supported date roll conventions see {@link BusinessdayCalendarInterface.DateRollConvention}.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public abstract class BusinessdayCalendar implements BusinessdayCalendarInterface {
 

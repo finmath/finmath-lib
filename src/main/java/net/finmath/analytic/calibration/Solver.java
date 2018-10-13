@@ -31,6 +31,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * I will greatly profit from a multi-core architecture.
  *
  * @author Christian Fries
+ * @version 1.0
  */
 public class Solver {
 
