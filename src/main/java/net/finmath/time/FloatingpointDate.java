@@ -6,7 +6,9 @@
 package net.finmath.time;
 
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
@@ -32,13 +34,47 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * - in the textbook Black-Scholes models, multiplying volatility by W(t), changing from an ACT/365 to ACT/360 would represent a re-scaling of the volatilities.
  *
  * @author Christian Fries
- * @version 1.0
+ * @version 1.1
  */
 public class FloatingpointDate {
 
 	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
+	private final static long SECONDS_PER_DAY = 365*24*60*60;
 
 	private FloatingpointDate() {
+	}
+
+	/**
+	 * Convert a floating point date to a LocalDateTime.
+	 *
+	 * Note: This method currently performs a rounding to the next day.
+	 * In a future extension intra-day time offsets may be considered.
+	 *
+	 * If referenceDate is null, the method returns null.
+	 *
+	 * @param referenceDate The reference date associated with \( t=0 \).
+	 * @param floatingPointDate The value to the time offset \( t \).
+	 * @return The date resulting from adding Math.round(fixingTime*365.0) days to referenceDate.
+	 */
+	public static LocalDateTime getDateFromFloatingPointDate(LocalDateTime referenceDate, double floatingPointDate) {
+		if(referenceDate == null) {
+			return null;
+		}
+
+		Duration duration = Duration.ofSeconds(Math.round(floatingPointDate * SECONDS_PER_DAY));
+		return referenceDate.plus(duration);
+	}
+
+	/**
+	 * Convert a given date to a floating point date using a given reference date.
+	 *
+	 * @param referenceDate The reference date associated with \( t=0 \).
+	 * @param date The given date to be associated with the return value \( T \).
+	 * @return The value T measuring the distance of reference date and date by ACT/365.
+	 */
+	public static double getFloatingPointDateFromDate(LocalDateTime referenceDate, LocalDateTime date) {
+		Duration duration = Duration.between(referenceDate, date);
+		return ((double)duration.getSeconds()) / SECONDS_PER_DAY;
 	}
 
 	/**

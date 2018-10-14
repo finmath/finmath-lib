@@ -6,6 +6,7 @@
 package net.finmath.time;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,4 +29,21 @@ public class FloatingpointDateTest {
 		}
 	}
 
+	/**
+	 * Unit test for a roundtrip that the double representation is 1:1 to a LocalDate representation (up to days).
+	 */
+	@Test
+	public void testLocalDateTime() {
+		LocalDateTime referenceDate = LocalDateTime.of(2016, 01, 01,12, 34);
+		for(int i=0; i<1000; i+=2) {
+			for(int j=0; j<24*60*60; j+=7) {
+				LocalDateTime date = referenceDate.plusDays(i).plusSeconds(j);
+
+				double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
+				LocalDateTime dateFromFloat	= FloatingpointDate.getDateFromFloatingPointDate(referenceDate, floatingPointDate);
+
+				Assert.assertTrue("Roundtrip with date offset of " + i + " days " + j + " seconds.", dateFromFloat.isEqual(date));
+			}
+		}
+	}
 }
