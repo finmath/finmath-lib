@@ -38,8 +38,9 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  */
 public class FloatingpointDate {
 
-	private static	DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
-	private final static long SECONDS_PER_DAY = 365*24*60*60;
+	private static final long SECONDS_PER_DAY = 365*24*60*60;
+
+	private static DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
 
 	private FloatingpointDate() {
 	}
