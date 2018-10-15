@@ -713,14 +713,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				unAdjustedNumeraire = getRandomVariableForConstant(1.0);
 				if (measure == Measure.TERMINAL) {
 					/*
-					 * If numeraire is not P(Tn;Tn), discount (1 + L(Ti)*dt) on N(Ti+1)
+					 * Due to time < T_{timeIndex+1} loop is needed.
 					 */
-					if (timeIndex != liborPeriodDiscretization.getNumberOfTimeSteps()) {
+					for (int liborIndex = timeIndex; liborIndex <= liborPeriodDiscretization.getNumberOfTimeSteps() - 1; liborIndex++) {
 						RandomVariableInterface libor = getLIBOR(
-								getTimeIndex(Math.min(time, liborPeriodDiscretization.getTime(timeIndex))), timeIndex);
-						double periodLength = liborPeriodDiscretization.getTimeStep(timeIndex);
-						unAdjustedNumeraire = getUnAdjustedNumeraire(getLiborPeriod(timeIndex + 1)).discount(libor,
-								periodLength);
+								getTimeIndex(Math.min(time, liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
+						double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
+						unAdjustedNumeraire = unAdjustedNumeraire.discount(libor, periodLength);
 					}
 				} else if (measure == Measure.SPOT) {
 					/*
