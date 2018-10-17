@@ -3,7 +3,6 @@ package net.finmath.modelling.descriptor.xmlparser;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,12 +19,12 @@ import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.Period;
-import net.finmath.time.Schedule;
-import net.finmath.time.ScheduleInterface;
 import net.finmath.time.daycount.DayCountConventionFactory;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
+ * Class for parsing trades saved in FIPXML to product descriptors.
+ * 
  * @author Christian Fries
  * @author Roland Bachl
  *
@@ -34,17 +33,24 @@ public class FIPXMLParser implements XMLParser {
 
 	private final boolean agentIsBuyer;
 	private final String discountCurveName;
-	private final LocalDate referenceDate;
 
+	/**
+	 * Construct the parser with default parameters. I.e. agent is buyer. Name of discount curve will be taken from file.
+	 */
 	public FIPXMLParser() {
-		this(false, null, null);
+		this(false, null);
 	}
 
-	public FIPXMLParser(boolean agentIsBuyer, String discountCurveName, LocalDate referenceDate) {
+	/**
+	 * Construct the parser.
+	 * 
+	 * @param agentIsBuyer Boolean indicating whether valuation is done from the buyers perspective.
+	 * @param discountCurveName Name of the discount curve to be assigned to the descriptor. If set to null or left blank the parser will try to determine this from the file.
+	 */
+	public FIPXMLParser(boolean agentIsBuyer, String discountCurveName) {
 		super();
 		this.agentIsBuyer = agentIsBuyer;
 		this.discountCurveName = discountCurveName;
-		this.referenceDate = referenceDate;
 	}
 
 	@Override
@@ -89,7 +95,6 @@ public class FIPXMLParser implements XMLParser {
 			throw new IllegalArgumentException("This xml parser is not set up to process trade of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 
-		LocalDate referenceDate = this.referenceDate == null ? LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate() : this.referenceDate;
 		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
 
 		//TODO try to get curves from file. Problems if there are two float/fixed legs
@@ -106,7 +111,7 @@ public class FIPXMLParser implements XMLParser {
 
 		//Discount curve
 		String[] split = forwardCurveName.split("_");
-		String discountCurveName = this.discountCurveName == null ? split[0] +"_"+split[1] : this.discountCurveName;
+		String discountCurveName = (this.discountCurveName == null || this.discountCurveName.length() == 0 ) ? split[0] +"_"+split[1] : this.discountCurveName;
 
 		InterestRateSwapLegProductDescriptor legReceiver = null;
 		InterestRateSwapLegProductDescriptor legPayer = null;
@@ -121,9 +126,9 @@ public class FIPXMLParser implements XMLParser {
 			boolean isFixed = leg.getElementsByTagName("interestType").item(0).getTextContent().equals("FIX");
 
 			if(isPayer) {
-				legPayer = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, referenceDate, daycountConvention);
+				legPayer = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, daycountConvention);
 			} else {
-				legReceiver = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, referenceDate, daycountConvention);
+				legReceiver = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, daycountConvention);
 			}
 
 		}
@@ -150,7 +155,6 @@ public class FIPXMLParser implements XMLParser {
 			throw new IllegalArgumentException("This xml parser is not set up to process trades of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 
-		LocalDate referenceDate = this.referenceDate == null ? LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate() : this.referenceDate;
 		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
 
 		//TODO try to get curves from file. If fixed leg, cannot derive discount curve.
@@ -175,11 +179,20 @@ public class FIPXMLParser implements XMLParser {
 		//Return the leg descriptor
 		Element leg = (Element) doc.getElementsByTagName("legAgreement").item(0);
 
-		return getSwapLegProductDescriptor(leg, forwardCurveName, discountCurveName, referenceDate, daycountConvention);
+		return getSwapLegProductDescriptor(leg, forwardCurveName, discountCurveName, daycountConvention);
 	}
 
-	private static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg, String forwardCurveName, String discountCurveName,
-			LocalDate referenceDate, DayCountConventionInterface daycountConvention) {
+	/**
+	 * Construct an InterestRateSwapLegProductDescriptor from a node in a FIPXML file.
+	 * 
+	 * @param leg The node containing the leg.
+	 * @param forwardCurveName Forward curve name form outside the node.
+	 * @param discountCurveName Discount curve name form outside the node.
+	 * @param daycountConvention Daycount convention from outside the node.
+	 * @return Descriptor of the swap leg.
+	 */
+	private static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg, String forwardCurveName, String discountCurveName, 
+			DayCountConventionInterface daycountConvention) {
 
 		boolean isFixed = leg.getElementsByTagName("interestType").item(0).getTextContent().equalsIgnoreCase("FIX");
 
@@ -217,11 +230,11 @@ public class FIPXMLParser implements XMLParser {
 
 		}
 
-		ScheduleInterface schedule = new Schedule(referenceDate, periods, daycountConvention);
+		ScheduleDescriptor schedule = new ScheduleDescriptor(periods, daycountConvention);
 		double[] notionals	= notionalsList.stream().mapToDouble(Double::doubleValue).toArray();
 		double[] spreads	= rates.stream().mapToDouble(Double::doubleValue).toArray();
 
-		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, new ScheduleDescriptor(schedule), notionals, spreads, false);
+		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, schedule, notionals, spreads, false);
 	}
 
 }
