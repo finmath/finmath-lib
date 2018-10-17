@@ -191,7 +191,7 @@ public class FIPXMLParser implements XMLParser {
 	 * @param daycountConvention Daycount convention from outside the node.
 	 * @return Descriptor of the swap leg.
 	 */
-	private static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg, String forwardCurveName, String discountCurveName, 
+	private static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg, String forwardCurveName, String discountCurveName,
 			DayCountConventionInterface daycountConvention) {
 
 		boolean isFixed = leg.getElementsByTagName("interestType").item(0).getTextContent().equalsIgnoreCase("FIX");
