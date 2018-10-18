@@ -15,9 +15,10 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.Swap;
 
 /**
- * @author Christian Fries
+ * Product factory of interest rate derivatives for use with a Monte-Carlo method based model.
  *
- * @version 1.0
+ * @author Christian Fries
+ * @author Roland Bachl
  */
 public class InterestRateMonteCarloProductFactory implements ProductFactory<InterestRateProductDescriptor> {
 
@@ -26,6 +27,11 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	//	private static final boolean						couponFlow = true;
 	//	private static final boolean						isNotionalAccruing = false;
 
+	/**
+	 * Initialize the factory with the given referenceDate.
+	 *
+	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
+	 */
 	public InterestRateMonteCarloProductFactory(LocalDate referenceDate) {
 		super();
 		this.referenceDate = referenceDate;
