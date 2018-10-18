@@ -12,7 +12,6 @@ import net.finmath.analytic.calibration.ParameterObjectInterface;
 import net.finmath.analytic.model.curves.CurveInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.analytic.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.analytic.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -110,7 +109,7 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 * @param volatilitySurfaces The list of volatility surfaces to add.
 	 * @return A new analytic model.
 	 */
-	AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces);
+	AnalyticModelInterface addVolatilitySurfaces(Set<VolatilitySurfaceInterface> volatilitySurfaces);
 
 
 	AnalyticModelInterface clone();
