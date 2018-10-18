@@ -270,6 +270,11 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		return volatilitySurfaceMap.get(name);
 	}
 
+	@Override
+	public Map<String, VolatilitySurfaceInterface> getVolatilitySurfaces() {
+		return Collections.unmodifiableMap(volatilitySurfaceMap);
+	}
+
 	public AnalyticModelInterface addVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
 	{
 		AnalyticModel newModel = clone();

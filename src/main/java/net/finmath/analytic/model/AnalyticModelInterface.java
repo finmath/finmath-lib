@@ -87,7 +87,20 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 */
 	ForwardCurveInterface getForwardCurve(String forwardCurveName);
 
+	/**
+	 * Returns a volatility surface for a given name.
+	 * 
+	 * @param name THe name of the requested surface.
+	 * @return The volatility surface corresponding to the name.
+	 */
 	VolatilitySurfaceInterface getVolatilitySurface(String name);
+
+	/**
+	 * Returns an unmodifiable map of all volatility surfaces.
+	 *
+	 * @return Map of all volatility surfaces.
+	 */
+	Map<String, VolatilitySurfaceInterface> getVolatilitySurfaces();
 
 	AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces);
 
