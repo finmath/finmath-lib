@@ -17,9 +17,10 @@ public class LocalVolatilityTheta {
     // Model Parameters
     private double volatility = 0.4;
     private double riskFreeRate = 0.06;
-    private double alpha = 0.9;
+    private double exponent = 0.9;
+
     private double localVolatility(double stockPrice, double currentTime) {
-        return volatility * Math.pow(stockPrice, alpha - 1);
+        return volatility * Math.pow(stockPrice, exponent - 1);
     }
 
     // Option Parameters
@@ -31,7 +32,7 @@ public class LocalVolatilityTheta {
     private double maximumStock = 160;
     private int numStockSteps = 160;
     private int numTimeSteps = 80;
-//    private int numStockSteps = 3;
+    //    private int numStockSteps = 3;
 //    private int numTimeSteps = 3;
     private double deltaStock = (maximumStock - minimumStock) / numStockSteps;
     private double deltaTau = optionMaturity / numTimeSteps;
@@ -54,18 +55,24 @@ public class LocalVolatilityTheta {
     private double V_terminal(double stockPrice) {
         return Math.max(optionStrike - stockPrice, 0);
     }
+
     private double V_minimumStock(double stockPrice, double currentTime) {
-        return optionStrike * Math.exp(-riskFreeRate*(optionMaturity - currentTime)) - stockPrice;
+        return optionStrike * Math.exp(-riskFreeRate * (optionMaturity - currentTime)) - stockPrice;
     }
+
     private double V_maximumStock(double stockPrice, double currentTime) {
         return 0;
     }
 
     // Time-reversed Boundary Conditions
-    private double U_initial(double stockPrice) {return V_terminal(stockPrice); }
+    private double U_initial(double stockPrice) {
+        return V_terminal(stockPrice);
+    }
+
     private double U_minimumStock(double stockPrice, double tau) {
         return V_minimumStock(stockPrice, optionMaturity - tau);
     }
+
     private double U_maximumStock(double stockPrice, double tau) {
         return V_maximumStock(stockPrice, optionMaturity - tau);
     }
@@ -74,7 +81,7 @@ public class LocalVolatilityTheta {
         // Create interior spatial array of stock prices
         int len = numStockSteps - 1;
         double[] stock = new double[len];
-        for (int i = 0; i < len; i++){
+        for (int i = 0; i < len; i++) {
             stock[i] = minimumStock + (i + 1) * deltaStock;
         }
 
@@ -93,8 +100,8 @@ public class LocalVolatilityTheta {
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
                 if (i == j) {
-                    D1.setEntry(i, j, minimumStock/deltaStock + (i + 1));
-                    D2.setEntry(i, j, Math.pow(minimumStock/deltaStock + (i + 1), 2));
+                    D1.setEntry(i, j, minimumStock / deltaStock + (i + 1));
+                    D2.setEntry(i, j, Math.pow(minimumStock / deltaStock + (i + 1), 2));
                     T2.setEntry(i, j, -2);
                 } else if (i == j - 1) {
                     T1.setEntry(i, j, 1);
@@ -102,7 +109,7 @@ public class LocalVolatilityTheta {
                 } else if (i == j + 1) {
                     T1.setEntry(i, j, -1);
                     T2.setEntry(i, j, 1);
-                 } else {
+                } else {
                     D1.setEntry(i, j, 0);
                     D2.setEntry(i, j, 0);
                     T1.setEntry(i, j, 0);
@@ -122,9 +129,9 @@ public class LocalVolatilityTheta {
         RealMatrix b2 = MatrixUtils.createRealMatrix(len, 1);
         RealMatrix U = MatrixUtils.createRealMatrix(len, 1);
         for (int i = 0; i < len; i++) {
-            b.setEntry(i,0,0);
+            b.setEntry(i, 0, 0);
             b2.setEntry(i, 0, 0);
-            U.setEntry(i,0, U_initial(stock[i]));
+            U.setEntry(i, 0, U_initial(stock[i]));
         }
 
         // Theta finite difference method
@@ -156,11 +163,11 @@ public class LocalVolatilityTheta {
                     optionMaturity - (m + 1) * deltaTau), 2);
 
             double test = U_minimumStock(minimumStock, tau[m]);
-            b.setEntry(0,0,
+            b.setEntry(0, 0,
                     0.5 * deltaTau * Sl * (vl * Sl - riskFreeRate) * U_minimumStock(minimumStock, tau[m]));
             b.setEntry(len - 1, 0,
                     0.5 * deltaTau * Su * (vu * Su - riskFreeRate) * U_maximumStock(maximumStock, tau[m]));
-            b2.setEntry(0,0,
+            b2.setEntry(0, 0,
                     0.5 * deltaTau * Sl * (vl2 * Sl - riskFreeRate) * U_minimumStock(minimumStock, tau[m + 1]));
             b2.setEntry(len - 1, 0,
                     0.5 * deltaTau * Su * (vu2 * Su - riskFreeRate) * U_maximumStock(maximumStock, tau[m + 1]));
@@ -174,7 +181,6 @@ public class LocalVolatilityTheta {
         stockAndOptionPrice[1] = optionPrice;
         return stockAndOptionPrice;
     }
-
 
 
 }

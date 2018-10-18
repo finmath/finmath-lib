@@ -22,6 +22,8 @@ public class BlackScholesThetaTest {
 
 		int numTimesteps = 35;
 		int numSpacesteps = 120;
+//		int numTimesteps = 3;
+//		int numSpacesteps = 3;
 		int numStandardDeviations = 5;
 		double initialValue = 50;
 		double theta = 0.5;
@@ -45,8 +47,9 @@ public class BlackScholesThetaTest {
 			analyticalOptionValue[i] = AnalyticFormulas.blackScholesOptionValue(initialStockPrice[i], riskFreeRate,
 					volatility, optionMaturity, optionStrike, true);
 		}
-
-		Assert.assertArrayEquals(optionValue, analyticalOptionValue, 1.2e-2);
 		System.out.println(Arrays.toString(optionValue));
+		Assert.assertArrayEquals(optionValue, analyticalOptionValue, 1e-2);
+
 	}
+
 }

@@ -32,5 +32,9 @@ public interface FiniteDifference1DModel extends ModelInterface {
 
 	int getNumSpacesteps();
 
+	int getNumTimesteps();
+
 	double getVolatility();
+
+	double getLocalVolatility(double assetValue, double time);
 }
