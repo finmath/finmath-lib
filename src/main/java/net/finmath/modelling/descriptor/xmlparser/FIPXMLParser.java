@@ -65,18 +65,21 @@ public class FIPXMLParser implements XMLParser {
 		}
 
 		if(doc.getElementsByTagName("instrumentName").item(0).getTextContent().equalsIgnoreCase("Interest Rate Swap")) {
-			switch (doc.getElementsByTagName("legAgreement").getLength()) {
-			case 1: return getSwapLegProductDescriptor(file);
-			case 2: return getSwapProductDescriptor(file);
-			default: throw new IllegalArgumentException("Unknown swap configuration. Number of swap legs was "+doc.getElementsByTagName("legAgreement").getLength());
-			}
-
+			return getSwapProductDescriptor(file);
 		} else {
 			throw new IllegalArgumentException("This xml parser is not set up to process trade of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 	}
 
-
+	/**
+	 * Parse a product descriptor from a file containing a swap trade.
+	 *
+	 * @param file File containing a swap trade.
+	 * @return Product descriptor extracted from the file.
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	public InterestRateSwapProductDescriptor getSwapProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
 
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
@@ -135,51 +138,6 @@ public class FIPXMLParser implements XMLParser {
 
 		return new InterestRateSwapProductDescriptor(legReceiver, legPayer);
 
-	}
-
-	public InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
-
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
-		doc.getDocumentElement().normalize();
-
-		//Check compatibility
-		if(! doc.getDocumentElement().getNodeName().equalsIgnoreCase("FIPXML")) {
-			throw new IllegalArgumentException("This parser is meant for XML of type FIPXML, but file was "+doc.getDocumentElement().getNodeName()+".");
-		}
-
-		if(doc.getElementsByTagName("instrumentName").item(0).getTextContent().equalsIgnoreCase("Interest Rate Swap")) {
-			if (doc.getElementsByTagName("legAgreement").getLength() != 2) {
-				throw new IllegalArgumentException("Unknown swap configuration. Number of swap legs was "+doc.getElementsByTagName("legAgreement").getLength());
-			}
-		} else {
-			throw new IllegalArgumentException("This xml parser is not set up to process trades of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
-		}
-
-		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
-
-		//TODO try to get curves from file. If fixed leg, cannot derive discount curve.
-		//forward curve
-		String forwardCurveName = null;
-		NodeList temp = doc.getElementsByTagName("instrumentId");
-		for(int index = 0; index < temp.getLength(); index++) {
-			Node id = temp.item(index);
-			if(id.getAttributes().getNamedItem("instrumentIdScheme").getTextContent().equalsIgnoreCase("INTERESTRATE")) {
-				forwardCurveName = id.getTextContent();
-				break;
-			}
-		}
-
-		//Discount curve
-		String discountCurveName = null;
-		if(!forwardCurveName.isEmpty()) {
-			String[] split = forwardCurveName.split("_");
-			discountCurveName = this.discountCurveName == null ? split[0] +"_"+split[1] : this.discountCurveName;
-		}
-
-		//Return the leg descriptor
-		Element leg = (Element) doc.getElementsByTagName("legAgreement").item(0);
-
-		return getSwapLegProductDescriptor(leg, forwardCurveName, discountCurveName, daycountConvention);
 	}
 
 	/**

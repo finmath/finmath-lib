@@ -18,6 +18,8 @@ import net.finmath.modelling.ProductDescriptor;
 public interface XMLParser {
 
 	/**
+	 * Parse a product descriptor from a file.
+	 *
 	 * @param file File containing a trade.
 	 * @return Product descriptor extracted from the file.
 	 * @throws SAXException
