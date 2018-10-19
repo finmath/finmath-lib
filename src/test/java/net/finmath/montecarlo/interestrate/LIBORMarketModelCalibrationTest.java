@@ -571,10 +571,10 @@ public class LIBORMarketModelCalibrationTest {
 					double valueFromCalibratedModel = calibrationProduct.getValue(simulationCalibrated);
 					double valueFromSerializedModel = calibrationProduct.getValue(simulationFromSerialization);
 					double error = valueFromSerializedModel-valueFromCalibratedModel;
+					Assert.assertEquals("Valuation using deserilized model.", valueFromCalibratedModel, valueFromSerializedModel, 1E-12);
 					System.out.println(calibrationItemNames.get(i) + "\t" + formatterDeviation.format(error));
 				}
 				catch(Exception e) {
-					fail("Valuation failed with exception " + e.getMessage());
 				}
 			}
 		}
