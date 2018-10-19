@@ -5,6 +5,13 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
@@ -298,6 +305,9 @@ public class LIBORMarketModelCalibrationTest {
 
 	/**
 	 * Brute force Monte-Carlo calibration of swaptions.
+	 * 
+	 * The test also performs a test on the serialization of the LMM. It serialized the calibrated model into a byte array,
+	 * reads the model back and compares a simulation using the serialized model with the original one.
 	 *
 	 * @throws CalculationException Thrown if the model fails to calibrate.
 	 * @throws SolverException Thrown if the solver fails to find a solution.
@@ -525,6 +535,50 @@ public class LIBORMarketModelCalibrationTest {
 			catch(Exception e) {
 			}
 		}
+
+
+		/*
+		 * Checking serilization
+		 */
+		byte[] lmmSerialized = null;
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream( baos );
+			oos.writeObject(liborMarketModelCalibrated.getCloneWithModifiedData(null));
+			lmmSerialized = baos.toByteArray();
+		} catch (IOException e) {
+			fail("Serialization failed with exception " + e.getMessage());
+		}
+
+		LIBORMarketModel liborMarketModelFromSerialization = null;
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(lmmSerialized) );
+			liborMarketModelFromSerialization = (LIBORMarketModel)ois.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			fail("Deserialization failed with exception " + e.getMessage());
+		}
+
+		/*
+		 * Check if the deserialized model and the original calibrated model give the same valuations
+		 */
+		if(liborMarketModelFromSerialization != null) {
+			LIBORModelMonteCarloSimulationInterface simulationFromSerialization = new LIBORModelMonteCarloSimulation(liborMarketModelFromSerialization, new ProcessEulerScheme(brownianMotion));
+
+			System.out.println("\nValuation on calibrated model:");
+			for (int i = 0; i < calibrationItems.size(); i++) {
+				AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
+				try {
+					double valueFromCalibratedModel = calibrationProduct.getValue(simulationCalibrated);
+					double valueFromSerializedModel = calibrationProduct.getValue(simulationFromSerialization);
+					double error = valueFromSerializedModel-valueFromCalibratedModel;
+					System.out.println(calibrationItemNames.get(i) + "\t" + formatterDeviation.format(error));
+				}
+				catch(Exception e) {
+					fail("Valuation failed with exception " + e.getMessage());
+				}
+			}
+		}
+
 
 		System.out.println("Calibration of curves........." + (millisCurvesEnd-millisCurvesStart)/1000.0);
 		System.out.println("Calibration of volatilities..." + (millisCalibrationEnd-millisCalibrationStart)/1000.0);

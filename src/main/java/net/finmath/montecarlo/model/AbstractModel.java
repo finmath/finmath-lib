@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public abstract class AbstractModel implements AbstractModelInterface {
 
-	private AbstractProcessInterface       process;
+	private transient AbstractProcessInterface process;
 
 	/**
 	 * Returns the initial value of the model.

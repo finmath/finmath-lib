@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -134,7 +137,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel The abstract covariance model plug ins.
  * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric A parametic covariance model including a generic calibration algorithm.
  */
-public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelInterface {
+public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelInterface, Serializable {
+
+	private static final long serialVersionUID = 4166077559001066615L;
 
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }
 	public enum Measure				{ SPOT, TERMINAL }
@@ -159,8 +164,8 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	private double				liborCap					= 1E5;
 
 	// This is a cache of the integrated covariance.
-	private double[][][]	integratedLIBORCovariance;
-	private final Object	integratedLIBORCovarianceLazyInitLock = new Object();
+	private double[][][]		integratedLIBORCovariance;
+	private transient Object	integratedLIBORCovarianceLazyInitLock = new Object();
 
 	// Cache for the numeraires, needs to be invalidated if process changes
 	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
@@ -1189,28 +1194,37 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		properties.put("measure",		measure.name());
 		properties.put("stateSpace",	stateSpace.name());
 
-		if(dataModified.containsKey("liborPeriodDiscretization")) {
+		if(dataModified != null && dataModified.containsKey("liborPeriodDiscretization")) {
 			liborPeriodDiscretization = (TimeDiscretizationInterface)dataModified.get("liborPeriodDiscretization");
 		}
-		if(dataModified.containsKey("forwardRateCurve")) {
+		if(dataModified != null && dataModified.containsKey("forwardRateCurve")) {
 			forwardRateCurve = (ForwardCurveInterface)dataModified.get("forwardRateCurve");
 		}
-		if(dataModified.containsKey("discountCurve")) {
+		if(dataModified != null && dataModified.containsKey("discountCurve")) {
 			discountCurve = (DiscountCurveInterface)dataModified.get("discountCurve");
 		}
-		if(dataModified.containsKey("forwardRateShift")) {
+		if(dataModified != null && dataModified.containsKey("forwardRateShift")) {
 			throw new RuntimeException("Forward rate shift clone currently disabled.");
 		}
-		if(dataModified.containsKey("covarianceModel")) {
+		if(dataModified != null && dataModified.containsKey("covarianceModel")) {
 			covarianceModel = (AbstractLIBORCovarianceModel)dataModified.get("covarianceModel");
 		}
-		if(dataModified.containsKey("swaptionMarketData")) {
+		if(dataModified != null && dataModified.containsKey("swaptionMarketData")) {
 			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
 		}
 
 		LIBORMarketModel newModel = new LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, swaptionMarketData, properties);
 		newModel.curveModel = analyticModel;
 		return newModel;
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+
+		/*
+		 * Init transient fields
+		 */
+		integratedLIBORCovarianceLazyInitLock = new Object();
 	}
 
 	@Override

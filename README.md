@@ -8,6 +8,8 @@ About finmath lib
 
 ****************************************
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.finmath/finmath-lib/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.finmath/finmath-lib)
+
 **Project home page: http://finmath.net/finmath-lib**
 
 The finmath lib libraries provides (JVM) implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are

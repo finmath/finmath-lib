@@ -96,7 +96,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
 		jointParameters[covarianceParameters.length+0] = kappa;
 		jointParameters[covarianceParameters.length+1] = theta;
-		jointParameters[covarianceParameters.length+1] = xi;
+		jointParameters[covarianceParameters.length+2] = xi;
 
 		return jointParameters;
 	}
