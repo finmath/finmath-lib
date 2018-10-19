@@ -18,7 +18,6 @@ import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
@@ -270,6 +269,11 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		return volatilitySurfaceMap.get(name);
 	}
 
+	@Override
+	public Map<String, VolatilitySurfaceInterface> getVolatilitySurfaces() {
+		return Collections.unmodifiableMap(volatilitySurfaceMap);
+	}
+
 	public AnalyticModelInterface addVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
 	{
 		AnalyticModel newModel = clone();
@@ -288,7 +292,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	}
 
 	@Override
-	public AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces) {
+	public AnalyticModelInterface addVolatilitySurfaces(Set<VolatilitySurfaceInterface> volatilitySurfaces) {
 		AnalyticModel newModel = clone();
 		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);

@@ -23,6 +23,11 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 	private final LocalDate 						referenceDate;
 
 
+	/**
+	 * Initialize the factory with the given referenceDate.
+	 *
+	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
+	 */
 	public InterestRateAnalyticProductFactory(LocalDate referenceDate) {
 		super();
 		this.referenceDate = referenceDate;

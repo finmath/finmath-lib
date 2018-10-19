@@ -16,6 +16,12 @@ public class InterestRateSwapProductDescriptor implements InterestRateProductDes
 	private final InterestRateProductDescriptor legReceiver;
 	private final InterestRateProductDescriptor legPayer;
 
+	/**
+	 * Construct a swap product descriptor from the descriptors of its legs.
+	 *
+	 * @param legReceiver The descriptor of the receiver leg.
+	 * @param legPayer The descriptor of the payer leg.
+	 */
 	public InterestRateSwapProductDescriptor(InterestRateProductDescriptor legReceiver,
 			InterestRateProductDescriptor legPayer) {
 		super();
@@ -24,11 +30,20 @@ public class InterestRateSwapProductDescriptor implements InterestRateProductDes
 	}
 
 
+	/**
+	 * Return the descriptor of the receiver leg of this swap.
+	 *
+	 * @return The leg descriptor.
+	 */
 	public InterestRateProductDescriptor getLegReceiver() {
 		return legReceiver;
 	}
 
-
+	/**
+	 * Return the descriptor of the payer leg of this swap.
+	 *
+	 * @return The leg descriptor.
+	 */
 	public InterestRateProductDescriptor getLegPayer() {
 		return legPayer;
 	}

@@ -26,6 +26,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 
 /**
+ * Class for parsing trades saved in FpML to product descriptors.
+ * 
  * @author Christian Fries
  * @author Roland Bachl
  *
@@ -38,7 +40,13 @@ public class FPMLParser implements XMLParser {
 	private BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 	private ShortPeriodConvention shortPeriodConvention= ScheduleGenerator.ShortPeriodConvention.LAST;
 
-	public FPMLParser(String homePartyId, String discountCurveName, LocalDate referenceDate) {
+	/**
+	 * Construct the parser.
+	 * 
+	 * @param homePartyId Id of the agent doing the valuation.
+	 * @param discountCurveName Name of the discount curve to be given to the descriptors.
+	 */
+	public FPMLParser(String homePartyId, String discountCurveName) {
 		super();
 		this.homePartyId = homePartyId;
 		this.discountCurveName = discountCurveName;
@@ -84,7 +92,12 @@ public class FPMLParser implements XMLParser {
 
 	}
 
-
+	/**
+	 * Construct an InterestRateSwapProductDescriptor from a node in a FpML file.
+	 * 
+	 * @param leg The node containing the leg.
+	 * @return Descriptor of the swap leg.
+	 */
 	private ProductDescriptor getSwapProductDescriptor(Element trade) {
 
 		InterestRateSwapLegProductDescriptor legReceiver = null;
@@ -106,6 +119,12 @@ public class FPMLParser implements XMLParser {
 		return new InterestRateSwapProductDescriptor(legReceiver, legPayer);
 	}
 
+	/**
+	 * Construct an InterestRateSwapLegProductDescriptor from a node in a FpML file.
+	 * 
+	 * @param leg The node containing the leg.
+	 * @return Descriptor of the swap leg.
+	 */
 	private InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg) {
 
 		//is this a fixed rate leg?

@@ -3,7 +3,6 @@ package net.finmath.modelling.descriptor.xmlparser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,7 +11,6 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -66,7 +64,7 @@ public class FPMLParserTest {
 
 		InterestRateSwapProductDescriptor descriptor;
 		try {
-			FPMLParser parser = new FPMLParser("party1", "discount", LocalDate.parse("2000-01-01"));
+			FPMLParser parser = new FPMLParser("party1", "discount");
 			descriptor = (InterestRateSwapProductDescriptor) parser.getProductDescriptor(file);
 		} catch (IllegalArgumentException e) {
 			System.out.println("There was a problem with the file: "+e.getMessage());

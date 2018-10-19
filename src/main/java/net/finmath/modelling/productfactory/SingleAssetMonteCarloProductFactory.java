@@ -18,7 +18,10 @@ import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescripto
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
 
 /**
+ * Product factory of single asset derivatives for use with a Monte-Carlo method based model.
+ *
  * @author Christian Fries
+ * @author Roland Bachl
  * @version 1.0
  */
 public class SingleAssetMonteCarloProductFactory implements ProductFactory<SingleAssetProductDescriptor> {
@@ -28,7 +31,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 	/**
 	 * Create the product factory.
 	 *
-	 * @param referenceDate The reference date to be used when products are generated with relative time offsets.
+	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
 	 */
 	public SingleAssetMonteCarloProductFactory(LocalDate referenceDate) {
 		this.referenceDate = referenceDate;

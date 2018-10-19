@@ -16,6 +16,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
+ * Descriptor for a schedule. All data to generate a schedule for any given reference date is stored. Either via a set of periods or conventions.
+ *
  * @author Christian Fries
  * @author Roland Bachl
  *
@@ -24,17 +26,42 @@ public class ScheduleDescriptor {
 
 	private final InternalScheduleDescriptor descriptor;
 
+	/**
+	 * Construct a schedule descriptor via a list of periods and daycount convention.
+	 *
+	 * @param periods
+	 * @param daycountConvention
+	 */
 	public ScheduleDescriptor(List<Period> periods,
 			DayCountConventionInterface daycountConvention) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(periods, daycountConvention);
 	}
 
+	/**
+	 * Extract a schedule descriptor from a schedule.
+	 *
+	 * @param schedule
+	 */
 	public ScheduleDescriptor(ScheduleInterface schedule) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(schedule.getPeriods(), schedule.getDaycountconvention());
 	}
 
+	/**
+	 * Construct a schedule descriptor via a set of parameters for a factory.
+	 *
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
+	 */
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention, BusinessdayCalendarInterface businessdayCalendar,
@@ -44,6 +71,19 @@ public class ScheduleDescriptor {
 				paymentOffsetDays, isUseEndOfMonth);
 	}
 
+	/**
+	 * Construct a schedule descriptor via a set of parameters for a factory.
+	 *
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 */
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar, int fixingOffsetDays,
@@ -52,14 +92,50 @@ public class ScheduleDescriptor {
 				dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays, false);
 	}
 
+	/**
+	 * Generate a schedule relative to the given reference date.
+	 *
+	 * @param referenceDate The desired reference date.
+	 * @return The schedule relative to the reference date.
+	 */
 	public ScheduleInterface getSchedule(LocalDate referenceDate) {
 		return descriptor.getSchedule(referenceDate);
 	}
 
+	/**
+	 * The number of periods any schedule from this descriptor will have.
+	 *
+	 * @return The number of periods.
+	 */
+	public int getNumberOfPeriods() {
+		return descriptor.getSchedule(LocalDate.parse("1970-01-01")).getNumberOfPeriods();
+	}
+
+	/**
+	 * Private inner interface for the different kinds of schedule generation methods.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
 	private interface InternalScheduleDescriptor {
+
+		/**
+		 * Generate a schedule relative to the given reference date.
+		 *
+		 * @param referenceDate The desired reference date.
+		 * @return The schedule relative to the reference date.
+		 */
 		ScheduleInterface getSchedule(LocalDate referenceDate);
 	}
 
+	/**
+	 * Private inner class to generate schedules via a list of periods and daycount convention.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
 	private static class ScheduleDescriptorFromPeriods implements InternalScheduleDescriptor {
 
 		private final List<Period> periods;
@@ -79,6 +155,13 @@ public class ScheduleDescriptor {
 
 	}
 
+	/**
+	 * Private inner class to generate schedule via conventions.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
 	private static class ScheduleDescriptorFromGenerator implements InternalScheduleDescriptor {
 
 		private final LocalDate startDate;
@@ -119,7 +202,4 @@ public class ScheduleDescriptor {
 
 	}
 
-	public int getNumberOfPeriods() {
-		return descriptor.getSchedule(LocalDate.parse("1970-01-01")).getNumberOfPeriods();
-	}
 }

@@ -8,7 +8,7 @@ import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescript
 import net.finmath.time.FloatingpointDate;
 
 /**
- * Contructing the european option valuation implementation using fourier method from a product descriptor.
+ * Fourier method based implementation of a European option from a product descriptor.
  *
  * @author Christian Fries
  * @author Roland Bachl

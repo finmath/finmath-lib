@@ -5,7 +5,7 @@ import java.util.Arrays;
 import net.finmath.modelling.InterestRateProductDescriptor;
 
 /**
- * Describes an interest rate swap.
+ * Product descriptor for an interest rate swap leg.
  *
  * @author Christian Fries
  * @author Roland Bachl
@@ -25,6 +25,16 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	private final boolean						isNotionalExchanged;
 	//	private final boolean						isNotionalAccruing;
 
+	/**
+	 * Create the descriptor with period uniform notional and spread.
+	 *
+	 * @param forwardCurveName The name of the forward curve this leg is quoted on. (Or null/empty)
+	 * @param discountCurveName The name of the curve this leg is to be discounted with.
+	 * @param legSchedule Schedule of the leg.
+	 * @param notional The notional.
+	 * @param spread Fixed spread on the forward or fix rate.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 */
 	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double notional, double spread, boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
@@ -42,6 +52,16 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 		//		this.isNotionalAccruing = isNotionalAccruing;
 	}
 
+	/**
+	 * Create the descriptor with notional and spread variable between periods.
+	 *
+	 * @param forwardCurveName The name of the forward curve this leg is quoted on. (Or null/empty)
+	 * @param discountCurveName The name of the curve this leg is to be discounted with.
+	 * @param legSchedule Schedule of the leg.
+	 * @param notionals Array of notionals for each period.
+	 * @param spreads Array of fixed spreads on the forward or fix rates for each period.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 */
 	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double[] notionals, double[] spreads, boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
@@ -55,59 +75,59 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 		//		this.isNotionalAccruing = isNotionalAccruing;
 	}
 
-	public static String getProductname() {
-		return productName;
-	}
-
-
-
+	/**
+	 * Return the name of the forward curve in this descriptor.
+	 *
+	 * @return Name of the forward curve.
+	 */
 	public String getForwardCurveName() {
 		return forwardCurveName;
 	}
 
+	/**
+	 * Return the name of the discount curve in this descriptor.
+	 *
+	 * @return Name of the discount curve.
+	 */
 	public String getDiscountCurveName() {
 		return discountCurveName;
 	}
 
+	/**
+	 * Return the descriptor of the schedule of this product descriptor.
+	 *
+	 * @return The schedule descriptor.
+	 */
 	public ScheduleDescriptor getLegScheduleDescriptor() {
 		return legSchedule;
 	}
 
+	/**
+	 * Return the notionals per period of this descriptor.
+	 *
+	 * @return Array of notionals.
+	 */
 	public double[] getNotionals() {
 		return notionals.clone();
 	}
 
-
-
-	//	public AbstractNotional getNotional() {
-	//		return notional;
-	//	}
-
-
-
+	/**
+	 * Return the spreads per period of this descriptor.
+	 *
+	 * @return Array of spreads.
+	 */
 	public double[] getSpreads() {
 		return spreads;
 	}
 
-
-
-	//	public boolean isCouponFlow() {
-	//		return couponFlow;
-	//	}
-
-
-
+	/**
+	 * Indicates whether the leg exchanges notional.
+	 *
+	 * @return true, if the leg pays notional at the beginning of the swap and reveives notional at the end.
+	 */
 	public boolean isNotionalExchanged() {
 		return isNotionalExchanged;
 	}
-
-
-
-	//	public boolean isNotionalAccruing() {
-	//		return isNotionalAccruing;
-	//	}
-
-
 
 	@Override
 	public Integer version() {

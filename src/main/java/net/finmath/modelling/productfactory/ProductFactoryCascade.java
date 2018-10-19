@@ -1,14 +1,15 @@
 package net.finmath.modelling.productfactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 
 /**
- * Implements a product factory based on a cascade of given factories.
+ * Implements a product factory based on a cascade of given factories. When invoking <code>getProductFromDescriptor(ProductDescriptor productDescriptor)</code>
+ * the cascade will query all its individual factories until one builds the product. When querying the factories the cascade will start at index 0.
  *
  * @author Christian Fries
  * @author Roland Bachl
@@ -16,30 +17,62 @@ import net.finmath.modelling.ProductFactory;
  * @param <T> The base class of the product descriptors which can be handled by this <code>ProductFactory</code>.
  * @version 1.0
  */
-public abstract class ProductFactoryCascade<T extends ProductDescriptor> implements ProductFactory<T> {
+public class ProductFactoryCascade<T extends ProductDescriptor> implements ProductFactory<T> {
 
-	private ArrayList<ProductFactory<T>> factories;
+	private ArrayList<ProductFactory<? extends T>> factories;
 
+	/**
+	 * Construct an empty factory cascade. This will build no products until amended.
+	 */
 	public ProductFactoryCascade() {
 		super();
-		factories = new ArrayList<ProductFactory<T>>(1);
+		factories = new ArrayList<ProductFactory<? extends T>>(0);
 	}
 
-	public ProductFactoryCascade(Collection<ProductFactory<T>> factories) {
+	/**
+	 * Construct a factory cascade from an ordered list of product factories. When querying the factories the cascade will start at index 0.
+	 *
+	 * @param factories
+	 */
+	public ProductFactoryCascade(List<ProductFactory<? extends T>> factories) {
 		super();
-		this.factories = new ArrayList<ProductFactory<T>>();
+		this.factories = new ArrayList<ProductFactory<? extends T>>();
 		this.factories.addAll(factories);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.modelling.DescribedModel#getProductFromDesciptor(net.finmath.modelling.ProductDescriptor)
-	 * @TODO: Fix unchecked cast
+	/**
+	 * Add a given factory to the list of factories at the BEGINNING.
+	 *
+	 * @param factory The factory to be added.
+	 * @return Cascade with amended factory list.
 	 */
+	public ProductFactoryCascade<T> addFactoryBefore(ProductFactory<? extends T> factory) {
+		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<ProductFactory<? extends T>>(this.factories.size()+1);
+		factories.addAll(this.factories);
+		factories.add(0, factory);
+		return new ProductFactoryCascade<>(factories);
+	}
+
+	/**
+	 * Add a given factory to the list of factories at the END.
+	 *
+	 * @param factory The factory to be added.
+	 * @return Cascade with amended factory list.
+	 */
+	public ProductFactoryCascade<T> addFactoryAfter(ProductFactory<? extends T> factory) {
+		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<ProductFactory<? extends T>>(this.factories.size()+1);
+		factories.addAll(this.factories);
+		factories.add(factory);
+		return new ProductFactoryCascade<>(factories);
+	}
+
 	@Override
 	public DescribedProduct<? extends T> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-		DescribedProduct<T> product;
-		for(ProductFactory<?> factory : factories) {
-			product = (DescribedProduct<T>) factory.getProductFromDescriptor(productDescriptor);
+		DescribedProduct<? extends T> product = null;
+		for(ProductFactory<? extends T> factory : factories) {
+			try {
+				product = factory.getProductFromDescriptor(productDescriptor);
+			} catch ( IllegalArgumentException e) {continue;}
 			if(product != null) {
 				return product;
 			}

@@ -12,7 +12,6 @@ import net.finmath.analytic.calibration.ParameterObjectInterface;
 import net.finmath.analytic.model.curves.CurveInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.analytic.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.analytic.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -87,7 +86,20 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 */
 	ForwardCurveInterface getForwardCurve(String forwardCurveName);
 
+	/**
+	 * Returns a volatility surface for a given name.
+	 * 
+	 * @param name THe name of the requested surface.
+	 * @return The volatility surface corresponding to the name.
+	 */
 	VolatilitySurfaceInterface getVolatilitySurface(String name);
+
+	/**
+	 * Returns an unmodifiable map of all volatility surfaces.
+	 *
+	 * @return Map of all volatility surfaces.
+	 */
+	Map<String, VolatilitySurfaceInterface> getVolatilitySurfaces();
 
 	AnalyticModelInterface addVolatilitySurfaces(VolatilitySurfaceInterface... volatilitySurfaces);
 
@@ -97,7 +109,7 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 	 * @param volatilitySurfaces The list of volatility surfaces to add.
 	 * @return A new analytic model.
 	 */
-	AnalyticModelInterface addVolatilitySurfaces(Set<AbstractVolatilitySurface> volatilitySurfaces);
+	AnalyticModelInterface addVolatilitySurfaces(Set<VolatilitySurfaceInterface> volatilitySurfaces);
 
 
 	AnalyticModelInterface clone();

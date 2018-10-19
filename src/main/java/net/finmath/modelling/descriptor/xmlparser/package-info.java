@@ -1,5 +1,5 @@
 /**
- * Provides xml parsers to contract descriptors from XML
+ * Provides xml parsers to construct descriptors from XML
  *
  * @author Christian Fries
  * @author Roland Bachl

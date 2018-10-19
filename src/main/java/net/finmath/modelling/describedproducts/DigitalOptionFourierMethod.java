@@ -8,7 +8,7 @@ import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescripto
 import net.finmath.time.FloatingpointDate;
 
 /**
- * Contructing the digital option valuation implementation using fourier method from a product descriptor.
+ * Fourier method based implementation of a digital option from a product descriptor.
  *
  * @author Christian Fries
  * @author Roland Bachl
@@ -17,6 +17,12 @@ public class DigitalOptionFourierMethod extends DigitalOption  implements Descri
 
 	private final SingleAssetDigitalOptionProductDescriptor descriptor;
 
+	/**
+	 * Create product from descriptor.
+	 * 
+	 * @param descriptor The descriptor of the product.
+	 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
+	 */
 	public DigitalOptionFourierMethod(SingleAssetDigitalOptionProductDescriptor descriptor, LocalDate referenceDate) {
 		super(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());
 		this.descriptor = descriptor;

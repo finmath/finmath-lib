@@ -3,7 +3,6 @@ package net.finmath.modelling.descriptor.xmlparser;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,12 +19,12 @@ import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.Period;
-import net.finmath.time.Schedule;
-import net.finmath.time.ScheduleInterface;
 import net.finmath.time.daycount.DayCountConventionFactory;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
+ * Class for parsing trades saved in FIPXML to product descriptors.
+ * 
  * @author Christian Fries
  * @author Roland Bachl
  *
@@ -34,17 +33,24 @@ public class FIPXMLParser implements XMLParser {
 
 	private final boolean agentIsBuyer;
 	private final String discountCurveName;
-	private final LocalDate referenceDate;
 
+	/**
+	 * Construct the parser with default parameters. I.e. agent is buyer. Name of discount curve will be taken from file.
+	 */
 	public FIPXMLParser() {
-		this(false, null, null);
+		this(false, null);
 	}
 
-	public FIPXMLParser(boolean agentIsBuyer, String discountCurveName, LocalDate referenceDate) {
+	/**
+	 * Construct the parser.
+	 * 
+	 * @param agentIsBuyer Boolean indicating whether valuation is done from the buyers perspective.
+	 * @param discountCurveName Name of the discount curve to be assigned to the descriptor. If set to null or left blank the parser will try to determine this from the file.
+	 */
+	public FIPXMLParser(boolean agentIsBuyer, String discountCurveName) {
 		super();
 		this.agentIsBuyer = agentIsBuyer;
 		this.discountCurveName = discountCurveName;
-		this.referenceDate = referenceDate;
 	}
 
 	@Override
@@ -59,18 +65,21 @@ public class FIPXMLParser implements XMLParser {
 		}
 
 		if(doc.getElementsByTagName("instrumentName").item(0).getTextContent().equalsIgnoreCase("Interest Rate Swap")) {
-			switch (doc.getElementsByTagName("legAgreement").getLength()) {
-			case 1: return getSwapLegProductDescriptor(file);
-			case 2: return getSwapProductDescriptor(file);
-			default: throw new IllegalArgumentException("Unknown swap configuration. Number of swap legs was "+doc.getElementsByTagName("legAgreement").getLength());
-			}
-
+			return getSwapProductDescriptor(file);
 		} else {
 			throw new IllegalArgumentException("This xml parser is not set up to process trade of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 	}
 
-
+	/**
+	 * Parse a product descriptor from a file containing a swap trade.
+	 *
+	 * @param file File containing a swap trade.
+	 * @return Product descriptor extracted from the file.
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	public InterestRateSwapProductDescriptor getSwapProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
 
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
@@ -89,7 +98,6 @@ public class FIPXMLParser implements XMLParser {
 			throw new IllegalArgumentException("This xml parser is not set up to process trade of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 
-		LocalDate referenceDate = this.referenceDate == null ? LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate() : this.referenceDate;
 		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
 
 		//TODO try to get curves from file. Problems if there are two float/fixed legs
@@ -106,7 +114,7 @@ public class FIPXMLParser implements XMLParser {
 
 		//Discount curve
 		String[] split = forwardCurveName.split("_");
-		String discountCurveName = this.discountCurveName == null ? split[0] +"_"+split[1] : this.discountCurveName;
+		String discountCurveName = (this.discountCurveName == null || this.discountCurveName.length() == 0 ) ? split[0] +"_"+split[1] : this.discountCurveName;
 
 		InterestRateSwapLegProductDescriptor legReceiver = null;
 		InterestRateSwapLegProductDescriptor legPayer = null;
@@ -121,9 +129,9 @@ public class FIPXMLParser implements XMLParser {
 			boolean isFixed = leg.getElementsByTagName("interestType").item(0).getTextContent().equals("FIX");
 
 			if(isPayer) {
-				legPayer = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, referenceDate, daycountConvention);
+				legPayer = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, daycountConvention);
 			} else {
-				legReceiver = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, referenceDate, daycountConvention);
+				legReceiver = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, daycountConvention);
 			}
 
 		}
@@ -132,54 +140,17 @@ public class FIPXMLParser implements XMLParser {
 
 	}
 
-	public InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
-
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
-		doc.getDocumentElement().normalize();
-
-		//Check compatibility
-		if(! doc.getDocumentElement().getNodeName().equalsIgnoreCase("FIPXML")) {
-			throw new IllegalArgumentException("This parser is meant for XML of type FIPXML, but file was "+doc.getDocumentElement().getNodeName()+".");
-		}
-
-		if(doc.getElementsByTagName("instrumentName").item(0).getTextContent().equalsIgnoreCase("Interest Rate Swap")) {
-			if (doc.getElementsByTagName("legAgreement").getLength() != 2) {
-				throw new IllegalArgumentException("Unknown swap configuration. Number of swap legs was "+doc.getElementsByTagName("legAgreement").getLength());
-			}
-		} else {
-			throw new IllegalArgumentException("This xml parser is not set up to process trades of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
-		}
-
-		LocalDate referenceDate = this.referenceDate == null ? LocalDateTime.parse(doc.getElementsByTagName("messageTimestamp").item(0).getTextContent()).toLocalDate() : this.referenceDate;
-		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
-
-		//TODO try to get curves from file. If fixed leg, cannot derive discount curve.
-		//forward curve
-		String forwardCurveName = null;
-		NodeList temp = doc.getElementsByTagName("instrumentId");
-		for(int index = 0; index < temp.getLength(); index++) {
-			Node id = temp.item(index);
-			if(id.getAttributes().getNamedItem("instrumentIdScheme").getTextContent().equalsIgnoreCase("INTERESTRATE")) {
-				forwardCurveName = id.getTextContent();
-				break;
-			}
-		}
-
-		//Discount curve
-		String discountCurveName = null;
-		if(!forwardCurveName.isEmpty()) {
-			String[] split = forwardCurveName.split("_");
-			discountCurveName = this.discountCurveName == null ? split[0] +"_"+split[1] : this.discountCurveName;
-		}
-
-		//Return the leg descriptor
-		Element leg = (Element) doc.getElementsByTagName("legAgreement").item(0);
-
-		return getSwapLegProductDescriptor(leg, forwardCurveName, discountCurveName, referenceDate, daycountConvention);
-	}
-
+	/**
+	 * Construct an InterestRateSwapLegProductDescriptor from a node in a FIPXML file.
+	 * 
+	 * @param leg The node containing the leg.
+	 * @param forwardCurveName Forward curve name form outside the node.
+	 * @param discountCurveName Discount curve name form outside the node.
+	 * @param daycountConvention Daycount convention from outside the node.
+	 * @return Descriptor of the swap leg.
+	 */
 	private static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg, String forwardCurveName, String discountCurveName,
-			LocalDate referenceDate, DayCountConventionInterface daycountConvention) {
+			DayCountConventionInterface daycountConvention) {
 
 		boolean isFixed = leg.getElementsByTagName("interestType").item(0).getTextContent().equalsIgnoreCase("FIX");
 
@@ -217,11 +188,11 @@ public class FIPXMLParser implements XMLParser {
 
 		}
 
-		ScheduleInterface schedule = new Schedule(referenceDate, periods, daycountConvention);
+		ScheduleDescriptor schedule = new ScheduleDescriptor(periods, daycountConvention);
 		double[] notionals	= notionalsList.stream().mapToDouble(Double::doubleValue).toArray();
 		double[] spreads	= rates.stream().mapToDouble(Double::doubleValue).toArray();
 
-		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, new ScheduleDescriptor(schedule), notionals, spreads, false);
+		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, schedule, notionals, spreads, false);
 	}
 
 }

@@ -12,7 +12,7 @@ import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.time.ScheduleInterface;
 
 /**
- * Contructing the swap leg valuation implementation using Monte-Carlo method from a product descriptor.
+ * Monte-Carlo method based implementation of a interest rate swap leg from a product descriptor.
  *
  * @author Christian Fries
  * @author Roland Bachl
@@ -23,6 +23,12 @@ public class SwapLegMonteCarlo extends SwapLeg implements DescribedProduct<Inter
 
 	private final InterestRateSwapLegProductDescriptor descriptor;
 
+	/**
+	 * Create product from descriptor.
+	 * 
+	 * @param descriptor The descriptor of the product.
+	 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
+	 */
 	public SwapLegMonteCarlo(InterestRateSwapLegProductDescriptor descriptor, LocalDate referenceDate) {
 		super(descriptor.getLegScheduleDescriptor().getSchedule(referenceDate),
 				Arrays.stream(descriptor.getNotionals()).mapToObj(x -> new Notional(x)).toArray(Notional[]::new),
@@ -41,7 +47,7 @@ public class SwapLegMonteCarlo extends SwapLeg implements DescribedProduct<Inter
 	 *
 	 * @param forwardCurveName
 	 * @param schedule
-	 * @return
+	 * @return The Libor index or null, if forwardCurveName is null.
 	 */
 	private static AbstractIndex constructLiborIndex(String forwardCurveName, ScheduleInterface schedule) {
 

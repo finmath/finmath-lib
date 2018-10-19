@@ -3,5 +3,6 @@
  *
  *
  * @author Christian Fries
+ * @author Roland Bachl
  */
 package net.finmath.modelling.productfactory;
