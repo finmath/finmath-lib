@@ -118,6 +118,19 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		this.referenceDate = referenceDate;
 	}
 
+	/**
+	 * Create an analytic model for the specified reference date, together with curves and volatility surfaces, each with their specific name.
+	 *
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
+	 * @param curvesMap A map containing all curves, together with their names they should have in the model.
+	 * @param volatilitySurfaceMap A map containing all volatility surfaces, together with their names they should have in the model.
+	 */
+	public AnalyticModel(LocalDate referenceDate, Map<String, CurveInterface> curvesMap, Map<String, VolatilitySurfaceInterface> volatilitySurfaceMap) {
+		this(referenceDate);
+		this.curvesMap.putAll(curvesMap);
+		this.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
+	}
+
 	@Override
 	public CurveInterface getCurve(String name)
 	{
