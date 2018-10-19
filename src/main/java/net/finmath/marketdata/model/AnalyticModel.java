@@ -54,7 +54,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	/**
 	 * Create an empty analytic model for a specified date.
 	 *
-	 * @param referenceDate The reference date the curves of this model should match.
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
 	 */
 	public AnalyticModel(LocalDate referenceDate) {
 		this.referenceDate = referenceDate;
@@ -66,18 +66,10 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 * @param curves The vector of curves.
 	 */
 	public AnalyticModel(CurveInterface[] curves) {
-		LocalDate referenceDate = null;
 		for (CurveInterface curve : curves) {
 			curvesMap.put(curve.getName(), curve);
-			LocalDate curveDate = curve.getReferenceDate();
-			if(referenceDate == null && curveDate != null) {
-				referenceDate = curveDate;
-			}
-			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
-				throw new IllegalArgumentException("Reference dates of curves do not match.");
-			}
 		}
-		this.referenceDate = referenceDate;
+		this.referenceDate = null;
 	}
 
 	/**
@@ -86,15 +78,41 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 * @param curves A collection of curves.
 	 */
 	public AnalyticModel(Collection<CurveInterface> curves) {
-		LocalDate referenceDate = null;
+		for (CurveInterface curve : curves) {
+			curvesMap.put(curve.getName(), curve);
+		}
+		this.referenceDate = null;
+	}
+
+	/**
+	 * Create an analytic model with the given curves for the specified reference date.
+	 *
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
+	 * @param curves The vector of curves.
+	 */
+	public AnalyticModel(LocalDate referenceDate, CurveInterface[] curves) {
 		for (CurveInterface curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 			LocalDate curveDate = curve.getReferenceDate();
-			if(referenceDate == null && curveDate != null) {
-				referenceDate = curveDate;
-			}
 			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
-				throw new IllegalArgumentException("Reference dates of curves do not match.");
+				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
+			}
+		}
+		this.referenceDate = referenceDate;
+	}
+
+	/**
+	 * Create an analytic model with the given curves for the specified reference date.
+	 *
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
+	 * @param curves A collection of curves.
+	 */
+	public AnalyticModel(LocalDate referenceDate, Collection<CurveInterface> curves) {
+		for (CurveInterface curve : curves) {
+			curvesMap.put(curve.getName(), curve);
+			LocalDate curveDate = curve.getReferenceDate();
+			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
+				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
 			}
 		}
 		this.referenceDate = referenceDate;
@@ -120,15 +138,8 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModel newModel;
-		if(referenceDate == null && curveDate != null) {
-			newModel = new AnalyticModel(curveDate);
-			newModel.curvesMap.putAll(curvesMap);
-			newModel.curvesMap.put(name, curve);
-		} else {
-			newModel = clone();
-			newModel.curvesMap.put(name, curve);
-		}
+		AnalyticModel newModel = clone();
+		newModel.curvesMap.put(name, curve);
 
 		return newModel;
 	}
@@ -140,81 +151,46 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModel newModel;
-		if(referenceDate == null && curveDate != null) {
-			newModel = new AnalyticModel(curveDate);
-			newModel.curvesMap.putAll(curvesMap);
-			newModel.curvesMap.put(curve.getName(), curve);
-		} else {
-			newModel = clone();
-			newModel.curvesMap.put(curve.getName(), curve);
-		}
+		AnalyticModel newModel = clone();
+		newModel.curvesMap.put(curve.getName(), curve);
 
 		return newModel;
 	}
 
 	@Override
 	public AnalyticModelInterface addCurves(CurveInterface... curves) {
-		LocalDate curvesDate 					= null;
 		Map<String, CurveInterface>	curvesMap	= new HashMap<>();
 
 		for (CurveInterface curve : curves) {
 			curvesMap.put(curve.getName(), curve);
+
 			LocalDate curveDate = curve.getReferenceDate();
-			if(curvesDate == null && curveDate != null) {
-				curvesDate = curveDate;
-			}
-			if(curvesDate != null && curveDate != null && ! curvesDate.equals(curveDate)) {
-				throw new IllegalArgumentException("Reference dates of curves do not match.");
+			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate) ) {
+				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
 			}
 		}
 
-		if(referenceDate != null && curvesDate != null && ! referenceDate.equals(curvesDate)) {
-			throw new IllegalArgumentException("Reference dates of curves do not match the reference date of the model.");
-		}
-
-		AnalyticModel newModel;
-		if(referenceDate == null && curvesDate != null) {
-			newModel = new AnalyticModel(curvesDate);
-			newModel.curvesMap.putAll(this.curvesMap);
-			newModel.curvesMap.putAll(curvesMap);
-		} else {
-			newModel = clone();
-			newModel.curvesMap.putAll(curvesMap);
-		}
+		AnalyticModel newModel = clone();
+		newModel.curvesMap.putAll(curvesMap);
 
 		return newModel;
 	}
 
 	@Override
 	public AnalyticModelInterface addCurves(Set<CurveInterface> curves) {
-		LocalDate curvesDate 					= null;
 		Map<String, CurveInterface>	curvesMap	= new HashMap<>();
 
 		for (CurveInterface curve : curves) {
 			curvesMap.put(curve.getName(), curve);
+
 			LocalDate curveDate = curve.getReferenceDate();
-			if(curvesDate == null && curveDate != null) {
-				curvesDate = curveDate;
-			}
-			if(curvesDate != null && curveDate != null && ! curvesDate.equals(curveDate)) {
-				throw new IllegalArgumentException("Reference dates of curves do not match.");
+			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate) ) {
+				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
 			}
 		}
 
-		if(referenceDate != null && curvesDate != null && ! referenceDate.equals(curvesDate)) {
-			throw new IllegalArgumentException("Reference dates of curves do not match the reference date of the model.");
-		}
-
-		AnalyticModel newModel;
-		if(referenceDate == null && curvesDate != null) {
-			newModel = new AnalyticModel(curvesDate);
-			newModel.curvesMap.putAll(this.curvesMap);
-			newModel.curvesMap.putAll(curvesMap);
-		} else {
-			newModel = clone();
-			newModel.curvesMap.putAll(curvesMap);
-		}
+		AnalyticModel newModel = clone();
+		newModel.curvesMap.putAll(curvesMap);
 
 		return newModel;
 	}
@@ -276,8 +252,15 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	public AnalyticModelInterface addVolatilitySurface(VolatilitySurfaceInterface volatilitySurface)
 	{
+		LocalDate surfaceDate = volatilitySurface.getReferenceDate();
+
+		if(referenceDate != null && surfaceDate != null && ! referenceDate.equals(surfaceDate)) {
+			throw new IllegalArgumentException("Reference date of surface does not match reference date of model.");
+		}
+
 		AnalyticModel newModel = clone();
 		newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
+
 		return newModel;
 	}
 
@@ -287,6 +270,11 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		AnalyticModel newModel = clone();
 		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
+
+			LocalDate surfaceDate = volatilitySurface.getReferenceDate();
+			if(referenceDate != null && surfaceDate != null && ! referenceDate.equals(surfaceDate) ) {
+				throw new IllegalArgumentException("Reference date of surface "+volatilitySurface.getName()+" does not match the reference date of the model.");
+			}
 		}
 		return newModel;
 	}
@@ -296,6 +284,11 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 		AnalyticModel newModel = clone();
 		for(VolatilitySurfaceInterface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
+
+			LocalDate surfaceDate = volatilitySurface.getReferenceDate();
+			if(referenceDate != null && surfaceDate != null && ! referenceDate.equals(surfaceDate) ) {
+				throw new IllegalArgumentException("Reference date of surface "+volatilitySurface.getName()+" does not match the reference date of the model.");
+			}
 		}
 		return newModel;
 	}
@@ -348,7 +341,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	@Override
 	public String toString() {
-		return "AnalyticModel: curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
+		return "AnalyticModel: referenceDate=" + referenceDate.toString() + ", curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
 	}
 
 	/**
