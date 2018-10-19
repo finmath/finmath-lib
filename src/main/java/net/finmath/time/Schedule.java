@@ -45,6 +45,8 @@ public class Schedule implements ScheduleInterface {
 
 	public Schedule(LocalDate referenceDate, List<Period> periods, DayCountConventionInterface daycountconvention) {
 		super();
+		if(referenceDate == null) throw new IllegalArgumentException("referenceDate must not be null.");
+
 		this.referenceDate = referenceDate;
 		this.periods = periods;
 		this.daycountconvention = daycountconvention;
