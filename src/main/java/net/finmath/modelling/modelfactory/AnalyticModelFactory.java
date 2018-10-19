@@ -1,6 +1,7 @@
 package net.finmath.modelling.modelfactory;
 
 import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ModelFactory;
@@ -15,11 +16,11 @@ public class AnalyticModelFactory implements ModelFactory<AnalyticModelDescripto
 
 	@Override
 	public DescribedModel<AnalyticModelDescriptor> getModelFromDescriptor(AnalyticModelDescriptor descriptor) {
-		AnalyticModel model = new AnalyticModel(descriptor.getCurvesMap().values());
+		AnalyticModelInterface model = new AnalyticModel(descriptor.getReferenceDate(), descriptor.getCurvesMap().values());
 		for(VolatilitySurfaceInterface surface : descriptor.getVolatilitySurfaceMap().values()) {
-			model.addVolatilitySurface(surface);
+			model = model.addVolatilitySurfaces(surface);
 		}
-		return model;
+		return (DescribedModel<AnalyticModelDescriptor>)model;
 	}
 
 }

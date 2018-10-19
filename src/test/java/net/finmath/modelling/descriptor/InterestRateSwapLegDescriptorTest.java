@@ -93,7 +93,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Analytic model
 		 */
-		AnalyticModelDescriptor modelAnalyticDescriptor = new AnalyticModelDescriptor(Arrays.asList(new CurveInterface[] {createDiscountCurve(), createForwardCurve()}) , null);
+		AnalyticModelDescriptor modelAnalyticDescriptor = new AnalyticModelDescriptor(referenceDate, Arrays.asList(new CurveInterface[] {createDiscountCurve(), createForwardCurve()}) , null);
 		DescribedModel<AnalyticModelDescriptor> modelAnalytic = (new AnalyticModelFactory()).getModelFromDescriptor(modelAnalyticDescriptor);
 
 
@@ -163,7 +163,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Create Analytic model
 		 */
-		AnalyticModelDescriptor modelAnalyticDescriptor = new AnalyticModelDescriptor(Arrays.asList(new CurveInterface[] {createDiscountCurve(), createForwardCurve()}) , null);
+		AnalyticModelDescriptor modelAnalyticDescriptor = new AnalyticModelDescriptor(referenceDate, Arrays.asList(new CurveInterface[] {createDiscountCurve(), createForwardCurve()}) , null);
 		DescribedModel<AnalyticModelDescriptor> modelAnalytic = (new AnalyticModelFactory()).getModelFromDescriptor(modelAnalyticDescriptor);
 
 		/*

@@ -1,5 +1,6 @@
 package net.finmath.modelling.descriptor;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
  */
 public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 
+	private final LocalDate referenceDate;
 	private final Map<String, CurveInterface>				curvesMap;
 	private final Map<String, VolatilitySurfaceInterface>	volatilitySurfaceMap;
 
@@ -24,8 +26,10 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	 * @param curves The collection of curves.
 	 * @param surfaces The collection of volatility surfaces.
 	 */
-	public AnalyticModelDescriptor(Collection<CurveInterface> curves, Collection<VolatilitySurfaceInterface> surfaces) {
+	public AnalyticModelDescriptor(LocalDate referenceDate, Collection<CurveInterface> curves, Collection<VolatilitySurfaceInterface> surfaces) {
 		super();
+		this.referenceDate = referenceDate;
+
 		curvesMap = new HashMap<String, CurveInterface>();
 		volatilitySurfaceMap = new HashMap<String, VolatilitySurfaceInterface>();
 
@@ -47,7 +51,10 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	 * @param curvesMap The map of curves.
 	 * @param volatilitySurfaceMap The map of volatility surfaces.
 	 */
-	public AnalyticModelDescriptor(Map<String, CurveInterface> curvesMap, Map<String, VolatilitySurfaceInterface> volatilitySurfaceMap) {
+	public AnalyticModelDescriptor(LocalDate referenceDate, Map<String, CurveInterface> curvesMap, Map<String, VolatilitySurfaceInterface> volatilitySurfaceMap) {
+		super();
+		this.referenceDate = referenceDate;
+
 		this.curvesMap = new HashMap<String, CurveInterface>();
 		this.volatilitySurfaceMap = new HashMap<String, VolatilitySurfaceInterface>();
 
@@ -65,6 +72,10 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 		return "Analytic model";
 	}
 
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
 	public Map<String, CurveInterface> getCurvesMap() {
 		return Collections.unmodifiableMap(curvesMap);
 	}
@@ -72,6 +83,4 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	public Map<String, VolatilitySurfaceInterface> getVolatilitySurfaceMap() {
 		return Collections.unmodifiableMap(volatilitySurfaceMap);
 	}
-
-
 }

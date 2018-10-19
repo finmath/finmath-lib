@@ -368,7 +368,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	@Override
 	public AnalyticModelDescriptor getDescriptor() {
-		return new AnalyticModelDescriptor(getCurves(), Collections.unmodifiableMap(volatilitySurfaceMap));
+		return new AnalyticModelDescriptor(getReferenceDate(), getCurves(), Collections.unmodifiableMap(volatilitySurfaceMap));
 	}
 
 	@Override
