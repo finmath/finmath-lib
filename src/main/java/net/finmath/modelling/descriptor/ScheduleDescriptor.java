@@ -51,16 +51,16 @@ public class ScheduleDescriptor {
 	/**
 	 * Construct a schedule descriptor via a set of parameters for a factory.
 	 *
-	 * @param startDate
-	 * @param maturityDate
-	 * @param frequency
-	 * @param daycountConvention
-	 * @param shortPeriodConvention
-	 * @param dateRollConvention
-	 * @param businessdayCalendar
-	 * @param fixingOffsetDays
-	 * @param paymentOffsetDays
-	 * @param isUseEndOfMonth
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 */
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
@@ -74,16 +74,15 @@ public class ScheduleDescriptor {
 	/**
 	 * Construct a schedule descriptor via a set of parameters for a factory.
 	 *
-	 * @param startDate
-	 * @param maturityDate
-	 * @param frequency
-	 * @param daycountConvention
-	 * @param shortPeriodConvention
-	 * @param dateRollConvention
-	 * @param businessdayCalendar
-	 * @param fixingOffsetDays
-	 * @param paymentOffsetDays
-	 * @param isUseEndOfMonth
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 */
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
