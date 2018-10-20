@@ -943,7 +943,11 @@ public class RandomVariable implements RandomVariableInterface {
 			return new RandomVariable(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			return randomVariable.add(valueIfNonStochastic);
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic + randomVariable.get(i);
+			}
+			return new RandomVariable(newTime, newRealizations);
 		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
@@ -1027,8 +1031,15 @@ public class RandomVariable implements RandomVariableInterface {
 			double newValueIfNonStochastic = valueIfNonStochastic * randomVariable.get(0);
 			return new RandomVariable(newTime, newValueIfNonStochastic);
 		}
+		else if(randomVariable.isDeterministic()) {
+			return this.mult(randomVariable.get(0));
+		}
 		else if(isDeterministic()) {
-			return randomVariable.mult(valueIfNonStochastic);
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = valueIfNonStochastic * randomVariable.get(i);
+			}
+			return new RandomVariable(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
@@ -1114,7 +1125,11 @@ public class RandomVariable implements RandomVariableInterface {
 			return new RandomVariable(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			return randomVariable.cap(valueIfNonStochastic);
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.min(valueIfNonStochastic, randomVariable.get(i));
+			}
+			return new RandomVariable(newTime, newRealizations);
 		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
@@ -1139,7 +1154,11 @@ public class RandomVariable implements RandomVariableInterface {
 			return new RandomVariable(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			return randomVariable.floor(valueIfNonStochastic);
+			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.max(valueIfNonStochastic, randomVariable.get(i));
+			}
+			return new RandomVariable(newTime, newRealizations);
 		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
