@@ -19,11 +19,6 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
-import net.finmath.modelling.DescribedModel;
-import net.finmath.modelling.DescribedProduct;
-import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.descriptor.AnalyticModelDescriptor;
-import net.finmath.modelling.productfactory.InterestRateAnalyticProductFactory;
 
 /**
  * Implements a collection of market data objects (e.g., discount curves, forward curve)
@@ -34,7 +29,7 @@ import net.finmath.modelling.productfactory.InterestRateAnalyticProductFactory;
  * @author Christian Fries
  * @version 1.0
  */
-public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable, DescribedModel<AnalyticModelDescriptor> {
+public class AnalyticModel implements AnalyticModelInterface, Serializable, Cloneable {
 
 	private static final long serialVersionUID = 6906386712907555046L;
 
@@ -364,18 +359,6 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	 */
 	public LocalDate getReferenceDate() {
 		return referenceDate;
-	}
-
-	@Override
-	public AnalyticModelDescriptor getDescriptor() {
-		return new AnalyticModelDescriptor(getReferenceDate(), getCurves(), Collections.unmodifiableMap(volatilitySurfaceMap));
-	}
-
-	@Override
-	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-
-		return new  InterestRateAnalyticProductFactory(referenceDate).getProductFromDescriptor(productDescriptor);
-
 	}
 
 }
