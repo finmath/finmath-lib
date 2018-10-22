@@ -15,12 +15,12 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
-import net.finmath.modelling.modelfactory.BlackScholesModelFourierFactory;
+import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFactory;
-import net.finmath.modelling.modelfactory.HestonModelFourierFactory;
 import net.finmath.modelling.modelfactory.HestonModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
@@ -73,7 +73,7 @@ public class ModelWithProductFactoryTest {
 		 */
 
 		// Create base Fourier implementation of Black-Scholes model
-		DescribedModel<BlackScholesModelDescriptor> blackScholesModelFourier = (new BlackScholesModelFourierFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
+		DescribedModel<? extends AssetModelDescriptor> blackScholesModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		//		// Add custom product factory
 		//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
@@ -174,7 +174,7 @@ public class ModelWithProductFactoryTest {
 		 */
 
 		// Create base Fourier implementation of Heston model
-		DescribedModel<HestonModelDescriptor> hestonModelFourier = (new HestonModelFourierFactory()).getModelFromDescriptor(hestonModelDescriptor);
+		DescribedModel<? extends AssetModelDescriptor> hestonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
 		//		// Create custom product factory
 		//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {

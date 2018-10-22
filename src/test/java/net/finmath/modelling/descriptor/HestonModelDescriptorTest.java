@@ -20,11 +20,12 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductInterface;
-import net.finmath.modelling.modelfactory.HestonModelFourierFactory;
-import net.finmath.modelling.modelfactory.HestonModelMonteCarloFactory;
+import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
+import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -78,7 +79,7 @@ public class HestonModelDescriptorTest {
 		 */
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> hestonModelFourier = (new HestonModelFourierFactory()).getModelFromDescriptor(hestonModelDescriptor);
+		DescribedModel<?> hestonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
 		ProductInterface europeanOptionFourier = hestonModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
@@ -98,7 +99,7 @@ public class HestonModelDescriptorTest {
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
+		DescribedModel<?> hestonModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFactory, brownianMotion, Scheme.FULL_TRUNCATION)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
 		ProductInterface europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
