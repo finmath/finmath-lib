@@ -1,9 +1,7 @@
 package net.finmath.finitedifference.models;
 
 import java.util.function.DoubleUnaryOperator;
-
 import net.finmath.finitedifference.solvers.FDMThetaMethod;
-import net.finmath.finitedifference.solvers.FDMThetaMethodForHeatEquation;
 
 /**
  * Black Scholes model using finite difference method.
@@ -98,7 +96,6 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	 */
 	@Override
 	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary) {
-		//FDMThetaMethodForHeatEquation solver = new FDMThetaMethodForHeatEquation(this, boundary, time, center, theta);
 		FDMThetaMethod solver = new FDMThetaMethod(this, boundary, time, center, theta);
 		return solver.getValue(evaluationTime, time, values);
 	}

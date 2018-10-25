@@ -1335,8 +1335,8 @@ public class AnalyticFormulas {
     public static double constantElasticityOfVarianceOptionValue(
             double initialStockValue,
             double riskFreeRate,
-            double exponent,
             double volatility,
+            double exponent,
             double optionMaturity,
             double optionStrike,
             boolean isCall) {
