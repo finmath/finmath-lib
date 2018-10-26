@@ -3,11 +3,9 @@ package net.finmath.time;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.ScheduleInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 
@@ -77,7 +75,7 @@ public class ScheduleMetaData implements Serializable {
 		if(!Character.isDigit(offsetCode.charAt(0))) {
 			return null;
 		}
-		
+
 		offsetCode = offsetCode.split("(?<=[A-Za-z])(?=.)", 2)[0];
 		offsetCode = offsetCode.replaceAll( "[\\W_]", "" );
 		return offsetCode;
