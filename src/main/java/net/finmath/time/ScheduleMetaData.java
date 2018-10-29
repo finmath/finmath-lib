@@ -165,22 +165,6 @@ public class ScheduleMetaData implements Serializable {
 	}
 
 	/**
-	 * Get the relative date as double of the provided date with respect to the reference date of the meta data.
-	 * Before conversion to double the date will be rolled to the next business day, according to the meta datas conventions.
-	 *
-	 * @param date
-	 * @return The date as double
-	 */
-	public double relativeDate(LocalDate date) {
-		Frequency frequency = Frequency.TENOR;
-		boolean isUseEndOfMonth = false;
-
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, referenceDate, date, frequency, daycountConvention,
-				shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
-		return schedule.getPeriodEnd(0);
-	}
-
-	/**
 	 * Generate a schedule with start / end date determined by an offset in months from the reference date.
 	 *
 	 * @param maturity Offset of the start date to the reference date in months
