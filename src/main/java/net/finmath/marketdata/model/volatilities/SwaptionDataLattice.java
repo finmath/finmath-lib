@@ -1,7 +1,10 @@
 package net.finmath.marketdata.model.volatilities;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.finmath.functions.AnalyticFormulas;
@@ -19,7 +22,7 @@ import net.finmath.time.ScheduleMetaData;
  * <ul>
  * <li>double, as year fraction, rounded to a monthly precision.</li>
  * <li>int, as an offset in months.</li>
- * <li>String, as code for the offset inthe format '6M10Y'.</li>
+ * <li>String, as code for the offset in the format '6M10Y'.</li>
  * </ul>
  * Moreover, the stored values can be requested in different quoting conventions.
  * For the conversion to work, ScheduleMetaData and curves need to be supplied.
@@ -28,7 +31,9 @@ import net.finmath.time.ScheduleMetaData;
  * @author Roland Bachl
  *
  */
-public class SwaptionDataLattice {
+public class SwaptionDataLattice implements Serializable {
+
+	private static final long serialVersionUID = -3928400314495290603L;
 
 	private final LocalDate							referenceDate;
 	private final QuotingConvention					quotingConvention;
@@ -117,6 +122,7 @@ public class SwaptionDataLattice {
 	 * Create the lattice with {@link QuotingConvention}{@code .VOLATILITYLOGNORMAL}.
 	 *
 	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
 	 * @param displacement The displacement used the implied lognormal volatilities.
 	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
 	 * @param discountCurveName The name of the discount curve associated with these swaptions.
@@ -127,7 +133,7 @@ public class SwaptionDataLattice {
 	 * @param moneynesss The moneyness' in basis points on the par swap rate.
 	 * @param values The values to be stored.
 	 */
-	public SwaptionDataLattice(LocalDate referenceDate, double displacement, String forwardCurveName, String discountCurveName,
+	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
 			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, int[] maturities, int[] tenors, int[] moneynesss, double[] values) {
 		this(referenceDate, QuotingConvention.VOLATILITYLOGNORMAL, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -140,6 +146,7 @@ public class SwaptionDataLattice {
 	 * Create the lattice with {@link QuotingConvention}{@code .VOLATILITYLOGNORMAL}.
 	 *
 	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
 	 * @param displacement The displacement used the implied lognormal volatilities.
 	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
 	 * @param discountCurveName The name of the discount curve associated with these swaptions.
@@ -150,7 +157,7 @@ public class SwaptionDataLattice {
 	 * @param moneynesss The moneyness' in basis points on the par swap rate.
 	 * @param values The values to be stored.
 	 */
-	public SwaptionDataLattice(LocalDate referenceDate, double displacement, String forwardCurveName, String discountCurveName,
+	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
 			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, double[] maturities, double[] tenors, int[] moneynesss, double[] values) {
 		this(referenceDate, QuotingConvention.VOLATILITYLOGNORMAL, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -163,6 +170,7 @@ public class SwaptionDataLattice {
 	 * Create the lattice with {@link QuotingConvention}{@code .VOLATILITYLOGNORMAL}.
 	 *
 	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
 	 * @param displacement The displacement used the implied lognormal volatilities.
 	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
 	 * @param discountCurveName The name of the discount curve associated with these swaptions.
@@ -172,7 +180,7 @@ public class SwaptionDataLattice {
 	 * @param moneynesss The moneyness' in basis points on the par swap rate.
 	 * @param values The values to be stored.
 	 */
-	public SwaptionDataLattice(LocalDate referenceDate, double displacement, String forwardCurveName, String discountCurveName,
+	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
 			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, String[] tenorCodes, int[] moneynesss, double[] values) {
 		this(referenceDate,QuotingConvention.VOLATILITYLOGNORMAL, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -202,6 +210,75 @@ public class SwaptionDataLattice {
 		this.discountCurveName	= discountCurveName;
 		this.floatMetaSchedule	= floatMetaSchedule;
 		this.fixMetaSchedule	= fixMetaSchedule;
+	}
+
+	/**
+	 * Convert this lattice to store data in the given convention.
+	 *
+	 * @param targetConvention The convention to store the data in.
+	 * @param model The model for context.
+	 *
+	 * @return The converted lattice.
+	 */
+	public SwaptionDataLattice convertLattice(QuotingConvention targetConvention, AnalyticModelInterface model) {
+		return convertLattice(targetConvention, 0, model);
+	}
+
+	/**
+	 * Convert this lattice to store data in the given convention.
+	 *
+	 * @param targetConvention The convention to store the data in.
+	 * @param displacement The displacement to use, if applicable.
+	 * @param model The model for context.
+	 *
+	 * @return The converted lattice.
+	 */
+	public SwaptionDataLattice convertLattice(QuotingConvention targetConvention, double displacement, AnalyticModelInterface model) {
+
+		List<Integer> maturities	= new ArrayList<>();
+		List<Integer> tenors		= new ArrayList<>();
+		List<Integer> moneynesss	= new ArrayList<>();
+		List<Double> values		= new ArrayList<>();
+
+		for(DataKey key : entryMap.keySet()) {
+			maturities.add(key.maturity);
+			tenors.add(key.tenor);
+			moneynesss.add(key.moneyness);
+			values.add(getValue(key.maturity, key.tenor, key.moneyness, targetConvention, displacement, model));
+		}
+
+		return new SwaptionDataLattice(this.referenceDate, targetConvention, displacement,
+				this.forwardCurveName, this.discountCurveName, this.floatMetaSchedule, this.fixMetaSchedule,
+				maturities.stream().mapToInt(Integer::intValue).toArray(),
+				tenors.stream().mapToInt(Integer::intValue).toArray(),
+				moneynesss.stream().mapToInt(Integer::intValue).toArray(),
+				values.stream().mapToDouble(Double::doubleValue).toArray());
+	}
+
+	/**
+	 * Append the data of another lattice to this lattice. If the other lattice follows a different quoting convention, it is automatically converted.
+	 * However, this method does not check, whether the two lattices are aligned in terms of reference date, curve names and meta schedules.
+	 * If the two lattices have shared data points, the data from this lattice will be overwritten.
+	 *
+	 * @param other The lattice containing the data to be appended.
+	 * @param model The model to use for context, in case the other lattice follows a different convention.
+	 *
+	 * @return The lattice with the combined swpation entries.
+	 */
+	public SwaptionDataLattice append(SwaptionDataLattice other, AnalyticModelInterface model) {
+
+		SwaptionDataLattice combined = new SwaptionDataLattice(referenceDate, quotingConvention, displacement,
+				forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
+		combined.entryMap.putAll(entryMap);
+
+		if(quotingConvention == other.quotingConvention && displacement == other.displacement) {
+			combined.entryMap.putAll(other.entryMap);
+		} else {
+			SwaptionDataLattice converted = other.convertLattice(quotingConvention, displacement, model);
+			combined.entryMap.putAll(converted.entryMap);
+		}
+
+		return combined;
 	}
 
 	/**
@@ -381,7 +458,10 @@ public class SwaptionDataLattice {
 	 * @author Roland Bachl
 	 *
 	 */
-	private static class DataKey {
+	private static class DataKey implements Serializable {
+
+		private static final long serialVersionUID = -2768171106471398276L;
+
 		final int maturity;
 		final int tenor;
 		final int moneyness;
