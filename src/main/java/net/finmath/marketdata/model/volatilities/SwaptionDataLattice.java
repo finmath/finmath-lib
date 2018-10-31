@@ -36,7 +36,7 @@ import net.finmath.time.ScheduleMetaData;
  */
 public class SwaptionDataLattice implements Serializable {
 
-	private static final long serialVersionUID = -3928400314495290603L;
+	private static final long serialVersionUID = -3106297186490797114L;
 
 	private final LocalDate							referenceDate;
 	private final QuotingConvention					quotingConvention;
@@ -48,7 +48,8 @@ public class SwaptionDataLattice implements Serializable {
 	private final ScheduleMetaData					floatMetaSchedule;
 	private final ScheduleMetaData 					fixMetaSchedule;
 
-	private final Map<DataKey, Double>				entryMap = new HashMap<>();
+	private final		Map<DataKey, Double>		entryMap = new HashMap<>();
+	private transient	Map<Integer, int[][]>		keyMap;
 
 	/**
 	 * Create the lattice.
@@ -295,28 +296,35 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public Map<Integer, int[][]> getGridNodesPerMoneyness() {
 
-		Map<Integer, List<Set<Integer>>> keyMap = new TreeMap<>();
+		//See if the map has already been instantiated.
+		if(keyMap != null) {
+			return keyMap;
+		}
+
+		//Otherwise create the map and return it.
+		Map<Integer, List<Set<Integer>>> newMap = new TreeMap<>();
 
 		for(DataKey key : entryMap.keySet()) {
-			if(! keyMap.containsKey(key.moneyness)) {
-				keyMap.put(key.moneyness, new ArrayList<Set<Integer>>());
-				keyMap.get(key.moneyness).add(new TreeSet<Integer>());
-				keyMap.get(key.moneyness).add(new TreeSet<Integer>());
+			if(! newMap.containsKey(key.moneyness)) {
+				newMap.put(key.moneyness, new ArrayList<Set<Integer>>());
+				newMap.get(key.moneyness).add(new TreeSet<Integer>());
+				newMap.get(key.moneyness).add(new TreeSet<Integer>());
 			}
-			keyMap.get(key.moneyness).get(0).add(key.maturity);
-			keyMap.get(key.moneyness).get(1).add(key.tenor);
+			newMap.get(key.moneyness).get(0).add(key.maturity);
+			newMap.get(key.moneyness).get(1).add(key.tenor);
 		}
 
-		Map<Integer, int[][]> returnList = new TreeMap<>();
-		for(int moneyness : keyMap.keySet()) {
+		Map<Integer, int[][]> keyMap = new TreeMap<>();
+		for(int moneyness : newMap.keySet()) {
 			int[][] values = new int[2][];
 
-			values[0] = keyMap.get(moneyness).get(0).stream().mapToInt(Integer::intValue).toArray();
-			values[1] = keyMap.get(moneyness).get(1).stream().mapToInt(Integer::intValue).toArray();
+			values[0] = newMap.get(moneyness).get(0).stream().mapToInt(Integer::intValue).toArray();
+			values[1] = newMap.get(moneyness).get(1).stream().mapToInt(Integer::intValue).toArray();
 
-			returnList.put(moneyness, values);
+			keyMap.put(moneyness, values);
 		}
-		return returnList;
+		this.keyMap = keyMap;
+		return keyMap;
 	}
 
 	/**
