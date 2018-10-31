@@ -328,6 +328,52 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
+	 * Return all valid maturities for a given moneyness.
+	 *
+	 * @param moneyness The moneyness for which to get the maturities.
+	 * @return The maturities.
+	 */
+	public int[] getMaturities(int moneyness) {
+		try {
+			return getGridNodesPerMoneyness().get(moneyness)[0];
+		} catch (NullPointerException e) {
+			return new int[0];
+		}
+	}
+
+	/**
+	 * Retrun all valid tenors for a given moneyness and maturity.
+	 *
+	 * @param moneyness The moneyness forwhich to get the tenors.
+	 * @param maturity The maturities for which to get the tenors.
+	 * @return The tenors.
+	 */
+	public int[] getTenors(int moneyness, int maturity) {
+
+		try {
+			Set<Integer> ret = new TreeSet<>();
+			for(int tenor : getGridNodesPerMoneyness().get(moneyness)[1]) {
+				if(containsEntryFor(maturity, tenor, moneyness)) {
+					ret.add(tenor);
+				}
+			}
+			return ret.stream().mapToInt(Integer::intValue).toArray();
+		} catch (NullPointerException e) {
+			return new int[0];
+		}
+	}
+	/**
+	 * Returns true if the lattice contains an entry at the specified location.
+	 *
+	 * @param maturity The maturity to check.
+	 * @param tenor The tenor to check.
+	 * @param moneyness The moneyness to check.
+	 * @return True iff there is an entry at the specified location.
+	 */
+	public boolean containsEntryFor(int maturity, int tenor, int moneyness) {
+		return entryMap.containsKey(new DataKey(maturity, tenor, moneyness));
+	}
+	/**
 	 * Return the value in the quoting convention of this lattice.
 	 *
 	 * @param maturity The maturity of the option as year fraction from the reference date.
