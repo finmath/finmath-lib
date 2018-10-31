@@ -3,6 +3,7 @@ package net.finmath.marketdata.model.volatilities;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +140,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
 			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, int[] maturities, int[] tenors, int[] moneynesss, double[] values) {
-		this(referenceDate, QuotingConvention.VOLATILITYLOGNORMAL, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
+		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturities.length; i++) {
 			entryMap.put(new DataKey(maturities[i], tenors[i], moneynesss[i]), values[i]);
@@ -298,7 +299,7 @@ public class SwaptionDataLattice implements Serializable {
 
 		//See if the map has already been instantiated.
 		if(keyMap != null) {
-			return keyMap;
+			return Collections.unmodifiableMap(keyMap);
 		}
 
 		//Otherwise create the map and return it.
@@ -324,7 +325,7 @@ public class SwaptionDataLattice implements Serializable {
 			keyMap.put(moneyness, values);
 		}
 		this.keyMap = keyMap;
-		return keyMap;
+		return Collections.unmodifiableMap(keyMap);
 	}
 
 	/**
