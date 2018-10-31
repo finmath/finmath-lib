@@ -489,6 +489,34 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
+	 * @return The name of the forward curve for these swaptions.
+	 */
+	public String getForwardCurveName() {
+		return forwardCurveName;
+	}
+
+	/**
+	 * @return The name of the discount curve for these swaptions.
+	 */
+	public String getDiscountCurveName() {
+		return discountCurveName;
+	}
+
+	/**
+	 * @return The schedule meta data for the float leg of the swaptions.
+	 */
+	public ScheduleMetaData getFloatMetaSchedule() {
+		return floatMetaSchedule;
+	}
+
+	/**
+	 * @return The schedule meta data for the fix leg of the swaptions.
+	 */
+	public ScheduleMetaData getFixMetaSchedule() {
+		return fixMetaSchedule;
+	}
+
+	/**
 	 * A key used to reference swaption data in an map.
 	 * Key overrides {@code equals} and {@code hashCode} for quick data recovery.
 	 *
