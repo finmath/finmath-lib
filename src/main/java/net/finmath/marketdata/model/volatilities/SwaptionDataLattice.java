@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -279,6 +282,41 @@ public class SwaptionDataLattice implements Serializable {
 		}
 
 		return combined;
+	}
+
+	/**
+	 * Get a view of the locations of swaptions in this lattice.
+	 * The keys of the map are the levels of moneyness for which there are swaptions, sorted in ascending order.
+	 * The entries for each moneyness consist of an array of arrays { maturities, tenors }, each sorted in ascending order.
+	 * Note, there is no guarantee for the grid per moneyness to be regular.
+	 * Hence, getValue may still throw a NullPointerException, even when using entries from this view.
+	 *
+	 * @return The view of recorded swaptions.
+	 */
+	public Map<Integer, int[][]> getGridNodesPerMoneyness() {
+
+		Map<Integer, List<Set<Integer>>> keyMap = new TreeMap<>();
+
+		for(DataKey key : entryMap.keySet()) {
+			if(! keyMap.containsKey(key.moneyness)) {
+				keyMap.put(key.moneyness, new ArrayList<Set<Integer>>());
+				keyMap.get(key.moneyness).add(new TreeSet<Integer>());
+				keyMap.get(key.moneyness).add(new TreeSet<Integer>());
+			}
+			keyMap.get(key.moneyness).get(0).add(key.maturity);
+			keyMap.get(key.moneyness).get(1).add(key.tenor);
+		}
+
+		Map<Integer, int[][]> returnList = new TreeMap<>();
+		for(int moneyness : keyMap.keySet()) {
+			int[][] values = new int[2][];
+
+			values[0] = keyMap.get(moneyness).get(0).stream().mapToInt(Integer::intValue).toArray();
+			values[1] = keyMap.get(moneyness).get(1).stream().mapToInt(Integer::intValue).toArray();
+
+			returnList.put(moneyness, values);
+		}
+		return returnList;
 	}
 
 	/**
