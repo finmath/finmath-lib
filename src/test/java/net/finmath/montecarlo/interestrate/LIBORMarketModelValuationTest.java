@@ -171,7 +171,7 @@ public class LIBORMarketModelValuationTest {
 		System.out.println("Bond prices:\n");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
 		double maxAbsDeviation = 0.0;
-		for (double maturity = 0.0; maturity <= 20.0; maturity += 1.0) {
+		for (double maturity = 0.0; maturity <= 20.0; maturity += 0.125) {
 			System.out.print(formatterMaturity.format(maturity) + "          ");
 
 			// Create a bond
@@ -208,7 +208,7 @@ public class LIBORMarketModelValuationTest {
 		System.out.println("FRA \t\t Value");
 
 		double maxAbsDeviation = 0.0;
-		for (double startDate = 0.0; startDate < 20.0; startDate += 0.5) {
+		for (double startDate = 0.0; startDate <= 20.0-0.5; startDate += 0.125) {
 
 			int numberOfPeriods = 1;
 
