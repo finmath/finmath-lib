@@ -222,22 +222,18 @@ public class ModelWithProductFactoryTest {
 		Assert.assertEquals("Difference of Fourier and Monte-Carlo valuation", 0.0, deviation, 5E-2);
 	}
 
-
-
-
-
 	/**
 	 * Get the discount curve using the riskFreeRate.
 	 *
 	 * @param name Name of the curve
 	 * @param referenceDate Date corresponding to t=0.
-	 * @param riskFreeRate Constant continuously compounded rate
+	 * @param zeroRate Constant continuously compounded rate (using library internal daycount convention).
 	 *
 	 * @return the discount curve using the riskFreeRate.
 	 */
-	private static DiscountCurveInterface getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
+	public static DiscountCurveInterface getDiscountCurve(String name, LocalDate referenceDate, double zeroRate) {
 		double[] times = new double[] { 1.0 };
-		double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
+		double[] givenAnnualizedZeroRates = new double[] { zeroRate };
 		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
 		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
 		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
