@@ -6,12 +6,17 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 3.4.2 (01.11.2018)
+## 3.4.3 (01.11.2018)
 
 ### General
 
 - Bug fixes.
 - Merged with development branch of product descriptors: added initial version of FPML parser.
+
+### LIBOR Market Model
+
+- Improved performance and consistency of numeraire interpolation.
+- Ensured that numeraire cache is thread safe (only relevant when using automatic differentiation)
 
 
 ## 3.4.0 (23.09.2018)
