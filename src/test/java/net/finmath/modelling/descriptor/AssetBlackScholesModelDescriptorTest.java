@@ -21,8 +21,8 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductInterface;
-import net.finmath.modelling.modelfactory.BlackScholesModelFourierFactory;
-import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFactory;
+import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
+import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFiniteDifference1D;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
@@ -75,7 +75,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		 */
 
 		// Create Fourier implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelFourier = (new BlackScholesModelFourierFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
+		DescribedModel<?> blackScholesModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
 		ProductInterface europeanOptionFourier = blackScholesModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
@@ -95,7 +95,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 		// Create Monte Carlo implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
+		DescribedModel<?> blackScholesModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFactory, brownianMotion, null)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
 		ProductInterface europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);

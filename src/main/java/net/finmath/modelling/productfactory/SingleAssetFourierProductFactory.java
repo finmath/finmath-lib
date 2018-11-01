@@ -8,14 +8,15 @@ package net.finmath.modelling.productfactory;
 
 import java.time.LocalDate;
 
+import net.finmath.fouriermethod.products.DigitalOption;
+import net.finmath.fouriermethod.products.EuropeanOption;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.SingleAssetProductDescriptor;
-import net.finmath.modelling.describedproducts.DigitalOptionFourierMethod;
-import net.finmath.modelling.describedproducts.EuropeanOptionFourierMethod;
 import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * Product factory of single asset derivatives for use with a Fourier method based model.
@@ -55,4 +56,60 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 
 	}
 
+
+	/**
+	 * Fourier method based implementation of a European option from a product descriptor.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 */
+	public static class EuropeanOptionFourierMethod extends EuropeanOption  implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
+
+		private final SingleAssetEuropeanOptionProductDescriptor descriptor;
+
+		/**
+		 * Create the product from a descriptor.
+		 *
+		 * @param descriptor A descriptor of the product.
+		 * @param referenceDate the reference date to be used when converting dates to doubles.
+		 */
+		public EuropeanOptionFourierMethod(SingleAssetEuropeanOptionProductDescriptor descriptor, LocalDate referenceDate) {
+			super(descriptor.getUnderlyingName(), FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());
+			this.descriptor = descriptor;
+		}
+
+		@Override
+		public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
+			return descriptor;
+		}
+
+	}
+
+	/**
+	 * Fourier method based implementation of a digital option from a product descriptor.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 */
+	public class DigitalOptionFourierMethod extends DigitalOption  implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>{
+
+		private final SingleAssetDigitalOptionProductDescriptor descriptor;
+
+		/**
+		 * Create product from descriptor.
+		 * 
+		 * @param descriptor The descriptor of the product.
+		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
+		 */
+		public DigitalOptionFourierMethod(SingleAssetDigitalOptionProductDescriptor descriptor, LocalDate referenceDate) {
+			super(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());
+			this.descriptor = descriptor;
+		}
+
+		@Override
+		public SingleAssetDigitalOptionProductDescriptor getDescriptor() {
+			return descriptor;
+		}
+
+	}
 }

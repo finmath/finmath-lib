@@ -12,12 +12,6 @@ import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.modelling.DescribedModel;
-import net.finmath.modelling.DescribedProduct;
-import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.SingleAssetProductDescriptor;
-import net.finmath.modelling.descriptor.HestonModelDescriptor;
-import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
 
 /**
  * Implements the characteristic function of a Heston model.
@@ -58,7 +52,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
  * @author Lorenzo Toricelli
  * @version 1.0
  */
-public class HestonModel implements ProcessCharacteristicFunctionInterface, DescribedModel<HestonModelDescriptor> {
+public class HestonModel implements ProcessCharacteristicFunctionInterface {
 
 	private final LocalDate referenceDate;
 
@@ -77,24 +71,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 	private final double xi;
 	private final double rho;
 
-	/**
-	 * Create a model from a model desciptor.
-	 *
-	 * @param descriptor A Heston model descriptor.
-	 */
-	public HestonModel(HestonModelDescriptor descriptor) {
-		this(
-				descriptor.getReferenceDate(),
-				descriptor.getInitialValue(),
-				descriptor.getDiscountCurveForForwardRate(),
-				descriptor.getVolatility(),
-				descriptor.getDiscountCurveForDiscountRate(),
-				descriptor.getTheta(),
-				descriptor.getKappa(),
-				descriptor.getXi(),
-				descriptor.getRho()
-				);
-	}
+
 
 	/**
 	 * Create a Heston model (characteristic function)
@@ -231,13 +208,4 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface, Desc
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 
-	@Override
-	public HestonModelDescriptor getDescriptor() {
-		return new HestonModelDescriptor(referenceDate, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);
-	}
-
-	@Override
-	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-		return (new SingleAssetFourierProductFactory(referenceDate)).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
-	}
 }

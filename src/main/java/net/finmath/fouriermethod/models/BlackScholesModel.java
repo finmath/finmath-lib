@@ -6,18 +6,10 @@
 
 package net.finmath.fouriermethod.models;
 
-import java.time.LocalDate;
-
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.modelling.DescribedModel;
-import net.finmath.modelling.DescribedProduct;
-import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.SingleAssetProductDescriptor;
-import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
-import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
 
 /**
  * Implements the characteristic function of a Black Scholes model.
@@ -26,9 +18,7 @@ import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
  * @author Alessandro Gnoatto
  * @version 1.0
  */
-public class BlackScholesModel implements ProcessCharacteristicFunctionInterface, DescribedModel<BlackScholesModelDescriptor> {
-
-	private final LocalDate referenceDate;
+public class BlackScholesModel implements ProcessCharacteristicFunctionInterface {
 
 	private final double initialValue;
 
@@ -40,26 +30,11 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 
 	private final double volatility;
 
-	/**
-	 * Create a model from a model desciptor.
-	 *
-	 * @param descriptor A Black Scholes model descriptor.
-	 */
-	public BlackScholesModel(BlackScholesModelDescriptor descriptor) {
-		this(
-				descriptor.getReferenceDate(),
-				descriptor.getInitialValue(),
-				descriptor.getDiscountCurveForForwardRate(),
-				descriptor.getVolatility(),
-				descriptor.getDiscountCurveForDiscountRate()
-				);
-	}
 
-	public BlackScholesModel(LocalDate referenceDate, double initialValue,
-			DiscountCurveInterface discountCurveForForwardRate,
+
+	public BlackScholesModel(double initialValue, DiscountCurveInterface discountCurveForForwardRate,
 			double volatility, DiscountCurveInterface discountCurveForDiscountRate) {
 		super();
-		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
 		this.riskFreeRate = Double.NaN;
@@ -70,7 +45,6 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 
 	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility, double discountRate) {
 		super();
-		this.referenceDate = LocalDate.now();
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
@@ -120,13 +94,4 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 
-	@Override
-	public BlackScholesModelDescriptor getDescriptor() {
-		return new BlackScholesModelDescriptor(referenceDate, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility);
-	}
-
-	@Override
-	public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-		return (new SingleAssetFourierProductFactory(referenceDate)).getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
-	}
 }
