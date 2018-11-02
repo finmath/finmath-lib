@@ -9,6 +9,7 @@ About finmath lib
 ****************************************
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.finmath/finmath-lib/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.finmath/finmath-lib)
+[![Build Status](https://travis-ci.org/finmath/finmath-lib.svg?branch=master)](https://travis-ci.org/finmath/finmath-lib)
 
 **Project home page: http://finmath.net/finmath-lib**
 
