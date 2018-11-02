@@ -11,13 +11,6 @@ finmath lib Release Notes
 ### General
 
 - Minor bug fixes (NPE in toString() method in AnalyticModel if referenceDate is missing).
-
-
-## 3.4.3 (01.11.2018)
-
-### General
-
-- Bug fixes.
 - Merged with development branch of product descriptors: added initial version of FPML parser.
 
 ### LIBOR Market Model
