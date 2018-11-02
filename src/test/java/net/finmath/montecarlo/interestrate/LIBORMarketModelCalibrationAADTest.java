@@ -175,8 +175,8 @@ public class LIBORMarketModelCalibrationAADTest {
 		testProperties.put("SolverType", 			solverType);
 		testProperties.put("ValueUnit", 			valueUnit);
 
-		testProperties.put("numberOfPathsATM", 500);	// unit test uses low number of path - can be changed.
-		testProperties.put("numberOfPathsSwaptionSmile", 500);
+		testProperties.put("numberOfPathsATM", 100);	// unit test uses low number of path - can be changed.
+		testProperties.put("numberOfPathsSwaptionSmile", 100);
 
 		testProperties.put("numberOfThreads", 	4); /*max Threads CIP90/91: 16/12 */
 		testProperties.put("maxIterations", 	100);
