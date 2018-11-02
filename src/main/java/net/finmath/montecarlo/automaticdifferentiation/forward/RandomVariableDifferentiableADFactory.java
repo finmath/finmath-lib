@@ -17,6 +17,11 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
  */
 public class RandomVariableDifferentiableADFactory extends AbstractRandomVariableDifferentiableFactory {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 252965311623985432L;
+
 	public RandomVariableDifferentiableADFactory() {
 		super(new RandomVariableFactory());
 	}

@@ -27,7 +27,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
 
 /**
  * Class for parsing trades saved in FpML to product descriptors.
- * 
+ *
  * @author Christian Fries
  * @author Roland Bachl
  *
@@ -42,7 +42,7 @@ public class FPMLParser implements XMLParser {
 
 	/**
 	 * Construct the parser.
-	 * 
+	 *
 	 * @param homePartyId Id of the agent doing the valuation.
 	 * @param discountCurveName Name of the discount curve to be given to the descriptors.
 	 */
@@ -94,7 +94,7 @@ public class FPMLParser implements XMLParser {
 
 	/**
 	 * Construct an InterestRateSwapProductDescriptor from a node in a FpML file.
-	 * 
+	 *
 	 * @param leg The node containing the leg.
 	 * @return Descriptor of the swap leg.
 	 */
@@ -121,7 +121,7 @@ public class FPMLParser implements XMLParser {
 
 	/**
 	 * Construct an InterestRateSwapLegProductDescriptor from a node in a FpML file.
-	 * 
+	 *
 	 * @param leg The node containing the leg.
 	 * @return Descriptor of the swap leg.
 	 */

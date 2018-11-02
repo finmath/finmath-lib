@@ -24,7 +24,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * Class for parsing trades saved in FIPXML to product descriptors.
- * 
+ *
  * @author Christian Fries
  * @author Roland Bachl
  *
@@ -43,7 +43,7 @@ public class FIPXMLParser implements XMLParser {
 
 	/**
 	 * Construct the parser.
-	 * 
+	 *
 	 * @param agentIsBuyer Boolean indicating whether valuation is done from the buyers perspective.
 	 * @param discountCurveName Name of the discount curve to be assigned to the descriptor. If set to null or left blank the parser will try to determine this from the file.
 	 */
@@ -142,7 +142,7 @@ public class FIPXMLParser implements XMLParser {
 
 	/**
 	 * Construct an InterestRateSwapLegProductDescriptor from a node in a FIPXML file.
-	 * 
+	 *
 	 * @param leg The node containing the leg.
 	 * @param forwardCurveName Forward curve name form outside the node.
 	 * @param discountCurveName Discount curve name form outside the node.

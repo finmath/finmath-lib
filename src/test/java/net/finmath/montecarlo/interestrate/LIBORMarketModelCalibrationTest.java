@@ -305,7 +305,7 @@ public class LIBORMarketModelCalibrationTest {
 
 	/**
 	 * Brute force Monte-Carlo calibration of swaptions.
-	 * 
+	 *
 	 * The test also performs a test on the serialization of the LMM. It serialized the calibrated model into a byte array,
 	 * reads the model back and compares a simulation using the serialized model with the original one.
 	 *

@@ -23,6 +23,11 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCovarianceModelParametric {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -6538642489767323201L;
+
 	private RandomVariableInterface[] parameter = new RandomVariableInterface[5];
 
 	private LIBORVolatilityModel		volatilityModel;

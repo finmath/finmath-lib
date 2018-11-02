@@ -21,6 +21,10 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
  */
 public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariableDifferentiableFactory {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -6035830497454502442L;
 	/*
 	 * barrierDiracWidth defines the width of the discrete approximation of the dirac peak
 	 * from differentiation of a jump (barrier). It corresponds to the finite difference shift

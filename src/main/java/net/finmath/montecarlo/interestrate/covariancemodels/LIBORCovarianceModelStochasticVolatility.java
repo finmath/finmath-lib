@@ -49,6 +49,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovarianceModelParametric {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -559341617850035368L;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private BrownianMotionInterface brownianMotion;
 	private	RandomVariableInterface rho, nu;

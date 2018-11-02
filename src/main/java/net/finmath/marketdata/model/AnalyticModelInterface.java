@@ -85,7 +85,7 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 
 	/**
 	 * Returns a volatility surface for a given name.
-	 * 
+	 *
 	 * @param name THe name of the requested surface.
 	 * @return The volatility surface corresponding to the name.
 	 */

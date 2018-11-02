@@ -11,10 +11,10 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 
 /**
@@ -90,11 +90,11 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		private BlackScholesModelMonteCarlo(BlackScholesModelDescriptor descriptor, AbstractRandomVariableFactory randomVariableFactory,
 				IndependentIncrementsInterface stochasticDriver) {
 			super(new BlackScholesModelWithCurves(
-						descriptor.getInitialValue(),
-						descriptor.getDiscountCurveForForwardRate(),
-						descriptor.getVolatility(),
-						descriptor.getDiscountCurveForDiscountRate(),
-						randomVariableFactory),
+					descriptor.getInitialValue(),
+					descriptor.getDiscountCurveForForwardRate(),
+					descriptor.getVolatility(),
+					descriptor.getDiscountCurveForDiscountRate(),
+					randomVariableFactory),
 					new ProcessEulerScheme(stochasticDriver));
 			this.descriptor 	= descriptor;
 			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
@@ -107,7 +107,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-				return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+			return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 		}
 	}
 
@@ -147,7 +147,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-				return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+			return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
 		}
 	}
 }

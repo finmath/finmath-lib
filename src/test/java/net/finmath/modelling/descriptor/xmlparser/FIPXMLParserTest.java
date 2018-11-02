@@ -38,9 +38,9 @@ public class FIPXMLParserTest {
 	 * This main method will prompt the user for a test file an run the test with the given file.
 	 *
 	 * @param args Arguments - not used.
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws SAXException 
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws SAXException
 	 */
 	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException
 	{
@@ -50,7 +50,7 @@ public class FIPXMLParserTest {
 		if(jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
 			System.exit(1);
 		};
-		
+
 		(new FIPXMLParserTest(jfc.getSelectedFile())).testGetSwapProductDescriptor();
 	}
 

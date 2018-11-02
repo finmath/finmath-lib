@@ -22,6 +22,11 @@ public class RandomVariableDifferentiableAADPathwiseFactory extends AbstractRand
 	/**
 	 *
 	 */
+	private static final long serialVersionUID = 178082076449157040L;
+
+	/**
+	 *
+	 */
 	public RandomVariableDifferentiableAADPathwiseFactory() {
 		super();
 	}

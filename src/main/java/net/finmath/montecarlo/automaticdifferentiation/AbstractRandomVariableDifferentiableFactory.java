@@ -19,6 +19,10 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public abstract class AbstractRandomVariableDifferentiableFactory extends AbstractRandomVariableFactory {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 8262731847824139905L;
 	private final AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable;
 
 	/**

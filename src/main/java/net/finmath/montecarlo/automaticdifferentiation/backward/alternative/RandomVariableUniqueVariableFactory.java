@@ -18,6 +18,11 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	/**
 	 *
 	 */
+	private static final long serialVersionUID = -45129698827709536L;
+
+	/**
+	 *
+	 */
 	private static ArrayList<RandomVariableInterface> listOfAllVariables = new ArrayList<>();
 
 	/* starting index for adding variables to array list. */

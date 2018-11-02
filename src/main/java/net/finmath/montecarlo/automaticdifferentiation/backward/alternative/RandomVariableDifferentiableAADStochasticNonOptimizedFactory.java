@@ -21,6 +21,11 @@ public class RandomVariableDifferentiableAADStochasticNonOptimizedFactory extend
 	/**
 	 *
 	 */
+	private static final long serialVersionUID = 2297640879918234200L;
+
+	/**
+	 *
+	 */
 	public RandomVariableDifferentiableAADStochasticNonOptimizedFactory() {
 		super();
 	}

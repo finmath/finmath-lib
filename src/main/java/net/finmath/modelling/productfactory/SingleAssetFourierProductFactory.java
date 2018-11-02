@@ -97,7 +97,7 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 
 		/**
 		 * Create product from descriptor.
-		 * 
+		 *
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */

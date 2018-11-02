@@ -726,7 +726,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			 */
 			numeraireUnadjusted = numeraireUnadjusted
 					.discount(getLIBOR(time, time, getLiborPeriod(upperIndex)), getLiborPeriod(upperIndex) - time);
-			
+
 			return numeraireUnadjusted;
 		}
 		else {
@@ -737,12 +737,12 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			return getNumerairetUnAdjustedAtLIBORIndex(liborTimeIndex);
 		}
 	}
-	
+
 	private RandomVariableInterface getNumerairetUnAdjustedAtLIBORIndex(int liborTimeIndex) throws CalculationException {
 		/*
 		 * synchronize lazy init cache
 		 */
-		synchronized(numeraires) {			
+		synchronized(numeraires) {
 			/*
 			 * Check if numeraire is part of the cache
 			 */

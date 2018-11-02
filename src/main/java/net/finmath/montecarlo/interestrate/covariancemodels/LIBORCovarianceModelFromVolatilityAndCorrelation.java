@@ -28,6 +28,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLIBORCovarianceModelParametric {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -8782024526695367005L;
 	private LIBORVolatilityModel	volatilityModel;
 	private LIBORCorrelationModel	correlationModel;
 

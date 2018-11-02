@@ -119,7 +119,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 
 		/**
 		 * Create product from descriptor.
-		 * 
+		 *
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */
@@ -153,7 +153,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 
 		/**
 		 * Create product from descriptor.
-		 * 
+		 *
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */
@@ -191,7 +191,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 
 	/**
 	 * Monte-Carlo method based implementation of a physically settled interest rate swaption from a product descriptor.
-	 * 
+	 *
 	 * @author Christian Fries
 	 * @author Roland Bachl
 	 *
@@ -205,7 +205,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 
 		/**
 		 * Create product from descriptor.
-		 * 
+		 *
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */

@@ -68,7 +68,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 
 		/**
 		 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
-		 * 
+		 *
 		 * @param descriptor Implementation of SingleAssetEuropeanOptionProductDescriptor
 		 * @param referenceDate The reference date to be used to convert absolute maturities to relative maturities.
 		 */
@@ -95,7 +95,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 
 		/**
 		 * Create product from descriptor.
-		 * 
+		 *
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */
