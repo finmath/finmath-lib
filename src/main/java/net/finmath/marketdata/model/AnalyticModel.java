@@ -349,7 +349,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 
 	@Override
 	public String toString() {
-		return "AnalyticModel: referenceDate=" + referenceDate.toString() + ", curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
+		return "AnalyticModel: referenceDate=" + referenceDate + ", curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
 	}
 
 	/**
