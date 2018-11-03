@@ -42,7 +42,7 @@ public class CalibrationMultiCurveTest {
 		 * Calibration of a single curve - OIS curve - self disocunted curve, from a set of calibration products.
 		 */
 
-		LocalDate referenceDate = LocalDate.of(2012,01,10);
+		LocalDate referenceDate = LocalDate.of(2012, 1,10);
 
 		/*
 		 * Define the calibration spec generators for our calibration products
