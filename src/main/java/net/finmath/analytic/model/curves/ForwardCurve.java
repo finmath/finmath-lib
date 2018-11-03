@@ -407,7 +407,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
 	 * @param fixingTime The given fixing time.
 	 * @param forward The given forward.
-	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(double[])} and {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
+	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(RandomVariableInterface[])} and {@link #getCloneForParameter(RandomVariableInterface[])}, i.e., it can be calibrated.
 	 */
 	private void addForward(AnalyticModelInterface model, double fixingTime, RandomVariableInterface forward, boolean isParameter) {
 		double interpolationEntitiyTime;

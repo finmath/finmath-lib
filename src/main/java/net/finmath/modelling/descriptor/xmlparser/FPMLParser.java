@@ -95,8 +95,8 @@ public class FPMLParser implements XMLParser {
 	/**
 	 * Construct an InterestRateSwapProductDescriptor from a node in a FpML file.
 	 *
-	 * @param leg The node containing the leg.
-	 * @return Descriptor of the swap leg.
+	 * @param trade The node containing the swap.
+	 * @return Descriptor of the swap.
 	 */
 	private ProductDescriptor getSwapProductDescriptor(Element trade) {
 
