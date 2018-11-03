@@ -66,11 +66,26 @@ The Maven build file is provide. Import the project as Maven project.
 
 The default Maven profile is Java 8 without Kotlin. To enable Java 6 version select the Maven profile 'java-6'. To enable Kotlin select the Maven profile 'kotlin'.
 
+
+Releases
+--------------------------------------
+
+Binary releases can be found at http://finmath.net/finmath-lib .
+The version numbering of finmath-lib follows a the *[semantic versioning](https://semver.org)* 
+(at least we try to).
+
+
 Distribution
 --------------------------------------
 
 finmath lib is distributed through the central maven repository. It's coordinates are:
 
+For the Java 8 version:
+
+    <groupId>net.finmath</groupId>
+    <artifactId>finmath-lib</artifactId>
+    <version>${project.version}</version>
+    
 For the Java 6 version:
 
 	<groupId>net.finmath</groupId>
@@ -78,12 +93,6 @@ For the Java 6 version:
 	<version>${project.version}</version>
 	<classifier>java6</classifier>
 
-For the Java 8 version:
-
-	<groupId>net.finmath</groupId>
-	<artifactId>finmath-lib</artifactId>
-	<version>${project.version}</version>
-	
 You may build the Java 8 version via Maven using
 
 	mvn -P java-8
