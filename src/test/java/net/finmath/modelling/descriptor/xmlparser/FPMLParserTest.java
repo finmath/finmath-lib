@@ -73,7 +73,7 @@ public class FPMLParserTest {
 		jfc.setFileFilter(new FileNameExtensionFilter("FIPXML (.xml)", "xml"));
 		if(jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
 			System.exit(1);
-		};
+		}
 
 		(new FPMLParserTest(jfc.getSelectedFile())).testGetSwapProductDescriptor();
 	}

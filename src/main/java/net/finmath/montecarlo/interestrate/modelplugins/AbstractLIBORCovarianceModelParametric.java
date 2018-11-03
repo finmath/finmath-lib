@@ -229,7 +229,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
 						RandomVariableInterface value = valueFutures.get(calibrationProductIndex).get();
-						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;;
+						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;
 					}
 					catch (InterruptedException e) {
 						throw new SolverException(e);

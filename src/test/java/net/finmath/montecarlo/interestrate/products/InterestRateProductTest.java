@@ -358,7 +358,7 @@ public class InterestRateProductTest {
 		}
 
 		// Calculate swaprate
-		double swaprate = (discountFactors[swapStartIndex] - discountFactors[swapEndIndex]) / swapAnnuity;;
+		double swaprate = (discountFactors[swapStartIndex] - discountFactors[swapEndIndex]) / swapAnnuity;
 
 		return swaprate;
 	}
