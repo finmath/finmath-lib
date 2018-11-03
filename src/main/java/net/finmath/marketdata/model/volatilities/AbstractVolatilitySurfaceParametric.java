@@ -95,7 +95,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 			double lastAccuracy		= solver.getAccuracy();
 			int 	lastIterations	= solver.getIterations();
 
-			logger.fine("The solver achived an accuracy of " + lastAccuracy + " in " + lastIterations + ".");
+			logger.fine("The solver achieved an accuracy of " + lastAccuracy + " in " + lastIterations + ".");
 		}
 
 		return (AbstractVolatilitySurfaceParametric)modelCalibrated.getVolatilitySurface(this.getName());
