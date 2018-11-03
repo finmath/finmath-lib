@@ -15,7 +15,7 @@ import net.finmath.functions.NormalDistribution;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
-public class AccceptanceRejectionRandomNumberGeneratorTest {
+public class AcceptanceRejectionRandomNumberGeneratorTest {
 
 	@Test
 	public void test() {
@@ -24,7 +24,7 @@ public class AccceptanceRejectionRandomNumberGeneratorTest {
 		DoubleUnaryOperator referenceDensity = x -> { return Math.exp(- x); };
 		DoubleUnaryOperator referenceDistributionICDF = x -> { return -Math.log(1 - x); };
 		double acceptanceLevel = Math.sqrt(2.0 / Math.PI * Math.exp(1));
-		RandomNumberGenerator normalRandomNumberGeneratorAR = new AccceptanceRejectionRandomNumberGenerator(uniformRandomNumberGenerator2D, targetDensity, referenceDensity, referenceDistributionICDF, acceptanceLevel);
+		RandomNumberGenerator normalRandomNumberGeneratorAR = new AcceptanceRejectionRandomNumberGenerator(uniformRandomNumberGenerator2D, targetDensity, referenceDensity, referenceDistributionICDF, acceptanceLevel);
 
 		RandomNumberGenerator uniformRandomNumberGenerator1D = new HaltonSequence(new int[] { 2 });
 

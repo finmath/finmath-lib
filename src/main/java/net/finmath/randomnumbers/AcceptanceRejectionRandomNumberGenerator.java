@@ -15,7 +15,7 @@ import java.util.function.DoubleUnaryOperator;
  * @author Christian Fries
  * @version 1.0
  */
-public class AccceptanceRejectionRandomNumberGenerator implements RandomNumberGenerator {
+public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGenerator {
 
 	private final RandomNumberGenerator uniformRandomNumberGenerator;
 	private final DoubleUnaryOperator targetDensity;
@@ -23,7 +23,7 @@ public class AccceptanceRejectionRandomNumberGenerator implements RandomNumberGe
 	private final DoubleUnaryOperator referenceDistributionICDF;
 	private final double acceptanceLevel;
 
-	public AccceptanceRejectionRandomNumberGenerator(RandomNumberGenerator uniformRandomNumberGenerator,
+	public AcceptanceRejectionRandomNumberGenerator(RandomNumberGenerator uniformRandomNumberGenerator,
 			DoubleUnaryOperator targetDensity,
 			DoubleUnaryOperator referenceDensity,
 			DoubleUnaryOperator referenceDistributionICDF,
