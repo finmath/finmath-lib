@@ -322,7 +322,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			this.covarianceModel    = (AbstractLIBORCovarianceModel) covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
 		}
 
-		numeraires = new ConcurrentHashMap<>();
+		numeraires = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
 	}
 
 	/**
