@@ -31,6 +31,7 @@ import net.finmath.stochastic.Scalar;
  *
  * This class implements the optimized stochastic AD as it is described in
  * <a href="https://ssrn.com/abstract=2995695">ssrn.com/abstract=2995695</a>.
+ * For details see <a href="http://christianfries.com/finmath/stochasticautodiff/">http://christianfries.com/finmath/stochasticautodiff/</a>.
  *
  * @author Christian Fries
  * @author Stefan Sedlmair
@@ -209,6 +210,9 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			case COS:
 				derivative = X.sin().mult(-1.0);
 				break;
+			case INVERT:
+				derivative = X.invert().squared().mult(-1);
+				break;
 			case AVERAGE:
 				derivative = one;
 				break;
@@ -252,18 +256,18 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				break;
 			case CAP:
 				if(differentialIndex == 0) {
-					derivative = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					derivative = X.barrier(X.sub(Y), zero, one);
 				}
 				else {
-					derivative = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					derivative = X.barrier(X.sub(Y), one, zero);
 				}
 				break;
 			case FLOOR:
 				if(differentialIndex == 0) {
-					derivative = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					derivative = X.barrier(X.sub(Y), one, zero);
 				}
 				else {
-					derivative = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					derivative = X.barrier(X.sub(Y), zero, one);
 				}
 				break;
 			case AVERAGE2:
@@ -334,7 +338,8 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			case BARRIER:
 				if(differentialIndex == 0) {
 					/*
-					 * Experimental version - This should be specified as a parameter.
+					 * Approximation via local finite difference
+					 * (see https://ssrn.com/abstract=2995695 for details).
 					 */
 					derivative = Y.sub(Z);
 					double epsilon = 0.2*X.getStandardDeviation();
@@ -342,12 +347,13 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					derivative = derivative.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
 					derivative = derivative.div(epsilon);
 				} else if(differentialIndex == 1) {
-					derivative = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
+					derivative = X.barrier(X, one, zero);
 				} else {
-					derivative = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
+					derivative = X.barrier(X, zero, one);
 				}
-			default:
 				break;
+			default:
+				throw new IllegalArgumentException("Operation " + operatorType.name() + " not supported in differentiation.");
 			}
 
 			return derivative;
@@ -476,17 +482,11 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 * You cannot differentiate these results.
 	 */
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public boolean equals(RandomVariableInterface randomVariable) {
 		return getValues().equals(randomVariable);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getFiltrationTime()
-	 */
 	@Override
 	public double getFiltrationTime() {
 		return getValues().getFiltrationTime();
@@ -497,33 +497,21 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		return typePriority;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#get(int)
-	 */
 	@Override
 	public double get(int pathOrState) {
 		return getValues().get(pathOrState);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#size()
-	 */
 	@Override
 	public int size() {
 		return getValues().size();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#isDeterministic()
-	 */
 	@Override
 	public boolean isDeterministic() {
 		return getValues().isDeterministic();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations()
-	 */
 	@Override
 	public double[] getRealizations() {
 		return getValues().getRealizations();
@@ -534,129 +522,81 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		return getValues().doubleValue();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
-	 */
 	@Override
 	public double getMin() {
 		return getValues().getMin();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMax()
-	 */
 	@Override
 	public double getMax() {
 		return getValues().getMax();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage()
-	 */
 	@Override
 	public double getAverage() {
 		return getValues().getAverage();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getAverage(RandomVariableInterface probabilities) {
 		return getValues().getAverage(probabilities);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance()
-	 */
 	@Override
 	public double getVariance() {
 		return getValues().getVariance();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getVariance(RandomVariableInterface probabilities) {
 		return getValues().getVariance(probabilities);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getSampleVariance()
-	 */
 	@Override
 	public double getSampleVariance() {
 		return getValues().getSampleVariance();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
-	 */
 	@Override
 	public double getStandardDeviation() {
 		return getValues().getStandardDeviation();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getStandardDeviation(RandomVariableInterface probabilities) {
 		return getValues().getStandardDeviation(probabilities);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
-	 */
 	@Override
 	public double getStandardError() {
 		return getValues().getStandardError();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getStandardError(RandomVariableInterface probabilities) {
 		return getValues().getStandardError(probabilities);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(double)
-	 */
 	@Override
 	public double getQuantile(double quantile) {
 		return getValues().getQuantile(quantile);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(double, net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
 		return getValues().getQuantile(quantile, probabilities);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantileExpectation(double, double)
-	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
 		return getValues().getQuantileExpectation(quantileStart, quantileEnd);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(double[])
-	 */
 	@Override
 	public double[] getHistogram(double[] intervalPoints) {
 		return getValues().getHistogram(intervalPoints);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(int, double)
-	 */
 	@Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
 		return getValues().getHistogram(numberOfPoints, standardDeviations);
