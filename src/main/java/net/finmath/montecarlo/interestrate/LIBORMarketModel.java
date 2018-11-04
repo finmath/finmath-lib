@@ -678,23 +678,36 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
 		if (discountCurve != null) {
-			// This includes a control for zero bonds
-			RandomVariableInterface deterministicNumeraireAdjustment = numeraire.invert().average().div(discountCurve.getDiscountFactor(curveModel, time));
-			numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
+			synchronized (numeraires) {
+				/*
+				 * Check if numeraire cache is valid (i.e. process did not change)
+				 */
+				if (getProcess() != numerairesProcess) {
+					numeraires.clear();
+					numeraireAdjustments.clear();
+					numerairesProcess = getProcess();
+				}
 
-			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
+
+				RandomVariableInterface deterministicNumeraireAdjustment = numeraireAdjustments.get(time);
+
+				if(deterministicNumeraireAdjustment == null) {
+					// This includes a control for zero bonds
+					deterministicNumeraireAdjustment = numeraire.invert().average().div(discountCurve.getDiscountFactor(curveModel, time));
+
+					numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
+				}
+
+				numeraire = numeraire.mult(deterministicNumeraireAdjustment);
+			}
 		}
 		return numeraire;
 	}
 
 	protected RandomVariableInterface getNumerairetUnAdjusted(double time) throws CalculationException {
 		/*
-		 * Check if numeraire cache is valid (i.e. process did not change)
+		 * Check if numeraire is on LIBOR time grid
 		 */
-		if (getProcess() != numerairesProcess) {
-			numeraires.clear();
-			numerairesProcess = getProcess();
-		}
 		int liborTimeIndex = getLiborPeriodIndex(time);
 		RandomVariableInterface numeraireUnadjusted;
 		if (liborTimeIndex < 0) {
@@ -712,8 +725,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				 */
 				numeraireUnadjusted = getRandomVariableForConstant(1.0);
 				for (int liborIndex = upperIndex; liborIndex <= liborPeriodDiscretization.getNumberOfTimeSteps() - 1; liborIndex++) {
-					RandomVariableInterface libor = getLIBOR(
-							getTimeIndex(Math.min(time, liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
+					RandomVariableInterface libor = getLIBOR(getTimeIndex(Math.min(time, liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
 					double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
 					numeraireUnadjusted = numeraireUnadjusted.discount(libor, periodLength);
 				}
@@ -747,6 +759,15 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 * synchronize lazy init cache
 		 */
 		synchronized(numeraires) {
+			/*
+			 * Check if numeraire cache is valid (i.e. process did not change)
+			 */
+			if (getProcess() != numerairesProcess) {
+				numeraires.clear();
+				numeraireAdjustments.clear();
+				numerairesProcess = getProcess();
+			}
+
 			/*
 			 * Check if numeraire is part of the cache
 			 */
