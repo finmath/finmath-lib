@@ -6,6 +6,14 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 3.5.0 (04.11.2018)
+
+### LIBOR Market Model
+
+- The LIBORMarletModel provides the numeraire adjustments through a method. This method  
+  is required for - e.g. - a sensitivity based calculation of an MVA.
+
+
 ## 3.4.4 (02.11.2018)
 
 ### General
