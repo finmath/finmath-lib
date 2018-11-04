@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -169,6 +170,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 	// Cache for the numeraires, needs to be invalidated if process changes
 	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
+	private final ConcurrentHashMap<Double, RandomVariableInterface>	numeraireAdjustments;
 	private AbstractProcessInterface									numerairesProcess = null;
 
 	/**
@@ -323,6 +325,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 
 		numeraires = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
+		numeraireAdjustments = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
 	}
 
 	/**
@@ -676,14 +679,15 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		 */
 		if (discountCurve != null) {
 			// This includes a control for zero bonds
-			double deterministicNumeraireAdjustment = numeraire.invert().getAverage()
-					/ discountCurve.getDiscountFactor(curveModel, time);
+			RandomVariableInterface deterministicNumeraireAdjustment = numeraire.invert().average().div(discountCurve.getDiscountFactor(curveModel, time));
+			numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
+
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
 		return numeraire;
 	}
 
-	private RandomVariableInterface getNumerairetUnAdjusted(double time) throws CalculationException {
+	protected RandomVariableInterface getNumerairetUnAdjusted(double time) throws CalculationException {
 		/*
 		 * Check if numeraire cache is valid (i.e. process did not change)
 		 */
@@ -738,7 +742,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		}
 	}
 
-	private RandomVariableInterface getNumerairetUnAdjustedAtLIBORIndex(int liborTimeIndex) throws CalculationException {
+	protected RandomVariableInterface getNumerairetUnAdjustedAtLIBORIndex(int liborTimeIndex) throws CalculationException {
 		/*
 		 * synchronize lazy init cache
 		 */
@@ -786,6 +790,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			}
 			return numeraireUnadjusted;
 		}
+	}
+
+	public Map<Double, RandomVariableInterface> getNumeraireAdjustments() {
+		return Collections.unmodifiableMap(numeraireAdjustments);
 	}
 
 	@Override
