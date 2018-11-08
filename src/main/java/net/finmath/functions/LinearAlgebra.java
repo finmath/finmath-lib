@@ -165,6 +165,24 @@ public class LinearAlgebra {
 	}
 
 	/**
+	 * Find a solution of the linear equation A X = B in the least square sense where
+	 * <ul>
+	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>b is an m x k - matrix given as double[m][k],</li>
+	 * <li>x is an n x k - matrix given as double[n][k],</li>
+	 * </ul>
+	 *
+	 * @param matrix The matrix A (left hand side of the linear equation).
+	 * @param matrix The matrix B (right hand of the linear equation).
+	 * @return A solution X to A X = B.
+	 */
+	public static double[][] solveLinearEquationLeastSquare(double[][] matrix, double[][] rhs) {
+		// We use the linear algebra package apache commons math
+		DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
+		return solver.solve(new Array2DRowRealMatrix(rhs)).getData();
+	}
+
+	/**
 	 * Returns the matrix of the n Eigenvectors corresponding to the first n largest Eigenvalues of a correlation matrix.
 	 * These Eigenvectors can also be interpreted as "principal components" (i.e., the method implements the PCA).
 	 *
