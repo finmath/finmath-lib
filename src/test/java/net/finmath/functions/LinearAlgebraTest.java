@@ -50,5 +50,22 @@ public class LinearAlgebraTest {
 		Assert.assertEquals("Pseudo inverse", 1.0/4.0, X[1][3], 1E-12);
 		Assert.assertEquals("Pseudo inverse", 1.0/3.0, X[2][1], 1E-12);
 		Assert.assertEquals("Pseudo inverse", 2.0/5.0, X[4][0], 1E-12);
+
+		Assert.assertEquals("Pseudo inverse", 0.0, X[0][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[0][2], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[0][3], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[1][0], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[1][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[1][2], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[2][0], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[2][2], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[2][3], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[3][0], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[3][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[3][2], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[3][3], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[4][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[4][2], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, X[4][3], 1E-12);
 	}
 }
