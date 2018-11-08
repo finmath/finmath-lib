@@ -42,10 +42,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * This unit test checks automatic differentiation of some test functions and
  * compares it with a finite difference. The assert statement checks the values
  * against an analytic value (if the test function provides this).
- * 
+ *
  * The values used in this test are lower than the test cases presented in the paper
  * https://ssrn.com/abstract=2995695, but apart from this we
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  */
@@ -61,7 +61,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 	/**
 	 * Interface definition for test functions. Different test functions are defined below.
-	 * 
+	 *
 	 * @author Christian Fries
 	 */
 	private interface TestFunction {
