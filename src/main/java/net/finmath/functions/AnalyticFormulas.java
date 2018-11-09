@@ -614,7 +614,7 @@ public class AnalyticFormulas {
 			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			double delta = Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
+			double delta = Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
 
 			return delta;
 		}

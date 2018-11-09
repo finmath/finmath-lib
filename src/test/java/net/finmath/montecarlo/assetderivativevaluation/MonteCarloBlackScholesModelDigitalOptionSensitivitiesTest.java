@@ -9,6 +9,7 @@ package net.finmath.montecarlo.assetderivativevaluation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
@@ -37,7 +38,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 	private final double	modelVolatility     = 0.30;
 
 	// Process discretization properties
-	private final int		numberOfPaths		= 1000000;
+	private final int		numberOfPaths		= 2000000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 
@@ -96,7 +97,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
 		double deltaFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/epsDelta;
 
-		double epsRho = eps/100;
+		double epsRho = eps/10;
 		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<String, Object>();
 		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+epsRho);
 		double rhoFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/epsRho ;
@@ -111,8 +112,9 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		 */
 		double valueAnalytic = AnalyticFormulas.blackScholesDigitalOptionValue(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
 		double deltaAnalytic = AnalyticFormulas.blackScholesDigitalOptionDelta(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		double rhoAnalytic	= AnalyticFormulas.blackScholesDigitalOptionRho(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		double vegaAnalytic	= AnalyticFormulas.blackScholesDigitalOptionVega(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		double rhoAnalytic = AnalyticFormulas.blackScholesDigitalOptionRho(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		double vegaAnalytic = AnalyticFormulas.blackScholesDigitalOptionVega(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
@@ -133,6 +135,70 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		System.out.println("vega using analytic formula..: " + vegaAnalytic);
 		System.out.println();
 
-		//		Assert.assertEquals(valueAnalytic, value, 0.005);
+		Assert.assertEquals("value", valueAnalytic, valueMonteCarlo, 1E-3);
+		Assert.assertEquals("delta", deltaAnalytic, deltaAAD, 1E-2);
+		Assert.assertEquals("rho", rhoAnalytic, rhoAAD, 2E-2);
+		Assert.assertEquals("vega", vegaAnalytic, vegaAAD, 1E-2);
 	}
+	
+	@Test
+	public void testSensitivities() throws CalculationException {
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
+
+		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
+		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		RandomVariableDifferentiableInterface riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		RandomVariableDifferentiableInterface volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+
+		// Create a model
+		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+
+		// Create a time discretization
+		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+		// Create a corresponding MC process
+		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+
+		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
+		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+
+		double optionMaturity = 5.0;
+		double optionStrike = 1.25;
+		
+		DigitalOption option = new DigitalOption(optionMaturity, optionStrike);
+		RandomVariableInterface value = option.getValue(0.0, monteCarloBlackScholesModel);
+
+		/*
+		 * Calculate sensitivities using AAD
+		 */
+		Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
+
+		double valueMonteCarlo = value.getAverage();
+		double deltaAAD = derivative.get(initialValue.getID()).getAverage();
+		double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
+		double vegaAAD = derivative.get(volatility.getID()).getAverage();
+
+		Map<String, Double> sensitivities = new HashMap<>();
+		sensitivities.put("value", valueMonteCarlo);
+		sensitivities.put("delta", deltaAAD);
+		sensitivities.put("rho", rhoAAD);
+		sensitivities.put("vega", vegaAAD);
+
+		double deltaAnalytic = AnalyticFormulas.blackScholesDigitalOptionDelta(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		
+		double epsilon = 5E-4;
+		Map<String, Object> shiftedValues = new HashMap<String, Object>();
+		shiftedValues.put("initialValue", modelInitialValue+epsilon);
+		RandomVariableInterface valueUp = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
+		double deltaFD = (valueUp.getAverage()-value.getAverage())/epsilon;
+		
+		Assert.assertEquals("digital option delta", deltaAnalytic, deltaAAD, 2E-3);
+		Assert.assertEquals("digital option delta", deltaAnalytic, deltaFD, 1E-2);
+
+		/*
+		System.out.println("Delta " + deltaAAD);
+		System.out.println("Delta " + deltaAnalytic);
+		System.out.println("Delta " + deltaFD);
+		*/
+	}	
 }
