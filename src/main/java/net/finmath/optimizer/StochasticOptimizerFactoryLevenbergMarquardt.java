@@ -6,8 +6,6 @@
 
 package net.finmath.optimizer;
 
-import java.util.concurrent.ExecutorService;
-
 import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
 import net.finmath.stochastic.RandomVariableInterface;
 
