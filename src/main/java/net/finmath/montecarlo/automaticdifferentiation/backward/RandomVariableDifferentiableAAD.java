@@ -335,9 +335,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					 * Approximation via local finite difference
 					 * (see https://ssrn.com/abstract=2995695 for details).
 					 */
-					derivative = Y.sub(Z);
 					double epsilon = factory.getBarrierDiracWidth()*X.getStandardDeviation();
-					if(epsilon > 0) {
+					if(Double.isInfinite(epsilon)) {
+						derivative = one;
+					}
+					else if(epsilon > 0) {
+						derivative = Y.sub(Z);
 						derivative = derivative.mult(X.barrier(X.add(epsilon/2), one, zero));
 						derivative = derivative.mult(X.barrier(X.sub(epsilon/2), zero, one));
 						derivative = derivative.div(epsilon);
