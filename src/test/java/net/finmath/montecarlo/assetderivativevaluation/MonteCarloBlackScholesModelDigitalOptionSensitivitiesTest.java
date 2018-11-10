@@ -192,8 +192,8 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		RandomVariableInterface valueUp = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
 		double deltaFD = (valueUp.getAverage()-value.getAverage())/epsilon;
 		
-		Assert.assertEquals("digital option delta", deltaAnalytic, deltaAAD, 2E-3);
-		Assert.assertEquals("digital option delta", deltaAnalytic, deltaFD, 1E-2);
+		Assert.assertEquals("digital option delta aad", deltaAnalytic, deltaAAD, 2E-3);
+		Assert.assertEquals("digital option delta finite difference", deltaAnalytic, deltaFD, 1E-2);
 
 		/*
 		System.out.println("Delta " + deltaAAD);
