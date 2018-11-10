@@ -8,6 +8,11 @@ package net.finmath.montecarlo.conditionalexpectation;
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.stochastic.RandomVariableInterface;
 
+/**
+ * Performs a linear regression on random variables implementing RandomVariableInterface.
+ *
+ * @author Christian Fries
+ */
 public class LinearRegression {
 
 	private final RandomVariableInterface[] basisFunctions;
