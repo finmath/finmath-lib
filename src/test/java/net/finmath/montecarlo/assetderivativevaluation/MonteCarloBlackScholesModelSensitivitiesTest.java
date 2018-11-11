@@ -51,7 +51,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		double[] exerciseDates = new double[] { 1.0, 2.0, 3.0, 4.0 };
 		double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
 		double[] strikes = new double[] { 0.30*optionStrike, 0.40*optionStrike, 0.50*optionStrike, 1.25 };
-		Map<String, Object> properties = new HashMap<String, Object>(); properties.put("orderOfRegressionPolynomial", 1L);
+		Map<String, Object> properties = new HashMap<String, Object>(); properties.put("orderOfRegressionPolynomial", 1);
 		bermudanOption = new BermudanDigitalOption(exerciseDates, notionals, strikes, ExerciseMethod.ESTIMATE_COND_EXPECTATION, properties);
 	}
 
