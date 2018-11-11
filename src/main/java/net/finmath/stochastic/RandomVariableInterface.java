@@ -536,11 +536,20 @@ public interface RandomVariableInterface extends Serializable {
 	RandomVariableInterface discount(RandomVariableInterface rate, double periodLength);
 
 	/**
+	 * Applies x &rarr; (x &ge; 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
+	 * @param valueIfTriggerNonNegative The value used if this is greater or equal 0
+	 * @param valueIfTriggerNegative The value used if the this is less than 0
+	 * @return New random variable with the result of the function.
+	 */
+	RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative);
+
+	/**
 	 * Applies x &rarr; (trigger &ge; 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
 	 * @param trigger The trigger. A random variable (compatible with this random variable).
 	 * @param valueIfTriggerNonNegative The value used if the trigger is greater or equal 0
 	 * @param valueIfTriggerNegative The value used if the trigger is less than 0
 	 * @return New random variable with the result of the function.
+	 * @deprecated Used choose instead.
 	 */
 	RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative);
 
@@ -550,6 +559,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param valueIfTriggerNonNegative The value used if the trigger is greater or equal 0
 	 * @param valueIfTriggerNegative The value used if the trigger is less than 0
 	 * @return New random variable with the result of the function.
+	 * @deprecated Used choose instead.
 	 */
 	RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative);
 

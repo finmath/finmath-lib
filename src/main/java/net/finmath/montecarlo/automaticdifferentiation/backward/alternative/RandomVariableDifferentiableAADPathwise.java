@@ -840,6 +840,14 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	}
 
 	@Override
+	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		return new RandomVariableDifferentiableAADPathwise(
+				getValues().barrier(getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
+				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				OperatorType.BARRIER);
+	}
+
+	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADPathwise ? ((RandomVariableDifferentiableAADPathwise)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAADPathwise(

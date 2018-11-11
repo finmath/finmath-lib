@@ -909,9 +909,6 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		return apply((x, y) -> x * y, randomVariable);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
 		return apply((x, y) -> x / y, randomVariable);
@@ -922,41 +919,31 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		return apply((x, y) -> y / x, randomVariable);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cap(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface cap(RandomVariableInterface cap) {
 		return apply(FastMath::min, cap);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface floor(RandomVariableInterface floor) {
 		return apply(FastMath::max, floor);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#accrue(net.finmath.stochastic.RandomVariableInterface, double)
-	 */
 	@Override
 	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
 		return apply((x, y) -> x * (1.0 + y * periodLength), rate);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#discount(net.finmath.stochastic.RandomVariableInterface, double)
-	 */
 	@Override
 	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
 		return apply((x, y) -> x / (1.0 + y * periodLength), rate);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
+	@Override
+	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		return apply(( x, y, z) -> (x >= 0 ? y : z), valueIfTriggerNonNegative, valueIfTriggerNegative);
+	}
+
 	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		return trigger.apply(( x, y, z) -> (x >= 0 ? y : z), valueIfTriggerNonNegative, valueIfTriggerNegative);
@@ -967,9 +954,6 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 		return this.barrier(trigger, valueIfTriggerNonNegative, new RandomVariableLazyEvaluation(valueIfTriggerNonNegative.getFiltrationTime(), valueIfTriggerNegative));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#invert()
-	 */
 	@Override
 	public RandomVariableInterface invert() {
 		return apply(x -> 1.0 / x);

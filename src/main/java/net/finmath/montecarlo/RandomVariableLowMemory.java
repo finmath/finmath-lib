@@ -1246,6 +1246,27 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 	 */
 
 	@Override
+	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+		double newTime = time;
+		newTime = Math.max(newTime, valueIfTriggerNonNegative.getFiltrationTime());
+		newTime = Math.max(newTime, valueIfTriggerNegative.getFiltrationTime());
+
+		if(isDeterministic()) {
+			if(valueIfNonStochastic >= 0) return valueIfTriggerNonNegative;
+			else return valueIfTriggerNegative;
+		}
+		else {
+			int numberOfPaths = Math.max(Math.max(this.size(), valueIfTriggerNonNegative.size()), valueIfTriggerNegative.size());
+			float[] newRealizations = new float[numberOfPaths];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i] = (float) (realizations[i] >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i));
+			}
+			return new RandomVariableLowMemory(newTime, newRealizations);
+		}
+	}
+
+	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = Math.max(time, trigger.getFiltrationTime());
@@ -1258,9 +1279,9 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 		}
 		else {
 			int numberOfPaths = Math.max(Math.max(trigger.size(), valueIfTriggerNonNegative.size()), valueIfTriggerNegative.size());
-			double[] newRealizations = new double[numberOfPaths];
+			float[] newRealizations = new float[numberOfPaths];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i] = trigger.get(i) >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i);
+				newRealizations[i] = (float) (trigger.get(i) >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i));
 			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}

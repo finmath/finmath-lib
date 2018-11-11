@@ -874,6 +874,14 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
+	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		return new RandomVariableDifferentiableAD(
+				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
+				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				OperatorType.BARRIER);
+	}
+
+	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAD ? ((RandomVariableDifferentiableAD)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAD(

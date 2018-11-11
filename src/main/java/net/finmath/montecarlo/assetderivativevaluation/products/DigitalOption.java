@@ -8,6 +8,7 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Implements the valuation of a digital option on a single asset.
@@ -83,7 +84,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 		RandomVariableInterface underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 
 		// The payoff: values = indicator(underlying - strike, 0) = V(T) = max(S(T)-K,0)
-		RandomVariableInterface values = underlyingAtMaturity.barrier(underlyingAtMaturity.sub(strike), underlyingAtMaturity.mult(0.0).add(1.0), 0.0);
+		RandomVariableInterface values = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));
 
 		// Discounting...
 		RandomVariableInterface numeraireAtMaturity		= model.getNumeraire(maturity);
@@ -97,5 +98,4 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 
 		return values;
 	}
-
 }

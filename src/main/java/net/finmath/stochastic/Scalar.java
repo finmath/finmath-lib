@@ -325,19 +325,19 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		// TODO Auto-generated method stub
-		return null;
+	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		if(value >= 0) return valueIfTriggerNonNegative;
+		else return valueIfTriggerNegative;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, double)
-	 */
 	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger,
-			RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		// TODO Auto-generated method stub
-		return null;
+	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		return trigger.choose(valueIfTriggerNonNegative, valueIfTriggerNegative);
+	}
+
+	@Override
+	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
+		return trigger.choose(valueIfTriggerNonNegative, new Scalar(valueIfTriggerNegative));
 	}
 
 	@Override

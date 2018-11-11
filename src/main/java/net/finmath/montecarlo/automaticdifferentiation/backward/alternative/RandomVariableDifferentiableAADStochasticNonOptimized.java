@@ -839,6 +839,14 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
+	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+		return new RandomVariableDifferentiableAADStochasticNonOptimized(
+				getValues().barrier(getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
+				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				OperatorType.BARRIER);
+	}
+
+	@Override
 	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADStochasticNonOptimized ? ((RandomVariableDifferentiableAADStochasticNonOptimized)trigger).getValues() : trigger;
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
