@@ -6,6 +6,20 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 3.6.0 (11.11.2018)
+
+### General
+
+- The choose method has been added to the RandomVariableInterface.
+- The barrier method has been marked deprecated in RandomVariableInterface.
+
+### Automatic Differentiation
+
+- Setting the property `"barrierDiracWidth"` to `Double.POSITIVE_INFINITY` results 
+  in a replacement of the derivative of the indicator function by 1. This option will 
+  be useful in an accurate estimation of the derivative of the indicator function.
+
+
 ## 3.5.0 (04.11.2018)
 
 ### LIBOR Market Model
