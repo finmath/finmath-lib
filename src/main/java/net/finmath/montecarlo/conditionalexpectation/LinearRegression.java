@@ -19,7 +19,7 @@ public class LinearRegression {
 
 	/**
 	 * Create the linear regression with a set of basis functions.
-	 * 
+	 *
 	 * @param basisFunctions A vector of (independent) random variables to be used as basis functions.
 	 */
 	public LinearRegression(RandomVariableInterface[] basisFunctions) {
@@ -29,7 +29,7 @@ public class LinearRegression {
 
 	/**
 	 * Get the vector of regression coefficients.
-	 * 
+	 *
 	 * @param value The random variable to regress.
 	 * @return The vector of regression coefficients.
 	 */
