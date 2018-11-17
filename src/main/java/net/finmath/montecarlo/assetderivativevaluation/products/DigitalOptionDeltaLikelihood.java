@@ -26,8 +26,6 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 	private final double	maturity;
 	private final double	strike;
 
-	private boolean	isLikelihoodByFiniteDifference = false;
-
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 *
