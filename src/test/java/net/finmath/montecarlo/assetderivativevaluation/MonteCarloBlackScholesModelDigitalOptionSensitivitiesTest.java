@@ -140,7 +140,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		Assert.assertEquals("rho", rhoAnalytic, rhoAAD, 2E-2);
 		Assert.assertEquals("vega", vegaAnalytic, vegaAAD, 1E-2);
 	}
-	
+
 	@Test
 	public void testSensitivities() throws CalculationException {
 		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
@@ -164,7 +164,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 
 		double optionMaturity = 5.0;
 		double optionStrike = 1.25;
-		
+
 		DigitalOption option = new DigitalOption(optionMaturity, optionStrike);
 		RandomVariableInterface value = option.getValue(0.0, monteCarloBlackScholesModel);
 
@@ -185,13 +185,13 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		sensitivities.put("vega", vegaAAD);
 
 		double deltaAnalytic = AnalyticFormulas.blackScholesDigitalOptionDelta(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		
+
 		double epsilon = 5E-4;
 		Map<String, Object> shiftedValues = new HashMap<String, Object>();
 		shiftedValues.put("initialValue", modelInitialValue+epsilon);
 		RandomVariableInterface valueUp = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
 		double deltaFD = (valueUp.getAverage()-value.getAverage())/epsilon;
-		
+
 		Assert.assertEquals("digital option delta aad", deltaAnalytic, deltaAAD, 2E-3);
 		Assert.assertEquals("digital option delta finite difference", deltaAnalytic, deltaFD, 1E-2);
 
@@ -199,6 +199,6 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		System.out.println("Delta " + deltaAAD);
 		System.out.println("Delta " + deltaAnalytic);
 		System.out.println("Delta " + deltaFD);
-		*/
-	}	
+		 */
+	}
 }

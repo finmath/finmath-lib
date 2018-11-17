@@ -8,9 +8,7 @@ package net.finmath.montecarlo.automaticdifferentiation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Assert;
@@ -18,7 +16,6 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -27,7 +24,6 @@ import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.DigitalOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.DigitalOptionDeltaLikelihood;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.conditionalexpectation.LinearRegression;
 import net.finmath.montecarlo.model.AbstractModel;
@@ -43,12 +39,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  * is the calculation via AAD with regression,
  * see Stochastic Algorithmic Differentiation of (Expectations of) Discontinuous Functions (Indicator Functions).
  * https://ssrn.com/abstract=3282667
- * 
+ *
  * The test shows that the method provides a significant improvement in the quality (in terms of variance redcution):
  * AAD is 8 time better than finite differences,
  * AAD with regression is 3 times better than AAD
  * Likelihood Ratio (the benchmark for a digital option) is only 6% better than AAD with regression.
- * 
+ *
  * @author Christian Fries
  */
 public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesTest {
@@ -88,7 +84,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		System.out.println(deltaAAD.getAverage()-deltaAnalytic);
 		System.out.println(deltaAADReg.getAverage()-deltaAnalytic);
 		System.out.println(deltaLikelihoodRatio.getAverage()-deltaAnalytic);
-		
+
 		Assert.assertEquals("digital option delta finite difference", deltaAnalytic, deltaFD.getAverage(), 1E-1);
 		Assert.assertEquals("digital option delta aad", deltaAnalytic, deltaAAD.getAverage(), 1E-2);
 		Assert.assertEquals("digital option delta aad regression", deltaAnalytic, deltaAADReg.getAverage(), 4E-3);
@@ -133,7 +129,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 
 		/*
-		 * Calculate sensitivities using AAD with Regression 
+		 * Calculate sensitivities using AAD with Regression
 		 */
 
 		/*
@@ -187,7 +183,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		RandomVariableInterface densityX = new RandomVariable(0.0, ArrayUtils.toPrimitive(maskX.toArray(new Double[0])));
 		RandomVariableInterface densityValues = new RandomVariable(0.0, ArrayUtils.toPrimitive(maskY.toArray(new Double[0])));
 
-		double[] densityRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);		
+		double[] densityRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
 		double density = densityRegressionCoeff[0];
 
 		RandomVariableInterface densityRegression = densityValues.mult(0.0).add(densityRegressionCoeff[0]);
@@ -263,5 +259,5 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 
 		return results;
-	}	
+	}
 }
