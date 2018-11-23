@@ -21,6 +21,8 @@ import java.util.stream.DoubleStream;
 import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory.DiracDeltaApproximationMethod;
+import net.finmath.montecarlo.conditionalexpectation.LinearRegression;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.stochastic.Scalar;
@@ -31,8 +33,15 @@ import net.finmath.stochastic.Scalar;
  *
  * This class implements the optimized stochastic ADD as it is described in
  * <a href="https://ssrn.com/abstract=2995695">ssrn.com/abstract=2995695</a>.
- * For details see <a href="http://christianfries.com/finmath/stochasticautodiff/">http://christianfries.com/finmath/stochasticautodiff/</a>.
  *
+ * The class implements the special treatment of the conditional expectation operator as it is described in
+ * <a href="https://ssrn.com/abstract=3000822">ssrn.com/abstract=3000822</a>.
+ * 
+ * The class implements the special treatment of indicator functions as it is described in
+ * <a href="https://ssrn.com/abstract=3282667">ssrn.com/abstract=3282667</a>.
+ * 
+ * For details see <a href="http://christianfries.com/finmath/stochasticautodiff/">http://christianfries.com/finmath/stochasticautodiff/</a>.
+ * 
  * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.1
@@ -49,7 +58,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	private enum OperatorType {
 		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS,
-		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE,
+		ADDPRODUCT, ADDRATIO, SUBRATIO, CHOOSE, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE,
 		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2,
 		STDEV2, STDERROR2, CONDITIONAL_EXPECTATION
 	}
@@ -131,7 +140,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					argumentValues.set(2, null);
 				}
 			}
-			else if(operatorType != null && operatorType.equals(OperatorType.BARRIER)) {
+			else if(operatorType != null && operatorType.equals(OperatorType.CHOOSE)) {
 				if(arguments.get(0) == null) {
 					argumentValues.set(1, null);
 					argumentValues.set(2, null);
@@ -161,7 +170,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 						ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
 						derivative = estimator.getConditionalExpectation(derivative);
 					}
-
+					if(operatorType == OperatorType.CHOOSE && argumentIndex == 0 && (factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DENSITY || factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DISTRIBUITON)) {
+						derivative = getDiracDeltaRegression(derivative, argumentValues.get(0));
+					}
 					if(argumentDerivative == null) {
 						argumentDerivative = derivative.mult(partialDerivative);
 					}
@@ -174,6 +185,15 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 		}
 
+		/**
+		 * Calculate the partial derivative of this node with respect to an argument node.
+		 * Since a function f may use an argument node X in multiple arguments, say f(X,X), we need to provide index
+		 * of the argument with respect to which the differentiation is performed (thanks to Vincent E. for pointing to this).
+		 * 
+		 * @param differential The node of the argument.
+		 * @param differentialIndex The index of the argument in the functions argument list.
+		 * @return The value of the partial derivative.
+		 */
 		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
 
 			if(!arguments.contains(differential)) return zero;
@@ -228,7 +248,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				derivative = X.apply(x -> (x == max) ? 1.0 : 0.0);
 				break;
 			case ABS:
-				derivative = X.barrier(X, one, minusOne);
+				derivative = X.choose(one, minusOne);
 				break;
 			case STDERROR:
 				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
@@ -250,18 +270,18 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case CAP:
 				if(differentialIndex == 0) {
-					derivative = X.barrier(X.sub(Y), zero, one);
+					derivative = X.sub(Y).choose(zero, one);
 				}
 				else {
-					derivative = X.barrier(X.sub(Y), one, zero);
+					derivative = X.sub(Y).choose(one, zero);
 				}
 				break;
 			case FLOOR:
 				if(differentialIndex == 0) {
-					derivative = X.barrier(X.sub(Y), one, zero);
+					derivative = X.sub(Y).choose(one, zero);
 				}
 				else {
-					derivative = X.barrier(X.sub(Y), zero, one);
+					derivative = X.sub(Y).choose(zero, one);
 				}
 				break;
 			case AVERAGE2:
@@ -329,29 +349,55 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					derivative = X.mult(Y).div(Y.mult(Z).add(1.0).squared()).mult(-1.0);
 				}
 				break;
-			case BARRIER:
+			case CHOOSE:
 				if(differentialIndex == 0) {
-					/*
-					 * Approximation via local finite difference
-					 * (see https://ssrn.com/abstract=2995695 for details).
-					 */
-					double epsilon = factory.getBarrierDiracWidth()*X.getStandardDeviation();
-					if(Double.isInfinite(epsilon)) {
+					switch(factory.getDiracDeltaApproximationMethod()) {
+					case ONE:
+					{
 						derivative = one;
+						break;
 					}
-					else if(epsilon > 0) {
-						derivative = Y.sub(Z);
-						derivative = derivative.mult(X.barrier(X.add(epsilon/2), one, zero));
-						derivative = derivative.mult(X.barrier(X.sub(epsilon/2), zero, one));
-						derivative = derivative.div(epsilon);
-					}
-					else {
+					case ZERO:
+					{
 						derivative = zero;
+						break;
+					}
+					case DISCRETE_DELTA:
+					{
+						/*
+						 * Approximation via local finite difference
+						 * (see https://ssrn.com/abstract=2995695 for details).
+						 */
+						double epsilon = factory.getDiracDeltaApproximationWidthPerStdDev()*X.getStandardDeviation();
+						if(Double.isInfinite(epsilon)) {
+							derivative = one;
+						}
+						else if(epsilon > 0) {
+							derivative = Y.sub(Z);
+							derivative = derivative.mult(X.add(epsilon/2).choose(one, zero));
+							derivative = derivative.mult(X.sub(epsilon/2).choose(zero, one));
+							derivative = derivative.div(epsilon);
+						}
+						else {
+							derivative = zero;
+						}
+						break;
+					}
+					case REGRESSION_ON_DENSITY:
+					case REGRESSION_ON_DISTRIBUITON:
+					{
+						derivative = one;
+						break;
+					}
+					default:
+					{
+						throw new UnsupportedOperationException("Diract Delta Approximation Method " + factory.getDiracDeltaApproximationMethod().name() + " not supported.");
+					}
 					}
 				} else if(differentialIndex == 1) {
-					derivative = X.barrier(X, one, zero);
+					derivative = X.choose(one, zero);
 				} else {
-					derivative = X.barrier(X, zero, one);
+					derivative = X.choose(zero, one);
 				}
 				break;
 			default:
@@ -359,6 +405,98 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 
 			return derivative;
+		}
+
+		private RandomVariableInterface getDiracDeltaRegression(RandomVariableInterface derivative, RandomVariableInterface indicator) {
+			double diracDeltaApproximationWidthPerStdDev = factory.getDiracDeltaApproximationWidthPerStdDev();
+			double epsilon = diracDeltaApproximationWidthPerStdDev*indicator.getStandardDeviation();
+
+			RandomVariableInterface localizedOne = (indicator.add(epsilon/2).choose(one, zero)).mult(indicator.sub(epsilon/2).choose(zero, one));
+
+			boolean isDirectDeltaRegressionUseRegressionOnAdjointDerivative = false;	// currently disabled, was used in experiments
+			if(isDirectDeltaRegressionUseRegressionOnAdjointDerivative) {
+				RandomVariableInterface localizedValue = indicator.mult(localizedOne);
+				RandomVariableInterface[] regressionBasisFunctions = new RandomVariableInterface[] {
+						localizedOne,
+						localizedValue,
+						localizedValue.squared()
+				};
+				derivative = localizedOne.mult((new LinearRegression(regressionBasisFunctions)).getRegressionCoefficients(derivative)[0]).div(localizedOne.getAverage());
+			}
+			else {
+				derivative = derivative.mult(localizedOne).div(localizedOne.getAverage());
+			}
+
+			return derivative.mult(getDensityRegression(indicator));
+
+		}
+
+		private double getDensityRegression(RandomVariableInterface indicator) {
+			double diracDeltaApproximationDensityRegressionWidthPerStdDev = factory.getDiracDeltaApproximationDensityRegressionWidthPerStdDev();
+
+			/*
+			 * Density regression
+			 */
+			double underlyingStdDev = indicator.getStandardDeviation();
+			final int numberOfSamplePointsHalf = 50;			// @TODO numberOfSamplePoints should become a parameter.
+			final double sampleIntervalWidthHalf = diracDeltaApproximationDensityRegressionWidthPerStdDev/2 * underlyingStdDev / numberOfSamplePointsHalf;
+			double[] samplePointX = new double[numberOfSamplePointsHalf*2];
+			double[] samplePointY = new double[numberOfSamplePointsHalf*2];
+			double sampleInterval = sampleIntervalWidthHalf;
+			RandomVariableInterface indicatorPositiveValues = indicator.choose(new Scalar(1.0), new Scalar(0.0));
+			RandomVariableInterface indicatorNegativeValues = indicator.choose(new Scalar(0.0), new Scalar(1.0));
+
+			switch(factory.getDiracDeltaApproximationMethod()) {
+			case REGRESSION_ON_DENSITY:
+			{
+				for(int i=0; i<numberOfSamplePointsHalf*2; i+=2) {
+					sampleInterval += sampleIntervalWidthHalf;
+
+					RandomVariableInterface indicatorOnNegValues = indicator.add(sampleInterval).choose(new Scalar(1.0), new Scalar(0.0)).mult(indicatorNegativeValues);
+					RandomVariableInterface indicatorOnPosValues = indicator.sub(sampleInterval).choose(new Scalar(0.0), new Scalar(1.0)).mult(indicatorPositiveValues);
+
+					samplePointX[i] = -sampleInterval;
+					samplePointY[i] = indicatorOnNegValues.getAverage() / sampleInterval;
+
+					samplePointX[i+1] = sampleInterval;
+					samplePointY[i+1] = indicatorOnPosValues.getAverage() / sampleInterval;
+				}
+
+				RandomVariableInterface densityX = new RandomVariable(0.0, samplePointX);
+				RandomVariableInterface densityValues = new RandomVariable(0.0, samplePointY);
+
+				double[] densityRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
+				double density = densityRegressionCoeff[0];
+
+				return density;
+			}
+			case REGRESSION_ON_DISTRIBUITON:
+			{
+				for(int i=0; i<numberOfSamplePointsHalf*2; i+=2) {
+					sampleInterval += sampleIntervalWidthHalf;
+
+					RandomVariableInterface indicatorOnNegValues = indicator.add(sampleInterval).choose(new Scalar(1.0), new Scalar(0.0)).mult(indicatorNegativeValues);
+					RandomVariableInterface indicatorOnPosValues = indicator.sub(sampleInterval).choose(new Scalar(0.0), new Scalar(1.0)).mult(indicatorPositiveValues);
+
+					samplePointX[i] = -sampleInterval;
+					samplePointY[i] = -indicatorOnNegValues.getAverage();
+
+					samplePointX[i+1] = sampleInterval;
+					samplePointY[i+1] = indicatorOnPosValues.getAverage();
+				}
+
+				RandomVariableInterface densityX = new RandomVariable(0.0, samplePointX);
+				RandomVariableInterface densityValues = new RandomVariable(0.0, samplePointY);
+
+				double[] densityRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
+				//				double[] densityRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { densityX, densityX.mult(0.0).add(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
+				double density = densityRegressionCoeff[0];
+
+				return density;
+			}
+			default:
+				throw new UnsupportedOperationException("Density regression method " + factory.getDiracDeltaApproximationMethod().name() + " not supported.");
+			}
 		}
 
 		private static List<OperatorTreeNode> extractOperatorTreeNodes(List<RandomVariableInterface> arguments) {
@@ -928,7 +1066,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
 				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				OperatorType.BARRIER,
+				OperatorType.CHOOSE,
 				getFactory());
 	}
 
@@ -938,7 +1076,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
 				Arrays.asList(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				OperatorType.BARRIER,
+				OperatorType.CHOOSE,
 				getFactory());
 	}
 
@@ -948,7 +1086,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		return new RandomVariableDifferentiableAAD(
 				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative),
 				Arrays.asList(trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative)),
-				OperatorType.BARRIER,
+				OperatorType.CHOOSE,
 				getFactory());
 	}
 

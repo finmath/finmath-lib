@@ -34,6 +34,40 @@ public class LinearRegression {
 	 * @return The vector of regression coefficients.
 	 */
 	public double[] getRegressionCoefficients(RandomVariableInterface value) {
+		if(basisFunctions.length == 0) {
+			return new double[] { };
+		}
+		else if(basisFunctions.length == 1) {
+			/*
+			 * Regression with one basis function is just a projection on that vector. <b,x>/<b,b>
+			 */
+			return new double[] { value.mult(basisFunctions[0]).getAverage() / basisFunctions[0].squared().getAverage() };
+		}
+		else if(basisFunctions.length == 2) {
+			/*
+			 * Regression with two basis functions can be solved explicitly if determinant != 0 (otherwise we will fallback to SVD)
+			 */
+			double a = basisFunctions[0].squared().getAverage();
+			double b = basisFunctions[0].mult(basisFunctions[1]).average().squared().doubleValue();
+			double c = b;
+			double d = basisFunctions[1].squared().getAverage();
+
+			double determinant =  (a * d - b * c);
+			if(determinant != 0) {
+				double x = value.mult(basisFunctions[0]).getAverage();
+				double y = value.mult(basisFunctions[1]).getAverage();
+
+				double alpha0 = (d * x - b * y) / determinant;
+				double alpha1 = (a * y - c * x) / determinant;
+
+				return new double[] { alpha0, alpha1 };
+			}
+		}
+
+		/*
+		 * General case
+		 */
+
 		// Build regression matrix
 		double[][] BTB = new double[basisFunctions.length][basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {

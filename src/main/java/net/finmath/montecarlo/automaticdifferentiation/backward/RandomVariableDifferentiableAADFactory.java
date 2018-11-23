@@ -17,27 +17,44 @@ import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentia
 /**
  * @author Christian Fries
  *
- * @version 1.0
+ * @version 1.1
  */
 public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariableDifferentiableFactory {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -6035830497454502442L;
+
+	public enum DiracDeltaApproximationMethod {
+		DISCRETE_DELTA,
+		REGRESSION_ON_DENSITY,
+		REGRESSION_ON_DISTRIBUITON,
+		ONE,
+		ZERO
+	}
+
 	/*
-	 * barrierDiracWidth defines the width of the discrete approximation of the dirac peak
+	 * diractDeltaApproximationWidthPerStdDev defines the width of the discrete approximation of the Dirac peak
 	 * from differentiation of a jump (barrier). It corresponds to the finite difference shift
 	 * when the derivative is calculated via finite differences.
+	 *
 	 * It is a multiplicator to the standard deviation of the random variable.
 	 */
-	private final double barrierDiracWidth;
+	private final DiracDeltaApproximationMethod diracDeltaApproximationMethod;
+	private final double diracDeltaApproximationWidthPerStdDev;
+	private final double diracDeltaApproximationDensityRegressionWidthPerStdDev;
+
 	private final boolean isGradientRetainsLeafNodesOnly;
 
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
 		super(randomVariableFactoryForNonDifferentiable);
 
-		barrierDiracWidth = (Double) properties.getOrDefault("barrierDiracWidth", 0.05); // Corresponds to 2% of paths used for estimation bin  0.05 = 2%,  0.025 = 1%
+		/*
+		 * diractDeltaApproximationWidthPerStdDev = 0.05 corresponds to 2% of paths used for estimation bin 0.05 = 2%,  0.025 = 1%
+		 * diracDeltaApproximationDensityRegressionWidthPerStdDev = 0.50 corresponds to 20% of path used for regression of density, 1.00 = 40%.
+		 */
+		diracDeltaApproximationMethod = DiracDeltaApproximationMethod.valueOf((String)properties.getOrDefault("diracDeltaApproximationMethod", DiracDeltaApproximationMethod.DISCRETE_DELTA.name()));
+		diracDeltaApproximationWidthPerStdDev = (Double)properties.getOrDefault("diracDeltaApproximationWidthPerStdDev", properties.getOrDefault("barrierDiracWidth", 0.05));
+		diracDeltaApproximationDensityRegressionWidthPerStdDev = (Double)properties.getOrDefault("diracDeltaApproximationDensityRegressionWidthPerStdDev", 0.5);
+
 		isGradientRetainsLeafNodesOnly = (Boolean) properties.getOrDefault("isGradientRetainsLeafNodesOnly", true);
 	}
 
@@ -62,8 +79,21 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, values), this);
 	}
 
+	public DiracDeltaApproximationMethod getDiracDeltaApproximationMethod() {
+		return diracDeltaApproximationMethod;
+	}
+
+	public double getDiracDeltaApproximationWidthPerStdDev() {
+		return diracDeltaApproximationWidthPerStdDev;
+	}
+
+	public double getDiracDeltaApproximationDensityRegressionWidthPerStdDev() {
+		return diracDeltaApproximationDensityRegressionWidthPerStdDev;
+	}
+
+	@Deprecated
 	public double getBarrierDiracWidth() {
-		return barrierDiracWidth;
+		return getDiracDeltaApproximationWidthPerStdDev();
 	}
 
 	public boolean isGradientRetainsLeafNodesOnly() {
