@@ -6,7 +6,7 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 3.6.0 (11.11.2018)
+## 3.6.0 (25.11.2018)
 
 ### General
 
@@ -18,7 +18,8 @@ finmath lib Release Notes
 - Setting the property `"barrierDiracWidth"` to `Double.POSITIVE_INFINITY` results 
   in a replacement of the derivative of the indicator function by 1. This option will 
   be useful in an accurate estimation of the derivative of the indicator function.
-
+- Implementation of the density regression for the derivative of indicator functions, 
+  see https://ssrn.com/abstract=3282667
 
 ## 3.5.0 (04.11.2018)
 
