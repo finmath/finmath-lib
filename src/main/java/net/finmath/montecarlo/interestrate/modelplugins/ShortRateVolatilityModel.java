@@ -12,7 +12,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class ShortRateVolatilityModel implements ShortRateVolailityModelInterface {
+public class ShortRateVolatilityModel implements ShortRateVolatilityModelInterface {
 
 	private TimeDiscretizationInterface timeDiscretization;
 	private double[] volatility;

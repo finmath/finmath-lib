@@ -30,7 +30,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.HullWhiteLocalVolatility
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
+import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModel;
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Bond;
@@ -131,7 +131,7 @@ public class HullWhiteModelTest {
 			/*
 			 * Create a volatility model: Hull white with constant coefficients (non time dep.).
 			 */
-			ShortRateVolailityModelInterface volatilityModel = new ShortRateVolatilityModel(
+			ShortRateVolatilityModelInterface volatilityModel = new ShortRateVolatilityModel(
 					new TimeDiscretization(0.0),
 					new double[] { shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion } /* meanReversion */);

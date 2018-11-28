@@ -13,7 +13,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
+import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -92,10 +92,10 @@ import net.finmath.time.TimeDiscretizationInterface;
  * Hence, we interpret both, short rate mean reversion speed and short rate volatility as part of the <i>volatility model</i>.
  *
  * The mean reversion speed and the short rate volatility have to be provided to this class via an object implementing
- * {@link net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface}.
+ * {@link net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface}.
  *
  *
- * @see net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface
+ * @see net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface
  * @see net.finmath.montecarlo.interestrate.HullWhiteModel
  *
  * @author Christian Fries
@@ -122,7 +122,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
 	private AbstractProcessInterface									numerairesProcess = null;
 
-	private final ShortRateVolailityModelInterface volatilityModel;
+	private final ShortRateVolatilityModelInterface volatilityModel;
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
@@ -139,7 +139,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractModel implements L
 			AnalyticModelInterface				analyticModel,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
-			ShortRateVolailityModelInterface	volatilityModel,
+			ShortRateVolatilityModelInterface	volatilityModel,
 			Map<String, ?>						properties
 			) {
 

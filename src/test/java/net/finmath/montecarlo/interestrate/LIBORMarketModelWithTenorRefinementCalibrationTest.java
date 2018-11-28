@@ -54,7 +54,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelExpo
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelPiecewiseConstant;
-import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolailityModelInterface;
+import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructCovarianceModelFromLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelParametric;
@@ -630,7 +630,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					System.arraycopy(parameters, 0, shortRateVolatility, 0, shortRateVolatility.length);
 					Arrays.fill(meanReversion, parameters[parameters.length-1]);
 
-					ShortRateVolailityModelInterface volatilityModel = new ShortRateVolatilityModel(
+					ShortRateVolatilityModelInterface volatilityModel = new ShortRateVolatilityModel(
 							shortRateVolTimeDis,
 							shortRateVolatility,
 							meanReversion);
@@ -715,7 +715,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			System.arraycopy(bestParameters, 0, shortRateVolatilityCalib, 0, shortRateVolatilityCalib.length);
 			Arrays.fill(meanReversionCalib, bestParameters[bestParameters.length-1]);
 
-			ShortRateVolailityModelInterface volatilityModelCalibrated = new ShortRateVolatilityModel(
+			ShortRateVolatilityModelInterface volatilityModelCalibrated = new ShortRateVolatilityModel(
 					shortRateVolTimeDis,
 					shortRateVolatilityCalib,
 					meanReversionCalib);
@@ -773,7 +773,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					System.arraycopy(parameters, 0, shortRateVolatility, 0, shortRateVolatility.length);
 					System.arraycopy(parameters, shortRateVolatility.length, meanReversion, 0, shortRateVolatility.length);
 
-					ShortRateVolailityModelInterface volatilityModel = new ShortRateVolatilityModel(
+					ShortRateVolatilityModelInterface volatilityModel = new ShortRateVolatilityModel(
 							shortRateVolTimeDis,
 							shortRateVolatility,
 							meanReversion);
@@ -860,7 +860,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			System.arraycopy(bestParameters, 0, shortRateVolatilityCalib, 0, shortRateVolatilityCalib.length);
 			System.arraycopy(bestParameters, shortRateVolatilityCalib.length, meanReversionCalib, 0, shortRateVolatilityCalib.length);
 
-			ShortRateVolailityModelInterface volatilityModelCalibrated = new ShortRateVolatilityModel(
+			ShortRateVolatilityModelInterface volatilityModelCalibrated = new ShortRateVolatilityModel(
 					shortRateVolTimeDis,
 					shortRateVolatilityCalib,
 					meanReversionCalib);

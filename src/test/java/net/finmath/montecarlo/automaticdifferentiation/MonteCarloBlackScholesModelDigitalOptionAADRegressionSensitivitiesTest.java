@@ -163,7 +163,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			Map<String, Object> randomVariableRegressionProps = new HashMap<String, Object>();
 			randomVariableRegressionProps.put("diracDeltaApproximationWidthPerStdDev", width);	// 0.05 is the default
 			randomVariableRegressionProps.put("diracDeltaApproximationMethod", DiracDeltaApproximationMethod.REGRESSION_ON_DISTRIBUITON.name());
-			randomVariableRegressionProps.put("diracDeltaApproximationDensityRegressionWidthPerStdDev", 0.5);	// 0.5 is the default
+			randomVariableRegressionProps.put("diracDeltaApproximationDensityRegressionWidthPerStdDev", 0.75);	// 0.5 is the default
 			RandomVariableDifferentiableAADFactory randomVariableFactoryRegression = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableRegressionProps);
 
 			/*

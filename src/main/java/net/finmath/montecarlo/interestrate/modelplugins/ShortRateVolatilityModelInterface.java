@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public interface ShortRateVolailityModelInterface {
+public interface ShortRateVolatilityModelInterface {
 
 	/**
 	 * Returns the time discretization \( \{ t_{i} \} \) associated
