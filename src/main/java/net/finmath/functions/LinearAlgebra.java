@@ -168,12 +168,12 @@ public class LinearAlgebra {
 	 * Find a solution of the linear equation A X = B in the least square sense where
 	 * <ul>
 	 * <li>A is an n x m - matrix given as double[n][m]</li>
-	 * <li>b is an m x k - matrix given as double[m][k],</li>
-	 * <li>x is an n x k - matrix given as double[n][k],</li>
+	 * <li>B is an m x k - matrix given as double[m][k],</li>
+	 * <li>X is an n x k - matrix given as double[n][k],</li>
 	 * </ul>
 	 *
 	 * @param matrix The matrix A (left hand side of the linear equation).
-	 * @param matrix The matrix B (right hand of the linear equation).
+	 * @param rhs The matrix B (right hand of the linear equation).
 	 * @return A solution X to A X = B.
 	 */
 	public static double[][] solveLinearEquationLeastSquare(double[][] matrix, double[][] rhs) {
