@@ -33,6 +33,14 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * - the way of measuring time in an NSS curve determines the interpretation of the NSS parameters.
  * - in the textbook Black-Scholes models, multiplying volatility by W(t), changing from an ACT/365 to ACT/360 would represent a re-scaling of the volatilities.
  *
+ * The specification of this internal time representation is to some extend just a convention which defines the unit of internal model parameters.
+ * A constant volatility measured against a floating point time ACT/365 corresponds 1:1: to a constant volatility measure again a floating point time ACT/360
+ * with a conversion factor of 360/365. However, the situation is not always trivial, since a constant volatility measured against a floating point time ACT/365
+ * would correspond to a weakly time-dependent volatility volatility measured against ACT/ACT.
+ * 
+ * Such nuances represent differences in the model, a model calibration will ensure that the parameters are choosen such that the model matches observed quantities
+ * independent from the convention used to express internal model parameters.
+ * 
  * @author Christian Fries
  * @version 1.1
  */
