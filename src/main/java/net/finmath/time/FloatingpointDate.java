@@ -17,11 +17,11 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  * This class provides the library wide conversion from a floating point number to a LocalDate.
  *
  * While in practical applications a date or time should always be represented with a proper
- * date class, e.g. <code>LocalDate</code>. In financial applications the measurement
+ * date class, e.g. <code>LocalDate</code> or <code>LocalDateTime</code>. In financial applications the measurement
  * of time distances has to be based on a solid definition, e.g., daycount conventions to calculate
  * daycount fractions.
  *
- * However, many mathematical models described in text books rely on time being model as some
+ * However, many mathematical models described in text books rely on time being modeled as some
  * real value \( t \).
  *
  * To allow for both approaches to co-exists this class fixes the interpretation of a floating
@@ -48,14 +48,13 @@ public class FloatingpointDate {
 	/**
 	 * Convert a floating point date to a LocalDateTime.
 	 *
-	 * Note: This method currently performs a rounding to the next day.
-	 * In a future extension intra-day time offsets may be considered.
+	 * Note: This method currently performs a rounding to the next second.
 	 *
 	 * If referenceDate is null, the method returns null.
 	 *
 	 * @param referenceDate The reference date associated with \( t=0 \).
 	 * @param floatingPointDate The value to the time offset \( t \).
-	 * @return The date resulting from adding Math.round(fixingTime*365.0) days to referenceDate.
+	 * @return The date resulting from adding Math.round(fixingTime*SECONDS_PER_DAY) seconds to referenceDate, where one day has SECONDS_PER_DAY seconds and SECONDS_PER_DAY is a constant 365*24*60*60
 	 */
 	public static LocalDateTime getDateFromFloatingPointDate(LocalDateTime referenceDate, double floatingPointDate) {
 		if(referenceDate == null) {
@@ -71,7 +70,7 @@ public class FloatingpointDate {
 	 *
 	 * @param referenceDate The reference date associated with \( t=0 \).
 	 * @param date The given date to be associated with the return value \( T \).
-	 * @return The value T measuring the distance of reference date and date by ACT/365.
+	 * @return The value T measuring the distance of reference date and date by ACT/365 with SECONDS_PER_DAY seconds used as the smallest time unit and SECONDS_PER_DAY is a constant 365*24*60*60.
 	 */
 	public static double getFloatingPointDateFromDate(LocalDateTime referenceDate, LocalDateTime date) {
 		Duration duration = Duration.between(referenceDate, date);
