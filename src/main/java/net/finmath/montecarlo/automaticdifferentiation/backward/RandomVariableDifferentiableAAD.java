@@ -36,12 +36,12 @@ import net.finmath.stochastic.Scalar;
  *
  * The class implements the special treatment of the conditional expectation operator as it is described in
  * <a href="https://ssrn.com/abstract=3000822">ssrn.com/abstract=3000822</a>.
- * 
+ *
  * The class implements the special treatment of indicator functions as it is described in
  * <a href="https://ssrn.com/abstract=3282667">ssrn.com/abstract=3282667</a>.
- * 
+ *
  * For details see <a href="http://christianfries.com/finmath/stochasticautodiff/">http://christianfries.com/finmath/stochasticautodiff/</a>.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.1
@@ -189,7 +189,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		 * Calculate the partial derivative of this node with respect to an argument node.
 		 * Since a function f may use an argument node X in multiple arguments, say f(X,X), we need to provide index
 		 * of the argument with respect to which the differentiation is performed (thanks to Vincent E. for pointing to this).
-		 * 
+		 *
 		 * @param differential The node of the argument.
 		 * @param differentialIndex The index of the argument in the functions argument list.
 		 * @return The value of the partial derivative.
@@ -1254,7 +1254,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	@Override
 	public String toString() {
-		return "RandomVariableDifferentiableAAD [values=" + values + ", ID=" + getID() + "]";
+		return "RandomVariableDifferentiableAAD [values=" + values + ",\n ID=" + getID() + "]";
 	}
 
 	@Override
