@@ -821,7 +821,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	public RandomVariableInterface[] getInitialState() {
 		double[] liborInitialStates = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			//			double rate = forwardRateCurve.getForward(curveModel, liborPeriodDiscretization.getTime(timeIndex), liborPeriodDiscretization.getTimeStep(timeIndex));
 			double rate = forwardRateCurve.getForward(curveModel, liborPeriodDiscretization.getTime(timeIndex), liborPeriodDiscretization.getTimeStep(timeIndex));
 			liborInitialStates[timeIndex] = (stateSpace == StateSpace.LOGNORMAL) ? Math.log(Math.max(rate,0)) : rate;
 		}
@@ -890,6 +889,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 				RandomVariableInterface		oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(libor, periodLength);
 
 				if(stateSpace == StateSpace.LOGNORMAL) {
+					// The drift has an additional forward rate factor
 					oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 				}
 

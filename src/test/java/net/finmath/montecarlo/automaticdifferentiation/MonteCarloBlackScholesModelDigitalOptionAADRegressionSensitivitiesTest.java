@@ -54,7 +54,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesTest {
 
 	private static DecimalFormat formatterReal4 = new DecimalFormat("0.0000");
-	
+
 	// Model properties
 	private final double	modelInitialValue   = 1.0;
 	private final double	modelRiskFreeRate   = 0.05;
