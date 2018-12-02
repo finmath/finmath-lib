@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -122,72 +123,100 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		testParameters.add(new Object[] {
 				"Caplet maturity " + 5.0,
-				new Caplet(5.0, swapPeriodLength, swaprate)
+				new Caplet(5.0, swapPeriodLength, swaprate),
+				Optional.of(10),
+				true
 		});
 
 		testParameters.add(new Object[] {
 				"Caplet maturity " + exerciseDate,
-				new Caplet(exerciseDate, swapPeriodLength, swaprate)
+				new Caplet(exerciseDate, swapPeriodLength, swaprate),
+				Optional.of((int)Math.round(exerciseDate*2)),
+				true
 		});
 
 		testParameters.add(new Object[] {
 				"Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates)
+				new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates),
+				Optional.of((int)Math.round(exerciseDate*2)),
+				true
 		});
 
 		testParameters.add(new Object[] {
 				"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+				new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+				Optional.of((int)Math.round(exerciseDate*2)),
+				true
 		});
 
 		/*
 		 * If you like to measure the performance, add the following test cases because
-		 * the result will bekome more accurate after JVM warm up / hot spot optimization.
+		 * the result will become more accurate after JVM warm up / hot spot optimization.
 		 */
 		boolean isRunPerformanceMesurement = false;
 
 		if(isRunPerformanceMesurement) {
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 			testParameters.add(new Object[] {
 					"Caplet maturity " + exerciseDate,
-					new Caplet(exerciseDate, swapPeriodLength, swaprate)
+					new Caplet(exerciseDate, swapPeriodLength, swaprate),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 
 			testParameters.add(new Object[] {
 					"Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates)
+					new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 
 			testParameters.add(new Object[] {
 					"Bermudan Swaption " + exerciseDate + " in " + paymentDates[paymentDates.length-1],
-					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates)
+					new BermudanSwaption(isPeriodStartDateExerciseDate, fixingDates, periodLengths, paymentDates, periodNotionals, swaprates),
+					Optional.of((int)Math.round(exerciseDate*2)),
+					true
 			});
 		}
 
@@ -196,19 +225,41 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 	private final String productName;
 	private final AbstractLIBORMonteCarloProduct product;
+	private final Optional<Integer> bucketDeltaLIBORIndex;
+	private final boolean isVerbose;
 
 	private LIBORVolatilityModel volatilityModel;
 
-	public LIBORMarketModelNormalAADSensitivitiesTest(String productName, AbstractLIBORMonteCarloProduct product) {
+	public static void main(String args[]) throws CalculationException {
+		Object[] data = (Object[])data().toArray(new Object[4])[3];
+
+		for(int i=40; i<80; i++) {
+			LIBORMarketModelNormalAADSensitivitiesTest test = new LIBORMarketModelNormalAADSensitivitiesTest(
+					(String)data[0],
+					(AbstractLIBORMonteCarloProduct)data[1],
+					Optional.empty(),
+					//					i, //(int)data[2]
+					false
+					);
+
+			test.testDelta();
+		}
+	}
+
+	public LIBORMarketModelNormalAADSensitivitiesTest(String productName, AbstractLIBORMonteCarloProduct product, Optional<Integer> bucketDeltaLIBORIndex, boolean isVerbose) {
 		this.productName = productName;
 		this.product = product;
+		this.bucketDeltaLIBORIndex = bucketDeltaLIBORIndex;
+		this.isVerbose = isVerbose;
 	}
 
 	public LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
 			AbstractRandomVariableFactory randomVariableFactoryInitialValue,
 			AbstractRandomVariableFactory randomVariableFactoryVolatility,
 			int numberOfPaths, int numberOfFactors, double correlationDecayParam,
-			int volatilityBucketTimeIndex, int volatilityBucketLiborIndex, double shift) throws CalculationException {
+			Optional<Integer> deltaBucketLiborIndex, double deltaShift,
+			int volatilityBucketTimeIndex, int volatilityBucketLiborIndex, double shift
+			) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -217,11 +268,21 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		double liborRateTimeHorzion	= 40.0;
 		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
+		double[] times = liborPeriodDiscretization.getAsDoubleArray();
+		double[] rates = new double[times.length];
+		if(deltaBucketLiborIndex.isPresent()) {
+			Arrays.fill(rates, 0.05);
+			rates[deltaBucketLiborIndex.get()] += deltaShift;
+		}
+		else {
+			Arrays.fill(rates, 0.05 + deltaShift);
+		}
+
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
-				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
-				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */,
+				times										/* fixings of the forward */,
+				rates										/* forwards */,
 				liborPeriodLength							/* tenor / period length */
 				);
 
@@ -246,11 +307,12 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
 		double d = 0.3 / 20.0 / 2.0;
+		//		double d = 0.03 / 20.0 / 2.0;
 		RandomVariableInterface[][] volatilityMatrix = new RandomVariableInterface[timeDiscretizationVolatility.getNumberOfTimeSteps()][timeDiscretizationVolatility.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<volatilityMatrix.length; timeIndex++) {
 			for(int componentIndex=0; componentIndex<volatilityMatrix[timeIndex].length; componentIndex++) {
 				if(isUsePartialSetOfDifferentiables && timeIndex < volatilityBucketTimeIndex) {
-					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryInitialValue.createRandomVariable(d);
+					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryVolatility.createRandomVariable(d);
 				}
 				else {
 					volatilityMatrix[timeIndex][componentIndex] = randomVariableFactoryVolatility.createRandomVariable(d);
@@ -279,7 +341,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, Object> properties = new HashMap<String, Object>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
@@ -287,13 +349,17 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		// Choose log normal model
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
 
+		// Current the calculation of delta with AAD requires that we disable liborCap (on enable retaining of all AAD nodes)
+		properties.put("liborCap", Double.POSITIVE_INFINITY);
+
 		// Empty array of calibration items - hence, model will use given covariance
 		LIBORMarketModel.CalibrationItem[] calibrationItems = new LIBORMarketModel.CalibrationItem[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve), randomVariableFactoryVolatility, covarianceModel, calibrationItems, properties);
+		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);//null:
+		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
 
 		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
@@ -330,7 +396,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		// Create a libor market model
 		AbstractRandomVariableFactory randomVariableFactoryInitialValue = new RandomVariableFactory();
 		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableDifferentiableAADFactory();
-		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, bucketVegaTimeIndex, 0, 0.0);
+		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryVolatility, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+				Optional.empty(), 0.0, bucketVegaTimeIndex, 0, 0.0);
 
 		/*
 		 * Test valuation
@@ -393,7 +460,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 
 		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
-				0, 0, 0);
+				Optional.empty(), 0.0, 0, 0, 0.0);
 
 		long timingCalculation2Start = System.currentTimeMillis();
 
@@ -412,11 +479,11 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		long timingCalculation3Start = System.currentTimeMillis();
 
 		LIBORModelMonteCarloSimulationInterface liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
-				bucketVegaTimeIndex, bucketVegaLIBORIndex, -bucketShift);
+				Optional.empty(), 0.0, bucketVegaTimeIndex, bucketVegaLIBORIndex, -bucketShift);
 		double valueSimulationDown = product.getValue(liborMarketModelDnShift);
 
 		LIBORModelMonteCarloSimulationInterface liborMarketModelUpShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
-				bucketVegaTimeIndex, bucketVegaLIBORIndex, bucketShift);
+				Optional.empty(), 0.0, bucketVegaTimeIndex, bucketVegaLIBORIndex, bucketShift);
 		double valueSimulationUp = product.getValue(liborMarketModelUpShift);
 
 		double bucketVega = (valueSimulationUp-valueSimulationDown) / bucketShift / 2;
@@ -452,14 +519,169 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		Assert.assertEquals("Comparing FD and AD vega", bucketVega, modelVegas[bucketVegaTimeIndex][bucketVegaLIBORIndex], 1.3E-2);
 	}
 
-	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
-		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
-	}
+	/**
+	 * A test for the LIBOR Market Model delta calculated by AAD.
+	 * The test calculates all model deltas using AAD, but only one model delta using finite difference to benchmark that one.
+	 * @throws CalculationException
+	 */
+	@Test
+	public void testDelta() throws CalculationException {
 
-	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
-		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
-	}
+		double bucketShift = 1E-2;
 
+		/*
+		 * Create a libor market model with appropriate AAD random variable factory
+		 */
+
+		// The following properties control the approximation of the derivatives of conditional expectation operators and indicator functions
+		Map<String, Object> randomVariableProps = new HashMap<String, Object>();
+		randomVariableProps.put("diracDeltaApproximationWidthPerStdDev", 0.05);
+		//		randomVariableProps.put("diracDeltaApproximationMethod", "ZERO");		// Switches of differentiation of exercise boundary
+		RandomVariableDifferentiableAADFactory randomVariableFactoryAAD = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableProps);
+
+		AbstractRandomVariableFactory randomVariableFactoryInitialValue = randomVariableFactoryAAD;
+		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableFactory();
+		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, Optional.empty(), 0.0, 0, 0, 0.0);
+
+		/*
+		 * Test valuation
+		 */
+		long memoryStart = getAllocatedMemory();
+		long timingCalculationStart = System.currentTimeMillis();
+
+		RandomVariableInterface value = product.getValue(0.0, liborMarketModel);
+		double valueSimulation = value.getAverage();
+
+		long timingCalculationEnd = System.currentTimeMillis();
+
+
+		/*
+		 * Test gradient
+		 */
+
+		long timingGradientStart = System.currentTimeMillis();
+
+		Map<Long, RandomVariableInterface> gradient = null;
+		try {
+			gradient = ((RandomVariableDifferentiableInterface)value).getGradient();
+		}
+		catch(java.lang.ClassCastException e) {
+			System.out.println(e.getMessage());
+		}
+
+		long timingGradientEnd = System.currentTimeMillis();
+		long memoryEnd = getAllocatedMemory();
+
+		int numberOfDeltasTheoretical	= 0;
+		int numberOfDeltasEffective	= 0;
+		double[] modelDeltas = new double[liborMarketModel.getNumberOfLibors()];
+		if(gradient != null) {
+			for(int componentIndex=0; componentIndex<liborMarketModel.getLiborPeriodDiscretization().getNumberOfTimeSteps(); componentIndex++) {
+				double modelDelta = 0.0;
+				RandomVariableInterface forwardRate = liborMarketModel.getLIBOR(0, componentIndex);
+				if(forwardRate != null && forwardRate instanceof RandomVariableDifferentiableInterface) {
+					numberOfDeltasTheoretical++;
+					RandomVariableInterface modelDeltaRandomVariable = gradient.get(((RandomVariableDifferentiableInterface)forwardRate).getID());
+					if(modelDeltaRandomVariable != null) {
+						modelDelta = modelDeltaRandomVariable.getAverage();
+						numberOfDeltasEffective++;
+					}
+				}
+				//					System.out.println(volatilityModel.getTimeDiscretization().getTime(timeIndex) + "\t" + volatilityModel.getLiborPeriodDiscretization().getTime(componentIndex) + "\t" + modelDelta);
+				modelDeltas[componentIndex] = modelDelta;
+				//					System.out.print(formatSci.format(modelDelta) + "\t");
+			}
+			//System.out.println();
+		}
+		//		RandomVariableInterface modelDelta = gradient.get(liborMarketModel.getLIBOR(0, 0));
+
+		// Free memory
+		liborMarketModel = null;
+		gradient = null;
+
+		/*
+		 * Test valuation
+		 */
+
+		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+				Optional.empty(), 0.0, 0, 0, 0);
+
+		long timingCalculation2Start = System.currentTimeMillis();
+
+		double valueSimulation2 = product.getValue(liborMarketModelPlain);
+
+		long timingCalculation2End = System.currentTimeMillis();
+
+		// Free memory
+		liborMarketModelPlain = null;
+
+		/*
+		 * Test results against finite difference implementation
+		 * For performance reasons we test one bucket only
+		 */
+
+		long timingCalculation3Start = System.currentTimeMillis();
+
+		LIBORModelMonteCarloSimulationInterface liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+				bucketDeltaLIBORIndex, -bucketShift, 0, 0, 0.0);
+		double valueSimulationDown = product.getValue(liborMarketModelDnShift);
+
+		LIBORModelMonteCarloSimulationInterface liborMarketModelUpShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+				bucketDeltaLIBORIndex, bucketShift, 0, 0, 0.0);
+		double valueSimulationUp = product.getValue(liborMarketModelUpShift);
+
+		double bucketDelta = (valueSimulationUp-valueSimulationDown) / bucketShift / 2;
+
+		long timingCalculation3End = System.currentTimeMillis();
+
+		// Free memory
+		liborMarketModelDnShift = null;
+		liborMarketModelUpShift = null;
+
+		long memoryEnd2 = getAllocatedMemory();
+
+		/*
+		 * Calculate delta - in case we calculate parallel delta.
+		 */
+
+		double deltaAAD;
+		if(bucketDeltaLIBORIndex.isPresent()) {
+			deltaAAD = modelDeltas[bucketDeltaLIBORIndex.get()];
+		}
+		else {
+			deltaAAD = Arrays.stream(modelDeltas).sum();
+		}
+
+		/*
+		 * Print status
+		 */
+		if(isVerbose) {
+			System.out.println(product.getClass().getSimpleName() + ": " + productName);
+			System.out.println("_______________________________________________________________________");
+
+			System.out.println("value......: " + value.getAverage());
+			System.out.println("FD Delta...: " + bucketDelta);
+			System.out.println("AD Delta...: " + deltaAAD);
+
+			System.out.println("value...........................: " + formatterValue.format(valueSimulation));
+			System.out.println("value (plain)...................: " + formatterValue.format(valueSimulation2));
+			System.out.println("evaluation (plain)..............: " + formatReal1.format((timingCalculation2End-timingCalculation2Start)/1000.0) + " s");
+			System.out.println("evaluation (AAD)................: " + formatReal1.format((timingCalculationEnd-timingCalculationStart)/1000.0) + " s");
+			System.out.println("derivative (plain) (1 bucket)...: " + formatReal1.format((timingCalculation3End-timingCalculation3Start)/1000.0) + " s");
+			System.out.println("derivative (AAD).(all buckets)..: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
+			System.out.println("number of Deltas (theoretical)...: " + numberOfDeltasTheoretical);
+			System.out.println("number of Deltas (effective).....: " + numberOfDeltasEffective);
+			System.out.println("memory (AAD)....................: " + formatReal1.format(((double)(memoryEnd-memoryStart))/1024.0/1024.0) + " M");
+			System.out.println("memory (check)-.................: " + formatReal1.format(((double)(memoryEnd2-memoryStart))/1024.0/1024.0) + " M");
+			System.out.println("\n");
+
+			Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
+			Assert.assertEquals("Comparing FD and AD Delta", bucketDelta, deltaAAD, 1.3E-2);
+		}
+		else {
+			System.out.println(bucketDeltaLIBORIndex + "\t" + value.getAverage() + "\t" + bucketDelta + "\t" + deltaAAD);
+		}
+	}
 
 	static long getAllocatedMemory() {
 		System.gc();
