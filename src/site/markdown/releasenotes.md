@@ -6,20 +6,34 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 3.6.1 (02.12.2018)
+
+### General
+
+### Automatic Differentiation
+
+- Added unit test for AAD delta in LIBOR Market Model.
+
+- The behavior of the differentiation of discontinuities can be controlled by the keys
+  `diracDeltaApproximationMethod`, `diracDeltaApproximationWidthPerStdDev`, `diracDeltaApproximationDensityRegressionWidthPerStdDev`;
+
+- The key `barrierDiracWidth` is deprecated and replaced by `diracDeltaApproximationWidthPerStdDev`.
+
 ## 3.6.0 (25.11.2018)
 
 ### General
 
-- The choose method has been added to the RandomVariableInterface.
-- The barrier method has been marked deprecated in RandomVariableInterface.
+- The `choose` method has been added to the RandomVariableInterface.
+- The `barrier` method has been marked deprecated in RandomVariableInterface.
 
 ### Automatic Differentiation
 
-- Setting the property `"barrierDiracWidth"` to `Double.POSITIVE_INFINITY` results 
+- Setting the property `barrierDiracWidth` to `Double.POSITIVE_INFINITY` results 
   in a replacement of the derivative of the indicator function by 1. This option will 
   be useful in an accurate estimation of the derivative of the indicator function.
 - Implementation of the density regression for the derivative of indicator functions, 
   see https://ssrn.com/abstract=3282667
+
 
 ## 3.5.0 (04.11.2018)
 
