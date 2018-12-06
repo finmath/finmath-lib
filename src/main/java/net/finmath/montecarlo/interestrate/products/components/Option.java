@@ -64,7 +64,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param strikePrice The strike price.
 	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
 	 * @param underlying The underlying.
-	 * @param regressionBasisFunctionsProvider Used to determine the regresssion basis functions for the conditional expectation operator.
+	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
 	 */
 	public Option(double exerciseDate, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
@@ -83,7 +83,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
 	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
 	 * @param underlying The underlying.
-	 * @param regressionBasisFunctionsProvider Used to determine the regresssion basis functions for the conditional expectation operator.
+	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
 	 */
 	public Option(double exerciseDate, boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
@@ -208,9 +208,8 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 			double exerciseTriggerStdDev	= exerciseTriggerFiltered.getStandardDeviation();
 			double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-3.0*exerciseTriggerStdDev;
 			double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+3.0*exerciseTriggerStdDev;
-			RandomVariableInterface filter = exerciseTrigger
-					.barrier(exerciseTrigger.sub(exerciseTriggerFloor), one, zero)
-					.mult(exerciseTrigger.barrier(exerciseTrigger.sub(exerciseTriggerCap).mult(-1.0), one, zero));
+			RandomVariableInterface filter = exerciseTrigger.sub(exerciseTriggerFloor).choose(one, zero)
+					.mult(exerciseTrigger.sub(exerciseTriggerCap).mult(-1.0).choose(one, zero));
 			filter = filter.mult(filterNaN);
 			// Filter exerciseTrigger and regressionBasisFunctions
 			exerciseTrigger = exerciseTrigger.mult(filter);
