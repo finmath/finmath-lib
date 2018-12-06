@@ -12,6 +12,8 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -106,7 +108,40 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	private DiscountCurveInterface			discountCurve;
 	private DiscountCurveInterface			discountCurveFromForwardCurve;
 
+	private final AbstractRandomVariableFactory	randomVariableFactory;
+
 	private final ShortRateVolatilityModelInterface volatilityModel;
+
+	/**
+	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
+	 *
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
+	 * @param analyticModel The analytic model to be used (currently not used, may be null).
+	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
+	 * @param discountCurve The disocuntCurve (currently also used to determine the forward curve).
+	 * @param volatilityModel The volatility model specifying mean reversion and instantaneous volatility of the short rate.
+	 * @param properties A map specifying model properties (currently not used, may be null).
+	 */
+	public HullWhiteModel(
+			AbstractRandomVariableFactory		randomVariableFactory,
+			TimeDiscretizationInterface			liborPeriodDiscretization,
+			AnalyticModelInterface				analyticModel,
+			ForwardCurveInterface				forwardRateCurve,
+			DiscountCurveInterface				discountCurve,
+			ShortRateVolatilityModelInterface	volatilityModel,
+			Map<String, ?>						properties
+			) {
+
+		this.randomVariableFactory		= randomVariableFactory;
+		this.liborPeriodDiscretization	= liborPeriodDiscretization;
+		this.curveModel					= analyticModel;
+		this.forwardRateCurve	= forwardRateCurve;
+		this.discountCurve		= discountCurve;
+		this.volatilityModel	= volatilityModel;
+
+		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
+	}
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
@@ -126,14 +161,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 			ShortRateVolatilityModelInterface	volatilityModel,
 			Map<String, ?>						properties
 			) {
-
-		this.liborPeriodDiscretization	= liborPeriodDiscretization;
-		this.curveModel					= analyticModel;
-		this.forwardRateCurve	= forwardRateCurve;
-		this.discountCurve		= discountCurve;
-		this.volatilityModel	= volatilityModel;
-
-		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
+		this(new RandomVariableFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
 
 	@Override
