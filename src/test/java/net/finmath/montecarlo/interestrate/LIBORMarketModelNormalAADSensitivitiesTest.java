@@ -42,13 +42,14 @@ import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * This class tests the LIBOR market model and products.
+ * This class tests the sensitivities calculated from a LIBOR market model and products.
+ * We have test for delta and vega (using AAD and finite differences).
  *
- * The unit test has currently only an assert for a single (selected) bucket vega,
- * because a finite difference benchmark of all vegas would simply take far too long (hours!).
+ * The unit test has currently only an assert for a single (selected) bucket,
+ * because a finite difference benchmark of all buckets would simply take far too long (hours!).
  * (But I did that benchmark once ;-).
  *
- * The unit test uses a smaller volatility time discretization to reduce memory requirements
+ * For vega: The unit test uses a smaller volatility time discretization to reduce memory requirements
  * and allow the unit test to run on the continuous integration server.
  *
  * @author Christian Fries
@@ -58,6 +59,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 	private static final int numberOfPaths		= 5000; // 15000; more possible if memory of unit test is increased.
 	private static final int numberOfFactors	= 1;
+	private static final int seed	= 1352;//3141;
 	private static final boolean isUsePartialSetOfDifferentiables = false;
 	private static final boolean isUseReducedVolatilityMatrix = true;
 
@@ -233,16 +235,32 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	public static void main(String args[]) throws CalculationException {
 		Object[] data = (Object[])data().toArray(new Object[4])[3];
 
-		for(int i=40; i<80; i++) {
-			LIBORMarketModelNormalAADSensitivitiesTest test = new LIBORMarketModelNormalAADSensitivitiesTest(
+		boolean isParalellSensi = false;
+		
+		if(isParalellSensi) {
+			new LIBORMarketModelNormalAADSensitivitiesTest(
 					(String)data[0],
 					(AbstractLIBORMonteCarloProduct)data[1],
 					Optional.empty(),
-					//					i, //(int)data[2]
 					false
-					);
+					).testDelta();
+		}
+		else {
+			new LIBORMarketModelNormalAADSensitivitiesTest(
+					(String)data[0],
+					(AbstractLIBORMonteCarloProduct)data[1],
+					Optional.empty(),
+					false
+					).testDelta();
 
-			test.testDelta();
+			for(int i=0; i<80; i++) {
+				new LIBORMarketModelNormalAADSensitivitiesTest(
+						(String)data[0],
+						(AbstractLIBORMonteCarloProduct)data[1],
+						Optional.of((int)i), //(int)data[2]
+						false
+						).testDelta();
+			}
 		}
 	}
 
@@ -358,10 +376,11 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);//null:
+//		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+		DiscountCurveFromForwardCurve discountCurve = null;
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
 
-		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
@@ -587,13 +606,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 						numberOfDeltasEffective++;
 					}
 				}
-				//					System.out.println(volatilityModel.getTimeDiscretization().getTime(timeIndex) + "\t" + volatilityModel.getLiborPeriodDiscretization().getTime(componentIndex) + "\t" + modelDelta);
 				modelDeltas[componentIndex] = modelDelta;
-				//					System.out.print(formatSci.format(modelDelta) + "\t");
 			}
 			//System.out.println();
 		}
-		//		RandomVariableInterface modelDelta = gradient.get(liborMarketModel.getLIBOR(0, 0));
 
 		// Free memory
 		liborMarketModel = null;
@@ -679,7 +695,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			Assert.assertEquals("Comparing FD and AD Delta", bucketDelta, deltaAAD, 1.3E-2);
 		}
 		else {
-			System.out.println(bucketDeltaLIBORIndex + "\t" + value.getAverage() + "\t" + bucketDelta + "\t" + deltaAAD);
+			System.out.println(bucketDeltaLIBORIndex.orElse(-1) + "\t" + seed + "\t" + value.getAverage() + "\t" + bucketDelta + "\t" + deltaAAD);
 		}
 	}
 
