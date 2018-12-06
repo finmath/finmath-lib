@@ -28,10 +28,10 @@ public class ScheduleMetaData implements Serializable {
 	 *
 	 */
 	enum OffsetUnit {
-		inMONTHS,
-		inYEARS,
-		inDAYS,
-		inWEEKS
+		MONTHS,
+		YEARS,
+		DAYS,
+		WEEKS
 	}
 
 
@@ -80,10 +80,6 @@ public class ScheduleMetaData implements Serializable {
 		offsetCode = offsetCode.replaceAll( "[\\W_]", "" );
 		return offsetCode;
 	}
-
-
-
-
 
 	public final LocalDate referenceDate;
 	public final Frequency frequency;
@@ -172,7 +168,7 @@ public class ScheduleMetaData implements Serializable {
 	 * @return The schedule
 	 */
 	public ScheduleInterface generateSchedule(int maturity, int termination) {
-		return generateSchedule(maturity, termination, OffsetUnit.inMONTHS);
+		return generateSchedule(maturity, termination, OffsetUnit.MONTHS);
 	}
 
 	/**
@@ -196,7 +192,7 @@ public class ScheduleMetaData implements Serializable {
 	 * @return The schedule
 	 */
 	public ScheduleInterface generateScheduleWithFrequency(int maturity, int termination, Frequency frequency) {
-		return generateScheduleWithFrequency(maturity, termination, OffsetUnit.inMONTHS, frequency);
+		return generateScheduleWithFrequency(maturity, termination, OffsetUnit.MONTHS, frequency);
 	}
 
 	/**
@@ -214,10 +210,10 @@ public class ScheduleMetaData implements Serializable {
 		LocalDate endDate;
 
 		switch(unit) {
-		case inYEARS :	startDate = referenceDate.plusYears(maturity);		endDate = startDate.plusYears(termination); break;
-		case inMONTHS :	startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
-		case inDAYS :	startDate = referenceDate.plusDays(maturity);		endDate = startDate.plusDays(termination); break;
-		case inWEEKS :	startDate = referenceDate.plusDays(maturity *7);	endDate = startDate.plusDays(termination *7); break;
+		case YEARS :	startDate = referenceDate.plusYears(maturity);		endDate = startDate.plusYears(termination); break;
+		case MONTHS :	startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
+		case DAYS :	startDate = referenceDate.plusDays(maturity);		endDate = startDate.plusDays(termination); break;
+		case WEEKS :	startDate = referenceDate.plusDays(maturity *7);	endDate = startDate.plusDays(termination *7); break;
 		default :		startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
 		}
 
