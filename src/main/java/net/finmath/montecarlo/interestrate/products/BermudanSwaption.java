@@ -18,6 +18,7 @@ import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsPro
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Implements the valuation of a Bermudan swaption under a <code>LIBORModelMonteCarloSimulationInterface</code>
@@ -134,9 +135,9 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
-				values = values.barrier(triggerValues, values, valuesUnderlying);
+				values = triggerValues.choose(values, valuesUnderlying);
 
-				exerciseTime	= exerciseTime.barrier(triggerValues, exerciseTime, exerciseDate);
+				exerciseTime = triggerValues.choose(exerciseTime, new Scalar(exerciseDate));
 			}
 		}
 
@@ -203,11 +204,10 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	public RandomVariableInterface[] getBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		
+
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
 
 		// Constant
-		// @TODO Use non differentiable
 		RandomVariableInterface basisFunction = new RandomVariable(1.0);//.getRandomVariableForConstant(1.0);
 		basisFunctions.add(basisFunction);
 
@@ -224,20 +224,20 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 		RandomVariableInterface discountShort = rateShort.mult(paymentDates[fixingDateIndex]-fixingDate).add(1.0).invert();
 		basisFunctions.add(discountShort);
 		basisFunctions.add(discountShort.pow(2.0));
-//		basisFunctions.add(rateShort.pow(3.0));
+		//		basisFunctions.add(rateShort.pow(3.0));
 
 		// forward rate to the end of the product
 		RandomVariableInterface rateLong = model.getLIBOR(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);
 		RandomVariableInterface discountLong = rateLong.mult(paymentDates[paymentDates.length-1]-fixingDates[fixingDateIndex]).add(1.0).invert();
 		basisFunctions.add(discountLong);
 		basisFunctions.add(discountLong.pow(2.0));
-//		basisFunctions.add(rateLong.pow(3.0));
+		//		basisFunctions.add(rateLong.pow(3.0));
 
 		// Numeraire
 		RandomVariableInterface numeraire = model.getNumeraire(fixingDate).invert();
 		basisFunctions.add(numeraire);
-//		basisFunctions.add(numeraire.pow(2.0));
-//		basisFunctions.add(numeraire.pow(3.0));
+		//		basisFunctions.add(numeraire.pow(2.0));
+		//		basisFunctions.add(numeraire.pow(3.0));
 
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
@@ -301,3 +301,4 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 		return this.isCallable;
 	}
 }
+

@@ -236,7 +236,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		Object[] data = (Object[])data().toArray(new Object[4])[3];
 
 		boolean isParalellSensi = false;
-		
+
 		if(isParalellSensi) {
 			new LIBORMarketModelNormalAADSensitivitiesTest(
 					(String)data[0],
@@ -315,7 +315,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		// Use smaller volatility discretization.
 		TimeDiscretization timeDiscretizationVolatility;
 		if(isUseReducedVolatilityMatrix) {
-			timeDiscretizationVolatility = new TimeDiscretization(0.0, 8, 8.0);
+			timeDiscretizationVolatility = new TimeDiscretization(0.0, 4, 10.0);
 		}
 		else {
 			timeDiscretizationVolatility = liborPeriodDiscretization;//timeDiscretization;
@@ -376,7 +376,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-//		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+		//		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 		DiscountCurveFromForwardCurve discountCurve = null;
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
 
@@ -400,8 +400,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		double bucketShift;
 		if(isUseReducedVolatilityMatrix) {
 			bucketVegaTimeIndex = 2;
-			bucketVegaLIBORIndex = 3;
-			bucketShift = 1E-8;
+			bucketVegaLIBORIndex = 2;
+			bucketShift = 1E-8;	// Finite difference vega has problems for larger shifts
 		}
 		else {
 			bucketVegaTimeIndex = 40;
