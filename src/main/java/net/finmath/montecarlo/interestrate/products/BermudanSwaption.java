@@ -137,7 +137,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
 				values = triggerValues.choose(values, valuesUnderlying);
 
-				exerciseTime	= triggerValues.choose(exerciseTime, new Scalar(exerciseDate));
+				exerciseTime = triggerValues.choose(exerciseTime, new Scalar(exerciseDate));
 			}
 		}
 
@@ -208,7 +208,6 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
 
 		// Constant
-		// @TODO Use non differentiable
 		RandomVariableInterface basisFunction = new RandomVariable(1.0);//.getRandomVariableForConstant(1.0);
 		basisFunctions.add(basisFunction);
 
