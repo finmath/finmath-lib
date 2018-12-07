@@ -18,6 +18,7 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.jblas.DoubleMatrix;
 
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
@@ -329,5 +330,71 @@ public class LinearAlgebra {
 	 */
 	public RealMatrix exp(RealMatrix matrix) {
 		return new Array2DRowRealMatrix(exp(matrix.getData()));
+	}
+
+	/**
+	 * Transpose a matrix
+	 *
+	 * @param matrix The given matrix.
+	 * @return The transposed matrix.
+	 */
+	public static double[][] transpose(double[][] matrix){
+
+		//Get number of rows and columns of matrix
+		int numberOfRows = matrix.length;
+		int numberOfCols = matrix[0].length;
+
+		//Instantiate a unitMatrix of dimension dim
+		double[][] transpose = new double[numberOfCols][numberOfRows];
+
+		//Create unit matrix
+		for(int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
+			for(int colIndex = 0; colIndex < numberOfCols; colIndex++) {
+				transpose[colIndex][rowIndex] = matrix[rowIndex][colIndex];
+			}
+		}
+		return transpose;
+	}
+
+	/**
+	 * Pseudo-Inverse of a matrix calculated in the least square sense.
+	 *
+	 * @param matrix The given matrix A.
+	 * @return pseudoInverse The pseudo-inverse matrix P, such that A*P*A = A and P*A*P = P
+	 */
+	public static double[][] pseudoInverse(double[][] matrix){
+
+		return org.jblas.Solve.pinv(new DoubleMatrix(matrix)).toArray2();
+
+	}
+
+	/**
+	 * Generates a diagonal matrix with the input vector on its diagonal
+	 *
+	 * @param vector The given matrix A.
+	 * @return diagonalMatrix The matrix with the vectors entries on its diagonal
+	 */
+	public static double[][] diag(double[] vector){
+
+		// Note: According to the Java Language spec, an array is initialized with the default value, here 0.
+		double[][] diagonalMatrix = new double[vector.length][vector.length];
+
+		for(int index = 0; index < vector.length; index++) {
+			diagonalMatrix[index][index] = vector[index];
+		}
+
+		return diagonalMatrix;
+	}
+
+	/**
+	 * Multiplication of two matrices.
+	 *
+	 * @param A The matrix A.
+	 * @param B The matrix A
+	 * @return product The matrix product of A*B (if suitable)
+	 */
+	public static double[][] multMatrices(double[][] A, double[][] B){
+
+		return  new DoubleMatrix(A).mmul(new DoubleMatrix(B)).toArray2();
 	}
 }
