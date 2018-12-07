@@ -18,6 +18,7 @@ import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsPro
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Implements the valuation of a Bermudan swaption under a <code>LIBORModelMonteCarloSimulationInterface</code>
@@ -134,9 +135,9 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
-				values = values.barrier(triggerValues, values, valuesUnderlying);
+				values = triggerValues.choose(values, valuesUnderlying);
 
-				exerciseTime	= exerciseTime.barrier(triggerValues, exerciseTime, exerciseDate);
+				exerciseTime	= triggerValues.choose(exerciseTime, new Scalar(exerciseDate));
 			}
 		}
 
@@ -301,3 +302,4 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 		return this.isCallable;
 	}
 }
+
