@@ -236,7 +236,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		Object[] data = (Object[])data().toArray(new Object[4])[3];
 
 		boolean isParalellSensi = false;
-		
+
 		if(isParalellSensi) {
 			new LIBORMarketModelNormalAADSensitivitiesTest(
 					(String)data[0],
@@ -376,7 +376,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-//		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+		//		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 		DiscountCurveFromForwardCurve discountCurve = null;
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
 

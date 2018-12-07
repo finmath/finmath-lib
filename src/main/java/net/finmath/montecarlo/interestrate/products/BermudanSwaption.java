@@ -204,7 +204,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	public RandomVariableInterface[] getBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		
+
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
 
 		// Constant
@@ -225,20 +225,20 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 		RandomVariableInterface discountShort = rateShort.mult(paymentDates[fixingDateIndex]-fixingDate).add(1.0).invert();
 		basisFunctions.add(discountShort);
 		basisFunctions.add(discountShort.pow(2.0));
-//		basisFunctions.add(rateShort.pow(3.0));
+		//		basisFunctions.add(rateShort.pow(3.0));
 
 		// forward rate to the end of the product
 		RandomVariableInterface rateLong = model.getLIBOR(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);
 		RandomVariableInterface discountLong = rateLong.mult(paymentDates[paymentDates.length-1]-fixingDates[fixingDateIndex]).add(1.0).invert();
 		basisFunctions.add(discountLong);
 		basisFunctions.add(discountLong.pow(2.0));
-//		basisFunctions.add(rateLong.pow(3.0));
+		//		basisFunctions.add(rateLong.pow(3.0));
 
 		// Numeraire
 		RandomVariableInterface numeraire = model.getNumeraire(fixingDate).invert();
 		basisFunctions.add(numeraire);
-//		basisFunctions.add(numeraire.pow(2.0));
-//		basisFunctions.add(numeraire.pow(3.0));
+		//		basisFunctions.add(numeraire.pow(2.0));
+		//		basisFunctions.add(numeraire.pow(3.0));
 
 		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
 	}
