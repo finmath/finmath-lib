@@ -29,6 +29,22 @@ public class LinearAlgebraTest {
 	}
 
 	@Test
+	public void testSolveLinearEquationLeastSquarePseudoInverse3() {
+		double[][] matrix = new double[][] {
+			{ 1.0, 0.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }
+		};
+
+		double[][] pseudoInverse = LinearAlgebra.pseudoInverse(matrix);
+
+		double[][] product = LinearAlgebra.multMatrices(pseudoInverse, matrix);
+
+		Assert.assertEquals("Pseudo inverse", 1.0, product[0][0], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 1.0, product[1][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, product[0][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, product[1][0], 1E-12);
+	}
+
+	@Test
 	public void testSolveLinearEquationLeastSquarePseudoInverse2() {
 		double[][] A = new double[][] {
 			{ 1, 0, 0, 0, 2 },
