@@ -390,7 +390,11 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * This static method calculated the vega of a call option under a Black-Scholes model
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
 	 *
 	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
 	 * @param riskFreeRate The risk free rate of the bank account numerarie.
@@ -1410,5 +1414,81 @@ public class AnalyticFormulas {
 		price -= coupon * accrualPeriod;
 
 		return price;
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the vega of a European call option under the Bachelier model.
+	 */
+	public static double bachelierGeneralizedOptionVega(
+			double forward,
+			double volatility,
+			double optionMaturity,
+			double optionStrike,
+			double payoffUnit)
+	{
+		if(optionMaturity < 0) {
+			return 0;
+		}
+		else if(forward == optionStrike) {
+
+			return Math.sqrt(optionMaturity / (Math.PI * 2.0)) * payoffUnit;
+		}
+		else
+		{
+			// Calculate analytic value
+			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
+
+			double vegaAnalytic = Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus) * payoffUnit;
+
+			return vegaAnalytic;
+		}
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param volatility The Black-Scholes volatility \( \sigma \).
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the vega of a European call option under the Black-Scholes model.
+	 */
+	public static double blackScholesGeneralizedOptionVega(
+			double forward,
+			double volatility,
+			double optionMaturity,
+			double optionStrike,
+			double payoffUnit)
+	{
+		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		{
+			// The Black-Scholes model does not consider it being an option
+			return 0.0;
+		}
+		else
+		{
+			// Calculate vega
+			double dPlus = (Math.log(forward / optionStrike) + (0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+
+			double vega = payoffUnit * NormalDistribution.density(dPlus) * forward * Math.sqrt(optionMaturity);
+
+			return vega;
+		}
 	}
 }
