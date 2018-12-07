@@ -34,6 +34,15 @@ public class ScheduleMetaData implements Serializable {
 		WEEKS
 	}
 
+	private final LocalDate referenceDate;
+	private final Frequency frequency;
+	private final DaycountConvention daycountConvention;
+	private final ShortPeriodConvention shortPeriodConvention;
+	private final DateRollConvention dateRollConvention;
+	private final BusinessdayCalendarInterface businessdayCalendar;
+	private final int	fixingOffsetDays;
+	private final int	paymentOffsetDays;
+	private final boolean isUseEndOfMonth;
 
 	/**
 	 * Determines the offset code of a forward contract from a schedule. Rounds the average period length to full months.
@@ -81,17 +90,6 @@ public class ScheduleMetaData implements Serializable {
 		return offsetCode;
 	}
 
-	public final LocalDate referenceDate;
-	public final Frequency frequency;
-	public final DaycountConvention daycountConvention;
-	public final ShortPeriodConvention shortPeriodConvention;
-	public final DateRollConvention dateRollConvention;
-	public final BusinessdayCalendarInterface businessdayCalendar;
-	public final int	fixingOffsetDays;
-	public final int	paymentOffsetDays;
-	public final boolean isUseEndOfMonth;
-
-
 	/**
 	 * Construct the ScheduleMetaData.
 	 *
@@ -129,8 +127,8 @@ public class ScheduleMetaData implements Serializable {
 	 * @return The schedule
 	 */
 	public ScheduleInterface generateSchedule(LocalDate startDate, LocalDate endDate) {
-		return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, endDate, frequency, daycountConvention,
-				shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
+		return ScheduleGenerator.createScheduleFromConventions(getReferenceDate(), startDate, endDate, getFrequency(), getDaycountConvention(),
+				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
 	}
 
 	/**
@@ -142,8 +140,8 @@ public class ScheduleMetaData implements Serializable {
 	 */
 	public ScheduleInterface generateSinglePeriod(LocalDate startDate, LocalDate endDate) {
 		Frequency frequency = Frequency.TENOR;
-		ScheduleInterface schedule =  ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, endDate, frequency, daycountConvention,
-				shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
+		ScheduleInterface schedule =  ScheduleGenerator.createScheduleFromConventions(getReferenceDate(), startDate, endDate, frequency, getDaycountConvention(),
+				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
 		return schedule;
 	}
 
@@ -156,8 +154,8 @@ public class ScheduleMetaData implements Serializable {
 	 * @return The schedule
 	 */
 	public ScheduleInterface generateScheduleWithFrequency(LocalDate startDate, LocalDate endDate, Frequency frequency) {
-		return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, endDate, frequency, daycountConvention,
-				shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
+		return ScheduleGenerator.createScheduleFromConventions(getReferenceDate(), startDate, endDate, frequency, getDaycountConvention(),
+				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
 	}
 
 	/**
@@ -180,7 +178,7 @@ public class ScheduleMetaData implements Serializable {
 	 * @return The schedule
 	 */
 	public ScheduleInterface generateSchedule(int maturity, int termination, OffsetUnit unit) {
-		return generateScheduleWithFrequency(maturity, termination, unit, frequency);
+		return generateScheduleWithFrequency(maturity, termination, unit, getFrequency());
 	}
 
 	/**
@@ -210,14 +208,77 @@ public class ScheduleMetaData implements Serializable {
 		LocalDate endDate;
 
 		switch(unit) {
-		case YEARS :	startDate = referenceDate.plusYears(maturity);		endDate = startDate.plusYears(termination); break;
-		case MONTHS :	startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
-		case DAYS :	startDate = referenceDate.plusDays(maturity);		endDate = startDate.plusDays(termination); break;
-		case WEEKS :	startDate = referenceDate.plusDays(maturity *7);	endDate = startDate.plusDays(termination *7); break;
-		default :		startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
+		case YEARS :	startDate = getReferenceDate().plusYears(maturity);		endDate = startDate.plusYears(termination); break;
+		case MONTHS :	startDate = getReferenceDate().plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
+		case DAYS :	startDate = getReferenceDate().plusDays(maturity);		endDate = startDate.plusDays(termination); break;
+		case WEEKS :	startDate = getReferenceDate().plusDays(maturity *7);	endDate = startDate.plusDays(termination *7); break;
+		default :		startDate = getReferenceDate().plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
 		}
 
 		return generateScheduleWithFrequency(startDate, endDate, frequency);
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	/**
+	 * @return the frequency
+	 */
+	public Frequency getFrequency() {
+		return frequency;
+	}
+
+	/**
+	 * @return the daycountConvention
+	 */
+	public DaycountConvention getDaycountConvention() {
+		return daycountConvention;
+	}
+
+	/**
+	 * @return the shortPeriodConvention
+	 */
+	public ShortPeriodConvention getShortPeriodConvention() {
+		return shortPeriodConvention;
+	}
+
+	/**
+	 * @return the dateRollConvention
+	 */
+	public DateRollConvention getDateRollConvention() {
+		return dateRollConvention;
+	}
+
+	/**
+	 * @return the businessdayCalendar
+	 */
+	public BusinessdayCalendarInterface getBusinessdayCalendar() {
+		return businessdayCalendar;
+	}
+
+	/**
+	 * @return the fixingOffsetDays
+	 */
+	public int getFixingOffsetDays() {
+		return fixingOffsetDays;
+	}
+
+	/**
+	 * @return the paymentOffsetDays
+	 */
+	public int getPaymentOffsetDays() {
+		return paymentOffsetDays;
+	}
+
+	/**
+	 * @return the isUseEndOfMonth
+	 */
+	public boolean isUseEndOfMonth() {
+		return isUseEndOfMonth;
 	}
 }
 
