@@ -395,12 +395,6 @@ public class LinearAlgebra {
 	 * @return product The matrix product of A*B (if suitable)
 	 */
 	public static double[][] multMatrices(double[][] left, double[][] right){
-
-		if(isSolverUseApacheCommonsMath) {
-			return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
-		}
-		else {
-			return  new org.jblas.DoubleMatrix(left).mmul(new org.jblas.DoubleMatrix(right)).toArray2();
-		}
+		return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
 	}
 }
