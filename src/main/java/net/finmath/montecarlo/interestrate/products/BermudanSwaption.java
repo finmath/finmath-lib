@@ -188,21 +188,29 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	/**
 	 * Return the basis functions for the regression suitable for this product.
 	 *
-	 * @param fixingDateIndex The time index corresponding to the fixing date
+	 * @param fixingDate The condition time.
 	 * @param model The model
 	 * @return The basis functions for the regression suitable for this product.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariableInterface[] getBasisFunctions(double fixingDate, MonteCarloSimulationInterface model) throws CalculationException {
 		if(model instanceof LIBORModelMonteCarloSimulationInterface) {
-			return getBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationInterface)model);
+			return getBasisFunctions(fixingDate, (LIBORModelMonteCarloSimulationInterface)model);
 		}
 		else {
 			throw new IllegalArgumentException("Requires model to implement LIBORModelMonteCarloSimulationInterface.");
 		}
 	}
 
+	/**
+	 * Return the basis functions for the regression suitable for this product.
+	 *
+	 * @param fixingDate The condition time.
+	 * @param model The model
+	 * @return The basis functions for the regression suitable for this product.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
 	public RandomVariableInterface[] getBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
