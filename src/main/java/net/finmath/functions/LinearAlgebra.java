@@ -18,15 +18,11 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
-import org.jblas.DoubleMatrix;
 
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
  *
- * It is basically a functional wrapper using either the Colt library or Apache commons math.
- *
- * I am currently preferring to use Colt, due to better performance in some situations, however it allows
- * to easily switch some parts to Apache commons math (this is the motivation for this class).
+ * It is basically a functional wrapper using either the Apache commons math or JBlas
  *
  * @author Christian Fries
  * @version 1.6
@@ -35,6 +31,8 @@ public class LinearAlgebra {
 
 	private static boolean isEigenvalueDecompositionViaSVD = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isEigenvalueDecompositionViaSVD","false"));
 	private static boolean isSolverUseApacheCommonsMath;
+	private static boolean isJBlasAvailable;
+	
 	static {
 		// Default value is true, in which case we will NOT use jblas
 		boolean isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","true"));
@@ -47,13 +45,18 @@ public class LinearAlgebra {
 				double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
 				// The following should not happen.
 				if(x[0] != 1.0 || x[1] != 0.0) {
-					isSolverUseApacheCommonsMath = true;
+					isJBlasAvailable = false;
+				}
+				else {
+					isJBlasAvailable = true;
 				}
 			}
 			catch(java.lang.UnsatisfiedLinkError e) {
-				isSolverUseApacheCommonsMath = true;
+				isJBlasAvailable = false;
 			}
 		}
+		
+		if(!isJBlasAvailable) isSolverUseApacheCommonsMath = true;
 		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
 	}
 
@@ -363,9 +366,7 @@ public class LinearAlgebra {
 	 * @return pseudoInverse The pseudo-inverse matrix P, such that A*P*A = A and P*A*P = P
 	 */
 	public static double[][] pseudoInverse(double[][] matrix){
-
-		return org.jblas.Solve.pinv(new DoubleMatrix(matrix)).toArray2();
-
+		return invert(matrix);
 	}
 
 	/**
@@ -395,6 +396,11 @@ public class LinearAlgebra {
 	 */
 	public static double[][] multMatrices(double[][] left, double[][] right){
 
-		return  new DoubleMatrix(left).mmul(new DoubleMatrix(right)).toArray2();
+		if(isSolverUseApacheCommonsMath) {
+			return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
+		}
+		else {
+			return  new org.jblas.DoubleMatrix(left).mmul(new org.jblas.DoubleMatrix(right)).toArray2();
+		}
 	}
 }
