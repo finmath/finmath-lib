@@ -32,7 +32,7 @@ public class LinearAlgebra {
 	private static boolean isEigenvalueDecompositionViaSVD = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isEigenvalueDecompositionViaSVD","false"));
 	private static boolean isSolverUseApacheCommonsMath;
 	private static boolean isJBlasAvailable;
-	
+
 	static {
 		// Default value is true, in which case we will NOT use jblas
 		boolean isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","true"));
@@ -55,7 +55,7 @@ public class LinearAlgebra {
 				isJBlasAvailable = false;
 			}
 		}
-		
+
 		if(!isJBlasAvailable) isSolverUseApacheCommonsMath = true;
 		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
 	}
