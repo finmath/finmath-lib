@@ -366,7 +366,16 @@ public class LinearAlgebra {
 	 * @return pseudoInverse The pseudo-inverse matrix P, such that A*P*A = A and P*A*P = P
 	 */
 	public static double[][] pseudoInverse(double[][] matrix){
-		return invert(matrix);
+		if(isSolverUseApacheCommonsMath) {
+			// Use LU from common math
+			SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix));
+			double[][] matrixInverse = svd.getSolver().getInverse().getData();
+
+			return matrixInverse;
+		}
+		else {
+			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix)).toArray2();
+		}
 	}
 
 	/**
