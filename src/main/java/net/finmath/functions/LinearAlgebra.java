@@ -32,7 +32,7 @@ public class LinearAlgebra {
 	private static boolean isEigenvalueDecompositionViaSVD = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isEigenvalueDecompositionViaSVD","false"));
 	private static boolean isSolverUseApacheCommonsMath;
 	private static boolean isJBlasAvailable;
-	
+
 	static {
 		// Default value is true, in which case we will NOT use jblas
 		boolean isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","true"));
@@ -55,7 +55,7 @@ public class LinearAlgebra {
 				isJBlasAvailable = false;
 			}
 		}
-		
+
 		if(!isJBlasAvailable) isSolverUseApacheCommonsMath = true;
 		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
 	}
@@ -395,12 +395,6 @@ public class LinearAlgebra {
 	 * @return product The matrix product of A*B (if suitable)
 	 */
 	public static double[][] multMatrices(double[][] left, double[][] right){
-
-		if(isSolverUseApacheCommonsMath) {
-			return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
-		}
-		else {
-			return  new org.jblas.DoubleMatrix(left).mmul(new org.jblas.DoubleMatrix(right)).toArray2();
-		}
+		return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
 	}
 }
