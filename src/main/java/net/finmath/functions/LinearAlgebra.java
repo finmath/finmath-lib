@@ -389,12 +389,12 @@ public class LinearAlgebra {
 	/**
 	 * Multiplication of two matrices.
 	 *
-	 * @param A The matrix A.
-	 * @param B The matrix A
+	 * @param left The matrix A.
+	 * @param right The matrix B
 	 * @return product The matrix product of A*B (if suitable)
 	 */
-	public static double[][] multMatrices(double[][] A, double[][] B){
+	public static double[][] multMatrices(double[][] left, double[][] right){
 
-		return  new DoubleMatrix(A).mmul(new DoubleMatrix(B)).toArray2();
+		return  new DoubleMatrix(left).mmul(new DoubleMatrix(right)).toArray2();
 	}
 }
