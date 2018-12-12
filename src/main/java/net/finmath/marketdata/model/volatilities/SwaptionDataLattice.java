@@ -436,7 +436,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(double maturity, double tenor, int moneyness, QuotingConvention convention, double displacement, AnalyticModelInterface model) {
 		DataKey key = new DataKey(maturity, tenor, moneyness);
-		return convertToConvention(getValue(key), key, convention, displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -453,7 +453,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(int maturity, int tenor, int moneyness, QuotingConvention convention, double displacement, AnalyticModelInterface model) {
 		DataKey key = new DataKey(maturity, tenor, moneyness);
-		return convertToConvention(getValue(key), key, convention, displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -469,7 +469,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(String tenorCode, int moneyness, QuotingConvention convention, double displacement, AnalyticModelInterface model) {
 		DataKey key = new DataKey(tenorCode, moneyness);
-		return convertToConvention(getValue(key), key, convention, displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -477,22 +477,26 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @param value The value to convert.
 	 * @param key The key of the value.
-	 * @param convention The convention to convert to.
-	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
+	 * @param toConvention The convention to convert to.
+	 * @param toDisplacement The displacement to be used, if converting to log normal implied volatility.
+	 * @param fromConvention The current convention of the value.
+	 * @param fromDisplacement The current displacement.
 	 * @param model The model for context.
 	 *
 	 * @return The converted value.
 	 */
-	private double convertToConvention(double value, DataKey key, QuotingConvention convention, double displacement, AnalyticModelInterface model) {
+	private double convertToConvention(double value, DataKey key, QuotingConvention toConvention, double toDisplacement,
+			QuotingConvention fromConvention, double fromDisplacement, AnalyticModelInterface model) {
 
-		if(convention == quotingConvention) {
-			if(convention != QuotingConvention.VOLATILITYLOGNORMAL) {
+		if(toConvention == fromConvention) {
+			if(toConvention != QuotingConvention.VOLATILITYLOGNORMAL) {
 				return value;
 			} else {
-				if(displacement == this.displacement) {
+				if(toDisplacement == fromDisplacement) {
 					return value;
 				} else {
-					return convertToConvention(convertToConvention(value, key, QuotingConvention.PRICE, displacement, model), key, convention, displacement, model);
+					return convertToConvention(convertToConvention(value, key, QuotingConvention.PRICE, 0, fromConvention, fromDisplacement, model),
+							key, toConvention, toDisplacement, QuotingConvention.PRICE, 0, model);
 				}
 			}
 		}
@@ -500,25 +504,27 @@ public class SwaptionDataLattice implements Serializable {
 		ScheduleInterface floatSchedule	= floatMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
 		ScheduleInterface fixSchedule	= fixMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
 
-		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model) + this.displacement;
+		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model) + fromDisplacement;
 		double optionMaturity = floatSchedule.getFixing(0);
-		double optionStrike = forward + key.moneyness /10000.0 + this.displacement;
+		double optionStrike = forward + key.moneyness /10000.0 + fromDisplacement;
 		double payoffUnit = SwapAnnuity.getSwapAnnuity(0, fixSchedule, model.getDiscountCurve(discountCurveName), model);
 
-		if(convention.equals(QuotingConvention.PRICE) && quotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
+		if(toConvention.equals(QuotingConvention.PRICE) && fromConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
 			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
 		}
-		else if(convention.equals(QuotingConvention.PRICE) && quotingConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
+		else if(toConvention.equals(QuotingConvention.PRICE) && fromConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
 			return AnalyticFormulas.bachelierOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
 		}
-		else if(convention.equals(QuotingConvention.VOLATILITYLOGNORMAL) && quotingConvention.equals(QuotingConvention.PRICE)) {
-			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward -this.displacement+displacement, optionMaturity, optionStrike-this.displacement+displacement, payoffUnit, value);
+		else if(toConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL) && fromConvention.equals(QuotingConvention.PRICE)) {
+			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward -fromDisplacement+toDisplacement, optionMaturity,
+					optionStrike-fromDisplacement+toDisplacement, payoffUnit, value);
 		}
-		else if(convention.equals(QuotingConvention.VOLATILITYNORMAL) && quotingConvention.equals(QuotingConvention.PRICE)) {
+		else if(toConvention.equals(QuotingConvention.VOLATILITYNORMAL) && fromConvention.equals(QuotingConvention.PRICE)) {
 			return AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);
 		}
 		else {
-			return convertToConvention(convertToConvention(value, key, QuotingConvention.PRICE, displacement, model), key, convention, displacement, model);
+			return convertToConvention(convertToConvention(value, key, QuotingConvention.PRICE, 0, fromConvention, fromDisplacement, model),
+					key, toConvention, toDisplacement, QuotingConvention.PRICE, 0, model);
 		}
 	}
 
