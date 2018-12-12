@@ -497,8 +497,8 @@ public class SwaptionDataLattice implements Serializable {
 			}
 		}
 
-		ScheduleInterface floatSchedule	= floatMetaSchedule.generateSchedule(key.maturity, key.tenor);
-		ScheduleInterface fixSchedule	= fixMetaSchedule.generateSchedule(key.maturity, key.tenor);
+		ScheduleInterface floatSchedule	= floatMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
+		ScheduleInterface fixSchedule	= fixMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
 
 		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model) + this.displacement;
 		double optionMaturity = floatSchedule.getFixing(0);

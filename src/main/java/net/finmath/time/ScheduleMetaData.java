@@ -3,6 +3,7 @@ package net.finmath.time;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
@@ -34,7 +35,6 @@ public class ScheduleMetaData implements Serializable {
 		WEEKS
 	}
 
-	private final LocalDate referenceDate;
 	private final Frequency frequency;
 	private final DaycountConvention daycountConvention;
 	private final ShortPeriodConvention shortPeriodConvention;
@@ -93,7 +93,6 @@ public class ScheduleMetaData implements Serializable {
 	/**
 	 * Construct the ScheduleMetaData.
 	 *
-	 * @param referenceDate
 	 * @param frequency The default frequency.
 	 * @param daycountConvention
 	 * @param shortPeriodConvention
@@ -103,12 +102,11 @@ public class ScheduleMetaData implements Serializable {
 	 * @param paymentOffsetDays
 	 * @param isUseEndOfMonth
 	 */
-	public ScheduleMetaData(LocalDate referenceDate, Frequency frequency, DaycountConvention daycountConvention,
+	public ScheduleMetaData(Frequency frequency, DaycountConvention daycountConvention,
 			ShortPeriodConvention shortPeriodConvention, DateRollConvention dateRollConvention,
 			BusinessdayCalendarInterface businessdayCalendar, int fixingOffsetDays, int paymentOffsetDays,
 			boolean isUseEndOfMonth) {
 		super();
-		this.referenceDate = referenceDate;
 		this.frequency = frequency;
 		this.daycountConvention = daycountConvention;
 		this.shortPeriodConvention = shortPeriodConvention;
@@ -120,109 +118,65 @@ public class ScheduleMetaData implements Serializable {
 	}
 
 	/**
+	 * Generate a schedule descriptor for the given start and end date.
+	 *
+	 * @param startDate
+	 * @param endDate
+	 * @return The schedule descriptor
+	 */
+	public ScheduleDescriptor generateScheduleDescriptor(LocalDate startDate, LocalDate endDate) {
+		return new ScheduleDescriptor(startDate, endDate, getFrequency(), getDaycountConvention(), getShortPeriodConvention(), getDateRollConvention(),
+				getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
+	}
+
+	/**
 	 * Generate a schedule for the given start and end date.
 	 *
+	 * @param referenceDate
 	 * @param startDate
 	 * @param endDate
 	 * @return The schedule
 	 */
-	public ScheduleInterface generateSchedule(LocalDate startDate, LocalDate endDate) {
-		return ScheduleGenerator.createScheduleFromConventions(getReferenceDate(), startDate, endDate, getFrequency(), getDaycountConvention(),
-				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
-	}
-
-	/**
-	 * Generate a schedule for the given start and end date. The schedule will consist only of a single period.
-	 *
-	 * @param startDate
-	 * @param endDate
-	 * @return The schedule
-	 */
-	public ScheduleInterface generateSinglePeriod(LocalDate startDate, LocalDate endDate) {
-		Frequency frequency = Frequency.TENOR;
-		ScheduleInterface schedule =  ScheduleGenerator.createScheduleFromConventions(getReferenceDate(), startDate, endDate, frequency, getDaycountConvention(),
-				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
-		return schedule;
-	}
-
-	/**
-	 * Generate a schedule for the given start / end date and frequency.
-	 *
-	 * @param startDate
-	 * @param endDate
-	 * @param frequency
-	 * @return The schedule
-	 */
-	public ScheduleInterface generateScheduleWithFrequency(LocalDate startDate, LocalDate endDate, Frequency frequency) {
-		return ScheduleGenerator.createScheduleFromConventions(getReferenceDate(), startDate, endDate, frequency, getDaycountConvention(),
+	public ScheduleInterface generateSchedule(LocalDate referenceDate, LocalDate startDate, LocalDate endDate) {
+		return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, endDate, getFrequency(), getDaycountConvention(),
 				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
 	}
 
 	/**
 	 * Generate a schedule with start / end date determined by an offset in months from the reference date.
 	 *
+	 * @param referenceDate
 	 * @param maturity Offset of the start date to the reference date in months
 	 * @param termination Offset of the end date to the reference date in months
 	 * @return The schedule
 	 */
-	public ScheduleInterface generateSchedule(int maturity, int termination) {
-		return generateSchedule(maturity, termination, OffsetUnit.MONTHS);
+	public ScheduleInterface generateSchedule(LocalDate referenceDate, int maturity, int termination) {
+		return generateSchedule(referenceDate, maturity, termination, OffsetUnit.MONTHS);
 	}
 
 	/**
 	 * Generate a schedule with start / end date determined by an offset from the reference date.
 	 *
+	 * @param referenceDate
 	 * @param maturity Offset of the start date to the reference date
 	 * @param termination Offset of the end date to the reference date
 	 * @param unit The convention to use for the offset
 	 * @return The schedule
 	 */
-	public ScheduleInterface generateSchedule(int maturity, int termination, OffsetUnit unit) {
-		return generateScheduleWithFrequency(maturity, termination, unit, getFrequency());
-	}
-
-	/**
-	 * Generate a schedule with a given frequency and start / end date determined by an offset in months from the reference date.
-	 *
-	 * @param maturity Offset of the start date to the reference date in months
-	 * @param termination Offset of the end date to the reference date in months
-	 * @param frequency The frequency of the schedule
-	 * @return The schedule
-	 */
-	public ScheduleInterface generateScheduleWithFrequency(int maturity, int termination, Frequency frequency) {
-		return generateScheduleWithFrequency(maturity, termination, OffsetUnit.MONTHS, frequency);
-	}
-
-	/**
-	 * Generate a schedule with a given frequency and start / end date determined by an offset from the reference date.
-	 *
-	 * @param maturity Offset of the start date to the reference date in months
-	 * @param termination Offset of the end date to the reference date in months
-	 * @param unit The convention to use for the offset
-	 * @param frequency The frequency of the schedule
-	 * @return The schedule
-	 */
-	public ScheduleInterface generateScheduleWithFrequency(int maturity, int termination, OffsetUnit unit,	Frequency frequency) {
+	public ScheduleInterface generateSchedule(LocalDate referenceDate, int maturity, int termination, OffsetUnit unit) {
 
 		LocalDate startDate;
 		LocalDate endDate;
 
 		switch(unit) {
-		case YEARS :	startDate = getReferenceDate().plusYears(maturity);		endDate = startDate.plusYears(termination); break;
-		case MONTHS :	startDate = getReferenceDate().plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
-		case DAYS :	startDate = getReferenceDate().plusDays(maturity);		endDate = startDate.plusDays(termination); break;
-		case WEEKS :	startDate = getReferenceDate().plusDays(maturity *7);	endDate = startDate.plusDays(termination *7); break;
-		default :		startDate = getReferenceDate().plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
+		case YEARS :	startDate = referenceDate.plusYears(maturity);		endDate = startDate.plusYears(termination); break;
+		case MONTHS :	startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
+		case DAYS :		startDate = referenceDate.plusDays(maturity);		endDate = startDate.plusDays(termination); break;
+		case WEEKS :	startDate = referenceDate.plusDays(maturity *7);	endDate = startDate.plusDays(termination *7); break;
+		default :		startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;
 		}
 
-		return generateScheduleWithFrequency(startDate, endDate, frequency);
-	}
-
-	/**
-	 * @return the referenceDate
-	 */
-	public LocalDate getReferenceDate() {
-		return referenceDate;
+		return generateSchedule(referenceDate, startDate, endDate);
 	}
 
 	/**
