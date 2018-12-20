@@ -25,8 +25,6 @@ import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
@@ -1289,13 +1287,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		// TODO This part should be refactored to avoid the instanceof and/or work with more general models
 		if(covarianceModel instanceof net.finmath.montecarlo.interestrate.covariancemodels.AbstractLIBORCovarianceModelParametric) {
 			RandomVariableInterface[] covarianceModelParameters = ((net.finmath.montecarlo.interestrate.covariancemodels.AbstractLIBORCovarianceModelParametric) covarianceModel).getParameter();
-			
+
 			for(int covarianceModelParameterIndex=0; covarianceModelParameterIndex<covarianceModelParameters.length; covarianceModelParameterIndex++) {
 				modelParameters.put("COVARIANCEMODELPARAMETER("+ covarianceModelParameterIndex + ")", covarianceModelParameters[covarianceModelParameterIndex]);
-				
+
 			}
 		}
-		
+
 		return modelParameters;
 	}
 

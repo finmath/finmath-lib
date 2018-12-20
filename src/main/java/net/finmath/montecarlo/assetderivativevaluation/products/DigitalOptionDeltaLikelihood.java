@@ -1,6 +1,6 @@
 package net.finmath.montecarlo.assetderivativevaluation.products;
 /*
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  *
  * Created on 12.02.2013
  */
