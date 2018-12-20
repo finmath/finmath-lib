@@ -192,4 +192,10 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 		dataModifiedMap.put(entityKey, dataModified);
 		return getCloneWithModifiedData(dataModifiedMap);
 	}
+
+	@Override
+	public Map<String, RandomVariableInterface> getModelParameters() {
+		// TODO Add implementation
+		throw new UnsupportedOperationException();
+	}
 }

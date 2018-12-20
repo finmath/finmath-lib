@@ -9,6 +9,7 @@ package net.finmath.montecarlo.interestrate;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -17,7 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  *
  * @version 1.0
  */
-public interface LIBORModelInterface extends TermStructureModelInterface {
+public interface LIBORModelInterface extends TermStructureModelInterface, IndependentModelParameterProvider {
 
 	RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 

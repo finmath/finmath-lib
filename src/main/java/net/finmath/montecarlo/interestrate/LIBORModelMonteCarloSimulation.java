@@ -198,4 +198,9 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 		dataModifiedMap.put(entityKey, dataModified);
 		return getCloneWithModifiedData(dataModifiedMap);
 	}
+
+	@Override
+	public Map<String, RandomVariableInterface> getModelParameters() {
+		return model.getModelParameters();
+	}
 }

@@ -25,6 +25,8 @@ import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
@@ -1266,6 +1268,35 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		LIBORMarketModel newModel = new LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, swaptionMarketData, properties);
 		newModel.curveModel = analyticModel;
 		return newModel;
+	}
+
+	@Override
+	public Map<String, RandomVariableInterface> getModelParameters() {
+		Map<String, RandomVariableInterface> modelParameters = new HashMap<>();
+
+		// Add initial values
+		for(int liborIndex=0; liborIndex<getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborIndex++) {
+			RandomVariableInterface forward = null;
+			try {
+				forward = getLIBOR(0, liborIndex);
+			}
+			catch (CalculationException e) {}
+
+			modelParameters.put("FORWARD("+getLiborPeriod(liborIndex) + "," + getLiborPeriod(liborIndex+1) + ")", forward);
+		}
+
+		// Add volatilities
+		// TODO This part should be refactored to avoid the instanceof and/or work with more general models
+		if(covarianceModel instanceof net.finmath.montecarlo.interestrate.covariancemodels.AbstractLIBORCovarianceModelParametric) {
+			RandomVariableInterface[] covarianceModelParameters = ((net.finmath.montecarlo.interestrate.covariancemodels.AbstractLIBORCovarianceModelParametric) covarianceModel).getParameter();
+			
+			for(int covarianceModelParameterIndex=0; covarianceModelParameterIndex<covarianceModelParameters.length; covarianceModelParameterIndex++) {
+				modelParameters.put("COVARIANCEMODELPARAMETER("+ covarianceModelParameterIndex + ")", covarianceModelParameters[covarianceModelParameterIndex]);
+				
+			}
+		}
+		
+		return modelParameters;
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

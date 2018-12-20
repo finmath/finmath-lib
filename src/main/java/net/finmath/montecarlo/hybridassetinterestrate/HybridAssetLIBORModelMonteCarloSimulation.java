@@ -216,4 +216,10 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 
 		return getAssetValue(timeIndex, assetIndex);
 	}
+
+	@Override
+	public Map<String, RandomVariableInterface> getModelParameters() {
+		// TODO Add implementation
+		throw new UnsupportedOperationException();
+	}
 }
