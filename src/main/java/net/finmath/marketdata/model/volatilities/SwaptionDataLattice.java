@@ -164,7 +164,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
 			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, double[] maturities, double[] tenors, int[] moneynesss, double[] values) {
-		this(referenceDate, QuotingConvention.VOLATILITYLOGNORMAL, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
+		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturities.length; i++) {
 			entryMap.put(new DataKey(maturities[i], tenors[i], moneynesss[i]), values[i]);
@@ -187,7 +187,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
 			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, String[] tenorCodes, int[] moneynesss, double[] values) {
-		this(referenceDate,QuotingConvention.VOLATILITYLOGNORMAL, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
+		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < tenorCodes.length; i++) {
 			entryMap.put(new DataKey(tenorCodes[i], moneynesss[i]), values[i]);
