@@ -15,6 +15,7 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements the valuation of a Bermudan option paying
@@ -189,8 +190,8 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			}
 
 			// If trigger is positive keep value, otherwise take underlying
-			value			= value.barrier(trigger, value, underlying);
-			exerciseTime	= exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
+			value			= trigger.choose(value, underlying);
+			exerciseTime	= trigger.choose(exerciseTime, new Scalar(exerciseDate));
 		}
 		lastValuationExerciseTime = exerciseTime;
 
