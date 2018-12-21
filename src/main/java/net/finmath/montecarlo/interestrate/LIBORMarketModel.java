@@ -1134,7 +1134,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		synchronized (integratedLIBORCovarianceLazyInitLock) {
 			if(integratedLIBORCovariance == null) {
 				TimeDiscretizationInterface liborPeriodDiscretization = getLiborPeriodDiscretization();
-				TimeDiscretizationInterface simulationTimeDiscretization = getCovarianceModel().getTimeDiscretization();
+				TimeDiscretizationInterface simulationTimeDiscretization = getTimeDiscretization();
 
 				integratedLIBORCovariance = new double[simulationTimeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 				for(int timeIndex = 0; timeIndex < simulationTimeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
@@ -1142,7 +1142,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					RandomVariableInterface[][] factorLoadings = new RandomVariableInterface[liborPeriodDiscretization.getNumberOfTimeSteps()][];
 					// Prefetch factor loadings
 					for(int componentIndex = 0; componentIndex < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
-						factorLoadings[componentIndex] = getCovarianceModel().getFactorLoading(timeIndex, componentIndex, null);
+						factorLoadings[componentIndex] = getFactorLoading(timeIndex, componentIndex, null);
 					}
 					for(int componentIndex1 = 0; componentIndex1 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex1++) {
 						RandomVariableInterface[] factorLoadingOfComponent1 = factorLoadings[componentIndex1];
