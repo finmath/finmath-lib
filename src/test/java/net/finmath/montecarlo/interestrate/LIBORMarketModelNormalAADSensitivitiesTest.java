@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,6 +23,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
@@ -29,9 +31,11 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
+import net.finmath.montecarlo.interestrate.covariancemodels.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.covariancemodels.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModelFromGivenMatrix;
+import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
@@ -696,6 +700,161 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		}
 		else {
 			System.out.println(bucketDeltaLIBORIndex.orElse(-1) + "\t" + seed + "\t" + value.getAverage() + "\t" + bucketDelta + "\t" + deltaAAD);
+		}
+	}
+
+	/**
+	 * A test for the LIBOR Market Model delta calculated by AAD.
+	 * The test calculates all model deltas using AAD, but only one model delta using finite difference to benchmark that one.
+	 * @throws CalculationException
+	 */
+	@Test
+	public void testGenericDelta() throws CalculationException {
+
+		/*
+		 * Create a libor market model with appropriate AAD random variable factory
+		 */
+
+		// The following properties control the approximation of the derivatives of conditional expectation operators and indicator functions
+		Map<String, Object> randomVariableProps = new HashMap<String, Object>();
+		randomVariableProps.put("diracDeltaApproximationWidthPerStdDev", 0.05);
+		//		randomVariableProps.put("diracDeltaApproximationMethod", "ZERO");		// Switches of differentiation of exercise boundary
+		RandomVariableDifferentiableAADFactory randomVariableFactoryAAD = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableProps);
+
+		AbstractRandomVariableFactory randomVariableFactoryInitialValue = randomVariableFactoryAAD;
+		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableFactory();
+		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, Optional.empty(), 0.0, 0, 0, 0.0);
+
+		/*
+		 * Test valuation
+		 */
+		long memoryStart = getAllocatedMemory();
+		long timingCalculationStart = System.currentTimeMillis();
+
+		RandomVariableInterface value = product.getValue(0.0, liborMarketModel);
+		double valueSimulation = value.getAverage();
+
+		long timingCalculationEnd = System.currentTimeMillis();
+
+
+		/*
+		 * Test gradient
+		 */
+
+		long timingGradientStart = System.currentTimeMillis();
+
+		Map<Long, RandomVariableInterface> gradientMap;
+		try {
+			gradientMap = ((RandomVariableDifferentiableInterface)value).getGradient();
+		}
+		catch(java.lang.ClassCastException e) {
+			gradientMap = null;
+		}
+		final Map<Long, RandomVariableInterface> gradient = gradientMap;
+
+		long timingGradientEnd = System.currentTimeMillis();
+		long memoryEnd = getAllocatedMemory();
+
+		Map<String, RandomVariableInterface> modelParameters = liborMarketModel.getModelParameters();
+
+		int numberOfDeltasTheoretical	= 0;
+		int numberOfDeltasEffective	= 0;
+		Map<String, Double> modelDeltas = new HashMap<>();
+		if(gradient != null) {
+			modelDeltas = modelParameters.entrySet().parallelStream().collect(Collectors.toMap(
+					entry -> entry.getKey(),
+					entry -> {
+						Double derivativeValue = 0.0;
+						RandomVariableInterface parameter = entry.getValue();
+						if(parameter instanceof RandomVariableDifferentiableInterface) {
+							RandomVariableInterface derivativeRV = gradient.get(((RandomVariableDifferentiableInterface)parameter).getID());
+							if(derivativeRV != null) {
+								derivativeValue = derivativeRV.getAverage();
+							}
+						}
+						return derivativeValue;
+					}
+					));
+		}
+
+		// Free memory
+//		liborMarketModel = null;
+		gradientMap = null;
+
+		/*
+		 * Test valuation
+		 */
+
+		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+				Optional.empty(), 0.0, 0, 0, 0);
+
+		long timingCalculation2Start = System.currentTimeMillis();
+
+		double valueSimulation2 = product.getValue(liborMarketModelPlain);
+
+		long timingCalculation2End = System.currentTimeMillis();
+
+		// Free memory
+		liborMarketModelPlain = null;
+
+		long memoryEnd2 = getAllocatedMemory();
+
+		/*
+		 * Calculate delta - in case we calculate parallel delta.
+		 */
+
+		/*
+		 * Print status
+		 */
+		if(isVerbose) {
+			System.out.println(product.getClass().getSimpleName() + ": " + productName);
+			System.out.println("_______________________________________________________________________");
+
+			modelDeltas.forEach(
+					(key, delta) -> { System.out.println(key + "\t" + delta); });
+
+			System.out.println("value...........................: " + formatterValue.format(valueSimulation));
+			System.out.println("value (plain)...................: " + formatterValue.format(valueSimulation2));
+			System.out.println("evaluation (plain)..............: " + formatReal1.format((timingCalculation2End-timingCalculation2Start)/1000.0) + " s");
+			System.out.println("evaluation (AAD)................: " + formatReal1.format((timingCalculationEnd-timingCalculationStart)/1000.0) + " s");
+			System.out.println("derivative (AAD).(all buckets)..: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
+			System.out.println("number of Deltas (theoretical)...: " + numberOfDeltasTheoretical);
+			System.out.println("number of Deltas (effective).....: " + numberOfDeltasEffective);
+			System.out.println("memory (AAD)....................: " + formatReal1.format(((double)(memoryEnd-memoryStart))/1024.0/1024.0) + " M");
+			System.out.println("memory (check)-.................: " + formatReal1.format(((double)(memoryEnd2-memoryStart))/1024.0/1024.0) + " M");
+			System.out.println("\n");
+
+			/*
+			 * Analytic assert only for some products
+			 */
+			if(productName.equals("Caplet maturity 5.0")) {
+				String riskFactorName = "FORWARD(5.0,5.5)";
+				double sensitivityAAD = modelDeltas.get(riskFactorName);
+				
+				double forward = liborMarketModel.getLIBOR(0.0, 5.0, 5.5).getAverage();
+
+				double optionMaturity = 5.0;
+				double optionStrike = forward;
+
+				double integratedVariance = ((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
+				double volatility = Math.sqrt(integratedVariance/optionMaturity);
+				double periodLength = 0.5;
+				double discountFactor = liborMarketModel.getNumeraire(5.5).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();
+				
+				double payoffUnit = discountFactor * periodLength;
+				
+				double epsilon = 1E-7;
+				double sensitivityAnl = (AnalyticFormulas.bachelierOptionValue(forward+epsilon, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forward-epsilon, volatility, optionMaturity, optionStrike, payoffUnit))/epsilon/2.0;;
+				
+				System.out.println("derivative (AAD)      " + riskFactorName + "...: " + formatterValue.format(sensitivityAAD));
+				System.out.println("derivative (analytic) " + riskFactorName + "...: " + formatterValue.format(sensitivityAnl));
+				
+				Assert.assertEquals("Sensitivity " + riskFactorName, sensitivityAnl, sensitivityAAD, 5E-3 /* delta */);
+			}
+			Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
+		}
+		else {
+			//			System.out.println(bucketDeltaLIBORIndex.orElse(-1) + "\t" + seed + "\t" + value.getAverage() + "\t" + bucketDelta + "\t" + deltaAAD);
 		}
 	}
 

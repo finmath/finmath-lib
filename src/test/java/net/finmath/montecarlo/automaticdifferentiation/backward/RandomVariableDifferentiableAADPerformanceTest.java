@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Christian P. Fries, Germany. All rights reserved. Contact: email@christianfries.com.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
  *
  * Created on 01.07.2017
  */

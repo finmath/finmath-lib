@@ -601,5 +601,11 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	public double getIntegratedBondSquaredVolatility(double time, double maturity) {
 		return getShortRateConditionalVariance(0, time) * getB(time,maturity) * getB(time,maturity);
 	}
+
+	@Override
+	public Map<String, RandomVariableInterface> getModelParameters() {
+		// TODO Add implementation
+		throw new UnsupportedOperationException();
+	}
 }
 

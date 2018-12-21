@@ -2,7 +2,7 @@
  * Created on 16.02.2004
  *
  * (c) Copyright Christian P. Fries, Germany.
- * All rights reserved. Contact: email@christian-fries.de.
+ * Contact: email@christian-fries.de.
  */
 package net.finmath.rootfinder;
 

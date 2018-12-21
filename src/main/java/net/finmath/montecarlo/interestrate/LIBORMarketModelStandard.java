@@ -898,5 +898,11 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 		}
 	}
+
+	@Override
+	public Map<String, RandomVariableInterface> getModelParameters() {
+		// TODO Add implementation
+		throw new UnsupportedOperationException();
+	}
 }
 
