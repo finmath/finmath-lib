@@ -26,7 +26,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * </ul>
  *
  * @author Christian Fries
- * @version 1.9
+ * @version 1.10
  * @date 27.04.2012
  */
 public class AnalyticFormulas {
@@ -910,6 +910,44 @@ public class AnalyticFormulas {
 		}
 
 		return solver.getBestPoint();
+	}
+
+	/**
+	 * Calculates the option delta of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with constant volatility, i.e., a Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the value of a European call option under the Bachelier model.
+	 */
+	public static double bachelierOptionDelta(
+			double forward,
+			double volatility,
+			double optionMaturity,
+			double optionStrike,
+			double payoffUnit)
+	{
+		if(optionMaturity < 0) {
+			return 0;
+		}
+		else if(forward == optionStrike) {
+			return payoffUnit / 2;
+		}
+		else
+		{
+			// Calculate analytic value
+			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
+
+			double deltaAnalytic = NormalDistribution.cumulativeDistribution(dPlus) * payoffUnit;
+
+			return deltaAnalytic;
+		}
 	}
 
 	/**

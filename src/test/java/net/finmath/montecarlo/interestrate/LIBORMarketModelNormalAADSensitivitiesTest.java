@@ -135,6 +135,13 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		});
 
 		testParameters.add(new Object[] {
+				"Caplet maturity " + 10.0,
+				new Caplet(10.0, swapPeriodLength, swaprate),
+				Optional.of(20),
+				true
+		});
+
+		testParameters.add(new Object[] {
 				"Caplet maturity " + exerciseDate,
 				new Caplet(exerciseDate, swapPeriodLength, swaprate),
 				Optional.of((int)Math.round(exerciseDate*2)),
@@ -778,7 +785,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		}
 
 		// Free memory
-//		liborMarketModel = null;
+		//		liborMarketModel = null;
 		gradientMap = null;
 
 		/*
@@ -830,7 +837,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			if(productName.equals("Caplet maturity 5.0")) {
 				String riskFactorName = "FORWARD(5.0,5.5)";
 				double sensitivityAAD = modelDeltas.get(riskFactorName);
-				
+
 				double forward = liborMarketModel.getLIBOR(0.0, 5.0, 5.5).getAverage();
 
 				double optionMaturity = 5.0;
@@ -839,16 +846,38 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				double integratedVariance = ((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
 				double volatility = Math.sqrt(integratedVariance/optionMaturity);
 				double periodLength = 0.5;
-				double discountFactor = liborMarketModel.getNumeraire(5.5).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();
-				
+				double discountFactor = liborMarketModel.getNumeraire(optionMaturity+periodLength).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();
+
 				double payoffUnit = discountFactor * periodLength;
-				
-				double epsilon = 1E-7;
-				double sensitivityAnl = (AnalyticFormulas.bachelierOptionValue(forward+epsilon, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forward-epsilon, volatility, optionMaturity, optionStrike, payoffUnit))/epsilon/2.0;;
-				
+
+				double sensitivityAnl = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+
 				System.out.println("derivative (AAD)      " + riskFactorName + "...: " + formatterValue.format(sensitivityAAD));
 				System.out.println("derivative (analytic) " + riskFactorName + "...: " + formatterValue.format(sensitivityAnl));
-				
+
+				Assert.assertEquals("Sensitivity " + riskFactorName, sensitivityAnl, sensitivityAAD, 5E-3 /* delta */);
+			}
+			else if(productName.equals("Caplet maturity 10.0")) {
+				String riskFactorName = "FORWARD(10.0,10.5)";
+				double sensitivityAAD = modelDeltas.get(riskFactorName);
+
+				double forward = liborMarketModel.getLIBOR(0.0, 10.0, 10.5).getAverage();
+
+				double optionMaturity = 10.0;
+				double optionStrike = forward;
+
+				double integratedVariance = ((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
+				double volatility = Math.sqrt(integratedVariance/optionMaturity);
+				double periodLength = 0.5;
+				double discountFactor = liborMarketModel.getNumeraire(optionMaturity+periodLength).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();
+
+				double payoffUnit = discountFactor * periodLength;
+
+				double sensitivityAnl = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+
+				System.out.println("derivative (AAD)      " + riskFactorName + "...: " + formatterValue.format(sensitivityAAD));
+				System.out.println("derivative (analytic) " + riskFactorName + "...: " + formatterValue.format(sensitivityAnl));
+
 				Assert.assertEquals("Sensitivity " + riskFactorName, sensitivityAnl, sensitivityAAD, 5E-3 /* delta */);
 			}
 			Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);

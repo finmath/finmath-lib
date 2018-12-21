@@ -16,11 +16,15 @@ import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
 
 /**
+ * Unit tests for {@link net.finmath.functions.AnalyticFormulas}.
+ * 
  * @author Christian Fries
  */
 public class AnalyticFormulasTest {
 
 	static final DecimalFormat formatterReal2 = new DecimalFormat("#0.00");
+	private boolean isPrintOutVerbose = false;
+
 	@Test
 	public void testBachelierOptionImpliedVolatility() {
 		double spot = 100;
@@ -39,8 +43,35 @@ public class AnalyticFormulasTest {
 					double optionValue = AnalyticFormulas.bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 					double impliedVolatility = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
-					System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionValue) + " \t" + formatterReal2.format(volatility) + " \t" + formatterReal2.format(impliedVolatility));
+					if(isPrintOutVerbose) System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionValue) + " \t" + formatterReal2.format(volatility) + " \t" + formatterReal2.format(impliedVolatility));
 					Assert.assertEquals(volatility, impliedVolatility, 1E-3);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testBachelierOptionDelta() {
+		double spot = 100;
+		double riskFreeRate = 0.05;
+		for(double volatilityNormal = 5.0 / 100.0 * spot; volatilityNormal < 1.0 * spot; volatilityNormal += 5.0 / 100.0 * spot) {
+			for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
+				for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
+
+					double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
+
+					double volatility = volatilityNormal;
+					double forward = spot * Math.exp(riskFreeRate * optionMaturity);
+					double optionStrike = forward + moneyness;
+					double payoffUnit = Math.exp(-riskFreeRate * optionMaturity);
+
+					double optionDelta = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+
+					double epsilon = 1E-5*forward;
+					double optionDeltaFiniteDifference = (AnalyticFormulas.bachelierOptionValue(forward+epsilon, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forward-epsilon, volatility, optionMaturity, optionStrike, payoffUnit))/(2*epsilon);
+
+					if(isPrintOutVerbose) System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionDelta) + " \t" + formatterReal2.format(optionDeltaFiniteDifference));
+					Assert.assertEquals(optionDelta, optionDeltaFiniteDifference, 1E-8);
 				}
 			}
 		}
@@ -90,8 +121,7 @@ public class AnalyticFormulasTest {
 
 			double[] bestParameters = lm.getBestFitParameters();
 
-			//			System.out.println(lm.getRootMeanSquaredError() + "\t");
-			System.out.println(givenVolatilities[0] + "\t" + lm.getRootMeanSquaredError() + "\t" + Arrays.toString(bestParameters));
+			if(isPrintOutVerbose) System.out.println(givenVolatilities[0] + "\t" + lm.getRootMeanSquaredError() + "\t" + Arrays.toString(bestParameters));
 		}
 	}
 
