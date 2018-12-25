@@ -6,6 +6,7 @@
 
 package net.finmath.montecarlo.hybridassetinterestrate;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -72,6 +73,11 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	@Override
 	public int getNumberOfPaths() {
 		return liborSimulation.getNumberOfPaths();
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		return liborSimulation.getReferenceDate();
 	}
 
 	@Override

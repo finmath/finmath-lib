@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.model;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -45,6 +46,15 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @version 1.0
  */
 public interface AbstractModelInterface {
+
+	/**
+	 * Returns the model's date corresponding to the time discretization's \( t = 0 \).
+	 * 
+	 * Note: Currently not all models provide a reference date. This will change in future versions.
+	 * 
+	 * @return The model's date corresponding to the time discretization's \( t = 0 \).
+	 */
+	LocalDateTime getReferenceDate();
 
 	/**
 	 * Returns the time discretization of the model parameters. It is not necessary that this time discretization agrees

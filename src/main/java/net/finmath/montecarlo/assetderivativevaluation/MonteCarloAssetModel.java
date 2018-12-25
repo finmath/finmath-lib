@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -47,25 +48,16 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 		model.setProcess(process);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(double, int)
-	 */
 	@Override
 	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
-	 */
 	@Override
 	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
 		return model.getProcess().getProcessValue(timeIndex, assetIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(int)
-	 */
 	@Override
 	public RandomVariableInterface getNumeraire(int timeIndex) throws CalculationException {
 		double time = getTime(timeIndex);
@@ -73,33 +65,21 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 		return model.getNumeraire(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(double)
-	 */
 	@Override
 	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(double)
-	 */
 	@Override
 	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumberOfAssets()
-	 */
 	@Override
 	public int getNumberOfAssets() {
 		return 1;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
-	 */
 	@Override
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		AbstractProcessInterface process = model.getProcess();
@@ -122,25 +102,21 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 		return new MonteCarloAssetModel(newModel, newProcess);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
-	 */
 	@Override
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfPaths()
-	 */
 	@Override
 	public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeDiscretization()
-	 */
+	@Override
+	public LocalDateTime getReferenceDate() {
+		return model.getReferenceDate();
+	}
+
 	@Override
 	public TimeDiscretizationInterface getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();

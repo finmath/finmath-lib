@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -209,33 +210,26 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		return new MonteCarloBlackScholesModel(initialValue, model.getRiskFreeRate().getAverage(), model.getVolatility().getAverage(), process);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getNumberOfPaths()
-	 */
 	@Override
 	public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeDiscretization()
-	 */
+	@Override
+	public LocalDateTime getReferenceDate() {
+		return model.getReferenceDate();
+	}
+
 	@Override
 	public TimeDiscretizationInterface getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTime(int)
-	 */
 	@Override
 	public double getTime(int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeIndex(double)
-	 */
 	@Override
 	public int getTimeIndex(double time) {
 		return model.getProcess().getTimeIndex(time);

@@ -3,6 +3,7 @@
  */
 package net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.montecarlo.RandomVariable;
@@ -87,6 +88,11 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		this.initialValueVector[0]	= new RandomVariable(0.0, initialValue);
 		this.drift					= new RandomVariable(0.0, riskFreeRate);
 		this.volatilityOnPaths		= new RandomVariable(0.0, volatility);
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
 	}
 
 	@Override

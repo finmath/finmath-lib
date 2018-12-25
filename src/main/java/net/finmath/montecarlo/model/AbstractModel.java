@@ -1,5 +1,7 @@
 package net.finmath.montecarlo.model;
 
+import java.time.LocalDateTime;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -40,25 +42,16 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	 * Delegation to process (numerical scheme)
 	 */
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#setProcess(net.finmath.montecarlo.process.AbstractProcessInterface)
-	 */
 	@Override
 	public void setProcess(AbstractProcessInterface process) {
 		this.process = process;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getProcess()
-	 */
 	@Override
 	public AbstractProcessInterface getProcess() {
 		return process;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getNumberOfFactors()
-	 */
 	@Override
 	public int getNumberOfFactors() {
 		return process.getNumberOfFactors();
@@ -83,6 +76,11 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	 */
 	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return process.getMonteCarloWeights(timeIndex);
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
 	}
 
 	/**

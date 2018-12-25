@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,6 +74,11 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	@Override
 	public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
 	}
 
 	@Override

@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
@@ -126,6 +127,11 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		// Link model and process for delegation
 		process.setModel(model);
 		model.setProcess(process);
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
 	}
 
 	@Override

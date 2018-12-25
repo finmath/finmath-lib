@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,6 +74,11 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	@Override
 	public int getNumberOfPaths() {
 		return model.getProcess().getNumberOfPaths();
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		return model.getReferenceDate();
 	}
 
 	@Override

@@ -6,6 +6,7 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -147,6 +148,11 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 					@Override
 					public void setProcess(AbstractProcessInterface process) {
+					}
+
+					@Override
+					public LocalDateTime getReferenceDate() {
+						throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
 					}
 
 					@Override

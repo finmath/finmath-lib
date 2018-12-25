@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -28,6 +29,13 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	 * @return Returns the numberOfPaths.
 	 */
 	int getNumberOfPaths();
+
+	/**
+	 * Returns the model's date corresponding to the time discretization's \( t = 0 \).
+	 * 
+	 * @return The model's date corresponding to the time discretization's \( t = 0 \).
+	 */
+	LocalDateTime getReferenceDate();
 
 	/**
 	 * Returns the timeDiscretization.
