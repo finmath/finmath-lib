@@ -5,9 +5,12 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
+import java.time.LocalDateTime;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * This class implements the valuation of a zero coupon bond.
@@ -16,8 +19,20 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @version 1.1
  */
 public class Bond extends AbstractLIBORMonteCarloProduct {
+	
+	private LocalDateTime referenceDate;
 	private double maturity;
 
+	/**
+	 * @param referenceDate The date corresponding to \( t = 0 \).
+	 * @param maturity The maturity given as double.
+	 */
+	public Bond(LocalDateTime referenceDate, double maturity) {
+		super();
+		this.referenceDate = referenceDate;
+		this.maturity = maturity;
+	}
+	
 	/**
 	 * @param maturity The maturity given as double.
 	 */
@@ -39,9 +54,17 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
+		double modelToProductTimeOffset = 0;
+		try {
+			if(referenceDate != null) {
+				modelToProductTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), referenceDate);
+			}
+		}
+		catch(UnsupportedOperationException e) {};
+		
 		// Get random variables
-		RandomVariableInterface	numeraire				= model.getNumeraire(maturity);
-		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
+		RandomVariableInterface	numeraire				= model.getNumeraire(modelToProductTimeOffset + maturity);
+		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(modelToProductTimeOffset + maturity);
 
 		// Calculate numeraire relative value
 		RandomVariableInterface values = model.getRandomVariableForConstant(1.0);

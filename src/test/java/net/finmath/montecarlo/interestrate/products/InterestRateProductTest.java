@@ -10,6 +10,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -17,8 +19,13 @@ import java.util.Map;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
+import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.marketdata.model.curves.ForwardCurve.InterpolationEntityForward;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -30,6 +37,8 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialForm;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
 
 
@@ -49,7 +58,6 @@ public class InterestRateProductTest {
 	public static void main(String[] args) throws CalculationException {
 
 		long start = System.currentTimeMillis();
-
 
 		InterestRateProductTest interestRateProductTest = new InterestRateProductTest();
 
@@ -71,11 +79,13 @@ public class InterestRateProductTest {
 
 	public InterestRateProductTest() throws CalculationException {
 		super();
-		this.liborMarketModel = createLIBORMarketModel(10000 /* numberOfPaths */, 8, 0.02);
+
+		LocalDateTime referenceDate = LocalDateTime.of(2012,01,12, 17, 00);
+		this.liborMarketModel = createLIBORMarketModel(referenceDate, 10000 /* numberOfPaths */, 8, 0.02);
 	}
 
 	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
-			int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			LocalDateTime referenceDate, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -87,9 +97,18 @@ public class InterestRateProductTest {
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
+				referenceDate.toLocalDate(),
+				"6M",
+				new BusinessdayCalendarExcludingTARGETHolidays(),
+				BusinessdayCalendarInterface.DateRollConvention.FOLLOWING,
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT,
+				InterpolationEntity.VALUE,
+				InterpolationEntityForward.FORWARD,
+				null /* discountCurveName */,
+				null /* model */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
-				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */,
-				liborPeriodLength							/* tenor / period length */
+				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */
 				);
 
 		/*
@@ -153,16 +172,16 @@ public class InterestRateProductTest {
 		/*
 		 * Price a bond
 		 */
-
 		System.out.println("Bond prices:");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
 
+		LocalDateTime referenceDate = LocalDateTime.of(2012,1,12,17,0);
 		for(int maturityIndex = 0; maturityIndex<=liborMarketModel.getNumberOfLibors(); maturityIndex++) {
 			double maturity = liborMarketModel.getLiborPeriod(maturityIndex);
 			System.out.print(formatterMaturity.format(maturity) + "          ");
 
 			// Create a bond
-			Bond	bond	= new Bond(maturity);
+			Bond	bond	= new Bond(referenceDate, maturity);
 
 			// Bond price with Monte Carlo
 			double priceOfBond		= bond.getValue(liborMarketModel);
@@ -193,8 +212,6 @@ public class InterestRateProductTest {
 		 */
 		System.out.println("Swaption prices:");
 		System.out.println("Maturity      Simulation 1     Simulation 2     Analytic        Deviation");
-
-
 
 		for(int maturityIndex = 1; maturityIndex<=liborMarketModel.getNumberOfLibors()-10; maturityIndex++) {
 

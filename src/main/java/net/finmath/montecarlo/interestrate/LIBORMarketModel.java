@@ -8,6 +8,8 @@ package net.finmath.montecarlo.interestrate;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -660,6 +662,10 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return calibrationItems.toArray(new CalibrationItem[calibrationItems.size()]);
 	}
 
+	public LocalDateTime getReferenceDate() {
+		return LocalDateTime.of(forwardRateCurve.getReferenceDate(), LocalTime.of(17, 0));
+	}
+	
 	/**
 	 * Return the numeraire at a given time.
 	 *
