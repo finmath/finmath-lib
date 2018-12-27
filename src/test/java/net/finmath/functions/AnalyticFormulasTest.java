@@ -17,7 +17,7 @@ import net.finmath.optimizer.SolverException;
 
 /**
  * Unit tests for {@link net.finmath.functions.AnalyticFormulas}.
- * 
+ *
  * @author Christian Fries
  */
 public class AnalyticFormulasTest {

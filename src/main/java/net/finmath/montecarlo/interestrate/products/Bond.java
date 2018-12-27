@@ -19,7 +19,7 @@ import net.finmath.time.FloatingpointDate;
  * @version 1.1
  */
 public class Bond extends AbstractLIBORMonteCarloProduct {
-	
+
 	private LocalDateTime referenceDate;
 	private double maturity;
 
@@ -32,7 +32,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 		this.referenceDate = referenceDate;
 		this.maturity = maturity;
 	}
-	
+
 	/**
 	 * @param maturity The maturity given as double.
 	 */
@@ -61,7 +61,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 			}
 		}
 		catch(UnsupportedOperationException e) {};
-		
+
 		// Get random variables
 		RandomVariableInterface	numeraire				= model.getNumeraire(modelToProductTimeOffset + maturity);
 		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(modelToProductTimeOffset + maturity);

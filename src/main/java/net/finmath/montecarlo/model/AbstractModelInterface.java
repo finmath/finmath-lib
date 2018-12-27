@@ -49,9 +49,9 @@ public interface AbstractModelInterface {
 
 	/**
 	 * Returns the model's date corresponding to the time discretization's \( t = 0 \).
-	 * 
+	 *
 	 * Note: Currently not all models provide a reference date. This will change in future versions.
-	 * 
+	 *
 	 * @return The model's date corresponding to the time discretization's \( t = 0 \).
 	 */
 	LocalDateTime getReferenceDate();

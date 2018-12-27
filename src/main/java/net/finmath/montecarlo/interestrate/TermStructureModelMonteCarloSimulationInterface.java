@@ -33,11 +33,11 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 	 */
 	default RandomVariableInterface getLIBOR(LocalDateTime date, LocalDateTime periodStartDate, LocalDateTime periodEndDate) throws CalculationException {
 		LocalDateTime referenceDate = getReferenceDate();
-		
+
 		double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
 		double periodStart = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodStartDate);
 		double periodEnd = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodEndDate);
-		
+
 		return getLIBOR(time, periodStart, periodEnd);
 	}
 
@@ -63,7 +63,7 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 		double time = FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);
 		return getNumeraire(time);
 	}
-	
+
 	/**
 	 * Return the numeraire at a given time.
 	 *

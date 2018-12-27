@@ -32,7 +32,7 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 
 	/**
 	 * Returns the model's date corresponding to the time discretization's \( t = 0 \).
-	 * 
+	 *
 	 * @return The model's date corresponding to the time discretization's \( t = 0 \).
 	 */
 	LocalDateTime getReferenceDate();

@@ -665,7 +665,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 	public LocalDateTime getReferenceDate() {
 		return LocalDateTime.of(forwardRateCurve.getReferenceDate(), LocalTime.of(17, 0));
 	}
-	
+
 	/**
 	 * Return the numeraire at a given time.
 	 *
