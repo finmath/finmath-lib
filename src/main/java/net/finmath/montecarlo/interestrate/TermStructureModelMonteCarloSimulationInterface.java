@@ -25,10 +25,10 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 	/**
 	 * Return the forward rate for a given simulation time and a given period start and period end.
 	 *
-	 * @param time          Simulation time
-	 * @param periodStart   Start time of period
-	 * @param periodEnd     End time of period
-	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
+	 * @param date Simulation time
+	 * @param periodStartDate Start time of period
+	 * @param periodEndDate End time of period
+	 * @return The forward rate as a random variable as seen on simulation time for the specified period.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	default RandomVariableInterface getLIBOR(LocalDateTime date, LocalDateTime periodStartDate, LocalDateTime periodEndDate) throws CalculationException {
@@ -55,7 +55,7 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 	/**
 	 * Return the numeraire at a given time.
 	 *
-	 * @param time Time at which the process should be observed
+	 * @param date Time at which the process should be observed
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
