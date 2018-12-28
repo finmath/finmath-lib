@@ -5,10 +5,13 @@
  */
 package net.finmath.montecarlo.interestrate.products.components;
 
+import java.time.LocalDateTime;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * A period. A period has references to the index (coupon) and the notional.
@@ -28,6 +31,32 @@ public class Period extends AbstractPeriod {
 	/**
 	 * Create a simple period with notional and index (coupon) flow.
 	 *
+	 * @param referenceDate The date corresponding to time \( t = 0 \).
+	 * @param periodStart The period start.
+	 * @param periodEnd The period end.
+	 * @param fixingDate The fixing date (as double).
+	 * @param paymentDate The payment date (as double).
+	 * @param notional The notional object relevant for this period.
+	 * @param index The index (used for coupon calculation) associated with this period.
+	 * @param daycountFraction The daycount fraction (<code>coupon = index(fixingDate) * daycountFraction</code>).
+	 * @param couponFlow If true, the coupon will be payed. Otherwise there will be not coupon flow.
+	 * @param notionalFlow If true, there will be a positive notional flow at period start (but only if peirodStart &gt; evaluationTime) and a negative notional flow at period end (but only if periodEnd &gt; evaluationTime). Otherwise there will be no notional flows.
+	 * @param payer If true, the period will be a payer period, i.e. notional and coupon at period end are payed (negative). Otherwise it is a receiver period.
+	 * @param isExcludeAccruedInterest If the true, the valuation will exclude accrued interest, if any.
+	 */
+	public Period(LocalDateTime referenceDate, double periodStart, double periodEnd, double fixingDate,
+			double paymentDate, AbstractNotional notional, AbstractProductComponent index, double daycountFraction,
+			boolean couponFlow, boolean notionalFlow, boolean payer, boolean isExcludeAccruedInterest) {
+		super(referenceDate, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);
+		this.couponFlow = couponFlow;
+		this.notionalFlow = notionalFlow;
+		this.payer = payer;
+		this.isExcludeAccruedInterest = isExcludeAccruedInterest;
+	}
+
+	/**
+	 * Create a simple period with notional and index (coupon) flow.
+	 *
 	 * @param periodStart The period start.
 	 * @param periodEnd The period end.
 	 * @param fixingDate The fixing date (as double).
@@ -43,11 +72,7 @@ public class Period extends AbstractPeriod {
 	public Period(double periodStart, double periodEnd, double fixingDate,
 			double paymentDate, AbstractNotional notional, AbstractProductComponent index, double daycountFraction,
 			boolean couponFlow, boolean notionalFlow, boolean payer, boolean isExcludeAccruedInterest) {
-		super(periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);
-		this.couponFlow = couponFlow;
-		this.notionalFlow = notionalFlow;
-		this.payer = payer;
-		this.isExcludeAccruedInterest = isExcludeAccruedInterest;
+		this(null, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction, couponFlow, notionalFlow, payer, isExcludeAccruedInterest);
 	}
 
 	/**
@@ -106,14 +131,22 @@ public class Period extends AbstractPeriod {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		if(evaluationTime >= this.getPaymentDate()) {
+		double productToModelTimeOffset = 0;
+		try {
+			if(this.getReferenceDate() != null) {
+				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), this.getReferenceDate());
+			}
+		}
+		catch(UnsupportedOperationException e) {};
+
+		if(evaluationTime >= productToModelTimeOffset + getPaymentDate()) {
 			return new RandomVariable(0.0);
 		}
 
 		// Get random variables
 		RandomVariableInterface	notionalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
 		RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	numeraire				= model.getNumeraire(getPaymentDate());
+		RandomVariableInterface	numeraire				= model.getNumeraire(productToModelTimeOffset + getPaymentDate());
 		// @TODO: Add support for weighted Monte-Carlo.
 		//        RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
 
@@ -121,11 +154,11 @@ public class Period extends AbstractPeriod {
 
 		// Calculate numeraire relative value of coupon flows
 		if(couponFlow) {
-			values = getCoupon(model);
+			values = getCoupon(productToModelTimeOffset + getFixingDate(), model);
 			values = values.mult(notionalAtPeriodStart);
 			values = values.div(numeraire);
-			if(isExcludeAccruedInterest && evaluationTime >= getPeriodStart() && evaluationTime < getPeriodEnd()) {
-				double nonAccruedInterestRatio = (getPeriodEnd() - evaluationTime) / (getPeriodEnd() - getPeriodStart());
+			if(isExcludeAccruedInterest && evaluationTime >= productToModelTimeOffset + getPeriodStart() && evaluationTime < productToModelTimeOffset + getPeriodEnd()) {
+				double nonAccruedInterestRatio = (productToModelTimeOffset + getPeriodEnd() - evaluationTime) / (getPeriodEnd() - getPeriodStart());
 				values = values.mult(nonAccruedInterestRatio);
 			}
 		}
@@ -159,9 +192,9 @@ public class Period extends AbstractPeriod {
 	}
 
 	@Override
-	public RandomVariableInterface getCoupon(LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariableInterface getCoupon(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		// Calculate percentage value of coupon (not multiplied with notional, not discounted)
-		RandomVariableInterface values = getIndex().getValue(getFixingDate(), model);
+		RandomVariableInterface values = getIndex().getValue(evaluationTime, model);
 
 		// Apply daycount fraction
 		double periodDaycountFraction = getDaycountFraction();

@@ -9,6 +9,7 @@ package net.finmath.montecarlo.interestrate.products.components;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * @author Christian Fries
@@ -40,7 +41,17 @@ public class AccruingNotional implements AbstractNotional {
 
 	@Override
 	public RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		return previousPeriodNotional.getNotionalAtPeriodEnd(previousPeriod, model).mult(previousPeriod.getCoupon(model).add(1.0));
+		double productToModelTimeOffset = 0;
+		try {
+			if(previousPeriod.getReferenceDate() != null) {
+				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), previousPeriod.getReferenceDate());
+			}
+		}
+		catch(UnsupportedOperationException e) {};
+
+		RandomVariableInterface previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);
+		
+		return previousPeriodNotional.getNotionalAtPeriodEnd(previousPeriod, model).mult(previousPeriodCoupon.add(1.0));
 	}
 
 	@Override

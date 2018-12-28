@@ -1,5 +1,6 @@
 package net.finmath.montecarlo.interestrate.products.components;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
@@ -17,6 +18,8 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 
 	private static final long serialVersionUID = 8035860121112226049L;
 
+	private final LocalDateTime referenceDate;
+	
 	private final double periodStart;
 	private final double periodEnd;
 	private final double fixingDate;
@@ -29,8 +32,34 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	@Override
 	public abstract RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
-	public abstract RandomVariableInterface getCoupon(LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
+	public abstract RandomVariableInterface getCoupon(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
+	/**
+	 * Initialize basic properties of the period.
+	 *
+	 * @param referenceDate The date corresponding to time \( t = 0 \).
+	 * @param periodStart The period start.
+	 * @param periodEnd The period end.
+	 * @param fixingDate The fixing date (as double).
+	 * @param paymentDate The payment date (as double).
+	 * @param notional The notional object relevant for this period.
+	 * @param index The index (used for coupon calculation) associated with this period.
+	 * @param daycountFraction The daycount fraction (<code>coupon = index(fixingDate) * daycountFraction</code>).
+	 */
+	public AbstractPeriod(LocalDateTime referenceDate, double periodStart, double periodEnd,
+			double fixingDate, double paymentDate, AbstractNotional notional,
+			AbstractProductComponent index, double daycountFraction) {
+		super();
+		this.referenceDate = referenceDate;
+		this.periodStart = periodStart;
+		this.periodEnd = periodEnd;
+		this.fixingDate = fixingDate;
+		this.paymentDate = paymentDate;
+		this.notional = notional;
+		this.index = index;
+		this.daycountFraction = daycountFraction;
+	}
+	
 	/**
 	 * Initialize basic properties of the period.
 	 *
@@ -45,14 +74,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	public AbstractPeriod(double periodStart, double periodEnd,
 			double fixingDate, double paymentDate, AbstractNotional notional,
 			AbstractProductComponent index, double daycountFraction) {
-		super();
-		this.periodStart = periodStart;
-		this.periodEnd = periodEnd;
-		this.fixingDate = fixingDate;
-		this.paymentDate = paymentDate;
-		this.notional = notional;
-		this.index = index;
-		this.daycountFraction = daycountFraction;
+		this(null, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);
 	}
 
 	/**
@@ -75,6 +97,13 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	@Override
 	public String getCurrency() {
 		return notional.getCurrency();
+	}
+
+	/**
+	 * @return the reference date
+	 */
+	public LocalDateTime getReferenceDate() {
+		return referenceDate;
 	}
 
 	/**

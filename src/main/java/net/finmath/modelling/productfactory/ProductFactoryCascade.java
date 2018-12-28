@@ -32,7 +32,7 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	/**
 	 * Construct a factory cascade from an ordered list of product factories. When querying the factories the cascade will start at index 0.
 	 *
-	 * @param factories
+	 * @param factories A list of product factories, i.e. object implementing <code>ProductFactory</code> for the product descriptor <code>T</code>.
 	 */
 	public ProductFactoryCascade(List<ProductFactory<? extends T>> factories) {
 		super();

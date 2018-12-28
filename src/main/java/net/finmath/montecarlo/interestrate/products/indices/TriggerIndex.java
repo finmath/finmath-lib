@@ -46,7 +46,7 @@ public class TriggerIndex extends AbstractIndex {
 		RandomVariableInterface valueTrigger				= trigger.getValue(evaluationTime, model);
 		RandomVariableInterface valueIfTriggerNonNegative	= indexIfTriggerIsPositive.getValue(evaluationTime, model);
 		RandomVariableInterface valueIfTriggerIsNegative	= indexIfTriggerIsNegative.getValue(evaluationTime, model);
-		return valueTrigger.barrier(valueTrigger, valueIfTriggerNonNegative, valueIfTriggerIsNegative);
+		return valueTrigger.choose(valueIfTriggerNonNegative, valueIfTriggerIsNegative);
 	}
 
 	@Override

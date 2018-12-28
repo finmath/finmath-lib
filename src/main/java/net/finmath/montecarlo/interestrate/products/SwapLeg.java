@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.products;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -116,6 +118,10 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 		 */
 		Collection<AbstractProductComponent> periods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
+			LocalDateTime referenceDate = LocalDateTime.of(legSchedule.getReferenceDate(), LocalTime.of(0, 0));
+
+			double periodStart	= legSchedule.getPeriodStart(periodIndex);
+			double periodEnd	= legSchedule.getPeriodEnd(periodIndex);
 			double fixingDate	= legSchedule.getFixing(periodIndex);
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
@@ -141,9 +147,9 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 				coupon = new FixedCoupon(spreads[periodIndex]);
 			}
 
-			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notionals[periodIndex], coupon, periodLength, couponFlow, isNotionalExchanged, false);
+			Period period = new Period(referenceDate, periodStart, periodEnd, fixingDate, paymentDate, notionals[periodIndex], coupon,
+					periodLength, couponFlow, isNotionalExchanged, false /* payer */, false /* isExcludeAccruedInterest */);
 			periods.add(period);
-
 		}
 
 		components = new ProductCollection(periods);

@@ -54,17 +54,17 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	@Override
 	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		double modelToProductTimeOffset = 0;
+		double productToModelTimeOffset = 0;
 		try {
 			if(referenceDate != null) {
-				modelToProductTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), referenceDate);
+				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), referenceDate);
 			}
 		}
 		catch(UnsupportedOperationException e) {};
 
 		// Get random variables
-		RandomVariableInterface	numeraire				= model.getNumeraire(modelToProductTimeOffset + maturity);
-		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(modelToProductTimeOffset + maturity);
+		RandomVariableInterface	numeraire				= model.getNumeraire(productToModelTimeOffset + maturity);
+		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(productToModelTimeOffset + maturity);
 
 		// Calculate numeraire relative value
 		RandomVariableInterface values = model.getRandomVariableForConstant(1.0);
