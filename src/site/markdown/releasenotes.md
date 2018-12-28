@@ -6,9 +6,19 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 3.6.1 (02.12.2018)
+## 3.6.2 (29.12.2018)
 
 ### General
+
+ - Added interface for models which generically report the independent model parameters.
+   
+### Automatic Differentiation
+
+ - Added unit test showing the generic calculation of sensitivities (implicit function 
+   theorem).
+
+
+## 3.6.1 (02.12.2018)
 
 ### Automatic Differentiation
 
@@ -18,6 +28,7 @@ finmath lib Release Notes
   `diracDeltaApproximationMethod`, `diracDeltaApproximationWidthPerStdDev`, `diracDeltaApproximationDensityRegressionWidthPerStdDev`;
 
 - The key `barrierDiracWidth` is deprecated and replaced by `diracDeltaApproximationWidthPerStdDev`.
+
 
 ## 3.6.0 (25.11.2018)
 
