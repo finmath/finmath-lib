@@ -50,7 +50,7 @@ public class AccruingNotional implements AbstractNotional {
 		catch(UnsupportedOperationException e) {};
 
 		RandomVariableInterface previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);
-		
+
 		return previousPeriodNotional.getNotionalAtPeriodEnd(previousPeriod, model).mult(previousPeriodCoupon.add(1.0));
 	}
 

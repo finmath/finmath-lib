@@ -19,7 +19,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	private static final long serialVersionUID = 8035860121112226049L;
 
 	private final LocalDateTime referenceDate;
-	
+
 	private final double periodStart;
 	private final double periodEnd;
 	private final double fixingDate;
@@ -59,7 +59,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 		this.index = index;
 		this.daycountFraction = daycountFraction;
 	}
-	
+
 	/**
 	 * Initialize basic properties of the period.
 	 *
