@@ -29,8 +29,8 @@ public class ScheduleDescriptor {
 	/**
 	 * Construct a schedule descriptor via a list of periods and daycount convention.
 	 *
-	 * @param periods
-	 * @param daycountConvention
+	 * @param periods A list of <code>Period</code> objects.
+	 * @param daycountConvention The common daycount convention.
 	 */
 	public ScheduleDescriptor(List<Period> periods,
 			DayCountConventionInterface daycountConvention) {
@@ -41,7 +41,7 @@ public class ScheduleDescriptor {
 	/**
 	 * Extract a schedule descriptor from a schedule.
 	 *
-	 * @param schedule
+	 * @param schedule The schedule.
 	 */
 	public ScheduleDescriptor(ScheduleInterface schedule) {
 		super();

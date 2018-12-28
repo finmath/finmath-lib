@@ -23,6 +23,7 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	/**
 	 * Construct an AnalyticModelDescriptor mapping the collections of curves and volatility surfaces provided.
 	 *
+	 * @param referenceDate The date corresponding to time \( t = 0 \).
 	 * @param curves The collection of curves.
 	 * @param surfaces The collection of volatility surfaces.
 	 */
@@ -48,6 +49,7 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	/**
 	 * Construct an AnalyticModelDescriptor holding copies of the maps provided.
 	 *
+	 * @param referenceDate The date corresponding to time \( t = 0 \).
 	 * @param curvesMap The map of curves.
 	 * @param volatilitySurfaceMap The map of volatility surfaces.
 	 */

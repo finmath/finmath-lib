@@ -76,9 +76,9 @@ public class FIPXMLParser implements XMLParser {
 	 *
 	 * @param file File containing a swap trade.
 	 * @return Product descriptor extracted from the file.
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
+	 * @throws SAXException Thrown by the xml parser.
+	 * @throws IOException Thrown if the file in not found or another IO error occured.
+	 * @throws ParserConfigurationException Thrown by the xml parser.
 	 */
 	public InterestRateSwapProductDescriptor getSwapProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
 

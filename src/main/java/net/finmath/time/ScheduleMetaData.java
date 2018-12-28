@@ -15,7 +15,6 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRol
  *
  * @author Christian Fries
  * @author Roland Bachl
- *
  */
 public class ScheduleMetaData implements Serializable {
 
@@ -47,7 +46,7 @@ public class ScheduleMetaData implements Serializable {
 	/**
 	 * Determines the offset code of a forward contract from a schedule. Rounds the average period length to full months.
 	 *
-	 * @param schedule
+	 * @param schedule The schedule.
 	 * @return The offset code as String
 	 */
 	public static String getOffsetCodeFromSchedule(ScheduleInterface schedule) {
@@ -72,7 +71,7 @@ public class ScheduleMetaData implements Serializable {
 	 * If there are multiple groups of digits in the name, this method will extract the last.
 	 * If there is no number in the string, this method will return null.
 	 *
-	 * @param curveName
+	 * @param curveName The name of the curve.
 	 * @return The offset code as String
 	 */
 	public static String getOffsetCodeFromCurveName(String curveName) {
@@ -94,13 +93,13 @@ public class ScheduleMetaData implements Serializable {
 	 * Construct the ScheduleMetaData.
 	 *
 	 * @param frequency The default frequency.
-	 * @param daycountConvention
-	 * @param shortPeriodConvention
-	 * @param dateRollConvention
-	 * @param businessdayCalendar
-	 * @param fixingOffsetDays
-	 * @param paymentOffsetDays
-	 * @param isUseEndOfMonth
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 */
 	public ScheduleMetaData(Frequency frequency, DaycountConvention daycountConvention,
 			ShortPeriodConvention shortPeriodConvention, DateRollConvention dateRollConvention,
@@ -120,8 +119,8 @@ public class ScheduleMetaData implements Serializable {
 	/**
 	 * Generate a schedule descriptor for the given start and end date.
 	 *
-	 * @param startDate
-	 * @param endDate
+	 * @param startDate The start date.
+	 * @param endDate The end date.
 	 * @return The schedule descriptor
 	 */
 	public ScheduleDescriptor generateScheduleDescriptor(LocalDate startDate, LocalDate endDate) {
@@ -132,9 +131,9 @@ public class ScheduleMetaData implements Serializable {
 	/**
 	 * Generate a schedule for the given start and end date.
 	 *
-	 * @param referenceDate
-	 * @param startDate
-	 * @param endDate
+	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
+	 * @param startDate The start date.
+	 * @param endDate The end date.
 	 * @return The schedule
 	 */
 	public ScheduleInterface generateSchedule(LocalDate referenceDate, LocalDate startDate, LocalDate endDate) {
@@ -145,7 +144,7 @@ public class ScheduleMetaData implements Serializable {
 	/**
 	 * Generate a schedule with start / end date determined by an offset in months from the reference date.
 	 *
-	 * @param referenceDate
+	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
 	 * @param maturity Offset of the start date to the reference date in months
 	 * @param termination Offset of the end date to the reference date in months
 	 * @return The schedule
@@ -157,7 +156,7 @@ public class ScheduleMetaData implements Serializable {
 	/**
 	 * Generate a schedule with start / end date determined by an offset from the reference date.
 	 *
-	 * @param referenceDate
+	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
 	 * @param maturity Offset of the start date to the reference date
 	 * @param termination Offset of the end date to the reference date
 	 * @param unit The convention to use for the offset
