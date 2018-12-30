@@ -22,7 +22,7 @@ public class NotionalFromComponent implements AbstractNotional {
 
 	/**
 	 * Creates a notional which is derived by calling the getValue method on the period start of a given component.
-	 * 
+	 *
 	 * Note: The class performs a check of the measurability of the notional. If the notional is not \( F_{t} \)-measurable (for t = period start),
 	 * an exception is thrown.
 	 *

@@ -6,8 +6,6 @@
 
 package net.finmath.optimizer;
 
-import java.util.concurrent.Executors;
-
 import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 
 /**
