@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,20 +15,38 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 
 /**
  * A (floating) forward rate index for a given period start offset (offset from fixing) and period length.
  *
  * @author Christian Fries
- * @version 1.0
+ * @version 1.1
  */
 public class LIBORIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 1L;
 
+	private final String paymentOffsetCode;
+	private final BusinessdayCalendarInterface paymentBusinessdayCalendar;
+	private final BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
+
 	private final double periodStartOffset;
 	private final double periodLength;
 
+
+
+	public LIBORIndex(String name, String currency, String paymentOffsetCode,
+			BusinessdayCalendarInterface paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention) {
+		super(name, currency);
+		this.paymentOffsetCode = paymentOffsetCode;
+		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
+		this.paymentDateRollConvention = paymentDateRollConvention;
+		this.periodStartOffset = 0.0;
+		this.periodLength = Double.NaN;
+	}
 
 	/**
 	 * Creates a forward rate index for a given period start offset (offset from fixing) and period length.
@@ -36,7 +56,10 @@ public class LIBORIndex extends AbstractIndex {
 	 * @param periodLength The period length
 	 */
 	public LIBORIndex(String name, double periodStartOffset, double periodLength) {
-		super(name);
+		super(name, null);
+		this.paymentOffsetCode = null;
+		this.paymentBusinessdayCalendar = null;
+		this.paymentDateRollConvention = null;
 		this.periodStartOffset = periodStartOffset;
 		this.periodLength = periodLength;
 	}
@@ -67,11 +90,22 @@ public class LIBORIndex extends AbstractIndex {
 			return model.getRandomVariableForConstant(model.getModel().getForwardRateCurve().getForward(model.getModel().getAnalyticModel(), evaluationTime+periodStartOffset));
 		}
 
+		/*
+		 * The periodLength may be a given float or (more exact) derived from the rolling convetions.
+		 */
+		double periodLength = getPeriodLength(model, evaluationTime+periodStartOffset);
+		
+		/*
+		 * Fetch forward rate from model
+		 */
 		RandomVariableInterface forwardRate = model.getLIBOR(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
 
 		if(getName() != null && !model.getModel().getForwardRateCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
 			AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
+			if(analyticModel == null) {
+				throw new IllegalArgumentException("Index " + getName() + " does not aggree with model curve " + model.getModel().getForwardRateCurve().getName() + " and requires analytic model for adjustment. The analyticModel is null.");
+			}
 			ForwardCurveInterface indexForwardCurve = analyticModel.getForwardCurve(getName());
 			ForwardCurveInterface modelForwardCurve = model.getModel().getForwardRateCurve();
 			double adjustment = (1.0 + indexForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength) / (1.0 + modelForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength);
@@ -90,12 +124,27 @@ public class LIBORIndex extends AbstractIndex {
 		return periodStartOffset;
 	}
 
+	public double getPeriodLength(LIBORModelMonteCarloSimulationInterface model, double fixingTime) {
+		if(paymentOffsetCode != null) {
+			LocalDateTime referenceDate = model.getReferenceDate();
+			LocalDateTime fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
+			LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate.toLocalDate(), paymentOffsetCode, paymentDateRollConvention);
+			double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, LocalDateTime.of(paymentDate, fixingDate.toLocalTime()));
+
+			return paymentTime - fixingTime;
+		}
+		else {
+			return periodLength;
+		}
+	}
+
 	/**
 	 * Returns the tenor encoded as an pseudo act/365 daycount fraction.
 	 *
 	 * @return the periodLength The tenor as an act/365 daycount fraction.
 	 */
 	public double getPeriodLength() {
+		
 		return periodLength;
 	}
 
