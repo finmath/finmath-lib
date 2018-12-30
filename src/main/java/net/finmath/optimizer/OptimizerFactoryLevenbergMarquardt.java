@@ -6,8 +6,6 @@
 
 package net.finmath.optimizer;
 
-import java.util.concurrent.Executors;
-
 import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 
 /**
@@ -54,7 +52,7 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInter
 				initialParameters,
 				targetValues,
 				maxIterations,
-				Executors.newFixedThreadPool(maxThreads))
+				maxThreads)
 		{
 			private static final long serialVersionUID = -1628631567190057495L;
 
