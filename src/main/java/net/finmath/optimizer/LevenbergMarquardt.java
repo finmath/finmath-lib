@@ -275,10 +275,22 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 * @param maxIteration Maximum number of iterations.
 	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
 	 */
-	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, int numberOfThreads) {
-		this(initialParameters, targetValues, maxIteration, null);
+	public LevenbergMarquardt(RegularizationMethod regularizationMethod, double[] initialParameters, double[] targetValues, int maxIteration, int numberOfThreads) {
+		this(regularizationMethod, initialParameters, targetValues, maxIteration, null);
 
 		this.numberOfThreads = numberOfThreads;
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(double[] initialParameters, double[] targetValues, int maxIteration, int numberOfThreads) {
+		this(RegularizationMethod.LEVENBERG_MARQUARDT, initialParameters, targetValues, maxIteration, numberOfThreads);
 	}
 
 	/**
