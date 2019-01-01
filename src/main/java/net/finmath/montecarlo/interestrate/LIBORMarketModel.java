@@ -1290,7 +1290,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		for(Entry<Double, RandomVariableInterface> numeraireAdjustment : numeraireAdjustments.entrySet()) {
 			modelParameters.put("NUMERAIREADJUSTMENT("+ numeraireAdjustment.getKey() + ")", numeraireAdjustment.getValue());
 		}
-		
+
 		return modelParameters;
 	}
 

@@ -22,7 +22,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
  * A (floating) rate index representing the performance of the numeraire asset for a given period start offset (offset from fixing) and period length.
- * 
+ *
  * The index is given give
  * \( F = \frac{1}{dc(t-s)} ( N(t)/N(s) - 1 ) \).
  * where \( s \) denotes the period start and  \( t \) denotes the period end and dc is a given daycount convention.
@@ -84,7 +84,7 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 			double adjustment = forwardBondOnModelCurve/forwardBondOnIndexCurve;
 			numeraireRatio = numeraireRatio.mult(adjustment);
 		}
-		
+
 		RandomVariableInterface forwardRate = numeraireRatio.sub(1.0).div(periodLength);
 
 		return forwardRate;

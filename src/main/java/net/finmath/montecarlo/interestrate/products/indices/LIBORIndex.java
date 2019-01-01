@@ -94,7 +94,7 @@ public class LIBORIndex extends AbstractIndex {
 		 * The periodLength may be a given float or (more exact) derived from the rolling convetions.
 		 */
 		double periodLength = getPeriodLength(model, evaluationTime+periodStartOffset);
-		
+
 		/*
 		 * Fetch forward rate from model
 		 */
@@ -144,7 +144,7 @@ public class LIBORIndex extends AbstractIndex {
 	 * @return the periodLength The tenor as an act/365 daycount fraction.
 	 */
 	public double getPeriodLength() {
-		
+
 		return periodLength;
 	}
 
