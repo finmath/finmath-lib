@@ -5,6 +5,7 @@
  */
 package net.finmath.marketdata.products;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -171,9 +172,11 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		LocalDateTime modelReferenceDate = LocalDateTime.of(discountCurve.getReferenceDate(), LocalTime.of(0,0));
-		LocalDateTime productRefereceDate = LocalDateTime.of(legSchedule.getReferenceDate(), LocalTime.of(0,0));
 		double productToModelTimeOffset = 0;
+
+		// TODO modelReferenceDate should move to LocalDateTime.
+		LocalDate modelReferenceDate = discountCurve.getReferenceDate();
+		LocalDate productRefereceDate = legSchedule.getReferenceDate();
 		if(productRefereceDate != null && modelReferenceDate != null) {
 			productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, productRefereceDate);
 		}
@@ -188,8 +191,8 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double cashFlowEffectiveTime = cashFlowEffectiveDate.isPresent() ? FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, cashFlowEffectiveDate.get()) : evaluationTime;
-		
+		double cashFlowEffectiveTime = cashFlowEffectiveDate.isPresent() ? FloatingpointDate.getFloatingPointDateFromDate(LocalDateTime.of(modelReferenceDate, LocalTime.of(0,0)), cashFlowEffectiveDate.get()) : evaluationTime;
+
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixingDate	= productToModelTimeOffset + legSchedule.getFixing(periodIndex);
