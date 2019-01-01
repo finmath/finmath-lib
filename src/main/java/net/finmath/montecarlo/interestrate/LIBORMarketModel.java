@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
@@ -1098,9 +1099,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return getNumberOfComponents();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriod(int)
-	 */
 	@Override
 	public double getLiborPeriod(int timeIndex) {
 		if(timeIndex >= liborPeriodDiscretization.getNumberOfTimes() || timeIndex < 0) {
@@ -1109,17 +1107,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return liborPeriodDiscretization.getTime(timeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriodIndex(double)
-	 */
 	@Override
 	public int getLiborPeriodIndex(double time) {
 		return liborPeriodDiscretization.getTimeIndex(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriodDiscretization()
-	 */
 	@Override
 	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
@@ -1132,9 +1124,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return measure;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getIntegratedLIBORCovariance()
-	 */
 	@Override
 	public double[][][] getIntegratedLIBORCovariance() {
 		synchronized (integratedLIBORCovarianceLazyInitLock) {
@@ -1219,9 +1208,6 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		return swaptionMarketData;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getCovarianceModel()
-	 */
 	@Override
 	public AbstractLIBORCovarianceModel getCovarianceModel() {
 		return covarianceModel;
@@ -1300,6 +1286,11 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			}
 		}
 
+		// Add numeraire adjustments
+		for(Entry<Double, RandomVariableInterface> numeraireAdjustment : numeraireAdjustments.entrySet()) {
+			modelParameters.put("NUMERAIREADJUSTMENT("+ numeraireAdjustment.getKey() + ")", numeraireAdjustment.getValue());
+		}
+		
 		return modelParameters;
 	}
 
