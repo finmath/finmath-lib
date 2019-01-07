@@ -36,8 +36,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 *
 	 * @param products An array of products.
 	 */
-	public PortfolioMonteCarloProduct(
-			AbstractMonteCarloProduct[] products) {
+	public PortfolioMonteCarloProduct(AbstractMonteCarloProduct[] products) {
 		this(products, weightsOfOne(products.length));
 	}
 
@@ -68,19 +67,14 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 		return weightsOfOne;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
-	 */
 	@Override
-	public RandomVariableInterface getValue(final double evaluationTime,
-			final MonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariableInterface getValue(final double evaluationTime, final MonteCarloSimulationInterface model) throws CalculationException {
 
 		if(products == null || products.length == 0) {
 			return null;
 		}
 
-		// We do not allocate more threads the twice the number of processors.
-		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1),products.length);
+		int numberOfThreads = Runtime.getRuntime().availableProcessors();
 		ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 
 		RandomVariableInterface value = null;
@@ -97,12 +91,12 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 						return product.getValue(evaluationTime, model).mult(weight);
 					}
 				};
-				executor.submit(worker);
+				values.add(i, executor.submit(worker));
 			}
 
 			// Collect and sum results
 			value = values.get(0).get();
-			for(int i=1; i<products.length; i++) {
+			for(int i=0; i<products.length; i++) {
 				value = value.add(values.get(i).get());
 			}
 		} catch (InterruptedException e) {

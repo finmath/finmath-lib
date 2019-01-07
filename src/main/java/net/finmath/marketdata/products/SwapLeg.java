@@ -237,7 +237,24 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	}
 
 	public double[] getSpreads() {
-		return spreads;
+		return spreads.clone();
+	}
+
+	/**
+	 * Returns the constant spread, , if the spread of this leg is constant. Otherwise an <code>UnsupportedOperationException</code> is thrown.
+	 * 
+	 * @return The constant spread.
+	 */
+	public double getSpread() {
+		// Checking spread array for constant spreads
+		double spread = spreads[0];
+		for(int i=1; i<spreads.length; i++) {
+			if(spreads[i] != spread) {
+				throw new UnsupportedOperationException("The method getSpread() is only supported for swap legs with constant spreads.");
+			}
+		}
+
+		return spread;
 	}
 
 	public String getDiscountCurveName() {
