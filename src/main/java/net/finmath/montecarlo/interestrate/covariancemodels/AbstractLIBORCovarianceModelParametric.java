@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
@@ -136,24 +137,14 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		Arrays.fill(upperBound, new RandomVariable(Double.POSITIVE_INFINITY));
 		Arrays.fill(parameterStep,  new RandomVariable(parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4));
 
-		/*
-		 * We allow for 2 simultaneous calibration models.
-		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
-		 * one model with 2 times the number of paths. In the case of an analytic calibration
-		 * memory requirement is not the limiting factor.
-		 */
-		int numberOfThreads = 2;
-		StochasticOptimizerFactoryInterface optimizerFactoryParameter = (StochasticOptimizerFactoryInterface)calibrationParameters.get("optimizerFactory");
-
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
-		StochasticOptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
-		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
+		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
 		StochasticOptimizerInterface.ObjectiveFunction calibrationError = new StochasticOptimizerInterface.ObjectiveFunction() {
 			// Calculate model values for given parameters
@@ -208,26 +199,47 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			}
 		};
 
-		StochasticOptimizerInterface optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, calibrationTargetValues);
-		try {
-			optimizer.run();
-		}
-		catch(SolverException e) {
-			throw new CalculationException(e);
-		}
-		finally {
-			if(executor != null) {
-				executor.shutdown();
+		/*
+		 * We allow for 2 simultaneous calibration models.
+		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
+		 * one model with 2 times the number of paths. In the case of an analytic calibration
+		 * memory requirement is not the limiting factor.
+		 */
+		int numberOfThreads = 2;
+		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
+
+		/*
+		 * Obtain besterParameters and numberOfIterations
+		 */
+		RandomVariableInterface[] bestParameters;
+		int numberOfIterations;
+		
+		if(optimizerFactory instanceof StochasticOptimizerFactoryInterface) {
+			StochasticOptimizerInterface optimizer = ((StochasticOptimizerFactoryInterface)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, calibrationTargetValues);
+			try {
+				optimizer.run();
 			}
+			catch(SolverException e) {
+				throw new CalculationException(e);
+			}
+			finally {
+				if(executor != null) {
+					executor.shutdown();
+				}
+			}
+			// Get covariance model corresponding to the best parameter set.
+			bestParameters = optimizer.getBestFitParameters();
+			numberOfIterations = optimizer.getIterations();
+		}
+		else {
+			throw new IllegalArgumentException(optimizerFactory + " not supported.");
 		}
 
-		// Get covariance model corresponding to the best parameter set.
-		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
 		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
 
 		// Diagnostic output
 		if (logger.isLoggable(Level.FINE)) {
-			logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+			logger.fine("The solver required " + numberOfIterations + " iterations. The best fit parameters are:");
 
 			String logString = "Best parameters:";
 			for(int i=0; i<bestParameters.length; i++) {
