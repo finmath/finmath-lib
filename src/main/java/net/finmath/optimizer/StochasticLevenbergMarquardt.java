@@ -12,6 +12,7 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
@@ -140,9 +141,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	// Local state of the solver
 	private double		lambda;
 	private double		lambdaInitialValue = 0.001;
-	private double		lambdaDivisor = 1.3;
+	private double		lambdaDivisor = 3.0;
 	private double 		lambdaMultiplicator	= 2.0;
-	private int			numberOfPaths;
 
 	private double	errorTolerance;
 
@@ -166,6 +166,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * we will temporarily create an executor with the specified number of threads.
 	 * Note: If an executor was provided upon construction, it will not receive a shutdown when done.
 	 */
+	private int				numberOfThreads	= 1;
 	private ExecutorService executor					= null;
 	private boolean			executorShutdownWhenDone	= true;
 
@@ -249,6 +250,23 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 */
 	public StochasticLevenbergMarquardt(RandomVariableInterface[] initialParameters, RandomVariableInterface[] targetValues, RandomVariableInterface[] parameterSteps, int maxIteration, double errorTolerance, ExecutorService executorService) {
 		this(RegularizationMethod.LEVENBERG_MARQUARDT, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param regularizationMethod The regularization method to use. See {@link RegularizationMethod}.
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param parameterSteps Step used for finite difference approximation.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param errorTolerance Error tolerance / accuracy.
+	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public StochasticLevenbergMarquardt(RegularizationMethod regularizationMethod, RandomVariableInterface[] initialParameters, RandomVariableInterface[] targetValues, RandomVariableInterface[] parameterSteps, int maxIteration, double errorTolerance,  int numberOfThreads) {
+		this(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, null);
+
+		this.numberOfThreads = numberOfThreads;
 	}
 
 	/**
@@ -453,6 +471,14 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 	@Override
 	public void run() throws SolverException {
+		// Create an executor for concurrent evaluation of derivatives
+		if(numberOfThreads > 1) {
+			if(executor == null) {
+				executor = Executors.newFixedThreadPool(numberOfThreads);
+				executorShutdownWhenDone = true;
+			}
+		}
+
 		try {
 
 			// Allocate memory
