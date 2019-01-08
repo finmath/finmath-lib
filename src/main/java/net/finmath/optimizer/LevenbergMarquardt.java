@@ -530,9 +530,6 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.optimizer.Optimizer#getIterations()
-	 */
 	@Override
 	public int getIterations() {
 		return iteration;
@@ -646,9 +643,6 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 				Double.isInfinite(lambda);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.optimizer.Optimizer#run()
-	 */
 	@Override
 	public void run() throws SolverException {
 		// Create an executor for concurrent evaluation of derivatives
