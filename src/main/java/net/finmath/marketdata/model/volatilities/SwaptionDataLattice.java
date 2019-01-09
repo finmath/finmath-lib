@@ -504,20 +504,20 @@ public class SwaptionDataLattice implements Serializable {
 		ScheduleInterface floatSchedule	= floatMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
 		ScheduleInterface fixSchedule	= fixMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
 
-		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model) + fromDisplacement;
+		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 		double optionMaturity = floatSchedule.getFixing(0);
-		double optionStrike = forward + key.moneyness /10000.0 + fromDisplacement;
+		double optionStrike = forward + key.moneyness /10000.0;
 		double payoffUnit = SwapAnnuity.getSwapAnnuity(0, fixSchedule, model.getDiscountCurve(discountCurveName), model);
 
 		if(toConvention.equals(QuotingConvention.PRICE) && fromConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
-			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
+			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward + fromDisplacement, value, optionMaturity, optionStrike + fromDisplacement, payoffUnit);
 		}
 		else if(toConvention.equals(QuotingConvention.PRICE) && fromConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
 			return AnalyticFormulas.bachelierOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
 		}
 		else if(toConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL) && fromConvention.equals(QuotingConvention.PRICE)) {
-			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward -fromDisplacement+toDisplacement, optionMaturity,
-					optionStrike-fromDisplacement+toDisplacement, payoffUnit, value);
+			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward + toDisplacement, optionMaturity,
+					optionStrike + toDisplacement, payoffUnit, value);
 		}
 		else if(toConvention.equals(QuotingConvention.VOLATILITYNORMAL) && fromConvention.equals(QuotingConvention.PRICE)) {
 			return AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);
