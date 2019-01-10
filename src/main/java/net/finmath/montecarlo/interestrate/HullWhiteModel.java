@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -97,7 +99,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.4
  */
-public class HullWhiteModel extends AbstractModel implements LIBORModelInterface {
+public class HullWhiteModel extends AbstractModel implements HullWhiteModelInterface, LIBORModelInterface {
 
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;
 
@@ -111,6 +113,8 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	private final AbstractRandomVariableFactory	randomVariableFactory;
 
 	private final ShortRateVolatilityModelInterface volatilityModel;
+
+	private final Map<String, ?>			properties;
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
@@ -139,6 +143,7 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
+		this.properties			= properties;
 
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 	}
@@ -162,6 +167,11 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 			Map<String, ?>						properties
 			) {
 		this(new RandomVariableFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		return LocalDateTime.of(discountCurve.getReferenceDate(), LocalTime.of(0, 0));
 	}
 
 	@Override
@@ -617,9 +627,19 @@ public class HullWhiteModel extends AbstractModel implements LIBORModelInterface
 	}
 
 	@Override
+	public HullWhiteModel getCloneWithModifiedVolatilityModel(ShortRateVolatilityModelInterface volatilityModel) {
+		return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, curveModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+	}
+
+	@Override
+	public ShortRateVolatilityModelInterface getVolatilityModel() {
+		return volatilityModel;
+	}
+
+	@Override
 	public Map<String, RandomVariableInterface> getModelParameters() {
-		// TODO Add implementation
-		throw new UnsupportedOperationException();
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
 
