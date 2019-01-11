@@ -213,7 +213,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 */
 		RandomVariableInterface[] bestParameters;
 		int numberOfIterations;
-		
+
 		if(optimizerFactory instanceof StochasticOptimizerFactoryInterface) {
 			StochasticOptimizerInterface optimizer = ((StochasticOptimizerFactoryInterface)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, calibrationTargetValues);
 			try {
