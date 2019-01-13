@@ -179,7 +179,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 	/**
 	 * Returns the constant spread, , if the spread of this leg is constant. Otherwise an <code>UnsupportedOperationException</code> is thrown.
-	 * 
+	 *
 	 * @return The constant spread.
 	 */
 	public double getSpread() {

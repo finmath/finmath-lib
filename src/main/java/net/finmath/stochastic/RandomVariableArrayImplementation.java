@@ -16,7 +16,7 @@ import net.finmath.functions.DoubleTernaryOperator;
 /**
  * An implementation of <code>RandomVariableArray</code> implementing an array of <code>RandomVariableInterface</code> objects,
  * implementing the <code>RandomVariableInterface</code> interface.
- * 
+ *
  * @author Christian Fries
  */
 public class RandomVariableArrayImplementation implements RandomVariableArray {
@@ -30,7 +30,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 
 		if(elements.length == 0) throw new IllegalArgumentException("Empty array.");
 
-		// Ensure that all elements 
+		// Ensure that all elements
 		int level = getLevel(elements[0]);
 		for(int i=1; i<elements.length; i++) {
 			if(getLevel(elements[i]) != level) {
@@ -59,7 +59,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public int getNumberOfElements() {
 		return elements.length;
 	}
-	
+
 	@Override
 	public RandomVariableInterface getElement(int index) {
 		return elements[index];
