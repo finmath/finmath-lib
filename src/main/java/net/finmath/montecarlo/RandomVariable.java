@@ -31,7 +31,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Accesses performed exclusively through the interface
  * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
  *
- * The implementation require Java 8 or better.
+ * The implementation requires Java 8 or better.
  *
  * @author Christian Fries
  * @version 2.1
