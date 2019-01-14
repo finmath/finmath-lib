@@ -61,4 +61,10 @@ public interface RandomVariableArray extends RandomVariableInterface {
 	 * @return The scalar product of this array and the given array.
 	 */
 	RandomVariableInterface sumProduct(RandomVariableArray array);
+
+	@Override
+	default RandomVariableArray getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	{
+		return map(x -> conditionalExpectationOperator.getConditionalExpectation(x));
+	}
 }
