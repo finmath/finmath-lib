@@ -360,7 +360,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param cap The cap.
 	 * @return New random variable with the result of the function.
 	 */
-	default RandomVariableInterface cap(double cap) { return apply( x->Math.min(x,cap) ); }
+	RandomVariableInterface cap(double cap);
 
 	/**
 	 * Applies x &rarr; max(x,floor) to this random variable.

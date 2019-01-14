@@ -183,6 +183,11 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
+	public RandomVariableInterface cap(double cap) {
+		return new Scalar(Math.min(value, cap));
+	}
+
+	@Override
 	public RandomVariableInterface floor(double floor) {
 		return new Scalar(Math.max(value, floor));
 	}
