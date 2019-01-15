@@ -258,7 +258,7 @@ public class SwaptionDataLattice implements Serializable {
 		if(displacement != 0 && targetConvention != QuotingConvention.PAYERVOLATILITYLOGNORMAL) {
 			throw new IllegalArgumentException("SwaptionDataLattice only supports displacement, when using QuotingCOnvention.PAYERVOLATILITYLOGNORMAL.");
 		}
-		
+
 		//Reverse sign of moneyness, if switching between payer and receiver convention.
 		int reverse = ((targetConvention == QuotingConvention.RECEIVERPRICE) ^ (this.quotingConvention == QuotingConvention.RECEIVERPRICE)) ? -1 : 1;
 
