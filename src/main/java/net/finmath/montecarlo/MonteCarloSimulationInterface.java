@@ -35,7 +35,10 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	 *
 	 * @return The model's date corresponding to the time discretization's \( t = 0 \).
 	 */
-	LocalDateTime getReferenceDate();
+	default LocalDateTime getReferenceDate() {
+		// TODO remove default value in 4.0.0 - this is only for backward compatiblity.
+		return null;
+	}
 
 	/**
 	 * Returns the timeDiscretization.

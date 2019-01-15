@@ -24,5 +24,8 @@ public interface IndependentModelParameterProvider {
 	 *
 	 * @return Map of independent model parameters of this model.
 	 */
-	Map<String, RandomVariableInterface> getModelParameters();
+	default Map<String, RandomVariableInterface> getModelParameters() {
+		// TODO Remove default implementation in 4.0.0 version to enforce models complying with this interface. NOTE: The default here is to allow backward compatibility.
+		throw new UnsupportedOperationException();
+	}
 }

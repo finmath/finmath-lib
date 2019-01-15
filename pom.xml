@@ -11,7 +11,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>4.0.0-SNAPSHOT</version>
+	<version>3.6.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
