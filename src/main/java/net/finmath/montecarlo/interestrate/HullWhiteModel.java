@@ -10,7 +10,6 @@ import java.time.LocalTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
@@ -173,7 +172,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 		this(new RandomVariableFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
 
-	
+
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
 	 *
@@ -198,7 +197,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 			) throws CalculationException {
 
 		HullWhiteModel model = new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
-		
+
 		// Perform calibration, if data is given
 		if(calibrationItems != null && calibrationItems.length > 0) {
 			ShortRateVolatilityModelCalibrateable volatilityModelParametric = null;
@@ -225,9 +224,9 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 			}
 
 			ShortRateVolatilityModelCalibrateable volatilityModelCalibrated = volatilityModelParametric.getCloneCalibrated(model, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
-			
+
 			HullWhiteModel modelCalibrated = model.getCloneWithModifiedVolatilityModel(volatilityModelCalibrated);
-			
+
 			return modelCalibrated;
 		}
 		else {
