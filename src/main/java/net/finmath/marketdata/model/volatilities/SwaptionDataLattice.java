@@ -13,7 +13,6 @@ import java.util.TreeSet;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.time.ScheduleInterface;
@@ -38,6 +37,20 @@ import net.finmath.time.ScheduleMetaData;
 public class SwaptionDataLattice implements Serializable {
 
 	private static final long serialVersionUID = -3106297186490797114L;
+
+	/**
+	 * Quoting convention for swaption data in a lattice.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	public enum QuotingConvention {
+		PAYERVOLATILITYLOGNORMAL,
+		PAYERVOLATILITYNORMAL,
+		PAYERPRICE,
+		RECEIVERPRICE
+	}
 
 	private final LocalDate							referenceDate;
 	private final QuotingConvention					quotingConvention;
@@ -219,6 +232,7 @@ public class SwaptionDataLattice implements Serializable {
 
 	/**
 	 * Convert this lattice to store data in the given convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
 	 *
 	 * @param targetConvention The convention to store the data in.
 	 * @param model The model for context.
@@ -231,6 +245,7 @@ public class SwaptionDataLattice implements Serializable {
 
 	/**
 	 * Convert this lattice to store data in the given convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
 	 *
 	 * @param targetConvention The convention to store the data in.
 	 * @param displacement The displacement to use, if applicable.
@@ -240,6 +255,13 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public SwaptionDataLattice convertLattice(QuotingConvention targetConvention, double displacement, AnalyticModelInterface model) {
 
+		if(displacement != 0 && targetConvention != QuotingConvention.PAYERVOLATILITYLOGNORMAL) {
+			throw new IllegalArgumentException("SwaptionDataLattice only supports displacement, when using QuotingCOnvention.PAYERVOLATILITYLOGNORMAL.");
+		}
+		
+		//Reverse sign of moneyness, if switching between payer and receiver convention.
+		int reverse = ((targetConvention == QuotingConvention.RECEIVERPRICE) ^ (this.quotingConvention == QuotingConvention.RECEIVERPRICE)) ? -1 : 1;
+
 		List<Integer> maturities	= new ArrayList<>();
 		List<Integer> tenors		= new ArrayList<>();
 		List<Integer> moneynesss	= new ArrayList<>();
@@ -248,7 +270,7 @@ public class SwaptionDataLattice implements Serializable {
 		for(DataKey key : entryMap.keySet()) {
 			maturities.add(key.maturity);
 			tenors.add(key.tenor);
-			moneynesss.add(key.moneyness);
+			moneynesss.add(key.moneyness * reverse);
 			values.add(getValue(key.maturity, key.tenor, key.moneyness, targetConvention, displacement, model));
 		}
 
@@ -268,7 +290,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param other The lattice containing the data to be appended.
 	 * @param model The model to use for context, in case the other lattice follows a different convention.
 	 *
-	 * @return The lattice with the combined swpation entries.
+	 * @return The lattice with the combined swaption entries.
 	 */
 	public SwaptionDataLattice append(SwaptionDataLattice other, AnalyticModelInterface model) {
 
@@ -329,6 +351,15 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
+	 * Return all levels of moneyness for which data exists.
+	 *
+	 * @return The levels of moneyness.
+	 */
+	public int[] getMoneyness() {
+		return getGridNodesPerMoneyness().keySet().stream().sorted().mapToInt(Integer::intValue).toArray();
+	}
+
+	/**
 	 * Return all valid maturities for a given moneyness.
 	 *
 	 * @param moneyness The moneyness for which to get the maturities.
@@ -363,6 +394,7 @@ public class SwaptionDataLattice implements Serializable {
 			return new int[0];
 		}
 	}
+
 	/**
 	 * Returns true if the lattice contains an entry at the specified location.
 	 *
@@ -374,6 +406,7 @@ public class SwaptionDataLattice implements Serializable {
 	public boolean containsEntryFor(int maturity, int tenor, int moneyness) {
 		return entryMap.containsKey(new DataKey(maturity, tenor, moneyness));
 	}
+
 	/**
 	 * Return the value in the quoting convention of this lattice.
 	 *
@@ -424,10 +457,11 @@ public class SwaptionDataLattice implements Serializable {
 
 	/**
 	 * Return the value in the given quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
 	 *
 	 * @param maturity The maturity of the option as year fraction from the reference date.
 	 * @param tenor The tenor of the swap as year fraction from the reference date.
-	 * @param moneyness The moneyness in basis points on the par swap rate.
+	 * @param moneyness The moneyness in basis points on the par swap rate, as understood in the original convention.
 	 * @param convention The desired quoting convention.
 	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
 	 * @param model The model for context.
@@ -441,10 +475,11 @@ public class SwaptionDataLattice implements Serializable {
 
 	/**
 	 * Return the value in the given quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
 	 *
 	 * @param maturity The maturity of the option as offset in months from the reference date.
 	 * @param tenor The tenor of the swap as offset in months from the option maturity.
-	 * @param moneyness The moneyness in basis points on the par swap rate.
+	 * @param moneyness The moneyness in basis points on the par swap rate, as understood in the original convention.
 	 * @param convention The desired quoting convention.
 	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
 	 * @param model The model for context.
@@ -458,9 +493,10 @@ public class SwaptionDataLattice implements Serializable {
 
 	/**
 	 * Return the value in the given quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
 	 *
 	 * @param tenorCode The schedule of the swaption encoded in the format '6M10Y'
-	 * @param moneyness The moneyness in basis points on the par swap rate.
+	 * @param moneyness The moneyness in basis points on the par swap rate, as understood in the original convention.
 	 * @param convention The desired quoting convention.
 	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
 	 * @param model The model for context.
@@ -474,6 +510,7 @@ public class SwaptionDataLattice implements Serializable {
 
 	/**
 	 * Convert the value to requested quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
 	 *
 	 * @param value The value to convert.
 	 * @param key The key of the value.
@@ -489,14 +526,14 @@ public class SwaptionDataLattice implements Serializable {
 			QuotingConvention fromConvention, double fromDisplacement, AnalyticModelInterface model) {
 
 		if(toConvention == fromConvention) {
-			if(toConvention != QuotingConvention.VOLATILITYLOGNORMAL) {
+			if(toConvention != QuotingConvention.PAYERVOLATILITYLOGNORMAL) {
 				return value;
 			} else {
 				if(toDisplacement == fromDisplacement) {
 					return value;
 				} else {
-					return convertToConvention(convertToConvention(value, key, QuotingConvention.PRICE, 0, fromConvention, fromDisplacement, model),
-							key, toConvention, toDisplacement, QuotingConvention.PRICE, 0, model);
+					return convertToConvention(convertToConvention(value, key, QuotingConvention.PAYERPRICE, 0, fromConvention, fromDisplacement, model),
+							key, toConvention, toDisplacement, QuotingConvention.PAYERPRICE, 0, model);
 				}
 			}
 		}
@@ -506,25 +543,31 @@ public class SwaptionDataLattice implements Serializable {
 
 		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 		double optionMaturity = floatSchedule.getFixing(0);
-		double optionStrike = forward + key.moneyness /10000.0;
+		double offset = key.moneyness /10000.0;
+		double optionStrike = forward + (this.quotingConvention == QuotingConvention.RECEIVERPRICE ? -offset : offset);
 		double payoffUnit = SwapAnnuity.getSwapAnnuity(0, fixSchedule, model.getDiscountCurve(discountCurveName), model);
 
-		if(toConvention.equals(QuotingConvention.PRICE) && fromConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
+		if(toConvention.equals(QuotingConvention.PAYERPRICE) && fromConvention.equals(QuotingConvention.PAYERVOLATILITYLOGNORMAL)) {
 			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward + fromDisplacement, value, optionMaturity, optionStrike + fromDisplacement, payoffUnit);
 		}
-		else if(toConvention.equals(QuotingConvention.PRICE) && fromConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
+		else if(toConvention.equals(QuotingConvention.PAYERPRICE) && fromConvention.equals(QuotingConvention.PAYERVOLATILITYNORMAL)) {
 			return AnalyticFormulas.bachelierOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
 		}
-		else if(toConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL) && fromConvention.equals(QuotingConvention.PRICE)) {
-			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward + toDisplacement, optionMaturity,
-					optionStrike + toDisplacement, payoffUnit, value);
+		else if(toConvention.equals(QuotingConvention.PAYERPRICE) && fromConvention.equals(QuotingConvention.RECEIVERPRICE)) {
+			return value + (forward - optionStrike) * payoffUnit;
 		}
-		else if(toConvention.equals(QuotingConvention.VOLATILITYNORMAL) && fromConvention.equals(QuotingConvention.PRICE)) {
+		else if(toConvention.equals(QuotingConvention.PAYERVOLATILITYLOGNORMAL) && fromConvention.equals(QuotingConvention.PAYERPRICE)) {
+			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward + toDisplacement, optionMaturity, optionStrike + toDisplacement, payoffUnit, value);
+		}
+		else if(toConvention.equals(QuotingConvention.PAYERVOLATILITYNORMAL) && fromConvention.equals(QuotingConvention.PAYERPRICE)) {
 			return AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);
 		}
+		else if(toConvention.equals(QuotingConvention.RECEIVERPRICE) && fromConvention.equals(QuotingConvention.PAYERPRICE)) {
+			return value - (forward - optionStrike) * payoffUnit;
+		}
 		else {
-			return convertToConvention(convertToConvention(value, key, QuotingConvention.PRICE, 0, fromConvention, fromDisplacement, model),
-					key, toConvention, toDisplacement, QuotingConvention.PRICE, 0, model);
+			return convertToConvention(convertToConvention(value, key, QuotingConvention.PAYERPRICE, 0, fromConvention, fromDisplacement, model),
+					key, toConvention, toDisplacement, QuotingConvention.PAYERPRICE, 0, model);
 		}
 	}
 
