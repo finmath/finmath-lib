@@ -270,6 +270,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	/**
 	 * Create a Levenberg-Marquardt solver.
 	 *
+	 * @param regularizationMethod The regularization method to use. See {@link RegularizationMethod}.
 	 * @param initialParameters Initial value for the parameters where the solver starts its search.
 	 * @param targetValues Target values to achieve.
 	 * @param maxIteration Maximum number of iterations.
