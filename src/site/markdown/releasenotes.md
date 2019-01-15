@@ -6,6 +6,19 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 3.6.3 (15.01.2019)
+
+### General
+
+ - Some interfaces have default methods to allow compatibility with the 4.0.0 classes
+
+
+### Hull-White Model
+
+ - Added generic calibration of Hull-White model (adaption of the LMM calibration)
+   (adaption contributed by Ruben).
+
+
 ## 3.6.2 (29.12.2018)
 
 ### General
