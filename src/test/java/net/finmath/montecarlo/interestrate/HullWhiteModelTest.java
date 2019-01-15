@@ -136,6 +136,7 @@ public class HullWhiteModelTest {
 					new double[] { shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion } /* meanReversion */);
 
+			// TODO Left hand side type should be TermStructureModelInterface once interface are refactored
 			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
 					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
 
