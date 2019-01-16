@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +72,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 *
 	 * @author Christian Fries
 	 */
-	private static class OperatorTreeNode {
+	private static class OperatorTreeNode implements Serializable {
+
+		private static final long serialVersionUID = -8428352552169568990L;
+
 		private final Long id;
 		private final OperatorType operatorType;
 		private final List<OperatorTreeNode> arguments;
@@ -512,6 +517,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 					).collect(Collectors.toList()) : null;
 		}
+
+		private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+			stream.defaultReadObject();
+			indexOfNextRandomVariable.set(id+1);
+		}
+
 	}
 
 	/*
