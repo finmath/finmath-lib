@@ -7,6 +7,7 @@ package net.finmath.montecarlo.automaticdifferentiation.backward;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -520,7 +521,15 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
 			stream.defaultReadObject();
-			indexOfNextRandomVariable.set(id+1);
+			// Reassign id
+			try {
+				Field idField = this.getClass().getDeclaredField("id");
+				idField.setAccessible(true);
+				idField.set(this, indexOfNextRandomVariable.getAndIncrement());
+				idField.setAccessible(false);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				throw new RuntimeException("Unable to re-assing id of " + this.getClass().getSimpleName() + ".", e);
+			}
 		}
 
 	}
