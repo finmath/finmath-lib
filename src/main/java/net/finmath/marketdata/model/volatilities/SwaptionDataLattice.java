@@ -3,13 +3,15 @@ package net.finmath.marketdata.model.volatilities;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.stream.IntStream;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
@@ -137,7 +139,7 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
-	 * Create the lattice with {@link QuotingConvention}{@code .VOLATILITYLOGNORMAL}.
+	 * Create the lattice with {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
 	 *
 	 * @param referenceDate The reference date of the swaptions.
 	 * @param quotingConvention The quoting convention of the data.
@@ -161,7 +163,7 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
-	 * Create the lattice with {@link QuotingConvention}{@code .VOLATILITYLOGNORMAL}.
+	 * Create the lattice with {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
 	 *
 	 * @param referenceDate The reference date of the swaptions.
 	 * @param quotingConvention The quoting convention of the data.
@@ -185,7 +187,7 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
-	 * Create the lattice with {@link QuotingConvention}{@code .VOLATILITYLOGNORMAL}.
+	 * Create the lattice with {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
 	 *
 	 * @param referenceDate The reference date of the swaptions.
 	 * @param quotingConvention The quoting convention of the data.
@@ -325,13 +327,13 @@ public class SwaptionDataLattice implements Serializable {
 		}
 
 		//Otherwise create the map and return it.
-		Map<Integer, List<Set<Integer>>> newMap = new TreeMap<>();
+		Map<Integer, List<Set<Integer>>> newMap = new HashMap<>();
 
 		for(DataKey key : entryMap.keySet()) {
 			if(! newMap.containsKey(key.moneyness)) {
 				newMap.put(key.moneyness, new ArrayList<Set<Integer>>());
-				newMap.get(key.moneyness).add(new TreeSet<Integer>());
-				newMap.get(key.moneyness).add(new TreeSet<Integer>());
+				newMap.get(key.moneyness).add(new HashSet<Integer>());
+				newMap.get(key.moneyness).add(new HashSet<Integer>());
 			}
 			newMap.get(key.moneyness).get(0).add(key.maturity);
 			newMap.get(key.moneyness).get(1).add(key.tenor);
@@ -341,8 +343,8 @@ public class SwaptionDataLattice implements Serializable {
 		for(int moneyness : newMap.keySet()) {
 			int[][] values = new int[2][];
 
-			values[0] = newMap.get(moneyness).get(0).stream().mapToInt(Integer::intValue).toArray();
-			values[1] = newMap.get(moneyness).get(1).stream().mapToInt(Integer::intValue).toArray();
+			values[0] = newMap.get(moneyness).get(0).stream().sorted().mapToInt(Integer::intValue).toArray();
+			values[1] = newMap.get(moneyness).get(1).stream().sorted().mapToInt(Integer::intValue).toArray();
 
 			keyMap.put(moneyness, values);
 		}
@@ -356,7 +358,21 @@ public class SwaptionDataLattice implements Serializable {
 	 * @return The levels of moneyness.
 	 */
 	public int[] getMoneyness() {
-		return getGridNodesPerMoneyness().keySet().stream().sorted().mapToInt(Integer::intValue).toArray();
+		return getGridNodesPerMoneyness().keySet().stream().mapToInt(Integer::intValue).toArray();
+	}
+
+	/**
+	 * Return all maturities for which data exists.
+	 *
+	 * @return The maturities.
+	 */
+	public int[] getMaturities() {
+		Set<Integer> setMaturities	= new HashSet<>();
+
+		for(int moneyness : getGridNodesPerMoneyness().keySet()) {
+			setMaturities.addAll(Arrays.asList((IntStream.of(keyMap.get(moneyness)[0]).boxed().toArray(Integer[]::new))));
+		}
+		return setMaturities.stream().sorted().mapToInt(Integer::intValue).toArray();
 	}
 
 	/**
@@ -374,6 +390,20 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
+	 * Return all tenors for which data exists.
+	 *
+	 * @return The maturities.
+	 */
+	public int[] getTenors() {
+		Set<Integer> setTenors	= new HashSet<>();
+
+		for(int moneyness : getGridNodesPerMoneyness().keySet()) {
+			setTenors.addAll(Arrays.asList((IntStream.of(keyMap.get(moneyness)[1]).boxed().toArray(Integer[]::new))));
+		}
+		return setTenors.stream().sorted().mapToInt(Integer::intValue).toArray();
+	}
+
+	/**
 	 * Retrun all valid tenors for a given moneyness and maturity.
 	 *
 	 * @param moneyness The moneyness forwhich to get the tenors.
@@ -383,7 +413,7 @@ public class SwaptionDataLattice implements Serializable {
 	public int[] getTenors(int moneyness, int maturity) {
 
 		try {
-			Set<Integer> ret = new TreeSet<>();
+			List<Integer> ret = new ArrayList<>();
 			for(int tenor : getGridNodesPerMoneyness().get(moneyness)[1]) {
 				if(containsEntryFor(maturity, tenor, moneyness)) {
 					ret.add(tenor);
@@ -586,7 +616,7 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
-	 * @return The displacement, used in case of {@code QuotingConvention.VOLATILITYLOGNORMAL}.
+	 * @return The displacement, used in case of {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
 	 */
 	public double getDisplacement() {
 		return displacement;
