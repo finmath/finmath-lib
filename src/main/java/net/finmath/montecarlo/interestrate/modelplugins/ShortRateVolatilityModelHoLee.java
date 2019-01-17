@@ -15,6 +15,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModelInterface {
 
+	private static final long serialVersionUID = -4958907273981969081L;
+
 	private final double volatility;
 
 	private final TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0);

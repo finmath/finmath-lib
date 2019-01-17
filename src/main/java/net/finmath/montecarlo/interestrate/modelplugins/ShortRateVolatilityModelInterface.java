@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import java.io.Serializable;
+
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -16,7 +18,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public interface ShortRateVolatilityModelInterface {
+public interface ShortRateVolatilityModelInterface extends Serializable {
 
 	/**
 	 * Returns the time discretization \( \{ t_{i} \} \) associated

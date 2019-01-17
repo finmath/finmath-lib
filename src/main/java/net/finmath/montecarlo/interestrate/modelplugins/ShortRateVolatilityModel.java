@@ -14,6 +14,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class ShortRateVolatilityModel implements ShortRateVolatilityModelInterface {
 
+	private static final long serialVersionUID = 2471249188261414930L;
+
 	private TimeDiscretizationInterface timeDiscretization;
 	private double[] volatility;
 	private double[] meanReversion;

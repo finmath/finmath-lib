@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
@@ -101,7 +102,9 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.4
  */
-public class HullWhiteModel extends AbstractModel implements HullWhiteModelInterface, LIBORModelInterface {
+public class HullWhiteModel extends AbstractModel implements HullWhiteModelInterface, LIBORModelInterface, Serializable {
+
+	private static final long serialVersionUID = 8677410149401310062L;
 
 	private final TimeDiscretizationInterface		liborPeriodDiscretization;
 
