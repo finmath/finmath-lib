@@ -50,7 +50,7 @@ public class CalibrationItem {
 	/**
 	 * @return the calibrationWeight
 	 */
-	public double weight() {
+	public double getWeight() {
 		return weight;
 	}
 
@@ -58,6 +58,6 @@ public class CalibrationItem {
 	public String toString() {
 		return "CalibrationItem [product=" + getProduct()
 				+ ", targetValue=" + getTargetValue()
-				+ ", weight=" + weight() + "]";
+				+ ", weight=" + getWeight() + "]";
 	}
 }

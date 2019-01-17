@@ -141,7 +141,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 						@Override
 						public Double call() {
 							try {
-								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,termStructureModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].weight()).getAverage();
+								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,termStructureModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight()).getAverage();
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return 0.0;

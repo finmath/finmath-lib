@@ -562,7 +562,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			 */
 			CalibrationItem[] calibrationItemsLMM = new CalibrationItem[calibrationItemNames.size()];
 			for(int i=0; i<calibrationItemNames.size(); i++) {
-				calibrationItemsLMM[i] = new CalibrationItem(calibrationItems.get(i).getProduct(), calibrationItems.get(i).getTargetValue(), calibrationItems.get(i).weight());
+				calibrationItemsLMM[i] = new CalibrationItem(calibrationItems.get(i).getProduct(), calibrationItems.get(i).getTargetValue(), calibrationItems.get(i).getWeight());
 			}
 			TermStructureModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
 					liborPeriodDiscretization,
@@ -603,7 +603,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
 			final double[] calibrationWeights = new double[calibrationItems.size()];
 			for(int i=0; i<calibrationWeights.length; i++) {
-				calibrationWeights[i] = calibrationItems.get(i).weight();
+				calibrationWeights[i] = calibrationItems.get(i).getWeight();
 			}
 
 			int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
@@ -746,7 +746,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
 			final double[] calibrationWeights = new double[calibrationItems.size()];
 			for(int i=0; i<calibrationWeights.length; i++) {
-				calibrationWeights[i] = calibrationItems.get(i).weight();
+				calibrationWeights[i] = calibrationItems.get(i).getWeight();
 			}
 
 			int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());

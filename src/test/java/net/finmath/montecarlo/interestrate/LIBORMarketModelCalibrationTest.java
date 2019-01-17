@@ -497,7 +497,7 @@ public class LIBORMarketModelCalibrationTest {
 		 */
 		CalibrationItem[] calibrationItemsLMM = new CalibrationItem[calibrationItemNames.size()];
 		for(int i=0; i<calibrationItemNames.size(); i++) {
-			calibrationItemsLMM[i] = new CalibrationItem(calibrationItems.get(i).getProduct(),calibrationItems.get(i).getTargetValue(),calibrationItems.get(i).weight());
+			calibrationItemsLMM[i] = new CalibrationItem(calibrationItems.get(i).getProduct(),calibrationItems.get(i).getTargetValue(),calibrationItems.get(i).getWeight());
 		}
 		LIBORModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
 				liborPeriodDiscretization,
