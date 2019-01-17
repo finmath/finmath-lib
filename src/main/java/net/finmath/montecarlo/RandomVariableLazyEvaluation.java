@@ -945,16 +945,6 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		return trigger.apply(( x, y, z) -> (x >= 0 ? y : z), valueIfTriggerNonNegative, valueIfTriggerNegative);
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		return this.barrier(trigger, valueIfTriggerNonNegative, new RandomVariableLazyEvaluation(valueIfTriggerNonNegative.getFiltrationTime(), valueIfTriggerNegative));
-	}
-
-	@Override
 	public RandomVariableInterface invert() {
 		return apply(x -> 1.0 / x);
 	}

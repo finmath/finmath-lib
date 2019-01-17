@@ -202,7 +202,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 			if(option instanceof BermudanOption) {
 				RandomVariableInterface exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
 				for(double time : new double[] { 4.0, 3.0, 2.0}) {
-					underlyingAtMaturity = underlyingAtMaturity.barrier(exerciseTime.sub(time+0.01), underlyingAtMaturity, model.getAssetValue(time, 0));
+					underlyingAtMaturity = exerciseTime.sub(time+0.01).choose(underlyingAtMaturity, model.getAssetValue(time, 0));
 
 				}
 			}

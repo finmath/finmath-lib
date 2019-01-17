@@ -159,7 +159,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		ArrayList<RandomVariableInterface> basisFunctionList = new ArrayList<>();
 		double[] discretization = (new TimeDiscretization(min, numberOfBins, (max-min)/numberOfBins)).getAsDoubleArray();
 		for(double discretizationStep : discretization) {
-			RandomVariableInterface indicator = underlying.barrier(underlying.sub(discretizationStep), new RandomVariable(1.0), 0.0);
+			RandomVariableInterface indicator = underlying.sub(discretizationStep).choose(new RandomVariable(1.0), new RandomVariable(0.0));
 			basisFunctionList.add(indicator);
 		}
 

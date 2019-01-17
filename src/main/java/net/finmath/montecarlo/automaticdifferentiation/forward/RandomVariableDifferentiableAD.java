@@ -234,7 +234,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				derivative = X.apply(x -> (x == max) ? 1.0 : 0.0);
 				break;
 			case ABS:
-				derivative = X.barrier(X, one, minusOne);
+				derivative = X.choose(one, minusOne);
 				break;
 			case STDERROR:
 				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
@@ -256,18 +256,18 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				break;
 			case CAP:
 				if(differentialIndex == 0) {
-					derivative = X.barrier(X.sub(Y), zero, one);
+					derivative = X.sub(Y).choose(zero, one);
 				}
 				else {
-					derivative = X.barrier(X.sub(Y), one, zero);
+					derivative = X.sub(Y).choose(one, zero);
 				}
 				break;
 			case FLOOR:
 				if(differentialIndex == 0) {
-					derivative = X.barrier(X.sub(Y), one, zero);
+					derivative = X.sub(Y).choose(one, zero);
 				}
 				else {
-					derivative = X.barrier(X.sub(Y), zero, one);
+					derivative = X.sub(Y).choose(zero, one);
 				}
 				break;
 			case AVERAGE2:
@@ -343,13 +343,13 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					 */
 					derivative = Y.sub(Z);
 					double epsilon = 0.2*X.getStandardDeviation();
-					derivative = derivative.mult(X.barrier(X.add(epsilon/2), new RandomVariable(1.0), new RandomVariable(0.0)));
-					derivative = derivative.mult(X.barrier(X.sub(epsilon/2), new RandomVariable(0.0), new RandomVariable(1.0)));
+					derivative = derivative.mult(X.add(epsilon/2).choose(new RandomVariable(1.0), new RandomVariable(0.0)));
+					derivative = derivative.mult(X.sub(epsilon/2).choose(new RandomVariable(0.0), new RandomVariable(1.0)));
 					derivative = derivative.div(epsilon);
 				} else if(differentialIndex == 1) {
-					derivative = X.barrier(X, one, zero);
+					derivative = X.choose(one, zero);
 				} else {
-					derivative = X.barrier(X, zero, one);
+					derivative = X.choose(zero, one);
 				}
 				break;
 			default:
@@ -878,24 +878,6 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		return new RandomVariableDifferentiableAD(
 				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
 				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				OperatorType.BARRIER);
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAD ? ((RandomVariableDifferentiableAD)trigger).getValues() : trigger;
-		return new RandomVariableDifferentiableAD(
-				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative),
-				Arrays.asList(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				OperatorType.BARRIER);
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAD ? ((RandomVariableDifferentiableAD)trigger).getValues() : trigger;
-		return new RandomVariableDifferentiableAD(
-				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative, valueIfTriggerNegative),
-				Arrays.asList(trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative)),
 				OperatorType.BARRIER);
 	}
 

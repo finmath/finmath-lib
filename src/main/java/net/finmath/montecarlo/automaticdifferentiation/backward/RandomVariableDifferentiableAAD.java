@@ -1092,26 +1092,6 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAAD ? ((RandomVariableDifferentiableAAD)trigger).getValues() : trigger;
-		return new RandomVariableDifferentiableAAD(
-				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
-				Arrays.asList(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				OperatorType.CHOOSE,
-				getFactory());
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAAD ? ((RandomVariableDifferentiableAAD)trigger).getValues() : trigger;
-		return new RandomVariableDifferentiableAAD(
-				getValues().barrier(triggerValues.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative),
-				Arrays.asList(trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative)),
-				OperatorType.CHOOSE,
-				getFactory());
-	}
-
-	@Override
 	public RandomVariableInterface invert() {
 		return new RandomVariableDifferentiableAAD(
 				getValues().invert(),

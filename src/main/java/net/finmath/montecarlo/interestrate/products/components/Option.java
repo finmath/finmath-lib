@@ -16,6 +16,7 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * An option.
@@ -229,9 +230,9 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 
 		// Apply exercise criteria
 		if(strikeProduct != null) {
-			values = values.barrier(exerciseTrigger, values, strikeProduct.getValue(exerciseDate, model));
+			values = exerciseTrigger.choose(values, strikeProduct.getValue(exerciseDate, model));
 		} else {
-			values = values.barrier(exerciseTrigger, values, strikePrice);
+			values = exerciseTrigger.choose(values, new Scalar(strikePrice));
 		}
 
 		// Discount to evaluation time

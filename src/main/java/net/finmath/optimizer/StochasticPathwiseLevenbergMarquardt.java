@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
@@ -433,7 +434,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 					}
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
 						derivative[valueIndex] = derivative[valueIndex].sub(valueCurrent[valueIndex]).div(parameterFiniteDifference);
-						derivative[valueIndex] = derivative[valueIndex].barrier(derivative[valueIndex].isNaN().sub(0.5).mult(-1), derivative[valueIndex], 0.0);
+						derivative[valueIndex] = derivative[valueIndex].isNaN().sub(0.5).mult(-1).choose(derivative[valueIndex], new Scalar(0.0));
 					}
 					return derivative;
 				}
@@ -511,14 +512,14 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 				RandomVariableInterface isPointAccepted = errorMeanSquaredCurrent.sub(errorMeanSquaredTest);
 
 				for(int parameterIndex = 0; parameterIndex<parameterCurrent.length; parameterIndex++) {
-					parameterCurrent[parameterIndex] = parameterTest[parameterIndex].barrier(isPointAccepted, parameterTest[parameterIndex], parameterCurrent[parameterIndex]);
+					parameterCurrent[parameterIndex] = isPointAccepted.choose(parameterTest[parameterIndex], parameterCurrent[parameterIndex]);
 				}
 				for(int valueIndex = 0; valueIndex<valueCurrent.length; valueIndex++) {
-					valueCurrent[valueIndex] = valueTest[valueIndex].barrier(isPointAccepted, valueTest[valueIndex], valueCurrent[valueIndex]);
+					valueCurrent[valueIndex] = isPointAccepted.choose(valueTest[valueIndex], valueCurrent[valueIndex]);
 				}
 
 				// @TODO Always update change? - maybe improve?
-				errorRootMeanSquaredChange = isPointAccepted.barrier(isPointAccepted, errorMeanSquaredCurrent.sqrt().sub(errorMeanSquaredTest.sqrt()), errorRootMeanSquaredChange);
+				errorRootMeanSquaredChange = isPointAccepted.choose(errorMeanSquaredCurrent.sqrt().sub(errorMeanSquaredTest.sqrt()), errorRootMeanSquaredChange);
 				errorMeanSquaredCurrent = errorMeanSquaredTest.cap(errorMeanSquaredCurrent);
 
 				// Check if we are done

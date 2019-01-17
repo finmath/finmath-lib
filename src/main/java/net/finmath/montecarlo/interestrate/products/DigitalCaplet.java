@@ -66,7 +66,7 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 		RandomVariableInterface	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
 
 		RandomVariableInterface 			trigger		= libor.sub(strike).mult(periodLength);
-		RandomVariableInterface				values		= (new RandomVariable(1.0)).barrier(trigger, (new RandomVariable(periodLength)), (new RandomVariable(0.0)));
+		RandomVariableInterface				values		= trigger.choose((new RandomVariable(periodLength)), (new RandomVariable(0.0)));
 
 		// Get numeraire and probabilities for payment time
 		RandomVariableInterface	numeraire					= model.getNumeraire(paymentDate);

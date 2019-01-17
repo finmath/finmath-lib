@@ -388,18 +388,6 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		// barrier will become deprecated
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		// barrier will become deprecated
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public RandomVariableInterface invert() {
 		return map(x -> x.invert());
 	}

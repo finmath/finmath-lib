@@ -39,6 +39,7 @@ import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
@@ -106,7 +107,7 @@ public class ExposureTest {
 			 */
 			RandomVariableInterface valuesSwap = swap.getValue(observationDate, lmm);
 			RandomVariableInterface valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
-			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.barrier(valuesEstimatedExposure, new RandomVariable(1.0), 0.0));
+			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.choose(new RandomVariable(1.0), new RandomVariable(0.0)));
 
 			double exposureOnPath				= valuesEstimatedExposure.get(0);
 			double expectedPositiveExposure		= valuesPositiveExposure.getAverage();
@@ -147,7 +148,7 @@ public class ExposureTest {
 			 */
 			RandomVariableInterface valuesSwap = swap.getValue(observationDate, lmm);
 			RandomVariableInterface valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
-			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.barrier(valuesEstimatedExposure, new RandomVariable(1.0), 0.0));
+			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.choose(new Scalar(1.0), new Scalar(0.0)));
 
 			double exposureOnPath = valuesEstimatedExposure.get(0);
 			double expectedPositiveExposure				= valuesPositiveExposure.getAverage();

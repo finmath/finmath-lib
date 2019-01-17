@@ -473,9 +473,9 @@ public class RandomVariableAAD implements RandomVariableInterface {
 				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = X.apply(x -> (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0);
 				} else if(variableIndex == getParentIDs()[1]){
-					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
+					resultrandomvariable = X.choose(new RandomVariable(1.0), new RandomVariable(0.0));
 				} else {
-					resultrandomvariable = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
+					resultrandomvariable = X.choose(new RandomVariable(0.0), new RandomVariable(1.0));
 				}
 			default:
 				break;
@@ -1050,75 +1050,36 @@ public class RandomVariableAAD implements RandomVariableInterface {
 		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, valueIfTriggerNegative});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger,
-			RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, valueIfTriggerNegative});
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#barrier(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface, double)
-	 */
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger,
-			RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		return apply(OperatorType.BARRIER, new RandomVariableInterface[]{this, valueIfTriggerNonNegative, constructNewAADRandomVariable(valueIfTriggerNegative)});
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#invert()
-	 */
 	@Override
 	public RandomVariableInterface invert() {
 		return apply(OperatorType.INVERT, new RandomVariableInterface[]{this});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#abs()
-	 */
 	@Override
 	public RandomVariableInterface abs() {
 		return apply(OperatorType.ABS, new RandomVariableInterface[]{this});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, double)
-	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
 		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, constructNewAADRandomVariable(factor2)});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
 		return apply(OperatorType.ADDPRODUCT, new RandomVariableInterface[]{this, factor1, factor2});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
 		return apply(OperatorType.ADDRATIO, new RandomVariableInterface[]{this, numerator, denominator});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
-	 */
 	@Override
 	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
 		return apply(OperatorType.SUBRATIO, new RandomVariableInterface[]{this, numerator, denominator});
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#isNaN()
-	 */
 	@Override
 	public RandomVariableInterface isNaN() {
 		return getRandomVariableInterface().isNaN();

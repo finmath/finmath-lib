@@ -14,6 +14,7 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements the valuation of a Bermudan digital option paying
@@ -169,8 +170,8 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 			}
 
 			// If trigger is positive keep value, otherwise take underlying
-			value			= value.barrier(trigger, valueOfPaymentsIfExercised, value);
-			exerciseTime	= exerciseTime.barrier(trigger, exerciseTime, exerciseDate);
+			value			= trigger.choose(valueOfPaymentsIfExercised, value);
+			exerciseTime	= trigger.choose(exerciseTime, new Scalar(exerciseDate));
 		}
 
 		// Uncomment the following if you like to check exercise probabilities

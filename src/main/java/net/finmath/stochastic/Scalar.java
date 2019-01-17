@@ -336,16 +336,6 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		return trigger.choose(valueIfTriggerNonNegative, valueIfTriggerNegative);
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		return trigger.choose(valueIfTriggerNonNegative, new Scalar(valueIfTriggerNegative));
-	}
-
-	@Override
 	public RandomVariableInterface invert() {
 		return new Scalar(1.0/value);
 	}

@@ -9,6 +9,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements the valuation of a Flexi Cap (aka Auto Cap).
@@ -90,8 +91,8 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 
 			// Calculate payout
 			RandomVariableInterface payoff = libor.sub(strike).mult(periodLength);
-			RandomVariableInterface indicator = new RandomVariable(1.0).barrier(payoff, new RandomVariable(1.0), new RandomVariable(0.0));
-			indicator = indicator.barrier(numberOfExcercises, indicator, 0.0);
+			RandomVariableInterface indicator = payoff.choose(new RandomVariable(1.0), new RandomVariable(0.0));
+			indicator = numberOfExcercises.choose(indicator, new Scalar(0.0));
 
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 

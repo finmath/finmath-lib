@@ -93,9 +93,8 @@ public class ExposureEstimator extends AbstractProductComponent {
 			double valuesStdDev	= valuesFiltered.getStandardDeviation();
 			double valuesFloor		= valuesMean*(1.0-Math.signum(valuesMean)*1E-5)-3.0*valuesStdDev;
 			double valuesCap		= valuesMean*(1.0+Math.signum(valuesMean)*1E-5)+3.0*valuesStdDev;
-			RandomVariableInterface filter = values
-					.barrier(values.sub(valuesFloor), one, zero)
-					.mult(values.barrier(values.sub(valuesCap).mult(-1.0), one, zero));
+			RandomVariableInterface filter = values.sub(valuesFloor).choose(one, zero)
+					.mult(values.sub(valuesCap).mult(-1.0).choose(one, zero));
 			filter = filter.mult(filterNaN);
 			// Filter values and regressionBasisFunctions
 			values = values.mult(filter);

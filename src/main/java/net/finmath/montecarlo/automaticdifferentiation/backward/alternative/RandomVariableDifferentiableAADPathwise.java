@@ -139,7 +139,7 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 				resultrandomvariable = X.apply(x -> (x == max) ? 1.0 : 0.0);
 				break;
 			case ABS:
-				resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(-1.0));
+				resultrandomvariable = X.choose(new RandomVariable(1.0), new RandomVariable(-1.0));
 				break;
 			case STDERROR:
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));
@@ -161,18 +161,18 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 				break;
 			case CAP:
 				if(differentialIndex == 0) {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					resultrandomvariable = X.sub(Y).choose(new RandomVariable(0.0), new RandomVariable(1.0));
 				}
 				else {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					resultrandomvariable = X.sub(Y).choose(new RandomVariable(1.0), new RandomVariable(0.0));
 				}
 				break;
 			case FLOOR:
 				if(differentialIndex == 0) {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(1.0), new RandomVariable(0.0));
+					resultrandomvariable = X.sub(Y).choose(new RandomVariable(1.0), new RandomVariable(0.0));
 				}
 				else {
-					resultrandomvariable = X.barrier(X.sub(Y), new RandomVariable(0.0), new RandomVariable(1.0));
+					resultrandomvariable = X.sub(Y).choose(new RandomVariable(0.0), new RandomVariable(1.0));
 				}
 				break;
 			case AVERAGE2:
@@ -243,9 +243,9 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 				if(differentialIndex == 0) {
 					resultrandomvariable = X.apply(x -> (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0);
 				} else if(differentialIndex == 1) {
-					resultrandomvariable = X.barrier(X, new RandomVariable(1.0), new RandomVariable(0.0));
+					resultrandomvariable = X.choose(new RandomVariable(1.0), new RandomVariable(0.0));
 				} else {
-					resultrandomvariable = X.barrier(X, new RandomVariable(0.0), new RandomVariable(1.0));
+					resultrandomvariable = X.choose(new RandomVariable(0.0), new RandomVariable(1.0));
 				}
 			default:
 				break;
@@ -842,26 +842,8 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	@Override
 	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
 		return new RandomVariableDifferentiableAADPathwise(
-				getValues().barrier(getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
+				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
 				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				OperatorType.BARRIER);
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADPathwise ? ((RandomVariableDifferentiableAADPathwise)trigger).getValues() : trigger;
-		return new RandomVariableDifferentiableAADPathwise(
-				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				Arrays.asList(trigger, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				OperatorType.BARRIER);
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		RandomVariableInterface triggerValues = trigger instanceof RandomVariableDifferentiableAADPathwise ? ((RandomVariableDifferentiableAADPathwise)trigger).getValues() : trigger;
-		return new RandomVariableDifferentiableAADPathwise(
-				getValues().barrier(triggerValues, valueIfTriggerNonNegative, valueIfTriggerNegative),
-				Arrays.asList(trigger, valueIfTriggerNonNegative, new RandomVariable(valueIfTriggerNegative)),
 				OperatorType.BARRIER);
 	}
 

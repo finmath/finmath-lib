@@ -234,7 +234,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 
 	@Deprecated
 	public RandomVariableInterface getExerciseIndicator(LIBORModelMonteCarloSimulationInterface model) throws CalculationException{
-		return new RandomVariable(1.0).barrier(new RandomVariable(getValue(exerciseDate, model).mult(-1.0)), new RandomVariable(0.0), new RandomVariable(1.0));
+		return getValue(exerciseDate, model).mult(-1.0).choose(new RandomVariable(0.0), new RandomVariable(1.0));
 	}
 
 	public double getExerciseDate(){

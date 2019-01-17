@@ -1257,39 +1257,13 @@ public class RandomVariableLowMemory implements RandomVariableInterface {
 			else return valueIfTriggerNegative;
 		}
 		else {
-			int numberOfPaths = Math.max(Math.max(this.size(), valueIfTriggerNonNegative.size()), valueIfTriggerNegative.size());
+			int numberOfPaths = this.size();
 			float[] newRealizations = new float[numberOfPaths];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i] = (float) (realizations[i] >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i));
 			}
 			return new RandomVariableLowMemory(newTime, newRealizations);
 		}
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
-		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, trigger.getFiltrationTime());
-		newTime = Math.max(newTime, valueIfTriggerNonNegative.getFiltrationTime());
-		newTime = Math.max(newTime, valueIfTriggerNegative.getFiltrationTime());
-
-		if(isDeterministic() && trigger.isDeterministic() && valueIfTriggerNonNegative.isDeterministic() && valueIfTriggerNegative.isDeterministic()) {
-			double newValueIfNonStochastic = trigger.get(0) >= 0 ? valueIfTriggerNonNegative.get(0) : valueIfTriggerNegative.get(0);
-			return new RandomVariableLowMemory(newTime, newValueIfNonStochastic);
-		}
-		else {
-			int numberOfPaths = Math.max(Math.max(trigger.size(), valueIfTriggerNonNegative.size()), valueIfTriggerNegative.size());
-			float[] newRealizations = new float[numberOfPaths];
-			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i] = (float) (trigger.get(i) >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i));
-			}
-			return new RandomVariableLowMemory(newTime, newRealizations);
-		}
-	}
-
-	@Override
-	public RandomVariableInterface barrier(RandomVariableInterface trigger, RandomVariableInterface valueIfTriggerNonNegative, double valueIfTriggerNegative) {
-		return this.barrier(trigger, valueIfTriggerNonNegative, new RandomVariableLowMemory(valueIfTriggerNonNegative.getFiltrationTime(), valueIfTriggerNegative));
 	}
 
 	@Override

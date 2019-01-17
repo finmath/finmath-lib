@@ -14,6 +14,7 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Implements the pricing of a cancelable swap under a <code>LIBORModelMonteCarloSimulationInterface</code>
@@ -96,7 +97,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
-				values = values.barrier(valueIfExcercised, values, 0.0);
+				values = valueIfExcercised.choose(values, new Scalar(0.0));
 			}
 		}
 

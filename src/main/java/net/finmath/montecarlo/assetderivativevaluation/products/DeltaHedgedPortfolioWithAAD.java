@@ -106,7 +106,7 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 			RandomVariableInterface indicator = new RandomVariable(1.0);
 			if(exerciseTime != null) {
-				indicator = exerciseTime.barrier(exerciseTime.sub(model.getTime(timeIndex)+0.001), new RandomVariable(1.0), 0.0);
+				indicator = exerciseTime.sub(model.getTime(timeIndex)+0.001).choose(new RandomVariable(1.0), new RandomVariable(0.0));
 			}
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
@@ -173,7 +173,7 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 		Arrays.sort(values);
 		for(int i = 0; i<numberOfBins; i++) {
 			double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
-			RandomVariableInterface basisFunction = underlying.barrier(underlying.sub(binLeft), new RandomVariable(1.0), 0.0).mult(indicator);
+			RandomVariableInterface basisFunction = underlying.sub(binLeft).choose(new RandomVariable(1.0), new RandomVariable(0.0)).mult(indicator);
 			basisFunctions.add(basisFunction);
 		}
 

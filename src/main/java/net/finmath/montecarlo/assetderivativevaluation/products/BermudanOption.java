@@ -240,7 +240,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		Arrays.sort(values);
 		for(int i = 0; i<numberOfBins; i++) {
 			double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
-			RandomVariableInterface basisFunction = underlying.barrier(underlying.sub(binLeft), new RandomVariable(1.0), 0.0);
+			RandomVariableInterface basisFunction = underlying.sub(binLeft).choose(new RandomVariable(1.0), new RandomVariable(0.0));
 			basisFunctions.add(basisFunction);
 		}
 

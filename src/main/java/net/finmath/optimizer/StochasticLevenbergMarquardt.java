@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
@@ -426,7 +427,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 					}
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
 						derivative[valueIndex] = derivative[valueIndex].sub(valueCurrent[valueIndex]).div(parameterFiniteDifference);
-						derivative[valueIndex] = derivative[valueIndex].barrier(derivative[valueIndex].isNaN().sub(0.5).mult(-1), derivative[valueIndex], 0.0);
+						derivative[valueIndex] = derivative[valueIndex].isNaN().sub(0.5).mult(-1).choose(derivative[valueIndex], new Scalar(0.0));
 					}
 					return derivative;
 				}

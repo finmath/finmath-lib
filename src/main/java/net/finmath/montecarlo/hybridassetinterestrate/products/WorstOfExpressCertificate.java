@@ -11,6 +11,7 @@ import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
 import net.finmath.montecarlo.hybridassetinterestrate.HybridAssetLIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 
 /**
  * @author Christian Fries
@@ -63,8 +64,8 @@ public class WorstOfExpressCertificate implements ProductInterface {
 			payment = payment.div(model.getNumeraire(exerciseDates[triggerIndex]));
 
 			// if trigger >= 0 we have a payment and set the exerciseIndicator to 0.
-			values = values.add(trigger.barrier(trigger, payment, 0.0));
-			exerciseIndicator = exerciseIndicator.barrier(trigger, zero, exerciseIndicator);
+			values = values.add(trigger.choose(payment, new Scalar(0.0)));
+			exerciseIndicator = trigger.choose(zero, exerciseIndicator);
 		}
 
 		/*
