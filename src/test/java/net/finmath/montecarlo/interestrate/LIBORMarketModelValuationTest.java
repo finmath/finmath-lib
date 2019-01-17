@@ -31,7 +31,6 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
-import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelExponentialForm5Param;
@@ -146,7 +145,7 @@ public class LIBORMarketModelValuationTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		LIBORMarketModel.CalibrationItem[] calibrationItems = new LIBORMarketModel.CalibrationItem[0];
+		CalibrationItem[] calibrationItems = new CalibrationItem[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
@@ -790,9 +789,9 @@ public class LIBORMarketModelValuationTest {
 		double deviationSum = 0.0;
 		double deviationSquaredSum = 0.0;
 		for (int i = 0; i < calibrationItems.size(); i++) {
-			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
+			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).getProduct();
 			double valueModel = calibrationProduct.getValue(simulationCalibrated);
-			double valueTarget = calibrationItems.get(i).calibrationTargetValue;
+			double valueTarget = calibrationItems.get(i).getTargetValue().getAverage();
 			deviationSum += (valueModel-valueTarget);
 			deviationSquaredSum += Math.pow(valueModel-valueTarget,2);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));

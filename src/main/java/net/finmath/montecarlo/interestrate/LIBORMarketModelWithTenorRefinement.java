@@ -88,31 +88,6 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	private AbstractProcessInterface									numerairesProcess = null;
 
 	/**
-	 * A class for calibration items, that is a tripple (P,V,w) where P is a product, V is a target value and w is a weight.
-	 *
-	 * @author Christian Fries
-	 */
-	public static class CalibrationItem {
-		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
-		public final double								calibrationTargetValue;
-		public final double								calibrationWeight;
-
-		public CalibrationItem(AbstractLIBORMonteCarloProduct calibrationProduct, double calibrationTargetValue, double calibrationWeight) {
-			super();
-			this.calibrationProduct		= calibrationProduct;
-			this.calibrationTargetValue	= calibrationTargetValue;
-			this.calibrationWeight		= calibrationWeight;
-		}
-
-		@Override
-		public String toString() {
-			return "CalibrationItem [calibrationProduct=" + calibrationProduct
-					+ ", calibrationTargetValue=" + calibrationTargetValue
-					+ ", calibrationWeight=" + calibrationWeight + "]";
-		}
-	}
-
-	/**
 	 * Creates a model for given covariance.
 	 *
 	 * Creates a discretized Heath-Jarrow-Morton model / LIBOR market model with dynamic tenor refinement, see
@@ -153,7 +128,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
 	 * @param covarianceModel The covariance model to use.
-	 * @param calibrationItems The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
+	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
@@ -164,7 +139,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			TermStructureCovarianceModelInterface	covarianceModel,
-			CalibrationItem[]					calibrationItems,
+			CalibrationItem[]					calibrationProducts,
 			Map<String, ?>						properties
 			) throws CalculationException {
 
@@ -181,7 +156,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		this.covarianceModel	= covarianceModel;
 
 		// Perform calibration, if data is given
-		if(calibrationItems != null && calibrationItems.length > 0) {
+		if(calibrationProducts != null && calibrationProducts.length > 0) {
 			TermStructureCovarianceModelParametric covarianceModelParametric = null;
 			try {
 				covarianceModelParametric = (TermStructureCovarianceModelParametric)covarianceModel;
@@ -190,17 +165,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 				throw new ClassCastException("Calibration is currently restricted to parametric covariance models (TermStructureCovarianceModelParametricInterface).");
 			}
 
-			// @TODO Should be more elegant. Convert array for constructor
-			AbstractLIBORMonteCarloProduct[]	calibrationProducts		= new AbstractLIBORMonteCarloProduct[calibrationItems.length];
-			double[]							calibrationTargetValues	= new double[calibrationItems.length];
-			double[]							calibrationWeights		= new double[calibrationItems.length];
-			for(int i=0; i<calibrationTargetValues.length; i++) {
-				calibrationProducts[i]		= calibrationItems[i].calibrationProduct;
-				calibrationTargetValues[i]	= calibrationItems[i].calibrationTargetValue;
-				calibrationWeights[i]		= calibrationItems[i].calibrationWeight;
-			}
-
-			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
+			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationParameters);
 		}
 
 		numeraires = new ConcurrentHashMap<>();

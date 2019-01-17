@@ -3,6 +3,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.CalibrationItem;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -38,7 +39,6 @@ public interface LIBORCovarianceModelCalibrateable {
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
 	LIBORCovarianceModelCalibrateable getCloneCalibrated(LIBORMarketModelInterface calibrationModel,
-			AbstractLIBORMonteCarloProduct[] calibrationProducts, RandomVariableInterface[] calibrationTargetValues,
-			double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException;
+			CalibrationItem[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException;
 
 }

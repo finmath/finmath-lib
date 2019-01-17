@@ -50,7 +50,6 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
-import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
 import net.finmath.montecarlo.interestrate.covariancemodels.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.covariancemodels.DisplacedLocalVolatilityModel;
 import net.finmath.montecarlo.interestrate.covariancemodels.LIBORCovarianceModelFromVolatilityAndCorrelation;
@@ -450,10 +449,10 @@ public class LIBORMarketModelCalibrationAADTest {
 			/*
 			 * Create corresponding LIBOR Market Model
 			 */
-			LIBORMarketModel.CalibrationItem[] calibrationItemsLMM = new LIBORMarketModel.CalibrationItem[calibrationItemNames.size()];
+			CalibrationItem[] calibrationItemsLMM = new CalibrationItem[calibrationItemNames.size()];
 			for(int i=0; i<calibrationItemNames.size(); i++){
 				CalibrationItem calibrationItem = valueUnit == ValueUnit.VALUE ? calibrationItemsVALUE.get(i) : calibrationItemsVOLATILITYNORMAL.get(i);
-				calibrationItemsLMM[i] = new LIBORMarketModel.CalibrationItem(calibrationItem.calibrationProduct,calibrationItem.calibrationTargetValue,calibrationItem.calibrationWeight);
+				calibrationItemsLMM[i] = new CalibrationItem(calibrationItem.getProduct(),calibrationItem.getTargetValue(),calibrationItem.weight());
 			}
 			LIBORModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
 					liborPeriodDiscretization,
@@ -703,8 +702,8 @@ public class LIBORMarketModelCalibrationAADTest {
 		for (int i = 0; i < calibrationItemsVALUE.size(); i++) {
 			CalibrationItem calibrationItem = calibrationItemsVALUE.get(i);
 			try {
-				double valueModel = calibrationItem.calibrationProduct.getValue(simulationCalibrated);
-				double valueTarget = calibrationItem.calibrationTargetValue;
+				double valueModel = calibrationItem.getProduct().getValue(simulationCalibrated);
+				double valueTarget = calibrationItem.getTargetValue().getAverage();
 				double error = valueModel-valueTarget;
 				deviationSumVALUE += error;
 				deviationSquaredSumVALUE += error*error;
@@ -720,8 +719,8 @@ public class LIBORMarketModelCalibrationAADTest {
 		for (int i = 0; i < calibrationItemsVALUE.size(); i++) {
 			CalibrationItem calibrationItem = calibrationItemsVOLATILITYNORMAL.get(i);
 			try {
-				double valueModel = calibrationItem.calibrationProduct.getValue(simulationCalibrated);
-				double valueTarget = calibrationItem.calibrationTargetValue;
+				double valueModel = calibrationItem.getProduct().getValue(simulationCalibrated);
+				double valueTarget = calibrationItem.getTargetValue().getAverage();
 				double error = valueModel-valueTarget;
 				deviationSumVOLATILITYNORMAL += error;
 				deviationSquaredSumVOLATILITYNORMAL += error*error;

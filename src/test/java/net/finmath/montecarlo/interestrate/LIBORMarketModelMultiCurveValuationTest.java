@@ -27,7 +27,6 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
@@ -167,7 +166,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		LIBORMarketModel.CalibrationItem[] calibrationItems = new LIBORMarketModel.CalibrationItem[0];
+		CalibrationItem[] calibrationItems = new CalibrationItem[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
@@ -637,9 +636,9 @@ public class LIBORMarketModelMultiCurveValuationTest {
 
 		double deviationSum = 0.0;
 		for (int i = 0; i < calibrationItems.size(); i++) {
-			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
+			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).getProduct();
 			double valueModel = calibrationProduct.getValue(calMode);
-			double valueTarget = calibrationItems.get(i).calibrationTargetValue;
+			double valueTarget = calibrationItems.get(i).getTargetValue().getAverage();
 			deviationSum += (valueModel-valueTarget);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
 		}

@@ -27,6 +27,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.montecarlo.interestrate.CalibrationItem;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -192,7 +193,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		LIBORMarketModel.CalibrationItem[] calibrationItems = new LIBORMarketModel.CalibrationItem[0];
+		CalibrationItem[] calibrationItems = new CalibrationItem[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model

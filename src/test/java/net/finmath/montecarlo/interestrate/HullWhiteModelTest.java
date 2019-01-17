@@ -214,7 +214,7 @@ public class HullWhiteModelTest {
 			properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
 
 			// Empty array of calibration items - hence, model will use given covariance
-			LIBORMarketModel.CalibrationItem[] calibrationItems = new LIBORMarketModel.CalibrationItem[0];
+			CalibrationItem[] calibrationItems = new CalibrationItem[0];
 
 			/*
 			 * Create corresponding LIBOR Market Model

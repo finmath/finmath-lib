@@ -44,7 +44,6 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.interestrate.LIBORMarketModelWithTenorRefinement.CalibrationItem;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.BlendedLocalVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.DisplacedLocalVolatilityModel;
@@ -272,10 +271,10 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationItems.size(); i++) {
-			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
+			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).getProduct();
 			try {
 				double valueModel = calibrationProduct.getValue(simulationCalibrated);
-				double valueTarget = calibrationItems.get(i).calibrationTargetValue;
+				double valueTarget = calibrationItems.get(i).getTargetValue().getAverage();
 				double error = valueModel-valueTarget;
 				deviationSum += error;
 				deviationSquaredSum += error*error;
@@ -465,7 +464,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				// Set model properties
 				Map<String, Object> properties = new HashMap<>();
 
-				Double accuracy = new Double(1E-12);
+				Double accuracy = 1E-12;
 				int maxIterations = 400;
 				int numberOfThreads = 6;
 				OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
@@ -561,9 +560,9 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			/*
 			 * Create corresponding LIBOR Market Model
 			 */
-			LIBORMarketModel.CalibrationItem[] calibrationItemsLMM = new LIBORMarketModel.CalibrationItem[calibrationItemNames.size()];
+			CalibrationItem[] calibrationItemsLMM = new CalibrationItem[calibrationItemNames.size()];
 			for(int i=0; i<calibrationItemNames.size(); i++) {
-				calibrationItemsLMM[i] = new LIBORMarketModel.CalibrationItem(calibrationItems.get(i).calibrationProduct,calibrationItems.get(i).calibrationTargetValue,calibrationItems.get(i).calibrationWeight);
+				calibrationItemsLMM[i] = new CalibrationItem(calibrationItems.get(i).getProduct(), calibrationItems.get(i).getTargetValue(), calibrationItems.get(i).weight());
 			}
 			TermStructureModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
 					liborPeriodDiscretization,
@@ -599,12 +598,12 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
 			final double[] calibrationTargetValues = new double[calibrationItems.size()];
 			for(int i=0; i<calibrationTargetValues.length; i++) {
-				calibrationTargetValues[i] = calibrationItems.get(i).calibrationTargetValue;
+				calibrationTargetValues[i] = calibrationItems.get(i).getTargetValue().getAverage();
 			}
 
 			final double[] calibrationWeights = new double[calibrationItems.size()];
 			for(int i=0; i<calibrationWeights.length; i++) {
-				calibrationWeights[i] = calibrationItems.get(i).calibrationWeight;
+				calibrationWeights[i] = calibrationItems.get(i).weight();
 			}
 
 			int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
@@ -648,13 +647,13 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							@Override
 							public Double call() {
 								try {
-									return calibrationItems.get(workerCalibrationProductIndex).calibrationProduct.getValue(liborMarketModelMonteCarloSimulation);
+									return calibrationItems.get(workerCalibrationProductIndex).getProduct().getValue(liborMarketModelMonteCarloSimulation);
 								} catch (CalculationException e) {
 									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-									return new Double(calibrationItems.get(workerCalibrationProductIndex).calibrationTargetValue);
+									return calibrationItems.get(workerCalibrationProductIndex).getTargetValue().getAverage();
 								} catch (Exception e) {
 									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-									return new Double(calibrationItems.get(workerCalibrationProductIndex).calibrationTargetValue);
+									return calibrationItems.get(workerCalibrationProductIndex).getTargetValue().getAverage();
 								}
 							}
 						};
@@ -742,12 +741,12 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
 			final double[] calibrationTargetValues = new double[calibrationItems.size()];
 			for(int i=0; i<calibrationTargetValues.length; i++) {
-				calibrationTargetValues[i] = calibrationItems.get(i).calibrationTargetValue;
+				calibrationTargetValues[i] = calibrationItems.get(i).getTargetValue().getAverage();
 			}
 
 			final double[] calibrationWeights = new double[calibrationItems.size()];
 			for(int i=0; i<calibrationWeights.length; i++) {
-				calibrationWeights[i] = calibrationItems.get(i).calibrationWeight;
+				calibrationWeights[i] = calibrationItems.get(i).weight();
 			}
 
 			int numberOfThreadsForProductValuation = 2 * Math.min(2, Runtime.getRuntime().availableProcessors());
@@ -791,7 +790,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							@Override
 							public Double call() {
 								try {
-									return  calibrationItems.get(workerCalibrationProductIndex).calibrationProduct.getValue(liborMarketModelMonteCarloSimulation);
+									return  calibrationItems.get(workerCalibrationProductIndex).getProduct().getValue(liborMarketModelMonteCarloSimulation);
 								} catch (CalculationException e) {
 									//									e.printStackTrace();
 									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
@@ -877,10 +876,10 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationItems.size(); i++) {
-			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).calibrationProduct;
+			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).getProduct();
 			try {
 				double valueModel = calibrationProduct.getValue(simulationCalibrated);
-				double valueTarget = calibrationItems.get(i).calibrationTargetValue;
+				double valueTarget = calibrationItems.get(i).getTargetValue().getAverage();
 				double error = valueModel-valueTarget;
 				deviationSum += error;
 				deviationSquaredSum += error*error;

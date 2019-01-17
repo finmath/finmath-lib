@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.interestrate.CalibrationItem;
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.montecarlo.interestrate.TermStructureModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
@@ -69,13 +70,11 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 *
 	 * @param calibrationModel Model to be used for the calibration.
 	 * @param calibrationProducts Vector of calibration products.
-	 * @param calibrationTargetValues Vector of corresponding target values.
-	 * @param calibrationWeights Vector of corresponding weights.
 	 * @param calibrationParameters Property map of calibration parameters.
 	 * @return A clone of this model, using the calibrated parameters.
 	 * @throws CalculationException Exception indicating failure in calibration.
 	 */
-	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, final double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException {
+	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final CalibrationItem[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
@@ -91,7 +90,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		double[] lowerBound = new double[initialParameters.length];
 		double[] upperBound = new double[initialParameters.length];
 		double[] parameterStep = new double[initialParameters.length];
-		double[] zero = new double[calibrationTargetValues.length];
+		double[] zero = new double[calibrationProducts.length];
 		Arrays.fill(lowerBound, 0);
 		Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
 		Arrays.fill(parameterStep, parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4);
@@ -142,13 +141,13 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 						@Override
 						public Double call() {
 							try {
-								return calibrationWeights[workerCalibrationProductIndex] * (calibrationProducts[workerCalibrationProductIndex].getValue(termStructureModelMonteCarloSimulation) - calibrationTargetValues[workerCalibrationProductIndex]);
+								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,termStructureModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].weight()).getAverage();
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return new Double(0.0);
+								return 0.0;
 							} catch (Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return new Double(0.0);
+								return 0.0;
 							}
 						}
 					};

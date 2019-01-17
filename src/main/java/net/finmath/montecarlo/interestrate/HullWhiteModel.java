@@ -16,7 +16,6 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.interestrate.LIBORMarketModel.CalibrationItem;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelCalibrateable;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
@@ -182,7 +181,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
 	 * @param discountCurve The disocuntCurve (currently also used to determine the forward curve).
 	 * @param volatilityModel The volatility model specifying mean reversion and instantaneous volatility of the short rate.
-	 * @param calibrationItems The products to be used for calibration
+	 * @param calibrationProducts The products to be used for calibration
 	 * @param properties The calibration properties
 	 */
 	public static HullWhiteModel of(
@@ -192,14 +191,14 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			ShortRateVolatilityModelInterface	volatilityModel,
-			CalibrationItem[]					calibrationItems,
+			CalibrationItem[]					calibrationProducts,
 			Map<String, Object>					properties
 			) throws CalculationException {
 
 		HullWhiteModel model = new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 
 		// Perform calibration, if data is given
-		if(calibrationItems != null && calibrationItems.length > 0) {
+		if(calibrationProducts != null && calibrationProducts.length > 0) {
 			ShortRateVolatilityModelCalibrateable volatilityModelParametric = null;
 			try {
 				volatilityModelParametric = (ShortRateVolatilityModelCalibrateable)volatilityModel;
@@ -213,17 +212,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 				calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
 			}
 
-			// @TODO Should be more elegant. Convert array for constructor
-			AbstractLIBORMonteCarloProduct[]	calibrationProducts		= new AbstractLIBORMonteCarloProduct[calibrationItems.length];
-			RandomVariableInterface[]			calibrationTargetValues	= new RandomVariableInterface[calibrationItems.length];
-			double[]							calibrationWeights		= new double[calibrationItems.length];
-			for(int i=0; i<calibrationTargetValues.length; i++) {
-				calibrationProducts[i]		= calibrationItems[i].calibrationProduct;
-				calibrationTargetValues[i]	= randomVariableFactory.createRandomVariable(calibrationItems[i].calibrationTargetValue);
-				calibrationWeights[i]		= calibrationItems[i].calibrationWeight;
-			}
-
-			ShortRateVolatilityModelCalibrateable volatilityModelCalibrated = volatilityModelParametric.getCloneCalibrated(model, calibrationProducts, calibrationTargetValues, calibrationWeights, calibrationParameters);
+			ShortRateVolatilityModelCalibrateable volatilityModelCalibrated = volatilityModelParametric.getCloneCalibrated(model, calibrationProducts, calibrationParameters);
 
 			HullWhiteModel modelCalibrated = model.getCloneWithModifiedVolatilityModel(volatilityModelCalibrated);
 

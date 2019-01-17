@@ -22,6 +22,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.interestrate.CalibrationItem;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
@@ -33,6 +34,7 @@ import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
 import net.finmath.optimizer.StochasticOptimizerInterface;
 import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -92,8 +94,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 */
 	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariableInterface[] parameters);
 
-	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, RandomVariableInterface[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
-		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
+	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final CalibrationItem[] calibrationProducts) throws CalculationException {
+		return getCloneCalibrated(calibrationModel, calibrationProducts, null);
 	}
 
 	/**
@@ -117,7 +119,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final RandomVariableInterface[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
+	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final CalibrationItem[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<String,Object>();
@@ -136,6 +138,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		Arrays.fill(lowerBound, new RandomVariable(Double.NEGATIVE_INFINITY));
 		Arrays.fill(upperBound, new RandomVariable(Double.POSITIVE_INFINITY));
 		Arrays.fill(parameterStep,  new RandomVariable(parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4));
+
+		RandomVariableInterface[] zerosForTargetValues = new RandomVariableInterface[calibrationProducts.length];
+		Arrays.fill(zerosForTargetValues, new RandomVariable(0.0));
 
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
@@ -165,13 +170,13 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						@Override
 						public RandomVariableInterface call() {
 							try {
-								return calibrationProducts[workerCalibrationProductIndex].getValue(0.0, liborMarketModelMonteCarloSimulation);
+								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue());
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return calibrationTargetValues[workerCalibrationProductIndex];
+								return new Scalar(0.0);
 							} catch (Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return calibrationTargetValues[workerCalibrationProductIndex];
+								return new Scalar(0.0);
 							}
 						}
 					};
@@ -215,7 +220,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		int numberOfIterations;
 
 		if(optimizerFactory instanceof StochasticOptimizerFactoryInterface) {
-			StochasticOptimizerInterface optimizer = ((StochasticOptimizerFactoryInterface)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, calibrationTargetValues);
+			StochasticOptimizerInterface optimizer = ((StochasticOptimizerFactoryInterface)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zerosForTargetValues);
 			try {
 				optimizer.run();
 			}

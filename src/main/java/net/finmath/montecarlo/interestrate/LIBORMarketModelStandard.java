@@ -81,24 +81,6 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	private double[][][]	integratedLIBORCovariance;
 
 	/**
-	 * A class for calibration items, that is a tripple (P,V,w) where P is a product, V is a target value and w is a weight.
-	 *
-	 * @author Christian Fries
-	 */
-	public static class CalibrationItem {
-		public final AbstractLIBORMonteCarloProduct		calibrationProduct;
-		public final double								calibrationTargetValue;
-		public final double								calibrationWeight;
-
-		public CalibrationItem(AbstractLIBORMonteCarloProduct calibrationProduct, double calibrationTargetValue, double calibrationWeight) {
-			super();
-			this.calibrationProduct		= calibrationProduct;
-			this.calibrationTargetValue	= calibrationTargetValue;
-			this.calibrationWeight		= calibrationWeight;
-		}
-	}
-
-	/**
 	 * Creates a LIBOR Market Model for given covariance.
 	 *
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
@@ -183,7 +165,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
 	 * @param covarianceModel The covariance model to use.
-	 * @param calibrationItems The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
+	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public LIBORMarketModelStandard(
@@ -191,7 +173,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 			ForwardCurveInterface					forwardRateCurve,
 			DiscountCurveInterface					discountCurve,
 			AbstractLIBORCovarianceModel			covarianceModel,
-			CalibrationItem[]						calibrationItems
+			CalibrationItem[]						calibrationProducts
 			) throws CalculationException {
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
 
@@ -211,17 +193,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 
-		// @TODO Should be more elegant. Convert array for constructor
-		AbstractLIBORMonteCarloProduct[]	calibrationProducts		= new AbstractLIBORMonteCarloProduct[calibrationItems.length];
-		double[]							calibrationTargetValues	= new double[calibrationItems.length];
-		double[]							calibrationWeights		= new double[calibrationItems.length];
-		for(int i=0; i<calibrationTargetValues.length; i++) {
-			calibrationProducts[i]		= calibrationItems[i].calibrationProduct;
-			calibrationTargetValues[i]	= calibrationItems[i].calibrationTargetValue;
-			calibrationWeights[i]		= calibrationItems[i].calibrationWeight;
-		}
-
-		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationTargetValues, calibrationWeights);
+		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, null);
 	}
 
 	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {

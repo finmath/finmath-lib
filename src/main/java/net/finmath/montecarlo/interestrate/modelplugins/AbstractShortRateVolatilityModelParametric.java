@@ -21,6 +21,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.interestrate.CalibrationItem;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.HullWhiteModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
@@ -89,10 +90,6 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 */
 	public abstract AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(double[] parameters);
 
-	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final HullWhiteModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, double[] calibrationTargetValues, double[] calibrationWeights) throws CalculationException {
-		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationWeights, null);
-	}
-
 	/**
 	 * Performs a generic calibration of the parametric model by
 	 * trying to match a given vector of calibration product to a given vector of target values
@@ -107,43 +104,11 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 *
 	 * @param calibrationModel The LIBOR market model to be used for calibrations (specifies forward curve and tenor discretization).
 	 * @param calibrationProducts The array of calibration products.
-	 * @param calibrationTargetValues The array of target values.
-	 * @param calibrationWeights The array of weights.
-	 * @param calibrationParameters A map of type Map&lt;String, Object&gt; specifying some (optional) calibration parameters.
-	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
-	 * @throws CalculationException Thrown if calibration has failed.
-	 * @deprecated
-	 */
-	@Deprecated
-	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final HullWhiteModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final double[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
-		RandomVariableInterface[] calibrationTargetValuesAsRandomVariabls = new RandomVariableInterface[calibrationTargetValues.length];
-		for(int i=0; i<calibrationTargetValues.length; i++) {
-			calibrationTargetValuesAsRandomVariabls[i] = new RandomVariable(calibrationTargetValues[i]);
-		}
-		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValuesAsRandomVariabls, calibrationWeights, calibrationParameters);
-	}
-
-	/**
-	 * Performs a generic calibration of the parametric model by
-	 * trying to match a given vector of calibration product to a given vector of target values
-	 * using a given vector of weights.
-	 *
-	 * Optional calibration parameters may be passed using the map calibrationParameters. The keys are (<code>String</code>s):
-	 * <ul>
-	 * 	<li><tt>brownianMotion</tt>: Under this key an object implementing {@link net.finmath.montecarlo.BrownianMotionInterface} may be provided. If so, this Brownian motion is used to build the valuation model.</li>
-	 * 	<li><tt>maxIterations</tt>: Under this key an object of type Integer may be provided specifying the maximum number of iterations.</li>
-	 * 	<li><tt>accuracy</tt>: Under this key an object of type Double may be provided specifying the desired accuracy. Note that this is understood in the sense that the solver will stop if the iteration does not improve by more than this number.</li>
-	 * </ul>
-	 *
-	 * @param calibrationModel The LIBOR market model to be used for calibrations (specifies forward curve and tenor discretization).
-	 * @param calibrationProducts The array of calibration products.
-	 * @param calibrationTargetValues The array of target values.
-	 * @param calibrationWeights The array of weights.
 	 * @param calibrationParameters A map of type Map&lt;String, Object&gt; specifying some (optional) calibration parameters.
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
-	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final HullWhiteModelInterface calibrationModel, final AbstractLIBORMonteCarloProduct[] calibrationProducts, final RandomVariableInterface[] calibrationTargetValues, double[] calibrationWeights, Map<String,Object> calibrationParameters) throws CalculationException {
+	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final HullWhiteModelInterface calibrationModel, final CalibrationItem[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
@@ -159,7 +124,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		double[] lowerBound = new double[initialParameters.length];
 		double[] upperBound = new double[initialParameters.length];
 		double[] parameterStep = new double[initialParameters.length];
-		double[] zero = new double[calibrationTargetValues.length];
+		double[] zero = new double[calibrationProducts.length];
 		Arrays.fill(lowerBound, Double.NEGATIVE_INFINITY);
 		Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
 		Arrays.fill(parameterStep, parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4);
@@ -206,7 +171,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 						@Override
 						public RandomVariableInterface call() {
 							try {
-								return calibrationProducts[workerCalibrationProductIndex].getValue(0.0, modelMonteCarloSimulation).sub(calibrationTargetValues[workerCalibrationProductIndex]);
+								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, modelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].weight());
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return null;

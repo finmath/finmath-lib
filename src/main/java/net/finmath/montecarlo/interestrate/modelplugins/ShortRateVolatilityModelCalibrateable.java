@@ -3,6 +3,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.CalibrationItem;
 import net.finmath.montecarlo.interestrate.HullWhiteModelInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.stochastic.RandomVariableInterface;
@@ -29,14 +30,11 @@ public interface ShortRateVolatilityModelCalibrateable extends ShortRateVolatili
 	 *
 	 * @param calibrationModel The LIBOR market model to be used for calibrations (specifies forward curve and tenor discretization).
 	 * @param calibrationProducts The array of calibration products.
-	 * @param calibrationTargetValues The array of target values.
-	 * @param calibrationWeights The array of weights.
 	 * @param calibrationParameters A map of type Map&lt;String, Object&gt; specifying some (optional) calibration parameters.
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
 	ShortRateVolatilityModelCalibrateable getCloneCalibrated(HullWhiteModelInterface calibrationModel,
-			AbstractLIBORMonteCarloProduct[] calibrationProducts, RandomVariableInterface[] calibrationTargetValues,
-			double[] calibrationWeights, Map<String, Object> calibrationParameters) throws CalculationException;
+			CalibrationItem[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException;
 
 }
