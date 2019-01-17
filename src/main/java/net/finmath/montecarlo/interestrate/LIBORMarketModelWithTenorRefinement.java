@@ -139,7 +139,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			TermStructureCovarianceModelInterface	covarianceModel,
-			CalibrationItem[]					calibrationProducts,
+			CalibrationProduct[]					calibrationProducts,
 			Map<String, ?>						properties
 			) throws CalculationException {
 
@@ -692,7 +692,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			Map<String, Object> properties = new HashMap<String, Object>();
 			properties.put("measure",		measure.name());
 			properties.put("stateSpace",	stateSpace.name());
-			return new LIBORMarketModelWithTenorRefinement(getLiborPeriodDiscretization(), getForwardRateCurve(), getDiscountCurve(), covarianceModel, new CalibrationItem[0], properties);
+			return new LIBORMarketModelWithTenorRefinement(getLiborPeriodDiscretization(), getForwardRateCurve(), getDiscountCurve(), covarianceModel, new CalibrationProduct[0], properties);
 		} catch (CalculationException e) {
 			return null;
 		}
@@ -716,7 +716,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 	@Override
 	public TermStructureModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		CalibrationItem[] calibrationItems = null;
+		CalibrationProduct[] calibrationItems = null;
 		Map<String, ?> properties = null;
 
 		TermStructureCovarianceModelInterface covarianceModel = this.covarianceModel;

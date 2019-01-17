@@ -316,8 +316,8 @@ public class LIBORMarketModelCalibrationAADTest {
 			 * Create a set of calibration products.
 			 */
 			ArrayList<String>					calibrationItemNames		= new ArrayList<String>();
-			final ArrayList<CalibrationItem>	calibrationItemsVALUE						= new ArrayList<CalibrationItem>();
-			final ArrayList<CalibrationItem>	calibrationItemsVOLATILITYNORMAL			= new ArrayList<CalibrationItem>();
+			final ArrayList<CalibrationProduct>	calibrationItemsVALUE						= new ArrayList<CalibrationProduct>();
+			final ArrayList<CalibrationProduct>	calibrationItemsVOLATILITYNORMAL			= new ArrayList<CalibrationProduct>();
 
 			double	swapPeriodLength	= 0.5;
 
@@ -449,10 +449,10 @@ public class LIBORMarketModelCalibrationAADTest {
 			/*
 			 * Create corresponding LIBOR Market Model
 			 */
-			CalibrationItem[] calibrationItemsLMM = new CalibrationItem[calibrationItemNames.size()];
+			CalibrationProduct[] calibrationItemsLMM = new CalibrationProduct[calibrationItemNames.size()];
 			for(int i=0; i<calibrationItemNames.size(); i++){
-				CalibrationItem calibrationItem = valueUnit == ValueUnit.VALUE ? calibrationItemsVALUE.get(i) : calibrationItemsVOLATILITYNORMAL.get(i);
-				calibrationItemsLMM[i] = new CalibrationItem(calibrationItem.getProduct(),calibrationItem.getTargetValue(),calibrationItem.getWeight());
+				CalibrationProduct calibrationProduct = valueUnit == ValueUnit.VALUE ? calibrationItemsVALUE.get(i) : calibrationItemsVOLATILITYNORMAL.get(i);
+				calibrationItemsLMM[i] = new CalibrationProduct(calibrationProduct.getProduct(),calibrationProduct.getTargetValue(),calibrationProduct.getWeight());
 			}
 			LIBORModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
 					liborPeriodDiscretization,
@@ -592,7 +592,7 @@ public class LIBORMarketModelCalibrationAADTest {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve, discountCurve);
 	}
 
-	private static CalibrationItem createATMCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, ValueUnit valueUnit) throws CalculationException {
+	private static CalibrationProduct createATMCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, ValueUnit valueUnit) throws CalculationException {
 
 		double[]	fixingDates			= new double[numberOfPeriods];
 		double[]	paymentDates		= new double[numberOfPeriods];
@@ -611,7 +611,7 @@ public class LIBORMarketModelCalibrationAADTest {
 		 * Alternatively you may change here to Monte-Carlo valuation on price or
 		 * use an analytic approximation formula, etc.
 		 */
-		CalibrationItem calibrationItem = null;
+		CalibrationProduct calibrationProduct = null;
 		switch(valueUnit) {
 		case VALUE:
 			double swaprate = moneyness + getParSwaprate(forwardCurve, discountCurve, swapTenor);
@@ -620,21 +620,21 @@ public class LIBORMarketModelCalibrationAADTest {
 					new RandomVariable(swaprate),
 					new RandomVariable(targetVolatility), swapTenor[0], swaprate,
 					new RandomVariable(swapannuity)).doubleValue();
-			calibrationItem  = new CalibrationItem(swaptionMonteCarlo, targetPrice, weight);
+			calibrationProduct  = new CalibrationProduct(swaptionMonteCarlo, targetPrice, weight);
 			break;
 		case INTEGRATEDNORMALVARIANCE:
 			targetVolatility = targetVolatility * targetVolatility * swapTenor[0];
 		case VOLATILITYNORMAL:
-			calibrationItem = new CalibrationItem(swaptionMonteCarlo, targetVolatility, weight);
+			calibrationProduct = new CalibrationProduct(swaptionMonteCarlo, targetVolatility, weight);
 			break;
 		default:
 			throw new UnsupportedOperationException();
 		}
 
-		return calibrationItem;
+		return calibrationProduct;
 	}
 
-	private static CalibrationItem createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, ValueUnit valueUnit) throws CalculationException {
+	private static CalibrationProduct createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, ValueUnit valueUnit) throws CalculationException {
 
 		double[]	fixingDates			= new double[numberOfPeriods];
 		double[]	paymentDates		= new double[numberOfPeriods];
@@ -661,29 +661,29 @@ public class LIBORMarketModelCalibrationAADTest {
 		 * Alternatively you may change here to Monte-Carlo valuation on price or
 		 * use an analytic approximation formula, etc.
 		 */
-		CalibrationItem calibrationItem = null;
+		CalibrationProduct calibrationProduct = null;
 		switch (valueUnit) {
 		case VALUE:
 			double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(
 					swaprate, targetVolatility,
 					fixingDates[0], swaprate,
 					SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve));
-			calibrationItem = new CalibrationItem(swaptionMonteCarlo, targetValuePrice, weight);
+			calibrationProduct = new CalibrationProduct(swaptionMonteCarlo, targetValuePrice, weight);
 			break;
 		case INTEGRATEDLOGNORMALVARIANCE:
 			targetVolatility = targetVolatility * targetVolatility * swapTenor[0];
 		case VOLATILITYLOGNORMAL:
-			calibrationItem = new CalibrationItem(swaptionMonteCarlo, targetVolatility, weight);
+			calibrationProduct = new CalibrationProduct(swaptionMonteCarlo, targetVolatility, weight);
 			break;
 		default:
 			throw new UnsupportedOperationException();
 		}
 
-		return calibrationItem;
+		return calibrationProduct;
 	}
 
 	private static void evaluateCalibration(LIBORModelInterface liborMarketModelCalibrated, BrownianMotionInterface brownianMotion,
-			List<String> calibrationItemNames ,List<CalibrationItem> calibrationItemsVALUE, List<CalibrationItem> calibrationItemsVOLATILITYNORMAL,
+			List<String> calibrationItemNames ,List<CalibrationProduct> calibrationItemsVALUE, List<CalibrationProduct> calibrationItemsVOLATILITYNORMAL,
 			double assertTrueVALUE, double assertTrueVOLATILITYNORMAL, String fileName){
 
 		System.out.println("\nCalibrated parameters are:");
@@ -700,10 +700,10 @@ public class LIBORMarketModelCalibrationAADTest {
 		double deviationSumVALUE			= 0.0;
 		double deviationSquaredSumVALUE	= 0.0;
 		for (int i = 0; i < calibrationItemsVALUE.size(); i++) {
-			CalibrationItem calibrationItem = calibrationItemsVALUE.get(i);
+			CalibrationProduct calibrationProduct = calibrationItemsVALUE.get(i);
 			try {
-				double valueModel = calibrationItem.getProduct().getValue(simulationCalibrated);
-				double valueTarget = calibrationItem.getTargetValue().getAverage();
+				double valueModel = calibrationProduct.getProduct().getValue(simulationCalibrated);
+				double valueTarget = calibrationProduct.getTargetValue().getAverage();
 				double error = valueModel-valueTarget;
 				deviationSumVALUE += error;
 				deviationSquaredSumVALUE += error*error;
@@ -717,10 +717,10 @@ public class LIBORMarketModelCalibrationAADTest {
 		double deviationSumVOLATILITYNORMAL			= 0.0;
 		double deviationSquaredSumVOLATILITYNORMAL	= 0.0;
 		for (int i = 0; i < calibrationItemsVALUE.size(); i++) {
-			CalibrationItem calibrationItem = calibrationItemsVOLATILITYNORMAL.get(i);
+			CalibrationProduct calibrationProduct = calibrationItemsVOLATILITYNORMAL.get(i);
 			try {
-				double valueModel = calibrationItem.getProduct().getValue(simulationCalibrated);
-				double valueTarget = calibrationItem.getTargetValue().getAverage();
+				double valueModel = calibrationProduct.getProduct().getValue(simulationCalibrated);
+				double valueTarget = calibrationProduct.getTargetValue().getAverage();
 				double error = valueModel-valueTarget;
 				deviationSumVOLATILITYNORMAL += error;
 				deviationSquaredSumVOLATILITYNORMAL += error*error;

@@ -32,7 +32,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveNelsonSiegelSvensson;
-import net.finmath.montecarlo.interestrate.CalibrationItem;
+import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -311,7 +311,7 @@ public class LIBORIndexTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationItem[] calibrationItems = new CalibrationItem[0];
+		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model

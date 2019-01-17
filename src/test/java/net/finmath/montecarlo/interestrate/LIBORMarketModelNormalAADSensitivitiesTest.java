@@ -380,7 +380,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		properties.put("liborCap", Double.POSITIVE_INFINITY);
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationItem[] calibrationItems = new CalibrationItem[0];
+		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model

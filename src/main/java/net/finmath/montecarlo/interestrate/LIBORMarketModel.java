@@ -247,7 +247,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			DiscountCurveInterface				discountCurve,
 			AbstractRandomVariableFactory		randomVariableFactory,
 			AbstractLIBORCovarianceModel		covarianceModel,
-			CalibrationItem[]					calibrationProducts,
+			CalibrationProduct[]					calibrationProducts,
 			Map<String, ?>						properties
 			) throws CalculationException {
 
@@ -365,7 +365,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
-			CalibrationItem[]					calibrationItems,
+			CalibrationProduct[]					calibrationItems,
 			Map<String, ?>						properties
 			) throws CalculationException {
 		this(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, new RandomVariableFactory(), covarianceModel, calibrationItems, properties);
@@ -384,7 +384,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			ForwardCurveInterface			forwardRateCurve,
 			AbstractLIBORCovarianceModel	covarianceModel
 			) throws CalculationException {
-		this(liborPeriodDiscretization, forwardRateCurve, new DiscountCurveFromForwardCurve(forwardRateCurve), covarianceModel, new CalibrationItem[0], null);
+		this(liborPeriodDiscretization, forwardRateCurve, new DiscountCurveFromForwardCurve(forwardRateCurve), covarianceModel, new CalibrationProduct[0], null);
 	}
 
 	/**
@@ -402,7 +402,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			DiscountCurveInterface			discountCurve,
 			AbstractLIBORCovarianceModel	covarianceModel
 			) throws CalculationException {
-		this(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, new CalibrationItem[0], null);
+		this(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, new CalibrationProduct[0], null);
 	}
 
 	/**
@@ -551,13 +551,13 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
-			CalibrationItem[]					calibrationItems,
+			CalibrationProduct[]					calibrationItems,
 			Map<String, ?>						properties
 			) throws CalculationException {
 		this(liborPeriodDiscretization, null, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
 	}
 
-	private static CalibrationItem[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData, boolean isUseAnalyticApproximation) {
+	private static CalibrationProduct[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData, boolean isUseAnalyticApproximation) {
 		if(swaptionMarketData == null) {
 			return null;
 		}
@@ -566,7 +566,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 		TimeDiscretizationInterface	tenor					= swaptionMarketData.getTenor();
 		double						swapPeriodLength		= swaptionMarketData.getSwapPeriodLength();
 
-		ArrayList<CalibrationItem> calibrationItems = new ArrayList<>();
+		ArrayList<CalibrationProduct> calibrationProducts = new ArrayList<>();
 		for(int exerciseIndex=0; exerciseIndex<=optionMaturities.getNumberOfTimeSteps(); exerciseIndex++) {
 			for(int tenorIndex=0; tenorIndex<=tenor.getNumberOfTimeSteps()-exerciseIndex; tenorIndex++) {
 
@@ -609,7 +609,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 					double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
 
-					calibrationItems.add(new CalibrationItem(swaption, impliedVolatility, 1.0));
+					calibrationProducts.add(new CalibrationProduct(swaption, impliedVolatility, 1.0));
 				}
 				else {
 					AbstractLIBORMonteCarloProduct swaption = new SwaptionSimple(swaprate, swapTenorTimes, SwaptionSimple.ValueUnit.VALUE);
@@ -620,12 +620,12 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 
 					double targetValue = AnalyticFormulas.blackModelSwaptionValue(forwardSwaprate, impliedVolatility, exerciseDate, swaprate, swapAnnuity);
 
-					calibrationItems.add(new CalibrationItem(swaption, targetValue, 1.0));
+					calibrationProducts.add(new CalibrationProduct(swaption, targetValue, 1.0));
 				}
 			}
 		}
 
-		return calibrationItems.toArray(new CalibrationItem[calibrationItems.size()]);
+		return calibrationProducts.toArray(new CalibrationProduct[calibrationProducts.size()]);
 	}
 
 	public LocalDateTime getReferenceDate() {
@@ -1143,7 +1143,7 @@ public class LIBORMarketModel extends AbstractModel implements LIBORMarketModelI
 			Map<String, Object> properties = new HashMap<>();
 			properties.put("measure",		measure.name());
 			properties.put("stateSpace",	stateSpace.name());
-			return new LIBORMarketModel(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, new CalibrationItem[0], properties);
+			return new LIBORMarketModel(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, new CalibrationProduct[0], properties);
 		} catch (CalculationException e) {
 			return null;
 		}

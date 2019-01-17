@@ -166,7 +166,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationItem[] calibrationItems = new CalibrationItem[0];
+		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
@@ -551,7 +551,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		/*
 		 * Create a set of calibration products.
 		 */
-		ArrayList<CalibrationItem> calibrationItems = new ArrayList<>();
+		ArrayList<CalibrationProduct> calibrationProducts = new ArrayList<>();
 		for (int exerciseIndex = 4; exerciseIndex <= liborMarketModel.getNumberOfLibors() - 5; exerciseIndex+=4) {
 			double exerciseDate = liborMarketModel.getLiborPeriod(exerciseIndex);
 			for (int numberOfPeriods = 1; numberOfPeriods < liborMarketModel.getNumberOfLibors() - exerciseIndex - 5; numberOfPeriods+=4) {
@@ -588,13 +588,13 @@ public class LIBORMarketModelMultiCurveValuationTest {
 					// Use an analytic approximation to the swaption - much faster
 					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 
-					calibrationItems.add(new CalibrationItem(swaptionAnalytic, targetValueVolatilty, 1.0));
+					calibrationProducts.add(new CalibrationProduct(swaptionAnalytic, targetValueVolatilty, 1.0));
 				}
 				else {
 					// You may also use full Monte-Carlo calibration - more accurate. Also possible for displaced diffusion.
 					Swaption swaptionMonteCarlo = new Swaption(exerciseDate, fixingDates, paymentDates, swaprates);
 					double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetValueVolatilty, fixingDates[0], swaprate, getSwapAnnuity(liborMarketModel,swapTenor));
-					calibrationItems.add(new CalibrationItem(swaptionMonteCarlo, targetValuePrice, 1.0));
+					calibrationProducts.add(new CalibrationProduct(swaptionMonteCarlo, targetValuePrice, 1.0));
 				}
 			}
 		}
@@ -617,7 +617,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
 				this.liborMarketModel.getLiborPeriodDiscretization(),
-				forwardCurve, discountCurve, covarianceModelParametric, calibrationItems.toArray(new CalibrationItem[0]), null);
+				forwardCurve, discountCurve, covarianceModelParametric, calibrationProducts.toArray(new CalibrationProduct[0]), null);
 
 		/*
 		 * Test our calibration
@@ -635,14 +635,14 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		}
 
 		double deviationSum = 0.0;
-		for (int i = 0; i < calibrationItems.size(); i++) {
-			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).getProduct();
+		for (int i = 0; i < calibrationProducts.size(); i++) {
+			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			double valueModel = calibrationProduct.getValue(calMode);
-			double valueTarget = calibrationItems.get(i).getTargetValue().getAverage();
+			double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
 			deviationSum += (valueModel-valueTarget);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
 		}
-		System.out.println("Mean Deviation:" + deviationSum/calibrationItems.size());
+		System.out.println("Mean Deviation:" + deviationSum/calibrationProducts.size());
 		System.out.println("__________________________________________________________________________________________\n");
 	}
 

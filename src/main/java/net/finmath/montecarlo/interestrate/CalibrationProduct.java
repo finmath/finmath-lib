@@ -14,19 +14,20 @@ import net.finmath.stochastic.Scalar;
  *
  * @author Christian Fries
  */
-public class CalibrationItem {
+public class CalibrationProduct {
+
 	private final AbstractLIBORMonteCarloProduct		product;
 	private final RandomVariableInterface				targetValue;
 	private final double								weight;
 
-	public CalibrationItem(AbstractLIBORMonteCarloProduct product, RandomVariableInterface targetValue, double weight) {
+	public CalibrationProduct(AbstractLIBORMonteCarloProduct product, RandomVariableInterface targetValue, double weight) {
 		super();
 		this.product		= product;
 		this.targetValue	= targetValue;
 		this.weight			= weight;
 	}
 
-	public CalibrationItem(AbstractLIBORMonteCarloProduct product, double targetValue, double weight) {
+	public CalibrationProduct(AbstractLIBORMonteCarloProduct product, double targetValue, double weight) {
 		super();
 		this.product		= product;
 		this.targetValue	= new Scalar(targetValue);
@@ -56,7 +57,7 @@ public class CalibrationItem {
 
 	@Override
 	public String toString() {
-		return "CalibrationItem [product=" + getProduct()
+		return "CalibrationProduct [product=" + getProduct()
 				+ ", targetValue=" + getTargetValue()
 				+ ", weight=" + getWeight() + "]";
 	}

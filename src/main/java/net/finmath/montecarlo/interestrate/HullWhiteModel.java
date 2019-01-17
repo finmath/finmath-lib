@@ -191,7 +191,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			ShortRateVolatilityModelInterface	volatilityModel,
-			CalibrationItem[]					calibrationProducts,
+			CalibrationProduct[]					calibrationProducts,
 			Map<String, Object>					properties
 			) throws CalculationException {
 

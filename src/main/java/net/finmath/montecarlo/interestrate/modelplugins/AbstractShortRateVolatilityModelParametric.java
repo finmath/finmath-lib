@@ -21,7 +21,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.interestrate.CalibrationItem;
+import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.HullWhiteModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
@@ -108,7 +108,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
-	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final HullWhiteModelInterface calibrationModel, final CalibrationItem[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
+	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final HullWhiteModelInterface calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();

@@ -145,7 +145,7 @@ public class LIBORMarketModelValuationTest {
 		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationItem[] calibrationItems = new CalibrationItem[0];
+		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
@@ -691,7 +691,7 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * Create a set of calibration products.
 		 */
-		ArrayList<CalibrationItem> calibrationItems = new ArrayList<>();
+		ArrayList<CalibrationProduct> calibrationProducts = new ArrayList<>();
 		for (int exerciseIndex = 4; exerciseIndex <= liborMarketModel.getNumberOfLibors() - 5; exerciseIndex+=4) {
 			double exerciseDate = liborMarketModel.getLiborPeriod(exerciseIndex);
 			for (int numberOfPeriods = 1; numberOfPeriods < liborMarketModel.getNumberOfLibors() - exerciseIndex - 5; numberOfPeriods+=4) {
@@ -728,17 +728,17 @@ public class LIBORMarketModelValuationTest {
 					// Use an analytic approximation to the swaption - much faster
 					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
 
-					calibrationItems.add(new CalibrationItem(swaptionAnalytic, targetValueVolatilty, 1.0));
+					calibrationProducts.add(new CalibrationProduct(swaptionAnalytic, targetValueVolatilty, 1.0));
 				}
 				else {
 					// You may also use full Monte-Carlo calibration - more accurate. Also possible for displaced diffusion.
 					SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, ValueUnit.VOLATILITY);
-					calibrationItems.add(new CalibrationItem(swaptionMonteCarlo, targetValueVolatilty, 1.0));
+					calibrationProducts.add(new CalibrationProduct(swaptionMonteCarlo, targetValueVolatilty, 1.0));
 
 					// Alternative: Calibration to prices
 					//Swaption swaptionMonteCarlo = new Swaption(exerciseDate, fixingDates, paymentDates, swaprates);
 					//double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetValueVolatilty, fixingDates[0], swaprate, getSwapAnnuity(liborMarketModel,swapTenor));
-					//calibrationItems.add(new CalibrationItem(swaptionMonteCarlo, targetValuePrice, 1.0));
+					//calibrationItems.add(new CalibrationProduct(swaptionMonteCarlo, targetValuePrice, 1.0));
 				}
 			}
 		}
@@ -769,7 +769,7 @@ public class LIBORMarketModelValuationTest {
 
 		LIBORMarketModel liborMarketModelCalibrated = new LIBORMarketModel(
 				this.liborMarketModel.getLiborPeriodDiscretization(),
-				forwardCurve, null, covarianceModelParametric, calibrationItems.toArray(new CalibrationItem[0]), properties);
+				forwardCurve, null, covarianceModelParametric, calibrationProducts.toArray(new CalibrationProduct[0]), properties);
 
 		/*
 		 * Test our calibration
@@ -788,17 +788,17 @@ public class LIBORMarketModelValuationTest {
 
 		double deviationSum = 0.0;
 		double deviationSquaredSum = 0.0;
-		for (int i = 0; i < calibrationItems.size(); i++) {
-			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationItems.get(i).getProduct();
+		for (int i = 0; i < calibrationProducts.size(); i++) {
+			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			double valueModel = calibrationProduct.getValue(simulationCalibrated);
-			double valueTarget = calibrationItems.get(i).getTargetValue().getAverage();
+			double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
 			deviationSum += (valueModel-valueTarget);
 			deviationSquaredSum += Math.pow(valueModel-valueTarget,2);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
 		}
-		double diviationRMS = Math.sqrt(deviationSquaredSum/calibrationItems.size());
+		double diviationRMS = Math.sqrt(deviationSquaredSum/calibrationProducts.size());
 
-		System.out.println("Mean Deviation...............:" + formatterValue.format(deviationSum/calibrationItems.size()));
+		System.out.println("Mean Deviation...............:" + formatterValue.format(deviationSum/calibrationProducts.size()));
 		System.out.println("Root Mean Squared Deviation..:" + formatterValue.format(diviationRMS));
 		System.out.println("__________________________________________________________________________________________\n");
 

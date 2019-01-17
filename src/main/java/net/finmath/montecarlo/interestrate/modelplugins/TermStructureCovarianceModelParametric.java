@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.interestrate.CalibrationItem;
+import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.montecarlo.interestrate.TermStructureModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
@@ -74,7 +74,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 * @return A clone of this model, using the calibrated parameters.
 	 * @throws CalculationException Exception indicating failure in calibration.
 	 */
-	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final CalibrationItem[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException {
+	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
