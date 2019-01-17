@@ -46,7 +46,7 @@ import net.finmath.stochastic.Scalar;
  * For details see <a href="http://christianfries.com/finmath/stochasticautodiff/">http://christianfries.com/finmath/stochasticautodiff/</a>.
  *
  * The class is serializable. Upon de-serialization the value of {@link #getID()} may be changed to ensure unique IDs in de-serialization context.
- * 
+ *
  * @author Christian Fries
  * @author Stefan Sedlmair
  * @version 1.1

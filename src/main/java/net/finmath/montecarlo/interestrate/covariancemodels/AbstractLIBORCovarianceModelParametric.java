@@ -27,7 +27,6 @@ import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticOptimizerFactoryInterface;

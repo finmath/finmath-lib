@@ -5,8 +5,6 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.stochastic.RandomVariableInterface;
 
 /**
  * Interface for covariance models which may perform a calibration by providing the corresponding <code>getCloneCalibrated</code>-method.

@@ -19,7 +19,6 @@ import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelCalibrateable;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariableInterface;
 import net.finmath.time.TimeDiscretizationInterface;

@@ -23,7 +23,6 @@ import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.montecarlo.interestrate.TermStructureModelMonteCarloSimulation;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.optimizer.OptimizerFactoryInterface;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;

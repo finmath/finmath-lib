@@ -16,7 +16,6 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelParametric;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariableInterface;

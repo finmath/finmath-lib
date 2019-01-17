@@ -58,7 +58,7 @@ public class CalibrationProduct {
 	@Override
 	public String toString() {
 		return "CalibrationProduct [product=" + getProduct()
-				+ ", targetValue=" + getTargetValue()
-				+ ", weight=" + getWeight() + "]";
+		+ ", targetValue=" + getTargetValue()
+		+ ", weight=" + getWeight() + "]";
 	}
 }
