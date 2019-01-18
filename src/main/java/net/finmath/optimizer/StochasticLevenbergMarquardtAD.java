@@ -8,6 +8,8 @@ package net.finmath.optimizer;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -101,6 +103,8 @@ import net.finmath.stochastic.RandomVariableInterface;
 public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenbergMarquardt {
 
 	private static final long serialVersionUID = -8852002990042152135L;
+	private static final Logger logger = Logger.getLogger("net.finmath");
+
 	private final boolean isGradientValuationParallel;
 
 	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
@@ -141,15 +145,23 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 		/*
 		 * Check if random variable is differentiable
 		 */
-		boolean isRandomVariableDifferentiable = true;
-		for(int parameterIndex=0; parameterIndex<parameters.length && isRandomVariableDifferentiable; parameterIndex++) {
-			isRandomVariableDifferentiable = (parameters[parameterIndex] instanceof RandomVariableDifferentiableInterface) && isRandomVariableDifferentiable;
-		}
-		for(int valueIndex=0; valueIndex<values.length && isRandomVariableDifferentiable; valueIndex++) {
-			isRandomVariableDifferentiable = (values[valueIndex] instanceof RandomVariableDifferentiableInterface) && isRandomVariableDifferentiable;
+		boolean isParameterRandomVariableDifferentiable = true;
+		for(int parameterIndex=0; parameterIndex<parameters.length && isParameterRandomVariableDifferentiable; parameterIndex++) {
+			isParameterRandomVariableDifferentiable = (parameters[parameterIndex] instanceof RandomVariableDifferentiableInterface) && isParameterRandomVariableDifferentiable;
 		}
 
-		if(isRandomVariableDifferentiable) {
+		if(logger.isLoggable(Level.INFO)) {
+			boolean isValueRandomVariableDifferentiable = true;
+			for(int valueIndex=0; valueIndex<values.length && isParameterRandomVariableDifferentiable; valueIndex++) {
+				isValueRandomVariableDifferentiable = (values[valueIndex] instanceof RandomVariableDifferentiableInterface) && isValueRandomVariableDifferentiable;
+			}
+	
+			if(!isValueRandomVariableDifferentiable) {
+				logger.info("Using " + this.getClass().getSimpleName() + " with random variables not implementing " + RandomVariableDifferentiableInterface.class.getSimpleName());
+			}
+		}
+
+		if(isParameterRandomVariableDifferentiable) {
 			Map<Integer,Map<Long, RandomVariableInterface>> gradients = null;
 			if(isGradientValuationParallel) {
 				// Parallel pre-calculation of gradients for each value function
@@ -157,12 +169,14 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 			}
 
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
+				if(values[valueIndex] instanceof RandomVariableDifferentiableInterface) {
 				Map<Long, RandomVariableInterface> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient();
 				for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
 					derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameters[parameterIndex]).getID());
 					if(derivatives[parameterIndex][valueIndex] != null) {
 						derivatives[parameterIndex][valueIndex] = derivatives[parameterIndex][valueIndex].average();
 					}
+				}
 				}
 			}
 		}
