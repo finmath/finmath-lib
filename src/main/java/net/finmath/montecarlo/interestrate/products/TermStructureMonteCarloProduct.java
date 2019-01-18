@@ -54,5 +54,4 @@ public interface TermStructureMonteCarloProduct extends MonteCarloProduct {
 	 * @return The FactorDriftInterface
 	 */
 	FactorDriftInterface getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme);
-
 }
