@@ -6,14 +6,14 @@
 
 package net.finmath.optimizer;
 
-import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.StochasticOptimizer.ObjectiveFunction;
 import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
  * @version 1.0
  */
-public class StochasticOptimizerFactoryLevenbergMarquardt implements StochasticOptimizerFactoryInterface {
+public class StochasticOptimizerFactoryLevenbergMarquardt implements StochasticOptimizerFactory {
 
 	private final StochasticLevenbergMarquardt.RegularizationMethod regularizationMethod;
 	private final int		maxIterations;
@@ -37,7 +37,7 @@ public class StochasticOptimizerFactoryLevenbergMarquardt implements StochasticO
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
 		return
 				new StochasticLevenbergMarquardt(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIterations, errorTolerance, maxThreads)
 		{

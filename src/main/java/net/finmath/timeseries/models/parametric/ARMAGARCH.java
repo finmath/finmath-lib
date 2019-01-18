@@ -19,7 +19,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
-import net.finmath.timeseries.TimeSeriesInterface;
+import net.finmath.timeseries.TimeSeries;
 import net.finmath.timeseries.TimeSeriesModelParametric;
 import net.finmath.timeseries.TimeSeriesView;
 
@@ -37,7 +37,7 @@ import net.finmath.timeseries.TimeSeriesView;
  */
 public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
 
-	private TimeSeriesInterface timeSeries;
+	private TimeSeries timeSeries;
 
 	private int maxIterations = 10000000;
 
@@ -50,7 +50,7 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 	private final double[] lowerBound;
 	private final double[] upperBound;
 
-	public ARMAGARCH(TimeSeriesInterface timeSeries) {
+	public ARMAGARCH(TimeSeries timeSeries) {
 		this.timeSeries = timeSeries;
 
 		lowerBound = new double[] { 0, 							0, 0, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
@@ -388,7 +388,7 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 	}
 
 	@Override
-	public TimeSeriesModelParametric getCloneCalibrated(TimeSeriesInterface timeSeries) {
+	public TimeSeriesModelParametric getCloneCalibrated(TimeSeries timeSeries) {
 		return new ARMAGARCH(timeSeries);
 	}
 

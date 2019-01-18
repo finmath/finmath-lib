@@ -6,14 +6,14 @@
 
 package net.finmath.optimizer;
 
-import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.StochasticOptimizer.ObjectiveFunction;
 import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
  * @version 1.0
  */
-public class StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD implements StochasticOptimizerFactoryInterface {
+public class StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD implements StochasticOptimizerFactory {
 
 	private final int		maxIterations;
 	private final RandomVariable		errorTolerance;
@@ -31,17 +31,17 @@ public class StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD implements S
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[]  upperBound, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[]  upperBound, RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
 		return new StochasticPathwiseLevenbergMarquardtAD(initialParameters, targetValues, null, null, maxIterations, errorTolerance, null)
 		{
 			private static final long serialVersionUID = -4802903981061716810L;

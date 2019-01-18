@@ -107,7 +107,7 @@ import net.finmath.stochastic.Scalar;
  * @author Christian Fries
  * @version 1.6
  */
-public abstract class StochasticPathwiseLevenbergMarquardt implements Serializable, Cloneable, StochasticOptimizerInterface {
+public abstract class StochasticPathwiseLevenbergMarquardt implements Serializable, Cloneable, StochasticOptimizer {
 
 	private static final long serialVersionUID = 4560864869394838155L;
 
@@ -188,7 +188,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		 * Creating a clone, continuing the search with new target values.
 		 * Note that we do not re-define the setValues method.
 		 */
-		//		OptimizerInterface optimizer2 = optimizer.getCloneWithModifiedTargetValues(new double[] { 5.1, 10.2 }, new double[] { 1, 1 }, true);
+		//		Optimizer optimizer2 = optimizer.getCloneWithModifiedTargetValues(new double[] { 5.1, 10.2 }, new double[] { 1, 1 }, true);
 		//		optimizer2.run();
 
 		//		double[] bestParameters2 = optimizer2.getBestFitParameters();

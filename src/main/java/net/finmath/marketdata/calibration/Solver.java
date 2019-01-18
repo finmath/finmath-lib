@@ -12,9 +12,9 @@ import java.util.Vector;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
-import net.finmath.optimizer.OptimizerFactoryInterface;
+import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 
 /**
@@ -39,7 +39,7 @@ public class Solver {
 	private final double							calibrationAccuracy;
 	private final ParameterTransformation			parameterTransformation;
 
-	private OptimizerFactoryInterface			optimizerFactory;
+	private OptimizerFactory			optimizerFactory;
 
 	private	final	double	evaluationTime;
 	private final	int		maxIterations	= 1000;
@@ -58,7 +58,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param optimizerFactory A factory providing the optimizer (for the given objective function)
 	 */
-	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, OptimizerFactoryInterface optimizerFactory) {
+	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, OptimizerFactory optimizerFactory) {
 		super();
 		this.model = model;
 		this.calibrationProducts = calibrationProducts;
@@ -163,7 +163,7 @@ public class Solver {
 		java.util.Arrays.fill(ones, 1.0);
 		java.util.Arrays.fill(lowerBound, Double.NEGATIVE_INFINITY);
 		java.util.Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
-		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
+		Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
 				double[] modelParameters = parameters;
@@ -195,7 +195,7 @@ public class Solver {
 			optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);
 		}
 
-		OptimizerInterface optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
+		Optimizer optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
 		optimizer.run();
 
 		iterations = optimizer.getIterations();

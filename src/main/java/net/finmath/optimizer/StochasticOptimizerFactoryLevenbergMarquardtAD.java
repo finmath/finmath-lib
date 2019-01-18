@@ -6,14 +6,14 @@
 
 package net.finmath.optimizer;
 
-import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.StochasticOptimizer.ObjectiveFunction;
 import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
  * @version 1.0
  */
-public class StochasticOptimizerFactoryLevenbergMarquardtAD implements StochasticOptimizerFactoryInterface {
+public class StochasticOptimizerFactoryLevenbergMarquardtAD implements StochasticOptimizerFactory {
 
 	private final int		maxIterations;
 	private final double		errorTolerance;
@@ -31,7 +31,7 @@ public class StochasticOptimizerFactoryLevenbergMarquardtAD implements Stochasti
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
 		return
 				new StochasticPathwiseLevenbergMarquardtAD(initialParameters, targetValues, null /* weights */, parameterSteps, maxIterations, null, null)
 		{

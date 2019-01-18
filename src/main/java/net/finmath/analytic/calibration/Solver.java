@@ -14,8 +14,8 @@ import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.products.AnalyticProductInterface;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.optimizer.SolverException;
-import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
-import net.finmath.optimizer.StochasticOptimizerInterface;
+import net.finmath.optimizer.StochasticOptimizerFactory;
+import net.finmath.optimizer.StochasticOptimizer;
 import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.stochastic.RandomVariable;
 
@@ -41,7 +41,7 @@ public class Solver {
 	private final double							calibrationAccuracy;
 	private final ParameterTransformation			parameterTransformation;
 
-	private StochasticOptimizerFactoryInterface		optimizerFactory;
+	private StochasticOptimizerFactory		optimizerFactory;
 
 	private	final	double	evaluationTime;
 	private final	int		maxIterations	= 1000;
@@ -60,7 +60,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param optimizerFactory A factory providing the optimizer (for the given objective function)
 	 */
-	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, StochasticOptimizerFactoryInterface optimizerFactory) {
+	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, StochasticOptimizerFactory optimizerFactory) {
 		super();
 		this.model = model;
 		this.calibrationProducts = calibrationProducts;
@@ -166,7 +166,7 @@ public class Solver {
 		java.util.Arrays.fill(lowerBound, new RandomVariableFromDoubleArray(Double.NEGATIVE_INFINITY));
 		java.util.Arrays.fill(upperBound, new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY));
 
-		StochasticOptimizerInterface.ObjectiveFunction objectiveFunction = new StochasticOptimizerInterface.ObjectiveFunction() {
+		StochasticOptimizer.ObjectiveFunction objectiveFunction = new StochasticOptimizer.ObjectiveFunction() {
 			@Override
 			public void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
 				RandomVariable[] modelParameters = parameters;
@@ -198,7 +198,7 @@ public class Solver {
 			optimizerFactory = new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);
 		}
 
-		StochasticOptimizerInterface optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
+		StochasticOptimizer optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
 		optimizer.run();
 
 		iterations = optimizer.getIterations();
