@@ -6,9 +6,9 @@
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -61,7 +61,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends TermStructureMo
 	 * @return The forward rate as a random variable.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
+	RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
 	/**
 	 * Return the forward rate curve for a given simulation time index.
@@ -70,14 +70,14 @@ public interface LIBORModelMonteCarloSimulationInterface extends TermStructureMo
 	 * @return The forward rate curve for a given simulation time index.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException;
+	RandomVariable[] getLIBORs(int timeIndex) throws CalculationException;
 
 	/**
 	 * Returns the Brownian motion used to simulate the curve.
 	 *
 	 * @return The Brownian motion used to simulate the curve.
 	 */
-	BrownianMotionInterface getBrownianMotion();
+	BrownianMotion getBrownianMotion();
 
 	/**
 	 * Returns the underlying model.

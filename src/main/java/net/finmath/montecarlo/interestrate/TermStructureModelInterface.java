@@ -13,7 +13,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
@@ -22,7 +22,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public interface TermStructureModelInterface extends AbstractModelInterface {
 
-	RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
+	RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
 
 	/**
 	 * Return the associated analytic model, a collection of market date object like discount curve, forward curve

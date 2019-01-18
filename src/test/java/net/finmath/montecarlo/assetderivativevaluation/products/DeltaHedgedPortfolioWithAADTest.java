@@ -17,20 +17,20 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -110,9 +110,9 @@ public class DeltaHedgedPortfolioWithAADTest {
 		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), properties);
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableDifferentiableInterface riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableDifferentiableInterface volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
 		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
@@ -121,7 +121,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
-		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(brownianMotion, net.finmath.montecarlo.process.ProcessEulerScheme.Scheme.EULER_FUNCTIONAL);
@@ -140,13 +140,13 @@ public class DeltaHedgedPortfolioWithAADTest {
 		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), properties);
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableDifferentiableInterface riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableDifferentiableInterface volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
-		RandomVariableDifferentiableInterface theta	= randomVariableFactory.createRandomVariable(modelTheta);
-		RandomVariableDifferentiableInterface kappa	= randomVariableFactory.createRandomVariable(modelKappa);
-		RandomVariableDifferentiableInterface xi	= randomVariableFactory.createRandomVariable(modelXi);
-		RandomVariableDifferentiableInterface rho	= randomVariableFactory.createRandomVariable(modelRho);
+		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		RandomVariableDifferentiable theta	= randomVariableFactory.createRandomVariable(modelTheta);
+		RandomVariableDifferentiable kappa	= randomVariableFactory.createRandomVariable(modelKappa);
+		RandomVariableDifferentiable xi	= randomVariableFactory.createRandomVariable(modelXi);
+		RandomVariableDifferentiable rho	= randomVariableFactory.createRandomVariable(modelRho);
 
 		// Create a model
 		AbstractModel model = new HestonModel(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, randomVariableFactory);
@@ -155,7 +155,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
-		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
 		AbstractProcess process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER_FUNCTIONAL);
@@ -175,13 +175,13 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 		DeltaHedgedPortfolioWithAAD hedge = new DeltaHedgedPortfolioWithAAD(option);
 
-		RandomVariableInterface hedgeValue = hedge.getValue(maturity, model);
+		RandomVariable hedgeValue = hedge.getValue(maturity, model);
 
 		long timingCalculationEnd = System.currentTimeMillis();
 
-		RandomVariableInterface underlyingAtMaturity = model.getAssetValue(maturity, 0);
-		RandomVariableInterface optionValue = option.getValue(0.0, model).mult(model.getNumeraire(maturity)).div(model.getNumeraire(0));
-		RandomVariableInterface hedgeError = optionValue.sub(hedgeValue);
+		RandomVariable underlyingAtMaturity = model.getAssetValue(maturity, 0);
+		RandomVariable optionValue = option.getValue(0.0, model).mult(model.getNumeraire(maturity)).div(model.getNumeraire(0));
+		RandomVariable hedgeError = optionValue.sub(hedgeValue);
 
 		double hedgeErrorRMS = Math.sqrt(hedgeError.getVariance());
 
@@ -200,7 +200,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 		if(isPrintHedgeFinalValues) {
 			if(option instanceof BermudanOption) {
-				RandomVariableInterface exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
+				RandomVariable exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
 				for(double time : new double[] { 4.0, 3.0, 2.0}) {
 					underlyingAtMaturity = exerciseTime.sub(time+0.01).choose(underlyingAtMaturity, model.getAssetValue(time, 0));
 
@@ -215,7 +215,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		}
 
 		if(isPrintExerciseProbabilities && option instanceof BermudanOption) {
-			RandomVariableInterface exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
+			RandomVariable exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
 			double[] exerciseDates = ((BermudanOption) option).getExerciseDates();
 			double[] probabilities = exerciseTime.getHistogram(exerciseDates);
 			for(int exerciseDateIndex=0; exerciseDateIndex<exerciseDates.length; exerciseDateIndex++)

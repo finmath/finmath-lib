@@ -10,12 +10,12 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.LinearAlgebra;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -55,9 +55,9 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 
 	private static final int seed = 3141;
 
-	private final RandomVariableInterface[]		initialStates;
-	private final RandomVariableInterface[]		drift;
-	private final RandomVariableInterface[][]	factorLoadingOnPaths;
+	private final RandomVariable[]		initialStates;
+	private final RandomVariable[]		drift;
+	private final RandomVariable[][]	factorLoadingOnPaths;
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -69,7 +69,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	 * @param correlations A correlation matrix.
 	 */
 	public MonteCarloMultiAssetBlackScholesModel(
-			BrownianMotionInterface brownianMotion,
+			BrownianMotion brownianMotion,
 			double[]	initialValues,
 			double		riskFreeRate,
 			double[]	volatilities,
@@ -94,13 +94,13 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 		 * the initial value and the drift are transformed accordingly.
 		 *
 		 */
-		initialStates = new RandomVariableInterface[getNumberOfComponents()];
-		drift = new RandomVariableInterface[getNumberOfComponents()];
-		factorLoadingOnPaths = new RandomVariableInterface[getNumberOfComponents()][];
+		initialStates = new RandomVariable[getNumberOfComponents()];
+		drift = new RandomVariable[getNumberOfComponents()];
+		factorLoadingOnPaths = new RandomVariable[getNumberOfComponents()][];
 		for(int underlyingIndex = 0; underlyingIndex<initialValues.length; underlyingIndex++) {
 			this.initialStates[underlyingIndex]				= process.getStochasticDriver().getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
 			this.drift[underlyingIndex]						= process.getStochasticDriver().getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
-			this.factorLoadingOnPaths[underlyingIndex]		= new RandomVariableInterface[process.getNumberOfFactors()];
+			this.factorLoadingOnPaths[underlyingIndex]		= new RandomVariable[process.getNumberOfFactors()];
 			for(int factorIndex = 0; factorIndex<process.getNumberOfFactors(); factorIndex++) {
 				this.factorLoadingOnPaths[underlyingIndex][factorIndex]	= process.getStochasticDriver().getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
 			}
@@ -129,36 +129,36 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 			double[]	volatilities,
 			double[][]	correlations
 			) {
-		this(new BrownianMotion(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
+		this(new BrownianMotionLazyInit(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
 	}
 
 	@Override
-	public RandomVariableInterface[] getInitialState() {
+	public RandomVariable[] getInitialState() {
 		return initialStates;
 	}
 
 	@Override
-	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 		return drift;
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
 		return factorLoadingOnPaths[component];
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = -timeIndex-1;
@@ -167,31 +167,31 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
 		return getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(int timeIndex) {
+	public RandomVariable getNumeraire(int timeIndex) {
 		double time = getTime(timeIndex);
 
 		return getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) {
+	public RandomVariable getNumeraire(double time) {
 		double numeraireValue = Math.exp(riskFreeRate * time);
 
 		return getRandomVariableForConstant(numeraireValue);
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 

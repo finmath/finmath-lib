@@ -16,11 +16,11 @@ import java.util.stream.IntStream;
 import org.apache.commons.math3.util.FastMath;
 
 import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 
 /**
- * The class RandomVariable represents a random variable being the evaluation of a stochastic process
+ * The class RandomVariableFromDoubleArray represents a random variable being the evaluation of a stochastic process
  * at a certain time within a Monte-Carlo simulation.
  * It is thus essentially a vector of doubles - the realizations - together with a double - the time.
  * The index of the vector represents path.
@@ -29,14 +29,14 @@ import net.finmath.stochastic.RandomVariableInterface;
  * optimized code.
  *
  * Accesses performed exclusively through the interface
- * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
+ * <code>RandomVariable</code> is thread safe (and does not mutate the class).
  *
  * The implementation requires Java 8 or better.
  *
  * @author Christian Fries
  * @version 2.1
  */
-public class RandomVariable implements RandomVariableInterface {
+public class RandomVariableFromDoubleArray implements RandomVariable {
 
 	private static final long serialVersionUID = -1352953450936857742L;
 
@@ -53,11 +53,11 @@ public class RandomVariable implements RandomVariableInterface {
 	private final double      valueIfNonStochastic;
 
 	/**
-	 * Create a random variable from a given other implementation of <code>RandomVariableInterface</code>.
+	 * Create a random variable from a given other implementation of <code>RandomVariable</code>.
 	 *
-	 * @param value Object implementing <code>RandomVariableInterface</code>.
+	 * @param value Object implementing <code>RandomVariable</code>.
 	 */
-	public RandomVariable(RandomVariableInterface value) {
+	public RandomVariableFromDoubleArray(RandomVariable value) {
 		super();
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : value.getRealizations();
@@ -70,17 +70,17 @@ public class RandomVariable implements RandomVariableInterface {
 	 *
 	 * @param value the value, a constant.
 	 */
-	public RandomVariable(double value) {
+	public RandomVariableFromDoubleArray(double value) {
 		this(Double.NEGATIVE_INFINITY, value);
 	}
 
 	/**
-	 * Create a random variable by applying a function to a given other implementation of <code>RandomVariableInterface</code>.
+	 * Create a random variable by applying a function to a given other implementation of <code>RandomVariable</code>.
 	 *
-	 * @param value Object implementing <code>RandomVariableInterface</code>.
+	 * @param value Object implementing <code>RandomVariable</code>.
 	 * @param function A function mapping double to double.
 	 */
-	public RandomVariable(RandomVariableInterface value, DoubleUnaryOperator function) {
+	public RandomVariableFromDoubleArray(RandomVariable value, DoubleUnaryOperator function) {
 		super();
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : value.getRealizationsStream().map(function).toArray();
@@ -96,7 +96,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param value the value, a constant.
 	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
 	 */
-	public RandomVariable(double time, double value, int typePriority) {
+	public RandomVariableFromDoubleArray(double time, double value, int typePriority) {
 		super();
 		this.time = time;
 		this.realizations = null;
@@ -110,7 +110,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param value the value, a constant.
 	 */
-	public RandomVariable(double time, double value) {
+	public RandomVariableFromDoubleArray(double time, double value) {
 		this(time, value, typePriorityDefault);
 	}
 
@@ -122,7 +122,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param value the value, a constant.
 	 */
 	@Deprecated
-	public RandomVariable(double time, int numberOfPath, double value) {
+	public RandomVariableFromDoubleArray(double time, int numberOfPath, double value) {
 		super();
 		this.time = time;
 		this.realizations = new double[numberOfPath];
@@ -142,7 +142,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param realisations the vector of realizations.
 	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
 	 */
-	public RandomVariable(double time, double[] realisations, int typePriority) {
+	public RandomVariableFromDoubleArray(double time, double[] realisations, int typePriority) {
 		super();
 		this.time = time;
 		this.realizations = realisations;
@@ -160,7 +160,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
 	 */
-	public RandomVariable(double time, double[] realisations) {
+	public RandomVariableFromDoubleArray(double time, double[] realisations) {
 		this(time, realisations, typePriorityDefault);
 	}
 
@@ -172,7 +172,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param size The size, i.e., number of paths.
 	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
 	 */
-	public RandomVariable(double time, IntToDoubleFunction realizations, int size, int typePriority) {
+	public RandomVariableFromDoubleArray(double time, IntToDoubleFunction realizations, int size, int typePriority) {
 		super();
 		this.time = time;
 		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
@@ -192,12 +192,12 @@ public class RandomVariable implements RandomVariableInterface {
 	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
 	 * @param size The size, i.e., number of paths.
 	 */
-	public RandomVariable(double time, IntToDoubleFunction realizations, int size) {
+	public RandomVariableFromDoubleArray(double time, IntToDoubleFunction realizations, int size) {
 		this(time, realizations, size, typePriorityDefault);
 	}
 
 	@Override
-	public boolean equals(RandomVariableInterface randomVariable) {
+	public boolean equals(RandomVariable randomVariable) {
 		if(this.time != randomVariable.getFiltrationTime()) {
 			return false;
 		}
@@ -300,7 +300,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getAverage(RandomVariableInterface probabilities) {
+	public double getAverage(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -348,7 +348,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getVariance(RandomVariableInterface probabilities) {
+	public double getVariance(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -397,7 +397,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariableInterface probabilities) {
+	public double getStandardDeviation(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -421,10 +421,10 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariableInterface probabilities) {
+	public double getStandardError(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -436,7 +436,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile()
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile()
 	 */
 	@Override
 	public double getQuantile(double quantile) {
@@ -456,10 +456,10 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
+	public double getQuantile(double quantile, RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -471,7 +471,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getConditionalVaR()
+	 * @see net.finmath.stochastic.RandomVariable#getConditionalVaR()
 	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
@@ -501,7 +501,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram()
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram()
 	 */
 	@Override
 	public double[] getHistogram(double[] intervalPoints)
@@ -559,7 +559,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(int,double)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int,double)
 	 */
 	@Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
@@ -583,7 +583,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#isDeterministic()
+	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
 	 */
 	@Override
 	public boolean isDeterministic() {
@@ -591,7 +591,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface cache() {
+	public RandomVariable cache() {
 		return this;
 	}
 
@@ -639,9 +639,9 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(DoubleUnaryOperator operator) {
 		if(isDeterministic()) {
-			return new RandomVariable(time, operator.applyAsDouble(valueIfNonStochastic));
+			return new RandomVariableFromDoubleArray(time, operator.applyAsDouble(valueIfNonStochastic));
 		}
 		else
 		{
@@ -650,16 +650,16 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i]);
 			}
-			return new RandomVariable(time, result);
+			return new RandomVariableFromDoubleArray(time, result);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
 		double      newTime           = Math.max(time, argument.getFiltrationTime());
 
 		if(isDeterministic() && argument.isDeterministic()) {
-			return new RandomVariable(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
+			return new RandomVariableFromDoubleArray(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
 		}
 		else if(isDeterministic() && !argument.isDeterministic()) {
 			// Still faster than a parallel stream (2014.04)
@@ -667,7 +667,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(valueIfNonStochastic, argument.get(i));
 			}
-			return new RandomVariable(newTime, result);
+			return new RandomVariableFromDoubleArray(newTime, result);
 		}
 		else if(!isDeterministic() && argument.isDeterministic()) {
 			// Still faster than a parallel stream (2014.04)
@@ -675,7 +675,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i], argument.get(0));
 			}
-			return new RandomVariable(newTime, result);
+			return new RandomVariableFromDoubleArray(newTime, result);
 		}
 		else if(!isDeterministic() && !argument.isDeterministic()) {
 			// Still faster than a parallel stream (2014.04)
@@ -683,7 +683,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i], argument.get(i));
 			}
-			return new RandomVariable(newTime, result);
+			return new RandomVariableFromDoubleArray(newTime, result);
 		}
 
 		/*
@@ -695,11 +695,11 @@ public class RandomVariable implements RandomVariableInterface {
 		IntToDoubleFunction argument1Operator = argument.getOperator();
 		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
 
-		return new RandomVariable(newTime, result, newSize);
+		return new RandomVariableFromDoubleArray(newTime, result, newSize);
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
+	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
 		double newTime = Math.max(time, argument1.getFiltrationTime());
 		newTime = Math.max(newTime, argument2.getFiltrationTime());
 
@@ -710,217 +710,217 @@ public class RandomVariable implements RandomVariableInterface {
 		IntToDoubleFunction argument2Operator = argument2.getOperator();
 		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
 
-		return new RandomVariable(newTime, result, newSize);
+		return new RandomVariableFromDoubleArray(newTime, result, newSize);
 	}
 
-	public RandomVariableInterface apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariableInterface argument1, RandomVariableInterface argument2)
+	public RandomVariable apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariable argument1, RandomVariable argument2)
 	{
 		return apply((x,y,z) -> operatorOuter.applyAsDouble(x,operatorInner.applyAsDouble(y,z)), argument1, argument2);
 	}
 
 	@Override
-	public RandomVariableInterface cap(double cap) {
+	public RandomVariable cap(double cap) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.min(realizations[i],cap);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface floor(double floor) {
+	public RandomVariable floor(double floor) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.max(valueIfNonStochastic,floor);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.max(realizations[i],floor);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface add(double value) {
+	public RandomVariable add(double value) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic + value;
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + value;
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface sub(double value) {
+	public RandomVariable sub(double value) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic - value;
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] - value;
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface mult(double value) {
+	public RandomVariable mult(double value) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic * value;
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * value;
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface div(double value) {
+	public RandomVariable div(double value) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic / value;
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / value;
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface pow(double exponent) {
+	public RandomVariable pow(double exponent) {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.pow(valueIfNonStochastic,exponent);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.pow(realizations[i],exponent);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface average() {
-		return new RandomVariable(getAverage());
+	public RandomVariable average() {
+		return new RandomVariableFromDoubleArray(getAverage());
 	}
 
 	@Override
-	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	public RandomVariable getConditionalExpectation(ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
 		return conditionalExpectationOperator.getConditionalExpectation(this);
 	}
 
 	@Override
-	public RandomVariableInterface squared() {
+	public RandomVariable squared() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic * valueIfNonStochastic;
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * realizations[i];
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface sqrt() {
+	public RandomVariable sqrt() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.sqrt(valueIfNonStochastic);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.sqrt(realizations[i]);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariable exp() {
+	public RandomVariableFromDoubleArray exp() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.exp(valueIfNonStochastic);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.exp(realizations[i]);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariable log() {
+	public RandomVariableFromDoubleArray log() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.log(valueIfNonStochastic);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.log(realizations[i]);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface sin() {
+	public RandomVariable sin() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.sin(valueIfNonStochastic);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.sin(realizations[i]);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface cos() {
+	public RandomVariable cos() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.cos(valueIfNonStochastic);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.cos(realizations[i]);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
@@ -929,7 +929,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 */
 
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
+	public RandomVariable add(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.add(this);
@@ -940,25 +940,25 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic + randomVariable.get(0);
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic + randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
+	public RandomVariable sub(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.bus(this);
@@ -969,26 +969,26 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic - randomVariable.get(0);
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic - randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] - randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+	public RandomVariable bus(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.sub(this);
@@ -999,26 +999,26 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = randomVariable.get(0) - valueIfNonStochastic;
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 =  randomVariable.get(i) - valueIfNonStochastic;
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = randomVariable.get(i) - realizations[i];
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
+	public RandomVariable mult(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.mult(this);
@@ -1029,7 +1029,7 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic * randomVariable.get(0);
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(randomVariable.isDeterministic()) {
 			return this.mult(randomVariable.get(0));
@@ -1039,19 +1039,19 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic * randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
+	public RandomVariable div(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.vid(this);
@@ -1062,26 +1062,26 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic / randomVariable.get(0);
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic / randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / randomVariable.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+	public RandomVariable vid(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.div(this);
@@ -1092,26 +1092,26 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = randomVariable.get(0) / valueIfNonStochastic;
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = randomVariable.get(i) / valueIfNonStochastic;
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = randomVariable.get(i) / realizations[i];
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
+	public RandomVariable cap(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.cap(this);
@@ -1122,25 +1122,25 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.min(valueIfNonStochastic, randomVariable.get(0));
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.min(valueIfNonStochastic, randomVariable.get(i));
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.min(realizations[i], randomVariable.get(i));
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface randomVariable) {
+	public RandomVariable floor(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.floor(this);
@@ -1151,25 +1151,25 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.max(valueIfNonStochastic, randomVariable.get(0));
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.max(valueIfNonStochastic, randomVariable.get(i));
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		} else {
 			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.max(realizations[i], randomVariable.get(i));
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable accrue(RandomVariable rate, double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).mult(this);
@@ -1180,7 +1180,7 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && rate.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic * (1 + rate.get(0) * periodLength);
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic() && !rate.isDeterministic()) {
 			double[] rateRealizations = rate.getRealizations();
@@ -1188,7 +1188,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic * (1 + rateRealizations[i] * periodLength);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && rate.isDeterministic()) {
 			double rateValue = rate.get(0);
@@ -1196,7 +1196,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * (1 + rateValue * periodLength);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] rateRealizations = rate.getRealizations();
@@ -1204,12 +1204,12 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * (1 + rateRealizations[i] * periodLength);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).invert().mult(this);
@@ -1220,7 +1220,7 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && rate.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic / (1 + rate.get(0) * periodLength);
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic() && !rate.isDeterministic()) {
 			double[] rateRealizations = rate.getRealizations();
@@ -1228,7 +1228,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic / (1.0 + rateRealizations[i] * periodLength);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && rate.isDeterministic()) {
 			double rateValue = rate.get(0);
@@ -1236,7 +1236,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / (1.0 + rateValue * periodLength);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] rateRealizations = rate.getRealizations();
@@ -1244,7 +1244,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / (1.0 + rateRealizations[i] * periodLength);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
@@ -1254,7 +1254,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 */
 
 	@Override
-	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = time;
 		newTime = Math.max(newTime, valueIfTriggerNonNegative.getFiltrationTime());
@@ -1270,42 +1270,42 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i] = realizations[i] >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface invert() {
+	public RandomVariable invert() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = 1.0/valueIfNonStochastic;
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = 1.0/realizations[i];
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface abs() {
+	public RandomVariable abs() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = Math.abs(valueIfNonStochastic);
-			return new RandomVariable(time, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.abs(realizations[i]);
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
@@ -1316,7 +1316,7 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && factor1.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic + (factor1.get(0) * factor2);
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic() && !factor1.isDeterministic()) {
 			double[] factor1Realizations = factor1.getRealizations();
@@ -1324,7 +1324,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2;
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && factor1.isDeterministic()) {
 			double factor1Value = factor1.get(0);
@@ -1332,7 +1332,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + factor1Value * factor2;
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] factor1Realizations = factor1.getRealizations();
@@ -1340,12 +1340,12 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2;
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority() || factor2.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
@@ -1356,7 +1356,7 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && factor1.isDeterministic() && factor2.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic + (factor1.get(0) * factor2.get(0));
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic() && !factor1.isDeterministic() && !factor2.isDeterministic()) {
 			double[] factor1Realizations = factor1.getRealizations();
@@ -1365,7 +1365,7 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic + factor1Realizations[i] * factor2Realizations[i];
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else if(!isDeterministic() && !factor1.isDeterministic() && !factor2.isDeterministic()) {
 			double[] factor1Realizations = factor1.getRealizations();
@@ -1374,21 +1374,21 @@ public class RandomVariable implements RandomVariableInterface {
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + factor1Realizations[i] * factor2Realizations[i];
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(Math.max(size(), factor1.size()), factor2.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = get(i) + factor1.get(i) * factor2.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface addSumProduct(List<RandomVariableInterface> factor1, List<RandomVariableInterface> factor2)
+	public RandomVariable addSumProduct(List<RandomVariable> factor1, List<RandomVariable> factor2)
 	{
-		RandomVariableInterface result = this;
+		RandomVariable result = this;
 		for(int i=0; i<factor1.size(); i++) {
 			result = result.addProduct(factor1.get(i), factor2.get(i));
 		}
@@ -1396,7 +1396,7 @@ public class RandomVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).add(this);
@@ -1407,19 +1407,19 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic + (numerator.get(0) / denominator.get(0));
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = get(i) + numerator.get(i) / denominator.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).mult(-1).add(this);
@@ -1430,28 +1430,28 @@ public class RandomVariable implements RandomVariableInterface {
 
 		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic()) {
 			double newValueIfNonStochastic = valueIfNonStochastic - (numerator.get(0) / denominator.get(0));
-			return new RandomVariable(newTime, newValueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else {
 			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = get(i) - numerator.get(i) / denominator.get(i);
 			}
-			return new RandomVariable(newTime, newRealizations);
+			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 	}
 
 	@Override
-	public RandomVariableInterface isNaN() {
+	public RandomVariable isNaN() {
 		if(isDeterministic()) {
-			return new RandomVariable(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
+			return new RandomVariableFromDoubleArray(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
 		}
 		else {
 			double[] newRealizations = new double[size()];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;
 			}
-			return new RandomVariable(time, newRealizations);
+			return new RandomVariableFromDoubleArray(time, newRealizations);
 		}
 	}
 

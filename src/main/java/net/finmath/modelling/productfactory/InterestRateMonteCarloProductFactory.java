@@ -11,7 +11,7 @@ import net.finmath.modelling.ProductFactory;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwaptionProductDescriptor;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
@@ -19,7 +19,7 @@ import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.components.Option;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.ScheduleInterface;
 
@@ -166,8 +166,8 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		}
 
 		@Override
-		public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-			RandomVariableInterface value = new RandomVariable(0);
+		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+			RandomVariable value = new RandomVariableFromDoubleArray(0);
 			if(legPayer != null) {
 				value = value.add(legReceiver.getValue(evaluationTime, model));
 			}
@@ -225,7 +225,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		}
 
 		@Override
-		public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model)
+		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model)
 				throws CalculationException {
 			return swaption.getValue(evaluationTime, model);
 		}

@@ -13,7 +13,7 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Basic test for RandomVariableDifferentiableAAD.
@@ -43,7 +43,7 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 	@Test
 	public void testArithmeticSubSelf() {
 
-		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.sub(x):");
 
@@ -51,11 +51,11 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 		 * x.sub(x)
 		 */
 
-		RandomVariableInterface z = x.sub(x);
+		RandomVariable z = x.sub(x);
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
-		RandomVariableInterface dx = gradient.get(x.getID());
+		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + z.getAverage());
 
@@ -67,7 +67,7 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 	@Test
 	public void testArithmeticDivSelf() {
 
-		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.div(x):");
 
@@ -75,11 +75,11 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 		 * x.div(x)
 		 */
 
-		RandomVariableInterface z = x.div(x);
+		RandomVariable z = x.div(x);
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
-		RandomVariableInterface dx = gradient.get(x.getID());
+		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + z.getAverage());
 
@@ -91,7 +91,7 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 	@Test
 	public void testArithmeticExpLog() {
 
-		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.log().exp():");
 
@@ -99,11 +99,11 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 		 * x.log.exp()
 		 */
 
-		RandomVariableInterface z = x.log().exp();
+		RandomVariable z = x.log().exp();
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
-		RandomVariableInterface dx = gradient.get(x.getID());
+		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + dx.getAverage());
 
@@ -115,7 +115,7 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 	@Test
 	public void testArithmeticSqrtSquared() {
 
-		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.sqrt().squared():");
 
@@ -123,11 +123,11 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 		 * x.sqrt.squared()
 		 */
 
-		RandomVariableInterface z = x.sqrt().squared();
+		RandomVariable z = x.sqrt().squared();
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
-		RandomVariableInterface dx = gradient.get(x.getID());
+		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + dx.getAverage());
 
@@ -139,7 +139,7 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 	@Test
 	public void testArithmeticSqrtMultSqrt() {
 
-		RandomVariableDifferentiableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.sqrt().mult(x.sqrt()):");
 
@@ -147,11 +147,11 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 		 * x.sqrt.mult(x.sqrt())
 		 */
 
-		RandomVariableInterface z = x.sqrt().mult(x.sqrt());
+		RandomVariable z = x.sqrt().mult(x.sqrt());
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)z).getGradient();
-		RandomVariableInterface dx = gradient.get(x.getID());
+		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + dx.getAverage());
 

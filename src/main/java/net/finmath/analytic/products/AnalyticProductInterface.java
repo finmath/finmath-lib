@@ -7,7 +7,7 @@ package net.finmath.analytic.products;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.modelling.ProductInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * The interface which has to be implemented by a product which may
@@ -26,5 +26,5 @@ public interface AnalyticProductInterface extends ProductInterface {
 	 * @param model The model under which the product is valued.
 	 * @return The value of the product using the given model.
 	 */
-	RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model);
+	RandomVariable getValue(double evaluationTime, AnalyticModelInterface model);
 }

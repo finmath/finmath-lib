@@ -8,7 +8,7 @@ package net.finmath.analytic.products;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleInterface;
 
 /**
@@ -78,7 +78,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -97,7 +97,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		RandomVariableInterface value = model.getRandomVariableForConstant(0.0);
+		RandomVariable value = model.getRandomVariableForConstant(0.0);
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
 			double fixingDate	= legSchedule.getFixing(periodIndex);
 			double periodStart	= legSchedule.getPeriodStart(periodIndex);
@@ -105,14 +105,14 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			double paymentDate	= legSchedule.getPayment(periodIndex);
 			double periodLength	= legSchedule.getPeriodLength(periodIndex);
 
-			RandomVariableInterface forward = model.getRandomVariableForConstant(spread);
+			RandomVariable forward = model.getRandomVariableForConstant(spread);
 			if(forwardCurve != null) {
 				forward = forward.add(forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate));
 			}
 
 			// note that notional=1 if discountCurveForNotionalReset=discountCurve
-			RandomVariableInterface notional = discountCurveForNotionalReset.getDiscountFactor(model,periodStart).div(discountCurve.getDiscountFactor(model,periodStart));
-			RandomVariableInterface discountFactor = paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : model.getRandomVariableForConstant(0.0);
+			RandomVariable notional = discountCurveForNotionalReset.getDiscountFactor(model,periodStart).div(discountCurve.getDiscountFactor(model,periodStart));
+			RandomVariable discountFactor = paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : model.getRandomVariableForConstant(0.0);
 			value = value.add(notional.mult(forward).mult(periodLength).mult(discountFactor));
 
 			// Consider notional payments if required

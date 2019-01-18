@@ -3,9 +3,9 @@
  */
 package net.finmath.montecarlo.templatemethoddesign;
 
-import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -20,10 +20,10 @@ public abstract class LogNormalProcess {
 
 	public enum Scheme { EULER, PREDICTOR_USING_EULERSTEP, PREDICTOR_USING_LASTREALIZATION }
 
-	private BrownianMotionInterface	brownianMotion;
+	private BrownianMotion	brownianMotion;
 
-	private RandomVariableInterface[][]     discreteProcess         = null;
-	private RandomVariableInterface[]       discreteProcessWeights  = null;
+	private RandomVariable[][]     discreteProcess         = null;
+	private RandomVariable[]       discreteProcessWeights  = null;
 
 	private TimeDiscretizationInterface	timeDiscretization;
 	private int			numberOfComponents;
@@ -40,7 +40,7 @@ public abstract class LogNormalProcess {
 	 */
 	public LogNormalProcess(
 			int numberOfComponents,
-			BrownianMotionInterface brownianMotion) {
+			BrownianMotion brownianMotion) {
 		super();
 		this.timeDiscretization	= brownianMotion.getTimeDiscretization();
 		this.numberOfComponents	= numberOfComponents;
@@ -67,7 +67,7 @@ public abstract class LogNormalProcess {
 		this.numberOfPaths = numberOfPaths;
 
 		// Create a Brownian motion
-		brownianMotion = new net.finmath.montecarlo.BrownianMotion(
+		brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(
 				timeDiscretization,
 				numberOfFactors,
 				numberOfPaths,
@@ -96,7 +96,7 @@ public abstract class LogNormalProcess {
 		this.numberOfPaths		= numberOfPaths;
 
 		// Create a Brownian motion
-		brownianMotion = new net.finmath.montecarlo.BrownianMotion(
+		brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(
 				timeDiscretization,
 				numberOfFactors,
 				numberOfPaths,
@@ -104,8 +104,8 @@ public abstract class LogNormalProcess {
 	}
 
 
-	public abstract RandomVariableInterface[]	getInitialValue();
-	public abstract RandomVariableInterface	getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
+	public abstract RandomVariable[]	getInitialValue();
+	public abstract RandomVariable	getDrift(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor);
 
 	/**
 	 * Get the the drift.
@@ -115,9 +115,9 @@ public abstract class LogNormalProcess {
 	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
 	 * @return The (average) drift from timeIndex to timeIndex+1
 	 */
-	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 
-		RandomVariableInterface[] drift = new RandomVariableInterface[getNumberOfComponents()];
+		RandomVariable[] drift = new RandomVariable[getNumberOfComponents()];
 
 		/*
 		 * We implemented several different methods to calculate the drift
@@ -142,7 +142,7 @@ public abstract class LogNormalProcess {
 	 * @param realizationAtTimeIndex The realization at the current time index.
 	 * @return factor loading for given factor and component
 	 */
-	public abstract RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, RandomVariableInterface[] realizationAtTimeIndex);
+	public abstract RandomVariable getFactorLoading(int timeIndex, int factor, int component, RandomVariable[] realizationAtTimeIndex);
 
 	/**
 	 * This method returns the realization of the process at a certain time index.
@@ -150,7 +150,7 @@ public abstract class LogNormalProcess {
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of process realizations (on path)
 	 */
-	public RandomVariableInterface[] getProcessValue(int timeIndex)
+	public RandomVariable[] getProcessValue(int timeIndex)
 	{
 		// Thread safe lazy initialization
 		synchronized(this) {
@@ -171,7 +171,7 @@ public abstract class LogNormalProcess {
 	 * @param componentIndex Component of the process vector
 	 * @return A vector of process realizations (on path)
 	 */
-	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex)
+	public RandomVariable getProcessValue(int timeIndex, int componentIndex)
 	{
 		if(timeIndex == 0) {
 			return getInitialValue()[componentIndex];
@@ -194,7 +194,7 @@ public abstract class LogNormalProcess {
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
 	 */
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex)
+	public RandomVariable getMonteCarloWeights(int timeIndex)
 	{
 		// Lazy initialization, synchronized for thread safety
 		synchronized(this) {
@@ -217,11 +217,11 @@ public abstract class LogNormalProcess {
 		}
 
 		// Allocate Memory
-		discreteProcess			= new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()+1][numberOfComponents];
-		discreteProcessWeights	= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()+1];
+		discreteProcess			= new RandomVariable[timeDiscretization.getNumberOfTimeSteps()+1][numberOfComponents];
+		discreteProcessWeights	= new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps()+1];
 
 		// Set initial Monte-Carlo weights
-		discreteProcessWeights[0] = new RandomVariable(0.0, 1.0/numberOfPaths);
+		discreteProcessWeights[0] = new RandomVariableFromDoubleArray(0.0, 1.0/numberOfPaths);
 
 		// Store components
 		discreteProcess[0] = getInitialValue();
@@ -233,8 +233,8 @@ public abstract class LogNormalProcess {
 			double deltaT = timeDiscretization.getTime(timeIndex) - timeDiscretization.getTime(timeIndex-1);
 
 			// Temp storage for variance and diffusion
-			RandomVariableInterface[] variance   = new RandomVariableInterface[numberOfComponents];
-			RandomVariableInterface[] diffusion  = new RandomVariableInterface[numberOfComponents];
+			RandomVariable[] variance   = new RandomVariable[numberOfComponents];
+			RandomVariable[] diffusion  = new RandomVariable[numberOfComponents];
 
 			// Calculate new realization
 			for(int componentIndex = numberOfComponents-1; componentIndex >= 0; componentIndex--)
@@ -242,13 +242,13 @@ public abstract class LogNormalProcess {
 				// Calculate diffusion
 
 				// Temp storage for variance and diffusion
-				RandomVariableInterface varianceOfComponent  = new RandomVariable(getTime(timeIndex-1),0.0);
-				RandomVariableInterface diffusionOfComponent = new RandomVariable(getTime(timeIndex-1),0.0);
+				RandomVariable varianceOfComponent  = new RandomVariableFromDoubleArray(getTime(timeIndex-1),0.0);
+				RandomVariable diffusionOfComponent = new RandomVariableFromDoubleArray(getTime(timeIndex-1),0.0);
 
 				// Generate values for diffusionOfComponent and varianceOfComponent
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					RandomVariableInterface factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);
-					RandomVariableInterface brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);
+					RandomVariable factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);
+					RandomVariable brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);
 
 					varianceOfComponent = varianceOfComponent.addProduct(factorLoading, factorLoading);
 					diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
@@ -258,7 +258,7 @@ public abstract class LogNormalProcess {
 				diffusion[componentIndex] = diffusionOfComponent;
 			}
 
-			RandomVariableInterface[] drift;
+			RandomVariable[] drift;
 			if(scheme == Scheme.PREDICTOR_USING_LASTREALIZATION) {
 				drift = getDrift(timeIndex-1, discreteProcess[timeIndex-1], discreteProcess[timeIndex]);
 			} else {
@@ -268,9 +268,9 @@ public abstract class LogNormalProcess {
 			// Calculate drift
 			for(int componentIndex = numberOfComponents-1; componentIndex >= 0; componentIndex--)
 			{
-				RandomVariableInterface driftOfComponent  	= drift[componentIndex];
-				RandomVariableInterface varianceOfComponent			= variance[componentIndex];
-				RandomVariableInterface diffusionOfComponent		= diffusion[componentIndex];
+				RandomVariable driftOfComponent  	= drift[componentIndex];
+				RandomVariable varianceOfComponent			= variance[componentIndex];
+				RandomVariable diffusionOfComponent		= diffusion[componentIndex];
 
 				if(driftOfComponent == null) {
 					discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];
@@ -281,7 +281,7 @@ public abstract class LogNormalProcess {
 				double[] newRealization			= new double[numberOfPaths];
 
 				// Euler Scheme
-				RandomVariableInterface previouseRealization		= discreteProcess[timeIndex-1][componentIndex];
+				RandomVariable previouseRealization		= discreteProcess[timeIndex-1][componentIndex];
 
 				// Generate values
 				for(int pathIndex = 0; pathIndex < numberOfPaths; pathIndex++)
@@ -296,11 +296,11 @@ public abstract class LogNormalProcess {
 				}
 
 				// Store components
-				discreteProcess[timeIndex][componentIndex] = new RandomVariable(getTime(timeIndex),newRealization);
+				discreteProcess[timeIndex][componentIndex] = new RandomVariableFromDoubleArray(getTime(timeIndex),newRealization);
 			}
 
 			if(scheme == Scheme.PREDICTOR_USING_EULERSTEP) {
-				RandomVariableInterface[] newRealization = new RandomVariable[numberOfComponents];
+				RandomVariable[] newRealization = new RandomVariableFromDoubleArray[numberOfComponents];
 
 				// Note: This is actually more than a predictor corrector: The drift of componentIndex already uses the corrected predictor from the previous components
 				drift = getDrift(timeIndex-1, discreteProcess[timeIndex-1], discreteProcess[timeIndex]);
@@ -308,12 +308,12 @@ public abstract class LogNormalProcess {
 				// Apply corrector step to realizations at next time step
 				for(int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++)
 				{
-					RandomVariableInterface driftOfComponent	= drift[componentIndex];
-					RandomVariableInterface varianceOfComponent			= variance[componentIndex];
-					RandomVariableInterface diffusionOfComponent		= diffusion[componentIndex];
+					RandomVariable driftOfComponent	= drift[componentIndex];
+					RandomVariable varianceOfComponent			= variance[componentIndex];
+					RandomVariable diffusionOfComponent		= diffusion[componentIndex];
 
 					// Euler Scheme with corrected drift
-					RandomVariableInterface previouseRealization 	= discreteProcess[timeIndex-1][componentIndex];
+					RandomVariable previouseRealization 	= discreteProcess[timeIndex-1][componentIndex];
 
 					// The scheme
 					// newValue = previousValue * Math.exp(driftValue * deltaT - 0.5 * varianceOnPath * deltaT + diffusionOnPath);
@@ -381,7 +381,7 @@ public abstract class LogNormalProcess {
 	/**
 	 * @return Returns the Brownian motion used in the generation of the process
 	 */
-	public BrownianMotionInterface getBrownianMotion() {
+	public BrownianMotion getBrownianMotion() {
 		return brownianMotion;
 	}
 
@@ -398,7 +398,7 @@ public abstract class LogNormalProcess {
 	 *
 	 * @param brownianMotion The brownianMotion to set.
 	 */
-	protected synchronized void setBrownianMotion(BrownianMotionInterface brownianMotion) {
+	protected synchronized void setBrownianMotion(BrownianMotion brownianMotion) {
 		if(discreteProcessWeights != null && discreteProcessWeights.length != 0) {
 			throw new RuntimeException("Tying to change lazy initialized immutable object after initialization.");
 		}

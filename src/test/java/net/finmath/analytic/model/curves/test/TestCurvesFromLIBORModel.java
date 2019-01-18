@@ -18,7 +18,7 @@ import net.finmath.analytic.products.Swap;
 import net.finmath.analytic.products.SwapLeg;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
@@ -37,8 +37,8 @@ import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
@@ -77,7 +77,7 @@ public class TestCurvesFromLIBORModel {
 
 		int timeIndex = liborMarketModel.getTimeIndex(evaluationTime);
 		// Get all Libors at timeIndex which are not yet fixed (others null) and times for the timeDiscretization of the curves
-		ArrayList<RandomVariableInterface> liborsAtTimeIndex = new ArrayList<>();
+		ArrayList<RandomVariable> liborsAtTimeIndex = new ArrayList<>();
 		int firstLiborIndex = liborMarketModel.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(evaluationTime);
 		double firstLiborTime = liborMarketModel.getLiborPeriodDiscretization().getTime(firstLiborIndex);
 		if(firstLiborTime>evaluationTime) {
@@ -87,10 +87,10 @@ public class TestCurvesFromLIBORModel {
 			liborsAtTimeIndex.add(liborMarketModel.getLIBOR(timeIndex,i));
 		}
 		//times[times.length-1]= model.getLiborPeriodDiscretization().getTime(model.getNumberOfLibors())-evaluationTime;
-		RandomVariableInterface[] libors = liborsAtTimeIndex.toArray(new RandomVariableInterface[liborsAtTimeIndex.size()]);
+		RandomVariable[] libors = liborsAtTimeIndex.toArray(new RandomVariable[liborsAtTimeIndex.size()]);
 		// Create conditional expectation operator
-		ArrayList<RandomVariableInterface> basisFunctions = getRegressionBasisFunctions(libors);
-		ConditionalExpectationEstimatorInterface conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariableInterface[0]));
+		ArrayList<RandomVariable> basisFunctions = getRegressionBasisFunctions(libors);
+		ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
 		// Get value with Monte Carlo
 		double valueMonteCarlo = swapMonteCarlo.getValue(evaluationTime, liborMarketModel).getConditionalExpectation(conditionalExpectationOperator).getAverage();
 
@@ -107,8 +107,8 @@ public class TestCurvesFromLIBORModel {
 		Assert.assertEquals(valueMonteCarlo,valueWithCurves,1E-4); //True if forwardStartTimeInYears = 0;
 	}
 
-	private static ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface[] libors) {
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
+	private static ArrayList<RandomVariable> getRegressionBasisFunctions(RandomVariable[] libors) {
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		// Create basis functions - here: 1, L
 		for(int liborIndex=0; liborIndex<libors.length;liborIndex++){
@@ -201,7 +201,7 @@ public class TestCurvesFromLIBORModel {
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, new net.finmath.marketdata.model.AnalyticModel(new net.finmath.marketdata.model.curves.CurveInterface[]{forwardCurve, discountCurve}), forwardCurve, discountCurve, randomVariableFactory, covarianceModel, calibrationItems, properties);
 
-		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER_FUNCTIONAL);
 

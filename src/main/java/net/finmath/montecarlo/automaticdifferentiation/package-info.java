@@ -1,5 +1,5 @@
 /**
- * Provides classes adding automatic differentiation capabilities to objects relying on RandomVariableInterface objects.
+ * Provides classes adding automatic differentiation capabilities to objects relying on RandomVariable objects.
  *
  * @author Christian Fries
  */

@@ -11,7 +11,7 @@ import net.finmath.analytic.model.curves.CurveInterface;
 import net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -94,19 +94,19 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 
-		RandomVariableInterface valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
-		RandomVariableInterface valuePayerLeg	= legPayer.getValue(evaluationTime, model);
+		RandomVariable valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
+		RandomVariable valuePayerLeg	= legPayer.getValue(evaluationTime, model);
 
 		return valueReceiverLeg.sub(valuePayerLeg);
 	}
 
-	public static RandomVariableInterface getForwardSwapRate(TimeDiscretizationInterface fixTenor, TimeDiscretizationInterface floatTenor, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getForwardSwapRate(TimeDiscretizationInterface fixTenor, TimeDiscretizationInterface floatTenor, ForwardCurveInterface forwardCurve) {
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve);
 	}
 
-	public static RandomVariableInterface getForwardSwapRate(TimeDiscretizationInterface fixTenor, TimeDiscretizationInterface floatTenor, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) {
+	public static RandomVariable getForwardSwapRate(TimeDiscretizationInterface fixTenor, TimeDiscretizationInterface floatTenor, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) {
 		AnalyticModel model = null;
 		if(discountCurve != null) {
 			model			= new AnalyticModel(new CurveInterface[] { forwardCurve, discountCurve });
@@ -114,11 +114,11 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);
 	}
 
-	public static RandomVariableInterface getForwardSwapRate(ScheduleInterface fixSchedule, ScheduleInterface floatSchedule, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getForwardSwapRate(ScheduleInterface fixSchedule, ScheduleInterface floatSchedule, ForwardCurveInterface forwardCurve) {
 		return getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, null);
 	}
 
-	public static RandomVariableInterface getForwardSwapRate(ScheduleInterface fixSchedule, ScheduleInterface floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModelInterface model) {
+	public static RandomVariable getForwardSwapRate(ScheduleInterface fixSchedule, ScheduleInterface floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModelInterface model) {
 		DiscountCurveInterface discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
 		if(discountCurve == null) {
 			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
@@ -126,17 +126,17 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		}
 
 		double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
-		RandomVariableInterface swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
+		RandomVariable swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
 
 		// Create floating leg
 		double fixing			= floatSchedule.getFixing(0);
 		double payment			= floatSchedule.getPayment(0);
 		double periodLength		= floatSchedule.getPeriodLength(0);
 
-		RandomVariableInterface forward			= forwardCurve.getForward(model, fixing);
-		RandomVariableInterface discountFactor	= discountCurve.getDiscountFactor(model, payment);
+		RandomVariable forward			= forwardCurve.getForward(model, fixing);
+		RandomVariable discountFactor	= discountCurve.getDiscountFactor(model, payment);
 
-		RandomVariableInterface floatLeg = forward.mult(discountFactor).mult(periodLength);
+		RandomVariable floatLeg = forward.mult(discountFactor).mult(periodLength);
 
 		for(int periodIndex=1; periodIndex<floatSchedule.getNumberOfPeriods(); periodIndex++) {
 			fixing			= floatSchedule.getFixing(periodIndex);
@@ -149,7 +149,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 			floatLeg = floatLeg.add(forward.mult(discountFactor).mult(periodLength));
 		}
 
-		RandomVariableInterface valueFloatLeg = floatLeg.div(discountCurve.getDiscountFactor(model, evaluationTime));
+		RandomVariable valueFloatLeg = floatLeg.div(discountCurve.getDiscountFactor(model, evaluationTime));
 
 		return valueFloatLeg.div(swapAnnuity);
 	}

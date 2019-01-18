@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -42,8 +42,8 @@ public interface TermStructureFactorLoadingsModelInterface {
 	 * @param model The term structure model.
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
-	RandomVariableInterface[] getFactorLoading(double time, double periodStart, double periodEnd,
-			TimeDiscretizationInterface periodDiscretization, RandomVariableInterface[] realizationAtTimeIndex,
+	RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd,
+			TimeDiscretizationInterface periodDiscretization, RandomVariable[] realizationAtTimeIndex,
 			TermStructureModelInterface model);
 
 	/**

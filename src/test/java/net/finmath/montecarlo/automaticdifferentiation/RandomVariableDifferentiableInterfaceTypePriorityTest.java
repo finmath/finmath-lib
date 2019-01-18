@@ -13,7 +13,7 @@ import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Basic test for RandomVariableDifferentiableAAD.
@@ -45,8 +45,8 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 	@Test
 	public void testTypePriorityAdd() {
 
-		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -54,11 +54,11 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 		 * add
 		 */
 
-		RandomVariableInterface z1 = x.add(y);
+		RandomVariable z1 = x.add(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariableInterface z2 = y.add(x);
+		RandomVariable z2 = y.add(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 
@@ -70,8 +70,8 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 	@Test
 	public void testTypePriorityMult() {
 
-		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -79,11 +79,11 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 		 * mult
 		 */
 
-		RandomVariableInterface z1 = x.mult(y);
+		RandomVariable z1 = x.mult(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariableInterface z2 = y.mult(x);
+		RandomVariable z2 = y.mult(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 
@@ -93,8 +93,8 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 	@Test
 	public void testTypePriorityCap() {
 
-		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -102,11 +102,11 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 		 * cap
 		 */
 
-		RandomVariableInterface z1 = x.cap(y);
+		RandomVariable z1 = x.cap(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariableInterface z2 = y.cap(x);
+		RandomVariable z2 = y.cap(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 
@@ -116,8 +116,8 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 	@Test
 	public void testTypePriorityFloor() {
 
-		RandomVariableInterface x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariableInterface y = randomVariableFactoryValue.createRandomVariable(3.0);
+		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -125,11 +125,11 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 		 * floor
 		 */
 
-		RandomVariableInterface z1 = x.floor(y);
+		RandomVariable z1 = x.floor(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariableInterface z2 = y.floor(x);
+		RandomVariable z2 = y.floor(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 

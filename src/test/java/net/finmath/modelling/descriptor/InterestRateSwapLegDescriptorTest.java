@@ -33,7 +33,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExp
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
@@ -86,7 +86,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		RandomVariableInterface value = (RandomVariableInterface) legMC.getValue(0.0, modelMC);
+		RandomVariable value = (RandomVariable) legMC.getValue(0.0, modelMC);
 		double valueSimulation = value.getAverage();
 		System.out.println("Float leg (simulation): " + value.getAverage() + "\t +/-" + value.getStandardError());
 
@@ -157,7 +157,7 @@ public class InterestRateSwapLegDescriptorTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		RandomVariableInterface value = (RandomVariableInterface) legMC.getValue(0.0, model);
+		RandomVariable value = (RandomVariable) legMC.getValue(0.0, model);
 		double valueSimulation = value.getAverage();
 		System.out.println("Fixed leg (simulation): " + value.getAverage() + "\t +/-" + value.getStandardError());
 
@@ -291,7 +291,7 @@ public class InterestRateSwapLegDescriptorTest {
 				liborPeriodDiscretization, model, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 

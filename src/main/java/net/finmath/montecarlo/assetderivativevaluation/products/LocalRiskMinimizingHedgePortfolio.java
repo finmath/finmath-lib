@@ -8,10 +8,10 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 import java.util.ArrayList;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -58,7 +58,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
@@ -71,12 +71,12 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		/*
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		RandomVariableInterface numeraireToday  = model.getNumeraire(0.0);
+		RandomVariable numeraireToday  = model.getNumeraire(0.0);
 		double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
 
 		// We store the composition of the hedge portfolio (depending on the path)
-		RandomVariableInterface amountOfNumeraireAsset		= numeraireToday.invert().mult(valueOfOptionAccordingHedgeModel);
-		RandomVariableInterface amountOfUderlyingAsset		= model.getRandomVariableForConstant(0.0);
+		RandomVariable amountOfNumeraireAsset		= numeraireToday.invert().mult(valueOfOptionAccordingHedgeModel);
+		RandomVariable amountOfUderlyingAsset		= model.getRandomVariableForConstant(0.0);
 
 		for(int timeIndex = 0; timeIndex<timeDiscretizationForRebalancing.getNumberOfTimes()-1; timeIndex++) {
 			double time		=	timeDiscretizationForRebalancing.getTime(timeIndex);
@@ -87,46 +87,46 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 			}
 
 			// Get value of underlying and numeraire assets
-			RandomVariableInterface underlyingAtTime = modelUsedForHedging.getAssetValue(time,0);
-			RandomVariableInterface numeraireAtTime  = modelUsedForHedging.getNumeraire(time);
-			RandomVariableInterface underlyingAtTimeNext = modelUsedForHedging.getAssetValue(timeNext,0);
-			RandomVariableInterface numeraireAtTimeNext  = modelUsedForHedging.getNumeraire(timeNext);
+			RandomVariable underlyingAtTime = modelUsedForHedging.getAssetValue(time,0);
+			RandomVariable numeraireAtTime  = modelUsedForHedging.getNumeraire(time);
+			RandomVariable underlyingAtTimeNext = modelUsedForHedging.getAssetValue(timeNext,0);
+			RandomVariable numeraireAtTimeNext  = modelUsedForHedging.getNumeraire(timeNext);
 
-			RandomVariableInterface productAtTime		= productToHedge.getValue(time, modelUsedForHedging);
-			RandomVariableInterface productAtTimeNext	= productToHedge.getValue(timeNext, modelUsedForHedging);
+			RandomVariable productAtTime		= productToHedge.getValue(time, modelUsedForHedging);
+			RandomVariable productAtTimeNext	= productToHedge.getValue(timeNext, modelUsedForHedging);
 
-			RandomVariableInterface[] basisFunctionsEstimator = getBasisFunctions(modelUsedForHedging.getAssetValue(time,0));
-			RandomVariableInterface[] basisFunctionsPredictor = getBasisFunctions(model.getAssetValue(time,0));
+			RandomVariable[] basisFunctionsEstimator = getBasisFunctions(modelUsedForHedging.getAssetValue(time,0));
+			RandomVariable[] basisFunctionsPredictor = getBasisFunctions(model.getAssetValue(time,0));
 
 			MonteCarloConditionalExpectationRegression condExpectationHedging	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsEstimator);
 			MonteCarloConditionalExpectationRegression condExpectationValuation	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsPredictor);
 
-			RandomVariableInterface underlyingRebased = underlyingAtTimeNext.div(numeraireAtTimeNext);
-			RandomVariableInterface underlyingRebasedExpected = condExpectationHedging.getConditionalExpectation(underlyingRebased);
-			RandomVariableInterface underlyingRebasedMartingale = underlyingRebased.sub(underlyingRebasedExpected);
+			RandomVariable underlyingRebased = underlyingAtTimeNext.div(numeraireAtTimeNext);
+			RandomVariable underlyingRebasedExpected = condExpectationHedging.getConditionalExpectation(underlyingRebased);
+			RandomVariable underlyingRebasedMartingale = underlyingRebased.sub(underlyingRebasedExpected);
 
-			RandomVariableInterface derivativeRebased = productAtTimeNext.div(numeraireAtTimeNext);
-			RandomVariableInterface derivativeRebasedExpected = condExpectationHedging.getConditionalExpectation(derivativeRebased);
-			RandomVariableInterface derivativeRebasedMartingale = derivativeRebased.sub(derivativeRebasedExpected);
+			RandomVariable derivativeRebased = productAtTimeNext.div(numeraireAtTimeNext);
+			RandomVariable derivativeRebasedExpected = condExpectationHedging.getConditionalExpectation(derivativeRebased);
+			RandomVariable derivativeRebasedMartingale = derivativeRebased.sub(derivativeRebasedExpected);
 
-			RandomVariableInterface derivativeTimesUnderlying = derivativeRebasedMartingale.mult(underlyingRebasedMartingale);
-			RandomVariableInterface derivativeTimesUnderlyingExpected = condExpectationValuation.getConditionalExpectation(derivativeTimesUnderlying);
+			RandomVariable derivativeTimesUnderlying = derivativeRebasedMartingale.mult(underlyingRebasedMartingale);
+			RandomVariable derivativeTimesUnderlyingExpected = condExpectationValuation.getConditionalExpectation(derivativeTimesUnderlying);
 
-			RandomVariableInterface underlyingRabasedMartingaleSquared = underlyingRebasedMartingale.squared();
-			RandomVariableInterface underlyingRabasedMartingaleSquaredExpected = condExpectationValuation.getConditionalExpectation(underlyingRabasedMartingaleSquared);
+			RandomVariable underlyingRabasedMartingaleSquared = underlyingRebasedMartingale.squared();
+			RandomVariable underlyingRabasedMartingaleSquaredExpected = condExpectationValuation.getConditionalExpectation(underlyingRabasedMartingaleSquared);
 
-			RandomVariableInterface delta = derivativeTimesUnderlyingExpected.div(underlyingRabasedMartingaleSquaredExpected);
+			RandomVariable delta = derivativeTimesUnderlyingExpected.div(underlyingRabasedMartingaleSquaredExpected);
 
-			RandomVariableInterface underlyingValue = model.getAssetValue(time,0);
-			RandomVariableInterface numeraireValue  = model.getNumeraire(time);
+			RandomVariable underlyingValue = model.getAssetValue(time,0);
+			RandomVariable numeraireValue  = model.getNumeraire(time);
 
 			// Determine the delta hedge
-			RandomVariableInterface newNumberOfStocks		= delta;
-			RandomVariableInterface stocksToBuy				= newNumberOfStocks.sub(amountOfUderlyingAsset);
+			RandomVariable newNumberOfStocks		= delta;
+			RandomVariable stocksToBuy				= newNumberOfStocks.sub(amountOfUderlyingAsset);
 
 			// Ensure self financing
-			RandomVariableInterface numeraireAssetsToBuy		= stocksToBuy.mult(underlyingValue).div(numeraireValue).mult(-1);
-			RandomVariableInterface newNumberOfNumeraireAsset	= amountOfNumeraireAsset.add(numeraireAssetsToBuy);
+			RandomVariable numeraireAssetsToBuy		= stocksToBuy.mult(underlyingValue).div(numeraireValue).mult(-1);
+			RandomVariable newNumberOfNumeraireAsset	= amountOfNumeraireAsset.add(numeraireAssetsToBuy);
 
 			// Update portfolio
 			amountOfNumeraireAsset	= newNumberOfNumeraireAsset;
@@ -138,10 +138,10 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		 */
 
 		// Get value of underlying and numeraire assets
-		RandomVariableInterface underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
-		RandomVariableInterface numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
+		RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
+		RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 
-		RandomVariableInterface portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime).add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));
+		RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime).add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));
 
 		return portfolioValue;
 	}
@@ -152,17 +152,17 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	 * @param underlying
 	 * @return
 	 */
-	private RandomVariableInterface[] getBasisFunctions(RandomVariableInterface underlying) {
+	private RandomVariable[] getBasisFunctions(RandomVariable underlying) {
 		double min = underlying.getMin();
 		double max = underlying.getMax();
 
-		ArrayList<RandomVariableInterface> basisFunctionList = new ArrayList<>();
+		ArrayList<RandomVariable> basisFunctionList = new ArrayList<>();
 		double[] discretization = (new TimeDiscretization(min, numberOfBins, (max-min)/numberOfBins)).getAsDoubleArray();
 		for(double discretizationStep : discretization) {
-			RandomVariableInterface indicator = underlying.sub(discretizationStep).choose(new RandomVariable(1.0), new RandomVariable(0.0));
+			RandomVariable indicator = underlying.sub(discretizationStep).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
 			basisFunctionList.add(indicator);
 		}
 
-		return basisFunctionList.toArray(new RandomVariableInterface[0]);
+		return basisFunctionList.toArray(new RandomVariable[0]);
 	}
 }

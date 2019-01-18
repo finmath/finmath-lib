@@ -9,9 +9,9 @@ import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements a delta and delta-gamma hedged portfolio of an European option (a hedge simulator).
@@ -89,7 +89,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
@@ -111,8 +111,8 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		/*
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		RandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
-		RandomVariableInterface numeraireToday = model.getNumeraire(0.0);
+		RandomVariable underlyingToday = model.getAssetValue(0.0,0);
+		RandomVariable numeraireToday = model.getNumeraire(0.0);
 		double initialValue = underlyingToday.doubleValue();
 
 		double valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesOptionValue(
@@ -130,8 +130,8 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			// Get value of underlying and numeraire assets
-			RandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
-			RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
+			RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
+			RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
 			for(int path=0; path<model.getNumberOfPaths(); path++)
 			{
@@ -255,8 +255,8 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		double[] portfolioValue				= new double[numberOfPath];
 
 		// Get value of underlying and numeraire assets
-		RandomVariableInterface underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
-		RandomVariableInterface numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
+		RandomVariable underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
+		RandomVariable numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
 		for(int path=0; path<portfolioValue.length; path++)
 		{
 			double underlyingValue = underlyingAtEvaluationTime.get(path);
@@ -281,6 +281,6 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 					+	amountOfHedgeOptions[path] * priceOfHedgeOption;
 		}
 
-		return new RandomVariable(evaluationTime, portfolioValue);
+		return new RandomVariableFromDoubleArray(evaluationTime, portfolioValue);
 	}
 }

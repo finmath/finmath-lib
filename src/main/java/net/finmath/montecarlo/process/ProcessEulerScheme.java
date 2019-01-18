@@ -15,9 +15,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import net.finmath.concurrency.FutureWrapper;
-import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.IndependentIncrementsInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements some numerical schemes for multi-dimensional multi-factor Ito process.
@@ -53,7 +53,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 		EULER, PREDICTOR_CORRECTOR, EULER_FUNCTIONAL
 	}
 
-	private IndependentIncrementsInterface stochasticDriver;
+	private IndependentIncrements stochasticDriver;
 
 	private Scheme		scheme = Scheme.EULER;
 
@@ -63,8 +63,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	/*
 	 * The storage of the simulated stochastic process.
 	 */
-	private transient RandomVariableInterface[][]	discreteProcess = null;
-	private transient RandomVariableInterface[]		discreteProcessWeights;
+	private transient RandomVariable[][]	discreteProcess = null;
+	private transient RandomVariable[]		discreteProcessWeights;
 
 
 	/**
@@ -73,7 +73,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 * @param scheme The scheme to use. See {@link Scheme}.
 	 */
-	public ProcessEulerScheme(IndependentIncrementsInterface stochasticDriver, Scheme scheme) {
+	public ProcessEulerScheme(IndependentIncrements stochasticDriver, Scheme scheme) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
 		this.scheme = scheme;
@@ -84,7 +84,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
-	public ProcessEulerScheme(IndependentIncrementsInterface stochasticDriver) {
+	public ProcessEulerScheme(IndependentIncrements stochasticDriver) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
 	}
@@ -96,7 +96,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return A vector of process realizations (on path)
 	 */
 	@Override
-	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) {
+	public RandomVariable getProcessValue(int timeIndex, int componentIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcess == null || discreteProcess.length == 0) {
@@ -119,7 +119,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return A vector of positive weights
 	 */
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) {
+	public RandomVariable getMonteCarloWeights(int timeIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcessWeights == null || discreteProcessWeights.length == 0) {
@@ -144,15 +144,15 @@ public class ProcessEulerScheme extends AbstractProcess {
 		final int numberOfComponents	= this.getNumberOfComponents();
 
 		// Allocate Memory
-		discreteProcess			= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1][getNumberOfComponents()];
-		discreteProcessWeights	= new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps() + 1];
+		discreteProcess			= new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps() + 1][getNumberOfComponents()];
+		discreteProcessWeights	= new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps() + 1];
 
 		// Set initial Monte-Carlo weights
 		discreteProcessWeights[0] = stochasticDriver.getRandomVariableForConstant(1.0 / numberOfPaths);
 
 		// Set initial value
-		RandomVariableInterface[] initialState = getInitialState();
-		final RandomVariableInterface[] currentState = new RandomVariableInterface[numberOfComponents];
+		RandomVariable[] initialState = getInitialState();
+		final RandomVariable[] currentState = new RandomVariable[numberOfComponents];
 		for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 			currentState[componentIndex] = initialState[componentIndex];
 			discreteProcess[0][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
@@ -175,7 +175,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			final double deltaT = getTime(timeIndex) - getTime(timeIndex - 1);
 
 			// Fetch drift vector
-			RandomVariableInterface[] drift = null;
+			RandomVariable[] drift = null;
 			try {
 				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 			}
@@ -184,26 +184,26 @@ public class ProcessEulerScheme extends AbstractProcess {
 			}
 
 			// Calculate new realization
-			Vector<Future<RandomVariableInterface>> discreteProcessAtCurrentTimeIndex = new Vector<>(numberOfComponents);
+			Vector<Future<RandomVariable>> discreteProcessAtCurrentTimeIndex = new Vector<>(numberOfComponents);
 			discreteProcessAtCurrentTimeIndex.setSize(numberOfComponents);
 			for (int componentIndex2 = 0; componentIndex2 < numberOfComponents; componentIndex2++) {
 				final int componentIndex = componentIndex2;
 
-				final RandomVariableInterface	driftOfComponent	= drift[componentIndex];
+				final RandomVariable	driftOfComponent	= drift[componentIndex];
 
 				// Check if the component process has stopped to evolve
 				if (driftOfComponent == null) {
 					continue;
 				}
 
-				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
+				Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 					@Override
-					public RandomVariableInterface call() {
+					public RandomVariable call() {
 						if(scheme == Scheme.EULER_FUNCTIONAL) {
 							currentState[componentIndex] = applyStateSpaceTransformInverse(componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
 						}
 
-						RandomVariableInterface[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
+						RandomVariable[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
 						if (factorLoadings == null) {
@@ -216,7 +216,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 						}
 
 						// Apply diffusion
-						RandomVariableInterface[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);
+						RandomVariable[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);
 						currentState[componentIndex] = currentState[componentIndex].addSumProduct(Arrays.asList(factorLoadings), Arrays.asList(brownianIncrement));
 
 						// Transform the state space to the value space and return it.
@@ -228,7 +228,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 				/*
 				 * Optional multi-threadding (asyncronous calculation of the components)
 				 */
-				Future<RandomVariableInterface> result = null;
+				Future<RandomVariable> result = null;
 				try {
 					if(isUseMultiThreadding) {
 						result = executor.submit(worker);
@@ -246,7 +246,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			// Fetch results and move to discreteProcess[timeIndex]
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
-					Future<RandomVariableInterface> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
+					Future<RandomVariable> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
 					if(discreteProcessAtCurrentTimeIndexAndComponent != null) {
 						discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();
 					} else {
@@ -262,18 +262,18 @@ public class ProcessEulerScheme extends AbstractProcess {
 			if (scheme == Scheme.PREDICTOR_CORRECTOR) {
 				// Apply corrector step to realizations at next time step
 
-				RandomVariableInterface[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);
+				RandomVariable[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);
 
 				for (int componentIndex = 0; componentIndex < getNumberOfComponents(); componentIndex++) {
-					RandomVariableInterface driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];
-					RandomVariableInterface driftWithoutPredictorOfComponent	= drift[componentIndex];
+					RandomVariable driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];
+					RandomVariable driftWithoutPredictorOfComponent	= drift[componentIndex];
 
 					if (driftWithPredictorOfComponent == null || driftWithoutPredictorOfComponent == null) {
 						continue;
 					}
 
 					// Calculated the predictor corrector drift adjustment
-					RandomVariableInterface driftAdjustment = driftWithPredictorOfComponent.sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
+					RandomVariable driftAdjustment = driftWithPredictorOfComponent.sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
 
 					// Add drift adjustment
 					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
@@ -323,7 +323,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return Returns the independent increments interface used in the generation of the process
 	 */
 	@Override
-	public IndependentIncrementsInterface getStochasticDriver() {
+	public IndependentIncrements getStochasticDriver() {
 		return stochasticDriver;
 	}
 
@@ -331,8 +331,8 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @return Returns the Brownian motion used in the generation of the process
 	 */
 	@Override
-	public BrownianMotionInterface getBrownianMotion() {
-		return (BrownianMotionInterface)stochasticDriver;
+	public BrownianMotion getBrownianMotion() {
+		return (BrownianMotion)stochasticDriver;
 	}
 
 	/**

@@ -27,9 +27,9 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.interestrate.covariancemodels.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.covariancemodels.LIBORVolatilityModel;
@@ -40,7 +40,7 @@ import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -335,7 +335,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 		double d = 0.3 / 20.0 / 2.0;
 		//		double d = 0.03 / 20.0 / 2.0;
-		RandomVariableInterface[][] volatilityMatrix = new RandomVariableInterface[timeDiscretizationVolatility.getNumberOfTimeSteps()][timeDiscretizationVolatility.getNumberOfTimeSteps()];
+		RandomVariable[][] volatilityMatrix = new RandomVariable[timeDiscretizationVolatility.getNumberOfTimeSteps()][timeDiscretizationVolatility.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<volatilityMatrix.length; timeIndex++) {
 			for(int componentIndex=0; componentIndex<volatilityMatrix[timeIndex].length; componentIndex++) {
 				if(isUsePartialSetOfDifferentiables && timeIndex < volatilityBucketTimeIndex) {
@@ -389,7 +389,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		DiscountCurveFromForwardCurve discountCurve = null;
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
 
-		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
@@ -433,7 +433,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		long memoryStart = getAllocatedMemory();
 		long timingCalculationStart = System.currentTimeMillis();
 
-		RandomVariableInterface value = product.getValue(0.0, liborMarketModel);
+		RandomVariable value = product.getValue(0.0, liborMarketModel);
 		double valueSimulation = value.getAverage();
 
 		long timingCalculationEnd = System.currentTimeMillis();
@@ -445,9 +445,9 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		long timingGradientStart = System.currentTimeMillis();
 
-		Map<Long, RandomVariableInterface> gradient = null;
+		Map<Long, RandomVariable> gradient = null;
 		try {
-			gradient = ((RandomVariableDifferentiableInterface)value).getGradient();
+			gradient = ((RandomVariableDifferentiable)value).getGradient();
 		}
 		catch(java.lang.ClassCastException e) {}
 
@@ -461,10 +461,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			for(int timeIndex=0; timeIndex<volatilityModel.getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 				for(int componentIndex=0; componentIndex<volatilityModel.getLiborPeriodDiscretization().getNumberOfTimeSteps(); componentIndex++) {
 					double modelVega = 0.0;
-					RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, componentIndex);
-					if(volatility != null && volatility instanceof RandomVariableDifferentiableInterface) {
+					RandomVariable volatility = volatilityModel.getVolatility(timeIndex, componentIndex);
+					if(volatility != null && volatility instanceof RandomVariableDifferentiable) {
 						numberOfVegasTheoretical++;
-						RandomVariableInterface modelVegaRandomVariable = gradient.get(((RandomVariableDifferentiableInterface)volatility).getID());
+						RandomVariable modelVegaRandomVariable = gradient.get(((RandomVariableDifferentiable)volatility).getID());
 						if(modelVegaRandomVariable != null) {
 							modelVega = modelVegaRandomVariable.getAverage();
 							numberOfVegasEffective++;
@@ -477,7 +477,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				//System.out.println();
 			}
 		}
-		//		RandomVariableInterface modelDelta = gradient.get(liborMarketModel.getLIBOR(0, 0));
+		//		RandomVariable modelDelta = gradient.get(liborMarketModel.getLIBOR(0, 0));
 
 		// Free memory
 		liborMarketModel = null;
@@ -577,7 +577,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		long memoryStart = getAllocatedMemory();
 		long timingCalculationStart = System.currentTimeMillis();
 
-		RandomVariableInterface value = product.getValue(0.0, liborMarketModel);
+		RandomVariable value = product.getValue(0.0, liborMarketModel);
 		double valueSimulation = value.getAverage();
 
 		long timingCalculationEnd = System.currentTimeMillis();
@@ -589,9 +589,9 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		long timingGradientStart = System.currentTimeMillis();
 
-		Map<Long, RandomVariableInterface> gradient = null;
+		Map<Long, RandomVariable> gradient = null;
 		try {
-			gradient = ((RandomVariableDifferentiableInterface)value).getGradient();
+			gradient = ((RandomVariableDifferentiable)value).getGradient();
 		}
 		catch(java.lang.ClassCastException e) {
 			System.out.println(e.getMessage());
@@ -606,10 +606,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		if(gradient != null) {
 			for(int componentIndex=0; componentIndex<liborMarketModel.getLiborPeriodDiscretization().getNumberOfTimeSteps(); componentIndex++) {
 				double modelDelta = 0.0;
-				RandomVariableInterface forwardRate = liborMarketModel.getLIBOR(0, componentIndex);
-				if(forwardRate != null && forwardRate instanceof RandomVariableDifferentiableInterface) {
+				RandomVariable forwardRate = liborMarketModel.getLIBOR(0, componentIndex);
+				if(forwardRate != null && forwardRate instanceof RandomVariableDifferentiable) {
 					numberOfDeltasTheoretical++;
-					RandomVariableInterface modelDeltaRandomVariable = gradient.get(((RandomVariableDifferentiableInterface)forwardRate).getID());
+					RandomVariable modelDeltaRandomVariable = gradient.get(((RandomVariableDifferentiable)forwardRate).getID());
 					if(modelDeltaRandomVariable != null) {
 						modelDelta = modelDeltaRandomVariable.getAverage();
 						numberOfDeltasEffective++;
@@ -736,7 +736,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		long memoryStart = getAllocatedMemory();
 		long timingCalculationStart = System.currentTimeMillis();
 
-		RandomVariableInterface value = product.getValue(0.0, liborMarketModel);
+		RandomVariable value = product.getValue(0.0, liborMarketModel);
 		double valueSimulation = value.getAverage();
 
 		long timingCalculationEnd = System.currentTimeMillis();
@@ -748,19 +748,19 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		long timingGradientStart = System.currentTimeMillis();
 
-		Map<Long, RandomVariableInterface> gradientMap;
+		Map<Long, RandomVariable> gradientMap;
 		try {
-			gradientMap = ((RandomVariableDifferentiableInterface)value).getGradient();
+			gradientMap = ((RandomVariableDifferentiable)value).getGradient();
 		}
 		catch(java.lang.ClassCastException e) {
 			gradientMap = null;
 		}
-		final Map<Long, RandomVariableInterface> gradient = gradientMap;
+		final Map<Long, RandomVariable> gradient = gradientMap;
 
 		long timingGradientEnd = System.currentTimeMillis();
 		long memoryEnd = getAllocatedMemory();
 
-		Map<String, RandomVariableInterface> modelParameters = liborMarketModel.getModelParameters();
+		Map<String, RandomVariable> modelParameters = liborMarketModel.getModelParameters();
 
 		int numberOfDeltasTheoretical	= 0;
 		int numberOfDeltasEffective	= 0;
@@ -770,9 +770,9 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 					entry -> entry.getKey(),
 					entry -> {
 						Double derivativeValue = 0.0;
-						RandomVariableInterface parameter = entry.getValue();
-						if(parameter instanceof RandomVariableDifferentiableInterface) {
-							RandomVariableInterface derivativeRV = gradient.get(((RandomVariableDifferentiableInterface)parameter).getID());
+						RandomVariable parameter = entry.getValue();
+						if(parameter instanceof RandomVariableDifferentiable) {
+							RandomVariable derivativeRV = gradient.get(((RandomVariableDifferentiable)parameter).getID());
 							if(derivativeRV != null) {
 								derivativeValue = derivativeRV.getAverage();
 							}

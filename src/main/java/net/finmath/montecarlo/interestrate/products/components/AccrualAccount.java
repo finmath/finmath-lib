@@ -12,7 +12,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.AnalyticModelIndex;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implementation of a general accrual account.
@@ -53,17 +53,17 @@ public class AccrualAccount extends AbstractProductComponent {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		if(evaluationTime <= 0) {
 			return pastFixings.getValue(evaluationTime, model);
 		}
 
-		RandomVariableInterface value = pastFixings.getValue(0.0, model);
+		RandomVariable value = pastFixings.getValue(0.0, model);
 
 		// Loop over accrual periods
 		for(double time=0.0; time<evaluationTime; time += accrualPeriod) {
 			// Get the forward fixed at the beginning of the period
-			RandomVariableInterface	forwardRate				= accrualIndex.getValue(time, model);
+			RandomVariable	forwardRate				= accrualIndex.getValue(time, model);
 			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
 
 			// Accrue the value using the current forward rate

@@ -10,7 +10,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A selection of a value on another component.
@@ -58,7 +58,7 @@ public class Selector extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		return (RandomVariableInterface)(underlying.getValues(evaluationTime, model).get(key));
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		return (RandomVariable)(underlying.getValues(evaluationTime, model).get(key));
 	}
 }

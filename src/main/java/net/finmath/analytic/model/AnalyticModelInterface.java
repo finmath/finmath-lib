@@ -14,7 +14,7 @@ import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
 import net.finmath.analytic.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.modelling.ModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A collection of objects representing analytic valuations, i.e., curves and volatility surfaces.
@@ -24,7 +24,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 
-	RandomVariableInterface getRandomVariableForConstant(double value);
+	RandomVariable getRandomVariableForConstant(double value);
 
 	/**
 	 * Get a curve by a given curve name.
@@ -114,5 +114,5 @@ public interface AnalyticModelInterface extends ModelInterface, Cloneable {
 
 	AnalyticModelInterface clone();
 
-	AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, RandomVariableInterface[]> curvesParameterPairs) throws CloneNotSupportedException;
+	AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, RandomVariable[]> curvesParameterPairs) throws CloneNotSupportedException;
 }

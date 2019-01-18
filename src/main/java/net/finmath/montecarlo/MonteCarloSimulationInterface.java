@@ -10,7 +10,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.ModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -70,7 +70,7 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	 * @param value The constant value to be used for initialized the random variable.
 	 * @return A new random variable.
 	 */
-	RandomVariableInterface getRandomVariableForConstant(double value);
+	RandomVariable getRandomVariableForConstant(double value);
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
@@ -79,7 +79,7 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	 * @return A vector of positive weights which sums up to one
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException;
+	RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException;
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
@@ -88,7 +88,7 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	 * @return A vector of positive weights which sums up to one
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException;
+	RandomVariable getMonteCarloWeights(double time) throws CalculationException;
 
 	/**
 	 * Create a clone of this simulation modifying some of its properties (if any).

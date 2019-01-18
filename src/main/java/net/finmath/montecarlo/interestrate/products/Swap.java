@@ -11,7 +11,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleInterface;
 
 /**
@@ -84,8 +84,8 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface value = legReceiver.getValue(evaluationTime, model);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariable value = legReceiver.getValue(evaluationTime, model);
 		if(legPayer != null) {
 			value = value.sub(legPayer.getValue(evaluationTime, model));
 		}

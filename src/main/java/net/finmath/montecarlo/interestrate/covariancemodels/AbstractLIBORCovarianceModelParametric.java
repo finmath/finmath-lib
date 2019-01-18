@@ -19,9 +19,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
@@ -32,7 +32,7 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
 import net.finmath.optimizer.StochasticOptimizerInterface;
 import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -79,7 +79,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 *
 	 * @return Parameter vector.
 	 */
-	public abstract RandomVariableInterface[]	getParameter();
+	public abstract RandomVariable[]	getParameter();
 
 	@Override
 	public abstract Object clone();
@@ -91,7 +91,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
-	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariableInterface[] parameters);
+	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters);
 
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModelInterface calibrationModel, final CalibrationProduct[] calibrationProducts) throws CalculationException {
 		return getCloneCalibrated(calibrationModel, calibrationProducts, null);
@@ -104,7 +104,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 *
 	 * Optional calibration parameters may be passed using the map calibrationParameters. The keys are (<code>String</code>s):
 	 * <ul>
-	 * 	<li><tt>brownianMotion</tt>: Under this key an object implementing {@link net.finmath.montecarlo.BrownianMotionInterface} may be provided. If so, this Brownian motion is used to build the valuation model.</li>
+	 * 	<li><tt>brownianMotion</tt>: Under this key an object implementing {@link net.finmath.montecarlo.BrownianMotion} may be provided. If so, this Brownian motion is used to build the valuation model.</li>
 	 * 	<li><tt>maxIterations</tt>: Under this key an object of type Integer may be provided specifying the maximum number of iterations.</li>
 	 * 	<li><tt>accuracy</tt>: Under this key an object of type Double may be provided specifying the desired accuracy. Note that this is understood in the sense that the solver will stop if the iteration does not improve by more than this number.</li>
 	 * </ul>
@@ -128,24 +128,24 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
 		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
-		BrownianMotionInterface brownianMotionParameter	= (BrownianMotionInterface)calibrationParameters.get("brownianMotion");
+		BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
 
-		RandomVariableInterface[] initialParameters = this.getParameter();
-		RandomVariableInterface[] lowerBound = new RandomVariableInterface[initialParameters.length];
-		RandomVariableInterface[] upperBound = new RandomVariableInterface[initialParameters.length];
-		RandomVariableInterface[] parameterStep = new RandomVariableInterface[initialParameters.length];
-		Arrays.fill(lowerBound, new RandomVariable(Double.NEGATIVE_INFINITY));
-		Arrays.fill(upperBound, new RandomVariable(Double.POSITIVE_INFINITY));
-		Arrays.fill(parameterStep,  new RandomVariable(parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4));
+		RandomVariable[] initialParameters = this.getParameter();
+		RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
+		RandomVariable[] upperBound = new RandomVariable[initialParameters.length];
+		RandomVariable[] parameterStep = new RandomVariable[initialParameters.length];
+		Arrays.fill(lowerBound, new RandomVariableFromDoubleArray(Double.NEGATIVE_INFINITY));
+		Arrays.fill(upperBound, new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY));
+		Arrays.fill(parameterStep,  new RandomVariableFromDoubleArray(parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4));
 
-		RandomVariableInterface[] zerosForTargetValues = new RandomVariableInterface[calibrationProducts.length];
-		Arrays.fill(zerosForTargetValues, new RandomVariable(0.0));
+		RandomVariable[] zerosForTargetValues = new RandomVariable[calibrationProducts.length];
+		Arrays.fill(zerosForTargetValues, new RandomVariableFromDoubleArray(0.0));
 
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
 		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
@@ -153,7 +153,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		StochasticOptimizerInterface.ObjectiveFunction calibrationError = new StochasticOptimizerInterface.ObjectiveFunction() {
 			// Calculate model values for given parameters
 			@Override
-			public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
+			public void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
 
 				AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
 
@@ -162,12 +162,12 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 				final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
 
-				ArrayList<Future<RandomVariableInterface>> valueFutures = new ArrayList<Future<RandomVariableInterface>>(calibrationProducts.length);
+				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<Future<RandomVariable>>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
-					Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
+					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 						@Override
-						public RandomVariableInterface call() {
+						public RandomVariable call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue());
 							} catch (CalculationException e) {
@@ -180,18 +180,18 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						}
 					};
 					if(executor != null) {
-						Future<RandomVariableInterface> valueFuture = executor.submit(worker);
+						Future<RandomVariable> valueFuture = executor.submit(worker);
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<RandomVariableInterface> valueFutureTask = new FutureTask<RandomVariableInterface>(worker);
+						FutureTask<RandomVariable> valueFutureTask = new FutureTask<RandomVariable>(worker);
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
-						RandomVariableInterface value = valueFutures.get(calibrationProductIndex).get();
+						RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value;
 					}
 					catch (InterruptedException e) {
@@ -215,7 +215,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		/*
 		 * Obtain besterParameters and numberOfIterations
 		 */
-		RandomVariableInterface[] bestParameters;
+		RandomVariable[] bestParameters;
 		int numberOfIterations;
 
 		if(optimizerFactory instanceof StochasticOptimizerFactoryInterface) {

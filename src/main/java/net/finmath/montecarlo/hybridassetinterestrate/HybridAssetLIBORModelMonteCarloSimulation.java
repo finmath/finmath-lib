@@ -11,12 +11,12 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -111,7 +111,7 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return liborSimulation.getRandomVariableForConstant(value);
 	}
 
@@ -126,22 +126,22 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return liborSimulation.getMonteCarloWeights(timeIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
+	public RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return liborSimulation.getLIBOR(timeIndex, liborIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
 		return liborSimulation.getMonteCarloWeights(time);
 	}
 
 	@Override
-	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException {
+	public RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException {
 		return liborSimulation.getLIBOR(time, periodStart, periodEnd);
 	}
 
@@ -151,15 +151,15 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException {
+	public RandomVariable[] getLIBORs(int timeIndex) throws CalculationException {
 		return liborSimulation.getLIBORs(timeIndex);
 	}
 
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(double time) throws CalculationException {
 
-		RandomVariableInterface numeraire = liborSimulation.getNumeraire(time);
+		RandomVariable numeraire = liborSimulation.getNumeraire(time);
 
 		if(discountCurve != null) {
 			// This includes a control for zero bonds
@@ -171,13 +171,13 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(int timeIndex) throws CalculationException {
+	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
 		return getNumeraire(getTime(timeIndex));
 	}
 
 
 	@Override
-	public BrownianMotionInterface getBrownianMotion() {
+	public BrownianMotion getBrownianMotion() {
 		return liborSimulation.getBrownianMotion();
 	}
 
@@ -207,12 +207,12 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
 		return assetSimulation.getAssetValue(timeIndex, assetIndex).mult(liborSimulation.getNumeraire(getTime(timeIndex))).div(assetSimulation.getNumeraire(timeIndex));
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
 
 		// We round to the previous stock vaue (may generate loss of volatility and inconsistent forwards).
@@ -224,7 +224,7 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public Map<String, RandomVariableInterface> getModelParameters() {
+	public Map<String, RandomVariable> getModelParameters() {
 		// TODO Add implementation
 		throw new UnsupportedOperationException();
 	}

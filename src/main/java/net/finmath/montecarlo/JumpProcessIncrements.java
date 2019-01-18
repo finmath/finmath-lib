@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import net.finmath.functions.PoissonDistribution;
 import net.finmath.randomnumbers.MersenneTwister;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -33,7 +33,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.6
  */
-public class JumpProcessIncrements implements IndependentIncrementsInterface, Serializable {
+public class JumpProcessIncrements implements IndependentIncrements, Serializable {
 
 	private static final long serialVersionUID = -5430067621669213475L;
 
@@ -46,7 +46,7 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 
 	private final AbstractRandomVariableFactory randomVariableFactory;
 
-	private transient	RandomVariableInterface[][]	increments;
+	private transient	RandomVariable[][]	increments;
 	private	transient	Object						incrementsLazyInitLock = new Object();
 
 	/**
@@ -54,7 +54,7 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 	 *
 	 * The constructor allows to set the factory to be used for the construction of
 	 * random variables. This allows to generate increments represented
-	 * by different implementations of the RandomVariableInterface (e.g. the RandomVariableLowMemory internally
+	 * by different implementations of the RandomVariable (e.g. the RandomVariableFromFloatArray internally
 	 * using float representations).
 	 *
 	 * @param timeDiscretization The time discretization used for the increments.
@@ -108,7 +108,7 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 	}
 
 	@Override
-	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(int timeIndex, int factor) {
 
 		// Thread safe lazy initialization
 		synchronized(incrementsLazyInitLock) {
@@ -164,10 +164,10 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 			}
 		}
 
-		// Allocate memory for RandomVariable wrapper objects.
-		increments = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length];
+		// Allocate memory for RandomVariableFromDoubleArray wrapper objects.
+		increments = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length];
 
-		// Wrap the values in RandomVariable objects
+		// Wrap the values in RandomVariableFromDoubleArray objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<jumpIntensities.length; factor++) {
@@ -193,7 +193,7 @@ public class JumpProcessIncrements implements IndependentIncrementsInterface, Se
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
 

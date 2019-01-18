@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Stefan Sedlmair
@@ -23,7 +23,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	/**
 	 *
 	 */
-	private static ArrayList<RandomVariableInterface> listOfAllVariables = new ArrayList<>();
+	private static ArrayList<RandomVariable> listOfAllVariables = new ArrayList<>();
 
 	/* starting index for adding variables to array list. */
 	private static int currentFactoryID = 0;
@@ -38,15 +38,15 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	/*---------------------------------------------------------------------------------------------------------------------------------*/
 
 	/**
-	 * Add an object of {@link RandomVariableInterface} to variable list at the index of the current ID
+	 * Add an object of {@link RandomVariable} to variable list at the index of the current ID
 	 * and rises the current ID to the next one.
-	 * @param randomvariable object of {@link RandomVariableInterface} to add to ArrayList and return as {@link RandomVariableUniqueVariable}
+	 * @param randomvariable object of {@link RandomVariable} to add to ArrayList and return as {@link RandomVariableUniqueVariable}
 	 * @param isConstant boolean such that if true the derivative will be set to zero
 	 * @param parentVariables List of {@link RandomVariableUniqueVariable} that are the parents of the new instance
 	 * @param parentOperatorType Operator type
 	 * @return new instance of {@link RandomVariableUniqueVariable}
 	 **/
-	public RandomVariableInterface createRandomVariable(RandomVariableInterface randomvariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, RandomVariableUniqueVariable.OperatorType parentOperatorType) {
+	public RandomVariable createRandomVariable(RandomVariable randomvariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, RandomVariableUniqueVariable.OperatorType parentOperatorType) {
 
 		int factoryID = currentFactoryID++;
 
@@ -58,23 +58,23 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 		return new RandomVariableUniqueVariable(factoryID, isConstant, parentVariables, parentOperatorType);
 	}
 
-	public RandomVariableInterface createRandomVariable(double time, double value, boolean isConstant) {
+	public RandomVariable createRandomVariable(double time, double value, boolean isConstant) {
 
 		RandomVariableFactory randomvariablefactory = new RandomVariableFactory();
-		RandomVariableInterface newrandomvariable = randomvariablefactory.createRandomVariable(time, value);
+		RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, value);
 
 		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariableInterface createRandomVariable(double time, double[] values, boolean isConstant) {
+	public RandomVariable createRandomVariable(double time, double[] values, boolean isConstant) {
 
 		RandomVariableFactory randomvariablefactory = new RandomVariableFactory();
-		RandomVariableInterface newrandomvariable = randomvariablefactory.createRandomVariable(time, values);
+		RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, values);
 
 		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariableInterface createRandomVariable(RandomVariableInterface randomvariable) {
+	public RandomVariable createRandomVariable(RandomVariable randomvariable) {
 		return createRandomVariable(randomvariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
@@ -82,7 +82,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double)
 	 */
 	@Override
-	public RandomVariableInterface createRandomVariable(double time, double value) {
+	public RandomVariable createRandomVariable(double time, double value) {
 		return createRandomVariable(time, value, /*isConstant*/ false);
 	}
 
@@ -90,7 +90,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double[])
 	 */
 	@Override
-	public RandomVariableInterface createRandomVariable(double time, double[] values) {
+	public RandomVariable createRandomVariable(double time, double[] values) {
 		return createRandomVariable(time, values, /*isConstant*/ false);
 
 	}
@@ -101,7 +101,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	/**
 	 * @return ArrayList containing all Variables and Constants of the session in the JVM
 	 * */
-	public ArrayList<RandomVariableInterface> getListOfAllVariables(){
+	public ArrayList<RandomVariable> getListOfAllVariables(){
 		return listOfAllVariables;
 	}
 

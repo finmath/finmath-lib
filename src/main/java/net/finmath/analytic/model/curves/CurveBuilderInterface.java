@@ -6,7 +6,7 @@
 
 package net.finmath.analytic.model.curves;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 
 /**
@@ -37,8 +37,8 @@ public interface CurveBuilderInterface {
 	 *
 	 * @param time The time of the corresponding point.
 	 * @param value The value of the corresponding point.
-	 * @param isParameter A boolean, specifying weather the point should be considered a free parameter (true) or not (false). Fee parameters can be used to create a clone with modified values, see {@link Curve#getCloneForParameter(RandomVariableInterface[])}
+	 * @param isParameter A boolean, specifying weather the point should be considered a free parameter (true) or not (false). Fee parameters can be used to create a clone with modified values, see {@link Curve#getCloneForParameter(RandomVariable[])}
 	 * @return A self reference to this curve build object.
 	 */
-	CurveBuilderInterface addPoint(double time, RandomVariableInterface value, boolean isParameter);
+	CurveBuilderInterface addPoint(double time, RandomVariable value, boolean isParameter);
 }

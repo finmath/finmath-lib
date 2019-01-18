@@ -11,7 +11,7 @@ import java.util.function.Function;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * An implementation of an RegressionBasisFunctionsProvider using a list of AbstractMonteCarloProduct-s.
@@ -33,10 +33,10 @@ public class RegressionBasisFunctionsFromProducts implements RegressionBasisFunc
 	}
 
 	@Override
-	public RandomVariableInterface[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) {
+	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) {
 
-		Function<AbstractMonteCarloProduct, RandomVariableInterface> valuation = p -> {
-			RandomVariableInterface value = null;
+		Function<AbstractMonteCarloProduct, RandomVariable> valuation = p -> {
+			RandomVariable value = null;
 			try {
 				value = p.getValue(evaluationTime, model);
 			} catch (CalculationException e) {
@@ -52,6 +52,6 @@ public class RegressionBasisFunctionsFromProducts implements RegressionBasisFunc
 			return value;
 		};
 
-		return products.stream().map(valuation).toArray(RandomVariableInterface[]::new);
+		return products.stream().map(valuation).toArray(RandomVariable[]::new);
 	}
 }

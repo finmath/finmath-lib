@@ -16,7 +16,7 @@ import net.finmath.montecarlo.interestrate.products.components.Period;
 import net.finmath.montecarlo.interestrate.products.components.ProductCollection;
 import net.finmath.montecarlo.interestrate.products.indices.FixedCoupon;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the pricing of a swap under a AbstractLIBORMarketModel
@@ -91,8 +91,8 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 	 * @throws CalculationException Thrown when valuation fails from valuation model.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface	values	= 	option.getValue(evaluationTime, model);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariable	values	= 	option.getValue(evaluationTime, model);
 
 		return values;
 	}

@@ -7,7 +7,7 @@
 package net.finmath.optimizer;
 
 import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
@@ -16,14 +16,14 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public interface StochasticOptimizerFactoryInterface {
 
-	default StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] targetValues) {
+	default StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
-	default StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] lowerBound, RandomVariableInterface[] upperBound, RandomVariableInterface[] targetValues) {
+	default StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[] upperBound, RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
-	StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] lowerBound, RandomVariableInterface[] upperBound, RandomVariableInterface[] parameterStep, RandomVariableInterface[] targetValues);
+	StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[] upperBound, RandomVariable[] parameterStep, RandomVariable[] targetValues);
 
 }

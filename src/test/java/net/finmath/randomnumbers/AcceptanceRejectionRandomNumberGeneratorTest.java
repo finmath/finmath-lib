@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.functions.NormalDistribution;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.time.TimeDiscretization;
 
 public class AcceptanceRejectionRandomNumberGeneratorTest {
@@ -42,8 +42,8 @@ public class AcceptanceRejectionRandomNumberGeneratorTest {
 		}
 
 		double[] interv = (new TimeDiscretization(-3, 101, 6.0/100)).getAsDoubleArray();
-		double[] histOfNormalFromAR = new RandomVariable(0.0, normalFromAR).getHistogram(interv);
-		double[] histOfNormalFromICDF = new RandomVariable(0.0, normalFromICDF).getHistogram(interv);
+		double[] histOfNormalFromAR = new RandomVariableFromDoubleArray(0.0, normalFromAR).getHistogram(interv);
+		double[] histOfNormalFromICDF = new RandomVariableFromDoubleArray(0.0, normalFromICDF).getHistogram(interv);
 
 		// Build and check density
 		for(int i=0; i<interv.length-1; i++) {

@@ -6,8 +6,8 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -52,7 +52,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	private boolean isCalibrateable = false;
 
 	// A lazy init cache
-	private transient RandomVariableInterface[][] volatility;
+	private transient RandomVariable[][] volatility;
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
@@ -124,12 +124,12 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	}
 
 	@Override
-	public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
+	public RandomVariable getVolatility(int timeIndex, int liborIndex) {
 
 		if(randomVariableFactory != null) {
 			synchronized (randomVariableFactory) {
 				if(volatility == null) {
-					volatility = new RandomVariableInterface[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
+					volatility = new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 				}
 
 				if(volatility[timeIndex][liborIndex] == null) {
@@ -140,7 +140,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 			return volatility[timeIndex][liborIndex];
 		}
 		else {
-			return new RandomVariable(getVolatilityAsDouble(timeIndex, liborIndex));
+			return new RandomVariableFromDoubleArray(getVolatilityAsDouble(timeIndex, liborIndex));
 		}
 	}
 

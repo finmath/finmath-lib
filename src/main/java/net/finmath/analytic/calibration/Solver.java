@@ -12,12 +12,12 @@ import java.util.Vector;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.products.AnalyticProductInterface;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
 import net.finmath.optimizer.StochasticOptimizerInterface;
 import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Generates a calibrated model for a given set
@@ -148,7 +148,7 @@ public class Solver {
 		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<>(objectsToCalibrate);
 
 		// Set solver parameters
-		final RandomVariableInterface[] initialParameters;
+		final RandomVariable[] initialParameters;
 
 		// Apply parameter transformation to solver parameter space
 		if(parameterTransformation != null) {
@@ -157,19 +157,19 @@ public class Solver {
 			initialParameters = parameterAggregate.getParameter();
 		}
 
-		final RandomVariableInterface[] zeros				= new RandomVariableInterface[calibrationProducts.size()];
-		final RandomVariableInterface[] ones				= new RandomVariableInterface[calibrationProducts.size()];
-		final RandomVariableInterface[] lowerBound			= new RandomVariableInterface[initialParameters.length];
-		final RandomVariableInterface[] upperBound			= new RandomVariableInterface[initialParameters.length];
-		java.util.Arrays.fill(zeros, new RandomVariable(0.0));
-		java.util.Arrays.fill(ones, new RandomVariable(1.0));
-		java.util.Arrays.fill(lowerBound, new RandomVariable(Double.NEGATIVE_INFINITY));
-		java.util.Arrays.fill(upperBound, new RandomVariable(Double.POSITIVE_INFINITY));
+		final RandomVariable[] zeros				= new RandomVariable[calibrationProducts.size()];
+		final RandomVariable[] ones				= new RandomVariable[calibrationProducts.size()];
+		final RandomVariable[] lowerBound			= new RandomVariable[initialParameters.length];
+		final RandomVariable[] upperBound			= new RandomVariable[initialParameters.length];
+		java.util.Arrays.fill(zeros, new RandomVariableFromDoubleArray(0.0));
+		java.util.Arrays.fill(ones, new RandomVariableFromDoubleArray(1.0));
+		java.util.Arrays.fill(lowerBound, new RandomVariableFromDoubleArray(Double.NEGATIVE_INFINITY));
+		java.util.Arrays.fill(upperBound, new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY));
 
 		StochasticOptimizerInterface.ObjectiveFunction objectiveFunction = new StochasticOptimizerInterface.ObjectiveFunction() {
 			@Override
-			public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
-				RandomVariableInterface[] modelParameters = parameters;
+			public void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
+				RandomVariable[] modelParameters = parameters;
 				try {
 					if(parameterTransformation != null) {
 						modelParameters = parameterTransformation.getParameter(parameters);
@@ -177,7 +177,7 @@ public class Solver {
 						System.arraycopy(parameterTransformation.getSolverParameter(modelParameters), 0, parameters, 0, parameters.length);
 					}
 
-					Map<ParameterObjectInterface, RandomVariableInterface[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
+					Map<ParameterObjectInterface, RandomVariable[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
 					AnalyticModelInterface modelClone = model.getCloneForParameter(curvesParameterPairs);
 					for(int i=0; i<calibrationProducts.size(); i++) {
 						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);
@@ -203,7 +203,7 @@ public class Solver {
 
 		iterations = optimizer.getIterations();
 
-		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
+		RandomVariable[] bestParameters = optimizer.getBestFitParameters();
 		if(parameterTransformation != null) {
 			bestParameters = parameterTransformation.getParameter(bestParameters);
 		}
@@ -211,7 +211,7 @@ public class Solver {
 		AnalyticModelInterface calibratedModel = null;
 		try {
 
-			Map<ParameterObjectInterface, RandomVariableInterface[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);
+			Map<ParameterObjectInterface, RandomVariable[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);
 			calibratedModel = model.getCloneForParameter(curvesParameterPairs);
 		} catch (CloneNotSupportedException e) {
 			throw new SolverException(e);

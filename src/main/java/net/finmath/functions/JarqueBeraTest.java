@@ -6,7 +6,7 @@
 
 package net.finmath.functions;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Class providing the test statistic of the Jarque-Bera test.
@@ -32,10 +32,10 @@ public class JarqueBeraTest {
 	 * Return the test statistic of the Jarque-Bera test for a given
 	 * random variable.
 	 *
-	 * @param randomVariable An object implementing {@link RandomVariableInterface}
+	 * @param randomVariable An object implementing {@link RandomVariable}
 	 * @return The test statistic of the Jarque-Bera test the given random variable.
 	 */
-	public double test(RandomVariableInterface randomVariable) {
+	public double test(RandomVariable randomVariable) {
 		double mean		= randomVariable.getAverage();
 		double stdev	= randomVariable.getStandardDeviation();
 

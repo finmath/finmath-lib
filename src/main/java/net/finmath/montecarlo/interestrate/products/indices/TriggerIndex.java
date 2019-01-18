@@ -8,7 +8,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A trigger index.
@@ -42,10 +42,10 @@ public class TriggerIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface valueTrigger				= trigger.getValue(evaluationTime, model);
-		RandomVariableInterface valueIfTriggerNonNegative	= indexIfTriggerIsPositive.getValue(evaluationTime, model);
-		RandomVariableInterface valueIfTriggerIsNegative	= indexIfTriggerIsNegative.getValue(evaluationTime, model);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariable valueTrigger				= trigger.getValue(evaluationTime, model);
+		RandomVariable valueIfTriggerNonNegative	= indexIfTriggerIsPositive.getValue(evaluationTime, model);
+		RandomVariable valueIfTriggerIsNegative	= indexIfTriggerIsNegative.getValue(evaluationTime, model);
 		return valueTrigger.choose(valueIfTriggerNonNegative, valueIfTriggerIsNegative);
 	}
 

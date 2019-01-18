@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
@@ -148,9 +148,9 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
 	 */
-	public RandomVariableInterface[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
+	public RandomVariable[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
 	{
-		RandomVariableInterface[] values = new RandomVariableInterface[fixingTimes.length];
+		RandomVariable[] values = new RandomVariable[fixingTimes.length];
 
 		for(int i=0; i<fixingTimes.length; i++) {
 			values[i] = getForward(model, fixingTimes[i]);

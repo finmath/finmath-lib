@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -35,7 +35,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	private transient double[]	parameter;
 
 	// A lazy init cache
-	private transient RandomVariableInterface[][] volatility;
+	private transient RandomVariable[][] volatility;
 
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
@@ -59,7 +59,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 		this.volatilityMatrix = volatility;
 		this.isCalibrateable = isCalibrateable;
 
-		this.volatility = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		this.volatility = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
 	 */
 	@Override
-	public RandomVariableInterface getVolatility(int timeIndex, int component) {
+	public RandomVariable getVolatility(int timeIndex, int component) {
 		synchronized (volatility) {
 			if(volatility[timeIndex][component] == null) {
 				volatility[timeIndex][component] = randomVariableFactory.createRandomVariable(getTimeDiscretization().getTime(timeIndex), volatilityMatrix[timeIndex][component]);

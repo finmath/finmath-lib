@@ -5,8 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -63,7 +63,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	}
 
 	@Override
-	public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
+	public RandomVariable getVolatility(int timeIndex, int liborIndex) {
 		// Create a very simple volatility model here
 		double time             = getTimeDiscretization().getTime(timeIndex);
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
@@ -92,7 +92,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 			volatilityInstanteaneous = Math.max(volatilityInstanteaneous,0.0);
 		}
 
-		return new RandomVariable(getTimeDiscretization().getTime(timeIndex),volatilityInstanteaneous);
+		return new RandomVariableFromDoubleArray(getTimeDiscretization().getTime(timeIndex),volatilityInstanteaneous);
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A maximum index.
@@ -39,8 +39,8 @@ public class MaxIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface value = indexArguments[0].getValue(evaluationTime, model);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariable value = indexArguments[0].getValue(evaluationTime, model);
 		for(AbstractProductComponent index : indexArguments) {
 			value = value.floor(index.getValue(evaluationTime, model));
 		}

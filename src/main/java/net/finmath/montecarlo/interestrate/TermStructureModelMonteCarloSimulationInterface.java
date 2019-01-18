@@ -12,7 +12,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 
 /**
@@ -31,7 +31,7 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 	 * @return The forward rate as a random variable as seen on simulation time for the specified period.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	default RandomVariableInterface getLIBOR(LocalDateTime date, LocalDateTime periodStartDate, LocalDateTime periodEndDate) throws CalculationException {
+	default RandomVariable getLIBOR(LocalDateTime date, LocalDateTime periodStartDate, LocalDateTime periodEndDate) throws CalculationException {
 		LocalDateTime referenceDate = getReferenceDate();
 
 		double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
@@ -50,16 +50,16 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
+	RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
 
 	/**
 	 * Return the numeraire at a given time.
 	 *
 	 * @param date Time at which the process should be observed
-	 * @return The numeraire at the specified time as <code>RandomVariable</code>
+	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	default RandomVariableInterface getNumeraire(LocalDateTime date) throws CalculationException {
+	default RandomVariable getNumeraire(LocalDateTime date) throws CalculationException {
 		double time = FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);
 		return getNumeraire(time);
 	}
@@ -68,10 +68,10 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 	 * Return the numeraire at a given time.
 	 *
 	 * @param time Time at which the process should be observed
-	 * @return The numeraire at the specified time as <code>RandomVariable</code>
+	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface getNumeraire(double time) throws CalculationException;
+	RandomVariable getNumeraire(double time) throws CalculationException;
 
 	/**
 	 * Returns the underlying model.

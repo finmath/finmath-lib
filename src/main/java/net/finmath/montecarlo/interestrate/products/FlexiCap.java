@@ -6,9 +6,9 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
@@ -61,15 +61,15 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Allocate accumulator for values
-		RandomVariableInterface values = new RandomVariable(0.0);
+		RandomVariable values = new RandomVariableFromDoubleArray(0.0);
 
 		/*
 		 * We go forward in time and on each path we remember the number of exercises so far.
 		 */
-		RandomVariableInterface numberOfExcercises = new RandomVariable(maximumNumberOfExercises-0.5);
+		RandomVariable numberOfExcercises = new RandomVariableFromDoubleArray(maximumNumberOfExercises-0.5);
 
 		for(int period=0; period<fixingDates.length; period++)
 		{
@@ -85,13 +85,13 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 			double periodLength	= paymentDate - fixingDate;
 
 			// Get random variables
-			RandomVariableInterface	libor					= model.getLIBOR(fixingDate, fixingDate, paymentDate);
-			RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
+			RandomVariable	libor					= model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			RandomVariable	numeraire				= model.getNumeraire(paymentDate);
+			RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 
 			// Calculate payout
-			RandomVariableInterface payoff = libor.sub(strike).mult(periodLength);
-			RandomVariableInterface indicator = payoff.choose(new RandomVariable(1.0), new RandomVariable(0.0));
+			RandomVariable payoff = libor.sub(strike).mult(periodLength);
+			RandomVariable indicator = payoff.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
 			indicator = numberOfExcercises.choose(indicator, new Scalar(0.0));
 
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
@@ -103,8 +103,8 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 			numberOfExcercises = numberOfExcercises.sub(indicator);
 		}
 
-		RandomVariableInterface	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 
 		return values;

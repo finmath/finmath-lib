@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A portfolio of products, each product being of AbstractMonteCarloProduct type.
@@ -68,7 +68,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(final double evaluationTime, final MonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationInterface model) throws CalculationException {
 
 		if(products == null || products.length == 0) {
 			return null;
@@ -77,17 +77,17 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 		int numberOfThreads = Runtime.getRuntime().availableProcessors();
 		ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 
-		RandomVariableInterface value = null;
+		RandomVariable value = null;
 		try {
 			// Start calculation threads for each product
-			Vector<Future<RandomVariableInterface>> values = new Vector<>(products.length);
+			Vector<Future<RandomVariable>> values = new Vector<>(products.length);
 			for(int i=0; i<products.length; i++) {
 				final AbstractMonteCarloProduct product = products[i];
 				final double weight = weights[i];
 
-				Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
+				Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 					@Override
-					public RandomVariableInterface call() throws CalculationException {
+					public RandomVariable call() throws CalculationException {
 						return product.getValue(evaluationTime, model).mult(weight);
 					}
 				};

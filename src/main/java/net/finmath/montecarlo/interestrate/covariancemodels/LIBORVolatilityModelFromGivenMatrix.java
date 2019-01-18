@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.covariancemodels;
 
 import java.util.ArrayList;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -19,13 +19,13 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 
-	private final RandomVariableInterface[][]	volatility;
+	private final RandomVariable[][]	volatility;
 
 	/**
 	 * A cache for the parameter associated with this model, it is only used when getParameter is
 	 * called repeatedly.
 	 */
-	private transient RandomVariableInterface[]	parameter;
+	private transient RandomVariable[]	parameter;
 
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
@@ -38,7 +38,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	public LIBORVolatilityModelFromGivenMatrix(
 			TimeDiscretizationInterface	timeDiscretization,
 			TimeDiscretizationInterface	liborPeriodDiscretization,
-			RandomVariableInterface[][]	volatility) {
+			RandomVariable[][]	volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.volatility = volatility.clone();
@@ -48,16 +48,16 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
 	 */
 	@Override
-	public RandomVariableInterface getVolatility(int timeIndex, int component) {
+	public RandomVariable getVolatility(int timeIndex, int component) {
 
 		return volatility[timeIndex][component];
 	}
 
 	@Override
-	public RandomVariableInterface[] getParameter() {
+	public RandomVariable[] getParameter() {
 		synchronized (this) {
 			if(parameter == null) {
-				ArrayList<RandomVariableInterface> parameterArray = new ArrayList<RandomVariableInterface>();
+				ArrayList<RandomVariable> parameterArray = new ArrayList<RandomVariable>();
 				for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 					for(int liborPeriodIndex = 0; liborPeriodIndex< getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborPeriodIndex++) {
 						if(getTimeDiscretization().getTime(timeIndex) < getLiborPeriodDiscretization().getTime(liborPeriodIndex) ) {
@@ -65,7 +65,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 						}
 					}
 				}
-				parameter = parameterArray.toArray(new RandomVariableInterface[] {});
+				parameter = parameterArray.toArray(new RandomVariable[] {});
 			}
 		}
 
@@ -73,7 +73,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	}
 
 	@Override
-	public void setParameter(RandomVariableInterface[] parameter) {
+	public void setParameter(RandomVariable[] parameter) {
 		this.parameter = null;		// Invalidate cache
 		int parameterIndex = 0;
 		for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
@@ -90,7 +90,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	@Override
 	public Object clone() {
 		// Clone the outer array.
-		RandomVariableInterface[][] newVolatility = volatility.clone();
+		RandomVariable[][] newVolatility = volatility.clone();
 
 		// Clone the contents of the array
 		return new LIBORVolatilityModelFromGivenMatrix(

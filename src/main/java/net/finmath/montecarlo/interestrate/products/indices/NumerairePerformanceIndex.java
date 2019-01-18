@@ -14,7 +14,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
@@ -52,7 +52,7 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		/*
 		 * The periodLength may be a given float or (more exact) derived from the rolling convetions.
@@ -69,10 +69,10 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 		/*
 		 * Fetch numeraire performance rate from model
 		 */
-		RandomVariableInterface numeraireAtStart = model.getNumeraire(fixingTime);
-		RandomVariableInterface numeraireAtEnd = model.getNumeraire(paymentTime);
+		RandomVariable numeraireAtStart = model.getNumeraire(fixingTime);
+		RandomVariable numeraireAtEnd = model.getNumeraire(paymentTime);
 
-		RandomVariableInterface numeraireRatio = numeraireAtEnd.div(numeraireAtStart);
+		RandomVariable numeraireRatio = numeraireAtEnd.div(numeraireAtStart);
 
 		if(getName() != null && !model.getModel().getDiscountCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
@@ -85,7 +85,7 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 			numeraireRatio = numeraireRatio.mult(adjustment);
 		}
 
-		RandomVariableInterface forwardRate = numeraireRatio.sub(1.0).div(periodLength);
+		RandomVariable forwardRate = numeraireRatio.sub(1.0).div(periodLength);
 
 		return forwardRate;
 	}

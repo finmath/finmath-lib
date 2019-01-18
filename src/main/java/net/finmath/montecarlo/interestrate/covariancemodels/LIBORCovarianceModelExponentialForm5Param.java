@@ -5,11 +5,11 @@
  */
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelMaturityDependentFourParameterExponentialForm;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -28,12 +28,12 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	 */
 	private static final long serialVersionUID = -6538642489767323201L;
 
-	private RandomVariableInterface[] parameter = new RandomVariableInterface[5];
+	private RandomVariable[] parameter = new RandomVariable[5];
 
 	private LIBORVolatilityModel		volatilityModel;
 	private LIBORCorrelationModel	correlationModel;
 
-	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, RandomVariableInterface[] parameters) {
+	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, RandomVariable[] parameters) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 
 		this.parameter = parameters.clone();
@@ -51,7 +51,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariableInterface[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		LIBORCovarianceModelExponentialForm5Param model = (LIBORCovarianceModelExponentialForm5Param)this.clone();
 
 		model.parameter = parameters;
@@ -66,15 +66,15 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariableInterface[] getParameter() {
+	public RandomVariable[] getParameter() {
 		return parameter.clone();
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factorLoading = new RandomVariableInterface[correlationModel.getNumberOfFactors()];
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factorLoading = new RandomVariable[correlationModel.getNumberOfFactors()];
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
-			RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, component);
+			RandomVariable volatility = volatilityModel.getVolatility(timeIndex, component);
 			factorLoading[factorIndex] = volatility
 					.mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
@@ -83,7 +83,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 }

@@ -12,7 +12,7 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements a Heston Model, that is, it provides the drift and volatility specification
@@ -88,21 +88,21 @@ public class HestonModel extends AbstractModel {
 	}
 
 
-	private final RandomVariableInterface initialValue;
+	private final RandomVariable initialValue;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
-	private final RandomVariableInterface riskFreeRate;		// Constant rate, used if discountCurveForForwardRate is null
+	private final RandomVariable riskFreeRate;		// Constant rate, used if discountCurveForForwardRate is null
 
-	private final RandomVariableInterface volatility;
+	private final RandomVariable volatility;
 
 	private final DiscountCurveInterface discountCurveForDiscountRate;
-	private final RandomVariableInterface discountRate;		// Constant rate, used if discountCurveForForwardRate is null
+	private final RandomVariable discountRate;		// Constant rate, used if discountCurveForForwardRate is null
 
-	private final RandomVariableInterface theta;
-	private final RandomVariableInterface kappa;
-	private final RandomVariableInterface xi;
-	private final RandomVariableInterface rho;
-	private final RandomVariableInterface rhoBar;			// Precalculated Math.sqrt(1 - rho*rho);
+	private final RandomVariable theta;
+	private final RandomVariable kappa;
+	private final RandomVariable xi;
+	private final RandomVariable rho;
+	private final RandomVariable rhoBar;			// Precalculated Math.sqrt(1 - rho*rho);
 
 	private final Scheme scheme;
 
@@ -112,7 +112,7 @@ public class HestonModel extends AbstractModel {
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
 	 */
-	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[2];
+	private RandomVariable[]	initialValueVector	= new RandomVariable[2];
 
 	/**
 	 * Create the model from a descriptor.
@@ -153,14 +153,14 @@ public class HestonModel extends AbstractModel {
 	 * @param randomVariableFactory The factory to be used to construct random variables.
 	 */
 	public HestonModel(
-			RandomVariableInterface initialValue,
+			RandomVariable initialValue,
 			DiscountCurveInterface discountCurveForForwardRate,
-			RandomVariableInterface volatility,
+			RandomVariable volatility,
 			DiscountCurveInterface discountCurveForDiscountRate,
-			RandomVariableInterface theta,
-			RandomVariableInterface kappa,
-			RandomVariableInterface xi,
-			RandomVariableInterface rho,
+			RandomVariable theta,
+			RandomVariable kappa,
+			RandomVariable xi,
+			RandomVariable rho,
 			Scheme scheme,
 			AbstractRandomVariableFactory randomVariableFactory
 			) {
@@ -198,14 +198,14 @@ public class HestonModel extends AbstractModel {
 	 * @param randomVariableFactory The factory to be used to construct random variables.
 	 */
 	public HestonModel(
-			RandomVariableInterface initialValue,
-			RandomVariableInterface riskFreeRate,
-			RandomVariableInterface volatility,
-			RandomVariableInterface discountRate,
-			RandomVariableInterface theta,
-			RandomVariableInterface kappa,
-			RandomVariableInterface xi,
-			RandomVariableInterface rho,
+			RandomVariable initialValue,
+			RandomVariable riskFreeRate,
+			RandomVariable volatility,
+			RandomVariable discountRate,
+			RandomVariable theta,
+			RandomVariable kappa,
+			RandomVariable xi,
+			RandomVariable rho,
 			Scheme scheme,
 			AbstractRandomVariableFactory randomVariableFactory
 			) {
@@ -320,7 +320,7 @@ public class HestonModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface[] getInitialState() {
+	public RandomVariable[] getInitialState() {
 		// Since the underlying process is configured to simulate log(S), the initial value and the drift are transformed accordingly.
 		if(initialValueVector[0] == null) 	{
 			initialValueVector[0] = initialValue.log();
@@ -331,8 +331,8 @@ public class HestonModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-		RandomVariableInterface stochasticVariance;
+	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+		RandomVariable stochasticVariance;
 		if(scheme == Scheme.FULL_TRUNCATION) {
 			stochasticVariance = realizationAtTimeIndex[1].floor(0.0);
 		} else if(scheme == Scheme.REFLECTION) {
@@ -341,9 +341,9 @@ public class HestonModel extends AbstractModel {
 			throw new UnsupportedOperationException("Scheme " + scheme.name() + " not supported.");
 		}
 
-		RandomVariableInterface[] drift = new RandomVariableInterface[2];
+		RandomVariable[] drift = new RandomVariable[2];
 
-		RandomVariableInterface riskFreeRateAtTimeStep = null;
+		RandomVariable riskFreeRateAtTimeStep = null;
 		if(discountCurveForForwardRate != null) {
 			double time		= getTime(timeIndex);
 			double timeNext	= getTime(timeIndex+1);
@@ -362,8 +362,8 @@ public class HestonModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface stochasticVolatility;
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable stochasticVolatility;
 		if(scheme == Scheme.FULL_TRUNCATION) {
 			stochasticVolatility = realizationAtTimeIndex[1].floor(0.0).sqrt();
 		} else if(scheme == Scheme.REFLECTION) {
@@ -372,14 +372,14 @@ public class HestonModel extends AbstractModel {
 			throw new UnsupportedOperationException("Scheme " + scheme.name() + " not supported.");
 		}
 
-		RandomVariableInterface[] factorLoadings = new RandomVariableInterface[2];
+		RandomVariable[] factorLoadings = new RandomVariable[2];
 
 		if(component == 0) {
 			factorLoadings[0] = stochasticVolatility;
 			factorLoadings[1] = getRandomVariableForConstant(0.0);
 		}
 		else if(component == 1) {
-			RandomVariableInterface volatility = stochasticVolatility.mult(xi);
+			RandomVariable volatility = stochasticVolatility.mult(xi);
 			factorLoadings[0] = volatility.mult(rho);
 			factorLoadings[1] = volatility.mult(rhoBar);
 		}
@@ -391,7 +391,7 @@ public class HestonModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 		if(componentIndex == 0) {
 			return randomVariable.exp();
 		}
@@ -404,7 +404,7 @@ public class HestonModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		if(componentIndex == 0) {
 			return randomVariable.log();
 		}
@@ -417,7 +417,7 @@ public class HestonModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) {
+	public RandomVariable getNumeraire(double time) {
 		if(discountCurveForDiscountRate != null) {
 			return randomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
 		}
@@ -435,7 +435,7 @@ public class HestonModel extends AbstractModel {
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
 
@@ -444,22 +444,22 @@ public class HestonModel extends AbstractModel {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		RandomVariableInterface	newInitialValue	= getRandomVariableForValue(dataModified.getOrDefault("initialValue", initialValue));
-		RandomVariableInterface	newRiskFreeRate	= getRandomVariableForValue(dataModified.getOrDefault("riskFreeRate", riskFreeRate));
-		RandomVariableInterface	newVolatility	= getRandomVariableForValue(dataModified.getOrDefault("volatility", volatility));
-		RandomVariableInterface	newDiscountRate	= getRandomVariableForValue(dataModified.getOrDefault("discountRate", discountRate));
+		RandomVariable	newInitialValue	= getRandomVariableForValue(dataModified.getOrDefault("initialValue", initialValue));
+		RandomVariable	newRiskFreeRate	= getRandomVariableForValue(dataModified.getOrDefault("riskFreeRate", riskFreeRate));
+		RandomVariable	newVolatility	= getRandomVariableForValue(dataModified.getOrDefault("volatility", volatility));
+		RandomVariable	newDiscountRate	= getRandomVariableForValue(dataModified.getOrDefault("discountRate", discountRate));
 
-		RandomVariableInterface	newTheta	= getRandomVariableForValue(dataModified.getOrDefault("theta", theta));
-		RandomVariableInterface	newKappa	= getRandomVariableForValue(dataModified.getOrDefault("kappa", kappa));
-		RandomVariableInterface	newXi		= getRandomVariableForValue(dataModified.getOrDefault("xi", xi));
-		RandomVariableInterface	newRho		= getRandomVariableForValue(dataModified.getOrDefault("rho", rho));
+		RandomVariable	newTheta	= getRandomVariableForValue(dataModified.getOrDefault("theta", theta));
+		RandomVariable	newKappa	= getRandomVariableForValue(dataModified.getOrDefault("kappa", kappa));
+		RandomVariable	newXi		= getRandomVariableForValue(dataModified.getOrDefault("xi", xi));
+		RandomVariable	newRho		= getRandomVariableForValue(dataModified.getOrDefault("rho", rho));
 
 		return new HestonModel(newInitialValue, newRiskFreeRate, newVolatility, newDiscountRate, newTheta, newKappa, newXi, newRho, scheme, randomVariableFactory);
 	}
 
-	private RandomVariableInterface getRandomVariableForValue(Object value) {
-		if(value instanceof RandomVariableInterface) {
-			return (RandomVariableInterface) value;
+	private RandomVariable getRandomVariableForValue(Object value) {
+		if(value instanceof RandomVariable) {
+			return (RandomVariable) value;
 		} else {
 			return getRandomVariableForConstant(((Number) value).doubleValue());
 		}
@@ -477,7 +477,7 @@ public class HestonModel extends AbstractModel {
 	 *
 	 * @return Returns the riskFreeRate.
 	 */
-	public RandomVariableInterface getRiskFreeRate() {
+	public RandomVariable getRiskFreeRate() {
 		return riskFreeRate;
 	}
 
@@ -486,7 +486,7 @@ public class HestonModel extends AbstractModel {
 	 *
 	 * @return Returns the volatility.
 	 */
-	public RandomVariableInterface getVolatility() {
+	public RandomVariable getVolatility() {
 		return volatility;
 	}
 }

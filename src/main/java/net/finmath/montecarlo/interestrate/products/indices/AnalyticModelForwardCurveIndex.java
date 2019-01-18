@@ -12,7 +12,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * An index which is given by a name referencing a curve of an analytic model.
@@ -44,7 +44,7 @@ public class AnalyticModelForwardCurveIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
 		if(analyticModel == null) {

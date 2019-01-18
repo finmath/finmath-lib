@@ -7,7 +7,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -38,12 +38,12 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretizationInterface periodDiscretization, RandomVariableInterface[] realizationAtTimeIndex, TermStructureModelInterface model) {
+	public RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretizationInterface periodDiscretization, RandomVariable[] realizationAtTimeIndex, TermStructureModelInterface model) {
 		TimeDiscretizationInterface liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
 
 		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
 		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);
-		RandomVariableInterface[] factorLoadings = covarianceModel.getFactorLoading(time, periodStartIndex, null);
+		RandomVariable[] factorLoadings = covarianceModel.getFactorLoading(time, periodStartIndex, null);
 		if(periodEndIndex > periodStartIndex+1) {
 			// Need to sum factor loadings
 			for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
@@ -51,7 +51,7 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 			}
 
 			for(int periodIndex = periodStartIndex+1; periodIndex<periodEndIndex; periodIndex++) {
-				RandomVariableInterface[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, null);
+				RandomVariable[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, null);
 				double periodLength = liborPeriodDiscretization.getTimeStep(periodIndex);
 				for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
 					factorLoadings[factorIndex] = factorLoadings[factorIndex].addProduct(factorLoadingsForPeriod[factorIndex], periodLength);

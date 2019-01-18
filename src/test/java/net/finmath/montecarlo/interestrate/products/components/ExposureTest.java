@@ -21,7 +21,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
@@ -38,7 +38,7 @@ import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleGenerator;
@@ -105,9 +105,9 @@ public class ExposureTest {
 			/*
 			 * Calculate expected positive exposure of a swap
 			 */
-			RandomVariableInterface valuesSwap = swap.getValue(observationDate, lmm);
-			RandomVariableInterface valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
-			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.choose(new RandomVariable(1.0), new RandomVariable(0.0)));
+			RandomVariable valuesSwap = swap.getValue(observationDate, lmm);
+			RandomVariable valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
+			RandomVariable valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)));
 
 			double exposureOnPath				= valuesEstimatedExposure.get(0);
 			double expectedPositiveExposure		= valuesPositiveExposure.getAverage();
@@ -146,9 +146,9 @@ public class ExposureTest {
 			/*
 			 * Calculate expected positive exposure of a swap
 			 */
-			RandomVariableInterface valuesSwap = swap.getValue(observationDate, lmm);
-			RandomVariableInterface valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
-			RandomVariableInterface valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.choose(new Scalar(1.0), new Scalar(0.0)));
+			RandomVariable valuesSwap = swap.getValue(observationDate, lmm);
+			RandomVariable valuesEstimatedExposure = swapExposureEstimator.getValue(observationDate, lmm);
+			RandomVariable valuesPositiveExposure = valuesSwap.mult(valuesEstimatedExposure.choose(new Scalar(1.0), new Scalar(0.0)));
 
 			double exposureOnPath = valuesEstimatedExposure.get(0);
 			double expectedPositiveExposure				= valuesPositiveExposure.getAverage();
@@ -262,7 +262,7 @@ public class ExposureTest {
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);

@@ -7,7 +7,7 @@
 package net.finmath.optimizer;
 
 import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
@@ -31,24 +31,24 @@ public class StochasticPathwiseOptimizerFactoryLevenbergMarquardt implements Sto
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariableInterface[] initialParameters, RandomVariableInterface[] targetValues) {
+	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariableInterface[] initialParameters, final RandomVariableInterface[] lowerBound, final RandomVariableInterface[]  upperBound, RandomVariableInterface[] targetValues) {
+	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[]  upperBound, RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
 	@Override
-	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariableInterface[] initialParameters, RandomVariableInterface[] lowerBound, RandomVariableInterface[]  upperBound, RandomVariableInterface[] parameterSteps, RandomVariableInterface[] targetValues) {
+	public StochasticOptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
 		return
 				new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, null /* weights */, parameterSteps, maxIterations, null, null)
 		{
 			private static final long serialVersionUID = -7050719719557572792L;
 
 			@Override
-			public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
+			public void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
 				objectiveFunction.setValues(parameters, values);
 			}
 		};

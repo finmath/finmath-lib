@@ -18,7 +18,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceM
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelParametric;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -83,7 +83,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	private TermStructureCovarianceModelInterface	covarianceModel;
 
 	// Cache for the numeraires, needs to be invalidated if process changes
-	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
+	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
 	private AbstractProcessInterface									numerairesProcess = null;
 
 	/**
@@ -178,11 +178,11 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 * value. See ISBN 0470047224 for details.
 	 *
 	 * @param time Time time <i>t</i> for which the numeraire should be returned <i>N(t)</i>.
-	 * @return The numeraire at the specified time as <code>RandomVariableInterface</code>
+	 * @return The numeraire at the specified time as <code>RandomVariable</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(double time) throws CalculationException {
 		int timeIndex = liborPeriodDiscretizations[0].getTimeIndex(time);
 		TimeDiscretizationInterface liborPeriodDiscretization = liborPeriodDiscretizations[0];
 		if(timeIndex < 0) {
@@ -194,7 +194,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			}
 
 			double alpha = (time-liborPeriodDiscretization.getTime(lowerIndex)) / (liborPeriodDiscretization.getTime(upperIndex) - liborPeriodDiscretization.getTime(lowerIndex));
-			RandomVariableInterface numeraire = getNumeraire(liborPeriodDiscretization.getTime(upperIndex)).log().mult(alpha).add(getNumeraire(liborPeriodDiscretization.getTime(lowerIndex)).log().mult(1.0-alpha)).exp();
+			RandomVariable numeraire = getNumeraire(liborPeriodDiscretization.getTime(upperIndex)).log().mult(alpha).add(getNumeraire(liborPeriodDiscretization.getTime(lowerIndex)).log().mult(1.0-alpha)).exp();
 
 			/*
 			 * Adjust for discounting, i.e. funding or collateralization
@@ -223,7 +223,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		/*
 		 * Check if numeraire is part of the cache
 		 */
-		RandomVariableInterface numeraire = numeraires.get(timeIndex);
+		RandomVariable numeraire = numeraires.get(timeIndex);
 		if(numeraire == null) {
 			/*
 			 * Calculate the numeraire for timeIndex
@@ -237,7 +237,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 				double periodStart	= liborPeriodDiscretizations[0].getTime(timeIndex-1);
 				double periodEnd	= liborPeriodDiscretizations[0].getTime(timeIndex);
-				RandomVariableInterface libor = getLIBOR(periodStart, periodStart, periodEnd);
+				RandomVariable libor = getLIBOR(periodStart, periodStart, periodEnd);
 
 				numeraire = numeraire.accrue(libor, periodEnd-periodStart);
 			}
@@ -259,8 +259,8 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	}
 
 	@Override
-	public RandomVariableInterface[] getInitialState() {
-		RandomVariableInterface[] initialStateRandomVariable = new RandomVariableInterface[getNumberOfComponents()];
+	public RandomVariable[] getInitialState() {
+		RandomVariable[] initialStateRandomVariable = new RandomVariable[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
 			initialStateRandomVariable[componentIndex] = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 		}
@@ -289,33 +289,33 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 *
 	 *
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelWithTenorRefinement#getNumeraire(double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelWithTenorRefinement#getFactorLoading(int, int, RandomVariableInterface[]) The factor loading \( \lambda_{j,k} \).
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelWithTenorRefinement#getFactorLoading(int, int, RandomVariable[]) The factor loading \( \lambda_{j,k} \).
 	 *
 	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
 	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
-	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariable[]</code>
+	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariableFromDoubleArray[]</code>
 	 */
 	@Override
-	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 
 		double	time				= getTime(timeIndex);
 		double	timeStep			= getTimeDiscretization().getTimeStep(timeIndex);
 		double	timeNext			= getTime(timeIndex+1);
 
-		RandomVariableInterface		zero	= getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+		RandomVariable		zero	= getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 
 		// Allocate drift vector and initialize to zero (will be used to sum up drift components)
-		RandomVariableInterface[]	drift = new RandomVariableInterface[getNumberOfComponents()];
+		RandomVariable[]	drift = new RandomVariable[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
 			drift[componentIndex] = null;
 		}
 
-		RandomVariableInterface[]	variances	= new RandomVariableInterface[getNumberOfComponents()];
+		RandomVariable[]	variances	= new RandomVariable[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
 			variances[componentIndex] = zero;
 		}
 
-		RandomVariableInterface[]	covarianceFactorSums	= new RandomVariableInterface[getNumberOfFactors()];
+		RandomVariable[]	covarianceFactorSums	= new RandomVariable[getNumberOfFactors()];
 		for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
 			covarianceFactorSums[factorIndex] = zero;
 		}
@@ -334,7 +334,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			double						tenorTime		= covarianceModel.getScaledTenorTime(periodStart, periodEnd);
 
 			// @todo Document that factorLoading componentIndexing is on time discretization of t+1 for interval (t,t+1)
-			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+			RandomVariable[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 			double weight = getWeightForTenorRefinement(periodStart,periodStart,periodStart,periodEnd);
 			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
 				drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[factorIndex].addProduct(factorLoading[factorIndex], weight),factorLoading[factorIndex]);
@@ -360,8 +360,8 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 				continue;
 			}
 
-			RandomVariableInterface		stateVariablePrevious	= getStateVariable(timeIndex, periodStartPrevious,	periodEndPrevious);
-			RandomVariableInterface		stateVariable			= getStateVariable(timeIndex, periodStart, 			periodEnd);
+			RandomVariable		stateVariablePrevious	= getStateVariable(timeIndex, periodStartPrevious,	periodEndPrevious);
+			RandomVariable		stateVariable			= getStateVariable(timeIndex, periodStart, 			periodEnd);
 
 			if(Double.isNaN(stateVariable.getAverage()) || Double.isNaN(stateVariablePrevious.getAverage())) {
 				throw new IllegalArgumentException();
@@ -394,8 +394,8 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 				continue;
 			}
 
-			RandomVariableInterface		stateVariablePrevious	= getIntegratedVariance(timeIndex, periodStartPrevious, periodEndPrevious);
-			RandomVariableInterface		stateVariable			= getIntegratedVariance(timeIndex, periodStart, 		periodEnd);
+			RandomVariable		stateVariablePrevious	= getIntegratedVariance(timeIndex, periodStartPrevious, periodEndPrevious);
+			RandomVariable		stateVariable			= getIntegratedVariance(timeIndex, periodStart, 		periodEnd);
 
 			if(Double.isNaN(stateVariable.getAverage()) || Double.isNaN(stateVariablePrevious.getAverage())) {
 				throw new IllegalArgumentException();
@@ -415,7 +415,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 * @param periodEnd
 	 * @return
 	 */
-	private RandomVariableInterface getIntegratedVariance(int timeIndex, double periodStart, double periodEnd) {
+	private RandomVariable getIntegratedVariance(int timeIndex, double periodStart, double periodEnd) {
 		TimeDiscretizationInterface liborPeriodTiscretization = getLiborPeriodDiscretization(getTime(timeIndex));
 
 		int periodStartIndex = liborPeriodTiscretization.getTimeIndex(periodStart);
@@ -432,7 +432,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			throw new IllegalArgumentException();
 		}
 
-		RandomVariableInterface integratedVariance = null;
+		RandomVariable integratedVariance = null;
 		try {
 			integratedVariance = getProcess().getProcessValue(timeIndex, getNumberOfLibors()+periodStartIndex);
 		} catch (CalculationException e) {
@@ -486,21 +486,21 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	}
 
 	@Override
-	public	RandomVariableInterface[]	getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex)
+	public	RandomVariable[]	getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex)
 	{
-		RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+		RandomVariable zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 
 		if(componentIndex < getNumberOfLibors()) {
 			TimeDiscretizationInterface liborPeriodDiscretization = getLiborPeriodDiscretization(getTime(timeIndex));
 			TimeDiscretizationInterface liborPeriodDiscretizationNext = getLiborPeriodDiscretization(getTime(timeIndex+1));
 			double						periodStart	= liborPeriodDiscretizationNext.getTime(componentIndex);
 			double						periodEnd	= liborPeriodDiscretizationNext.getTime(componentIndex+1);
-			RandomVariableInterface[] factorLoadingVector = covarianceModel.getFactorLoading(getTime(timeIndex), periodStart,  periodEnd, liborPeriodDiscretization, realizationAtTimeIndex, this);
+			RandomVariable[] factorLoadingVector = covarianceModel.getFactorLoading(getTime(timeIndex), periodStart,  periodEnd, liborPeriodDiscretization, realizationAtTimeIndex, this);
 
 			return factorLoadingVector;
 		}
 		else {
-			RandomVariableInterface[] zeros = new RandomVariableInterface[getProcess().getStochasticDriver().getNumberOfFactors()];
+			RandomVariable[] zeros = new RandomVariable[getProcess().getStochasticDriver().getNumberOfFactors()];
 			Arrays.fill(zeros, zero);
 			return zeros;
 		}
@@ -508,12 +508,12 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
@@ -521,7 +521,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
@@ -546,22 +546,22 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		return new TimeDiscretization(tenorTimes);
 	}
 
-	public RandomVariableInterface getStateVariableForPeriod(TimeDiscretizationInterface liborPeriodDiscretization, RandomVariableInterface[] stateVariables, double periodStart, double periodEnd) {
+	public RandomVariable getStateVariableForPeriod(TimeDiscretizationInterface liborPeriodDiscretization, RandomVariable[] stateVariables, double periodStart, double periodEnd) {
 
 		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
 		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);
 
-		RandomVariableInterface stateVariableSum = this.getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+		RandomVariable stateVariableSum = this.getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 
 		if(periodStartIndex < 0) {
 			periodStartIndex = -periodStartIndex-1;
 			if(periodStartIndex >= liborPeriodDiscretization.getNumberOfTimes()) {
 				throw new IllegalArgumentException();
 			}
-			RandomVariableInterface stateVariable = stateVariables[periodStartIndex-1];
+			RandomVariable stateVariable = stateVariables[periodStartIndex-1];
 			double shortPeriodEnd = liborPeriodDiscretization.getTime(periodStartIndex);
 			double tenorRefinementWeight = getWeightForTenorRefinement(liborPeriodDiscretization.getTime(periodStartIndex-1), shortPeriodEnd, periodStart, shortPeriodEnd);
-			RandomVariableInterface integratedVariance = stateVariables[getNumberOfLibors()+periodStartIndex-1];
+			RandomVariable integratedVariance = stateVariables[getNumberOfLibors()+periodStartIndex-1];
 
 			double tenor = covarianceModel.getScaledTenorTime(periodStart, shortPeriodEnd);
 			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), tenor);
@@ -569,10 +569,10 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 		if(periodEndIndex < 0) {
 			periodEndIndex = -periodEndIndex-1;
-			RandomVariableInterface stateVariable = stateVariables[periodEndIndex-1];
+			RandomVariable stateVariable = stateVariables[periodEndIndex-1];
 			double shortPeriodStart = liborPeriodDiscretization.getTime(periodEndIndex-1);
 			double tenorRefinementWeight = getWeightForTenorRefinement(shortPeriodStart, liborPeriodDiscretization.getTime(periodEndIndex), shortPeriodStart, periodEnd);
-			RandomVariableInterface integratedVariance = stateVariables[getNumberOfLibors()+periodEndIndex-1];
+			RandomVariable integratedVariance = stateVariables[getNumberOfLibors()+periodEndIndex-1];
 
 			double tenor = covarianceModel.getScaledTenorTime(shortPeriodStart, periodEnd);
 			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), tenor);
@@ -580,7 +580,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		}
 
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++) {
-			RandomVariableInterface stateVariable = stateVariables[periodIndex];
+			RandomVariable stateVariable = stateVariables[periodIndex];
 
 			double tenor = covarianceModel.getScaledTenorTime(liborPeriodDiscretization.getTime(periodIndex), liborPeriodDiscretization.getTime(periodIndex+1));
 			stateVariableSum = stateVariableSum.addProduct(stateVariable, tenor);
@@ -591,15 +591,15 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		return stateVariableSum;
 	}
 
-	public RandomVariableInterface getLIBORForStateVariable(TimeDiscretizationInterface liborPeriodDiscretization, RandomVariableInterface[] stateVariables, double periodStart, double periodEnd) {
-		RandomVariableInterface stateVariable = getStateVariableForPeriod(liborPeriodDiscretization, stateVariables, periodStart, periodEnd);
+	public RandomVariable getLIBORForStateVariable(TimeDiscretizationInterface liborPeriodDiscretization, RandomVariable[] stateVariables, double periodStart, double periodEnd) {
+		RandomVariable stateVariable = getStateVariableForPeriod(liborPeriodDiscretization, stateVariables, periodStart, periodEnd);
 		stateVariable = stateVariable.mult(periodEnd-periodStart).add(Math.log(1+forwardRateCurve.getForward(null, periodStart)*(periodEnd-periodStart)));
-		RandomVariableInterface libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
+		RandomVariable libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
 
 		return null;//libor;
 	}
 
-	public RandomVariableInterface getStateVariable(int timeIndex, double periodStart, double periodEnd)
+	public RandomVariable getStateVariable(int timeIndex, double periodStart, double periodEnd)
 	{
 		// @TODO: Make getLiborPeriodDiscretization to use timeIndex
 		double time = this.getTimeDiscretization().getTime(timeIndex);
@@ -609,7 +609,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
 		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);
 
-		RandomVariableInterface stateVariableSum = null;
+		RandomVariable stateVariableSum = null;
 		try {
 			stateVariableSum = this.getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 
@@ -618,27 +618,27 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 				if(periodStartIndex >= liborPeriodDiscretization.getNumberOfTimes()) {
 					throw new IllegalArgumentException();
 				}
-				RandomVariableInterface stateVariable = getProcessValue(timeIndex, periodStartIndex-1);
+				RandomVariable stateVariable = getProcessValue(timeIndex, periodStartIndex-1);
 				double shortPeriodEnd = liborPeriodDiscretization.getTime(periodStartIndex);
 				double tenorRefinementWeight = getWeightForTenorRefinement(liborPeriodDiscretization.getTime(periodStartIndex-1), shortPeriodEnd, periodStart, shortPeriodEnd);
-				RandomVariableInterface integratedVariance = getIntegratedVariance(timeIndex, liborPeriodDiscretization.getTime(periodStartIndex-1), liborPeriodDiscretization.getTime(periodStartIndex));
+				RandomVariable integratedVariance = getIntegratedVariance(timeIndex, liborPeriodDiscretization.getTime(periodStartIndex-1), liborPeriodDiscretization.getTime(periodStartIndex));
 
 				stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), covarianceModel.getScaledTenorTime(periodStart, shortPeriodEnd));
 			}
 
 			if(periodEndIndex < 0) {
 				periodEndIndex = -periodEndIndex-1;
-				RandomVariableInterface stateVariable = getProcessValue(timeIndex, periodEndIndex-1);
+				RandomVariable stateVariable = getProcessValue(timeIndex, periodEndIndex-1);
 				double shortPeriodStart = liborPeriodDiscretization.getTime(periodEndIndex-1);
 				double tenorRefinementWeight = getWeightForTenorRefinement(shortPeriodStart, liborPeriodDiscretization.getTime(periodEndIndex), shortPeriodStart, periodEnd);
-				RandomVariableInterface integratedVariance = getIntegratedVariance(timeIndex, liborPeriodDiscretization.getTime(periodEndIndex-1), liborPeriodDiscretization.getTime(periodEndIndex));
+				RandomVariable integratedVariance = getIntegratedVariance(timeIndex, liborPeriodDiscretization.getTime(periodEndIndex-1), liborPeriodDiscretization.getTime(periodEndIndex));
 
 				stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), covarianceModel.getScaledTenorTime(shortPeriodStart,periodEnd));
 				periodEndIndex--;
 			}
 
 			for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++) {
-				RandomVariableInterface stateVariable = getProcessValue(timeIndex, periodIndex);
+				RandomVariable stateVariable = getProcessValue(timeIndex, periodIndex);
 
 				stateVariableSum = stateVariableSum.addProduct(stateVariable, covarianceModel.getScaledTenorTime(liborPeriodDiscretization.getTime(periodIndex), liborPeriodDiscretization.getTime(periodIndex+1)));
 			}
@@ -651,7 +651,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 
 	@Override
-	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) {
+	public RandomVariable getLIBOR(double time, double periodStart, double periodEnd) {
 		int timeIndex = getProcess().getTimeIndex(time);
 		// @TODO Improve interpolation in simulation time here, if required.
 		if(timeIndex < 0) {
@@ -661,14 +661,14 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		return getLIBOR(timeIndex, periodStart, periodEnd);
 	}
 
-	public RandomVariableInterface getLIBOR(int timeIndex, double periodStart, double periodEnd)
+	public RandomVariable getLIBOR(int timeIndex, double periodStart, double periodEnd)
 	{
-		RandomVariableInterface stateVariable = getStateVariable(timeIndex, periodStart, periodEnd);
+		RandomVariable stateVariable = getStateVariable(timeIndex, periodStart, periodEnd);
 		double initialValue = Math.log(1+forwardRateCurve.getForward(curveModel, periodStart)*(forwardRateCurve.getPaymentOffset(periodStart))) / forwardRateCurve.getPaymentOffset(periodStart);
 		double tenorTime = covarianceModel.getScaledTenorTime(periodStart, periodEnd);
 
 		stateVariable = stateVariable.mult(tenorTime).add(initialValue*(periodEnd-periodStart));
-		RandomVariableInterface libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
+		RandomVariable libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
 
 		return libor;
 	}

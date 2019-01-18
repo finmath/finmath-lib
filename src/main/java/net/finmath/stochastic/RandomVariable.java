@@ -26,11 +26,11 @@ import net.finmath.functions.DoubleTernaryOperator;
  *
  * <br>
  *
- * <b>IMPORTANT:</b> As of version 1.3 / revision 487 the design of RandomVariable, RandomVariableInterface has changed:
- * All methods of RandomVariable leave the object immutable and the interface ImmutableRandomVariableInterface has been renamed
- * to RandomVariableInterface. Your code remains compatible if you perform the following changes:
+ * <b>IMPORTANT:</b> As of version 1.3 / revision 487 the design of RandomVariableFromDoubleArray, RandomVariable has changed:
+ * All methods of RandomVariableFromDoubleArray leave the object immutable and the interface ImmutableRandomVariableInterface has been renamed
+ * to RandomVariable. Your code remains compatible if you perform the following changes:
  * <ul>
- * <li>Change calls to RandomVariableInterface objects value like <code>value.mult(argument);</code> to <code>value = value.mult(argument);</code>
+ * <li>Change calls to RandomVariable objects value like <code>value.mult(argument);</code> to <code>value = value.mult(argument);</code>
  * <li>Remove calls to getMutableCopy() since they are no longer needed.
  * <li>Remove wrapping in RandomVariableMutableClone since they are no longer needed.
  * </ul>
@@ -41,7 +41,7 @@ import net.finmath.functions.DoubleTernaryOperator;
  * @author Christian Fries
  * @version 1.5
  */
-public interface RandomVariableInterface extends Serializable {
+public interface RandomVariable extends Serializable {
 
 	/**
 	 * Compare this random variable with a given one
@@ -49,7 +49,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param randomVariable Random variable to compare with.
 	 * @return True if this random variable and the given one are equal, otherwise false
 	 */
-	boolean equals(RandomVariableInterface randomVariable);
+	boolean equals(RandomVariable randomVariable);
 
 	/**
 	 * Returns the filtration time.
@@ -96,7 +96,7 @@ public interface RandomVariableInterface extends Serializable {
 	 *
 	 * @return The underling values.
 	 */
-	default RandomVariableInterface getValues() { return this; }
+	default RandomVariable getValues() { return this; }
 
 	/**
 	 * Returns a vector representing the realization of this random variable.
@@ -161,7 +161,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param probabilities The probability weights.
 	 * @return The average assuming the given probability weights.
 	 */
-	double getAverage(RandomVariableInterface probabilities);
+	double getAverage(RandomVariable probabilities);
 
 	/**
 	 * Returns the variance of this random variable, i.e.,
@@ -178,7 +178,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param probabilities The probability weights.
 	 * @return The average assuming the given probability weights.
 	 */
-	double getVariance(RandomVariableInterface probabilities);
+	double getVariance(RandomVariable probabilities);
 
 	/**
 	 * Returns the sample variance of this random variable, i.e.,
@@ -203,7 +203,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param probabilities The probability weights.
 	 * @return The standard error assuming the given probability weights.
 	 */
-	double getStandardDeviation(RandomVariableInterface probabilities);
+	double getStandardDeviation(RandomVariable probabilities);
 
 	/**
 	 * Returns the standard error (discretization error) of this random variable.
@@ -215,12 +215,12 @@ public interface RandomVariableInterface extends Serializable {
 
 	/**
 	 * Returns the standard error (discretization error) of this random variable.
-	 * For a Monte-Carlo simulation this is 1/Math.sqrt(n) * {@link #getStandardDeviation(RandomVariableInterface) }.
+	 * For a Monte-Carlo simulation this is 1/Math.sqrt(n) * {@link #getStandardDeviation(RandomVariable) }.
 	 *
 	 * @param probabilities The probability weights.
 	 * @return The standard error assuming the given probability weights.
 	 */
-	double getStandardError(RandomVariableInterface probabilities);
+	double getStandardError(RandomVariable probabilities);
 
 	/**
 	 * Returns the quantile value for this given random variable, i.e., the value x such that P(this &lt; x) = quantile,
@@ -241,7 +241,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param probabilities The probability weights.
 	 * @return The quantile value assuming the given probability weights.
 	 */
-	double getQuantile(double quantile, RandomVariableInterface probabilities);
+	double getQuantile(double quantile, RandomVariable probabilities);
 
 	/**
 	 * Returns the expectation over a quantile for this given random variable.
@@ -321,7 +321,7 @@ public interface RandomVariableInterface extends Serializable {
 	 *
 	 * @return A cacheable version of this object (often a self-reference).
 	 */
-	RandomVariableInterface cache();
+	RandomVariable cache();
 
 	/**
 	 * Applies x &rarr; operator(x) to this random variable.
@@ -330,7 +330,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param operator An unary operator/function, mapping double to double.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface apply(DoubleUnaryOperator operator);
+	RandomVariable apply(DoubleUnaryOperator operator);
 
 	/**
 	 * Applies x &rarr; operator(x,y) to this random variable, where x is this random variable and y is a given random variable.
@@ -340,7 +340,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param argument A random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument);
+	RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument);
 
 	/**
 	 * Applies x &rarr; operator(x,y,z) to this random variable, where x is this random variable and y and z are given random variable.
@@ -351,7 +351,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param argument2 A random variable representing z.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2);
+	RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2);
 
 	/**
 	 * Applies x &rarr; min(x,cap) to this random variable.
@@ -360,7 +360,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param cap The cap.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface cap(double cap);
+	RandomVariable cap(double cap);
 
 	/**
 	 * Applies x &rarr; max(x,floor) to this random variable.
@@ -369,7 +369,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param floor The floor.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface floor(double floor);
+	RandomVariable floor(double floor);
 
 	/**
 	 * Applies x &rarr; x + value to this random variable.
@@ -378,35 +378,35 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param value The value to add.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface add(double value);
+	RandomVariable add(double value);
 
 	/**
 	 * Applies x &rarr; x - value to this random variable.
 	 * @param value The value to subtract.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface sub(double value);
+	RandomVariable sub(double value);
 
 	/**
 	 * Applies x &rarr; x * value to this random variable.
 	 * @param value The value to multiply.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface mult(double value);
+	RandomVariable mult(double value);
 
 	/**
 	 * Applies x &rarr; x / value to this random variable.
 	 * @param value The value to divide.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface div(double value);
+	RandomVariable div(double value);
 
 	/**
 	 * Applies x &rarr; pow(x,exponent) to this random variable.
 	 * @param exponent The exponent.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface pow(double exponent);
+	RandomVariable pow(double exponent);
 
 	/**
 	 * Returns a random variable which is deterministic and corresponds
@@ -414,7 +414,7 @@ public interface RandomVariableInterface extends Serializable {
 	 *
 	 * @return New random variable being the expectation of this random variable.
 	 */
-	RandomVariableInterface average();
+	RandomVariable average();
 
 	/**
 	 * Returns the conditional expectation using a given conditional expectation estimator.
@@ -422,7 +422,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param conditionalExpectationOperator A given conditional expectation estimator.
 	 * @return The conditional expectation of this random variable (as a random variable)
 	 */
-	default RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface conditionalExpectationOperator)
+	default RandomVariable getConditionalExpectation(ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
 		return conditionalExpectationOperator.getConditionalExpectation(this);
 	}
@@ -431,93 +431,93 @@ public interface RandomVariableInterface extends Serializable {
 	 * Applies x &rarr; x * x to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface squared();
+	RandomVariable squared();
 
 	/**
 	 * Applies x &rarr; sqrt(x) to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface sqrt();
+	RandomVariable sqrt();
 
 	/**
 	 * Applies x &rarr; exp(x) to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface exp();
+	RandomVariable exp();
 
 	/**
 	 * Applies x &rarr; log(x) to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface log();
+	RandomVariable log();
 
 	/**
 	 * Applies x &rarr; sin(x) to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface sin();
+	RandomVariable sin();
 
 	/**
 	 * Applies x &rarr; cos(x) to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface cos();
+	RandomVariable cos();
 
 	/**
 	 * Applies x &rarr; x+randomVariable to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface add(RandomVariableInterface randomVariable);
+	RandomVariable add(RandomVariable randomVariable);
 
 	/**
 	 * Applies x &rarr; x-randomVariable to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface sub(RandomVariableInterface randomVariable);
+	RandomVariable sub(RandomVariable randomVariable);
 
 	/**
 	 * Applies x &rarr; randomVariable-x to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface bus(RandomVariableInterface randomVariable);
+	RandomVariable bus(RandomVariable randomVariable);
 
 	/**
 	 * Applies x &rarr; x*randomVariable to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface mult(RandomVariableInterface randomVariable);
+	RandomVariable mult(RandomVariable randomVariable);
 
 	/**
 	 * Applies x &rarr; x/randomVariable to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface div(RandomVariableInterface randomVariable);
+	RandomVariable div(RandomVariable randomVariable);
 
 	/**
 	 * Applies x &rarr; randomVariable/x to this random variable.
 	 * @param randomVariable A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface vid(RandomVariableInterface randomVariable);
+	RandomVariable vid(RandomVariable randomVariable);
 
 	/**
 	 * Applies x &rarr; min(x,cap) to this random variable.
 	 * @param cap The cap. A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface cap(RandomVariableInterface cap);
+	RandomVariable cap(RandomVariable cap);
 
 	/**
 	 * Applies x &rarr; max(x,floor) to this random variable.
 	 * @param floor The floor. A random variable (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface floor(RandomVariableInterface floor);
+	RandomVariable floor(RandomVariable floor);
 
 	/**
 	 * Applies x &rarr; x * (1.0 + rate * periodLength) to this random variable.
@@ -525,7 +525,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param periodLength The period length
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength);
+	RandomVariable accrue(RandomVariable rate, double periodLength);
 
 	/**
 	 * Applies x &rarr; x / (1.0 + rate * periodLength) to this random variable.
@@ -533,7 +533,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param periodLength The period length
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface discount(RandomVariableInterface rate, double periodLength);
+	RandomVariable discount(RandomVariable rate, double periodLength);
 
 	/**
 	 * Applies x &rarr; (x &ge; 0 ? valueIfTriggerNonNegative : valueIfTriggerNegative)
@@ -541,19 +541,19 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param valueIfTriggerNegative The value used if the this is less than 0
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative);
+	RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative);
 
 	/**
 	 * Applies x &rarr; 1/x to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface invert();
+	RandomVariable invert();
 
 	/**
 	 * Applies x &rarr; Math.abs(x), i.e. x &rarr; |x| to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface abs();
+	RandomVariable abs();
 
 	/**
 	 * Applies x &rarr; x + factor1 * factor2
@@ -561,7 +561,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @param factor2 The factor 2.
 	 * @return New random variable with the result of the function.
 	 */
-	RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2);
+	RandomVariable addProduct(RandomVariable factor1, double factor2);
 
 	/**
 	 * Applies x &rarr; x + factor1 * factor2
@@ -570,7 +570,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return New random variable with the result of the function.
 
 	 */
-	RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2);
+	RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2);
 
 	/**
 	 * Applies x &rarr; x + numerator / denominator
@@ -580,7 +580,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return New random variable with the result of the function.
 
 	 */
-	RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator);
+	RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator);
 
 	/**
 	 * Applies x &rarr; x - numerator / denominator
@@ -590,7 +590,7 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return New random variable with the result of the function.
 
 	 */
-	RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator);
+	RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator);
 
 	/**
 	 * Applies \( x \mapsto x + \sum_{i=0}^{n-1} factor1_{i} * factor2_{i}
@@ -599,9 +599,9 @@ public interface RandomVariableInterface extends Serializable {
 	 * @return New random variable with the result of the function.
 
 	 */
-	default RandomVariableInterface addSumProduct(List<RandomVariableInterface> factor1, List<RandomVariableInterface> factor2)
+	default RandomVariable addSumProduct(List<RandomVariable> factor1, List<RandomVariable> factor2)
 	{
-		RandomVariableInterface result = this;
+		RandomVariable result = this;
 		for(int i=0; i<factor1.size(); i++) {
 			result = result.addProduct(factor1.get(i), factor2.get(i));
 		}
@@ -613,5 +613,5 @@ public interface RandomVariableInterface extends Serializable {
 	 *
 	 * @return A random variable which is 1.0 for all states that are NaN, otherwise 0.0.
 	 */
-	RandomVariableInterface isNaN();
+	RandomVariable isNaN();
 }

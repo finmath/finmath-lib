@@ -10,8 +10,8 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A service that allows to estimate conditional expectation via regression.
@@ -29,7 +29,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimatorInterface {
+public class MonteCarloConditionalExpectationRegression implements ConditionalExpectationEstimator {
 
 	/**
 	 * Interface for objects specifying regression basis functions (a vector of random variables).
@@ -37,23 +37,23 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @author Christian Fries
 	 */
 	public interface RegressionBasisFunctions {
-		RandomVariableInterface[] getBasisFunctions();
+		RandomVariable[] getBasisFunctions();
 	}
 
 	/**
-	 * Wrapper to an array of RandomVariableInterface[] implementing RegressionBasisFunctions
+	 * Wrapper to an array of RandomVariable[] implementing RegressionBasisFunctions
 	 * @author Christian Fries
 	 */
 	public class RegressionBasisFunctionsGiven implements RegressionBasisFunctions {
-		private final RandomVariableInterface[] basisFunctions;
+		private final RandomVariable[] basisFunctions;
 
-		public RegressionBasisFunctionsGiven(RandomVariableInterface[] basisFunctions) {
+		public RegressionBasisFunctionsGiven(RandomVariable[] basisFunctions) {
 			super();
 			this.basisFunctions = basisFunctions;
 		}
 
 		@Override
-		public RandomVariableInterface[] getBasisFunctions() {
+		public RandomVariable[] getBasisFunctions() {
 			return basisFunctions;
 		}
 	}
@@ -76,7 +76,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 *
 	 * @param basisFunctions A vector of random variables to be used as basis functions.
 	 */
-	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctions) {
+	public MonteCarloConditionalExpectationRegression(RandomVariable[] basisFunctions) {
 		this();
 		this.basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctions));
 		this.basisFunctionsPredictor = basisFunctionsEstimator;
@@ -88,20 +88,20 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
 	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
 	 */
-	public MonteCarloConditionalExpectationRegression(RandomVariableInterface[] basisFunctionsEstimator, RandomVariableInterface[] basisFunctionsPredictor) {
+	public MonteCarloConditionalExpectationRegression(RandomVariable[] basisFunctionsEstimator, RandomVariable[] basisFunctionsPredictor) {
 		this();
 		this.basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctionsEstimator));
 		this.basisFunctionsPredictor = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctionsPredictor));
 	}
 
 	@Override
-	public RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable) {
+	public RandomVariable getConditionalExpectation(RandomVariable randomVariable) {
 		// Get regression parameters x as the solution of XTX x = XT y
 		double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
 		// Calculate estimate, i.e. X x
-		RandomVariableInterface[] basisFunctions = this.basisFunctionsPredictor.getBasisFunctions();
-		RandomVariableInterface conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
+		RandomVariable[] basisFunctions = this.basisFunctionsPredictor.getBasisFunctions();
+		RandomVariable conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
 		for(int i=1; i<basisFunctions.length; i++) {
 			conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
 		}
@@ -116,9 +116,9 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @param dependents The sample vector of the random variable y.
 	 * @return The solution x of XTX x = XT y.
 	 */
-	public double[] getLinearRegressionParameters(RandomVariableInterface dependents) {
+	public double[] getLinearRegressionParameters(RandomVariable dependents) {
 
-		RandomVariableInterface[] basisFunctions = basisFunctionsEstimator.getBasisFunctions();
+		RandomVariable[] basisFunctions = basisFunctionsEstimator.getBasisFunctions();
 
 		synchronized (solverLock) {
 			if(solver == null) {
@@ -147,7 +147,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		return linearRegressionParameters;
 	}
 
-	private RandomVariableInterface[] getNonZeroBasisFunctions(RandomVariableInterface[] basisFunctions) {
+	private RandomVariable[] getNonZeroBasisFunctions(RandomVariable[] basisFunctions) {
 		int numberOfNonZeroBasisFunctions = 0;
 		for(int indexBasisFunction = 0; indexBasisFunction<basisFunctions.length; indexBasisFunction++) {
 			if(basisFunctions[indexBasisFunction] != null) {
@@ -155,10 +155,10 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 			}
 		}
 
-		RandomVariableInterface[] nonZerobasisFunctions = new RandomVariableInterface[numberOfNonZeroBasisFunctions];
+		RandomVariable[] nonZerobasisFunctions = new RandomVariable[numberOfNonZeroBasisFunctions];
 
 		int indexOfNonZeroBasisFunctions = 0;
-		for (RandomVariableInterface basisFunction : basisFunctions) {
+		for (RandomVariable basisFunction : basisFunctions) {
 			if (basisFunction != null) {
 				nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
 				indexOfNonZeroBasisFunctions++;

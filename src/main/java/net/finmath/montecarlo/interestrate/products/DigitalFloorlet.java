@@ -6,9 +6,9 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the pricing of a digtal floorlet using a given <code>LIBORModelMonteCarloSimulationInterface</code>.
@@ -41,7 +41,7 @@ public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// This is on the Libor discretization
 		int		liborIndex		= model.getLiborPeriodIndex(maturity);
@@ -49,7 +49,7 @@ public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
 		double	periodLength	= paymentDate - maturity;
 
 		// Get random variables
-		RandomVariableInterface	libor						= model.getLIBOR(maturity, maturity, paymentDate);
+		RandomVariable	libor						= model.getLIBOR(maturity, maturity, paymentDate);
 
 		// Set up payoff on path
 		double[] payoff = new double[model.getNumberOfPaths()];
@@ -66,13 +66,13 @@ public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
 		}
 
 		// Get random variables
-		RandomVariableInterface	numeraire					= model.getNumeraire(paymentDate);
-		RandomVariableInterface	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
+		RandomVariable	numeraire					= model.getNumeraire(paymentDate);
+		RandomVariable	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
 
-		RandomVariableInterface	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
 
-		RandomVariableInterface values = new RandomVariable(paymentDate, payoff);
+		RandomVariable values = new RandomVariableFromDoubleArray(paymentDate, payoff);
 		values.div(numeraire).mult(monteCarloProbabilities);
 		values.div(numeraireAtEvaluationTime).mult(monteCarloProbabilitiesAtEvaluationTime);
 

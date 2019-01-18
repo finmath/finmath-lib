@@ -13,7 +13,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -113,11 +113,11 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		/*
 		 * Calculate value of the swap at exercise date on each path (beware of perfect foresight - all rates are simulationTime=exerciseDate)
 		 */
-		RandomVariableInterface valueOfSwapAtExerciseDate	= model.getRandomVariableForConstant(/*fixingDates[fixingDates.length-1],*/0.0);
+		RandomVariable valueOfSwapAtExerciseDate	= model.getRandomVariableForConstant(/*fixingDates[fixingDates.length-1],*/0.0);
 
 		// Calculate the value of the swap by working backward through all periods
 		for(int period=fixingDates.length-1; period>=0; period--)
@@ -129,10 +129,10 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 			double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
 
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
+			RandomVariable libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
 
 			// Add payment received at end of period
-			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength);
+			RandomVariable payoff = libor.sub(swaprate).mult(periodLength);
 			valueOfSwapAtExerciseDate = valueOfSwapAtExerciseDate.add(payoff);
 
 			// Discount back to beginning of period
@@ -141,7 +141,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 
 		// If the exercise date is not the first periods start date, then discount back to the exercise date (calculate the forward starting swap)
 		if(fixingDates[0] != exerciseDate) {
-			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
+			RandomVariable libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
 			double periodLength	= fixingDates[0] - exerciseDate;
 
 			// Discount back to beginning of period
@@ -151,14 +151,14 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 		/*
 		 * Calculate swaption value
 		 */
-		RandomVariableInterface values = valueOfSwapAtExerciseDate.floor(0.0);
+		RandomVariable values = valueOfSwapAtExerciseDate.floor(0.0);
 
-		RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
-		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
+		RandomVariable	numeraire				= model.getNumeraire(exerciseDate);
+		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
-		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return values;

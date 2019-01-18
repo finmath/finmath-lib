@@ -8,10 +8,10 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements an analytic approximation of the integrated instantaneous covariance
@@ -41,7 +41,7 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
 		return getValue(evaluationTime, (LIBORMarketModel)((LIBORModelMonteCarloSimulationInterface) model).getModel());
 	}
 
@@ -54,7 +54,7 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * @return Returns the approximated integrated instantaneous covariance of two swap rates.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariableInterface getValue(double evaluationTime, LIBORMarketModel model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORMarketModel model) throws CalculationException {
 
 		int swapStartIndex1  = model.getLiborPeriodIndex(swapTenor1[0]);
 		int swapEndIndex1    = model.getLiborPeriodIndex(swapTenor1[swapTenor1.length-1]);
@@ -80,6 +80,6 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 			}
 		}
 
-		return new RandomVariable(evaluationTime, integratedSwapRateCovariance);
+		return new RandomVariableFromDoubleArray(evaluationTime, integratedSwapRateCovariance);
 	}
 }

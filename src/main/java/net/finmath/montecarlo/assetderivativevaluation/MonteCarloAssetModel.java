@@ -12,7 +12,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -49,29 +49,29 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
 		return model.getProcess().getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(int timeIndex) throws CalculationException {
+	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
 		double time = getTime(timeIndex);
 
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
@@ -142,7 +142,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
@@ -150,7 +150,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(int)
 	 */
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 

@@ -10,7 +10,7 @@ import java.text.DecimalFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -41,7 +41,7 @@ public class GammaProcessTest {
 		double scale1 = 1.0;
 		double scale2 = 2.0;
 
-		IndependentIncrementsInterface gamma1 = new GammaProcess(
+		IndependentIncrements gamma1 = new GammaProcess(
 				timeDiscretization,
 				1,
 				numberOfPaths,
@@ -50,7 +50,7 @@ public class GammaProcessTest {
 				scale1	// Scale
 				);
 
-		IndependentIncrementsInterface gamma2 = new GammaProcess(
+		IndependentIncrements gamma2 = new GammaProcess(
 				timeDiscretization,
 				1,
 				numberOfPaths,
@@ -59,8 +59,8 @@ public class GammaProcessTest {
 				scale2	// Scale
 				);
 
-		RandomVariableInterface gammaIncement1 = gamma1.getIncrement(3, 0);
-		RandomVariableInterface gammaIncement2 = gamma2.getIncrement(3, 0);
+		RandomVariable gammaIncement1 = gamma1.getIncrement(3, 0);
+		RandomVariable gammaIncement2 = gamma2.getIncrement(3, 0);
 
 		for(int i=0; i<gammaIncement1.size(); i++) {
 			double diff = gammaIncement2.get(i) - scale2/scale1 * gammaIncement1.get(i);

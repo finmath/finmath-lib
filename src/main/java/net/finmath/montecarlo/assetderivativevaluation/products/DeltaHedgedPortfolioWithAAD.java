@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements a delta hedged portfolio (a hedge simulator).
@@ -54,7 +54,7 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
@@ -65,27 +65,27 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 		long timingValuationStart = System.currentTimeMillis();
 
-		RandomVariableDifferentiableInterface value = (RandomVariableDifferentiableInterface) productToReplicate.getValue(model.getTime(0), model);
-		RandomVariableInterface exerciseTime = null;
+		RandomVariableDifferentiable value = (RandomVariableDifferentiable) productToReplicate.getValue(model.getTime(0), model);
+		RandomVariable exerciseTime = null;
 		if(productToReplicate instanceof BermudanOption) {
 			exerciseTime = ((BermudanOption) productToReplicate).getLastValuationExerciseTime();
 		}
 
 		long timingValuationEnd = System.currentTimeMillis();
 
-		RandomVariableInterface valueOfOption = model.getRandomVariableForConstant(value.getAverage());
+		RandomVariable valueOfOption = model.getRandomVariableForConstant(value.getAverage());
 
 		// Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
-		RandomVariableInterface underlyingToday = model.getAssetValue(0.0,0);
-		RandomVariableInterface numeraireToday  = model.getNumeraire(0.0);
+		RandomVariable underlyingToday = model.getAssetValue(0.0,0);
+		RandomVariable numeraireToday  = model.getNumeraire(0.0);
 
 		// We store the composition of the hedge portfolio (depending on the path)
-		RandomVariableInterface amountOfNumeraireAsset = valueOfOption.div(numeraireToday);
-		RandomVariableInterface amountOfUderlyingAsset = model.getRandomVariableForConstant(0.0);
+		RandomVariable amountOfNumeraireAsset = valueOfOption.div(numeraireToday);
+		RandomVariable amountOfUderlyingAsset = model.getRandomVariableForConstant(0.0);
 
 		// Delta of option to replicate
 		long timingDerivativeStart = System.currentTimeMillis();
-		Map<Long, RandomVariableInterface> gradient = value.getGradient();
+		Map<Long, RandomVariable> gradient = value.getGradient();
 		long timingDerivativeEnd = System.currentTimeMillis();
 
 		lastOperationTimingValuation = (timingValuationEnd-timingValuationStart) / 1000.0;
@@ -93,25 +93,25 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			// Get value of underlying and numeraire assets
-			RandomVariableInterface underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
-			RandomVariableInterface numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
+			RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
+			RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
 			// Get delta
-			RandomVariableInterface delta = gradient.get(((RandomVariableDifferentiableInterface)underlyingAtTimeIndex).getID());
+			RandomVariable delta = gradient.get(((RandomVariableDifferentiable)underlyingAtTimeIndex).getID());
 			if(delta == null) {
 				delta = underlyingAtTimeIndex.mult(0.0);
 			}
 
 			delta = delta.mult(numeraireAtTimeIndex);
 
-			RandomVariableInterface indicator = new RandomVariable(1.0);
+			RandomVariable indicator = new RandomVariableFromDoubleArray(1.0);
 			if(exerciseTime != null) {
-				indicator = exerciseTime.sub(model.getTime(timeIndex)+0.001).choose(new RandomVariable(1.0), new RandomVariable(0.0));
+				indicator = exerciseTime.sub(model.getTime(timeIndex)+0.001).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
 			}
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
-			ArrayList<RandomVariableInterface> basisFunctions = getRegressionBasisFunctionsBinning(underlyingAtTimeIndex, indicator);
-			ConditionalExpectationEstimatorInterface conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariableInterface[0]));
+			ArrayList<RandomVariable> basisFunctions = getRegressionBasisFunctionsBinning(underlyingAtTimeIndex, indicator);
+			ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
 
 			delta = delta.getConditionalExpectation(conditionalExpectationOperator);
 
@@ -120,12 +120,12 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 			 */
 
 			// Determine the delta hedge
-			RandomVariableInterface newNumberOfStocks	    	= delta;
-			RandomVariableInterface stocksToBuy			    	= newNumberOfStocks.sub(amountOfUderlyingAsset);
+			RandomVariable newNumberOfStocks	    	= delta;
+			RandomVariable stocksToBuy			    	= newNumberOfStocks.sub(amountOfUderlyingAsset);
 
 			// Ensure self financing
-			RandomVariableInterface numeraireAssetsToSell   	= stocksToBuy.mult(underlyingAtTimeIndex).div(numeraireAtTimeIndex);
-			RandomVariableInterface newNumberOfNumeraireAsset	= amountOfNumeraireAsset.sub(numeraireAssetsToSell);
+			RandomVariable numeraireAssetsToSell   	= stocksToBuy.mult(underlyingAtTimeIndex).div(numeraireAtTimeIndex);
+			RandomVariable newNumberOfNumeraireAsset	= amountOfNumeraireAsset.sub(numeraireAssetsToSell);
 
 			// Update portfolio
 			amountOfNumeraireAsset	= newNumberOfNumeraireAsset;
@@ -137,10 +137,10 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 		 */
 
 		// Get value of underlying and numeraire assets
-		RandomVariableInterface underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
-		RandomVariableInterface numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
+		RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
+		RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 
-		RandomVariableInterface portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime)
+		RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime)
 				.add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));
 
 		return portfolioValue;
@@ -154,8 +154,8 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 		return lastOperationTimingDerivative;
 	}
 
-	private ArrayList<RandomVariableInterface> getRegressionBasisFunctions(RandomVariableInterface underlying, RandomVariableInterface indicator) {
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+	private ArrayList<RandomVariable> getRegressionBasisFunctions(RandomVariable underlying, RandomVariable indicator) {
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<RandomVariable>();
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
 		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
@@ -165,15 +165,15 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 		return basisFunctions;
 	}
 
-	private ArrayList<RandomVariableInterface> getRegressionBasisFunctionsBinning(RandomVariableInterface underlying, RandomVariableInterface indicator) {
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
+	private ArrayList<RandomVariable> getRegressionBasisFunctionsBinning(RandomVariable underlying, RandomVariable indicator) {
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<RandomVariable>();
 
 		int numberOfBins = 20;
 		double[] values = underlying.getRealizations();
 		Arrays.sort(values);
 		for(int i = 0; i<numberOfBins; i++) {
 			double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
-			RandomVariableInterface basisFunction = underlying.sub(binLeft).choose(new RandomVariable(1.0), new RandomVariable(0.0)).mult(indicator);
+			RandomVariable basisFunction = underlying.sub(binLeft).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)).mult(indicator);
 			basisFunctions.add(basisFunction);
 		}
 

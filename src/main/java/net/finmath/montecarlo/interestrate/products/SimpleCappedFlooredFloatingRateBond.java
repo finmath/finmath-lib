@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
@@ -35,10 +35,10 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Accumulating values in the random variable
-		RandomVariableInterface value = model.getRandomVariableForConstant(0.0);
+		RandomVariable value = model.getRandomVariableForConstant(0.0);
 
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
 			double fixingDate = fixingDates[periodIndex];
@@ -46,7 +46,7 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 			double periodLength = paymentDate-fixingDate;
 
 			// Get floating rate for coupon
-			RandomVariableInterface coupon = model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			RandomVariable coupon = model.getLIBOR(fixingDate, fixingDate, paymentDate);
 
 			// Apply spread, if any
 			if(spreads != null) {
@@ -65,20 +65,20 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 
 			coupon = coupon.mult(periodLength);
 
-			RandomVariableInterface numeraire = model.getNumeraire(paymentDate);
-			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
+			RandomVariable numeraire = model.getNumeraire(paymentDate);
+			RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 
 			value = value.add(coupon.div(numeraire).mult(monteCarloProbabilities));
 		}
 
 		// Add unit notional payment at maturity
-		RandomVariableInterface notionalPayoff = model.getRandomVariableForConstant(1.0);
-		RandomVariableInterface numeraire = model.getNumeraire(maturity);
-		RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
+		RandomVariable notionalPayoff = model.getRandomVariableForConstant(1.0);
+		RandomVariable numeraire = model.getNumeraire(maturity);
+		RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
 		value = value.add(notionalPayoff.div(numeraire).mult(monteCarloProbabilities));
 
-		RandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		value = value.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return value;

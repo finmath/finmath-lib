@@ -6,7 +6,7 @@
 package net.finmath.analytic.model.curves;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * The interface which is implemented by forward curves.
@@ -23,7 +23,7 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 *
 	 * @return The forward.
 	 */
-	RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime);
+	RandomVariable getForward(AnalyticModelInterface model, double fixingTime);
 
 	/**
 	 * Returns the forward for the corresponding fixing time and paymentOffset.
@@ -33,7 +33,7 @@ public interface ForwardCurveInterface extends CurveInterface {
 	 *
 	 * @return The forward.
 	 */
-	RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset);
+	RandomVariable getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset);
 
 	/**
 	 * @return The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards)

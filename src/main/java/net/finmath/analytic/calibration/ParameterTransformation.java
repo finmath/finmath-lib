@@ -6,7 +6,7 @@
 
 package net.finmath.analytic.calibration;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Interface for parameter transformation. A parameter transformation can be used
@@ -28,7 +28,7 @@ public interface ParameterTransformation {
 	 * @param solverParameter The given solver parameter (unbounded).
 	 * @return The (possibly bounded) parameter.
 	 */
-	RandomVariableInterface[] getParameter(RandomVariableInterface[] solverParameter);
+	RandomVariable[] getParameter(RandomVariable[] solverParameter);
 
 	/**
 	 * Return the (unbounded) solver parameter for the given original parameter.
@@ -36,5 +36,5 @@ public interface ParameterTransformation {
 	 * @param parameter The parameter.
 	 * @return The corresponding unbounded solver parameter.
 	 */
-	RandomVariableInterface[] getSolverParameter(RandomVariableInterface[] parameter);
+	RandomVariable[] getSolverParameter(RandomVariable[] parameter);
 }

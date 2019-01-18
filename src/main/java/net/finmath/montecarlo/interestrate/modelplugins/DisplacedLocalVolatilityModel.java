@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Displaced model build on top of a standard covariance model.
@@ -132,11 +132,11 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
 		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].add(displacement);
+			RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].add(displacement);
 			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
 			}
@@ -146,7 +146,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 }

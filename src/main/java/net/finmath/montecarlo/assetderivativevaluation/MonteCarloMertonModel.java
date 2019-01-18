@@ -14,11 +14,11 @@ import java.util.function.IntFunction;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.NormalDistribution;
 import net.finmath.functions.PoissonDistribution;
+import net.finmath.montecarlo.IndependentIncrementsFromICDF;
 import net.finmath.montecarlo.IndependentIncrements;
-import net.finmath.montecarlo.IndependentIncrementsInterface;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -105,14 +105,14 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 			}
 		};
 
-		IndependentIncrementsInterface icrements = new IndependentIncrements(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
+		IndependentIncrements icrements = new IndependentIncrementsFromICDF(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
 			private static final long serialVersionUID = -7858107751226404629L;
 
 			@Override
-			public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+			public RandomVariable getIncrement(int timeIndex, int factor) {
 				if(factor == 1) {
-					RandomVariableInterface Z = super.getIncrement(timeIndex, 1);
-					RandomVariableInterface N = super.getIncrement(timeIndex, 2);
+					RandomVariable Z = super.getIncrement(timeIndex, 1);
+					RandomVariable N = super.getIncrement(timeIndex, 2);
 					return Z.mult(N.sqrt());
 				}
 				else {
@@ -135,29 +135,29 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
 		return model.getProcess().getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(int timeIndex) throws CalculationException {
+	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
 		double time = getTime(timeIndex);
 
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
@@ -215,12 +215,12 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 }

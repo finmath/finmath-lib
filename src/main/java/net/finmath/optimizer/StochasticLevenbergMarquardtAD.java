@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
@@ -28,22 +28,22 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <p>
  * The Levenberg-Marquardt solver is implemented in using multi-threading.
  * The calculation of the derivatives (in case a specific implementation of
- * {@code setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives)} is not
+ * {@code setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives)} is not
  * provided) may be performed in parallel by setting the parameter <code>numberOfThreads</code>.
  * </p>
  *
  * <p>
  * To use the solver inherit from it and implement the objective function as
- * {@code setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values)} where values has
+ * {@code setValues(RandomVariable[] parameters, RandomVariable[] values)} where values has
  * to be set to the value of the objective functions for the given parameters.
  * <br>
  * You may also provide an a derivative for your objective function by
- * additionally overriding the function {@code setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives)},
+ * additionally overriding the function {@code setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives)},
  * otherwise the solver will calculate the derivative via finite differences.
  * </p>
  * <p>
  * To reject a point, it is allowed to set an element of <code>values</code> to {@link java.lang.Double#NaN}
- * in the implementation of {@code setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values)}.
+ * in the implementation of {@code setValues(RandomVariable[] parameters, RandomVariable[] values)}.
  * Put differently: The solver handles NaN values in <code>values</code> as an error larger than
  * the current one (regardless of the current error) and rejects the point.
  * <br>
@@ -68,21 +68,21 @@ import net.finmath.stochastic.RandomVariableInterface;
  * <code>
  * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
  * 		// Override your objective function here
- * 		public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) {
+ * 		public void setValues(RandomVariable[] parameters, RandomVariable[] values) {
  * 			values[0] = parameters[0] * 0.0 + parameters[1];
  * 			values[1] = parameters[0] * 2.0 + parameters[1];
  * 		}
  * 	};
  *
  * 	// Set solver parameters
- * 	optimizer.setInitialParameters(new RandomVariableInterface[] { 0, 0 });
- * 	optimizer.setWeights(new RandomVariableInterface[] { 1, 1 });
+ * 	optimizer.setInitialParameters(new RandomVariable[] { 0, 0 });
+ * 	optimizer.setWeights(new RandomVariable[] { 1, 1 });
  * 	optimizer.setMaxIteration(100);
- * 	optimizer.setTargetValues(new RandomVariableInterface[] { 5, 10 });
+ * 	optimizer.setTargetValues(new RandomVariable[] { 5, 10 });
  *
  * 	optimizer.run();
  *
- * 	RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
+ * 	RandomVariable[] bestParameters = optimizer.getBestFitParameters();
  * </code>
  * </pre>
  *
@@ -108,9 +108,9 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 	private final boolean isGradientValuationParallel;
 
 	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
-			RandomVariableInterface[] initialParameters,
-			RandomVariableInterface[] targetValues,
-			RandomVariableInterface[] parameterSteps, int maxIteration, double errorTolerance,
+			RandomVariable[] initialParameters,
+			RandomVariable[] targetValues,
+			RandomVariable[] parameterSteps, int maxIteration, double errorTolerance,
 			ExecutorService executorService,
 			boolean isGradientValuationParallel) {
 		super(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);
@@ -118,22 +118,22 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 	}
 
 	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
-			RandomVariableInterface[] initialParameters,
-			RandomVariableInterface[] targetValues,
-			RandomVariableInterface[] parameterSteps, int maxIteration, double errorTolerance,
+			RandomVariable[] initialParameters,
+			RandomVariable[] targetValues,
+			RandomVariable[] parameterSteps, int maxIteration, double errorTolerance,
 			ExecutorService executorService) {
 		this(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService, false /* isGradientValuationParallel */);
 	}
 
 
 	@Override
-	protected void prepareAndSetValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException {
+	protected void prepareAndSetValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
 		/**
 		 * Small modification to avoid growing operator trees.
 		 */
 		for(int i=0; i<parameters.length; i++) {
-			if(parameters[i] instanceof RandomVariableDifferentiableInterface) {
-				parameters[i] = ((RandomVariableDifferentiableInterface) parameters[i]).getCloneIndependent();
+			if(parameters[i] instanceof RandomVariableDifferentiable) {
+				parameters[i] = ((RandomVariableDifferentiable) parameters[i]).getCloneIndependent();
 			}
 		}
 
@@ -141,38 +141,38 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 	}
 
 	@Override
-	protected void prepareAndSetDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[] values, RandomVariableInterface[][] derivatives) throws SolverException {
+	protected void prepareAndSetDerivatives(RandomVariable[] parameters, RandomVariable[] values, RandomVariable[][] derivatives) throws SolverException {
 		/*
 		 * Check if random variable is differentiable
 		 */
 		boolean isParameterRandomVariableDifferentiable = true;
 		for(int parameterIndex=0; parameterIndex<parameters.length && isParameterRandomVariableDifferentiable; parameterIndex++) {
-			isParameterRandomVariableDifferentiable = (parameters[parameterIndex] instanceof RandomVariableDifferentiableInterface) && isParameterRandomVariableDifferentiable;
+			isParameterRandomVariableDifferentiable = (parameters[parameterIndex] instanceof RandomVariableDifferentiable) && isParameterRandomVariableDifferentiable;
 		}
 
 		if(logger.isLoggable(Level.INFO)) {
 			boolean isValueRandomVariableDifferentiable = true;
 			for(int valueIndex=0; valueIndex<values.length && isParameterRandomVariableDifferentiable; valueIndex++) {
-				isValueRandomVariableDifferentiable = (values[valueIndex] instanceof RandomVariableDifferentiableInterface) && isValueRandomVariableDifferentiable;
+				isValueRandomVariableDifferentiable = (values[valueIndex] instanceof RandomVariableDifferentiable) && isValueRandomVariableDifferentiable;
 			}
 
 			if(!isValueRandomVariableDifferentiable) {
-				logger.info("Using " + this.getClass().getSimpleName() + " with random variables not implementing " + RandomVariableDifferentiableInterface.class.getSimpleName());
+				logger.info("Using " + this.getClass().getSimpleName() + " with random variables not implementing " + RandomVariableDifferentiable.class.getSimpleName());
 			}
 		}
 
 		if(isParameterRandomVariableDifferentiable) {
-			Map<Integer,Map<Long, RandomVariableInterface>> gradients = null;
+			Map<Integer,Map<Long, RandomVariable>> gradients = null;
 			if(isGradientValuationParallel) {
 				// Parallel pre-calculation of gradients for each value function
-				gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient()));
+				gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiable)values[valueIndex]).getGradient()));
 			}
 
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
-				if(values[valueIndex] instanceof RandomVariableDifferentiableInterface) {
-					Map<Long, RandomVariableInterface> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient();
+				if(values[valueIndex] instanceof RandomVariableDifferentiable) {
+					Map<Long, RandomVariable> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiable)values[valueIndex]).getGradient();
 					for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
-						derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameters[parameterIndex]).getID());
+						derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiable)parameters[parameterIndex]).getID());
 						if(derivatives[parameterIndex][valueIndex] != null) {
 							derivatives[parameterIndex][valueIndex] = derivatives[parameterIndex][valueIndex].average();
 						}

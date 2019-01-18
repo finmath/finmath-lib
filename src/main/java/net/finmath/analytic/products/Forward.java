@@ -8,7 +8,7 @@ package net.finmath.analytic.products;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the valuation of a forward using curves (discount curve, forward curve).
@@ -51,7 +51,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 
@@ -66,7 +66,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 			}
 		}
 
-		RandomVariableInterface forward = model.getRandomVariableForConstant(spread);
+		RandomVariable forward = model.getRandomVariableForConstant(spread);
 		if(forwardCurve != null) {
 			forward = forward.add(forwardCurve.getForward(model, maturity));
 		}
@@ -74,7 +74,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 			forward = forward.add(discountCurveForForward.getDiscountFactor(maturity).div(discountCurveForForward.getDiscountFactor(maturity+paymentOffset)).sub(1.0).div(paymentOffset));
 		}
 
-		RandomVariableInterface discountFactor	= maturity+paymentOffset > evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : model.getRandomVariableForConstant(0.0);
+		RandomVariable discountFactor	= maturity+paymentOffset > evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : model.getRandomVariableForConstant(0.0);
 
 		return forward.mult(discountFactor).div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}

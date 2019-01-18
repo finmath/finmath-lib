@@ -9,7 +9,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Basic interface which has to be implemented by Monte Carlo models for asset processes.
@@ -38,7 +38,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @return				The asset process as seen on simulation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface		getAssetValue(int timeIndex, int assetIndex) throws CalculationException;
+	RandomVariable		getAssetValue(int timeIndex, int assetIndex) throws CalculationException;
 
 	/**
 	 * Returns the random variable representing the asset's value at a given time for a given asset.
@@ -48,7 +48,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @return				The asset process as seen on simulation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface		getAssetValue(double time, int assetIndex) throws CalculationException;
+	RandomVariable		getAssetValue(double time, int assetIndex) throws CalculationException;
 
 	/**
 	 * Returns the numeraire associated with the valuation measure used by this model.
@@ -57,7 +57,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @return The numeraire associated with the valuation measure used by this model.
 	 * @throws CalculationException Thrown if calculation of numeraire fails.
 	 */
-	RandomVariableInterface		getNumeraire(int timeIndex) throws CalculationException;
+	RandomVariable		getNumeraire(int timeIndex) throws CalculationException;
 
 	/**
 	 * Returns the numeraire associated with the valuation measure used by this model.
@@ -66,7 +66,7 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @return The numeraire associated with the valuation measure used by this model.
 	 * @throws CalculationException Thrown if calculation of numeraire fails.
 	 */
-	RandomVariableInterface		getNumeraire(double time) throws CalculationException;
+	RandomVariable		getNumeraire(double time) throws CalculationException;
 
 	/**
 	 * Create a clone of this simulation modifying some of its properties (if any).

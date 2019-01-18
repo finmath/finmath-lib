@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -53,12 +53,12 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = (-timeIndex-1)-1;
@@ -97,24 +97,24 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public BrownianMotionInterface getBrownianMotion() {
-		return (BrownianMotionInterface)model.getProcess().getStochasticDriver();
+	public BrownianMotion getBrownianMotion() {
+		return (BrownianMotion)model.getProcess().getStochasticDriver();
 	}
 
 	@Override
-	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
+	public RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return model.getLIBOR(timeIndex, liborIndex);
 	}
 
 	@Override
-	public RandomVariableInterface[] getLIBORs(int timeIndex) throws CalculationException
+	public RandomVariable[] getLIBORs(int timeIndex) throws CalculationException
 	{
-		RandomVariableInterface[] randomVariableVector = new RandomVariableInterface[getNumberOfComponents()];
+		RandomVariable[] randomVariableVector = new RandomVariable[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
 			randomVariableVector[componentIndex] = getLIBOR(timeIndex, componentIndex);
 		}
@@ -123,7 +123,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	@Override
-	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	public RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
 	{
 		return model.getLIBOR(time, periodStart, periodEnd);
 	}
@@ -153,7 +153,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
@@ -206,7 +206,7 @@ public class LIBORModelMonteCarloSimulation implements LIBORModelMonteCarloSimul
 	}
 
 	@Override
-	public Map<String, RandomVariableInterface> getModelParameters() {
+	public Map<String, RandomVariable> getModelParameters() {
 		return model.getModelParameters();
 	}
 }

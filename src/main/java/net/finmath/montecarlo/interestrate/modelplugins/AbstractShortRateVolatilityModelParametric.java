@@ -18,8 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.HullWhiteModelInterface;
@@ -30,7 +30,7 @@ import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 import net.finmath.optimizer.SolverException;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -95,7 +95,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 *
 	 * Optional calibration parameters may be passed using the map calibrationParameters. The keys are (<code>String</code>s):
 	 * <ul>
-	 * 	<li><tt>brownianMotion</tt>: Under this key an object implementing {@link net.finmath.montecarlo.BrownianMotionInterface} may be provided. If so, this Brownian motion is used to build the valuation model.</li>
+	 * 	<li><tt>brownianMotion</tt>: Under this key an object implementing {@link net.finmath.montecarlo.BrownianMotion} may be provided. If so, this Brownian motion is used to build the valuation model.</li>
 	 * 	<li><tt>maxIterations</tt>: Under this key an object of type Integer may be provided specifying the maximum number of iterations.</li>
 	 * 	<li><tt>accuracy</tt>: Under this key an object of type Double may be provided specifying the desired accuracy. Note that this is understood in the sense that the solver will stop if the iteration does not improve by more than this number.</li>
 	 * </ul>
@@ -116,7 +116,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
 		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
-		BrownianMotionInterface brownianMotionParameter	= (BrownianMotionInterface)calibrationParameters.get("brownianMotion");
+		BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
 
 		double[] initialParameters = this.getParameter();
 		double[] lowerBound = new double[initialParameters.length];
@@ -142,7 +142,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		int numberOfFactors	= 2;	// Hull-White model implementation uses two factors for exact discretization.
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed);
 		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		final ExecutorService executor = null;
@@ -162,12 +162,12 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
 				final LIBORModelMonteCarloSimulation modelMonteCarloSimulation = new LIBORModelMonteCarloSimulation(model, process);
 
-				ArrayList<Future<RandomVariableInterface>> valueFutures = new ArrayList<>(calibrationProducts.length);
+				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
-					Callable<RandomVariableInterface> worker = new  Callable<RandomVariableInterface>() {
+					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 						@Override
-						public RandomVariableInterface call() {
+						public RandomVariable call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, modelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
 							} catch (CalculationException e) {
@@ -180,18 +180,18 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 						}
 					};
 					if(executor != null) {
-						Future<RandomVariableInterface> valueFuture = executor.submit(worker);
+						Future<RandomVariable> valueFuture = executor.submit(worker);
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<RandomVariableInterface> valueFutureTask = new FutureTask<>(worker);
+						FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
-						RandomVariableInterface value = valueFutures.get(calibrationProductIndex).get();
+						RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;;
 					}
 					catch (InterruptedException e) {

@@ -7,7 +7,7 @@ import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -31,7 +31,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		ForwardCurveInterface forwardCurve	 = model.getModel().getForwardRateCurve();
 		DiscountCurveInterface discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
@@ -46,7 +46,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 		AbstractLIBORMonteCarloProduct swaption = new Swaption(tenor.getTime(0), tenor, parSwapRate);
 
 		// get swaption value
-		RandomVariableInterface optionValue = swaption.getValue(evaluationTime, model);
+		RandomVariable optionValue = swaption.getValue(evaluationTime, model);
 
 		switch (valueUnit) {
 		case VALUE:
@@ -70,7 +70,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 	 * @param swapAnnuity The swap annuity as seen on valuation time.
 	 * @return The Bachelier implied volatility.
 	 */
-	public RandomVariableInterface getImpliedBachelierATMOptionVolatility(RandomVariableInterface optionValue, double optionMaturity, double swapAnnuity){
+	public RandomVariable getImpliedBachelierATMOptionVolatility(RandomVariable optionValue, double optionMaturity, double swapAnnuity){
 		return optionValue.average().mult(Math.sqrt(2.0 * Math.PI / optionMaturity) / swapAnnuity);
 	}
 }

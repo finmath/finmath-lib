@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Blended model (or displaced diffusion model) build on top of a standard covariance model.
@@ -47,7 +47,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	private AbstractRandomVariableFactory randomVariableFactory;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
-	private RandomVariableInterface displacement;
+	private RandomVariable displacement;
 
 	private ForwardCurveInterface forwardCurve;
 
@@ -67,7 +67,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 *
-	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
+	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param forwardCurve The given forward curve L<sub>0</sub>
 	 * @param displacement The displacement <i>a</i>.
@@ -100,7 +100,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 *
-	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
+	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
@@ -222,8 +222,8 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
 		double forward = 1.0;
 		if(forwardCurve != null) {
@@ -233,7 +233,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		}
 
 		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].sub(realizationAtTimeIndex[component].mult(displacement)).add(displacement.mult(forward));
+			RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].sub(realizationAtTimeIndex[component].mult(displacement)).add(displacement.mult(forward));
 			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
 			}
@@ -243,7 +243,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 }

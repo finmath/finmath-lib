@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.io.Serializable;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -60,7 +60,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
-	public	RandomVariableInterface[]	getFactorLoading(double time, double component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public	RandomVariable[]	getFactorLoading(double time, double component, RandomVariable[] realizationAtTimeIndex) {
 		int componentIndex = liborPeriodDiscretization.getTimeIndex(component);
 		if(componentIndex < 0) {
 			componentIndex = -componentIndex - 2;
@@ -83,7 +83,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
-	public	RandomVariableInterface[]	getFactorLoading(double time, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public	RandomVariable[]	getFactorLoading(double time, int component, RandomVariable[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = -timeIndex - 2;
@@ -102,7 +102,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
-	public abstract	RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex);
+	public abstract	RandomVariable[]	getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex);
 
 	/**
 	 * Returns the pseudo inverse of the factor matrix.
@@ -113,7 +113,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * @param realizationAtTimeIndex The realization of the stochastic process (may be used to implement local volatility/covariance/correlation models).
 	 * @return The entry of the pseudo-inverse of the factor loading matrix.
 	 */
-	public abstract RandomVariableInterface	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex);
+	public abstract RandomVariable	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex);
 
 	/**
 	 * Returns the instantaneous covariance calculated from factor loadings.
@@ -124,7 +124,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * @param realizationAtTimeIndex The realization of the stochastic process.
 	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
-	public RandomVariableInterface getCovariance(double time, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getCovariance(double time, int component1, int component2, RandomVariable[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = Math.abs(timeIndex)-2;
@@ -142,13 +142,13 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 * @param realizationAtTimeIndex The realization of the stochastic process.
 	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
-	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getCovariance(int timeIndex, int component1, int component2, RandomVariable[] realizationAtTimeIndex) {
 
-		RandomVariableInterface[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
-		RandomVariableInterface[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
+		RandomVariable[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
+		RandomVariable[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
 
 		// Multiply first factor loading (this avoids that we have to init covariance to 0).
-		RandomVariableInterface covariance = factorLoadingOfComponent1[0].mult(factorLoadingOfComponent2[0]);
+		RandomVariable covariance = factorLoadingOfComponent1[0].mult(factorLoadingOfComponent2[0]);
 
 		// Add others, if any
 		for(int factorIndex=1; factorIndex<this.getNumberOfFactors(); factorIndex++) {

@@ -9,7 +9,7 @@ import java.util.Calendar;
 
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.rootfinder.NewtonsMethod;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements some functions as static class methods.
@@ -93,22 +93,22 @@ public class AnalyticFormulas {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
 	 * @return Returns the value of a European call option under the Black-Scholes model.
 	 */
-	public static RandomVariableInterface blackScholesGeneralizedOptionValue(
-			RandomVariableInterface forward,
-			RandomVariableInterface volatility,
+	public static RandomVariable blackScholesGeneralizedOptionValue(
+			RandomVariable forward,
+			RandomVariable volatility,
 			double optionMaturity,
 			double optionStrike,
-			RandomVariableInterface payoffUnit)
+			RandomVariable payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return forward.mult(0.0);
 		}
 		else
 		{
-			RandomVariableInterface dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
-			RandomVariableInterface dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
+			RandomVariable dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			RandomVariable dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
 
-			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
+			RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
 
 			return valueAnalytic;
 		}
@@ -267,10 +267,10 @@ public class AnalyticFormulas {
 	 * @param optionStrike The option strike.
 	 * @return The delta of the option
 	 */
-	public static RandomVariableInterface blackScholesOptionDelta(
-			RandomVariableInterface initialStockValue,
-			RandomVariableInterface riskFreeRate,
-			RandomVariableInterface volatility,
+	public static RandomVariable blackScholesOptionDelta(
+			RandomVariable initialStockValue,
+			RandomVariable riskFreeRate,
+			RandomVariable volatility,
 			double optionMaturity,
 			double optionStrike)
 	{
@@ -280,9 +280,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate delta
-			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
-			RandomVariableInterface delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
+			RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
 
 			return delta;
 		}
@@ -302,12 +302,12 @@ public class AnalyticFormulas {
 	 * @param optionStrike The option strike.
 	 * @return The delta of the option
 	 */
-	public static RandomVariableInterface blackScholesOptionDelta(
-			RandomVariableInterface initialStockValue,
-			RandomVariableInterface riskFreeRate,
-			RandomVariableInterface volatility,
+	public static RandomVariable blackScholesOptionDelta(
+			RandomVariable initialStockValue,
+			RandomVariable riskFreeRate,
+			RandomVariable volatility,
 			double optionMaturity,
-			RandomVariableInterface optionStrike)
+			RandomVariable optionStrike)
 	{
 		if(optionMaturity < 0) {
 			return initialStockValue.mult(0.0);
@@ -315,9 +315,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate delta
-			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
-			RandomVariableInterface delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
+			RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
 
 			return delta;
 		}
@@ -366,10 +366,10 @@ public class AnalyticFormulas {
 	 * @param optionStrike The option strike.
 	 * @return The gamma of the option
 	 */
-	public static RandomVariableInterface blackScholesOptionGamma(
-			RandomVariableInterface initialStockValue,
-			RandomVariableInterface riskFreeRate,
-			RandomVariableInterface volatility,
+	public static RandomVariable blackScholesOptionGamma(
+			RandomVariable initialStockValue,
+			RandomVariable riskFreeRate,
+			RandomVariable volatility,
 			double optionMaturity,
 			double optionStrike)
 	{
@@ -381,9 +381,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate gamma
-			RandomVariableInterface dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
-			RandomVariableInterface gamma	= dPlus.squared().mult(-0.5).exp().div(initialStockValue.mult(volatility).mult(Math.sqrt(2.0 * Math.PI * optionMaturity)));
+			RandomVariable gamma	= dPlus.squared().mult(-0.5).exp().div(initialStockValue.mult(volatility).mult(Math.sqrt(2.0 * Math.PI * optionMaturity)));
 
 			return gamma;
 		}
@@ -844,22 +844,22 @@ public class AnalyticFormulas {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
-	public static RandomVariableInterface bachelierOptionValue(
-			RandomVariableInterface forward,
-			RandomVariableInterface volatility,
+	public static RandomVariable bachelierOptionValue(
+			RandomVariable forward,
+			RandomVariable volatility,
 			double optionMaturity,
 			double optionStrike,
-			RandomVariableInterface payoffUnit)
+			RandomVariable payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return forward.mult(0.0);
 		}
 		else
 		{
-			RandomVariableInterface integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
-			RandomVariableInterface dPlus	= forward.sub(optionStrike).div(integratedVolatility);
+			RandomVariable integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
+			RandomVariable dPlus	= forward.sub(optionStrike).div(integratedVolatility);
 
-			RandomVariableInterface valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
+			RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
 					.add(dPlus.apply(NormalDistribution::density).mult(integratedVolatility)).mult(payoffUnit);
 
 			return valueAnalytic;

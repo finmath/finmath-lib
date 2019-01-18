@@ -8,7 +8,7 @@ package net.finmath.montecarlo.automaticdifferentiation;
 
 import java.util.Map;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Interface implemented by model which can provide their independent model parameters.
@@ -24,7 +24,7 @@ public interface IndependentModelParameterProvider {
 	 *
 	 * @return Map of independent model parameters of this model.
 	 */
-	default Map<String, RandomVariableInterface> getModelParameters() {
+	default Map<String, RandomVariable> getModelParameters() {
 		// TODO Remove default implementation in 4.0.0 version to enforce models complying with this interface. NOTE: The default here is to allow backward compatibility.
 		throw new UnsupportedOperationException();
 	}

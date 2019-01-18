@@ -7,8 +7,8 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -106,7 +106,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	}
 
 	@Override
-	public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
+	public RandomVariable getVolatility(int timeIndex, int liborIndex) {
 		// Create a very simple volatility model here
 		double timeStart		= getTimeDiscretization().getTime(timeIndex);
 		double timeEnd			= getTimeDiscretization().getTime(timeIndex+1);
@@ -123,7 +123,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 
 		varianceInstantaneous = Math.max(varianceInstantaneous, 0.0);
 
-		return new RandomVariable(Math.sqrt(varianceInstantaneous));
+		return new RandomVariableFromDoubleArray(Math.sqrt(varianceInstantaneous));
 	}
 
 	@Override

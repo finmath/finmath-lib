@@ -1,6 +1,6 @@
 package net.finmath.rootfinder;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implementation of Newtons method for maps on random variables.
@@ -13,8 +13,8 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 
 	public enum MethodForAccuracy {AVERAGE, MAX, MIN}
 
-	private RandomVariableInterface	nextPoint;											// Stores the next point to be returned by getPoint()
-	private RandomVariableInterface	bestPoint;				              				// Best point so far
+	private RandomVariable	nextPoint;											// Stores the next point to be returned by getPoint()
+	private RandomVariable	bestPoint;				              				// Best point so far
 
 	private int	numberOfIterations				= 0;           							// Number of numberOfIterations
 	private double	accuracy					= Double.MAX_VALUE;						// Current accuracy of solution
@@ -23,10 +23,10 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 	private MethodForAccuracy method;
 
 	/**
-	 * @param guess {@link RandomVariableInterface} representing a first guess to start of the Newton Method
+	 * @param guess {@link RandomVariable} representing a first guess to start of the Newton Method
 	 * @param method defines the Method used to gain the accuracy for the Newton Iteration
 	 */
-	public StochasticNewtonMethod(RandomVariableInterface guess, MethodForAccuracy method) {
+	public StochasticNewtonMethod(RandomVariable guess, MethodForAccuracy method) {
 		bestPoint = guess;
 		nextPoint = guess;
 		this.method = method;
@@ -36,15 +36,15 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#getNextPoint()
 	 */
 	@Override
-	public RandomVariableInterface getNextPoint() {
+	public RandomVariable getNextPoint() {
 		return nextPoint;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#setValueAndDerivative(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#setValueAndDerivative(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public void setValueAndDerivative(RandomVariableInterface value, RandomVariableInterface derivative) {
+	public void setValueAndDerivative(RandomVariable value, RandomVariable derivative) {
 
 		double currentAccuracy;
 
@@ -59,7 +59,7 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 			currentAccuracy = value.abs().getMin();
 			break;
 		default:
-			throw new IllegalArgumentException("Method to get current accuracy from RandomVariableInterface not supported!");
+			throw new IllegalArgumentException("Method to get current accuracy from RandomVariable not supported!");
 		}
 
 
@@ -104,7 +104,7 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#getBestPoint()
 	 */
 	@Override
-	public RandomVariableInterface getBestPoint() {
+	public RandomVariable getBestPoint() {
 		return bestPoint;
 	}
 

@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the valuation of a zero swap under a LIBORModelMonteCarloSimulationInterface.
@@ -91,10 +91,10 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface values						= model.getRandomVariableForConstant(0.0);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariable values						= model.getRandomVariableForConstant(0.0);
 
-		RandomVariableInterface notional					= model.getRandomVariableForConstant(1.0);
+		RandomVariable notional					= model.getRandomVariableForConstant(1.0);
 		for(int period=0; period<fixingDates.length; period++)
 		{
 			double fixingDate		= fixingDates[period];
@@ -107,14 +107,14 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 			}
 
 			// Get random variables
-			RandomVariableInterface index	= floatIndex != null ? floatIndex.getValue(fixingDate, model) : model.getLIBOR(fixingDate, fixingDate, paymentDate);
-			RandomVariableInterface payoff	= index.sub(swaprate).mult(periodLength).mult(notional);
+			RandomVariable index	= floatIndex != null ? floatIndex.getValue(fixingDate, model) : model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			RandomVariable payoff	= index.sub(swaprate).mult(periodLength).mult(notional);
 			if(!isPayFix) {
 				payoff = payoff.mult(-1.0);
 			}
 
-			RandomVariableInterface numeraire				= model.getNumeraire(paymentDate);
-			RandomVariableInterface monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
+			RandomVariable numeraire				= model.getNumeraire(paymentDate);
+			RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			values = values.add(payoff);
@@ -122,8 +122,8 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 			notional = notional.mult(swaprate*periodLength);
 		}
 
-		RandomVariableInterface	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;

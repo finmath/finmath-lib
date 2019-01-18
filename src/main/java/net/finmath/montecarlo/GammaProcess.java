@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 import net.finmath.functions.GammaDistribution;
 import net.finmath.randomnumbers.MersenneTwister;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -37,7 +37,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.6
  */
-public class GammaProcess implements IndependentIncrementsInterface, Serializable {
+public class GammaProcess implements IndependentIncrements, Serializable {
 
 	/**
 	 *
@@ -55,7 +55,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 
 	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
-	private transient RandomVariableInterface[][]	gammaIncrements;
+	private transient RandomVariable[][]	gammaIncrements;
 
 	/**
 	 * Construct a Gamma process with a given shape parameter.
@@ -104,18 +104,18 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 	}
 
 	@Override
-	public IndependentIncrementsInterface getCloneWithModifiedSeed(int seed) {
+	public IndependentIncrements getCloneWithModifiedSeed(int seed) {
 		return new GammaProcess(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, shape);
 	}
 
 	@Override
-	public IndependentIncrementsInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
 		/// @TODO This can be improved: a complete recreation of the Gamma process wouldn't be necessary!
 		return new GammaProcess(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), shape);
 	}
 
 	@Override
-	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if(gammaIncrements == null) {
@@ -169,10 +169,10 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 			}
 		}
 
-		// Allocate memory for RandomVariable wrapper objects.
-		gammaIncrements = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
+		// Allocate memory for RandomVariableFromDoubleArray wrapper objects.
+		gammaIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
 
-		// Wrap the values in RandomVariable objects
+		// Wrap the values in RandomVariableFromDoubleArray objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
@@ -198,7 +198,7 @@ public class GammaProcess implements IndependentIncrementsInterface, Serializabl
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
 

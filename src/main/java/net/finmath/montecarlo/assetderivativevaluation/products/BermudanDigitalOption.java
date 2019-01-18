@@ -8,12 +8,12 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.optimizer.GoldenSectionSearch;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
@@ -94,7 +94,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 	 *
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
 		if(this.exerciseMethod == ExerciseMethod.UPPER_BOUND_METHOD) {
 			// Find optimal lambda
 			GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);
@@ -110,7 +110,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		}
 	}
 
-	private RandomVariableInterface getValues(double evaluationTime, AssetModelMonteCarloSimulationInterface model, double lambda) throws CalculationException {
+	private RandomVariable getValues(double evaluationTime, AssetModelMonteCarloSimulationInterface model, double lambda) throws CalculationException {
 		/*
 		 * We are going backward in time (note that this bears the risk of an foresight bias).
 		 * We store the value of the option, if not exercised in a vector. Is is not allowed to used the specific entry in this vector
@@ -118,11 +118,11 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		 */
 
 		// Initialize our value random variable: the value of the option if we never exercise is zero
-		RandomVariableInterface	value			= model.getRandomVariableForConstant(0.0);
+		RandomVariable	value			= model.getRandomVariableForConstant(0.0);
 
-		RandomVariableInterface	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
+		RandomVariable	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
 
-		RandomVariableInterface one				= model.getRandomVariableForConstant(1.0);
+		RandomVariable one				= model.getRandomVariableForConstant(1.0);
 
 		for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex>=0; exerciseDateIndex--)
 		{
@@ -131,24 +131,24 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 			double strike       = strikes[exerciseDateIndex];
 
 			// Get some model values upon exercise date
-			RandomVariableInterface underlyingAtExercise	= model.getAssetValue(exerciseDate,0);
-			RandomVariableInterface numeraireAtPayment		= model.getNumeraire(exerciseDate);
-			RandomVariableInterface monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
+			RandomVariable underlyingAtExercise	= model.getAssetValue(exerciseDate,0);
+			RandomVariable numeraireAtPayment		= model.getNumeraire(exerciseDate);
+			RandomVariable monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
 
 			// Value received if exercised at current time
-			RandomVariableInterface valueOfPaymentsIfExercised = one.mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
+			RandomVariable valueOfPaymentsIfExercised = one.mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
-			ConditionalExpectationEstimatorInterface condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
+			ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
 
-			RandomVariableInterface underlying	= null;
-			RandomVariableInterface trigger		= null;
+			RandomVariable underlying	= null;
+			RandomVariable trigger		= null;
 
 			// Calculate the exercise criteria (exercise if the following trigger is negative)
 			switch(exerciseMethod) {
 			case ESTIMATE_COND_EXPECTATION:
 				// Calculate conditional expectation on numeraire relative quantity.
-				RandomVariableInterface valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);
+				RandomVariable valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);
 
 				underlying	= underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
 				trigger		= underlying.sub(valueIfNotExcercisedEstimated);
@@ -156,7 +156,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 			case UPPER_BOUND_METHOD:
 				throw new UnsupportedOperationException(exerciseMethod + " is currently not supported.");
 				/*
-				RandomVariableInterface martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));
+				RandomVariable martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));
 				// Construct a martingale with initial value being zero.
 				martingale = martingale.sub(martingale.getAverage()).mult(lambda);
 
@@ -185,20 +185,20 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		 */
 
 		// Note that values is a relative price - no numeraire division is required
-		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		value = value.mult(numeraireAtZero);//.div(monteCarloProbabilitiesAtZero);
 
 		return value;
 	}
 
 
-	private RandomVariableInterface[] getRegressionBasisFunctions(RandomVariableInterface underlying) {
-		RandomVariableInterface[] basisFunctions;
+	private RandomVariable[] getRegressionBasisFunctions(RandomVariable underlying) {
+		RandomVariable[] basisFunctions;
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
-		basisFunctions = new RandomVariableInterface[orderOfRegressionPolynomial+1];
-		basisFunctions[0] = new RandomVariable(1.0);	// Random variable = 1
+		basisFunctions = new RandomVariable[orderOfRegressionPolynomial+1];
+		basisFunctions[0] = new RandomVariableFromDoubleArray(1.0);	// Random variable = 1
 		basisFunctions[1] = underlying;					// Random variable = S
 		for(int powerOfRegressionMonomial=2; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
 			basisFunctions[powerOfRegressionMonomial] = underlying.pow(powerOfRegressionMonomial);

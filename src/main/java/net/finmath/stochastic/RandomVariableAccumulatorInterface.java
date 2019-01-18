@@ -14,11 +14,11 @@ package net.finmath.stochastic;
  * @author Christian Fries
  * @version 1.3
  */
-public interface RandomVariableAccumulatorInterface extends RandomVariableInterface {
+public interface RandomVariableAccumulatorInterface extends RandomVariable {
 
-	void accumulate(RandomVariableInterface randomVariable);
-	void accumulate(double time, RandomVariableInterface randomVariable);
+	void accumulate(RandomVariable randomVariable);
+	void accumulate(double time, RandomVariable randomVariable);
 
-	RandomVariableInterface get();
-	RandomVariableInterface get(double fromTime, double toTime);
+	RandomVariable get();
+	RandomVariable get(double fromTime, double toTime);
 }

@@ -18,8 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.montecarlo.interestrate.TermStructureModelMonteCarloSimulation;
@@ -83,7 +83,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
 		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
-		BrownianMotionInterface brownianMotionParameter	= (BrownianMotionInterface)calibrationParameters.get("brownianMotion");
+		BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
 
 		double[] initialParameters = this.getParameter();
 		double[] lowerBound = new double[initialParameters.length];
@@ -108,7 +108,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotionInterface brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotion(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());

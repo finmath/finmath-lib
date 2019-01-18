@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.covariancemodels;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Blended model (or displaced diffusion model) build on top of a standard covariance model.
@@ -49,7 +49,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	private static final long serialVersionUID = -5042461187735524974L;
 	private AbstractRandomVariableFactory randomVariableFactory;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
-	private RandomVariableInterface displacement;
+	private RandomVariable displacement;
 
 	private ForwardCurveInterface forwardCurve;
 
@@ -69,7 +69,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 *
-	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
+	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param forwardCurve The given forward curve L<sub>0</sub>
 	 * @param displacement The displacement <i>a</i>.
@@ -102,7 +102,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 *
-	 * @param randomVariableFactory The factory used to create RandomVariableInterface objects from constants.
+	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
@@ -158,25 +158,25 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	}
 
 	@Override
-	public RandomVariableInterface[] getParameter() {
+	public RandomVariable[] getParameter() {
 		if(!isCalibrateable) {
 			return covarianceModel.getParameter();
 		}
 
-		RandomVariableInterface[] covarianceParameters = covarianceModel.getParameter();
+		RandomVariable[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) {
-			return new RandomVariableInterface[] { displacement };
+			return new RandomVariable[] { displacement };
 		}
 
 		// Append displacement to the end of covarianceParameters
-		RandomVariableInterface[] jointParameters = new RandomVariableInterface[covarianceParameters.length+1];
+		RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
 		jointParameters[covarianceParameters.length] = displacement;
 
 		return jointParameters;
 	}
 
-	private void setParameter(RandomVariableInterface[] parameter) {
+	private void setParameter(RandomVariable[] parameter) {
 		if(parameter == null || parameter.length == 0) {
 			return;
 		}
@@ -186,7 +186,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 			return;
 		}
 
-		RandomVariableInterface[] covarianceParameters = new RandomVariableInterface[parameter.length-1];
+		RandomVariable[] covarianceParameters = new RandomVariable[parameter.length-1];
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
@@ -194,15 +194,15 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariableInterface[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		BlendedLocalVolatilityModel model = (BlendedLocalVolatilityModel)this.clone();
 		model.setParameter(parameters);
 		return model;
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
 		double forward = 1.0;
 		if(forwardCurve != null) {
@@ -212,7 +212,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		}
 
 		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].sub(realizationAtTimeIndex[component].mult(displacement)).add(displacement.mult(forward));
+			RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].sub(realizationAtTimeIndex[component].mult(displacement)).add(displacement.mult(forward));
 			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
 			}
@@ -222,7 +222,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 }

@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
@@ -20,15 +20,15 @@ public class StochasticPathwiseLevenbergMarquardtTest {
 	public void test() throws SolverException {
 		final int numberOfParameters = 2;
 
-		RandomVariableInterface[] initialParameters = new RandomVariableInterface[numberOfParameters];
-		RandomVariableInterface[] parameterSteps = new RandomVariableInterface[numberOfParameters];
+		RandomVariable[] initialParameters = new RandomVariable[numberOfParameters];
+		RandomVariable[] parameterSteps = new RandomVariable[numberOfParameters];
 		// The following two lines decides if we use AAD or FD
 		//		Arrays.fill(initialParameters, new RandomVariableDifferentiableAAD(2.0));
-		Arrays.fill(initialParameters, new RandomVariable(2.0));
-		Arrays.fill(parameterSteps, new RandomVariable(1E-8));
+		Arrays.fill(initialParameters, new RandomVariableFromDoubleArray(2.0));
+		Arrays.fill(parameterSteps, new RandomVariableFromDoubleArray(1E-8));
 
-		RandomVariableInterface[] weights		= new RandomVariableInterface[] { new RandomVariable(1.0) };
-		RandomVariableInterface[] targetValues	= new RandomVariableInterface[] { new RandomVariable(0) };
+		RandomVariable[] weights		= new RandomVariable[] { new RandomVariableFromDoubleArray(1.0) };
+		RandomVariable[] targetValues	= new RandomVariable[] { new RandomVariableFromDoubleArray(0) };
 
 		int maxIteration = 1000;
 
@@ -36,7 +36,7 @@ public class StochasticPathwiseLevenbergMarquardtTest {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			@Override
-			public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) {
+			public void setValues(RandomVariable[] parameters, RandomVariable[] values) {
 				values[0] = parameters[0].add(parameters[1].mult(2)).sub(7).pow(2).add(parameters[0].mult(2).add(parameters[1]).sub(5).pow(2));
 			}
 		};
@@ -45,7 +45,7 @@ public class StochasticPathwiseLevenbergMarquardtTest {
 
 		optimizer.run();
 
-		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
+		RandomVariable[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 		for (int i = 0; i < bestParameters.length; i++) {
 			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
@@ -57,16 +57,16 @@ public class StochasticPathwiseLevenbergMarquardtTest {
 	public void testBoothFunctionWithAnalyticDerivative() throws SolverException {
 		final int numberOfParameters = 2;
 
-		RandomVariableInterface[] initialParameters = new RandomVariableInterface[numberOfParameters];
-		RandomVariableInterface[] parameterSteps = new RandomVariableInterface[numberOfParameters];
-		//		RandomVariableInterface[] parameterSteps = null;
+		RandomVariable[] initialParameters = new RandomVariable[numberOfParameters];
+		RandomVariable[] parameterSteps = new RandomVariable[numberOfParameters];
+		//		RandomVariable[] parameterSteps = null;
 		// The following two lines decides if we use AAD or FD
 		//		Arrays.fill(initialParameters, new RandomVariableDifferentiableAAD(2.0));
-		Arrays.fill(initialParameters, new RandomVariable(2.0));
-		Arrays.fill(parameterSteps, new RandomVariable(.000001));
+		Arrays.fill(initialParameters, new RandomVariableFromDoubleArray(2.0));
+		Arrays.fill(parameterSteps, new RandomVariableFromDoubleArray(.000001));
 
-		RandomVariableInterface[] weights		= new RandomVariableInterface[] { new RandomVariable(1.0) };
-		RandomVariableInterface[] targetValues	= new RandomVariableInterface[] { new RandomVariable(0) };
+		RandomVariable[] weights		= new RandomVariable[] { new RandomVariableFromDoubleArray(1.0) };
+		RandomVariable[] targetValues	= new RandomVariable[] { new RandomVariableFromDoubleArray(0) };
 
 		int maxIteration = 1000;
 
@@ -74,12 +74,12 @@ public class StochasticPathwiseLevenbergMarquardtTest {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			@Override
-			public void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) {
+			public void setValues(RandomVariable[] parameters, RandomVariable[] values) {
 				values[0] = parameters[0].add(parameters[1].mult(2)).sub(7).squared().add(parameters[0].mult(2).add(parameters[1]).sub(5).squared());
 			}
 
 			@Override
-			public void setDerivatives(RandomVariableInterface[] parameters, RandomVariableInterface[][] derivatives) {
+			public void setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives) {
 				derivatives[0][0] = parameters[0].add(parameters[1].mult(2)).sub(7).mult(2).add(parameters[0].mult(2).add(parameters[1]).sub(5).mult(4));
 				derivatives[1][0] = parameters[0].add(parameters[1].mult(2)).sub(7).mult(4).add(parameters[0].mult(2).add(parameters[1]).sub(5).mult(2));
 			}
@@ -89,7 +89,7 @@ public class StochasticPathwiseLevenbergMarquardtTest {
 
 		optimizer.run();
 
-		RandomVariableInterface[] bestParameters = optimizer.getBestFitParameters();
+		RandomVariable[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 		for (int i = 0; i < bestParameters.length; i++) {
 			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);

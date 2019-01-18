@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -38,8 +38,8 @@ public abstract class LIBORVolatilityModel {
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
 	}
 
-	public abstract RandomVariableInterface[]	getParameter();
-	public abstract void							setParameter(RandomVariableInterface[] parameter);
+	public abstract RandomVariable[]	getParameter();
+	public abstract void							setParameter(RandomVariable[] parameter);
 
 	/**
 	 * Implement this method to complete the implementation.
@@ -47,7 +47,7 @@ public abstract class LIBORVolatilityModel {
 	 * @param component The libor index (for liborPeriodDiscretization)
 	 * @return A random variable (e.g. as a vector of doubles) representing the volatility for each path.
 	 */
-	public abstract RandomVariableInterface getVolatility(int timeIndex, int component);
+	public abstract RandomVariable getVolatility(int timeIndex, int component);
 
 	/**
 	 * @return Returns the liborPeriodDiscretization.

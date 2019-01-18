@@ -41,7 +41,7 @@ import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LaggedIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
@@ -89,7 +89,7 @@ public class SwapLegTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		RandomVariableInterface value = leg.getValue(0.0, model);
+		RandomVariable value = leg.getValue(0.0, model);
 		double valueSimulation = value.getAverage();
 		System.out.println("Float leg (simulation): " + value.getAverage() + "\t +/-" + value.getStandardError());
 
@@ -147,7 +147,7 @@ public class SwapLegTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		RandomVariableInterface value = leg.getValue(0.0, model);
+		RandomVariable value = leg.getValue(0.0, model);
 		double valueSimulation = value.getAverage();
 		System.out.println("Fixed leg (simulation): " + value.getAverage() + "\t +/-" + value.getStandardError());
 
@@ -205,7 +205,7 @@ public class SwapLegTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		RandomVariableInterface value = leg.getValue(0.0, model);
+		RandomVariable value = leg.getValue(0.0, model);
 		double valueSimulation = value.getAverage();
 		System.out.println("CMS   leg (simulation)...........: " + value.getAverage() + "\t +/-" + value.getStandardError());
 
@@ -274,7 +274,7 @@ public class SwapLegTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		RandomVariableInterface value = leg.getValue(0.0, model);
+		RandomVariable value = leg.getValue(0.0, model);
 		double valueSimulation = value.getAverage();
 		System.out.println("CMS leg (simulation)........: " + value.getAverage() + "\t +/-" + value.getStandardError());
 
@@ -334,7 +334,7 @@ public class SwapLegTest {
 		/*
 		 * Monte-Carlo value
 		 */
-		RandomVariableInterface value = leg.getValue(0.0, model);
+		RandomVariable value = leg.getValue(0.0, model);
 		double valueSimulation = value.getAverage();
 		System.out.println("Arrears leg (simulation)........: " + value.getAverage() + "\t +/-" + value.getStandardError());
 
@@ -471,7 +471,7 @@ public class SwapLegTest {
 				liborPeriodDiscretization, model, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 

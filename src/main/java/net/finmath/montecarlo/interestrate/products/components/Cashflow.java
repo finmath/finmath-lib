@@ -7,7 +7,7 @@ import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A single deterministic cashflow at a fixed time
@@ -65,14 +65,14 @@ public class Cashflow extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Note: We use > here. To distinguish an end of day valuation use hour of day for cash flows and evaluation date.
 		if(evaluationTime > flowDate) {
 			return model.getRandomVariableForConstant(0.0);
 		}
 
-		RandomVariableInterface values = model.getRandomVariableForConstant(flowAmount);
+		RandomVariable values = model.getRandomVariableForConstant(flowAmount);
 		if(isPayer) {
 			values = values.mult(-1.0);
 		}
@@ -80,9 +80,9 @@ public class Cashflow extends AbstractProductComponent {
 		// Rebase to evaluationTime
 		if(flowDate != evaluationTime) {
 			// Get random variables
-			RandomVariableInterface	numeraire				= model.getNumeraire(flowDate);
-			RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
-			//        RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
+			RandomVariable	numeraire				= model.getNumeraire(flowDate);
+			RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			//        RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
 			values = values.div(numeraire).mult(numeraireAtEval);
 		}
 

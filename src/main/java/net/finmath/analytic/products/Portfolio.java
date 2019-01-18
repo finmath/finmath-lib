@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the valuation of a portfolio of products implementing
@@ -108,11 +108,11 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	}
 
 	@Override
-	public RandomVariableInterface getValue(final double evaluationTime, final AnalyticModelInterface model) {
-		RandomVariableInterface value = model.getRandomVariableForConstant(0.0);
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModelInterface model) {
+		RandomVariable value = model.getRandomVariableForConstant(0.0);
 
-		List<RandomVariableInterface> productValues	= products.parallelStream().map(product -> product.getValue(evaluationTime, model)).collect(Collectors.toList());
-		List<RandomVariableInterface> weightsRandomVariables = weights.parallelStream().map(weight -> model.getRandomVariableForConstant(weight)).collect(Collectors.toList());
+		List<RandomVariable> productValues	= products.parallelStream().map(product -> product.getValue(evaluationTime, model)).collect(Collectors.toList());
+		List<RandomVariable> weightsRandomVariables = weights.parallelStream().map(weight -> model.getRandomVariableForConstant(weight)).collect(Collectors.toList());
 
 		value = value.addSumProduct(productValues, weightsRandomVariables);
 

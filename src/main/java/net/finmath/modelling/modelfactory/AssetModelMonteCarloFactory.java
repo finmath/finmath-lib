@@ -10,7 +10,7 @@ import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.IndependentIncrementsInterface;
+import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
@@ -28,7 +28,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 	private final HestonModel.Scheme scheme;
 	private final AbstractRandomVariableFactory randomVariableFactory;
-	private final IndependentIncrementsInterface stochasticDriver;
+	private final IndependentIncrements stochasticDriver;
 
 
 	/**
@@ -39,7 +39,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 	 * @param scheme Truncation scheme to be used by the model in the calculation of drift and diffusion coefficients. (Optional parameter, only required by Heston Model).
 	 */
 	public AssetModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory,
-			IndependentIncrementsInterface stochasticDriver, Scheme scheme) {
+			IndependentIncrements stochasticDriver, Scheme scheme) {
 		super();
 		this.scheme = scheme;
 		this.randomVariableFactory = randomVariableFactory;
@@ -88,7 +88,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		 * @param stochasticDriver The stochastic driver of the process.
 		 */
 		private BlackScholesModelMonteCarlo(BlackScholesModelDescriptor descriptor, AbstractRandomVariableFactory randomVariableFactory,
-				IndependentIncrementsInterface stochasticDriver) {
+				IndependentIncrements stochasticDriver) {
 			super(new BlackScholesModelWithCurves(
 					descriptor.getInitialValue(),
 					descriptor.getDiscountCurveForForwardRate(),
@@ -133,7 +133,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		 * @param stochasticDriver The stochastic driver of the process.
 		 */
 		private HestonModelMonteCarlo(HestonModelDescriptor descriptor, Scheme scheme, AbstractRandomVariableFactory randomVariableFactory,
-				IndependentIncrementsInterface stochasticDriver) {
+				IndependentIncrements stochasticDriver) {
 			super(new net.finmath.montecarlo.assetderivativevaluation.HestonModel(descriptor, scheme, randomVariableFactory),
 					new ProcessEulerScheme(stochasticDriver));
 			this.descriptor 	= descriptor;

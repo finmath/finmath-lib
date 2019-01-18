@@ -11,7 +11,7 @@ import java.util.Map;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -34,7 +34,7 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 	private double[] volatility;
 	private final	boolean		isCalibrateable;
 
-	private final transient RandomVariableInterface[][] volatilityRandomVariables;
+	private final transient RandomVariable[][] volatilityRandomVariables;
 
 
 	public LIBORVolatilityModelPiecewiseConstantLegacy(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[][] volatility, boolean isCalibrateable) {
@@ -70,7 +70,7 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 		this.simulationTimeDiscretization = simulationTimeDiscretization;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.isCalibrateable = isCalibrateable;
-		this.volatilityRandomVariables = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		this.volatilityRandomVariables = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 	}
 
 	public LIBORVolatilityModelPiecewiseConstantLegacy(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility, boolean isCalibrateable) {
@@ -109,7 +109,7 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 		this.simulationTimeDiscretization = simulationTimeDiscretization;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.isCalibrateable = isCalibrateable;
-		this.volatilityRandomVariables = new RandomVariableInterface[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		this.volatilityRandomVariables = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 	}
 
 	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility, boolean isCalibrateable) {
@@ -151,7 +151,7 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 	}
 
 	@Override
-	public RandomVariableInterface getVolatility(int timeIndex, int liborIndex) {
+	public RandomVariable getVolatility(int timeIndex, int liborIndex) {
 		// Create a very simple volatility model here
 		double time             = getTimeDiscretization().getTime(timeIndex);
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
@@ -188,7 +188,7 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 				timeIndexTimeToMaturity--;
 			}
 
-			RandomVariableInterface volatilityRandomVariable = volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity];
+			RandomVariable volatilityRandomVariable = volatilityRandomVariables[timeIndexSimulationTime][timeIndexTimeToMaturity];
 
 			if(volatilityRandomVariable == null) {
 				volatilityInstanteaneous = volatility[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];

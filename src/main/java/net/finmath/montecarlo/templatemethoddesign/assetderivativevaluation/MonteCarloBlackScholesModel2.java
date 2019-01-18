@@ -6,10 +6,10 @@ package net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -24,9 +24,9 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	private double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private double volatility;
 
-	private RandomVariableInterface[]	initialValueVector	= new RandomVariableInterface[1];
-	private RandomVariableInterface	drift;
-	private RandomVariableInterface	volatilityOnPaths;
+	private RandomVariable[]	initialValueVector	= new RandomVariable[1];
+	private RandomVariable	drift;
+	private RandomVariable	volatilityOnPaths;
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -53,9 +53,9 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
 		 */
-		this.initialValueVector[0]	= new RandomVariable(0.0, initialValue);
-		this.drift					= new RandomVariable(0.0, riskFreeRate);
-		this.volatilityOnPaths		= new RandomVariable(0.0, volatility);
+		this.initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);
+		this.drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);
+		this.volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);
 	}
 
 	/**
@@ -85,9 +85,9 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
 		 */
-		this.initialValueVector[0]	= new RandomVariable(0.0, initialValue);
-		this.drift					= new RandomVariable(0.0, riskFreeRate);
-		this.volatilityOnPaths		= new RandomVariable(0.0, volatility);
+		this.initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);
+		this.drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);
+		this.volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);
 	}
 
 	@Override
@@ -104,17 +104,17 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	 * @return Returns the initialValue.
 	 */
 	@Override
-	public RandomVariableInterface[] getInitialValue() {
+	public RandomVariable[] getInitialValue() {
 		return initialValueVector;
 	}
 
 	@Override
-	public RandomVariableInterface getDrift(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+	public RandomVariable getDrift(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 		return drift;
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoading(int timeIndex, int factor, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoading(int timeIndex, int factor, int component, RandomVariable[] realizationAtTimeIndex) {
 		return volatilityOnPaths;
 	}
 
@@ -123,22 +123,22 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
 	 */
 	@Override
-	public RandomVariableInterface getAssetValue(int timeIndex, int assetIndex) {
+	public RandomVariable getAssetValue(int timeIndex, int assetIndex) {
 		return getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getAssetValue(double time, int assetIndex) {
+	public RandomVariable getAssetValue(double time, int assetIndex) {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(double time) {
+	public RandomVariable getMonteCarloWeights(double time) {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(int timeIndex)
+	public RandomVariable getNumeraire(int timeIndex)
 	{
 		double time = getTime(timeIndex);
 
@@ -146,15 +146,15 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time)
+	public RandomVariable getNumeraire(double time)
 	{
 		double numeraireValue = Math.exp(riskFreeRate * time);
 
-		return new RandomVariable(time, numeraireValue);
+		return new RandomVariableFromDoubleArray(time, numeraireValue);
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return getBrownianMotion().getRandomVariableForConstant(value);
 	}
 

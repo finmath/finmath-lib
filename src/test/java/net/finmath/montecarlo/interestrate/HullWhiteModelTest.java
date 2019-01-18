@@ -24,7 +24,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.modelplugins.HullWhiteLocalVolatilityModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
@@ -52,7 +52,7 @@ import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LaggedIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretization;
@@ -140,7 +140,7 @@ public class HullWhiteModelTest {
 			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
 					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
 
-			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
+			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
 			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
@@ -222,7 +222,7 @@ public class HullWhiteModelTest {
 			LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
 					liborPeriodDiscretization, forwardCurve, null /*discountCurve*/, covarianceModel2, calibrationItems, properties);
 
-			BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
@@ -819,10 +819,10 @@ public class HullWhiteModelTest {
 		System.out.println("Value (HW)               Value (LMM)              Deviation");
 
 		// Value the swap
-		RandomVariableInterface valueSimulationHW = leg.getValue(0,hullWhiteModelSimulation);
+		RandomVariable valueSimulationHW = leg.getValue(0,hullWhiteModelSimulation);
 		System.out.print(formatterValue.format(valueSimulationHW.getAverage()) + " " + formatterValue.format(valueSimulationHW.getStandardError()) + "          ");
 
-		RandomVariableInterface valueSimulationLMM = leg.getValue(0,liborMarketModelSimulation);
+		RandomVariable valueSimulationLMM = leg.getValue(0,liborMarketModelSimulation);
 		System.out.print(formatterValue.format(valueSimulationLMM.getAverage()) + " " + formatterValue.format(valueSimulationLMM.getStandardError()) + "          ");
 
 		// Absolute deviation
@@ -851,10 +851,10 @@ public class HullWhiteModelTest {
 		System.out.println("Value (HW)               Value (LMM)              Deviation");
 
 		// Value the product
-		RandomVariableInterface valueSimulationHW = product.getValue(0,hullWhiteModelSimulation);
+		RandomVariable valueSimulationHW = product.getValue(0,hullWhiteModelSimulation);
 		System.out.print(formatterValue.format(valueSimulationHW.getAverage()) + " " + formatterValue.format(valueSimulationHW.getStandardError()) + "          ");
 
-		RandomVariableInterface valueSimulationLMM = product.getValue(0,liborMarketModelSimulation);
+		RandomVariable valueSimulationLMM = product.getValue(0,liborMarketModelSimulation);
 		System.out.print(formatterValue.format(valueSimulationLMM.getAverage()) + " " + formatterValue.format(valueSimulationLMM.getStandardError()) + "          ");
 
 		// Absolute deviation

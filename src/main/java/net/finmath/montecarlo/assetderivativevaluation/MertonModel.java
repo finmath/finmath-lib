@@ -10,7 +10,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements a <i>Merton Model</i>, that is, it provides the drift and volatility specification
@@ -99,33 +99,33 @@ public class MertonModel extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
 	@Override
-	public RandomVariableInterface[] getInitialState() {
-		return new RandomVariableInterface[] { getProcess().getStochasticDriver().getRandomVariableForConstant(Math.log(initialValue)) };
+	public RandomVariable[] getInitialState() {
+		return new RandomVariable[] { getProcess().getStochasticDriver().getRandomVariableForConstant(Math.log(initialValue)) };
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(double time) throws CalculationException {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(Math.exp(riskFreeRate * time));
 	}
 
 	@Override
-	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-		return new RandomVariableInterface[] { getProcess().getStochasticDriver().getRandomVariableForConstant(riskFreeRate - (Math.exp(jumpSizeMean)-1)*jumpIntensity - 0.5 * volatility*volatility) };
+	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+		return new RandomVariable[] { getProcess().getStochasticDriver().getRandomVariableForConstant(riskFreeRate - (Math.exp(jumpSizeMean)-1)*jumpIntensity - 0.5 * volatility*volatility) };
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factors = new RandomVariableInterface[3];
+	public RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factors = new RandomVariable[3];
 		factors[0] = getProcess().getStochasticDriver().getRandomVariableForConstant(volatility);
 		factors[1] = getProcess().getStochasticDriver().getRandomVariableForConstant(jumpSizeStdDev);
 		factors[2] = getProcess().getStochasticDriver().getRandomVariableForConstant(jumpSizeMean - 0.5*jumpSizeStdDev*jumpSizeStdDev);
@@ -137,7 +137,7 @@ public class MertonModel extends AbstractModel {
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 

@@ -10,7 +10,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -20,7 +20,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public interface LIBORModelInterface extends TermStructureModelInterface, IndependentModelParameterProvider {
 
-	RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
+	RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
 	/**
 	 * The tenor time discretization of the forward rate curve.

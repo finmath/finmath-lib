@@ -18,9 +18,9 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
@@ -33,7 +33,7 @@ import net.finmath.montecarlo.conditionalexpectation.LinearRegression;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -80,12 +80,12 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 		Double deltaAnalytic = (Double)results.get("delta.analytic");
 
-		RandomVariableInterface deltaFD = (RandomVariableInterface)results.get("delta.fd");
-		RandomVariableInterface deltaAAD = (RandomVariableInterface)results.get("delta.aad");
-		RandomVariableInterface deltaAADRegression = (RandomVariableInterface)results.get("delta.aad.regression");
-		RandomVariableInterface deltaLikelihoodRatio = (RandomVariableInterface)results.get("delta.likelihood");
+		RandomVariable deltaFD = (RandomVariable)results.get("delta.fd");
+		RandomVariable deltaAAD = (RandomVariable)results.get("delta.aad");
+		RandomVariable deltaAADRegression = (RandomVariable)results.get("delta.aad.regression");
+		RandomVariable deltaLikelihoodRatio = (RandomVariable)results.get("delta.likelihood");
 
-		RandomVariableInterface deltaAADRegressionDirect = (RandomVariableInterface)results.get("delta.aad.directregression");
+		RandomVariable deltaAADRegressionDirect = (RandomVariable)results.get("delta.aad.directregression");
 
 		System.out.println("Digital Option Delta\n");
 		System.out.println("finite difference..........: " + formatterReal4.format(deltaFD.getAverage()) + "\t" + formatterReal4.format(deltaFD.getAverage()-deltaAnalytic));
@@ -110,7 +110,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 	 * @param brownianMotion The Brownian motion used to drive the model.
 	 * @return A Monte-Carlo simulation of a Black-Scholes model.
 	 */
-	public MonteCarloAssetModel getModel(AbstractRandomVariableFactory randomVariableFactory, BrownianMotionInterface brownianMotion) {
+	public MonteCarloAssetModel getModel(AbstractRandomVariableFactory randomVariableFactory, BrownianMotion brownianMotion) {
 		// Create a model
 		AbstractModel model = new BlackScholesModel(modelInitialValue, modelRiskFreeRate, modelVolatility, randomVariableFactory);
 
@@ -126,7 +126,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 		// Create Brownian motion with specified seed
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		/*
 		 * Create product
@@ -147,10 +147,10 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			MonteCarloAssetModel monteCarloBlackScholesModel = getModel(randomVariableFactory, brownianMotion);
 
 
-			RandomVariableInterface value = option.getValue(0.0, monteCarloBlackScholesModel);
-			Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
-			RandomVariableDifferentiableInterface initialValue = (RandomVariableDifferentiableInterface)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
-			RandomVariableInterface deltaAAD = derivative.get(initialValue.getID());
+			RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
+			Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
+			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
+			RandomVariable deltaAAD = derivative.get(initialValue.getID());
 
 			results.put("delta.aad", deltaAAD);
 		}
@@ -171,11 +171,11 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			 */
 			MonteCarloAssetModel monteCarloBlackScholesModel = getModel(randomVariableFactoryRegression, brownianMotion);
 
-			RandomVariableInterface value = option.getValue(0.0, monteCarloBlackScholesModel);
-			Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
-			RandomVariableDifferentiableInterface initialValue = (RandomVariableDifferentiableInterface)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
+			RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
+			Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
+			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
 
-			RandomVariableInterface deltaRegression = derivative.get(initialValue.getID());
+			RandomVariable deltaRegression = derivative.get(initialValue.getID());
 
 			results.put("delta.aad.regression", deltaRegression);
 		}
@@ -191,7 +191,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		 * Other Methods
 		 */
 		MonteCarloAssetModel monteCarloBlackScholesModel = getModel(new RandomVariableFactory(), brownianMotion);
-		RandomVariableInterface X = monteCarloBlackScholesModel.getAssetValue(optionMaturity, assetIndex).sub(optionStrike);
+		RandomVariable X = monteCarloBlackScholesModel.getAssetValue(optionMaturity, assetIndex).sub(optionStrike);
 
 		/*
 		 * Finite Difference
@@ -201,12 +201,12 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			double epsilon = width*X.getStandardDeviation();
 			Map<String, Object> shiftedValues = new HashMap<String, Object>();
 			shiftedValues.put("initialValue", modelInitialValue+epsilon/2.0);
-			RandomVariableInterface valueUp = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
+			RandomVariable valueUp = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
 
 			shiftedValues.put("initialValue", modelInitialValue-epsilon/2.0);
-			RandomVariableInterface valueDn = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
+			RandomVariable valueDn = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
 
-			RandomVariableInterface deltaFD = valueUp.sub(valueDn).div(epsilon);
+			RandomVariable deltaFD = valueUp.sub(valueDn).div(epsilon);
 
 			results.put("delta.fd", deltaFD);
 		}
@@ -216,7 +216,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		 */
 		{
 			DigitalOptionDeltaLikelihood digitalOption = new DigitalOptionDeltaLikelihood(optionMaturity, optionStrike);
-			RandomVariableInterface deltaLikelihoodRatio = new Scalar(digitalOption.getValue(monteCarloBlackScholesModel));
+			RandomVariable deltaLikelihoodRatio = new Scalar(digitalOption.getValue(monteCarloBlackScholesModel));
 
 			results.put("delta.likelihood", deltaLikelihoodRatio);
 		}
@@ -242,13 +242,13 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModelZeroWidth = getModel(randomVariableFactoryZeroWidth, brownianMotion);
 			AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModelInftyWidth = getModel(randomVariableFactoryInftyWidth, brownianMotion);
 
-			RandomVariableDifferentiableInterface initialValueZeroWidth = (RandomVariableDifferentiableInterface)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelZeroWidth).getModel()).getInitialValue()[0];
-			RandomVariableDifferentiableInterface initialValueInftyWidth = (RandomVariableDifferentiableInterface)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelInftyWidth).getModel()).getInitialValue()[0];
+			RandomVariableDifferentiable initialValueZeroWidth = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelZeroWidth).getModel()).getInitialValue()[0];
+			RandomVariableDifferentiable initialValueInftyWidth = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelInftyWidth).getModel()).getInitialValue()[0];
 
-			RandomVariableInterface A0 = ((RandomVariableDifferentiableInterface)option.getValue(0.0, monteCarloBlackScholesModelZeroWidth)).getGradient().get(initialValueZeroWidth.getID());
-			RandomVariableInterface A1 = ((RandomVariableDifferentiableInterface)option.getValue(0.0, monteCarloBlackScholesModelInftyWidth)).getGradient().get(initialValueInftyWidth.getID());
+			RandomVariable A0 = ((RandomVariableDifferentiable)option.getValue(0.0, monteCarloBlackScholesModelZeroWidth)).getGradient().get(initialValueZeroWidth.getID());
+			RandomVariable A1 = ((RandomVariableDifferentiable)option.getValue(0.0, monteCarloBlackScholesModelInftyWidth)).getGradient().get(initialValueInftyWidth.getID());
 
-			RandomVariableInterface A = A1.sub(A0);
+			RandomVariable A = A1.sub(A0);
 
 			/*
 			 * Density regression
@@ -259,20 +259,20 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			for(double maskSizeFactor = -0.5; maskSizeFactor<0.505; maskSizeFactor+=0.01) {
 				double maskSize2 = maskSizeFactor * underlyingStdDev;
 				if(Math.abs(maskSizeFactor) < 1E-10) continue;
-				RandomVariableInterface maskPos = X.add(Math.max(maskSize2,0)).choose(new Scalar(1.0), new Scalar(0.0));
-				RandomVariableInterface maskNeg = X.add(Math.min(maskSize2,0)).choose(new Scalar(0.0), new Scalar(1.0));
-				RandomVariableInterface mask2 = maskPos.mult(maskNeg);
+				RandomVariable maskPos = X.add(Math.max(maskSize2,0)).choose(new Scalar(1.0), new Scalar(0.0));
+				RandomVariable maskNeg = X.add(Math.min(maskSize2,0)).choose(new Scalar(0.0), new Scalar(1.0));
+				RandomVariable mask2 = maskPos.mult(maskNeg);
 				double density = mask2.getAverage() / Math.abs(maskSize2);
 				maskX.add(maskSize2);
 				maskY.add(density);
 			}
-			RandomVariableInterface densityX = new RandomVariable(0.0, ArrayUtils.toPrimitive(maskX.toArray(new Double[0])));
-			RandomVariableInterface densityValues = new RandomVariable(0.0, ArrayUtils.toPrimitive(maskY.toArray(new Double[0])));
+			RandomVariable densityX = new RandomVariableFromDoubleArray(0.0, ArrayUtils.toPrimitive(maskX.toArray(new Double[0])));
+			RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, ArrayUtils.toPrimitive(maskY.toArray(new Double[0])));
 
-			double[] densityRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
+			double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
 			double density = densityRegressionCoeff[0];
 
-			RandomVariableInterface densityRegression = densityValues.mult(0.0).add(densityRegressionCoeff[0]);
+			RandomVariable densityRegression = densityValues.mult(0.0).add(densityRegressionCoeff[0]);
 			for(int i=1; i<densityRegressionCoeff.length; i++) {
 				densityRegression = densityRegression.add(densityX.pow(i).mult(densityRegressionCoeff[i]));
 			}
@@ -285,11 +285,11 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			 * Localization
 			 */
 			double derivativeLocalizationSize = width*X.getStandardDeviation();
-			RandomVariableInterface derivativeLocalizer = X.add(derivativeLocalizationSize/2.0).choose(new Scalar(1.0), new Scalar(0.0));
+			RandomVariable derivativeLocalizer = X.add(derivativeLocalizationSize/2.0).choose(new Scalar(1.0), new Scalar(0.0));
 			derivativeLocalizer = derivativeLocalizer.mult(X.sub(derivativeLocalizationSize/2.0).choose(new Scalar(0.0), new Scalar(1.0)));
 
-			RandomVariableInterface Atilde = A.mult(derivativeLocalizer);
-			RandomVariableInterface Xtilde = X.mult(derivativeLocalizer);
+			RandomVariable Atilde = A.mult(derivativeLocalizer);
+			RandomVariable Xtilde = X.mult(derivativeLocalizer);
 
 			/*
 			 * Linear regression of A
@@ -300,15 +300,15 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			 * Non-linear regression of A
 			 */
 
-			//		double[] adjointDerivativeRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { derivativeLocalizer, Xtilde }).getRegressionCoefficients(Atilde);
-			double[] adjointDerivativeRegressionCoeff = new LinearRegression(new RandomVariableInterface[] { derivativeLocalizer }).getRegressionCoefficients(Atilde);
+			//		double[] adjointDerivativeRegressionCoeff = new LinearRegression(new RandomVariable[] { derivativeLocalizer, Xtilde }).getRegressionCoefficients(Atilde);
+			double[] adjointDerivativeRegressionCoeff = new LinearRegression(new RandomVariable[] { derivativeLocalizer }).getRegressionCoefficients(Atilde);
 
 			double alphaNonLinear = adjointDerivativeRegressionCoeff[0] * density;
 
-			RandomVariableInterface deltaAADReg = A0.add(alphaNonLinear);
+			RandomVariable deltaAADReg = A0.add(alphaNonLinear);
 
-			RandomVariableInterface sensitivityRegression = new Scalar(adjointDerivativeRegressionCoeff[0]);
-			RandomVariableInterface densityRegressionOnX = new Scalar(densityRegressionCoeff[0]);
+			RandomVariable sensitivityRegression = new Scalar(adjointDerivativeRegressionCoeff[0]);
+			RandomVariable densityRegressionOnX = new Scalar(densityRegressionCoeff[0]);
 			for(int i=1; i<adjointDerivativeRegressionCoeff.length; i++) {
 				sensitivityRegression = sensitivityRegression.add(X.pow(i).mult(adjointDerivativeRegressionCoeff[i]));
 				densityRegressionOnX = densityRegressionOnX.add(X.pow(i).mult(densityRegressionCoeff[i]));

@@ -17,13 +17,13 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
- * Test cases for the class net.finmath.montecarlo.RandomVariable.
+ * Test cases for the class net.finmath.montecarlo.RandomVariableFromDoubleArray.
  *
  * @author Christian Fries
- * @see net.finmath.montecarlo.RandomVariable
+ * @see net.finmath.montecarlo.RandomVariableFromDoubleArray
  */
 @RunWith(Parameterized.class)
 public class RandomVariableTest {
@@ -52,7 +52,7 @@ public class RandomVariableTest {
 	public void testRandomVariableDeterministc() {
 
 		// Create a random variable with a constant
-		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(2.0);
 
 		// Perform some calculations
 		randomVariable = randomVariable.mult(2.0);
@@ -72,7 +72,7 @@ public class RandomVariableTest {
 	public void testRandomVariableStochastic() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
 		// Perform some calculations
@@ -86,7 +86,7 @@ public class RandomVariableTest {
 		Assert.assertEquals(2.0, randomVariable2.getVariance(), 1E-12);
 
 		// Multiply two random variables, this will expand the receiver to a stochastic one
-		RandomVariableInterface randomVariable = new RandomVariable(3.0);
+		RandomVariable randomVariable = new RandomVariableFromDoubleArray(3.0);
 		randomVariable = randomVariable.mult(randomVariable2);
 
 		// The random variable has average value 6.0
@@ -100,10 +100,10 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSqrtPow() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
-		RandomVariableInterface check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
+		RandomVariable check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
 
 		// The random variable is identical 0.0
 		Assert.assertTrue(check.getAverage() == 0.0);
@@ -114,10 +114,10 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSquaredPow() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
-		RandomVariableInterface check = randomVariable.squared().sub(randomVariable.pow(2.0));
+		RandomVariable check = randomVariable.squared().sub(randomVariable.pow(2.0));
 
 		// The random variable is identical 0.0
 		Assert.assertTrue(check.getAverage() == 0.0);
@@ -128,7 +128,7 @@ public class RandomVariableTest {
 	public void testRandomVariableStandardDeviation() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
@@ -152,7 +152,7 @@ public class RandomVariableTest {
 			samples[i] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(randomNumber);
 		}
 
-		RandomVariableInterface normalDistributedRandomVariable = randomVariableFactory.createRandomVariable(0.0,samples);
+		RandomVariable normalDistributedRandomVariable = randomVariableFactory.createRandomVariable(0.0,samples);
 
 		double q00 = normalDistributedRandomVariable.getQuantile(0.0);
 		Assert.assertEquals(normalDistributedRandomVariable.getMin(), q00, 1E-12);
@@ -174,13 +174,13 @@ public class RandomVariableTest {
 	public void testAdd() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0,  2.0, 4.0} );
 
-		RandomVariableInterface randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] { 4.0,  2.0, 0.0, -2.0, -4.0} );
 
-		RandomVariableInterface valueAdd = randomVariable.add(randomVariable2);
+		RandomVariable valueAdd = randomVariable.add(randomVariable2);
 
 		// The random variable average
 		Assert.assertEquals(valueAdd.getAverage(), 0.0, 1E-15);
@@ -193,13 +193,13 @@ public class RandomVariableTest {
 	public void testCap() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		RandomVariableInterface randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-3.0, -3.0, -3.0, -3.0, -3.0} );
 
-		RandomVariableInterface valueCapped = randomVariable.cap(randomVariable2);
+		RandomVariable valueCapped = randomVariable.cap(randomVariable2);
 
 		// The random variable has average value 3.0
 		Assert.assertEquals(valueCapped.getAverage(), -3.0 - 1.0/5, 1E-15);
@@ -212,13 +212,13 @@ public class RandomVariableTest {
 	public void testFloor() {
 
 		// Create a stochastic random variable
-		RandomVariableInterface randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		RandomVariableInterface randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
 
-		RandomVariableInterface valueFloored = randomVariable.floor(randomVariable2);
+		RandomVariable valueFloored = randomVariable.floor(randomVariable2);
 
 		// The random variable has average value 3.0
 		Assert.assertEquals(valueFloored.getAverage(), 3.0 + 1.0/5, 1E-15);

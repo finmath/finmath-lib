@@ -22,8 +22,8 @@ import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
@@ -91,7 +91,7 @@ public class HestonModelTest {
 		// Create a time discretization
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
-		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
 		{

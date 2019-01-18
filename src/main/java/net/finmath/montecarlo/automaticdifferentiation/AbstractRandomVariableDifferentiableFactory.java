@@ -8,11 +8,11 @@ package net.finmath.montecarlo.automaticdifferentiation;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A random variable factory extending <code>AbstractRandomVariableFactory</code> providing
- * random variables implementing <code>RandomVariableDifferentiableInterface</code>.
+ * random variables implementing <code>RandomVariableDifferentiable</code>.
  *
  * @author Christian Fries
  * @version 1.0
@@ -41,21 +41,21 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	}
 
 	@Override
-	public RandomVariableDifferentiableInterface createRandomVariable(double value) {
+	public RandomVariableDifferentiable createRandomVariable(double value) {
 		return createRandomVariable(0.0, value);
 	}
 
 	@Override
-	public abstract RandomVariableDifferentiableInterface createRandomVariable(double time, double value);
+	public abstract RandomVariableDifferentiable createRandomVariable(double time, double value);
 
 	@Override
-	public abstract RandomVariableDifferentiableInterface createRandomVariable(double time, double[] values);
+	public abstract RandomVariableDifferentiable createRandomVariable(double time, double[] values);
 
-	public RandomVariableInterface createRandomVariableNonDifferentiable(double time, double value) {
+	public RandomVariable createRandomVariableNonDifferentiable(double time, double value) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, value);
 	}
 
-	public RandomVariableInterface createRandomVariableNonDifferentiable(double time, double[] values) {
+	public RandomVariable createRandomVariableNonDifferentiable(double time, double[] values) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, values);
 	}
 }

@@ -8,10 +8,10 @@ package net.finmath.montecarlo.interestrate.products;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the pricing of a portfolio of AbstractLIBORMonteCarloProduct products
@@ -130,11 +130,11 @@ public class Portfolio extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface values = new RandomVariable(0.0);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariable values = new RandomVariableFromDoubleArray(0.0);
 
 		for(int productIndex = 0; productIndex < products.length; productIndex++) {
-			RandomVariableInterface    valueOfProduct = products[productIndex].getValue(evaluationTime, model);
+			RandomVariable    valueOfProduct = products[productIndex].getValue(evaluationTime, model);
 			double   				   weightOfProduct = weights[productIndex];
 
 			values = values.addProduct(valueOfProduct, weightOfProduct);

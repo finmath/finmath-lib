@@ -12,7 +12,7 @@ import java.util.Map;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 
 /**
  * @author Christian Fries
@@ -70,12 +70,12 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	}
 
 	@Override
-	public RandomVariableDifferentiableInterface createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
 		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, value), this);
 	}
 
 	@Override
-	public RandomVariableDifferentiableInterface createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
 		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, values), this);
 	}
 

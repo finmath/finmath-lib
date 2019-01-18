@@ -6,7 +6,7 @@
 package net.finmath.analytic.model.curves;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * The interface which is implemented by discount curves. A discount curve is a mapping of T to df(T) where df(T)
@@ -23,7 +23,7 @@ public interface DiscountCurveInterface extends CurveInterface {
 	 * @param maturity The maturity for which the discount factor is requested.
 	 * @return The discount factor (i.e., price of the zero coupon bond with given maturity and notional 1.
 	 */
-	RandomVariableInterface getDiscountFactor(double maturity);
+	RandomVariable getDiscountFactor(double maturity);
 
 	/**
 	 * Returns the discount factor for the corresponding maturity. This getter is not optimized for performance.
@@ -33,6 +33,6 @@ public interface DiscountCurveInterface extends CurveInterface {
 	 *
 	 * @return The discount factor (i.e., price of the zero coupon bond with given maturity and notional 1.
 	 */
-	RandomVariableInterface getDiscountFactor(AnalyticModelInterface model, double maturity);
+	RandomVariable getDiscountFactor(AnalyticModelInterface model, double maturity);
 
 }

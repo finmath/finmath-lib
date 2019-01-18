@@ -9,7 +9,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import java.util.Arrays;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -26,7 +26,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 	private double[] meanReversion;
 	private final AbstractRandomVariableFactory randomVariableFactory;
 	private final boolean isVolatilityCalibrateable;
-	private final RandomVariableInterface[] volatilityRandomVariables;
+	private final RandomVariable[] volatilityRandomVariables;
 
 	public ShortRateVolatilityModelPiecewiseConstant(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface volatilityTimeDiscretization, double[] volatility, double[] meanReversion, boolean isVolatilityCalibrateable) {
 		super(timeDiscretization);
@@ -84,7 +84,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 		}
 
 		this.isVolatilityCalibrateable = isVolatilityCalibrateable;
-		this.volatilityRandomVariables = new RandomVariableInterface[volatilityTimeDiscretization.getNumberOfTimes()];
+		this.volatilityRandomVariables = new RandomVariable[volatilityTimeDiscretization.getNumberOfTimes()];
 
 	}
 
@@ -99,7 +99,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 		return volatility[volatilityTimeIndex];
 	}
 
-	public RandomVariableInterface getVolatility(double time) {
+	public RandomVariable getVolatility(double time) {
 
 		//Find index on the volatility discretization according to the time value
 		int volatilityTimeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);
@@ -113,7 +113,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 		} else {
 			synchronized (volatilityRandomVariables) {
 
-				RandomVariableInterface volatilityRandomVariable = volatilityRandomVariables[volatilityTimeIndex];
+				RandomVariable volatilityRandomVariable = volatilityRandomVariables[volatilityTimeIndex];
 				if(volatilityRandomVariable == null) {
 					volatilityInstanteaneous = volatility[volatilityTimeIndex];
 					volatilityRandomVariable = randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);

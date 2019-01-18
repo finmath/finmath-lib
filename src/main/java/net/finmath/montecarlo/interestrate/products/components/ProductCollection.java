@@ -17,7 +17,7 @@ import net.finmath.concurrency.FutureWrapper;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A collection of product components (like periods, options, etc.) paying the sum of their payouts.
@@ -95,17 +95,17 @@ public class ProductCollection extends AbstractProductComponent {
 	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
 	 */
 	@Override
-	public RandomVariableInterface getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Ignite asynchronous calculation if possible
-		ArrayList< Future<RandomVariableInterface> > results = new ArrayList< >();
+		ArrayList< Future<RandomVariable> > results = new ArrayList< >();
 		for(final AbstractMonteCarloProduct product : products) {
-			Future<RandomVariableInterface> valueFuture;
+			Future<RandomVariable> valueFuture;
 			try {
 				valueFuture = executor.submit(
-						new Callable<RandomVariableInterface>() {
+						new Callable<RandomVariable>() {
 							@Override
-							public RandomVariableInterface call() throws CalculationException {
+							public RandomVariable call() throws CalculationException {
 								return product.getValue(evaluationTime, model);
 							}
 						}
@@ -119,9 +119,9 @@ public class ProductCollection extends AbstractProductComponent {
 		}
 
 		// Collect results
-		RandomVariableInterface values = model.getRandomVariableForConstant(0.0);
+		RandomVariable values = model.getRandomVariableForConstant(0.0);
 		try {
-			for(Future<RandomVariableInterface> valueFuture : results) {
+			for(Future<RandomVariable> valueFuture : results) {
 				values = values.add(valueFuture.get());
 			}
 		} catch (InterruptedException e) {

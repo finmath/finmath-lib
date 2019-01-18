@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Displaced model build on top of a standard covariance model.
@@ -37,7 +37,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	 */
 	private static final long serialVersionUID = 4522227972747028512L;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
-	private RandomVariableInterface displacement;
+	private RandomVariable displacement;
 
 	private ForwardCurveInterface forwardCurve;
 
@@ -66,7 +66,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public DisplacedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, RandomVariableInterface displacement, boolean isCalibrateable) {
+	public DisplacedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, RandomVariable displacement, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 		this.covarianceModel	= covarianceModel;
 		this.displacement		= displacement;
@@ -95,18 +95,18 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariableInterface[] getParameter() {
+	public RandomVariable[] getParameter() {
 		if(!isCalibrateable) {
 			return covarianceModel.getParameter();
 		}
 
-		RandomVariableInterface[] covarianceParameters = covarianceModel.getParameter();
+		RandomVariable[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) {
-			return new RandomVariableInterface[] { displacement };
+			return new RandomVariable[] { displacement };
 		}
 
 		// Append displacement to the end of covarianceParameters
-		RandomVariableInterface[] jointParameters = new RandomVariableInterface[covarianceParameters.length+1];
+		RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
 		jointParameters[covarianceParameters.length] = displacement;
 
@@ -114,7 +114,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariableInterface[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		DisplacedLocalVolatilityModel model = (DisplacedLocalVolatilityModel)this.clone();
 		if(parameters == null || parameters.length == 0) {
 			return model;
@@ -125,7 +125,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 			return model;
 		}
 
-		RandomVariableInterface[] covarianceParameters = new RandomVariableInterface[parameters.length-1];
+		RandomVariable[] covarianceParameters = new RandomVariable[parameters.length-1];
 		System.arraycopy(parameters, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		model.covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
@@ -134,11 +134,11 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
 		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].add(displacement);
+			RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].add(displacement);
 			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
 			}
@@ -148,7 +148,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 }

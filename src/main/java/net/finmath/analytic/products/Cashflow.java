@@ -7,7 +7,7 @@ package net.finmath.analytic.products;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the valuation of a single cashflow by a discount curve.
@@ -43,7 +43,7 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -53,8 +53,8 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		RandomVariableInterface discountFactor = flowDate > evaluationTime ? discountCurve.getDiscountFactor(model, flowDate) : model.getRandomVariableForConstant(0.0);
-		RandomVariableInterface value = discountFactor.mult(flowAmount * (isPayer ? -1.0 : 1.0));
+		RandomVariable discountFactor = flowDate > evaluationTime ? discountCurve.getDiscountFactor(model, flowDate) : model.getRandomVariableForConstant(0.0);
+		RandomVariable value = discountFactor.mult(flowAmount * (isPayer ? -1.0 : 1.0));
 
 		return value.div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}

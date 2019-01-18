@@ -11,8 +11,8 @@ import net.finmath.analytic.model.curves.CurveInterface;
 import net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleInterface;
 import net.finmath.time.TimeDiscretizationInterface;
@@ -43,7 +43,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 		DiscountCurveInterface discountCurve = (DiscountCurveInterface) model.getCurve(discountCurveName);
 
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, model);
@@ -56,7 +56,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
 	 */
-	public static RandomVariableInterface getSwapAnnuity(TimeDiscretizationInterface tenor, DiscountCurveInterface discountCurve) {
+	public static RandomVariable getSwapAnnuity(TimeDiscretizationInterface tenor, DiscountCurveInterface discountCurve) {
 		return getSwapAnnuity(new RegularSchedule(tenor), discountCurve);
 	}
 
@@ -69,7 +69,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
 	 */
-	public static RandomVariableInterface getSwapAnnuity(TimeDiscretizationInterface tenor, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getSwapAnnuity(TimeDiscretizationInterface tenor, ForwardCurveInterface forwardCurve) {
 		return getSwapAnnuity(new RegularSchedule(tenor), forwardCurve);
 	}
 
@@ -82,7 +82,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
 	 */
-	public static RandomVariableInterface getSwapAnnuity(ScheduleInterface schedule, DiscountCurveInterface discountCurve) {
+	public static RandomVariable getSwapAnnuity(ScheduleInterface schedule, DiscountCurveInterface discountCurve) {
 		double evaluationTime = 0.0;	// Consider only payment time > 0
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);
 	}
@@ -98,7 +98,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
 	 */
-	public static RandomVariableInterface getSwapAnnuity(ScheduleInterface schedule, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getSwapAnnuity(ScheduleInterface schedule, ForwardCurveInterface forwardCurve) {
 		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
 		double evaluationTime = 0.0;	// Consider only payment time > 0
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModel( new CurveInterface[] {forwardCurve, discountCurve} ));
@@ -116,8 +116,8 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.
 	 * @return The swap annuity.
 	 */
-	public static RandomVariableInterface getSwapAnnuity(double evaluationTime, ScheduleInterface schedule, DiscountCurveInterface discountCurve, AnalyticModelInterface model) {
-		RandomVariableInterface value = new RandomVariable(0.0);
+	public static RandomVariable getSwapAnnuity(double evaluationTime, ScheduleInterface schedule, DiscountCurveInterface discountCurve, AnalyticModelInterface model) {
+		RandomVariable value = new RandomVariableFromDoubleArray(0.0);
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
 			double paymentDate		= schedule.getPayment(periodIndex);
 			if(paymentDate <= evaluationTime) {
@@ -125,7 +125,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 			}
 
 			double periodLength		= schedule.getPeriodLength(periodIndex);
-			RandomVariableInterface discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
+			RandomVariable discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
 			value = discountFactor.mult(periodLength).add(value);
 		}
 		return value.div(discountCurve.getDiscountFactor(model, evaluationTime));

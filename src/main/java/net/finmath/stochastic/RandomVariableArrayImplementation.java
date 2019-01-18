@@ -14,8 +14,8 @@ import java.util.stream.DoubleStream;
 import net.finmath.functions.DoubleTernaryOperator;
 
 /**
- * An implementation of <code>RandomVariableArray</code> implementing an array of <code>RandomVariableInterface</code> objects,
- * implementing the <code>RandomVariableInterface</code> interface.
+ * An implementation of <code>RandomVariableArray</code> implementing an array of <code>RandomVariable</code> objects,
+ * implementing the <code>RandomVariable</code> interface.
  *
  * @author Christian Fries
  */
@@ -23,9 +23,9 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 
 	private static final long serialVersionUID = -5718980901166760522L;
 
-	private final RandomVariableInterface[] elements;
+	private final RandomVariable[] elements;
 
-	private RandomVariableArrayImplementation(RandomVariableInterface[] elements) {
+	private RandomVariableArrayImplementation(RandomVariable[] elements) {
 		super();
 
 		if(elements.length == 0) throw new IllegalArgumentException("Empty array.");
@@ -41,7 +41,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 		this.elements = elements;
 	}
 
-	private int getLevel(RandomVariableInterface randomVariable) {
+	private int getLevel(RandomVariable randomVariable) {
 		if(randomVariable instanceof RandomVariableArray) {
 			return ((RandomVariableArray) randomVariable).getLevel();
 		}
@@ -51,7 +51,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariableArray of(RandomVariableInterface[] elements) {
+	public RandomVariableArray of(RandomVariable[] elements) {
 		return new RandomVariableArrayImplementation(elements.clone());
 	}
 
@@ -61,13 +61,13 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariableInterface getElement(int index) {
+	public RandomVariable getElement(int index) {
 		return elements[index];
 	}
 
 	@Override
-	public RandomVariableArray map(Function<RandomVariableInterface, RandomVariableInterface> operator) {
-		RandomVariableInterface[] newElments = new RandomVariableInterface[getNumberOfElements()];
+	public RandomVariableArray map(Function<RandomVariable, RandomVariable> operator) {
+		RandomVariable[] newElments = new RandomVariable[getNumberOfElements()];
 		for(int i=1; i<elements.length; i++) {
 			newElments[i] = operator.apply(elements[i]);
 		}
@@ -75,8 +75,8 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariableInterface sumProduct(RandomVariableArray array) {
-		RandomVariableInterface result = elements[0].mult(array.getElement(0));
+	public RandomVariable sumProduct(RandomVariableArray array) {
+		RandomVariable result = elements[0].mult(array.getElement(0));
 		for(int i=1; i<elements.length; i++) {
 			result = result.add(elements[i].mult(array.getElement(i)));
 		}
@@ -84,11 +84,11 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	/*
-	 * net.finmath.stochastic.RandomVariableInterface
+	 * net.finmath.stochastic.RandomVariable
 	 */
 
 	@Override
-	public boolean equals(RandomVariableInterface randomVariable) {
+	public boolean equals(RandomVariable randomVariable) {
 		boolean equal = (randomVariable instanceof RandomVariableArray);
 		for(int i=0; i<getNumberOfElements() && equal; i++) {
 			equal &= getElement(i).equals(((RandomVariableArray)randomVariable).getElement(i));
@@ -178,7 +178,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getAverage(RandomVariableInterface probabilities) {
+	public double getAverage(RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -188,7 +188,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getVariance(RandomVariableInterface probabilities) {
+	public double getVariance(RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -203,7 +203,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariableInterface probabilities) {
+	public double getStandardDeviation(RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -213,7 +213,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getStandardError(RandomVariableInterface probabilities) {
+	public double getStandardError(RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -223,7 +223,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
+	public double getQuantile(double quantile, RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -243,182 +243,182 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariableInterface cache() {
+	public RandomVariable cache() {
 		return this;
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(DoubleUnaryOperator operator) {
 		return map(x -> x.apply(operator));
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
 		return map(x -> x.apply(operator, argument));
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
+	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
 		return map(x -> x.apply(operator, argument1, argument2));
 	}
 
 	@Override
-	public RandomVariableInterface cap(double cap) {
+	public RandomVariable cap(double cap) {
 		return map(x -> x.cap(cap));
 	}
 
 	@Override
-	public RandomVariableInterface floor(double floor) {
+	public RandomVariable floor(double floor) {
 		return map(x -> x.floor(floor));
 	}
 
 	@Override
-	public RandomVariableInterface add(double value) {
+	public RandomVariable add(double value) {
 		return map(x -> x.add(value));
 	}
 
 	@Override
-	public RandomVariableInterface sub(double value) {
+	public RandomVariable sub(double value) {
 		return map(x -> x.sub(value));
 	}
 
 	@Override
-	public RandomVariableInterface mult(double value) {
+	public RandomVariable mult(double value) {
 		return map(x -> x.mult(value));
 	}
 
 	@Override
-	public RandomVariableInterface div(double value) {
+	public RandomVariable div(double value) {
 		return map(x -> x.div(value));
 	}
 
 	@Override
-	public RandomVariableInterface pow(double exponent) {
+	public RandomVariable pow(double exponent) {
 		return map(x -> x.pow(exponent));
 	}
 
 	@Override
-	public RandomVariableInterface average() {
+	public RandomVariable average() {
 		return map(x -> x.average());
 	}
 
 	@Override
-	public RandomVariableInterface squared() {
+	public RandomVariable squared() {
 		return map(x -> x.squared());
 	}
 
 	@Override
-	public RandomVariableInterface sqrt() {
+	public RandomVariable sqrt() {
 		return map(x -> x.sqrt());
 	}
 
 	@Override
-	public RandomVariableInterface exp() {
+	public RandomVariable exp() {
 		return map(x -> x.exp());
 	}
 
 	@Override
-	public RandomVariableInterface log() {
+	public RandomVariable log() {
 		return map(x -> x.log());
 	}
 
 	@Override
-	public RandomVariableInterface sin() {
+	public RandomVariable sin() {
 		return map(x -> x.sin());
 	}
 
 	@Override
-	public RandomVariableInterface cos() {
+	public RandomVariable cos() {
 		return map(x -> x.cos());
 	}
 
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
+	public RandomVariable add(RandomVariable randomVariable) {
 		return map(x -> x.add(randomVariable));
 	}
 
 	@Override
-	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
+	public RandomVariable sub(RandomVariable randomVariable) {
 		return map(x -> x.sub(randomVariable));
 	}
 
 	@Override
-	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+	public RandomVariable bus(RandomVariable randomVariable) {
 		return map(x -> x.bus(randomVariable));
 	}
 
 	@Override
-	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
+	public RandomVariable mult(RandomVariable randomVariable) {
 		return map(x -> x.mult(randomVariable));
 	}
 
 	@Override
-	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
+	public RandomVariable div(RandomVariable randomVariable) {
 		return map(x -> x.div(randomVariable));
 	}
 
 	@Override
-	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+	public RandomVariable vid(RandomVariable randomVariable) {
 		return map(x -> x.vid(randomVariable));
 	}
 
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface cap) {
+	public RandomVariable cap(RandomVariable cap) {
 		return map(x -> x.cap(cap));
 	}
 
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface floor) {
+	public RandomVariable floor(RandomVariable floor) {
 		return map(x -> x.cap(floor));
 	}
 
 	@Override
-	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable accrue(RandomVariable rate, double periodLength) {
 		return map(x -> x.accrue(rate, periodLength));
 	}
 
 	@Override
-	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		return map(x -> x.discount(rate, periodLength));
 	}
 
 	@Override
-	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
 		return map(x -> x.choose(valueIfTriggerNonNegative, valueIfTriggerNegative));
 	}
 
 	@Override
-	public RandomVariableInterface invert() {
+	public RandomVariable invert() {
 		return map(x -> x.invert());
 	}
 
 	@Override
-	public RandomVariableInterface abs() {
+	public RandomVariable abs() {
 		return map(x -> x.abs());
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
 		return map(x -> x.addProduct(factor1, factor2));
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
 		return map(x -> x.addProduct(factor1, factor2));
 	}
 
 	@Override
-	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
 		return map(x -> x.addRatio(numerator, denominator));
 	}
 
 	@Override
-	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
 		return map(x -> x.subRatio(numerator, denominator));
 	}
 
 	@Override
-	public RandomVariableInterface isNaN() {
+	public RandomVariable isNaN() {
 		return map(x -> x.isNaN());
 	}
 }

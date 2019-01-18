@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.process;
 
 import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -55,25 +55,25 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 		return model.getNumberOfComponents();
 	}
 
-	public RandomVariableInterface[]	getInitialState() {
+	public RandomVariable[]	getInitialState() {
 		return model.getInitialState();
 	}
 
-	public RandomVariableInterface[]	getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+	public RandomVariable[]	getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 		return model.getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
 	}
 
-	public RandomVariableInterface[]	getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable[]	getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
 		// Delegate to model
 		return model.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 	}
 
-	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 		// Delegate to model
 		return model.applyStateSpaceTransform(componentIndex, randomVariable);
 	}
 
-	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		// Delegate to model
 		return model.applyStateSpaceTransformInverse(componentIndex, randomVariable);
 	}

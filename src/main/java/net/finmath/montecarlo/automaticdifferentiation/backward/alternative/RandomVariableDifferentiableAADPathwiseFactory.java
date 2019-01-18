@@ -7,9 +7,9 @@
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 
 /**
  * @author Christian Fries
@@ -39,12 +39,12 @@ public class RandomVariableDifferentiableAADPathwiseFactory extends AbstractRand
 	}
 
 	@Override
-	public RandomVariableDifferentiableInterface createRandomVariable(double time, double value) {
-		return new RandomVariableDifferentiableAADPathwise(new RandomVariable(time, value));
+	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
+		return new RandomVariableDifferentiableAADPathwise(new RandomVariableFromDoubleArray(time, value));
 	}
 
 	@Override
-	public RandomVariableDifferentiableInterface createRandomVariable(double time, double[] values) {
-		return new RandomVariableDifferentiableAADPathwise(new RandomVariable(time, values));
+	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
+		return new RandomVariableDifferentiableAADPathwise(new RandomVariableFromDoubleArray(time, values));
 	}
 }

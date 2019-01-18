@@ -22,7 +22,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
@@ -30,11 +30,11 @@ import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -65,8 +65,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	 * @author Christian Fries
 	 */
 	private interface TestFunction {
-		RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
-		RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters);
+		RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters);
+		RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters);
 
 		long getPeakMemory();
 	}
@@ -75,9 +75,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 7500;
 
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface x = arguments[0];
-			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable x = arguments[0];
+			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = sum.add(x);
 			}
@@ -85,8 +85,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			return new RandomVariableInterface[] {
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
+			return new RandomVariable[] {
 					(new RandomVariableFactory()).createRandomVariable(numberOfIterations)
 			};
 		}
@@ -99,9 +99,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 1000;	/* In the paper we use 5000 */
 
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface x = arguments[0];
-			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable x = arguments[0];
+			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = sum.add(x.pow(i));
 			}
@@ -109,13 +109,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface x = arguments[0];
-			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable x = arguments[0];
+			RandomVariable sum = (new RandomVariableFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = sum.add(x.pow(i-1).mult(i));
 			}
-			return new RandomVariableInterface[] { sum };
+			return new RandomVariable[] { sum };
 		}
 
 		@Override
@@ -126,8 +126,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 5;
 
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
 				for(int j = 0; j < arguments.length; j++) {
 					sum = sum.addProduct(arguments[j],parameters[j]);
@@ -137,15 +137,15 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable sum = (new RandomVariableFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				{
 					int j = 0;
 					sum = sum.add(parameters[j]);
 				}
 			}
-			return new RandomVariableInterface[] { sum };
+			return new RandomVariable[] { sum };
 		}
 
 		@Override
@@ -155,8 +155,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	private static class TestFunctionSumOfProductsWithAddAndMult implements TestFunction {
 		private static final int numberOfIterations = 10;
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface sum = randomVariableFactory.createRandomVariable(0.0);
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
 				for(int j = 0; j < arguments.length; j++) {
 					sum = sum.add(arguments[j].mult(parameters[j]));
@@ -166,15 +166,15 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable sum = (new RandomVariableFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
 				{
 					int j = 0;
 					sum = sum.add(parameters[j]);
 				}
 			}
-			return new RandomVariableInterface[] { sum };
+			return new RandomVariable[] { sum };
 		}
 
 		@Override
@@ -184,8 +184,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	private static class TestFunctionAccrue implements TestFunction {
 		private static final int numberOfIterations = 1;
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface product = randomVariableFactory.createRandomVariable(1.0);
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable product = randomVariableFactory.createRandomVariable(1.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				for(int j = 0; j < arguments.length; j++){
 					product = product.accrue(arguments[j], parameters[j].getAverage());
@@ -195,7 +195,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
 			return null;
 		}
 
@@ -207,8 +207,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 1;
 
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
-			RandomVariableInterface product = randomVariableFactory.createRandomVariable(1.0);
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable product = randomVariableFactory.createRandomVariable(1.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				for(int j = 0; j < arguments.length; j++){
 					product = product.mult(arguments[j].mult(parameters[j].getAverage()).add(1.0));
@@ -218,7 +218,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
 			return null;
 		}
 
@@ -250,13 +250,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private long peakMemory;
 
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			long startMem = getAllocatedMemory();
 
 			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-			RandomVariableInterface initialValue	= arguments[0].mult(0).add(modelInitialValue);
-			RandomVariableInterface riskFreeRate	= arguments[1].mult(0).add(modelRiskFreeRate);
-			RandomVariableInterface volatility		= arguments[2].mult(0).add(modelVolatility);
+			RandomVariable initialValue	= arguments[0].mult(0).add(modelInitialValue);
+			RandomVariable riskFreeRate	= arguments[1].mult(0).add(modelRiskFreeRate);
+			RandomVariable volatility		= arguments[2].mult(0).add(modelVolatility);
 
 			// Create a model
 			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
@@ -265,7 +265,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -274,7 +274,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			 * Value a call option (using the product implementation)
 			 */
 			EuropeanOption option = new EuropeanOption(optionMaturity, optionStrike);
-			RandomVariableInterface value = null;
+			RandomVariable value = null;
 			try {
 				value = option.getValue(0.0, monteCarloBlackScholesModel);
 			} catch (CalculationException e) {
@@ -289,7 +289,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
 			return null;
 		}
 
@@ -321,13 +321,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private long peakMemory;
 
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			long startMem = getAllocatedMemory();
 
 			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-			RandomVariableInterface initialValue	= arguments[0];
-			RandomVariableInterface riskFreeRate	= arguments[1];
-			RandomVariableInterface volatility		= arguments[2];
+			RandomVariable initialValue	= arguments[0];
+			RandomVariable riskFreeRate	= arguments[1];
+			RandomVariable volatility		= arguments[2];
 
 			// Create a model
 			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
@@ -336,7 +336,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -345,7 +345,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			 * Value a call option (using the product implementation)
 			 */
 			AsianOption option = new AsianOption(optionMaturity, optionStrike, new TimeDiscretization(0.0, (int)(optionMaturity/deltaT), deltaT));
-			RandomVariableInterface value = null;
+			RandomVariable value = null;
 			try {
 				value = option.getValue(0.0, monteCarloBlackScholesModel);
 			} catch (CalculationException e) {
@@ -360,7 +360,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
 			return null;
 		}
 
@@ -387,13 +387,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private long peakMemory;
 
 		@Override
-		public RandomVariableInterface value(AbstractRandomVariableFactory randomVariableFactory, RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			long startMem = getAllocatedMemory();
 
 			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-			RandomVariableInterface initialValue	= arguments[0];
-			RandomVariableInterface riskFreeRate	= arguments[1];
-			RandomVariableInterface volatility		= arguments[2];
+			RandomVariable initialValue	= arguments[0];
+			RandomVariable riskFreeRate	= arguments[1];
+			RandomVariable volatility		= arguments[2];
 
 			// Create a model
 			AbstractModel model = new BlackScholesModel(initialValue.mult(0.0).add(modelInitialValue), riskFreeRate.mult(0.0).add(modelRiskFreeRate), volatility.mult(0.0).add(modelVolatility), randomVariableFactory);
@@ -402,7 +402,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -419,7 +419,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 				strikes[periodIndex-1] = 1.0 * Math.exp(modelRiskFreeRate*exerciseDate[periodIndex-1]);
 			}
 			BermudanOption option = new BermudanOption(exerciseDate, notionals, strikes);
-			RandomVariableInterface value = null;
+			RandomVariable value = null;
 			try {
 				value = option.getValue(0.0, monteCarloBlackScholesModel);
 			} catch (CalculationException e) {
@@ -432,7 +432,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		}
 
 		@Override
-		public RandomVariableInterface[] derivative(RandomVariableInterface[] arguments, RandomVariableInterface[] parameters) {
+		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
 			return null;
 		}
 
@@ -559,8 +559,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			valuesParameter[i] = random.nextDouble();
 		}
 
-		RandomVariableInterface[] x = new RandomVariableInterface[numberOfArguments];
-		RandomVariableInterface[] c = new RandomVariableInterface[numberOfParameters];
+		RandomVariable[] x = new RandomVariable[numberOfArguments];
+		RandomVariable[] c = new RandomVariable[numberOfParameters];
 		for(int i=0; i<numberOfArguments; i++) {
 			if(valuesArgument.length == 1) {
 				x[i] = randomVariableFactory.createRandomVariable(0.0, valuesArgument[0]);
@@ -592,7 +592,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		long startMemCalculation = getAllocatedMemory();
 		long startCalculation = System.currentTimeMillis();
 
-		RandomVariableInterface y = function.value(randomVariableFactory, x, c);
+		RandomVariable y = function.value(randomVariableFactory, x, c);
 
 		long endCalculation = System.currentTimeMillis();
 
@@ -602,24 +602,24 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		long startAutoDiff = System.currentTimeMillis();
 
-		RandomVariableInterface[] dydx = new RandomVariableInterface[x.length];
-		if(y instanceof RandomVariableDifferentiableInterface) {
+		RandomVariable[] dydx = new RandomVariable[x.length];
+		if(y instanceof RandomVariableDifferentiable) {
 			System.out.print("AAD - ");
-			Map<Long, RandomVariableInterface> gradient = ((RandomVariableDifferentiableInterface)y).getGradient();
+			Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)y).getGradient();
 			for(int i=0; i<dydx.length; i++) {
-				dydx[i] = gradient.get(((RandomVariableDifferentiableInterface)x[i]).getID());
+				dydx[i] = gradient.get(((RandomVariableDifferentiable)x[i]).getID());
 			}
 		}
 		else {
 			System.out.print("FD  - ");
 			double epsilon = 1E-6;
-			RandomVariableInterface[] xUp = x.clone();
-			RandomVariableInterface[] xDn = x.clone();
+			RandomVariable[] xUp = x.clone();
+			RandomVariable[] xDn = x.clone();
 			for(int i=0; i<dydx.length; i++) {
 				xUp[i] = x[i].add(epsilon);
 				xDn[i] = x[i].sub(epsilon);
-				RandomVariableInterface yUp = function.value(randomVariableFactory, xUp, c);
-				RandomVariableInterface yDn = function.value(randomVariableFactory, xDn, c);
+				RandomVariable yUp = function.value(randomVariableFactory, xUp, c);
+				RandomVariable yDn = function.value(randomVariableFactory, xDn, c);
 				dydx[i] = yUp.sub(yDn).div(2 * epsilon);
 			}
 		}
@@ -634,7 +634,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			System.out.println("error");
 		}
 
-		RandomVariableInterface[] dydxAnalytic = function.derivative(x, c);
+		RandomVariable[] dydxAnalytic = function.derivative(x, c);
 
 		System.out.print(function.getClass().getSimpleName() + " - ");
 		System.out.println(randomVariableFactory.getClass().getSimpleName() + ":");

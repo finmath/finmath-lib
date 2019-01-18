@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Special variant of a blended model (or displaced diffusion model)
@@ -82,11 +82,11 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
 		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-			RandomVariableInterface localVolatilityFactor = realizationAtTimeIndex[component].mult(periodLength).add(1.0);
+			RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].mult(periodLength).add(1.0);
 			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
 			}
@@ -96,7 +96,7 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 }

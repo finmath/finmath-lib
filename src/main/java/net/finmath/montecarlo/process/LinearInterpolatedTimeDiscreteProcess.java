@@ -11,13 +11,13 @@ import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * A linear interpolated time discrete process, that is, given a collection of tuples
- * (Double,  RandomVariable) representing realizations \( X(t_{i}) \) this class implements
+ * (Double,  RandomVariableFromDoubleArray) representing realizations \( X(t_{i}) \) this class implements
  * the {@link ProcessInterface} and creates a stochastic process \( t \mapsto X(t) \)
  * where
  * \[
@@ -33,14 +33,14 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 
 	private TimeDiscretizationInterface timeDiscretization;
-	private Map<Double, RandomVariableInterface> realizations;
+	private Map<Double, RandomVariable> realizations;
 
 	/**
 	 * Create a time discrete process by linear interpolation of random variables.
 	 *
 	 * @param realizations Given map from time to random variable. The map must not be modified.
 	 */
-	public LinearInterpolatedTimeDiscreteProcess(Map<Double, RandomVariableInterface> realizations) {
+	public LinearInterpolatedTimeDiscreteProcess(Map<Double, RandomVariable> realizations) {
 		super();
 		this.timeDiscretization = new TimeDiscretization(realizations.keySet());
 		this.realizations = new HashMap<>();
@@ -51,9 +51,9 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * Private constructor. Note: The arguments are not cloned.
 	 *
 	 * @param timeDiscretization The time discretization.
-	 * @param realizations The map from Double to RandomVariableInterface.
+	 * @param realizations The map from Double to RandomVariable.
 	 */
-	private LinearInterpolatedTimeDiscreteProcess(TimeDiscretizationInterface timeDiscretization, Map<Double, RandomVariableInterface> realizations) {
+	private LinearInterpolatedTimeDiscreteProcess(TimeDiscretizationInterface timeDiscretization, Map<Double, RandomVariable> realizations) {
 		this.timeDiscretization = timeDiscretization;
 		this.realizations = realizations;
 	}
@@ -68,7 +68,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @throws CalculationException Thrown if the given process fails to evaluate at a certain time point.
 	 */
 	public LinearInterpolatedTimeDiscreteProcess add(LinearInterpolatedTimeDiscreteProcess process) throws CalculationException {
-		Map<Double, RandomVariableInterface> sum = new HashMap<>();
+		Map<Double, RandomVariable> sum = new HashMap<>();
 
 		for(double time: timeDiscretization) {
 			sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));
@@ -91,7 +91,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @return A new process consisting of the interpolation of the random variables obtained by applying the given function to this process discrete set of random variables.
 	 */
 	public LinearInterpolatedTimeDiscreteProcess apply(DoubleUnaryOperator function) {
-		Map<Double, RandomVariableInterface> result = new HashMap<>();
+		Map<Double, RandomVariable> result = new HashMap<>();
 
 		for(double time: timeDiscretization) {
 			result.put(time, realizations.get(time).apply(function));
@@ -107,27 +107,27 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 * @param component The component to be returned (if this is a vector valued process), otherwise 0.
 	 * @return The random variable \( X(t) \).
 	 */
-	public RandomVariableInterface getProcessValue(double time, int component) {
+	public RandomVariable getProcessValue(double time, int component) {
 		double timeLower = timeDiscretization.getTimeIndexNearestLessOrEqual(time);
 		double timeUpper = timeDiscretization.getTimeIndexNearestGreaterOrEqual(time);
 		if(timeLower == timeUpper) {
 			return realizations.get(timeLower);
 		}
 
-		RandomVariableInterface valueLower	= realizations.get(timeLower);
-		RandomVariableInterface valueUpper	= realizations.get(timeUpper);
+		RandomVariable valueLower	= realizations.get(timeLower);
+		RandomVariable valueUpper	= realizations.get(timeUpper);
 
 		return valueUpper.mult((time-timeLower)/(timeUpper-timeLower)).add(valueLower.mult((timeUpper-time)/(timeUpper-timeLower)));
 	}
 
 	@Override
-	public RandomVariableInterface getProcessValue(int timeIndex, int component) {
+	public RandomVariable getProcessValue(int timeIndex, int component) {
 		return realizations.get(timeDiscretization.getTime(timeIndex));
 
 	}
 
 	@Override
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) {
+	public RandomVariable getMonteCarloWeights(int timeIndex) {
 		throw new UnsupportedOperationException();
 	}
 

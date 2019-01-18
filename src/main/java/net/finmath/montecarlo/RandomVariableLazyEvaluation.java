@@ -15,24 +15,24 @@ import java.util.stream.IntStream;
 import org.apache.commons.math3.util.FastMath;
 
 import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
- * Implements a Monte-Carlo random variable (like <code>RandomVariable</code> using
+ * Implements a Monte-Carlo random variable (like <code>RandomVariableFromDoubleArray</code> using
  * late evaluation of Java 8 streams
  *
  * Accesses performed exclusively through the interface
- * <code>RandomVariableInterface</code> is thread safe (and does not mutate the class).
+ * <code>RandomVariable</code> is thread safe (and does not mutate the class).
  *
  * The implementation require Java 8 or better.
  *
- * @TODO The implementation of getAverage does not use a Kahan summation, while <code>RandomVariable</code> does.
+ * @TODO The implementation of getAverage does not use a Kahan summation, while <code>RandomVariableFromDoubleArray</code> does.
  *
  * @author Christian Fries
  * @author OSC
  * @version 2.0
  */
-public class RandomVariableLazyEvaluation implements RandomVariableInterface {
+public class RandomVariableLazyEvaluation implements RandomVariable {
 
 	/**
 	 *
@@ -50,11 +50,11 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	private transient double[] realizationsArray = null;
 
 	/**
-	 * Create a random variable from a given other implementation of <code>RandomVariableInterface</code>.
+	 * Create a random variable from a given other implementation of <code>RandomVariable</code>.
 	 *
-	 * @param value Object implementing <code>RandomVariableInterface</code>.
+	 * @param value Object implementing <code>RandomVariable</code>.
 	 */
-	public RandomVariableLazyEvaluation(RandomVariableInterface value) {
+	public RandomVariableLazyEvaluation(RandomVariable value) {
 		super();
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : value::get;
@@ -72,12 +72,12 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/**
-	 * Create a random variable by applying a function to a given other implementation of <code>RandomVariableInterface</code>.
+	 * Create a random variable by applying a function to a given other implementation of <code>RandomVariable</code>.
 	 *
-	 * @param value Object implementing <code>RandomVariableInterface</code>.
+	 * @param value Object implementing <code>RandomVariable</code>.
 	 * @param function A function mapping double to double.
 	 */
-	public RandomVariableLazyEvaluation(RandomVariableInterface value, DoubleUnaryOperator function) {
+	public RandomVariableLazyEvaluation(RandomVariable value, DoubleUnaryOperator function) {
 		super();
 		this.time = value.getFiltrationTime();
 		this.realizations = value.isDeterministic() ? null : i -> function.applyAsDouble(value.get(i));
@@ -145,10 +145,10 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.montecarlo.RandomVariable)
+	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.montecarlo.RandomVariableFromDoubleArray)
 	 */
 	@Override
-	public boolean equals(RandomVariableInterface randomVariable) {
+	public boolean equals(RandomVariable randomVariable) {
 		if(this.time != randomVariable.getFiltrationTime()) {
 			return false;
 		}
@@ -193,7 +193,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#size()
+	 * @see net.finmath.stochastic.RandomVariable#size()
 	 */
 	@Override
 	public int size() {
@@ -201,7 +201,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
+	 * @see net.finmath.stochastic.RandomVariable#getMin()
 	 */
 	@Override
 	public double getMin() {
@@ -212,7 +212,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMax()
+	 * @see net.finmath.stochastic.RandomVariable#getMax()
 	 */
 	@Override
 	public double getMax() {
@@ -223,7 +223,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage()
+	 * @see net.finmath.stochastic.RandomVariable#getAverage()
 	 */
 	@Override
 	public double getAverage() {
@@ -238,10 +238,10 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getAverage(RandomVariableInterface probabilities) {
+	public double getAverage(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -253,7 +253,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance()
+	 * @see net.finmath.stochastic.RandomVariable#getVariance()
 	 */
 	@Override
 	public double getVariance() {
@@ -274,7 +274,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getVariance(RandomVariableInterface probabilities) {
+	public double getVariance(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -316,10 +316,10 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardDeviation(RandomVariableInterface probabilities) {
+	public double getStandardDeviation(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -331,7 +331,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError()
 	 */
 	@Override
 	public double getStandardError() {
@@ -346,10 +346,10 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariableInterface probabilities) {
+	public double getStandardError(RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -361,7 +361,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile()
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile()
 	 */
 	@Override
 	public double getQuantile(double quantile) {
@@ -381,10 +381,10 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
+	public double getQuantile(double quantile, RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -396,7 +396,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getConditionalVaR()
+	 * @see net.finmath.stochastic.RandomVariable#getConditionalVaR()
 	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
@@ -426,7 +426,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram()
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram()
 	 */
 	@Override
 	public double[] getHistogram(double[] intervalPoints)
@@ -484,7 +484,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(int,double)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int,double)
 	 */
 	@Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
@@ -508,7 +508,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#isDeterministic()
+	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
 	 */
 	@Override
 	public boolean isDeterministic() {
@@ -516,23 +516,23 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#expand()
+	 * @see net.finmath.stochastic.RandomVariable#expand()
 	 */
-	public RandomVariableInterface expand(int numberOfPaths) {
+	public RandomVariable expand(int numberOfPaths) {
 		if(isDeterministic()) {
 			// Expand random variable to a vector of path values
 			double[] clone = new double[numberOfPaths];
 			Arrays.fill(clone,valueIfNonStochastic);
-			return new RandomVariable(time,clone);
+			return new RandomVariableFromDoubleArray(time,clone);
 
 		}
 
-		return new RandomVariable(time,getRealizations());
+		return new RandomVariableFromDoubleArray(time,getRealizations());
 	}
 
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations()
+	 * @see net.finmath.stochastic.RandomVariable#getRealizations()
 	 */
 	@Override
 	public double[] getRealizations() {
@@ -558,23 +558,23 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getOperator()
+	 * @see net.finmath.stochastic.RandomVariable#getOperator()
 	 */
 	@Override
 	public IntToDoubleFunction getOperator() {
 		return realizations;
 	}
 
-	public RandomVariable getRandomVariable() {
+	public RandomVariableFromDoubleArray getRandomVariable() {
 		if(isDeterministic()) {
-			return new RandomVariable(time, valueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, valueIfNonStochastic);
 		} else {
-			return new RandomVariable(time, getRealizations());
+			return new RandomVariableFromDoubleArray(time, getRealizations());
 		}
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizationsStream()
+	 * @see net.finmath.stochastic.RandomVariable#getRealizationsStream()
 	 */
 	@Override
 	public DoubleStream getRealizationsStream() {
@@ -587,7 +587,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(DoubleUnaryOperator operator) {
 		if(isDeterministic()) {
 			return new RandomVariableLazyEvaluation(time, operator.applyAsDouble(valueIfNonStochastic));
 		}
@@ -599,7 +599,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface cache() {
+	public RandomVariable cache() {
 		synchronized (this)
 		{
 			if(realizationsArray == null) {
@@ -611,7 +611,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleBinaryOperator operator, final RandomVariableInterface argument) {
+	public RandomVariable apply(DoubleBinaryOperator operator, final RandomVariable argument) {
 
 		double      newTime           = Math.max(time, argument.getFiltrationTime());
 
@@ -650,7 +650,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 
 	}
 
-	public RandomVariableInterface apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariableInterface argument1, RandomVariableInterface argument2)
+	public RandomVariable apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariable argument1, RandomVariable argument2)
 	{
 		double newTime = Math.max(time, argument1.getFiltrationTime());
 		newTime = Math.max(newTime, argument2.getFiltrationTime());
@@ -707,7 +707,7 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2)
+	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2)
 	{
 		double newTime = Math.max(time, argument1.getFiltrationTime());
 		newTime = Math.max(newTime, argument2.getFiltrationTime());
@@ -768,230 +768,230 @@ public class RandomVariableLazyEvaluation implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cap(double)
+	 * @see net.finmath.stochastic.RandomVariable#cap(double)
 	 */
 	@Override
-	public RandomVariableInterface cap(double cap) {
+	public RandomVariable cap(double cap) {
 		return apply(x -> Math.min(x, cap));
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(double)
+	 * @see net.finmath.stochastic.RandomVariable#floor(double)
 	 */
 	@Override
-	public RandomVariableInterface floor(double floor) {
+	public RandomVariable floor(double floor) {
 		return apply(x -> Math.max(x, floor));
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(double)
+	 * @see net.finmath.stochastic.RandomVariable#add(double)
 	 */
 	@Override
-	public RandomVariableInterface add(double value) {
+	public RandomVariable add(double value) {
 		return apply(x -> x + value);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(double)
+	 * @see net.finmath.stochastic.RandomVariable#sub(double)
 	 */
 	@Override
-	public RandomVariableInterface sub(double value) {
+	public RandomVariable sub(double value) {
 		return apply(x -> x - value);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(double)
+	 * @see net.finmath.stochastic.RandomVariable#mult(double)
 	 */
 	@Override
-	public RandomVariableInterface mult(double value) {
+	public RandomVariable mult(double value) {
 		return apply(x -> x * value);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(double)
+	 * @see net.finmath.stochastic.RandomVariable#div(double)
 	 */
 	@Override
-	public RandomVariableInterface div(double value) {
+	public RandomVariable div(double value) {
 		return apply(x -> x / value);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#pow(double)
+	 * @see net.finmath.stochastic.RandomVariable#pow(double)
 	 */
 	@Override
-	public RandomVariableInterface pow(double exponent) {
+	public RandomVariable pow(double exponent) {
 		return apply(x -> FastMath.pow(x, exponent));
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#average()
+	 * @see net.finmath.stochastic.RandomVariable#average()
 	 */
 	@Override
-	public RandomVariableInterface average() {
+	public RandomVariable average() {
 		return new RandomVariableLazyEvaluation(getAverage());
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
+	 * @see net.finmath.stochastic.RandomVariable#squared()
 	 */
 	@Override
-	public RandomVariableInterface squared() {
+	public RandomVariable squared() {
 		return apply(x -> x * x);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
+	 * @see net.finmath.stochastic.RandomVariable#sqrt()
 	 */
 	@Override
-	public RandomVariableInterface sqrt() {
+	public RandomVariable sqrt() {
 		return apply(FastMath::sqrt);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#exp()
+	 * @see net.finmath.stochastic.RandomVariable#exp()
 	 */
 	@Override
-	public RandomVariableInterface exp() {
+	public RandomVariable exp() {
 		return apply(FastMath::exp);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#log()
+	 * @see net.finmath.stochastic.RandomVariable#log()
 	 */
 	@Override
-	public RandomVariableInterface log() {
+	public RandomVariable log() {
 		return apply(FastMath::log);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sin()
+	 * @see net.finmath.stochastic.RandomVariable#sin()
 	 */
 	@Override
-	public RandomVariableInterface sin() {
+	public RandomVariable sin() {
 		return apply(FastMath::sin);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cos()
+	 * @see net.finmath.stochastic.RandomVariable#cos()
 	 */
 	@Override
-	public RandomVariableInterface cos() {
+	public RandomVariable cos() {
 		return apply(FastMath::cos);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
+	public RandomVariable add(RandomVariable randomVariable) {
 		return apply((x, y) -> x + y, randomVariable);
 
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
+	public RandomVariable sub(RandomVariable randomVariable) {
 		return apply((x, y) -> x - y, randomVariable);
 	}
 
 	@Override
-	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+	public RandomVariable bus(RandomVariable randomVariable) {
 		return apply((x, y) -> -x + y, randomVariable);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
+	public RandomVariable mult(RandomVariable randomVariable) {
 		return apply((x, y) -> x * y, randomVariable);
 	}
 
 	@Override
-	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
+	public RandomVariable div(RandomVariable randomVariable) {
 		return apply((x, y) -> x / y, randomVariable);
 	}
 
 	@Override
-	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+	public RandomVariable vid(RandomVariable randomVariable) {
 		return apply((x, y) -> y / x, randomVariable);
 	}
 
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface cap) {
+	public RandomVariable cap(RandomVariable cap) {
 		return apply(FastMath::min, cap);
 	}
 
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface floor) {
+	public RandomVariable floor(RandomVariable floor) {
 		return apply(FastMath::max, floor);
 	}
 
 	@Override
-	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable accrue(RandomVariable rate, double periodLength) {
 		return apply((x, y) -> x * (1.0 + y * periodLength), rate);
 	}
 
 	@Override
-	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		return apply((x, y) -> x / (1.0 + y * periodLength), rate);
 	}
 
 	@Override
-	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
 		return apply(( x, y, z) -> (x >= 0 ? y : z), valueIfTriggerNonNegative, valueIfTriggerNegative);
 	}
 
 	@Override
-	public RandomVariableInterface invert() {
+	public RandomVariable invert() {
 		return apply(x -> 1.0 / x);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#abs()
+	 * @see net.finmath.stochastic.RandomVariable#abs()
 	 */
 	@Override
-	public RandomVariableInterface abs() {
+	public RandomVariable abs() {
 		return apply(Math::abs);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, double)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariableInterface addProduct(final RandomVariableInterface factor1, final double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		return apply((x, y) -> x + y * factor2, factor1);
 	}
 
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
 		return apply((x,y) -> x + y, (x, y) -> x * y, factor1, factor2);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#addRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
 		return apply((x, y) -> x + y, (x, y) -> x / y, numerator, denominator);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#subRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
 		return apply((x,y) -> x - y, (x, y) -> x / y, numerator, denominator);
 	}
 
 	@Override
-	public RandomVariableInterface isNaN() {
+	public RandomVariable isNaN() {
 		if(isDeterministic()) {
 			return new RandomVariableLazyEvaluation(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
 		}

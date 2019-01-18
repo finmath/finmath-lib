@@ -11,7 +11,7 @@ import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * An index whose value is a function of the fixing date, for example the DAY, MONTH or NUMBER_OF_DAYS_IN_MONTH.
@@ -57,7 +57,7 @@ public class DateIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate()
 				.plusDays((int)Math.round(fixingTime*365));
 

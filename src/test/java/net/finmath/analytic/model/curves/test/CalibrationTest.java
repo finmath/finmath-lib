@@ -32,7 +32,7 @@ import net.finmath.analytic.model.curves.ForwardCurveInterface;
 import net.finmath.analytic.products.AnalyticProductInterface;
 import net.finmath.analytic.products.Swap;
 import net.finmath.optimizer.SolverException;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.TimeDiscretization;
 
@@ -115,11 +115,11 @@ public class CalibrationTest {
 		// We may ask the forward curve for a forward.
 		double fixingTime	= 1.0;
 		double periodLength = 0.5;
-		RandomVariableInterface forwardRate	= forwardCurveFromDiscountCurve.getForward(model1, fixingTime, periodLength);
+		RandomVariable forwardRate	= forwardCurveFromDiscountCurve.getForward(model1, fixingTime, periodLength);
 		System.out.println("Semi-annual forward with fixing in " + fixingTime + " calculated from that discount curve is " + forwardRate);
 
 		// Check if we have the right value
-		RandomVariableInterface forwardRateFromDiscountFactor = discountCurve.getDiscountFactor(model1, fixingTime).div(discountCurve.getDiscountFactor(model1, fixingTime + periodLength)).sub(1.0).div(periodLength);
+		RandomVariable forwardRateFromDiscountFactor = discountCurve.getDiscountFactor(model1, fixingTime).div(discountCurve.getDiscountFactor(model1, fixingTime + periodLength)).sub(1.0).div(periodLength);
 		Assert.assertTrue(Math.abs(forwardRate.sub(forwardRateFromDiscountFactor).getAverage()) < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
@@ -186,7 +186,7 @@ public class CalibrationTest {
 		double error = 0;
 		for(int calibrationProductIndex = 0; calibrationProductIndex < calibrationProducts1.size(); calibrationProductIndex++) {
 			AnalyticProductInterface	calibrationProduct		= calibrationProducts1.get(calibrationProductIndex);
-			RandomVariableInterface		calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel1);
+			RandomVariable		calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel1);
 			System.out.println("Calibration product " + calibrationProductIndex + ":\t" + calibrationProductValue);
 
 			error += calibrationProductValue.getVariance();
@@ -242,7 +242,7 @@ public class CalibrationTest {
 		double error2 = 0;
 		for(int calibrationProductIndex = 0; calibrationProductIndex < calibrationProducts2.size(); calibrationProductIndex++) {
 			AnalyticProductInterface	calibrationProduct		= calibrationProducts2.get(calibrationProductIndex);
-			RandomVariableInterface		calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel2);
+			RandomVariable		calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel2);
 			System.out.println("Calibration product " + calibrationProductIndex + ":\t" + calibrationProductValue);
 
 			error2 += calibrationProductValue.getVariance();

@@ -11,7 +11,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Base class for products requiring an MonteCarloSimulationInterface for valuation.
@@ -88,7 +88,7 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 	 * @return The random variable representing the value of the product discounted to evaluation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public abstract RandomVariableInterface getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException;
+	public abstract RandomVariable getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException;
 
 
 	/**
@@ -112,7 +112,7 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 	 */
 	public Map<String, Object> getValues(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException
 	{
-		RandomVariableInterface values = getValue(evaluationTime, model);
+		RandomVariable values = getValue(evaluationTime, model);
 
 		if(values == null) {
 			return null;

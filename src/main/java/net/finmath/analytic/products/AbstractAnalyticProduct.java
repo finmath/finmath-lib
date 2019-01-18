@@ -8,7 +8,7 @@ package net.finmath.analytic.products;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.modelling.ModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
@@ -27,7 +27,7 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 		+ "It requires a model of type " + AnalyticModelInterface.class + ".");
 	}
 
-	public RandomVariableInterface getValue(AnalyticModelInterface model) {
+	public RandomVariable getValue(AnalyticModelInterface model) {
 		return getValue(0.0, model);
 	}
 }

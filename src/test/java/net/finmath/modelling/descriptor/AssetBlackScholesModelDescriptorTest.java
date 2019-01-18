@@ -24,8 +24,8 @@ import net.finmath.modelling.ProductInterface;
 import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFiniteDifference1D;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
@@ -91,7 +91,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		 */
 
 		// Create a time discretization
-		BrownianMotionInterface brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
+		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 		// Create Monte Carlo implementation of Black-Scholes model
@@ -161,18 +161,18 @@ public class AssetBlackScholesModelDescriptorTest {
 	}
 
 	/**
-	 * Create a Brownian motion implementing BrownianMotionInterface from given specs.
+	 * Create a Brownian motion implementing BrownianMotion from given specs.
 	 *
 	 * @param numberOfTimeSteps The number of time steps.
 	 * @param deltaT The time step size.
 	 * @param numberOfFactors The number of factors.
 	 * @param numberOfPaths The number of paths.
 	 * @param seed The seed for the random number generator.
-	 * @return A Brownian motion implementing BrownianMotionInterface with the given specs.
+	 * @return A Brownian motion implementing BrownianMotion with the given specs.
 	 */
-	private static BrownianMotionInterface getBronianMotion(int numberOfTimeSteps, double deltaT, int numberOfFactors, int numberOfPaths, int seed) {
+	private static BrownianMotion getBronianMotion(int numberOfTimeSteps, double deltaT, int numberOfFactors, int numberOfPaths, int seed) {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 		return brownianMotion;
 	}
 

@@ -10,7 +10,7 @@ import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
@@ -74,7 +74,7 @@ public class AccruedInterest extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		double daycountFraction	= daycountConvention.getDaycountFraction(periodStartDate, getModelDate(fixingTime));
 		double daycountPeriod	= daycountConvention.getDaycountFraction(periodStartDate, periodEndDate);
 		daycountFraction = Math.min(Math.max(daycountFraction, 0.0), daycountPeriod);

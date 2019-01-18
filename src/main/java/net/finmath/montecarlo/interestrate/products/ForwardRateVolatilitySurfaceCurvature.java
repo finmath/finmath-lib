@@ -5,12 +5,12 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements the calculation of the curvature of the volatility surface of the forward rates.
@@ -98,7 +98,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
 		AbstractModelInterface modelBase = model.getModel();
 		if(modelBase instanceof LIBORMarketModelInterface) {
 			return getValues(evaluationTime, (LIBORMarketModelInterface)modelBase);
@@ -114,7 +114,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 	 * @param model A model implementing the LIBORModelMonteCarloSimulationInterface
 	 * @return The squared curvature of the LIBOR instantaneous variance (reduced a possible tolerance). The return value is &ge; 0.
 	 */
-	public RandomVariableInterface getValues(double evaluationTime, LIBORMarketModelInterface model) {
+	public RandomVariable getValues(double evaluationTime, LIBORMarketModelInterface model) {
 		if(evaluationTime > 0) {
 			throw new RuntimeException("Forward start evaluation currently not supported.");
 		}
@@ -126,7 +126,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 		int numberOfComponents = covarianceModel.getLiborPeriodDiscretization().getNumberOfTimeSteps();
 
 		// Accumulator
-		RandomVariableInterface	integratedLIBORCurvature	= new RandomVariable(0.0);
+		RandomVariable	integratedLIBORCurvature	= new RandomVariableFromDoubleArray(0.0);
 		for(int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 
 			// Integrate from 0 up to the fixing of the rate
@@ -139,17 +139,17 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 			}
 
 			// Sum squared second derivative of the variance for all components at this time step
-			RandomVariableInterface integratedLIBORCurvatureCurrentRate = new RandomVariable(0.0);
+			RandomVariable integratedLIBORCurvatureCurrentRate = new RandomVariableFromDoubleArray(0.0);
 			for(int timeIndex = 0; timeIndex < timeEndIndex-2; timeIndex++) {
 				double timeStep1	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex);
 				double timeStep2	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex+1);
 
-				RandomVariableInterface covarianceLeft		= covarianceModel.getCovariance(timeIndex+0, componentIndex, componentIndex, null);
-				RandomVariableInterface covarianceCenter	= covarianceModel.getCovariance(timeIndex+1, componentIndex, componentIndex, null);
-				RandomVariableInterface covarianceRight		= covarianceModel.getCovariance(timeIndex+2, componentIndex, componentIndex, null);
+				RandomVariable covarianceLeft		= covarianceModel.getCovariance(timeIndex+0, componentIndex, componentIndex, null);
+				RandomVariable covarianceCenter	= covarianceModel.getCovariance(timeIndex+1, componentIndex, componentIndex, null);
+				RandomVariable covarianceRight		= covarianceModel.getCovariance(timeIndex+2, componentIndex, componentIndex, null);
 
 				// Calculate second derivative
-				RandomVariableInterface curvatureSquared = covarianceRight.sub(covarianceCenter.mult(2.0)).add(covarianceLeft);
+				RandomVariable curvatureSquared = covarianceRight.sub(covarianceCenter.mult(2.0)).add(covarianceLeft);
 				curvatureSquared = curvatureSquared.div(timeStep1 * timeStep2);
 
 				// Take square

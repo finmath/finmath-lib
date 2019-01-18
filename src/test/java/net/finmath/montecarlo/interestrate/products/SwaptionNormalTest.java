@@ -17,7 +17,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
@@ -203,7 +203,7 @@ public class SwaptionNormalTest {
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve), covarianceModel, calibrationItems, properties);
 
-		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 

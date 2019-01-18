@@ -6,7 +6,7 @@
 
 package net.finmath.optimizer;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
@@ -21,7 +21,7 @@ public interface StochasticOptimizerInterface {
 	 * @author Christian Fries
 	 */
 	interface ObjectiveFunction {
-		void setValues(RandomVariableInterface[] parameters, RandomVariableInterface[] values) throws SolverException;
+		void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException;
 	}
 
 	/**
@@ -29,7 +29,7 @@ public interface StochasticOptimizerInterface {
 	 *
 	 * @return The best fit parameter.
 	 */
-	RandomVariableInterface[] getBestFitParameters();
+	RandomVariable[] getBestFitParameters();
 
 	/**
 	 * @return the the root mean square error achieved with the the best fit parameter

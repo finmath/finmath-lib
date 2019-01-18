@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
@@ -122,7 +122,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	}
 
 	@Override
-	public RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime)
+	public RandomVariable getForward(AnalyticModelInterface model, double fixingTime)
 	{
 		double paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 		return getForward(model, fixingTime, paymentOffset);
@@ -132,7 +132,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @see net.finmath.marketdata.ForwardCurveInterface#getForward(double)
 	 */
 	@Override
-	public RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
+	public RandomVariable getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
 		if(model==null) {
 			throw new IllegalArgumentException(this.getName() + ": model==null");
@@ -153,7 +153,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public RandomVariableInterface getValue(double time) {
+	public RandomVariable getValue(double time) {
 		return getValue(null, time);
 	}
 
@@ -161,12 +161,12 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public RandomVariableInterface getValue(AnalyticModelInterface model, double time) {
+	public RandomVariable getValue(AnalyticModelInterface model, double time) {
 		return getForward(model, time);
 	}
 
 	@Override
-	public RandomVariableInterface[] getParameter() {
+	public RandomVariable[] getParameter() {
 		// TODO Auto-generated method stub
 		return null;
 	}

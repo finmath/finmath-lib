@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products.components;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 
 /**
@@ -40,7 +40,7 @@ public class AccruingNotional implements AbstractNotional {
 	}
 
 	@Override
-	public RandomVariableInterface getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		double productToModelTimeOffset = 0;
 		try {
 			if(previousPeriod.getReferenceDate() != null) {
@@ -49,13 +49,13 @@ public class AccruingNotional implements AbstractNotional {
 		}
 		catch(UnsupportedOperationException e) {};
 
-		RandomVariableInterface previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);
+		RandomVariable previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);
 
 		return previousPeriodNotional.getNotionalAtPeriodEnd(previousPeriod, model).mult(previousPeriodCoupon.add(1.0));
 	}
 
 	@Override
-	public RandomVariableInterface getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		return getNotionalAtPeriodStart(period, model);
 	}
 }

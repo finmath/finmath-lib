@@ -5,7 +5,7 @@
  */
 package net.finmath.analytic.calibration;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * An objects having a dependence on a parameter (double[]).
@@ -23,7 +23,7 @@ public interface ParameterObjectInterface {
 	 *
 	 * @return The parameter.
 	 */
-	RandomVariableInterface[] getParameter();
+	RandomVariable[] getParameter();
 
 	/**
 	 * Create a clone with a modified parameter.
@@ -32,7 +32,7 @@ public interface ParameterObjectInterface {
 	 * @return A clone with an otherwise modified parameter.
 	 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 	 */
-	ParameterObjectInterface getCloneForParameter(RandomVariableInterface[] value) throws CloneNotSupportedException;
+	ParameterObjectInterface getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException;
 
 	/**
 	 * Set the current parameter and change the state of the objects.
@@ -40,6 +40,6 @@ public interface ParameterObjectInterface {
 	 * @param parameter The parameter associated with the new state of the objects.
 	 */
 	@Deprecated
-	void setParameter(RandomVariableInterface[] parameter);
+	void setParameter(RandomVariable[] parameter);
 
 }

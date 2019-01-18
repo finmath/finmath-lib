@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
- * Implementation of <code>RandomVariableDifferentiableInterface</code> using
+ * Implementation of <code>RandomVariableDifferentiable</code> using
  * the forward algorithmic differentiation (AD).
  *
  * This class implements the optimized stochastic AD as it is described in
@@ -37,7 +37,7 @@ import net.finmath.stochastic.Scalar;
  * @author Stefan Sedlmair
  * @version 1.1
  */
-public class RandomVariableDifferentiableAD implements RandomVariableDifferentiableInterface {
+public class RandomVariableDifferentiableAD implements RandomVariableDifferentiable {
 
 	private static final long serialVersionUID = 2459373647785530657L;
 
@@ -65,26 +65,26 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		private final Long id;
 		private final OperatorType operatorType;
 		private final List<OperatorTreeNode> arguments;
-		private final List<RandomVariableInterface> argumentValues;
+		private final List<RandomVariable> argumentValues;
 		private final Object operator;
 
-		private static final RandomVariableInterface zero = new Scalar(0.0);
-		private static final RandomVariableInterface one = new Scalar(1.0);
-		private static final RandomVariableInterface minusOne = new Scalar(-1.0);
+		private static final RandomVariable zero = new Scalar(0.0);
+		private static final RandomVariable one = new Scalar(1.0);
+		private static final RandomVariable minusOne = new Scalar(-1.0);
 
-		OperatorTreeNode(OperatorType operatorType, List<RandomVariableInterface> arguments, Object operator) {
+		OperatorTreeNode(OperatorType operatorType, List<RandomVariable> arguments, Object operator) {
 			this(operatorType,
-					arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
+					arguments != null ? arguments.stream().map((RandomVariable x) -> {
 						return (x != null && x instanceof RandomVariableDifferentiableAD) ? ((RandomVariableDifferentiableAD)x).getOperatorTreeNode(): null;
 					}).collect(Collectors.toList()) : null,
-							arguments != null ? arguments.stream().map((RandomVariableInterface x) -> {
+							arguments != null ? arguments.stream().map((RandomVariable x) -> {
 								return (x != null && x instanceof RandomVariableDifferentiableAD) ? ((RandomVariableDifferentiableAD)x).getValues() : x;
 							}).collect(Collectors.toList()) : null,
 									operator
 					);
 
 		}
-		OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariableInterface> argumentValues, Object operator) {
+		OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues, Object operator) {
 			super();
 			this.id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;
@@ -147,16 +147,16 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			this.argumentValues = argumentValues;
 		}
 
-		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariableInterface> derivatives) {
+		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariable> derivatives) {
 			if(arguments == null) return;
 			for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
 				OperatorTreeNode argument = arguments.get(argumentIndex);
 				if(argument != null) {
 					Long argumentID = argument.id;
 
-					RandomVariableInterface partialDerivative	= getPartialDerivative(argument, argumentIndex);
-					RandomVariableInterface derivative			= derivatives.get(id);
-					RandomVariableInterface argumentDerivative	= derivatives.get(argumentID);
+					RandomVariable partialDerivative	= getPartialDerivative(argument, argumentIndex);
+					RandomVariable derivative			= derivatives.get(id);
+					RandomVariable argumentDerivative	= derivatives.get(argumentID);
 
 					// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
 					if(operatorType == OperatorType.AVERAGE) {
@@ -164,7 +164,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					}
 					// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
 					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
-						ConditionalExpectationEstimatorInterface estimator = (ConditionalExpectationEstimatorInterface)operator;
+						ConditionalExpectationEstimator estimator = (ConditionalExpectationEstimator)operator;
 						derivative = estimator.getConditionalExpectation(derivative);
 					}
 
@@ -180,15 +180,15 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			}
 		}
 
-		private RandomVariableInterface getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
+		private RandomVariable getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
 
 			if(!arguments.contains(differential)) return zero;
 
-			RandomVariableInterface X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
-			RandomVariableInterface Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
-			RandomVariableInterface Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
+			RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
+			RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
+			RandomVariable Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
 
-			RandomVariableInterface derivative = null;
+			RandomVariable derivative = null;
 
 			switch(operatorType) {
 			/* functions with one argument  */
@@ -343,8 +343,8 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					 */
 					derivative = Y.sub(Z);
 					double epsilon = 0.2*X.getStandardDeviation();
-					derivative = derivative.mult(X.add(epsilon/2).choose(new RandomVariable(1.0), new RandomVariable(0.0)));
-					derivative = derivative.mult(X.sub(epsilon/2).choose(new RandomVariable(0.0), new RandomVariable(1.0)));
+					derivative = derivative.mult(X.add(epsilon/2).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)));
+					derivative = derivative.mult(X.sub(epsilon/2).choose(new RandomVariableFromDoubleArray(0.0), new RandomVariableFromDoubleArray(1.0)));
 					derivative = derivative.div(epsilon);
 				} else if(differentialIndex == 1) {
 					derivative = X.choose(one, zero);
@@ -363,38 +363,38 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	/*
 	 * Data model. We maintain the underlying values and a link to the node in the operator tree.
 	 */
-	private RandomVariableInterface values;
+	private RandomVariable values;
 	private final OperatorTreeNode operatorTreeNode;
 
 	public static RandomVariableDifferentiableAD of(double value) {
 		return new RandomVariableDifferentiableAD(value);
 	}
 
-	public static RandomVariableDifferentiableAD of(RandomVariableInterface randomVariable) {
+	public static RandomVariableDifferentiableAD of(RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAD(randomVariable);
 	}
 
 	public RandomVariableDifferentiableAD(double value) {
-		this(new RandomVariable(value), null, null);
+		this(new RandomVariableFromDoubleArray(value), null, null);
 	}
 
 	public RandomVariableDifferentiableAD(double time, double[] realisations) {
-		this(new RandomVariable(time, realisations), null, null);
+		this(new RandomVariableFromDoubleArray(time, realisations), null, null);
 	}
 
-	public RandomVariableDifferentiableAD(RandomVariableInterface randomVariable) {
+	public RandomVariableDifferentiableAD(RandomVariable randomVariable) {
 		this(randomVariable, null, null);
 	}
 
-	private RandomVariableDifferentiableAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, OperatorType operator) {
+	private RandomVariableDifferentiableAD(RandomVariable values, List<RandomVariable> arguments, OperatorType operator) {
 		this(values, arguments, null, operator);
 	}
 
-	public RandomVariableDifferentiableAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, ConditionalExpectationEstimatorInterface estimator, OperatorType operator) {
+	public RandomVariableDifferentiableAD(RandomVariable values, List<RandomVariable> arguments, ConditionalExpectationEstimator estimator, OperatorType operator) {
 		this(values, arguments, estimator, operator, typePriorityDefault);
 	}
 
-	public RandomVariableDifferentiableAD(RandomVariableInterface values, List<RandomVariableInterface> arguments, ConditionalExpectationEstimatorInterface estimator, OperatorType operator, int methodArgumentTypePriority) {
+	public RandomVariableDifferentiableAD(RandomVariable values, List<RandomVariable> arguments, ConditionalExpectationEstimator estimator, OperatorType operator, int methodArgumentTypePriority) {
 		super();
 		this.values = values;
 		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator);
@@ -412,7 +412,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 * @return The underling values.
 	 */
 	@Override
-	public RandomVariableInterface getValues(){
+	public RandomVariable getValues(){
 		return values;
 	}
 
@@ -430,13 +430,13 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 * @return The gradient map.
 	 */
 	@Override
-	public Map<Long, RandomVariableInterface> getGradient(Set<Long> independentIDs) {
+	public Map<Long, RandomVariable> getGradient(Set<Long> independentIDs) {
 
 		// The map maintaining the derivatives id -> derivative
-		Map<Long, RandomVariableInterface> derivatives = new HashMap<Long, RandomVariableInterface>();
+		Map<Long, RandomVariable> derivatives = new HashMap<Long, RandomVariable>();
 
 		// Put derivative of this node w.r.t. itself
-		derivatives.put(getID(), new RandomVariable(1.0));
+		derivatives.put(getID(), new RandomVariableFromDoubleArray(1.0));
 
 		// The set maintaining the independents. Note: TreeMap is maintaining a sort on the keys.
 		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<Long, OperatorTreeNode>();
@@ -473,7 +473,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public Map<Long, RandomVariableInterface> getTangents(Set<Long> dependentIDs) {
+	public Map<Long, RandomVariable> getTangents(Set<Long> dependentIDs) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -483,7 +483,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public boolean equals(RandomVariableInterface randomVariable) {
+	public boolean equals(RandomVariable randomVariable) {
 		return getValues().equals(randomVariable);
 	}
 
@@ -538,7 +538,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getAverage(RandomVariableInterface probabilities) {
+	public double getAverage(RandomVariable probabilities) {
 		return getValues().getAverage(probabilities);
 	}
 
@@ -548,7 +548,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getVariance(RandomVariableInterface probabilities) {
+	public double getVariance(RandomVariable probabilities) {
 		return getValues().getVariance(probabilities);
 	}
 
@@ -563,7 +563,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariableInterface probabilities) {
+	public double getStandardDeviation(RandomVariable probabilities) {
 		return getValues().getStandardDeviation(probabilities);
 	}
 
@@ -573,7 +573,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getStandardError(RandomVariableInterface probabilities) {
+	public double getStandardError(RandomVariable probabilities) {
 		return getValues().getStandardError(probabilities);
 	}
 
@@ -583,7 +583,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
+	public double getQuantile(double quantile, RandomVariable probabilities) {
 		return getValues().getQuantile(quantile, probabilities);
 	}
 
@@ -607,130 +607,130 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public RandomVariableInterface cache() {
+	public RandomVariable cache() {
 		values = values.cache();
 		return this;
 	}
 
 	@Override
-	public RandomVariableInterface cap(double cap) {
+	public RandomVariable cap(double cap) {
 		return new RandomVariableDifferentiableAD(
 				getValues().cap(cap),
-				Arrays.asList(this, new RandomVariable(cap)),
+				Arrays.asList(this, new RandomVariableFromDoubleArray(cap)),
 				OperatorType.CAP);
 	}
 
 	@Override
-	public RandomVariableInterface floor(double floor) {
+	public RandomVariable floor(double floor) {
 		return new RandomVariableDifferentiableAD(
 				getValues().floor(floor),
-				Arrays.asList(this, new RandomVariable(floor)),
+				Arrays.asList(this, new RandomVariableFromDoubleArray(floor)),
 				OperatorType.FLOOR);
 	}
 
 	@Override
-	public RandomVariableInterface add(double value) {
+	public RandomVariable add(double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().add(value),
-				Arrays.asList(this, new RandomVariable(value)),
+				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
 				OperatorType.ADD);
 	}
 
 	@Override
-	public RandomVariableInterface sub(double value) {
+	public RandomVariable sub(double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().sub(value),
-				Arrays.asList(this, new RandomVariable(value)),
+				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
 				OperatorType.SUB);
 	}
 
 	@Override
-	public RandomVariableInterface mult(double value) {
+	public RandomVariable mult(double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().mult(value),
-				Arrays.asList(this, new RandomVariable(value)),
+				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
 				OperatorType.MULT);
 	}
 
 	@Override
-	public RandomVariableInterface div(double value) {
+	public RandomVariable div(double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().div(value),
-				Arrays.asList(this, new RandomVariable(value)),
+				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
 				OperatorType.DIV);
 	}
 
 	@Override
-	public RandomVariableInterface pow(double exponent) {
+	public RandomVariable pow(double exponent) {
 		return new RandomVariableDifferentiableAD(
 				getValues().pow(exponent),
-				Arrays.asList(this, new RandomVariable(exponent)),
+				Arrays.asList(this, new RandomVariableFromDoubleArray(exponent)),
 				OperatorType.POW);
 	}
 
 	@Override
-	public RandomVariableInterface average() {
+	public RandomVariable average() {
 		return new RandomVariableDifferentiableAD(
 				getValues().average(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.AVERAGE);
 	}
 
 	@Override
-	public RandomVariableInterface getConditionalExpectation(ConditionalExpectationEstimatorInterface estimator) {
+	public RandomVariable getConditionalExpectation(ConditionalExpectationEstimator estimator) {
 		return new RandomVariableDifferentiableAD(
 				getValues().average(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				estimator,
 				OperatorType.CONDITIONAL_EXPECTATION);
 
 	}
 
 	@Override
-	public RandomVariableInterface squared() {
+	public RandomVariable squared() {
 		return new RandomVariableDifferentiableAD(
 				getValues().squared(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.SQUARED);
 	}
 
 	@Override
-	public RandomVariableInterface sqrt() {
+	public RandomVariable sqrt() {
 		return new RandomVariableDifferentiableAD(
 				getValues().sqrt(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.SQRT);
 	}
 
 	@Override
-	public RandomVariableInterface exp() {
+	public RandomVariable exp() {
 		return new RandomVariableDifferentiableAD(
 				getValues().exp(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.EXP);
 	}
 
 	@Override
-	public RandomVariableInterface log() {
+	public RandomVariable log() {
 		return new RandomVariableDifferentiableAD(
 				getValues().log(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.LOG);
 	}
 
 	@Override
-	public RandomVariableInterface sin() {
+	public RandomVariable sin() {
 		return new RandomVariableDifferentiableAD(
 				getValues().sin(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.SIN);
 	}
 
 	@Override
-	public RandomVariableInterface cos() {
+	public RandomVariable cos() {
 		return new RandomVariableDifferentiableAD(
 				getValues().cos(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.COS);
 	}
 
@@ -739,7 +739,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
+	public RandomVariable add(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.add(this);
@@ -752,7 +752,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
+	public RandomVariable sub(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.bus(this);
@@ -765,7 +765,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+	public RandomVariable bus(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.sub(this);
@@ -778,7 +778,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
+	public RandomVariable mult(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.mult(this);
@@ -791,7 +791,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
+	public RandomVariable div(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.vid(this);
@@ -804,7 +804,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+	public RandomVariable vid(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.div(this);
@@ -817,7 +817,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface randomVariable) {
+	public RandomVariable cap(RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.cap(this);
@@ -830,7 +830,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface floor) {
+	public RandomVariable floor(RandomVariable floor) {
 		if(floor.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return floor.floor(this);
@@ -843,7 +843,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable accrue(RandomVariable rate, double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).mult(this);
@@ -851,12 +851,12 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 
 		return new RandomVariableDifferentiableAD(
 				getValues().accrue(rate.getValues(), periodLength),
-				Arrays.asList(this, rate, new RandomVariable(periodLength)),
+				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),
 				OperatorType.ACCRUE);
 	}
 
 	@Override
-	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).invert().mult(this);
@@ -864,7 +864,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 
 		return new RandomVariableDifferentiableAD(
 				getValues().discount(rate.getValues(), periodLength),
-				Arrays.asList(this, rate, new RandomVariable(periodLength)),
+				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),
 				OperatorType.DISCOUNT);
 	}
 
@@ -874,7 +874,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
 		return new RandomVariableDifferentiableAD(
 				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
 				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
@@ -882,23 +882,23 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface invert() {
+	public RandomVariable invert() {
 		return new RandomVariableDifferentiableAD(
 				getValues().invert(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.INVERT);
 	}
 
 	@Override
-	public RandomVariableInterface abs() {
+	public RandomVariable abs() {
 		return new RandomVariableDifferentiableAD(
 				getValues().abs(),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.ABS);
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
@@ -906,12 +906,12 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 
 		return new RandomVariableDifferentiableAD(
 				getValues().addProduct(factor1.getValues(), factor2),
-				Arrays.asList(this, factor1, new RandomVariable(factor2)),
+				Arrays.asList(this, factor1, new RandomVariableFromDoubleArray(factor2)),
 				OperatorType.ADDPRODUCT);
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority() || factor2.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
@@ -924,7 +924,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).add(this);
@@ -937,7 +937,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).mult(-1).add(this);
@@ -954,7 +954,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public RandomVariableInterface isNaN() {
+	public RandomVariable isNaN() {
 		return getValues().isNaN();
 	}
 
@@ -969,70 +969,70 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(DoubleUnaryOperator operator) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
+	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
-	public RandomVariableInterface getVarianceAsRandomVariableAAD(){
+	public RandomVariable getVarianceAsRandomVariableAAD(){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAD(
-				new RandomVariable(getVariance()),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				new RandomVariableFromDoubleArray(getVariance()),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.VARIANCE);
 	}
 
-	public RandomVariableInterface getSampleVarianceAsRandomVariableAAD() {
+	public RandomVariable getSampleVarianceAsRandomVariableAAD() {
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAD(
-				new RandomVariable(getSampleVariance()),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				new RandomVariableFromDoubleArray(getSampleVariance()),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.SVARIANCE);
 	}
 
-	public RandomVariableInterface 	getStandardDeviationAsRandomVariableAAD(){
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAD(
-				new RandomVariable(getStandardDeviation()),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				new RandomVariableFromDoubleArray(getStandardDeviation()),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.STDEV);
 	}
 
-	public RandomVariableInterface getStandardErrorAsRandomVariableAAD(){
+	public RandomVariable getStandardErrorAsRandomVariableAAD(){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAD(
-				new RandomVariable(getStandardError()),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				new RandomVariableFromDoubleArray(getStandardError()),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.STDERROR);
 	}
 
-	public RandomVariableInterface 	getMinAsRandomVariableAAD(){
+	public RandomVariable 	getMinAsRandomVariableAAD(){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAD(
-				new RandomVariable(getMin()),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				new RandomVariableFromDoubleArray(getMin()),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.MIN);
 	}
 
-	public RandomVariableInterface 	getMaxAsRandomVariableAAD(){
+	public RandomVariable 	getMaxAsRandomVariableAAD(){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAD(
-				new RandomVariable(getMax()),
-				Arrays.asList(new RandomVariableInterface[]{ this }),
+				new RandomVariableFromDoubleArray(getMax()),
+				Arrays.asList(new RandomVariable[]{ this }),
 				OperatorType.MAX);
 	}
 
 	@Override
-	public Map<Long, RandomVariableInterface> getTangents() {
+	public Map<Long, RandomVariable> getTangents() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * An indexed value. Implements the function J(t) V(t), where J(t) = E(I(t)|F_t) for the given I(t).
@@ -71,12 +71,12 @@ public class IndexedValue extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		double evaluationTimeUnderlying = Math.max(evaluationTime, exerciseDate);
 
-		RandomVariableInterface underlyingValues	= underlying.getValue(evaluationTimeUnderlying, model);
-		RandomVariableInterface indexValues			= index.getValue(exerciseDate, model);
+		RandomVariable underlyingValues	= underlying.getValue(evaluationTimeUnderlying, model);
+		RandomVariable indexValues			= index.getValue(exerciseDate, model);
 
 		// Make index measurable w.r.t time exerciseDate
 		if(indexValues.getFiltrationTime() > exerciseDate && exerciseDate > evaluationTime) {
@@ -91,8 +91,8 @@ public class IndexedValue extends AbstractProductComponent {
 
 		// Discount to evaluation time if necessary
 		if(evaluationTime != evaluationTimeUnderlying) {
-			RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
-			RandomVariableInterface	numeraire				= model.getNumeraire(evaluationTimeUnderlying);
+			RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			RandomVariable	numeraire				= model.getNumeraire(evaluationTimeUnderlying);
 			underlyingValues = underlyingValues.div(numeraire).mult(numeraireAtEval);
 		}
 
@@ -106,23 +106,23 @@ public class IndexedValue extends AbstractProductComponent {
 	 * @return
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private RandomVariableInterface[] getRegressionBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	private RandomVariable[] getRegressionBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
-		RandomVariableInterface basisFunction;
+		RandomVariable basisFunction;
 
 		// Constant
-		basisFunction = new RandomVariable(exerciseDate, 1.0);
+		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);
 		basisFunctions.add(basisFunction);
 
 		// LIBORs
 		int liborPeriodIndex, liborPeriodIndexEnd;
 		double periodLength;
-		RandomVariableInterface rate;
+		RandomVariable rate;
 
 		// 1 Period
-		basisFunction = new RandomVariable(exerciseDate, 1.0);
+		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
 		liborPeriodIndexEnd = liborPeriodIndex+1;
 		periodLength = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
@@ -135,7 +135,7 @@ public class IndexedValue extends AbstractProductComponent {
 		basisFunctions.add(basisFunction);
 
 		// n/2 Period
-		basisFunction = new RandomVariable(exerciseDate, 1.0);
+		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
 		liborPeriodIndexEnd = (liborPeriodIndex + model.getNumberOfLibors())/2;
 
@@ -152,7 +152,7 @@ public class IndexedValue extends AbstractProductComponent {
 		basisFunctions.add(basisFunction);
 
 		// n Period
-		basisFunction = new RandomVariable(exerciseDate, 1.0);
+		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);
 		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);
 		liborPeriodIndexEnd = model.getNumberOfLibors();
 		periodLength = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
@@ -164,6 +164,6 @@ public class IndexedValue extends AbstractProductComponent {
 		basisFunction = basisFunction.discount(rate, periodLength);
 		basisFunctions.add(basisFunction);
 
-		return basisFunctions.toArray(new RandomVariableInterface[0]);
+		return basisFunctions.toArray(new RandomVariable[0]);
 	}
 }

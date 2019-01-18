@@ -14,7 +14,7 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.IndependentIncrementsInterface;
+import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
@@ -28,10 +28,10 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackScholesModelDescriptor> {
 
 	private final AbstractRandomVariableFactory randomVariableFactory;
-	private final IndependentIncrementsInterface brownianMotion;
+	private final IndependentIncrements brownianMotion;
 
 
-	public BlackScholesModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory, IndependentIncrementsInterface brownianMotion) {
+	public BlackScholesModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory, IndependentIncrements brownianMotion) {
 		super();
 		this.randomVariableFactory = randomVariableFactory;
 		this.brownianMotion = brownianMotion;

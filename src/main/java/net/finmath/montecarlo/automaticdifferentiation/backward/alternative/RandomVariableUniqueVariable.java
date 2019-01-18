@@ -11,14 +11,14 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 
 import net.finmath.functions.DoubleTernaryOperator;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Stefan Sedlmair
  * @version 1.0
  */
-public class RandomVariableUniqueVariable implements RandomVariableInterface {
+public class RandomVariableUniqueVariable implements RandomVariable {
 
 	private static final long serialVersionUID = -2631868286977854016L;
 
@@ -38,7 +38,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	/**
 	 * <b>Do not use this constructor on its own.</b> It is thought only to be use by the {@link RandomVariableUniqueVariableFactory}!
 	 *
-	 * @param variableID is the index of the corresponding {@link RandomVariableInterface} in the ArrayList of the {@link RandomVariableUniqueVariableFactory}
+	 * @param variableID is the index of the corresponding {@link RandomVariable} in the ArrayList of the {@link RandomVariableUniqueVariableFactory}
 	 * @param isConstant If true, this is a constant.
 	 * @param parentVariables Indices of parents
 	 * @param parentOperatorType Operator
@@ -51,43 +51,43 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	public RandomVariableUniqueVariable(double time, double[] values, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
-		constructRandomVariableUniqueVariable(new RandomVariable(time, values), isConstant, parentVariables, parentOperatorType);
+		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), isConstant, parentVariables, parentOperatorType);
 	}
 
-	public RandomVariableUniqueVariable(RandomVariableInterface randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
+	public RandomVariableUniqueVariable(RandomVariable randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
 		constructRandomVariableUniqueVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
 	}
 
 	public RandomVariableUniqueVariable(double time, double[] values, boolean isConstant){
-		constructRandomVariableUniqueVariable(new RandomVariable(time, values), isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
+		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariableUniqueVariable(RandomVariableInterface randomVariable, boolean isConstant){
+	public RandomVariableUniqueVariable(RandomVariable randomVariable, boolean isConstant){
 		constructRandomVariableUniqueVariable(randomVariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
 	public RandomVariableUniqueVariable(double time, double[] values){
-		constructRandomVariableUniqueVariable(new RandomVariable(time, values), /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
+		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariableUniqueVariable(RandomVariableInterface randomVariable){
+	public RandomVariableUniqueVariable(RandomVariable randomVariable){
 		constructRandomVariableUniqueVariable(randomVariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
 	/**
-	 * Function calls {@link RandomVariableUniqueVariableFactory} to use the given {@link RandomVariable}
+	 * Function calls {@link RandomVariableUniqueVariableFactory} to use the given {@link RandomVariableFromDoubleArray}
 	 * and save it to its internal ArrayList. The index of the object will be give to the new {@link RandomVariableUniqueVariable}
 	 * object.
 	 *
 	 *  @param randomVariable
 	 *  @param isConstant
 	 * */
-	private void constructRandomVariableUniqueVariable(RandomVariableInterface randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
+	private void constructRandomVariableUniqueVariable(RandomVariable randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
 		/*
-		 * by calling the method in the factory it will produce a new object of RandomVariableInterface and
+		 * by calling the method in the factory it will produce a new object of RandomVariable and
 		 * the new item will be stored in its factory internal array list
 		 */
-		RandomVariableInterface normalrandomvariable = factory.createRandomVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
+		RandomVariable normalrandomvariable = factory.createRandomVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
 
 		/* by construction this object can be up-casted to RandomVariableUniqueVariable */
 		RandomVariableUniqueVariable newrandomvariableuniquevariable = (RandomVariableUniqueVariable)normalrandomvariable;
@@ -132,13 +132,13 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return parentOperatorType;
 	}
 
-	private ArrayList<RandomVariableInterface> getListOfAllVariables(){
+	private ArrayList<RandomVariable> getListOfAllVariables(){
 		return factory.getListOfAllVariables();
 	}
 
-	private ArrayList<RandomVariableInterface> getParentRandomVariables(){
+	private ArrayList<RandomVariable> getParentRandomVariables(){
 
-		ArrayList<RandomVariableInterface> parentrandomvariables = new ArrayList<>();
+		ArrayList<RandomVariable> parentrandomvariables = new ArrayList<>();
 
 		for(RandomVariableUniqueVariable parent:parentsVariables){
 			parentrandomvariables.add(parent.getRandomVariable());
@@ -147,7 +147,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return parentrandomvariables;
 	}
 
-	private RandomVariableInterface getRandomVariable(){
+	private RandomVariable getRandomVariable(){
 		return getListOfAllVariables().get(variableID);
 	}
 
@@ -160,10 +160,10 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#equals(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public boolean equals(RandomVariableInterface randomVariable) {
+	public boolean equals(RandomVariable randomVariable) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -184,7 +184,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#size()
+	 * @see net.finmath.stochastic.RandomVariable#size()
 	 */
 	@Override
 	public int size() {
@@ -192,7 +192,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#isDeterministic()
+	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
 	 */
 	@Override
 	public boolean isDeterministic() {
@@ -200,7 +200,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getRealizations()
+	 * @see net.finmath.stochastic.RandomVariable#getRealizations()
 	 */
 	@Override
 	public double[] getRealizations() {
@@ -213,7 +213,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMin()
+	 * @see net.finmath.stochastic.RandomVariable#getMin()
 	 */
 	@Override
 	public double getMin() {
@@ -222,7 +222,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getMax()
+	 * @see net.finmath.stochastic.RandomVariable#getMax()
 	 */
 	@Override
 	public double getMax() {
@@ -231,7 +231,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage()
+	 * @see net.finmath.stochastic.RandomVariable#getAverage()
 	 */
 	@Override
 	public double getAverage() {
@@ -240,16 +240,16 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getAverage(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getAverage(RandomVariableInterface probabilities) {
+	public double getAverage(RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance()
+	 * @see net.finmath.stochastic.RandomVariable#getVariance()
 	 */
 	@Override
 	public double getVariance() {
@@ -258,16 +258,16 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getVariance(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getVariance(RandomVariableInterface probabilities) {
+	public double getVariance(RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getSampleVariance()
+	 * @see net.finmath.stochastic.RandomVariable#getSampleVariance()
 	 */
 	@Override
 	public double getSampleVariance() {
@@ -276,7 +276,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation()
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation()
 	 */
 	@Override
 	public double getStandardDeviation() {
@@ -285,16 +285,16 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardDeviation(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardDeviation(RandomVariableInterface probabilities) {
+	public double getStandardDeviation(RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError()
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError()
 	 */
 	@Override
 	public double getStandardError() {
@@ -303,16 +303,16 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getStandardError(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariableInterface probabilities) {
+	public double getStandardError(RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(double)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double)
 	 */
 	@Override
 	public double getQuantile(double quantile) {
@@ -321,16 +321,16 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantile(double, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
+	public double getQuantile(double quantile, RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getQuantileExpectation(double, double)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantileExpectation(double, double)
 	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
@@ -339,7 +339,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(double[])
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(double[])
 	 */
 	@Override
 	public double[] getHistogram(double[] intervalPoints) {
@@ -347,7 +347,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#getHistogram(int, double)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int, double)
 	 */
 	@Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
@@ -355,265 +355,265 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cache()
+	 * @see net.finmath.stochastic.RandomVariable#cache()
 	 */
 	@Override
-	public RandomVariableInterface cache() {
+	public RandomVariable cache() {
 		return getRandomVariable().cache();
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#apply(java.util.function.DoubleUnaryOperator)
+	 * @see net.finmath.stochastic.RandomVariable#apply(java.util.function.DoubleUnaryOperator)
 	 */
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(double)
+	 * @see net.finmath.stochastic.RandomVariable#floor(double)
 	 */
 	@Override
-	public RandomVariableInterface floor(double floor) {
+	public RandomVariable floor(double floor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(double)
+	 * @see net.finmath.stochastic.RandomVariable#add(double)
 	 */
 	@Override
-	public RandomVariableInterface add(double value) {
+	public RandomVariable add(double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(double)
+	 * @see net.finmath.stochastic.RandomVariable#sub(double)
 	 */
 	@Override
-	public RandomVariableInterface sub(double value) {
+	public RandomVariable sub(double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(double)
+	 * @see net.finmath.stochastic.RandomVariable#mult(double)
 	 */
 	@Override
-	public RandomVariableInterface mult(double value) {
+	public RandomVariable mult(double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(double)
+	 * @see net.finmath.stochastic.RandomVariable#div(double)
 	 */
 	@Override
-	public RandomVariableInterface div(double value) {
+	public RandomVariable div(double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#pow(double)
+	 * @see net.finmath.stochastic.RandomVariable#pow(double)
 	 */
 	@Override
-	public RandomVariableInterface pow(double exponent) {
+	public RandomVariable pow(double exponent) {
 		return null;
 	}
 
 	@Override
-	public RandomVariableInterface average() {
+	public RandomVariable average() {
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#squared()
+	 * @see net.finmath.stochastic.RandomVariable#squared()
 	 */
 	@Override
-	public RandomVariableInterface squared() {
-		return apply(OperatorType.SQUARED, new RandomVariableInterface[] {this});
+	public RandomVariable squared() {
+		return apply(OperatorType.SQUARED, new RandomVariable[] {this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sqrt()
+	 * @see net.finmath.stochastic.RandomVariable#sqrt()
 	 */
 	@Override
-	public RandomVariableInterface sqrt() {
-		return apply(OperatorType.SQRT, new RandomVariableInterface[] {this});
+	public RandomVariable sqrt() {
+		return apply(OperatorType.SQRT, new RandomVariable[] {this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#exp()
+	 * @see net.finmath.stochastic.RandomVariable#exp()
 	 */
 	@Override
-	public RandomVariableInterface exp() {
-		return apply(OperatorType.EXP, new RandomVariableInterface[] {this});
+	public RandomVariable exp() {
+		return apply(OperatorType.EXP, new RandomVariable[] {this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#log()
+	 * @see net.finmath.stochastic.RandomVariable#log()
 	 */
 	@Override
-	public RandomVariableInterface log() {
-		return apply(OperatorType.LOG, new RandomVariableInterface[] {this});
+	public RandomVariable log() {
+		return apply(OperatorType.LOG, new RandomVariable[] {this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sin()
+	 * @see net.finmath.stochastic.RandomVariable#sin()
 	 */
 	@Override
-	public RandomVariableInterface sin() {
-		return apply(OperatorType.SIN, new RandomVariableInterface[] {this});
+	public RandomVariable sin() {
+		return apply(OperatorType.SIN, new RandomVariable[] {this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cos()
+	 * @see net.finmath.stochastic.RandomVariable#cos()
 	 */
 	@Override
-	public RandomVariableInterface cos() {
-		return apply(OperatorType.COS, new RandomVariableInterface[] {this});
+	public RandomVariable cos() {
+		return apply(OperatorType.COS, new RandomVariable[] {this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#add(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
-		return apply(OperatorType.ADD, new RandomVariableInterface[] {this, randomVariable});
+	public RandomVariable add(RandomVariable randomVariable) {
+		return apply(OperatorType.ADD, new RandomVariable[] {this, randomVariable});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#sub(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
-		return apply(OperatorType.SUB, new RandomVariableInterface[] {this, randomVariable});
+	public RandomVariable sub(RandomVariable randomVariable) {
+		return apply(OperatorType.SUB, new RandomVariable[] {this, randomVariable});
 	}
 
 	@Override
-	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
-		return apply(OperatorType.SUB, new RandomVariableInterface[] {randomVariable, this});
+	public RandomVariable bus(RandomVariable randomVariable) {
+		return apply(OperatorType.SUB, new RandomVariable[] {randomVariable, this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#mult(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
-		return apply(OperatorType.MULT, new RandomVariableInterface[] {this, randomVariable});
+	public RandomVariable mult(RandomVariable randomVariable) {
+		return apply(OperatorType.MULT, new RandomVariable[] {this, randomVariable});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#div(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#div(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
-		return apply(OperatorType.DIV, new RandomVariableInterface[] {this, randomVariable});
+	public RandomVariable div(RandomVariable randomVariable) {
+		return apply(OperatorType.DIV, new RandomVariable[] {this, randomVariable});
 	}
 
 	@Override
-	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
-		return apply(OperatorType.DIV, new RandomVariableInterface[] {randomVariable, this});
+	public RandomVariable vid(RandomVariable randomVariable) {
+		return apply(OperatorType.DIV, new RandomVariable[] {randomVariable, this});
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#cap(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#cap(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface cap) {
+	public RandomVariable cap(RandomVariable cap) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#floor(net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#floor(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface floor) {
+	public RandomVariable floor(RandomVariable floor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#accrue(net.finmath.stochastic.RandomVariableInterface, double)
+	 * @see net.finmath.stochastic.RandomVariable#accrue(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable accrue(RandomVariable rate, double periodLength) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#discount(net.finmath.stochastic.RandomVariableInterface, double)
+	 * @see net.finmath.stochastic.RandomVariable#discount(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#invert()
+	 * @see net.finmath.stochastic.RandomVariable#invert()
 	 */
 	@Override
-	public RandomVariableInterface invert() {
+	public RandomVariable invert() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#abs()
+	 * @see net.finmath.stochastic.RandomVariable#abs()
 	 */
 	@Override
-	public RandomVariableInterface abs() {
+	public RandomVariable abs() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, double)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addProduct(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#addRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#addRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#subRatio(net.finmath.stochastic.RandomVariableInterface, net.finmath.stochastic.RandomVariableInterface)
+	 * @see net.finmath.stochastic.RandomVariable#subRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#isNaN()
+	 * @see net.finmath.stochastic.RandomVariable#isNaN()
 	 */
 	@Override
-	public RandomVariableInterface isNaN() {
+	public RandomVariable isNaN() {
 		return getRandomVariable().isNaN();
 	}
 
@@ -628,11 +628,11 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		return (obj instanceof RandomVariableUniqueVariable);
 	}
 
-	/** Apply one of the possible {@link OperatorType} to an array of {@link RandomVariableInterface}s.
+	/** Apply one of the possible {@link OperatorType} to an array of {@link RandomVariable}s.
 	 *  If the entries in the array are not an instance of {@link RandomVariableUniqueVariable}
 	 *  generate a new {@link RandomVariableUniqueVariable} and consider them as constants.
 	 * */
-	private RandomVariableUniqueVariable apply(OperatorType operatortype, RandomVariableInterface[] operatorVariables){
+	private RandomVariableUniqueVariable apply(OperatorType operatortype, RandomVariable[] operatorVariables){
 
 		ArrayList<RandomVariableUniqueVariable> parentVariables = new ArrayList<>();
 
@@ -649,11 +649,11 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 			/* add current function variable to parentVariables of new RandomVariableUniqueVariable*/
 			parentVariables.add(i, (RandomVariableUniqueVariable) operatorVariables[i]);
 
-			/* get the underlying RandomVariable from the factory */
+			/* get the underlying RandomVariableFromDoubleArray from the factory */
 			operatorVariables[i] = parentVariables.get(i).getRandomVariable();
 		}
 
-		RandomVariableInterface resultrandomvariable;
+		RandomVariable resultrandomvariable;
 
 		switch(operatortype){
 		/* functions with one argument  */
@@ -707,25 +707,25 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	 *
 	 * @return gradient for the built up function
 	 * */
-	public RandomVariableInterface[] getGradient(){
+	public RandomVariable[] getGradient(){
 
 		// for now let us take the case for output-dimension equal to one!
 		int numberOfVariables = getNumberOfVariablesInList();
 		int numberOfCalculationSteps = factory.getNumberOfEntriesInList();
 
-		RandomVariableInterface[] omega_hat = new RandomVariableInterface[numberOfCalculationSteps];
+		RandomVariable[] omega_hat = new RandomVariable[numberOfCalculationSteps];
 
 		// first entry gets initialized
-		omega_hat[numberOfCalculationSteps-1] = new RandomVariable(1.0);
+		omega_hat[numberOfCalculationSteps-1] = new RandomVariableFromDoubleArray(1.0);
 
 		/*
 		 * TODO: Find way that calculations form here on are not 'recorded' by the factory
-		 * IDEA: Let the calculation below run on {@link RandomVariable}, ie cast everything down!
+		 * IDEA: Let the calculation below run on {@link RandomVariableFromDoubleArray}, ie cast everything down!
 		 * */
 
 		for(int functionIndex = numberOfCalculationSteps - 2; functionIndex > 0; functionIndex--){
 			// apply chain rule
-			omega_hat[functionIndex] = new RandomVariable(0.0);
+			omega_hat[functionIndex] = new RandomVariableFromDoubleArray(0.0);
 
 			/*TODO: save all D_{i,j}*\omega_j in vector and sum up later */
 			for(RandomVariableUniqueVariable parent:parentsVariables){
@@ -739,7 +739,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 		/* Due to the fact that we can still introduce 'new' true variables on the fly they are NOT the last couple of indices!
 		 * Thus save the indices of the true variables and recover them after finalizing all the calculations
 		 * IDEA: quit calculation after minimal true variable index is reached */
-		RandomVariableInterface[] gradient = new RandomVariableInterface[numberOfVariables];
+		RandomVariable[] gradient = new RandomVariable[numberOfVariables];
 
 		/* TODO: sort array in correct manner! */
 		int[] indicesOfVariables = getIDsOfVariablesInList();
@@ -787,14 +787,14 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	 * @param variableIndex
 	 * @return
 	 */
-	private RandomVariableInterface getPartialDerivative(int functionIndex, int variableIndex) {
+	private RandomVariable getPartialDerivative(int functionIndex, int variableIndex) {
 
-		if(!Arrays.asList(getParentIDs()).contains(variableIndex)) return new RandomVariable(0.0);
+		if(!Arrays.asList(getParentIDs()).contains(variableIndex)) return new RandomVariableFromDoubleArray(0.0);
 
 		RandomVariableUniqueVariable currentRandomVariable = (RandomVariableUniqueVariable) getListOfAllVariables().get(functionIndex);
-		ArrayList<RandomVariableInterface> currentParentRandomVaribles = currentRandomVariable.getParentRandomVariables();
+		ArrayList<RandomVariable> currentParentRandomVaribles = currentRandomVariable.getParentRandomVariables();
 
-		RandomVariableInterface resultrandomvariable;
+		RandomVariable resultrandomvariable;
 
 		switch(currentRandomVariable.getParentOperatorType()){
 		/* functions with one argument  */
@@ -819,10 +819,10 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 
 			/* functions with two arguments */
 		case ADD:
-			resultrandomvariable = new RandomVariable(1.0);
+			resultrandomvariable = new RandomVariableFromDoubleArray(1.0);
 			break;
 		case SUB:
-			resultrandomvariable = new RandomVariable(1.0);
+			resultrandomvariable = new RandomVariableFromDoubleArray(1.0);
 			if(variableIndex == currentRandomVariable.getParentIDs()[1]){
 				resultrandomvariable = resultrandomvariable.mult(-1.0);
 			}
@@ -861,7 +861,7 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface cap(double cap) {
+	public RandomVariable cap(double cap) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -877,17 +877,17 @@ public class RandomVariableUniqueVariable implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(DoubleUnaryOperator operator) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1, RandomVariableInterface argument2) {
+	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 }

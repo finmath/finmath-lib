@@ -5,8 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -68,10 +68,10 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface factorLoading[] = new RandomVariableInterface[correlationModel.getNumberOfFactors()];
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable factorLoading[] = new RandomVariable[correlationModel.getNumberOfFactors()];
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
-			RandomVariableInterface volatility = volatilityModel.getVolatility(timeIndex, component);
+			RandomVariable volatility = volatilityModel.getVolatility(timeIndex, component);
 			factorLoading[factorIndex] = volatility;
 			factorLoading[factorIndex] = factorLoading[factorIndex].mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
@@ -80,7 +80,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 

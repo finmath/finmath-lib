@@ -27,7 +27,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
@@ -46,7 +46,7 @@ import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximatio
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -152,7 +152,7 @@ public class LIBORMarketModelValuationTest {
 		 */
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve), randomVariableFactory, covarianceModel, calibrationItems, properties);
 
-		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
@@ -652,15 +652,15 @@ public class LIBORMarketModelValuationTest {
 		for(double payment = 5.0; payment < 20; payment += 0.5) {
 			double periodStart = fixing;
 			double periodEnd = fixing + 0.5;
-			RandomVariableInterface libor = liborMarketModel.getLIBOR(fixing, periodStart, periodEnd);
-			RandomVariableInterface numeraireAtPayment = liborMarketModel.getNumeraire(payment);
-			RandomVariableInterface numeraireAtEvaluation = liborMarketModel.getNumeraire(0);
+			RandomVariable libor = liborMarketModel.getLIBOR(fixing, periodStart, periodEnd);
+			RandomVariable numeraireAtPayment = liborMarketModel.getNumeraire(payment);
+			RandomVariable numeraireAtEvaluation = liborMarketModel.getNumeraire(0);
 
 			double value = libor.div(numeraireAtPayment).mult(numeraireAtEvaluation).getAverage();
 			double zeroCouponBondCorrespondingToPaymentTime = numeraireAtEvaluation.div(numeraireAtPayment).getAverage();
 			double rate = value / zeroCouponBondCorrespondingToPaymentTime;
 
-			RandomVariableInterface numeraireAtPeriodEnd = liborMarketModel.getNumeraire(periodEnd);
+			RandomVariable numeraireAtPeriodEnd = liborMarketModel.getNumeraire(periodEnd);
 			double zeroCouponBondCorrespondingToPeriodEnd = numeraireAtEvaluation.div(numeraireAtPeriodEnd).getAverage();
 			double forward = libor.div(numeraireAtPeriodEnd).mult(numeraireAtEvaluation).getAverage() / zeroCouponBondCorrespondingToPeriodEnd;
 
@@ -775,7 +775,7 @@ public class LIBORMarketModelValuationTest {
 		 * Test our calibration
 		 */
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 
 		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();

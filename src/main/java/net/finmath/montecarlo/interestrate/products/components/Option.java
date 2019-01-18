@@ -14,8 +14,8 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
@@ -178,29 +178,29 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		final RandomVariableInterface one	= model.getRandomVariableForConstant(1.0);
-		final RandomVariableInterface zero	= model.getRandomVariableForConstant(0.0);
+		final RandomVariable one	= model.getRandomVariableForConstant(1.0);
+		final RandomVariable zero	= model.getRandomVariableForConstant(0.0);
 
 		// TODO >=? -
 		if(evaluationTime > exerciseDate) {
 			return zero;
 		}
 
-		RandomVariableInterface values = underlying.getValue(exerciseDate, model);
-		RandomVariableInterface strike;
+		RandomVariable values = underlying.getValue(exerciseDate, model);
+		RandomVariable strike;
 		if(strikeProduct != null) {
 			strike = strikeProduct.getValue(exerciseDate, model);
 		} else {
 			strike = model.getRandomVariableForConstant(strikePrice);
 		}
 
-		RandomVariableInterface exerciseTrigger = values.sub(strike).mult(isCall ? 1.0 : -1.0);
+		RandomVariable exerciseTrigger = values.sub(strike).mult(isCall ? 1.0 : -1.0);
 
 		if(exerciseTrigger.getFiltrationTime() > exerciseDate) {
-			RandomVariableInterface filterNaN = exerciseTrigger.isNaN().sub(1.0).mult(-1.0);
-			RandomVariableInterface exerciseTriggerFiltered = exerciseTrigger.mult(filterNaN);
+			RandomVariable filterNaN = exerciseTrigger.isNaN().sub(1.0).mult(-1.0);
+			RandomVariable exerciseTriggerFiltered = exerciseTrigger.mult(filterNaN);
 
 			/*
 			 * Cut off two standard deviations from regression
@@ -209,20 +209,20 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 			double exerciseTriggerStdDev	= exerciseTriggerFiltered.getStandardDeviation();
 			double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-3.0*exerciseTriggerStdDev;
 			double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+3.0*exerciseTriggerStdDev;
-			RandomVariableInterface filter = exerciseTrigger.sub(exerciseTriggerFloor).choose(one, zero)
+			RandomVariable filter = exerciseTrigger.sub(exerciseTriggerFloor).choose(one, zero)
 					.mult(exerciseTrigger.sub(exerciseTriggerCap).mult(-1.0).choose(one, zero));
 			filter = filter.mult(filterNaN);
 			// Filter exerciseTrigger and regressionBasisFunctions
 			exerciseTrigger = exerciseTrigger.mult(filter);
 
-			RandomVariableInterface[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(evaluationTime, model) : getBasisFunctions(exerciseDate, model);
-			RandomVariableInterface[] filteredRegressionBasisFunctions	= new RandomVariableInterface[regressionBasisFunctions.length];
+			RandomVariable[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(evaluationTime, model) : getBasisFunctions(exerciseDate, model);
+			RandomVariable[] filteredRegressionBasisFunctions	= new RandomVariable[regressionBasisFunctions.length];
 			for(int i=0; i<regressionBasisFunctions.length; i++) {
 				filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
 			}
 
 			// Remove foresight through conditional expectation
-			ConditionalExpectationEstimatorInterface conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
+			ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
 			exerciseTrigger         = exerciseTrigger.getConditionalExpectation(conditionalExpectationOperator);
@@ -237,8 +237,8 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 
 		// Discount to evaluation time
 		if(evaluationTime != exerciseDate) {
-			RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
-			RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
+			RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			RandomVariable	numeraire				= model.getNumeraire(exerciseDate);
 			values = values.div(numeraire).mult(numeraireAtEval);
 		}
 
@@ -247,7 +247,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	}
 
 	@Override
-	public RandomVariableInterface[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
 		if(model instanceof LIBORModelMonteCarloSimulationInterface) {
 			return getBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationInterface)model);
 		}
@@ -264,11 +264,11 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @return Array of random variables.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariableInterface[] getBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable[] getBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
-		RandomVariableInterface basisFunction;
+		RandomVariable basisFunction;
 
 		// Constant
 		basisFunction = model.getRandomVariableForConstant(1.0);
@@ -276,7 +276,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 
 		// LIBORs
 		int liborPeriodIndex, liborPeriodIndexEnd;
-		RandomVariableInterface rate;
+		RandomVariable rate;
 
 		// 1 Period
 		basisFunction = model.getRandomVariableForConstant(1.0);
@@ -335,7 +335,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 			//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 		}
 
-		return basisFunctions.toArray(new RandomVariableInterface[0]);
+		return basisFunctions.toArray(new RandomVariable[0]);
 	}
 
 	@Override

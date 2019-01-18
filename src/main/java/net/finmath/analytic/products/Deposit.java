@@ -2,7 +2,7 @@ package net.finmath.analytic.products;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleInterface;
 
 /**
@@ -49,7 +49,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -68,10 +68,10 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 
 		double payoutDate	= schedule.getPeriodStart(0);
 		double periodLength = schedule.getPeriodLength(0);
-		RandomVariableInterface discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		RandomVariableInterface discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
+		RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);
+		RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
-		RandomVariableInterface value;
+		RandomVariable value;
 		if (evaluationTime > payoutDate) {
 			value = discountFactor.mult(1.0 + rate * periodLength);
 		}
@@ -88,7 +88,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param model The given model containing the curve of name <code>discountCurveName</code>.
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
-	public RandomVariableInterface getRate(AnalyticModelInterface model) {
+	public RandomVariable getRate(AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -102,8 +102,8 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 		double maturity = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
 
-		RandomVariableInterface discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		RandomVariableInterface discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
+		RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);
+		RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
 		return discountFactorPayout.div(discountFactor).sub(1).div(periodLength);
 	}

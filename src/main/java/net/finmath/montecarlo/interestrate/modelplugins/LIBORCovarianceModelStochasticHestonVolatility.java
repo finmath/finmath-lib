@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -29,7 +29,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * from the given covariance model.
  *
  * The process uses the first factor of the Brownian motion provided by an object implementing
- * {@link net.finmath.montecarlo.BrownianMotionInterface}. This can be used to generate correlations to
+ * {@link net.finmath.montecarlo.BrownianMotion}. This can be used to generate correlations to
  * other objects. If you like to reuse a factor of another Brownian motion use a
  * {@link net.finmath.montecarlo.BrownianMotionView}
  * to delegate \( ( \mathrm{d} W_{1}(t) ) \) to a different object.
@@ -52,7 +52,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	private static final long serialVersionUID = -1907512921302707075L;
 
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
-	private BrownianMotionInterface brownianMotion;
+	private BrownianMotion brownianMotion;
 	private	double kappa, theta, xi;
 
 	private boolean isCalibrateable = false;
@@ -63,13 +63,13 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
 	 *
 	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
-	 * @param brownianMotion An object implementing {@link BrownianMotionInterface} with at least two factors. This class uses the first two factors, but you may use {@link net.finmath.montecarlo.BrownianMotionView} to change this.
+	 * @param brownianMotion An object implementing {@link BrownianMotion} with at least two factors. This class uses the first two factors, but you may use {@link net.finmath.montecarlo.BrownianMotionView} to change this.
 	 * @param kappa The initial value for <i>&kappa;</i>, the mean reversion speed of the variance process V.
 	 * @param theta The initial value for <i>&theta;</i> the mean reversion level of the variance process V.
 	 * @param xi The initial value for <i>&xi;</i> the volatility of the variance process V.
 	 * @param isCalibrateable If true, the parameters <i>&nu;</i> and <i>&rho;</i> are parameters. Note that the covariance model (<code>covarianceModel</code>) may have its own parameter calibration settings.
 	 */
-	public LIBORCovarianceModelStochasticHestonVolatility(AbstractLIBORCovarianceModelParametric covarianceModel, BrownianMotionInterface brownianMotion, double kappa, double theta, double xi, boolean isCalibrateable) {
+	public LIBORCovarianceModelStochasticHestonVolatility(AbstractLIBORCovarianceModelParametric covarianceModel, BrownianMotion brownianMotion, double kappa, double theta, double xi, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 
 		this.covarianceModel = covarianceModel;
@@ -139,7 +139,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
 
 		synchronized (this) {
 			if(stochasticVolatilityScalings == null) {
@@ -166,7 +166,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 					}
 
 					@Override
-					public RandomVariableInterface getNumeraire(double time) {
+					public RandomVariable getNumeraire(double time) {
 						return null;
 					}
 
@@ -181,32 +181,32 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 					}
 
 					@Override
-					public RandomVariableInterface[] getInitialState() {
-						return new RandomVariableInterface[] { brownianMotion.getRandomVariableForConstant(1.0) };
+					public RandomVariable[] getInitialState() {
+						return new RandomVariable[] { brownianMotion.getRandomVariableForConstant(1.0) };
 					}
 
 					@Override
-					public RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex) {
-						return new RandomVariableInterface[] { realizationAtTimeIndex[0].floor(0).sqrt().mult(xi) };
+					public RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex) {
+						return new RandomVariable[] { realizationAtTimeIndex[0].floor(0).sqrt().mult(xi) };
 					}
 
 					@Override
-					public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
-						return new RandomVariableInterface[] { realizationAtTimeIndex[0].sub(theta).mult(-kappa) };
+					public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+						return new RandomVariable[] { realizationAtTimeIndex[0].sub(theta).mult(-kappa) };
 					}
 
 					@Override
-					public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+					public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 						return randomVariable;
 					}
 
 					@Override
-					public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+					public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 						return randomVariable;
 					}
 
 					@Override
-					public RandomVariableInterface getRandomVariableForConstant(double value) {
+					public RandomVariable getRandomVariableForConstant(double value) {
 						return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 					}
 
@@ -219,14 +219,14 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 			}
 		}
 
-		RandomVariableInterface stochasticVolatilityScaling = null;
+		RandomVariable stochasticVolatilityScaling = null;
 		try {
 			stochasticVolatilityScaling = stochasticVolatilityScalings.getProcessValue(timeIndex,0);
 		} catch (CalculationException e) {
 			// Exception is not handled explicitly, we just return null
 		}
 
-		RandomVariableInterface[] factorLoading = null;
+		RandomVariable[] factorLoading = null;
 
 		if(stochasticVolatilityScaling != null) {
 			factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
@@ -239,7 +239,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		return null;
 	}
 }

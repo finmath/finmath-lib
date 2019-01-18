@@ -20,7 +20,7 @@ import net.finmath.analytic.model.curves.ForwardCurveInterface;
 import net.finmath.analytic.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements a collection of market data objects (e.g., discount curves, forward curve)
@@ -95,7 +95,7 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
 
@@ -248,14 +248,14 @@ public class AnalyticModel implements AnalyticModelInterface, Serializable, Clon
 	}
 
 	@Override
-	public AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, RandomVariableInterface[]> curveParameterPairs) throws CloneNotSupportedException {
+	public AnalyticModelInterface getCloneForParameter(Map<ParameterObjectInterface, RandomVariable[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
 		AnalyticModel modelClone = clone();
 
 		// Add modified clones of curves to model clone
 		if(curveParameterPairs != null) {
-			for(Entry<ParameterObjectInterface, RandomVariableInterface[]> curveParameterPair : curveParameterPairs.entrySet()) {
+			for(Entry<ParameterObjectInterface, RandomVariable[]> curveParameterPair : curveParameterPairs.entrySet()) {
 				ParameterObjectInterface newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
 				modelClone.set(newCurve);
 			}

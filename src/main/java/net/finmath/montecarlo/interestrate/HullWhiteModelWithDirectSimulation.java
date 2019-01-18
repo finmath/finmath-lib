@@ -13,11 +13,11 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -114,13 +114,13 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	private DiscountCurveInterface			discountCurveFromForwardCurve;
 
 	// Cache for the numeraires, needs to be invalidated if process changes
-	private final ConcurrentHashMap<Integer, RandomVariableInterface>	numeraires;
+	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
 	private AbstractProcessInterface									numerairesProcess = null;
 
 	private final ShortRateVolatilityModelInterface volatilityModel;
 
 	// Initialized lazily using process time discretization
-	private RandomVariableInterface[] initialState;
+	private RandomVariable[] initialState;
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
@@ -158,29 +158,29 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
-	public RandomVariableInterface[] getInitialState() {
+	public RandomVariable[] getInitialState() {
 		if(initialState == null) {
 			double dt = getProcess().getTimeDiscretization().getTimeStep(0);
-			initialState = new RandomVariableInterface[] { new RandomVariable(Math.log(discountCurveFromForwardCurve.getDiscountFactor(0.0)/discountCurveFromForwardCurve.getDiscountFactor(dt))/dt) };
+			initialState = new RandomVariable[] { new RandomVariableFromDoubleArray(Math.log(discountCurveFromForwardCurve.getDiscountFactor(0.0)/discountCurveFromForwardCurve.getDiscountFactor(dt))/dt) };
 		}
 
 		return initialState;
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(double time) throws CalculationException {
 		if(time == getTime(0)) {
-			return new RandomVariable(1.0);
+			return new RandomVariableFromDoubleArray(1.0);
 		}
 
 		int timeIndex = getProcess().getTimeIndex(time);
@@ -198,10 +198,10 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 			double previousTime = getProcess().getTime(previousTimeIndex);
 
 			// Get value of short rate for period from previousTime to time.
-			RandomVariableInterface rate = getShortRate(previousTimeIndex);
+			RandomVariable rate = getShortRate(previousTimeIndex);
 
 			// Piecewise constant rate for the increment
-			RandomVariableInterface integratedRate = rate.mult(time-previousTime);
+			RandomVariable integratedRate = rate.mult(time-previousTime);
 
 			return getNumeraire(previousTime).mult(integratedRate.exp());
 		}
@@ -217,16 +217,16 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		/*
 		 * Check if numeraire is part of the cache
 		 */
-		RandomVariableInterface numeraire = numeraires.get(timeIndex);
+		RandomVariable numeraire = numeraires.get(timeIndex);
 		if(numeraire == null) {
 			/*
 			 * Calculate the numeraire for timeIndex
 			 */
-			RandomVariableInterface zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
-			RandomVariableInterface integratedRate = zero;
+			RandomVariable zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+			RandomVariable integratedRate = zero;
 			// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 			for(int i=0; i<timeIndex; i++) {
-				RandomVariableInterface rate = getShortRate(i);
+				RandomVariable rate = getShortRate(i);
 				double dt = getProcess().getTimeDiscretization().getTimeStep(i);
 				//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
 				integratedRate = integratedRate.addProduct(rate, dt);
@@ -249,7 +249,7 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	}
 
 	@Override
-	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 
 		double time = getProcess().getTime(timeIndex);
 		double timeNext = getProcess().getTime(timeIndex+1);
@@ -282,19 +282,19 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		 */
 		double theta = forwardChange + meanReversionEffective * forward + phi;
 
-		return new RandomVariableInterface[] { realizationAtTimeIndex[0].mult(-meanReversionEffective).add(theta) };
+		return new RandomVariable[] { realizationAtTimeIndex[0].mult(-meanReversionEffective).add(theta) };
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex) {
 		double time = getProcess().getTime(timeIndex);
 		double timeNext = getProcess().getTime(timeIndex+1);
 
@@ -307,17 +307,17 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
 		double volatilityEffective = scaling*volatilityModel.getVolatility(timeIndexVolatility);
 
-		return new RandomVariableInterface[] { new RandomVariable(volatilityEffective) };
+		return new RandomVariable[] { new RandomVariableFromDoubleArray(volatilityEffective) };
 	}
 
 	@Override
-	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	public RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
 	{
 		return getZeroCouponBond(time, periodStart).div(getZeroCouponBond(time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
 	}
 
 	@Override
-	public RandomVariableInterface getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
+	public RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
 		return getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex)).div(getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex+1))).sub(1.0).div(getLiborPeriodDiscretization().getTimeStep(liborIndex));
 	}
 
@@ -361,14 +361,14 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 		throw new UnsupportedOperationException();
 	}
 
-	private RandomVariableInterface getShortRate(int timeIndex) throws CalculationException {
-		RandomVariableInterface value = getProcess().getProcessValue(timeIndex, 0);
+	private RandomVariable getShortRate(int timeIndex) throws CalculationException {
+		RandomVariable value = getProcess().getProcessValue(timeIndex, 0);
 		return value;
 	}
 
-	private RandomVariableInterface getZeroCouponBond(double time, double maturity) throws CalculationException {
+	private RandomVariable getZeroCouponBond(double time, double maturity) throws CalculationException {
 		int timeIndex = getProcess().getTimeIndex(time);
-		RandomVariableInterface shortRate = getShortRate(timeIndex);
+		RandomVariable shortRate = getShortRate(timeIndex);
 		double A = getA(time, maturity);
 		double B = getB(time, maturity);
 		return shortRate.mult(-B).exp().mult(A);
@@ -603,7 +603,7 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	}
 
 	@Override
-	public Map<String, RandomVariableInterface> getModelParameters() {
+	public Map<String, RandomVariable> getModelParameters() {
 		// TODO Add implementation
 		throw new UnsupportedOperationException();
 	}

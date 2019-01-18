@@ -9,7 +9,7 @@ package net.finmath.montecarlo.hybridassetinterestrate;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
@@ -48,7 +48,7 @@ public class ModelFactory {
 	 * to a given Black-Scholes implied volatility.
 	 *
 	 * @param baseModel LIBOR model providing the stochastic numeraire.
-	 * @param brownianMotion {@link BrownianMotionInterface} for the asset process.
+	 * @param brownianMotion {@link BrownianMotion} for the asset process.
 	 * @param initialValues Initial value of the asset process.
 	 * @param riskFreeRate Not used (internally used to generate paths, will be later adjusted)
 	 * @param correlations Correlation of the asset processes.
@@ -61,7 +61,7 @@ public class ModelFactory {
 	 */
 	public HybridAssetLIBORModelMonteCarloSimulationInterface getHybridAssetLIBORModel(
 			final LIBORModelMonteCarloSimulationInterface baseModel,
-			final BrownianMotionInterface brownianMotion,
+			final BrownianMotion brownianMotion,
 			final double[] initialValues,
 			final double riskFreeRate,
 			final double[][] correlations,

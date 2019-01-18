@@ -11,7 +11,7 @@ import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimul
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
@@ -49,7 +49,7 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		/*
 		 * The following valuation code requires in-depth knowledge of the model to calculate the denstiy analytically.
@@ -69,24 +69,24 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 		}
 
 		// Get underlying and numeraire
-		RandomVariableInterface underlyingAtMaturity	= model.getAssetValue(maturity,0);
-		RandomVariableInterface underlyingAtToday		= model.getAssetValue(0.0,0);
+		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
 
 		// Get some model parameters
 		double T		= maturity-evaluationTime;
 		double r		= blackScholesModel.getRiskFreeRate().doubleValue();
 		double sigma	= blackScholesModel.getVolatility().doubleValue();
 
-		RandomVariableInterface lr = underlyingAtMaturity.log().sub(underlyingAtToday.log()).sub(r * T - 0.5 * sigma*sigma * T).div(sigma * sigma * T).div(underlyingAtToday);
+		RandomVariable lr = underlyingAtMaturity.log().sub(underlyingAtToday.log()).sub(r * T - 0.5 * sigma*sigma * T).div(sigma * sigma * T).div(underlyingAtToday);
 
-		RandomVariableInterface payoff = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));
+		RandomVariable payoff = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));
 
-		RandomVariableInterface modifiedPayoff = payoff.mult(lr);
+		RandomVariable modifiedPayoff = payoff.mult(lr);
 
-		RandomVariableInterface numeraireAtMaturity	= model.getNumeraire(maturity);
-		RandomVariableInterface numeraireAtToday		= model.getNumeraire(0);
-		RandomVariableInterface monteCarloWeightsAtMaturity		= model.getMonteCarloWeights(maturity);
-		RandomVariableInterface monteCarloWeightsAtToday		= model.getMonteCarloWeights(maturity);
+		RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
+		RandomVariable numeraireAtToday		= model.getNumeraire(0);
+		RandomVariable monteCarloWeightsAtMaturity		= model.getMonteCarloWeights(maturity);
+		RandomVariable monteCarloWeightsAtToday		= model.getMonteCarloWeights(maturity);
 
 		return modifiedPayoff.div(numeraireAtMaturity).mult(numeraireAtToday).mult(monteCarloWeightsAtMaturity).div(monteCarloWeightsAtToday);
 	}

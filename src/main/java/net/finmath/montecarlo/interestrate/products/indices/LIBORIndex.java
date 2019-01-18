@@ -14,7 +14,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
@@ -75,7 +75,7 @@ public class LIBORIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// Check if model provides this index
 		if(getName() != null && model.getModel().getForwardRateCurve().getName() != null) {
@@ -98,7 +98,7 @@ public class LIBORIndex extends AbstractIndex {
 		/*
 		 * Fetch forward rate from model
 		 */
-		RandomVariableInterface forwardRate = model.getLIBOR(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
+		RandomVariable forwardRate = model.getLIBOR(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
 
 		if(getName() != null && !model.getModel().getForwardRateCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds

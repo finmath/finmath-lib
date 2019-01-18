@@ -19,18 +19,18 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
-import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanDigitalOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanDigitalOption.ExerciseMethod;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -122,9 +122,9 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableInterface riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableInterface volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		RandomVariable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		RandomVariable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		RandomVariable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
 		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
@@ -133,7 +133,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -141,7 +141,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		/*
 		 * Value a call option (using the product implementation)
 		 */
-		RandomVariableInterface value = product.getValue(0.0, monteCarloBlackScholesModel);
+		RandomVariable value = product.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate value
@@ -179,9 +179,9 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableDifferentiableInterface initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableDifferentiableInterface riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableDifferentiableInterface volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
 		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
@@ -190,17 +190,17 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
-		RandomVariableInterface value = product.getValue(0.0, monteCarloBlackScholesModel);
+		RandomVariable value = product.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate sensitivities using AAD
 		 */
-		Map<Long, RandomVariableInterface> derivative = ((RandomVariableDifferentiableInterface)value).getGradient();
+		Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
 
 		double valueMonteCarlo = value.getAverage();
 		double deltaAAD = derivative.get(initialValue.getID()).getAverage();

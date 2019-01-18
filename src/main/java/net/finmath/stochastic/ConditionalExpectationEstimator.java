@@ -12,7 +12,7 @@ package net.finmath.stochastic;
  * @author Christian Fries
  * @version 1.0
  */
-public interface ConditionalExpectationEstimatorInterface {
+public interface ConditionalExpectationEstimator {
 
 	/**
 	 * Return the conditional expectation of a given random variable.
@@ -21,5 +21,5 @@ public interface ConditionalExpectationEstimatorInterface {
 	 * @param randomVariable Given random variable.
 	 * @return The conditional expectation of <code>randomVariable</code>.
 	 */
-	RandomVariableInterface getConditionalExpectation(RandomVariableInterface randomVariable);
+	RandomVariable getConditionalExpectation(RandomVariable randomVariable);
 }

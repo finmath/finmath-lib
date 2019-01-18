@@ -9,7 +9,7 @@ import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * An capped and floored index paying min(max(index(t),floor(t)),cap(t)), where index, floor and cap are indices,
@@ -41,8 +41,8 @@ public class CappedFlooredIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface indexValues = index.getValue(evaluationTime, model);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		RandomVariable indexValues = index.getValue(evaluationTime, model);
 
 		if(floor != null) {
 			indexValues = indexValues.floor(floor.getValue(evaluationTime, model));

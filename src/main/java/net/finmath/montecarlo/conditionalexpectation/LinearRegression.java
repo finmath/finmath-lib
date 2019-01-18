@@ -6,23 +6,23 @@
 package net.finmath.montecarlo.conditionalexpectation;
 
 import net.finmath.functions.LinearAlgebra;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
- * Performs a linear regression on random variables implementing RandomVariableInterface.
+ * Performs a linear regression on random variables implementing RandomVariable.
  *
  * @author Christian Fries
  */
 public class LinearRegression {
 
-	private final RandomVariableInterface[] basisFunctions;
+	private final RandomVariable[] basisFunctions;
 
 	/**
 	 * Create the linear regression with a set of basis functions.
 	 *
 	 * @param basisFunctions A vector of (independent) random variables to be used as basis functions.
 	 */
-	public LinearRegression(RandomVariableInterface[] basisFunctions) {
+	public LinearRegression(RandomVariable[] basisFunctions) {
 		super();
 		this.basisFunctions = basisFunctions;
 	}
@@ -33,7 +33,7 @@ public class LinearRegression {
 	 * @param value The random variable to regress.
 	 * @return The vector of regression coefficients.
 	 */
-	public double[] getRegressionCoefficients(RandomVariableInterface value) {
+	public double[] getRegressionCoefficients(RandomVariable value) {
 		if(basisFunctions.length == 0) {
 			return new double[] { };
 		}

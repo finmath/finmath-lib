@@ -3,7 +3,7 @@
  */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Stefan Sedlmair
@@ -35,7 +35,7 @@ public class RandomVariableUniqueVariableTest {
 		RandomVariableUniqueVariable f = (RandomVariableUniqueVariable) e.exp();
 		System.out.println(f);
 
-		RandomVariableInterface[] g =  f.getGradient();
+		RandomVariable[] g =  f.getGradient();
 		for(int i = 0; i < g.length; i++){
 			System.out.println(g[i]);
 		}

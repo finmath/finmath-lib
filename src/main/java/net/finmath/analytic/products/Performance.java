@@ -6,7 +6,7 @@
 package net.finmath.analytic.products;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements an analytic product given by the ratio
@@ -39,12 +39,12 @@ public class Performance extends AbstractAnalyticProduct implements AnalyticProd
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 
-		RandomVariableInterface valueNumerator	= productNumerator.getValue(evaluationTime, model);
-		RandomVariableInterface valueDenominator	= productDenominator.getValue(evaluationTime, model);
+		RandomVariable valueNumerator	= productNumerator.getValue(evaluationTime, model);
+		RandomVariable valueDenominator	= productDenominator.getValue(evaluationTime, model);
 
-		RandomVariableInterface value = valueNumerator.div(valueDenominator);
+		RandomVariable value = valueNumerator.div(valueDenominator);
 		return value;
 	}
 

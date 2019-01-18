@@ -16,7 +16,7 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
@@ -151,9 +151,9 @@ public class CMSOptionTest {
 						new LIBORCorrelationModelExponentialDecay(timeDiscretization, tenorDiscretization, numberOfFactors, correlationDecay, false))
 				);
 
-		BrownianMotion brownianMotion = new BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		BrownianMotionLazyInit brownianMotionLazyInit = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
+		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotionLazyInit);
 		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(liborMarketModel, process);

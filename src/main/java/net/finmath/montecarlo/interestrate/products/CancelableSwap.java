@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.ConditionalExpectationEstimatorInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
@@ -61,10 +61,10 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
-		RandomVariableInterface values = new RandomVariable(fixingDates[fixingDates.length-1], 0.0);
+		RandomVariable values = new RandomVariableFromDoubleArray(fixingDates[fixingDates.length-1], 0.0);
 
 		// Loop backward over the swap periods
 		for(int period=fixingDates.length-1; period>=0; period--)
@@ -76,12 +76,12 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 			double swaprate		= swaprates[period];
 
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			RandomVariableInterface	libor					= model.getLIBOR(fixingDate, fixingDate, fixingDate+periodLength);
-			RandomVariableInterface	numeraire               = model.getNumeraire(paymentDate);
-			RandomVariableInterface	monteCarloProbabilities = model.getMonteCarloWeights(paymentDate);
+			RandomVariable	libor					= model.getLIBOR(fixingDate, fixingDate, fixingDate+periodLength);
+			RandomVariable	numeraire               = model.getNumeraire(paymentDate);
+			RandomVariable	monteCarloProbabilities = model.getMonteCarloWeights(paymentDate);
 
 			// foreach(path) values[path] += notional * (libor.get(path) - swaprate) * periodLength / numeraire.get(path) * monteCarloProbabilities.get(path);
-			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength).mult(notional);
+			RandomVariable payoff = libor.sub(swaprate).mult(periodLength).mult(notional);
 
 			// Apply discounting and Monte-Carlo probabilities
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
@@ -90,10 +90,10 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 
 			if(isPeriodStartDateExerciseDate[period]) {
 				// Remove foresight through condition expectation
-				ConditionalExpectationEstimatorInterface condExpEstimator = getConditionalExpectationEstimator(period, model);
+				ConditionalExpectationEstimator condExpEstimator = getConditionalExpectationEstimator(period, model);
 
 				// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
-				RandomVariableInterface valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);
+				RandomVariable valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);
 
 				// Apply the exercise criteria
 				// foreach(path) if(valueIfExcercided.get(path) < 0.0) values[path] = 0.0;
@@ -101,8 +101,8 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 			}
 		}
 
-		RandomVariableInterface	numeraireAtZero						= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtZero		= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtZero						= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtZero		= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return values;
@@ -114,8 +114,8 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * @return
 	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private ConditionalExpectationEstimatorInterface getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		ConditionalExpectationEstimatorInterface condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(fixingDates[fixingDateIndex], model));
+	private ConditionalExpectationEstimator getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(fixingDates[fixingDateIndex], model));
 		return condExpEstimator;
 	}
 
@@ -127,13 +127,13 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * @return The basis functions for the regression suitable for this product.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private RandomVariableInterface[] getRegressionBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	private RandomVariable[] getRegressionBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
-		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<>();
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		// Constant
 		// @TODO Use non differentiable
-		RandomVariableInterface basisFunction = new RandomVariable(1.0);//.getRandomVariableForConstant(1.0);
+		RandomVariable basisFunction = new RandomVariableFromDoubleArray(1.0);//.getRandomVariableForConstant(1.0);
 		basisFunctions.add(basisFunction);
 
 		int fixingDateIndex = Arrays.binarySearch(fixingDates, fixingDate);
@@ -145,21 +145,21 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 		}
 
 		// forward rate to the next period
-		RandomVariableInterface rateShort = model.getLIBOR(fixingDate, fixingDate, paymentDates[fixingDateIndex+1]);
-		RandomVariableInterface bondShort = rateShort.mult(paymentDates[fixingDateIndex+1]-fixingDate).add(1.0).invert();
+		RandomVariable rateShort = model.getLIBOR(fixingDate, fixingDate, paymentDates[fixingDateIndex+1]);
+		RandomVariable bondShort = rateShort.mult(paymentDates[fixingDateIndex+1]-fixingDate).add(1.0).invert();
 		basisFunctions.add(bondShort);
 		basisFunctions.add(bondShort.pow(2.0));
 		basisFunctions.add(bondShort.pow(3.0));
 
 		// forward rate to the end of the product
-		RandomVariableInterface rateLong = model.getLIBOR(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);
-		RandomVariableInterface bondLong = rateLong.mult(paymentDates[paymentDates.length-1]-fixingDates[fixingDateIndex]).add(1.0).invert();
+		RandomVariable rateLong = model.getLIBOR(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);
+		RandomVariable bondLong = rateLong.mult(paymentDates[paymentDates.length-1]-fixingDates[fixingDateIndex]).add(1.0).invert();
 		basisFunctions.add(bondLong);
 		basisFunctions.add(bondLong.pow(2.0));
 		basisFunctions.add(bondLong.pow(3.0));
 
 		// Numeraire
-		RandomVariableInterface numeraire = model.getNumeraire(fixingDate);
+		RandomVariable numeraire = model.getNumeraire(fixingDate);
 		basisFunctions.add(numeraire);
 		basisFunctions.add(numeraire.pow(2.0));
 		basisFunctions.add(numeraire.pow(3.0));
@@ -167,6 +167,6 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 		// Cross
 		basisFunctions.add(rateLong.mult(numeraire));
 
-		return basisFunctions.toArray(new RandomVariableInterface[basisFunctions.size()]);
+		return basisFunctions.toArray(new RandomVariable[basisFunctions.size()]);
 	}
 }

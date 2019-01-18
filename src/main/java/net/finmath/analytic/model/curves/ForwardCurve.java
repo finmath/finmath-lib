@@ -14,9 +14,9 @@ import java.util.stream.DoubleStream;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
@@ -80,7 +80,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 		this.interpolationEntityForward	= interpolationEntityForward;
 
 		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
-			super.addPoint(0.0, new RandomVariable(1.0), false);
+			super.addPoint(0.0, new RandomVariableFromDoubleArray(1.0), false);
 		}
 	}
 
@@ -143,7 +143,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode,
 			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
-			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariableInterface[] givenForwards) {
+			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariable[] givenForwards) {
 
 		ForwardCurve forwardCurve = new ForwardCurve(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,
 				interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName);
@@ -176,7 +176,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode,
 			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
-			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariableInterface[] givenForwards) {
+			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariable[] givenForwards) {
 
 		return createForwardCurveFromForwards(name, referenceDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);
 	}
@@ -194,7 +194,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, String interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariableInterface[] givenForwards) {
+	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, String interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariable[] givenForwards) {
 		return createForwardCurveFromForwards(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.valueOf(interpolationEntityForward), discountCurveName, model, times, givenForwards);
 	}
 
@@ -211,7 +211,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariableInterface[] givenForwards) {
+	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariable[] givenForwards) {
 		ForwardCurve forwardCurve = new ForwardCurve(name, referenceDate, paymentOffsetCode, interpolationEntityForward, discountCurveName);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -230,7 +230,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, double[] times, RandomVariableInterface[] givenForwards, double paymentOffset) {
+	public static ForwardCurve createForwardCurveFromForwards(String name, double[] times, RandomVariable[] givenForwards, double paymentOffset) {
 		ForwardCurve forwardCurve = new ForwardCurve(name, paymentOffset, InterpolationEntityForward.FORWARD, null);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -257,7 +257,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromDiscountFactors(String name, double[] times, RandomVariableInterface[] givenDiscountFactors, double paymentOffset) {
+	public static ForwardCurve createForwardCurveFromDiscountFactors(String name, double[] times, RandomVariable[] givenDiscountFactors, double paymentOffset) {
 		ForwardCurve forwardCurve = new ForwardCurve(name, paymentOffset, InterpolationEntityForward.FORWARD, null);
 
 		if(times.length == 0) {
@@ -266,12 +266,12 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 
 		if(times[0] > 0) {
 			// Add first forward
-			RandomVariableInterface forward = givenDiscountFactors[0].sub(1.0).pow(-1.0).div(times[0]);
+			RandomVariable forward = givenDiscountFactors[0].sub(1.0).pow(-1.0).div(times[0]);
 			forwardCurve.addForward(null, 0.0, forward, true);
 		}
 
 		for(int timeIndex=0; timeIndex<times.length-1;timeIndex++) {
-			RandomVariableInterface 	forward		= givenDiscountFactors[timeIndex].div(givenDiscountFactors[timeIndex+1].sub(1.0)).div(times[timeIndex+1] - times[timeIndex]);
+			RandomVariable 	forward		= givenDiscountFactors[timeIndex].div(givenDiscountFactors[timeIndex+1].sub(1.0)).div(times[timeIndex+1] - times[timeIndex]);
 			double	fixingTime	= times[timeIndex];
 			boolean	isParameter	= (fixingTime > 0);
 			forwardCurve.addForward(null, fixingTime, forward, isParameter);
@@ -291,7 +291,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param paymentOffset Time between fixing and payment.
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurve createForwardCurveFromForwards(String name, double[] times, RandomVariableInterface[] givenForwards, AnalyticModelInterface model, String discountCurveName, double paymentOffset) {
+	public static ForwardCurve createForwardCurveFromForwards(String name, double[] times, RandomVariable[] givenForwards, AnalyticModelInterface model, String discountCurveName, double paymentOffset) {
 		ForwardCurve forwardCurve = new ForwardCurve(name, paymentOffset, InterpolationEntityForward.FORWARD, discountCurveName);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -314,7 +314,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @return A new ForwardCurve object.
 	 */
 	public static ForwardCurve createForwardCurveFromForwards(String name, double[] times, double[] givenForwards, AnalyticModelInterface model, String discountCurveName, double paymentOffset) {
-		RandomVariableInterface[] givenForwardsAsRandomVariables = DoubleStream.of(givenForwards).mapToObj(x -> { return new RandomVariable(x); }).toArray(RandomVariableInterface[]::new);
+		RandomVariable[] givenForwardsAsRandomVariables = DoubleStream.of(givenForwards).mapToObj(x -> { return new RandomVariableFromDoubleArray(x); }).toArray(RandomVariable[]::new);
 		return createForwardCurveFromForwards(name, times, givenForwardsAsRandomVariables, model, discountCurveName, paymentOffset);
 	}
 
@@ -331,7 +331,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 
 		int timeIndex	= model.getTimeIndex(startTime);
 		// Get all Libors at timeIndex which are not yet fixed (others null) and times for the timeDiscretization of the curves
-		ArrayList<RandomVariableInterface> liborsAtTimeIndex = new ArrayList<>();
+		ArrayList<RandomVariable> liborsAtTimeIndex = new ArrayList<>();
 		int firstLiborIndex = model.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(startTime);
 		double firstLiborTime = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);
 		if(firstLiborTime>startTime) {
@@ -346,17 +346,17 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 			times[i-firstLiborIndex+indexOffset]=model.getLiborPeriodDiscretization().getTime(i)-startTime;
 		}
 
-		RandomVariableInterface[] libors = liborsAtTimeIndex.toArray(new RandomVariableInterface[liborsAtTimeIndex.size()]);
+		RandomVariable[] libors = liborsAtTimeIndex.toArray(new RandomVariable[liborsAtTimeIndex.size()]);
 		return ForwardCurve.createForwardCurveFromForwards(name, times, libors, model.getLiborPeriodDiscretization().getTimeStep(firstLiborIndex));
 
 	}
 
 	@Override
-	public RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime)
+	public RandomVariable getForward(AnalyticModelInterface model, double fixingTime)
 	{
 		double paymentOffset = this.getPaymentOffset(fixingTime);
 
-		RandomVariableInterface interpolationEntityForwardValue = this.getValue(model, fixingTime);
+		RandomVariable interpolationEntityForwardValue = this.getValue(model, fixingTime);
 		switch(interpolationEntityForward) {
 		case FORWARD:
 		default:
@@ -368,12 +368,12 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 			return interpolationEntityForwardValue.div(model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+paymentOffset));
 		case ZERO:
 		{
-			RandomVariableInterface interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
+			RandomVariable interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
 			return interpolationEntityForwardValue2.mult(fixingTime+paymentOffset).sub(interpolationEntityForwardValue.mult(fixingTime)).exp().sub(1.0).div(paymentOffset);
 		}
 		case DISCOUNTFACTOR:
 		{
-			RandomVariableInterface interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
+			RandomVariable interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
 			return interpolationEntityForwardValue.div(interpolationEntityForwardValue2).sub(1.0).div(paymentOffset);
 		}
 		}
@@ -392,7 +392,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @return The forward.
 	 */
 	@Override
-	public RandomVariableInterface getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
+	public RandomVariable getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
 	{
 		// @TODO: A warning should be issued that this implementation does not use
 		//		if(paymentOffset != this.getPaymentOffset(fixingTime)) {
@@ -407,11 +407,11 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
 	 * @param fixingTime The given fixing time.
 	 * @param forward The given forward.
-	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(RandomVariableInterface[])} and {@link #getCloneForParameter(RandomVariableInterface[])}, i.e., it can be calibrated.
+	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(RandomVariable[])} and {@link #getCloneForParameter(RandomVariable[])}, i.e., it can be calibrated.
 	 */
-	private void addForward(AnalyticModelInterface model, double fixingTime, RandomVariableInterface forward, boolean isParameter) {
+	private void addForward(AnalyticModelInterface model, double fixingTime, RandomVariable forward, boolean isParameter) {
 		double interpolationEntitiyTime;
-		RandomVariableInterface interpolationEntityForwardValue;
+		RandomVariable interpolationEntityForwardValue;
 		switch(interpolationEntityForward) {
 		case FORWARD:
 		default:
@@ -441,7 +441,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	}
 
 	@Override
-	protected void addPoint(double time, RandomVariableInterface value, boolean isParameter) {
+	protected void addPoint(double time, RandomVariable value, boolean isParameter) {
 		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
 			time += getPaymentOffset(time);
 		}

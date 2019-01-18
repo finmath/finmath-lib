@@ -10,9 +10,9 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -63,12 +63,12 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		/*
 		 * Calculate value of the swap at exercise date on each path (beware of perfect forsight - all rates are simulationTime=exerciseDate)
 		 */
-		RandomVariableInterface valueFixLeg		= new RandomVariable(fixingDates[fixingDates.length-1], 0.0);
-		RandomVariableInterface valueFloatLeg	= new RandomVariable(paymentDates[paymentDates.length-1], -1.0);
+		RandomVariable valueFixLeg		= new RandomVariableFromDoubleArray(fixingDates[fixingDates.length-1], 0.0);
+		RandomVariable valueFloatLeg	= new RandomVariableFromDoubleArray(paymentDates[paymentDates.length-1], -1.0);
 
 		// Calculate the value of the swap by working backward through all periods
 		for(int period=fixingDates.length-1; period>=0; period--)
@@ -79,10 +79,10 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 			double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
 
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
+			RandomVariable libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
 
 			// Add payment received at end of period
-			RandomVariableInterface payoff = new RandomVariable(paymentDate, 1.0 * periodLength);
+			RandomVariable payoff = new RandomVariableFromDoubleArray(paymentDate, 1.0 * periodLength);
 			valueFixLeg = valueFixLeg.add(payoff);
 
 			// Discount back to beginning of period
@@ -91,16 +91,16 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		}
 		valueFloatLeg = valueFloatLeg.add(1.0);
 
-		RandomVariableInterface parSwapRate = valueFloatLeg.div(valueFixLeg);
+		RandomVariable parSwapRate = valueFloatLeg.div(valueFixLeg);
 
-		RandomVariableInterface payoffUnit	= new RandomVariable(paymentDates[0], periodLengths[0]);
+		RandomVariable payoffUnit	= new RandomVariableFromDoubleArray(paymentDates[0], periodLengths[0]);
 		payoffUnit = payoffUnit.discount(model.getLIBOR(exerciseDate, fixingDates[0], paymentDates[0]),paymentDates[0]-fixingDates[0]);
 
-		RandomVariableInterface value = parSwapRate.sub(strike).floor(0.0).mult(payoffUnit);
+		RandomVariable value = parSwapRate.sub(strike).floor(0.0).mult(payoffUnit);
 
 		// If the exercise date is not the first periods start date, then discount back to the exercise date (calculate the forward starting swap)
 		if(fixingDates[0] != exerciseDate) {
-			RandomVariableInterface libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
+			RandomVariable libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
 			double periodLength	= fixingDates[0] - exerciseDate;
 
 			// Discount back to beginning of period
@@ -110,12 +110,12 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		/*
 		 * Calculate value
 		 */
-		RandomVariableInterface	numeraire				= model.getNumeraire(exerciseDate);
-		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
+		RandomVariable	numeraire				= model.getNumeraire(exerciseDate);
+		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
 		value = value.div(numeraire).mult(monteCarloProbabilities);
 
-		RandomVariableInterface	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		value = value.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return value;

@@ -9,7 +9,7 @@ package net.finmath.montecarlo;
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -29,7 +29,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * It is important that this Browninan motion is independent from the one which generated start and end, i.e. here: it should have a different seed.
  * </p>
  * <p>
- * The class implements the {@code BrownianMotionInterface}, i.e., it only provides the increments
+ * The class implements the {@code BrownianMotion}, i.e., it only provides the increments
  * of the Brownian bridge (however, in most application, like refinement of an Euler-scheme, this is
  * exactly the desired object).
  * </p>
@@ -43,7 +43,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @date 24.11.2013
  * @version 1.0
  */
-public class BrownianBridge implements BrownianMotionInterface {
+public class BrownianBridge implements BrownianMotion {
 
 	private final TimeDiscretizationInterface						timeDiscretization;
 
@@ -51,12 +51,12 @@ public class BrownianBridge implements BrownianMotionInterface {
 	private final int	numberOfPaths;
 	private final int	seed;
 
-	private RandomVariableInterface[] start;
-	private RandomVariableInterface[] end;
+	private RandomVariable[] start;
+	private RandomVariable[] end;
 
 	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
 
-	private transient RandomVariableInterface[][]	brownianIncrements;
+	private transient RandomVariable[][]	brownianIncrements;
 	private transient Object							brownianIncrementsLazyInitLock = new Object();
 
 	/**
@@ -68,7 +68,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 	 * @param start Start value of the Brownian bridge.
 	 * @param end End value of the Brownian bridge.
 	 */
-	public BrownianBridge(TimeDiscretizationInterface timeDiscretization, int numberOfPaths, int seed, RandomVariableInterface[] start, RandomVariableInterface[] end) {
+	public BrownianBridge(TimeDiscretizationInterface timeDiscretization, int numberOfPaths, int seed, RandomVariable[] start, RandomVariable[] end) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors = start.length;
@@ -87,12 +87,12 @@ public class BrownianBridge implements BrownianMotionInterface {
 	 * @param start Start value of the Brownian bridge.
 	 * @param end End value of the Brownian bridge.
 	 */
-	public BrownianBridge(TimeDiscretizationInterface timeDiscretization, int numberOfPaths, int seed, RandomVariableInterface start, RandomVariableInterface end) {
-		this(timeDiscretization, numberOfPaths, seed, new RandomVariableInterface[] {start}, new RandomVariableInterface[] {end});
+	public BrownianBridge(TimeDiscretizationInterface timeDiscretization, int numberOfPaths, int seed, RandomVariable start, RandomVariable end) {
+		this(timeDiscretization, numberOfPaths, seed, new RandomVariable[] {start}, new RandomVariable[] {end});
 	}
 
 	@Override
-	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
+	public RandomVariable getBrownianIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(brownianIncrementsLazyInitLock) {
 			if(brownianIncrements == null) {
@@ -116,24 +116,24 @@ public class BrownianBridge implements BrownianMotionInterface {
 			return;	// Nothing to do
 		}
 
-		BrownianMotion generator = new BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		BrownianMotionLazyInit generator = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 		// Allocate memory
-		brownianIncrements = new RandomVariableInterface[generator.getTimeDiscretization().getNumberOfTimeSteps()][generator.getNumberOfFactors()];
+		brownianIncrements = new RandomVariable[generator.getTimeDiscretization().getNumberOfTimeSteps()][generator.getNumberOfFactors()];
 
 		double endTime 		= getTimeDiscretization().getTime(getTimeDiscretization().getNumberOfTimeSteps());
 		for(int factor=0; factor<generator.getNumberOfFactors(); factor++) {
 			// The end point
-			RandomVariableInterface endOfFactor		= end[factor];
+			RandomVariable endOfFactor		= end[factor];
 			// Initialized the bridge to the start point
-			RandomVariableInterface brownianBridge	= start[factor];
+			RandomVariable brownianBridge	= start[factor];
 			for(int timeIndex=0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 				double currentTime	= getTimeDiscretization().getTime(timeIndex);
 				double nextTime		= getTimeDiscretization().getTime(timeIndex+1);
 				double alpha		= (nextTime-currentTime)/(endTime-currentTime);
 
 				// Calculate the next point using the "scheme" of the Brownian bridge
-				RandomVariableInterface nextRealization = brownianBridge.mult(1.0-alpha).add(endOfFactor.mult(alpha)).add(generator.getBrownianIncrement(timeIndex, factor).mult(Math.sqrt(1-alpha)));
+				RandomVariable nextRealization = brownianBridge.mult(1.0-alpha).add(endOfFactor.mult(alpha)).add(generator.getBrownianIncrement(timeIndex, factor).mult(Math.sqrt(1-alpha)));
 
 				// Store the increment
 				brownianIncrements[timeIndex][factor] = nextRealization.sub(brownianBridge);
@@ -145,7 +145,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getTimeDiscretization()
+	 * @see net.finmath.montecarlo.BrownianMotion#getTimeDiscretization()
 	 */
 	@Override
 	public TimeDiscretizationInterface getTimeDiscretization() {
@@ -153,7 +153,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfFactors()
+	 * @see net.finmath.montecarlo.BrownianMotion#getNumberOfFactors()
 	 */
 	@Override
 	public int getNumberOfFactors() {
@@ -161,7 +161,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfPaths()
+	 * @see net.finmath.montecarlo.BrownianMotion#getNumberOfPaths()
 	 */
 	@Override
 	public int getNumberOfPaths() {
@@ -169,28 +169,28 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedSeed(int)
+	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedSeed(int)
 	 */
 	@Override
-	public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
+	public BrownianMotion getCloneWithModifiedSeed(int seed) {
 		return new BrownianBridge(timeDiscretization, numberOfPaths, seed, start, end);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
+	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
 	 */
 	@Override
-	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
 		return new BrownianBridge(newTimeDiscretization, getNumberOfFactors(), seed, start, end);
 	}
 
 	@Override
-	public RandomVariableInterface[] getIncrement(int timeIndex) {
+	public RandomVariable[] getIncrement(int timeIndex) {
 		// Thread safe lazy initialization
 		synchronized(brownianIncrementsLazyInitLock) {
 			if(brownianIncrements == null) {
@@ -202,7 +202,7 @@ public class BrownianBridge implements BrownianMotionInterface {
 	}
 
 	@Override
-	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(int timeIndex, int factor) {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 

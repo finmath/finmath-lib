@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.finmath.analytic.model.curves.CurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Combine a set of parameter vectors to a single parameter vector.
@@ -80,7 +80,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	}
 
 	@Override
-	public RandomVariableInterface[] getParameter() {
+	public RandomVariable[] getParameter() {
 		// Calculate the size of the total parameter vector
 		int parameterArraySize = 0;
 		for(ParameterObjectInterface parameterVector : parameters) {
@@ -89,12 +89,12 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 			}
 		}
 
-		RandomVariableInterface[] parameterArray = new RandomVariableInterface[parameterArraySize];
+		RandomVariable[] parameterArray = new RandomVariable[parameterArraySize];
 
 		// Copy parameter object parameters to aggregated parameter vector
 		int parameterIndex = 0;
 		for(ParameterObjectInterface parameterVector : parameters) {
-			RandomVariableInterface[] parameterVectorOfDouble = parameterVector.getParameter();
+			RandomVariable[] parameterVectorOfDouble = parameterVector.getParameter();
 			if(parameterVectorOfDouble != null) {
 				System.arraycopy(parameterVectorOfDouble, 0, parameterArray, parameterIndex, parameterVectorOfDouble.length);
 				parameterIndex += parameterVectorOfDouble.length;
@@ -105,10 +105,10 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	}
 
 	@Override
-	public void setParameter(RandomVariableInterface[] parameter) {
+	public void setParameter(RandomVariable[] parameter) {
 		int parameterIndex = 0;
 		for(ParameterObjectInterface parametrizedObject : parameters) {
-			RandomVariableInterface[] parameterVectorOfDouble = parametrizedObject.getParameter();
+			RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble
 				System.arraycopy(parameter, parameterIndex, parameterVectorOfDouble, 0, parameterVectorOfDouble.length);
@@ -118,11 +118,11 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 		}
 	}
 
-	public Map<E, RandomVariableInterface[]> getObjectsToModifyForParameter(RandomVariableInterface[] parameter) {
-		Map<E, RandomVariableInterface[]> result = new HashMap<>();
+	public Map<E, RandomVariable[]> getObjectsToModifyForParameter(RandomVariable[] parameter) {
+		Map<E, RandomVariable[]> result = new HashMap<>();
 		int parameterIndex = 0;
 		for(ParameterObjectInterface parametrizedObject : parameters) {
-			RandomVariableInterface[] parameterVectorOfDouble = parametrizedObject.getParameter().clone();
+			RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter().clone();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble
 				System.arraycopy(parameter, parameterIndex, parameterVectorOfDouble, 0, parameterVectorOfDouble.length);
@@ -134,7 +134,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(RandomVariableInterface[] value) throws CloneNotSupportedException {
+	public CurveInterface getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
 		throw new UnsupportedOperationException("Method getCloneForParameter not supported on an aggregate.");
 	}
 }

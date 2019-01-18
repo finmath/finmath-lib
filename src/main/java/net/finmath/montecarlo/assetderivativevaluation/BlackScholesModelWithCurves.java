@@ -10,7 +10,7 @@ import java.util.Map;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements a Black Scholes Model, that is, it provides the drift and volatility specification
@@ -39,8 +39,8 @@ import net.finmath.stochastic.RandomVariableInterface;
  */
 public class BlackScholesModelWithCurves extends AbstractModel {
 
-	private final RandomVariableInterface initialValue;
-	private final RandomVariableInterface volatility;
+	private final RandomVariable initialValue;
+	private final RandomVariable volatility;
 
 	private final DiscountCurveInterface discountCurveForForwardRate;
 	private final DiscountCurveInterface discountCurveForDiscountRate;
@@ -48,9 +48,9 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	private final AbstractRandomVariableFactory randomVariableFactory;
 
 	// Cache for arrays provided though AbstractModel
-	private final RandomVariableInterface[]	initialState;
-	private final RandomVariableInterface	driftAdjustment;
-	private final RandomVariableInterface[]	factorLoadings;
+	private final RandomVariable[]	initialState;
+	private final RandomVariable	driftAdjustment;
+	private final RandomVariable[]	factorLoadings;
 
 	/**
 	 * Create a Black-Scholes specification implementing AbstractModel.
@@ -62,9 +62,9 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
-			RandomVariableInterface initialValue,
+			RandomVariable initialValue,
 			DiscountCurveInterface discountCurveForForwardRate,
-			RandomVariableInterface volatility,
+			RandomVariable volatility,
 			DiscountCurveInterface discountCurveForDiscountRate,
 			AbstractRandomVariableFactory randomVariableFactory) {
 		this.initialValue = initialValue;
@@ -73,9 +73,9 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
 		this.randomVariableFactory = randomVariableFactory;
 
-		this.initialState = new RandomVariableInterface[] { initialValue.log() };
+		this.initialState = new RandomVariable[] { initialValue.log() };
 		this.driftAdjustment = volatility.squared().div(-2.0);
-		this.factorLoadings = new RandomVariableInterface[] { volatility };
+		this.factorLoadings = new RandomVariable[] { volatility };
 	}
 
 	/**
@@ -97,37 +97,37 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface[] getInitialState() {
+	public RandomVariable[] getInitialState() {
 		return initialState;
 	}
 
 	@Override
-	public RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor) {
+	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 		double time = getTime(timeIndex);
 		double timeNext = getTime(timeIndex+1);
 
 		double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
 
-		return new RandomVariableInterface[] { driftAdjustment.add(rate) };
+		return new RandomVariable[] { driftAdjustment.add(rate) };
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
 		return factorLoadings;
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
 	@Override
-	public RandomVariableInterface getNumeraire(double time) {
+	public RandomVariable getNumeraire(double time) {
 		double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);
 
 		return randomVariableFactory.createRandomVariable(1.0/discounFactorForDiscounting);
@@ -139,7 +139,7 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return randomVariableFactory.createRandomVariable(value);
 	}
 
@@ -148,8 +148,8 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		RandomVariableInterface	newInitialValue	= dataModified.get("initialValue") != null	? (RandomVariableInterface)dataModified.get("initialValue") : initialValue;
-		RandomVariableInterface	newVolatility	= dataModified.get("volatility") != null	? (RandomVariableInterface)dataModified.get("volatility") 	: volatility;
+		RandomVariable	newInitialValue	= dataModified.get("initialValue") != null	? (RandomVariable)dataModified.get("initialValue") : initialValue;
+		RandomVariable	newVolatility	= dataModified.get("volatility") != null	? (RandomVariable)dataModified.get("volatility") 	: volatility;
 
 		return new BlackScholesModelWithCurves(newInitialValue, discountCurveForForwardRate, newVolatility, discountCurveForDiscountRate, randomVariableFactory);
 	}
@@ -170,8 +170,8 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	 * @return the initial value of this model.
 	 */
 	@Override
-	public RandomVariableInterface[] getInitialValue() {
-		return new RandomVariableInterface[] { initialValue };
+	public RandomVariable[] getInitialValue() {
+		return new RandomVariable[] { initialValue };
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	 *
 	 * @return Returns the volatility.
 	 */
-	public RandomVariableInterface getVolatility() {
+	public RandomVariable getVolatility() {
 		return factorLoadings[0];
 	}
 }

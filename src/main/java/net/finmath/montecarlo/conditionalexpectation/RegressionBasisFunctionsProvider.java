@@ -7,7 +7,7 @@ package net.finmath.montecarlo.conditionalexpectation;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Interfaces for object providing regression basis functions.
@@ -23,5 +23,5 @@ public interface RegressionBasisFunctionsProvider {
 	 * @return An \( \mathcal{F}_{t} \)-measurable random variable.
 	 * @throws CalculationException Thrown if derivation of the basis function fails.
 	 */
-	RandomVariableInterface[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException;
+	RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException;
 }

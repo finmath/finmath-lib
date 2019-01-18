@@ -6,14 +6,14 @@
 
 package net.finmath.montecarlo;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Provides a correlated Brownian motion from given (independent) increments
  * and a given matrix of factor loadings.
  *
- * The i-th factor of this BrownianMotion is <i>dW<sub>i</sub></i> where
+ * The i-th factor of this BrownianMotionLazyInit is <i>dW<sub>i</sub></i> where
  * <i>dW<sub>i</sub> = f<sub>i,1</sub> dU<sub>1</sub> + ... + f<sub>i,m</sub> dU<sub>m</sub></i>
  * for <i>i = 1, ..., n</i>.
  *
@@ -28,16 +28,16 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class CorrelatedBrownianMotion implements BrownianMotionInterface {
+public class CorrelatedBrownianMotion implements BrownianMotion {
 
-	private BrownianMotionInterface	uncollelatedFactors;
+	private BrownianMotion	uncollelatedFactors;
 	private double[][]				factorLoadings;
 
 	/**
 	 * Create a correlated Brownian motion from given independent increments
 	 * and a given matrix of factor loadings.
 	 *
-	 * The i-th factor of this BrownianMotion is <i>dW<sub>i</sub></i> where
+	 * The i-th factor of this BrownianMotionLazyInit is <i>dW<sub>i</sub></i> where
 	 * <i>dW<sub>i</sub> = f<sub>i,1</sub> dU<sub>1</sub> + ... + f<sub>i,m</sub> dU<sub>m</sub></i>
 	 * for <i>i = 1, ..., n</i>.
 	 *
@@ -49,7 +49,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	 * @param uncollelatedFactors The Brownian motion providing the (uncorrelated) factors <i>dU<sub>j</sub></i>.
 	 * @param factorLoadings The factor loadings <i>f<sub>i,j</sub></i>.
 	 */
-	public CorrelatedBrownianMotion(BrownianMotionInterface uncollelatedFactors,
+	public CorrelatedBrownianMotion(BrownianMotion uncollelatedFactors,
 			double[][] factorLoadings) {
 		super();
 		this.uncollelatedFactors	= uncollelatedFactors;
@@ -57,14 +57,14 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getBrownianIncrement(int, int)
+	 * @see net.finmath.montecarlo.BrownianMotion#getBrownianIncrement(int, int)
 	 */
 	@Override
-	public RandomVariableInterface getBrownianIncrement(int timeIndex, int factor) {
-		RandomVariableInterface brownianIncrement = new RandomVariable(0.0);
+	public RandomVariable getBrownianIncrement(int timeIndex, int factor) {
+		RandomVariable brownianIncrement = new RandomVariableFromDoubleArray(0.0);
 		for(int factorIndex=0; factorIndex<factorLoadings[factor].length; factorIndex++) {
 			if(factorLoadings[factor][factorIndex] != 0) {
-				RandomVariableInterface independentFactor = uncollelatedFactors.getBrownianIncrement(timeIndex, factorIndex);
+				RandomVariable independentFactor = uncollelatedFactors.getBrownianIncrement(timeIndex, factorIndex);
 				brownianIncrement = brownianIncrement.addProduct(independentFactor, factorLoadings[factor][factorIndex]);
 			}
 		}
@@ -72,7 +72,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getTimeDiscretization()
+	 * @see net.finmath.montecarlo.BrownianMotion#getTimeDiscretization()
 	 */
 	@Override
 	public TimeDiscretizationInterface getTimeDiscretization() {
@@ -80,7 +80,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfFactors()
+	 * @see net.finmath.montecarlo.BrownianMotion#getNumberOfFactors()
 	 */
 	@Override
 	public int getNumberOfFactors() {
@@ -88,7 +88,7 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getNumberOfPaths()
+	 * @see net.finmath.montecarlo.BrownianMotion#getNumberOfPaths()
 	 */
 	@Override
 	public int getNumberOfPaths() {
@@ -96,28 +96,28 @@ public class CorrelatedBrownianMotion implements BrownianMotionInterface {
 	}
 
 	@Override
-	public RandomVariableInterface getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(double value) {
 		return uncollelatedFactors.getRandomVariableForConstant(value);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedSeed(int)
+	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedSeed(int)
 	 */
 	@Override
-	public BrownianMotionInterface getCloneWithModifiedSeed(int seed) {
+	public BrownianMotion getCloneWithModifiedSeed(int seed) {
 		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedSeed(seed), factorLoadings);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotionInterface#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
+	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
 	 */
 	@Override
-	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
 		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factorLoadings);
 	}
 
 	@Override
-	public RandomVariableInterface getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(int timeIndex, int factor) {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 }

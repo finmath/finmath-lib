@@ -13,12 +13,12 @@ import java.util.stream.DoubleStream;
 import net.finmath.functions.DoubleTernaryOperator;
 
 /**
- * A scalar value implementing the RandomVariableInterface.
+ * A scalar value implementing the RandomVariable.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class Scalar implements RandomVariableInterface {
+public class Scalar implements RandomVariable {
 
 	private static final long serialVersionUID = -729437972787062992L;
 
@@ -30,7 +30,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public boolean equals(RandomVariableInterface randomVariable) {
+	public boolean equals(RandomVariable randomVariable) {
 		return randomVariable.isDeterministic() && value == randomVariable.get(0);
 	}
 
@@ -95,7 +95,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getAverage(RandomVariableInterface probabilities) {
+	public double getAverage(RandomVariable probabilities) {
 		return value * probabilities.getAverage();
 	}
 
@@ -105,7 +105,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getVariance(RandomVariableInterface probabilities) {
+	public double getVariance(RandomVariable probabilities) {
 		return 0;
 	}
 
@@ -120,7 +120,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariableInterface probabilities) {
+	public double getStandardDeviation(RandomVariable probabilities) {
 		return 0;
 	}
 
@@ -130,7 +130,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getStandardError(RandomVariableInterface probabilities) {
+	public double getStandardError(RandomVariable probabilities) {
 		return 0;
 	}
 
@@ -140,7 +140,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public double getQuantile(double quantile, RandomVariableInterface probabilities) {
+	public double getQuantile(double quantile, RandomVariable probabilities) {
 		return value;
 	}
 
@@ -160,115 +160,115 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface cache() {
+	public RandomVariable cache() {
 		return this;
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(DoubleUnaryOperator operator) {
 		return new Scalar(operator.applyAsDouble(value));
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleBinaryOperator operator, RandomVariableInterface argument) {
+	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public RandomVariableInterface apply(DoubleTernaryOperator operator, RandomVariableInterface argument1,
-			RandomVariableInterface argument2) {
+	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1,
+			RandomVariable argument2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public RandomVariableInterface cap(double cap) {
+	public RandomVariable cap(double cap) {
 		return new Scalar(Math.min(value, cap));
 	}
 
 	@Override
-	public RandomVariableInterface floor(double floor) {
+	public RandomVariable floor(double floor) {
 		return new Scalar(Math.max(value, floor));
 	}
 
 	@Override
-	public RandomVariableInterface add(double value) {
+	public RandomVariable add(double value) {
 		return new Scalar(this.value + value);
 	}
 
 	@Override
-	public RandomVariableInterface sub(double value) {
+	public RandomVariable sub(double value) {
 		return new Scalar(this.value - value);
 	}
 
 	@Override
-	public RandomVariableInterface mult(double value) {
+	public RandomVariable mult(double value) {
 		return new Scalar(this.value * value);
 	}
 
 	@Override
-	public RandomVariableInterface div(double value) {
+	public RandomVariable div(double value) {
 		return new Scalar(this.value / value);
 	}
 
 	@Override
-	public RandomVariableInterface pow(double exponent) {
+	public RandomVariable pow(double exponent) {
 		return new Scalar(Math.pow(value, exponent));
 	}
 
 	@Override
-	public RandomVariableInterface average() {
+	public RandomVariable average() {
 		return this;
 	}
 
 	@Override
-	public RandomVariableInterface squared() {
+	public RandomVariable squared() {
 		return new Scalar(value * value);
 	}
 
 	@Override
-	public RandomVariableInterface sqrt() {
+	public RandomVariable sqrt() {
 		return new Scalar(Math.sqrt(value));
 	}
 
 	@Override
-	public RandomVariableInterface exp() {
+	public RandomVariable exp() {
 		return new Scalar(Math.exp(value));
 	}
 
 	@Override
-	public RandomVariableInterface log() {
+	public RandomVariable log() {
 		return new Scalar(Math.log(value));
 	}
 
 	@Override
-	public RandomVariableInterface sin() {
+	public RandomVariable sin() {
 		return new Scalar(Math.sin(value));
 	}
 
 	@Override
-	public RandomVariableInterface cos() {
+	public RandomVariable cos() {
 		return new Scalar(Math.cos(value));
 	}
 
 	@Override
-	public RandomVariableInterface add(RandomVariableInterface randomVariable) {
+	public RandomVariable add(RandomVariable randomVariable) {
 		return randomVariable.add(value);
 	}
 
 	@Override
-	public RandomVariableInterface sub(RandomVariableInterface randomVariable) {
+	public RandomVariable sub(RandomVariable randomVariable) {
 		return randomVariable.sub(value).mult(-1.0);
 	}
 
 	@Override
-	public RandomVariableInterface bus(RandomVariableInterface randomVariable) {
+	public RandomVariable bus(RandomVariable randomVariable) {
 		return randomVariable.sub(value);
 	}
 
 	@Override
-	public RandomVariableInterface mult(RandomVariableInterface randomVariable) {
+	public RandomVariable mult(RandomVariable randomVariable) {
 		if(value == 0) {
 			return new Scalar(0.0);
 		}
@@ -276,7 +276,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface div(RandomVariableInterface randomVariable) {
+	public RandomVariable div(RandomVariable randomVariable) {
 		if(value == 0) {
 			return new Scalar(0.0);
 		}
@@ -284,7 +284,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface vid(RandomVariableInterface randomVariable) {
+	public RandomVariable vid(RandomVariable randomVariable) {
 		if(value == 0) {
 			return new Scalar(Double.NaN);
 		}
@@ -292,7 +292,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface cap(RandomVariableInterface cap) {
+	public RandomVariable cap(RandomVariable cap) {
 		if(cap.isDeterministic()) {
 			return new Scalar(Math.min(value, cap.get(0)));
 		} else {
@@ -301,7 +301,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface floor(RandomVariableInterface floor) {
+	public RandomVariable floor(RandomVariable floor) {
 		if(floor.isDeterministic()) {
 			return new Scalar(Math.max(value, floor.get(0)));
 		} else {
@@ -310,7 +310,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface accrue(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable accrue(RandomVariable rate, double periodLength) {
 		if(rate.isDeterministic()) {
 			return new Scalar(value * (1 + rate.get(0) * periodLength));
 		} else {
@@ -319,7 +319,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface discount(RandomVariableInterface rate, double periodLength) {
+	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		if(value == 0) {
 			return new Scalar(0.0);
 		} else if(rate.isDeterministic()) {
@@ -330,26 +330,26 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface choose(RandomVariableInterface valueIfTriggerNonNegative, RandomVariableInterface valueIfTriggerNegative) {
+	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
 		if(value >= 0) return valueIfTriggerNonNegative;
 		else return valueIfTriggerNegative;
 	}
 
 	@Override
-	public RandomVariableInterface invert() {
+	public RandomVariable invert() {
 		return new Scalar(1.0/value);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariableInterface#abs()
+	 * @see net.finmath.stochastic.RandomVariable#abs()
 	 */
 	@Override
-	public RandomVariableInterface abs() {
+	public RandomVariable abs() {
 		return new Scalar(Math.abs(value));
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, double factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
 		if(factor1.isDeterministic()) {
 			return new Scalar(value + factor1.get(0) * factor2);
 		} else {
@@ -358,7 +358,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface addProduct(RandomVariableInterface factor1, RandomVariableInterface factor2) {
+	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
 		if(factor1.isDeterministic() && factor2.isDeterministic()) {
 			return new Scalar(value + factor1.get(0) * factor2.get(0));
 		} else {
@@ -367,7 +367,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface addRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
 		if(numerator.isDeterministic() && denominator.isDeterministic()) {
 			return new Scalar(value + numerator.get(0) * denominator.get(0));
 		} else {
@@ -376,7 +376,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface subRatio(RandomVariableInterface numerator, RandomVariableInterface denominator) {
+	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
 		if(numerator.isDeterministic() && denominator.isDeterministic()) {
 			return new Scalar(value - numerator.get(0) * denominator.get(0));
 		} else {
@@ -385,7 +385,7 @@ public class Scalar implements RandomVariableInterface {
 	}
 
 	@Override
-	public RandomVariableInterface isNaN() {
+	public RandomVariable isNaN() {
 		return new Scalar(Double.isNaN(value) ? 1.0 : 0.0);
 	}
 }

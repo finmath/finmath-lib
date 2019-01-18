@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
@@ -17,10 +17,10 @@ import net.finmath.stochastic.Scalar;
 public class CalibrationProduct {
 
 	private final AbstractLIBORMonteCarloProduct		product;
-	private final RandomVariableInterface				targetValue;
+	private final RandomVariable				targetValue;
 	private final double								weight;
 
-	public CalibrationProduct(AbstractLIBORMonteCarloProduct product, RandomVariableInterface targetValue, double weight) {
+	public CalibrationProduct(AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight) {
 		super();
 		this.product		= product;
 		this.targetValue	= targetValue;
@@ -44,7 +44,7 @@ public class CalibrationProduct {
 	/**
 	 * @return the target value.
 	 */
-	public RandomVariableInterface getTargetValue() {
+	public RandomVariable getTargetValue() {
 		return targetValue;
 	}
 

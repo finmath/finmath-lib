@@ -10,7 +10,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -79,9 +79,9 @@ public interface AbstractModelInterface {
 	 * @param randomVariable The state random variable <i>Y<sub>i</sub></i>.
 	 * @return New random variable holding the result of the state space transformation.
 	 */
-	RandomVariableInterface applyStateSpaceTransform(int componentIndex, RandomVariableInterface randomVariable);
+	RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable);
 
-	default RandomVariableInterface applyStateSpaceTransformInverse(int componentIndex, RandomVariableInterface randomVariable) {
+	default RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
 		throw new UnsupportedOperationException("Inverse of statespace transform not set");
 	}
 
@@ -92,17 +92,17 @@ public interface AbstractModelInterface {
 	 *
 	 * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
 	 */
-	RandomVariableInterface[] getInitialState();
+	RandomVariable[] getInitialState();
 
 	/**
 	 * Return the numeraire at a given time index.
 	 * Note: The random variable returned is a defensive copy and may be modified.
 	 *
 	 * @param time The time <i>t</i> for which the numeraire <i>N(t)</i> should be returned.
-	 * @return The numeraire at the specified time as <code>RandomVariable</code>
+	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariableInterface getNumeraire(double time) throws CalculationException;
+	RandomVariable getNumeraire(double time) throws CalculationException;
 
 	/**
 	 * This method has to be implemented to return the drift, i.e.
@@ -120,7 +120,7 @@ public interface AbstractModelInterface {
 	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null if no predictor is available.
 	 * @return The drift or average drift from timeIndex to timeIndex+1, i.e. \( \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} \mu(\tau) \mathrm{d}\tau \) (or a suitable approximation).
 	 */
-	RandomVariableInterface[] getDrift(int timeIndex, RandomVariableInterface[] realizationAtTimeIndex, RandomVariableInterface[] realizationPredictor);
+	RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor);
 
 	/**
 	 * Returns the number of factors <i>m</i>, i.e., the number of independent Brownian drivers.
@@ -142,7 +142,7 @@ public interface AbstractModelInterface {
 	 * @param realizationAtTimeIndex The realization of X at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
 	 * @return The factor loading for given factor and component.
 	 */
-	RandomVariableInterface[] getFactorLoading(int timeIndex, int componentIndex, RandomVariableInterface[] realizationAtTimeIndex);
+	RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex);
 
 	/**
 	 * Return a random variable initialized with a constant using the models random variable factory.
@@ -150,7 +150,7 @@ public interface AbstractModelInterface {
 	 * @param value The constant value.
 	 * @return A new random variable initialized with a constant value.
 	 */
-	default RandomVariableInterface getRandomVariableForConstant(double value) {
+	default RandomVariable getRandomVariableForConstant(double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 

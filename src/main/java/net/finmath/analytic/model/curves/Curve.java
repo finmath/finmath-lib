@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.analytic.interpolation.RationalFunctionInterpolation;
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 
 /**
@@ -111,7 +111,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		private static final long serialVersionUID = 8857387999991917430L;
 
 		public double time;
-		public RandomVariableInterface value;
+		public RandomVariable value;
 		public boolean isParameter;
 
 		/**
@@ -119,7 +119,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @param value The value (or y-value) of the point.
 		 * @param isParameter A boolean specifying if this point is considered a "degree of freedom", e.g., in a calibration.
 		 */
-		Point(double time, RandomVariableInterface value, boolean isParameter) {
+		Point(double time, RandomVariable value, boolean isParameter) {
 			super();
 			this.time = time;
 			this.value = value;
@@ -228,7 +228,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#addPoint(double, double, boolean)
 		 */
 		@Override
-		public CurveBuilderInterface addPoint(double time, RandomVariableInterface value, boolean isParameter) {
+		public CurveBuilderInterface addPoint(double time, RandomVariable value, boolean isParameter) {
 			curve.addPoint(time, value, isParameter);
 			return this;
 		}
@@ -242,7 +242,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 	private RationalFunctionInterpolation	rationalFunctionInterpolation =  null;
 	private transient Object					rationalFunctionInterpolationLazyInitLock = new Object();
-	private SoftReference<Map<Double, RandomVariableInterface>> curveCacheReference = null;
+	private SoftReference<Map<Double, RandomVariable>> curveCacheReference = null;
 	//private LIBORModelMonteCarloSimulationInterface model;
 
 
@@ -267,7 +267,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 			ExtrapolationMethod extrapolationMethod,
 			InterpolationEntity interpolationEntity,
 			double[] times,
-			RandomVariableInterface[] values) {
+			RandomVariable[] values) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
@@ -315,36 +315,36 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 
 	@Override
-	public RandomVariableInterface getValue(double time)
+	public RandomVariable getValue(double time)
 	{
 		return getValue(null, time);
 	}
 
 	@Override
-	public RandomVariableInterface getValue(AnalyticModelInterface model, double time)
+	public RandomVariable getValue(AnalyticModelInterface model, double time)
 	{
-		Map<Double, RandomVariableInterface> curveCache = curveCacheReference != null ? curveCacheReference.get() : null;
+		Map<Double, RandomVariable> curveCache = curveCacheReference != null ? curveCacheReference.get() : null;
 		if(curveCache == null) {
 			curveCache = new ConcurrentHashMap<>();
 			curveCacheReference = new SoftReference<>(curveCache);
 		}
-		RandomVariableInterface valueFromCache = curveCache.get(time);
+		RandomVariable valueFromCache = curveCache.get(time);
 		if(valueFromCache != null) {
 			return valueFromCache;
 		}
 
-		RandomVariableInterface value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
+		RandomVariable value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
 		curveCache.put(time, value);
 		return value;
 	}
 
-	private  RandomVariableInterface getInterpolationEntityValue(double time)
+	private  RandomVariable getInterpolationEntityValue(double time)
 	{
 		synchronized(rationalFunctionInterpolationLazyInitLock) {
 			// Lazy initialization of interpolation function
 			if(rationalFunctionInterpolation == null) {
 				double[] pointsArray = new double[points.size()];//time
-				RandomVariableInterface[] valuesArray = new RandomVariableInterface[points.size()];
+				RandomVariable[] valuesArray = new RandomVariable[points.size()];
 				for(int i=0; i<points.size(); i++) {
 					pointsArray[i] = points.get(i).time;
 					valuesArray[i] = points.get(i).value;
@@ -367,9 +367,9 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	 *
 	 * @param time The x<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
-	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(RandomVariableInterface[])}, i.e., it can be calibrated.
+	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(RandomVariable[])}, i.e., it can be calibrated.
 	 */
-	protected void addPoint(double time, RandomVariableInterface value, boolean isParameter) {
+	protected void addPoint(double time, RandomVariable value, boolean isParameter) {
 		synchronized (rationalFunctionInterpolationLazyInitLock) {
 			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
 				boolean containsOne = false; int index=0;
@@ -381,7 +381,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 				}
 			}
 
-			RandomVariableInterface interpolationEntityValue = interpolationEntityFromValue(value, time);
+			RandomVariable interpolationEntityValue = interpolationEntityFromValue(value, time);
 
 			int index = getTimeIndex(time);
 			if(index >= 0) {
@@ -440,20 +440,20 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	}
 
 	protected int getTimeIndex(double time) {
-		Point point = new Point(time, new RandomVariable(Double.NaN), false);
+		Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);
 		int index =  java.util.Collections.binarySearch(points, point);
 		return index;
 	}
 
 	protected int getParameterIndex(double time) {
-		Point point = new Point(time, new RandomVariable(Double.NaN), false);
+		Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);
 		return java.util.Collections.binarySearch(pointsBeingParameters, point);
 	}
 
 
 	@Override
-	public  RandomVariableInterface[] getParameter() {
-		RandomVariableInterface[] parameters = new RandomVariableInterface[pointsBeingParameters.size()];
+	public  RandomVariable[] getParameter() {
+		RandomVariable[] parameters = new RandomVariable[pointsBeingParameters.size()];
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
 			parameters[i] = valueFromInterpolationEntity(pointsBeingParameters.get(i).value, pointsBeingParameters.get(i).time);
 		}
@@ -462,11 +462,11 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 
 
 	@Override
-	public void setParameter(RandomVariableInterface[] parameter) {
+	public void setParameter(RandomVariable[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable. Use getCloneForParameter(double[]) instead.");
 	}
 
-	private void setParameterPrivate(RandomVariableInterface[] parameter) {
+	private void setParameterPrivate(RandomVariable[] parameter) {
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
 			pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
 		}
@@ -474,7 +474,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		this.curveCacheReference = null;
 	}
 
-	private RandomVariableInterface interpolationEntityFromValue(RandomVariableInterface value, double time) {
+	private RandomVariable interpolationEntityFromValue(RandomVariable value, double time) {
 		switch(interpolationEntity) {
 		case VALUE:
 		default:
@@ -490,7 +490,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 		}
 	}
 
-	private RandomVariableInterface valueFromInterpolationEntity(RandomVariableInterface interpolationEntityValue, double time) {
+	private RandomVariable valueFromInterpolationEntity(RandomVariable interpolationEntityValue, double time) {
 		switch(interpolationEntity) {
 		case VALUE:
 		default:
@@ -522,7 +522,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(RandomVariableInterface[] parameter) throws CloneNotSupportedException {
+	public CurveInterface getCloneForParameter(RandomVariable[] parameter) throws CloneNotSupportedException {
 		if(Arrays.equals(parameter, getParameter())) {
 			return this;
 		}

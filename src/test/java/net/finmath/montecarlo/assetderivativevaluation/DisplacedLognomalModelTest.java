@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionInterface;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcess;
@@ -50,7 +50,7 @@ public class DisplacedLognomalModelTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a brownianMotion
-		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		AssetModelMonteCarloSimulationInterface monteCarloDisplacedModel;
 		{

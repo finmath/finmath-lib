@@ -10,7 +10,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
@@ -44,7 +44,7 @@ public class LinearCombinationIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		return index1.getValue(evaluationTime, model).mult(scaling1)
 				.addProduct(index2.getValue(evaluationTime, model),scaling2);
 	}

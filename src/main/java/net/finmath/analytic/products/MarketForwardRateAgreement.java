@@ -8,7 +8,7 @@ package net.finmath.analytic.products;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the valuation of a market forward rate agreement using curves
@@ -60,7 +60,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 
@@ -75,7 +75,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 			}
 		}
 
-		RandomVariableInterface forward		= model.getRandomVariableForConstant(-spread);
+		RandomVariable forward		= model.getRandomVariableForConstant(-spread);
 		if(forwardCurve != null) {
 			forward = forward.add(forwardCurve.getForward(model, maturity));
 		}
@@ -83,9 +83,9 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 			forward = forward.add(discountCurveForForward.getDiscountFactor(maturity).div(discountCurveForForward.getDiscountFactor(maturity+paymentOffset)).sub(1.0).div(paymentOffset));
 		}
 
-		RandomVariableInterface payoff = forward.discount(forward, paymentOffset);
+		RandomVariable payoff = forward.discount(forward, paymentOffset);
 
-		RandomVariableInterface discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : model.getRandomVariableForConstant(0.0);
+		RandomVariable discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : model.getRandomVariableForConstant(0.0);
 
 		return payoff.mult(discountFactor).div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}

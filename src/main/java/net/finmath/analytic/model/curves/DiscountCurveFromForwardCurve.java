@@ -7,8 +7,8 @@ package net.finmath.analytic.model.curves;
 import java.io.Serializable;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * A discount curve derived from a given forward curve.
@@ -108,7 +108,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
 	 */
 	@Override
-	public RandomVariableInterface getDiscountFactor(double maturity) {
+	public RandomVariable getDiscountFactor(double maturity) {
 		return getDiscountFactor(null, maturity);
 	}
 
@@ -116,7 +116,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
 	 */
 	@Override
-	public RandomVariableInterface getDiscountFactor(AnalyticModelInterface model, double maturity) {
+	public RandomVariable getDiscountFactor(AnalyticModelInterface model, double maturity) {
 		ForwardCurveInterface	forwardCurve;
 		if(this.forwardCurve != null) {
 			forwardCurve = this.forwardCurve;
@@ -127,7 +127,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		if(forwardCurve == null) {
 			throw new IllegalArgumentException("No forward curve given and no forward curve found in the model under the name " + forwardCurveName + ".");
 		}
-		RandomVariableInterface discountFactor = new RandomVariable(1.0);
+		RandomVariable discountFactor = new RandomVariableFromDoubleArray(1.0);
 		double	time			= 0;
 		double paymentOffset = 0;
 		while(time < maturity) {
@@ -146,17 +146,17 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public RandomVariableInterface getValue(AnalyticModelInterface model, double time) {
+	public RandomVariable getValue(AnalyticModelInterface model, double time) {
 		return getDiscountFactor(model, time);
 	}
 
 	@Override
-	public RandomVariableInterface[] getParameter() {
+	public RandomVariable[] getParameter() {
 		return null;
 	}
 
 	@Override
-	public void setParameter(RandomVariableInterface[] parameter) {
+	public void setParameter(RandomVariable[] parameter) {
 	}
 
 	@Override

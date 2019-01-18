@@ -19,7 +19,7 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.functions.JarqueBeraTest;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -61,9 +61,9 @@ public class BrownianMotionTest {
 		int numberOfFactors = 1;
 		int numberOfPaths = 10000000;
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0, 10, 1.0);
-		BrownianMotionInterface brownianMotion = new BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, seed, randomVariableFactory);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed, randomVariableFactory);
 
-		RandomVariableInterface brownianMotionAtTime = brownianMotion.getBrownianIncrement(0, 0);
+		RandomVariable brownianMotionAtTime = brownianMotion.getBrownianIncrement(0, 0);
 		for(int timeIndex=1; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			double[] intervalPoints = (new TimeDiscretization(-2, 101, 4.0/100)).getAsDoubleArray();
 			double[] histOfNormalFromBM = brownianMotionAtTime.getHistogram(intervalPoints);
@@ -99,7 +99,7 @@ public class BrownianMotionTest {
 		for(int numberOfPaths = 1000; numberOfPaths <= 100000000; numberOfPaths *= 10) {
 
 			// Test the quality of the Brownian motion
-			BrownianMotion brownian = new BrownianMotion(
+			BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
 					timeDiscretization,
 					1,
 					numberOfPaths,
@@ -109,7 +109,7 @@ public class BrownianMotionTest {
 
 			System.out.print("\tNumber of path = " + formatterSci1.format(numberOfPaths) + "\t ");
 
-			RandomVariableInterface brownianRealization = brownian.getBrownianIncrement(0, 0);
+			RandomVariable brownianRealization = brownian.getBrownianIncrement(0, 0);
 
 			double mean		= brownianRealization.getAverage();
 			double variance	= brownianRealization.getVariance();
@@ -139,7 +139,7 @@ public class BrownianMotionTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		BrownianMotion brownian = new BrownianMotion(
+		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
 				timeDiscretization,
 				1,
 				numberOfPaths,
@@ -150,7 +150,7 @@ public class BrownianMotionTest {
 		JarqueBeraTest jb = new JarqueBeraTest();
 		int fail = 0;
 		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			RandomVariableInterface brownianRealization = brownian.getBrownianIncrement(timeIndex, 0);
+			RandomVariable brownianRealization = brownian.getBrownianIncrement(timeIndex, 0);
 			double test = jb.test(brownianRealization);
 
 			System.out.print(timeIndex + ":\t" + test);
@@ -183,7 +183,7 @@ public class BrownianMotionTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		BrownianMotion brownian = new BrownianMotion(
+		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
 				timeDiscretization,
 				2,
 				numberOfPaths,
@@ -194,18 +194,18 @@ public class BrownianMotionTest {
 		System.out.println("Test of average and variance of the integral of (Delta W)^2.");
 		System.out.println("Time step size: " + dt + "  Number of path: " + numberOfPaths);
 
-		RandomVariableInterface sumOfSquaredIncrements 	= brownian.getRandomVariableForConstant(0.0);
-		RandomVariableInterface sumOfCrossIncrements	= brownian.getRandomVariableForConstant(0.0);
+		RandomVariable sumOfSquaredIncrements 	= brownian.getRandomVariableForConstant(0.0);
+		RandomVariable sumOfCrossIncrements	= brownian.getRandomVariableForConstant(0.0);
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			RandomVariableInterface brownianIncrement1 = brownian.getBrownianIncrement(timeIndex,0);
-			RandomVariableInterface brownianIncrement2 = brownian.getBrownianIncrement(timeIndex,1);
+			RandomVariable brownianIncrement1 = brownian.getBrownianIncrement(timeIndex,0);
+			RandomVariable brownianIncrement2 = brownian.getBrownianIncrement(timeIndex,1);
 
 			// Calculate x = \int dW1(t) * dW1(t)
-			RandomVariableInterface squaredIncrements = brownianIncrement1.squared();
+			RandomVariable squaredIncrements = brownianIncrement1.squared();
 			sumOfSquaredIncrements = sumOfSquaredIncrements.add(squaredIncrements);
 
 			// Calculate x = \int dW1(t) * dW2(t)
-			RandomVariableInterface covarianceIncrements = brownianIncrement1.mult(brownianIncrement2);
+			RandomVariable covarianceIncrements = brownianIncrement1.mult(brownianIncrement2);
 			sumOfCrossIncrements = sumOfCrossIncrements.add(covarianceIncrements);
 		}
 

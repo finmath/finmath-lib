@@ -7,9 +7,9 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the valuation of a money market account. The money market account
@@ -68,22 +68,22 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	 * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct#getValue(double, net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface)
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 
 		if(inceptionTime > evaluationTime) {
-			return new RandomVariable(0.0);
+			return new RandomVariableFromDoubleArray(0.0);
 		}
 		if(accrualPeriod <= 0) {
-			return new RandomVariable(Double.MAX_VALUE);
+			return new RandomVariableFromDoubleArray(Double.MAX_VALUE);
 		}
 
 		// Initialize the value of the account to 1.0
-		RandomVariableInterface value = new RandomVariable(initialValue);
+		RandomVariable value = new RandomVariableFromDoubleArray(initialValue);
 
 		// Loop over accrual periods
 		for(double time=inceptionTime; time<evaluationTime; time += accrualPeriod) {
 			// Get the forward fixed at the beginning of the period
-			RandomVariableInterface	forwardRate				= model.getLIBOR(time, time, time+accrualPeriod);
+			RandomVariable	forwardRate				= model.getLIBOR(time, time, time+accrualPeriod);
 			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
 
 			// Accrue the value using the current forward rate

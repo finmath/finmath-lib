@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.util.Arrays;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -40,10 +40,10 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	}
 
 	@Override
-	public RandomVariableInterface[] getFactorLoading(int timeIndex, int component, RandomVariableInterface[] realizationAtTimeIndex) {
-		RandomVariableInterface[] factorLoading = new RandomVariableInterface[correlationModel.getNumberOfFactors()];
+	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable[] factorLoading = new RandomVariable[correlationModel.getNumberOfFactors()];
 
-		RandomVariableInterface volatility	= volatilityModel.getVolatility(timeIndex, component);
+		RandomVariable volatility	= volatilityModel.getVolatility(timeIndex, component);
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 			factorLoading[factorIndex] = volatility.mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
@@ -52,9 +52,9 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	}
 
 	@Override
-	public RandomVariableInterface getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		// Note that we assume that the correlation model getFactorLoading gives orthonormal vectors
-		RandomVariableInterface factorLoadingPseudoInverse = volatilityModel.getVolatility(timeIndex, component).invert()
+		RandomVariable factorLoadingPseudoInverse = volatilityModel.getVolatility(timeIndex, component).invert()
 				.mult(correlationModel.getFactorLoading(timeIndex, factor, component));
 
 		// @todo numberOfComponents should be stored as a member?!
@@ -75,14 +75,14 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	 * @see net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel#getCovariance(int, int, int)
 	 */
 	@Override
-	public RandomVariableInterface getCovariance(int timeIndex, int component1, int component2, RandomVariableInterface[] realizationAtTimeIndex) {
+	public RandomVariable getCovariance(int timeIndex, int component1, int component2, RandomVariable[] realizationAtTimeIndex) {
 
-		RandomVariableInterface volatilityOfComponent1 = volatilityModel.getVolatility(timeIndex, component1);
-		RandomVariableInterface volatilityOfComponent2 = volatilityModel.getVolatility(timeIndex, component2);
+		RandomVariable volatilityOfComponent1 = volatilityModel.getVolatility(timeIndex, component1);
+		RandomVariable volatilityOfComponent2 = volatilityModel.getVolatility(timeIndex, component2);
 
 		double					correlationOfComponent1And2 = correlationModel.getCorrelation(timeIndex, component1, component2);
 
-		RandomVariableInterface covariance = volatilityOfComponent1.mult(volatilityOfComponent2).mult(correlationOfComponent1And2);
+		RandomVariable covariance = volatilityOfComponent1.mult(volatilityOfComponent2).mult(correlationOfComponent1And2);
 
 		return covariance;
 	}

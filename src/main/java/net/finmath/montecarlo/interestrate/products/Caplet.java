@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the pricing of a Caplet using a given <code>AbstractLIBORMarketModel</code>.
@@ -112,21 +112,21 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
 		// This is on the LIBOR discretization
 		double	paymentDate	= maturity+periodLength;
 
 		// Get random variables
-		RandomVariableInterface	libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
-		RandomVariableInterface	numeraire				= model.getNumeraire(paymentDate);
-		RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
+		RandomVariable	libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
+		RandomVariable	numeraire				= model.getNumeraire(paymentDate);
+		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 
 		/*
 		 * Calculate the payoff, which is
 		 *    max(L-K,0) * periodLength         for caplet or
 		 *   -min(L-K,0) * periodLength         for floorlet.
 		 */
-		RandomVariableInterface values = libor;
+		RandomVariable values = libor;
 		if(!isFloorlet) {
 			values = values.sub(strike).floor(0.0).mult(daycountFraction);
 		} else {
@@ -135,8 +135,8 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
-		RandomVariableInterface	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);
-		RandomVariableInterface	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);
+		RandomVariable	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);
 
 		if(valueUnit == ValueUnit.VALUE) {

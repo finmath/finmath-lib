@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Base class for product components.
@@ -67,7 +67,7 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 
 	@Override
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
-		RandomVariableInterface value = this.getValue(evaluationTime, model);
+		RandomVariable value = this.getValue(evaluationTime, model);
 		Map<String, Object> result = new HashMap<>();
 		result.put("value", value);
 		return result;

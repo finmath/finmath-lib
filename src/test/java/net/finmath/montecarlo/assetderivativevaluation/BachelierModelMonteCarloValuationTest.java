@@ -22,7 +22,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
@@ -32,7 +32,7 @@ import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDif
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -170,7 +170,7 @@ public class BachelierModelMonteCarloValuationTest {
 			AbstractModelInterface blackScholesModel = new BachelierModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
+			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
 
 			model = new MonteCarloAssetModel(blackScholesModel, process);
 		}
@@ -244,7 +244,7 @@ public class BachelierModelMonteCarloValuationTest {
 
 		System.out.println("Time \tAverage \t\tVariance");
 		for(double time : modelTimeDiscretization) {
-			RandomVariableInterface assetValue = model.getAssetValue(time, 0);
+			RandomVariable assetValue = model.getAssetValue(time, 0);
 
 			double average	= assetValue.getAverage();
 			double variance	= assetValue.getVariance();
@@ -266,7 +266,7 @@ public class BachelierModelMonteCarloValuationTest {
 		 */
 		AssetModelMonteCarloSimulationInterface model = getModel();
 
-		RandomVariableInterface stockAtTimeOne = model.getAssetValue(1.0, 0);
+		RandomVariable stockAtTimeOne = model.getAssetValue(1.0, 0);
 
 		System.out.println("The first 100 realizations of the " + stockAtTimeOne.size() + " realizations of S(1) are:");
 		System.out.println("Path\tValue");

@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiableInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Basic test for RandomVariableDifferentiableAAD.
@@ -35,21 +35,21 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableDifferentiableAADFactory(
 						new RandomVariableFactory(), properties), properties);
 
-		RandomVariableInterface a = randomVariableFactoryParameters.createRandomVariable(5.0);
-		RandomVariableInterface b = randomVariableFactoryParameters.createRandomVariable(1.0);
-		RandomVariableDifferentiableInterface x = (RandomVariableDifferentiableInterface) randomVariableFactoryVariable.createRandomVariable(5.0);
-		RandomVariableDifferentiableInterface y = (RandomVariableDifferentiableInterface) randomVariableFactoryVariable.createRandomVariable(2.0);
+		RandomVariable a = randomVariableFactoryParameters.createRandomVariable(5.0);
+		RandomVariable b = randomVariableFactoryParameters.createRandomVariable(1.0);
+		RandomVariableDifferentiable x = (RandomVariableDifferentiable) randomVariableFactoryVariable.createRandomVariable(5.0);
+		RandomVariableDifferentiable y = (RandomVariableDifferentiable) randomVariableFactoryVariable.createRandomVariable(2.0);
 
 		// Simple function: (a x)^2 + (b y)^3
-		RandomVariableDifferentiableInterface result = (RandomVariableDifferentiableInterface)x.mult(a).pow(2).add(y.mult(b).pow(3));
+		RandomVariableDifferentiable result = (RandomVariableDifferentiable)x.mult(a).pow(2).add(y.mult(b).pow(3));
 
 		// Get first derivative
-		Map<Long, RandomVariableInterface> dresult = result.getGradient();
-		RandomVariableDifferentiableInterface dx = (RandomVariableDifferentiableInterface)dresult.get(x.getID());
+		Map<Long, RandomVariable> dresult = result.getGradient();
+		RandomVariableDifferentiable dx = (RandomVariableDifferentiable)dresult.get(x.getID());
 
 		// Get second order derivative
-		Map<Long, RandomVariableInterface> ddx = dx.getGradient();
-		RandomVariableInterface ddxx = ddx.get(x.getID()-1);				// The -1 here is subject to change. Currently an issue that we need to access the inner ID.
+		Map<Long, RandomVariable> ddx = dx.getGradient();
+		RandomVariable ddxx = ddx.get(x.getID()-1);				// The -1 here is subject to change. Currently an issue that we need to access the inner ID.
 
 		double derivativeAAD = ddxx.getAverage();
 		double derivativeExpected = 2 * a.pow(2).mult(x.pow(0)).doubleValue();

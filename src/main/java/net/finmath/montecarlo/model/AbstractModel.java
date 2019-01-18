@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -27,10 +27,10 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	 *
 	 * @return The initial value of the model.
 	 */
-	public RandomVariableInterface[] getInitialValue() {
-		RandomVariableInterface[] initialState = getInitialState();
+	public RandomVariable[] getInitialValue() {
+		RandomVariable[] initialState = getInitialState();
 
-		RandomVariableInterface[] value = new RandomVariableInterface[initialState.length];
+		RandomVariable[] value = new RandomVariable[initialState.length];
 		for(int i= 0; i<value.length; i++) {
 			value[i] = applyStateSpaceTransform(i,initialState[i]);
 		}
@@ -64,7 +64,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.AbstractProcess#getProcessValue(int, int)
 	 */
-	public RandomVariableInterface getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
+	public RandomVariable getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
 		return process.getProcessValue(timeIndex, componentIndex);
 	}
 
@@ -74,7 +74,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.AbstractProcess#getMonteCarloWeights(int)
 	 */
-	public RandomVariableInterface getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
 		return process.getMonteCarloWeights(timeIndex);
 	}
 

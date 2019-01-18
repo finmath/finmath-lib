@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 import net.finmath.analytic.calibration.ParameterObjectInterface;
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * The interface which is implemented by a general curve.
@@ -42,7 +42,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 * @param time Time for which the value should be returned.
 	 * @return The value at the give time.
 	 */
-	RandomVariableInterface getValue(double time);
+	RandomVariable getValue(double time);
 
 	/**
 	 * Returns the value for the time using the interpolation method associated with this curve
@@ -55,7 +55,7 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	 *
 	 * @return The value at the give time.
 	 */
-	RandomVariableInterface getValue(AnalyticModelInterface model, double time);
+	RandomVariable getValue(AnalyticModelInterface model, double time);
 
 	/**
 	 * Create a deep copied clone.
@@ -77,5 +77,5 @@ public interface CurveInterface extends ParameterObjectInterface, Cloneable {
 	CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException;
 
 	@Override
-	CurveInterface getCloneForParameter(RandomVariableInterface[] value) throws CloneNotSupportedException;
+	CurveInterface getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException;
 }

@@ -3,8 +3,8 @@ package net.finmath.analytic.products;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.RandomVariable;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleInterface;
 
 /**
@@ -66,7 +66,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	}
 
 	@Override
-	public RandomVariableInterface getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -85,14 +85,14 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		double paymentDate = schedule.getPayment(0);
 		double periodLength = schedule.getPeriodLength(0);
 
-		RandomVariableInterface forward = new RandomVariable(0.0);
+		RandomVariable forward = new RandomVariableFromDoubleArray(0.0);
 		if(forwardCurve != null) {
 			forward = forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 		}
 
 		// Valuation of the market FRA for payer and receiver direction, neglecting convexity adjustment
 		double notional = isPayer ? 1.0 : -1.0;
-		RandomVariableInterface discountFactorFixingDate = fixingDate > evaluationTime ? discountCurve.getDiscountFactor(model, fixingDate) : new RandomVariable(0.0);
+		RandomVariable discountFactorFixingDate = fixingDate > evaluationTime ? discountCurve.getDiscountFactor(model, fixingDate) : new RandomVariableFromDoubleArray(0.0);
 		return forward.sub(spread).div(forward.mult(periodLength).add(1.0)).mult(discountFactorFixingDate).mult(periodLength*notional);
 	}
 
@@ -102,7 +102,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param model A given model.
 	 * @return The par FRA rate.
 	 */
-	public RandomVariableInterface getRate(AnalyticModelInterface model) {
+	public RandomVariable getRate(AnalyticModelInterface model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}

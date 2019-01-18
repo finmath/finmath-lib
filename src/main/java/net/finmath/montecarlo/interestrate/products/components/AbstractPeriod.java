@@ -5,7 +5,7 @@ import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Base class for a period. A period has references to the index (coupon) and the notional.
@@ -30,9 +30,9 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	private final double						daycountFraction;
 
 	@Override
-	public abstract RandomVariableInterface getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
+	public abstract RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
-	public abstract RandomVariableInterface getCoupon(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
+	public abstract RandomVariable getCoupon(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException;
 
 	/**
 	 * Initialize basic properties of the period.

@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.io.Serializable;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -52,7 +52,7 @@ public abstract class LIBORVolatilityModel implements Serializable {
 	 * @param component The libor index (for liborPeriodDiscretization)
 	 * @return A random variable (e.g. as a vector of doubles) representing the volatility for each path.
 	 */
-	public abstract RandomVariableInterface getVolatility(int timeIndex, int component);
+	public abstract RandomVariable getVolatility(int timeIndex, int component);
 
 	/**
 	 * @return Returns the liborPeriodDiscretization.

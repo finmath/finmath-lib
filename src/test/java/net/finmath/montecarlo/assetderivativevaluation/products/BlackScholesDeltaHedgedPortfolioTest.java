@@ -11,7 +11,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -69,13 +69,13 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 		EuropeanOption option = new EuropeanOption(maturity,strike);
 		BlackScholesDeltaHedgedPortfolio hedge = new BlackScholesDeltaHedgedPortfolio(maturity, strike, riskFreeRate, volatility);
 
-		RandomVariableInterface hedgeValue = hedge.getValue(maturity, model);
+		RandomVariable hedgeValue = hedge.getValue(maturity, model);
 
 		long timingCalculationEnd = System.currentTimeMillis();
 
-		RandomVariableInterface underlyingAtMaturity = model.getAssetValue(maturity, 0);
-		RandomVariableInterface optionValue = option.getValue(maturity, model);
-		RandomVariableInterface hedgeError = optionValue.sub(hedgeValue);
+		RandomVariable underlyingAtMaturity = model.getAssetValue(maturity, 0);
+		RandomVariable optionValue = option.getValue(maturity, model);
+		RandomVariable hedgeError = optionValue.sub(hedgeValue);
 
 		double hedgeErrorRMS = hedgeError.getStandardDeviation();
 

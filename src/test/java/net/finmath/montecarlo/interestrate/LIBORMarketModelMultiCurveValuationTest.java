@@ -26,7 +26,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.BrownianMotionInterface;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
@@ -174,7 +174,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		BrownianMotionInterface brownianMotion = new net.finmath.montecarlo.BrownianMotion(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
@@ -623,7 +623,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 * Test our calibration
 		 */
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotion(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation calMode = new net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation(

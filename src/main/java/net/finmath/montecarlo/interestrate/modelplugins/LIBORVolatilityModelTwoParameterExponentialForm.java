@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.montecarlo.RandomVariable;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.time.TimeDiscretizationInterface;
 
 /**
@@ -83,7 +83,7 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	 * @see net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
 	 */
 	@Override
-	public RandomVariable getVolatility(int timeIndex, int liborIndex) {
+	public RandomVariableFromDoubleArray getVolatility(int timeIndex, int liborIndex) {
 		// Create a very simple volatility model here
 		double time             = getTimeDiscretization().getTime(timeIndex);
 		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
@@ -99,7 +99,7 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 			volatilityInstanteaneous = a * Math.exp(-b * timeToMaturity);
 		}
 
-		return new RandomVariable(getTimeDiscretization().getTime(timeIndex), volatilityInstanteaneous);
+		return new RandomVariableFromDoubleArray(getTimeDiscretization().getTime(timeIndex), volatilityInstanteaneous);
 	}
 
 	@Override

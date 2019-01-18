@@ -7,7 +7,7 @@ package net.finmath.analytic.model.curves;
 
 import java.time.LocalDate;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  * Abstract base class for a curve. It stores the name of the curve and
@@ -48,7 +48,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public RandomVariableInterface getValue(double time) {
+	public RandomVariable getValue(double time) {
 		return getValue(null, time);
 	}
 
@@ -57,8 +57,8 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 	 * @param times A given vector of times.
 	 * @return A vector of values corresponding to the given vector of times.
 	 */
-	public RandomVariableInterface[] getValues(double[] times) {
-		RandomVariableInterface[] values = new RandomVariableInterface[times.length];
+	public RandomVariable[] getValues(double[] times) {
+		RandomVariable[] values = new RandomVariable[times.length];
 
 		for(int i=0; i<times.length; i++) {
 			values[i] = getValue(null, times[i]);
@@ -74,7 +74,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 
 
 	@Override
-	public CurveInterface getCloneForParameter(RandomVariableInterface[] value) throws CloneNotSupportedException {
+	public CurveInterface getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 

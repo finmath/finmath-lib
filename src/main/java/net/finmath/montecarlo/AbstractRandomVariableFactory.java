@@ -7,7 +7,7 @@ package net.finmath.montecarlo;
 
 import java.io.Serializable;
 
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 
 /**
  *
@@ -18,11 +18,11 @@ public abstract class AbstractRandomVariableFactory implements Serializable{
 
 	private static final long serialVersionUID = -4412332958142580025L;
 
-	public RandomVariableInterface createRandomVariable(double value) {
+	public RandomVariable createRandomVariable(double value) {
 		return createRandomVariable(Double.NEGATIVE_INFINITY, value);
 	}
 
-	public abstract RandomVariableInterface createRandomVariable(double time, double value);
+	public abstract RandomVariable createRandomVariable(double time, double value);
 
-	public abstract RandomVariableInterface createRandomVariable(double time, double[] values);
+	public abstract RandomVariable createRandomVariable(double time, double[] values);
 }

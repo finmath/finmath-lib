@@ -14,7 +14,7 @@ import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.IndependentIncrementsInterface;
+import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
@@ -29,11 +29,11 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 
 	private final net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme scheme;
 	private final AbstractRandomVariableFactory randomVariableFactory;
-	private final IndependentIncrementsInterface brownianMotion;
+	private final IndependentIncrements brownianMotion;
 
 
 	public HestonModelMonteCarloFactory(Scheme scheme, AbstractRandomVariableFactory randomVariableFactory,
-			IndependentIncrementsInterface brownianMotion) {
+			IndependentIncrements brownianMotion) {
 		super();
 		this.scheme = scheme;
 		this.randomVariableFactory = randomVariableFactory;

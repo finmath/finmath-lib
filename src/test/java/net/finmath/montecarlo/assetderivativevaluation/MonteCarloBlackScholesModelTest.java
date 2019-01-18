@@ -11,12 +11,12 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.stochastic.RandomVariableInterface;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationInterface;
 
@@ -52,7 +52,7 @@ public class MonteCarloBlackScholesModelTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Link model and process for delegation
 		process.setModel(model);
@@ -62,11 +62,11 @@ public class MonteCarloBlackScholesModelTest {
 		 * Value a call option - directly
 		 */
 
-		RandomVariableInterface asset = process.getProcessValue(timeDiscretization.getTimeIndex(optionMaturity), assetIndex);
-		RandomVariableInterface numeraireAtPayment = model.getNumeraire(optionMaturity);
-		RandomVariableInterface numeraireAtEval = model.getNumeraire(0.0);
+		RandomVariable asset = process.getProcessValue(timeDiscretization.getTimeIndex(optionMaturity), assetIndex);
+		RandomVariable numeraireAtPayment = model.getNumeraire(optionMaturity);
+		RandomVariable numeraireAtEval = model.getNumeraire(0.0);
 
-		RandomVariableInterface payoff = asset.sub(optionStrike).floor(0.0);
+		RandomVariable payoff = asset.sub(optionStrike).floor(0.0);
 		double value = payoff.div(numeraireAtPayment).mult(numeraireAtEval).getAverage();
 
 		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
@@ -85,7 +85,7 @@ public class MonteCarloBlackScholesModelTest {
 		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(new BrownianMotion(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
