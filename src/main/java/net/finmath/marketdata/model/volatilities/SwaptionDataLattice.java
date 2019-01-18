@@ -602,6 +602,13 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
+	 * @return The number of entries in the lattice.
+	 */
+	public int size() {
+		return entryMap.size();
+	}
+
+	/**
 	 * @return The reference date of the swaptions.
 	 */
 	public LocalDate getReferenceDate() {
