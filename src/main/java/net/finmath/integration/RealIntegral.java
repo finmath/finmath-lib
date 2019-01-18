@@ -18,7 +18,7 @@ import java.util.function.DoubleUnaryOperator;
  * @version 1.0
  */
 @FunctionalInterface
-public interface RealIntegralInterface {
+public interface RealIntegral {
 
 	double integrate(DoubleUnaryOperator integrand);
 

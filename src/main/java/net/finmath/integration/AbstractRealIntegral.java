@@ -14,7 +14,7 @@ import java.util.function.DoubleUnaryOperator;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractRealIntegral implements RealIntegralInterface {
+public abstract class AbstractRealIntegral implements RealIntegral {
 
 	private double lowerBound;
 	private double upperBound;
@@ -52,7 +52,7 @@ public abstract class AbstractRealIntegral implements RealIntegralInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.integration.RealIntegralInterface#integrate(java.util.function.DoubleUnaryOperator)
+	 * @see net.finmath.integration.RealIntegral#integrate(java.util.function.DoubleUnaryOperator)
 	 */
 	@Override
 	public abstract double integrate(DoubleUnaryOperator integrand);

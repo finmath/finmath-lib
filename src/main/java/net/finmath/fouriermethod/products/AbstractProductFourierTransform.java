@@ -15,7 +15,7 @@ import org.apache.commons.math3.complex.Complex;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.integration.RealIntegralInterface;
+import net.finmath.integration.RealIntegral;
 import net.finmath.integration.SimpsonRealIntegrator;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.modelling.ProductInterface;
@@ -71,7 +71,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 			return modelCF.apply(z.negate()).multiply(this.apply(z)).getReal();
 		};
 
-		RealIntegralInterface integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);
+		RealIntegral integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);
 
 		return integrator.integrate(integrand) / 2.0 / Math.PI;
 	}
