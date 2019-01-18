@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.covariancemodels;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Abstract base class and interface description of a volatility model
@@ -20,8 +20,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  * @version 1.0
  */
 public abstract class LIBORVolatilityModel {
-	private TimeDiscretizationInterface	timeDiscretization;
-	private TimeDiscretizationInterface	liborPeriodDiscretization;
+	private TimeDiscretization	timeDiscretization;
+	private TimeDiscretization	liborPeriodDiscretization;
 
 	// You cannot instantiate the class empty
 	@SuppressWarnings("unused")
@@ -29,10 +29,10 @@ public abstract class LIBORVolatilityModel {
 	}
 
 	/**
-	 * @param timeDiscretization The vector of simulation time discretization points.
+	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 */
-	public LIBORVolatilityModel(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization) {
+	public LIBORVolatilityModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
@@ -43,7 +43,7 @@ public abstract class LIBORVolatilityModel {
 
 	/**
 	 * Implement this method to complete the implementation.
-	 * @param timeIndex The time index (for timeDiscretization)
+	 * @param timeIndex The time index (for timeDiscretizationFromArray)
 	 * @param component The libor index (for liborPeriodDiscretization)
 	 * @return A random variable (e.g. as a vector of doubles) representing the volatility for each path.
 	 */
@@ -52,14 +52,14 @@ public abstract class LIBORVolatilityModel {
 	/**
 	 * @return Returns the liborPeriodDiscretization.
 	 */
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
 
 	/**
-	 * @return Returns the timeDiscretization.
+	 * @return Returns the timeDiscretizationFromArray.
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 

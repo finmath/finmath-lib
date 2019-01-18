@@ -20,8 +20,8 @@ import net.finmath.functions.JarqueBeraTest;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
@@ -60,12 +60,12 @@ public class BrownianMotionTest {
 		int seed = 3141;
 		int numberOfFactors = 1;
 		int numberOfPaths = 10000000;
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0, 10, 1.0);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0, 10, 1.0);
 		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed, randomVariableFactory);
 
 		RandomVariable brownianMotionAtTime = brownianMotion.getBrownianIncrement(0, 0);
 		for(int timeIndex=1; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double[] intervalPoints = (new TimeDiscretization(-2, 101, 4.0/100)).getAsDoubleArray();
+			double[] intervalPoints = (new TimeDiscretizationFromArray(-2, 101, 4.0/100)).getAsDoubleArray();
 			double[] histOfNormalFromBM = brownianMotionAtTime.getHistogram(intervalPoints);
 
 			double time = brownianMotionAtTime.getFiltrationTime();
@@ -94,7 +94,7 @@ public class BrownianMotionTest {
 		System.out.println("Test of mean and variance of a single Brownian increment.");
 
 		// Create the time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, (int)(lastTime/dt), dt);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		for(int numberOfPaths = 1000; numberOfPaths <= 100000000; numberOfPaths *= 10) {
 
@@ -136,7 +136,7 @@ public class BrownianMotionTest {
 		System.out.println("Jarque-Bera test of subsequent Brownian increments.");
 
 		// Create the time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, (int)(lastTime/dt), dt);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
 		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
@@ -180,7 +180,7 @@ public class BrownianMotionTest {
 		double dt = 0.001;
 
 		// Create the time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, (int)(lastTime/dt), dt);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
 		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(

@@ -7,8 +7,8 @@ package net.finmath.marketdata.model.volatilities;
 
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Simple swaption market data class.
@@ -27,8 +27,8 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 	private final ForwardCurveInterface				forwardCurve;
 	private final DiscountCurveInterface			discountCurve;
 
-	private final TimeDiscretizationInterface		optionMaturities;
-	private final TimeDiscretizationInterface		tenor;
+	private final TimeDiscretization		optionMaturities;
+	private final TimeDiscretization		tenor;
 
 	private final double							swapPeriodLength;
 	private final double[][]						impliedVolatilities;
@@ -38,8 +38,8 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		super();
 		this.forwardCurve = null;		// Implied vol only.
 		this.discountCurve = null;		// Implied vol only.
-		this.optionMaturities = new TimeDiscretization(optionMaturities);
-		this.tenor = new TimeDiscretization(tenor);
+		this.optionMaturities = new TimeDiscretizationFromArray(optionMaturities);
+		this.tenor = new TimeDiscretizationFromArray(tenor);
 		this.swapPeriodLength = swapPeriodLength;
 		this.impliedVolatilities = impliedVolatilities;
 	}
@@ -48,13 +48,13 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
-		this.optionMaturities = new TimeDiscretization(optionMaturities);
-		this.tenor = new TimeDiscretization(tenor);
+		this.optionMaturities = new TimeDiscretizationFromArray(optionMaturities);
+		this.tenor = new TimeDiscretizationFromArray(tenor);
 		this.swapPeriodLength = swapPeriodLength;
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, TimeDiscretizationInterface optionMatruities, TimeDiscretizationInterface tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, TimeDiscretization optionMatruities, TimeDiscretization tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
@@ -65,12 +65,12 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 	}
 
 	@Override
-	public TimeDiscretizationInterface getOptionMaturities() {
+	public TimeDiscretization getOptionMaturities() {
 		return optionMaturities;
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTenor() {
+	public TimeDiscretization getTenor() {
 		return tenor;
 	}
 
@@ -91,7 +91,7 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 			throw new IllegalArgumentException("Option maturity not part of data.");
 		}
 		if(indexTenorIndex < 0) {
-			throw new IllegalArgumentException("Tenor maturity not part of data.");
+			throw new IllegalArgumentException("TenorFromArray maturity not part of data.");
 		}
 
 		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];
@@ -108,7 +108,7 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 			throw new IllegalArgumentException("Option maturity not part of data.");
 		}
 		if(indexTenorIndex < 0) {
-			throw new IllegalArgumentException("Tenor maturity not part of data.");
+			throw new IllegalArgumentException("TenorFromArray maturity not part of data.");
 		}
 
 		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];

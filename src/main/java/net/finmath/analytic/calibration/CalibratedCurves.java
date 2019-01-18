@@ -31,8 +31,8 @@ import net.finmath.analytic.products.Swap;
 import net.finmath.analytic.products.SwapLeg;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Generate a collection of calibrated curves (discount curves, forward curves)
@@ -109,12 +109,12 @@ public class CalibratedCurves {
 
 		private String				type;
 
-		private	ScheduleInterface	swapTenorDefinitionReceiver;
+		private	Schedule	swapTenorDefinitionReceiver;
 		private String				forwardCurveReceiverName;
 		private double				spreadReceiver;
 		private String				discountCurveReceiverName;
 
-		private ScheduleInterface	swapTenorDefinitionPayer;
+		private Schedule	swapTenorDefinitionPayer;
 		private String				forwardCurvePayerName;
 		private double				spreadPayer;
 		private String				discountCurvePayerName;
@@ -141,10 +141,10 @@ public class CalibratedCurves {
 		public CalibrationSpec(
 				String symbol,
 				String type,
-				ScheduleInterface swapTenorDefinitionReceiver,
+				Schedule swapTenorDefinitionReceiver,
 				String forwardCurveReceiverName, double spreadReceiver,
 				String discountCurveReceiverName,
-				ScheduleInterface swapTenorDefinitionPayer,
+				Schedule swapTenorDefinitionPayer,
 				String forwardCurvePayerName, double spreadPayer,
 				String discountCurvePayerName,
 				String calibrationCurveName,
@@ -181,10 +181,10 @@ public class CalibratedCurves {
 		 */
 		public CalibrationSpec(
 				String type,
-				ScheduleInterface swapTenorDefinitionReceiver,
+				Schedule swapTenorDefinitionReceiver,
 				String forwardCurveReceiverName, double spreadReceiver,
 				String discountCurveReceiverName,
-				ScheduleInterface swapTenorDefinitionPayer,
+				Schedule swapTenorDefinitionPayer,
 				String forwardCurvePayerName, double spreadPayer,
 				String discountCurvePayerName,
 				String calibrationCurveName,
@@ -219,11 +219,11 @@ public class CalibratedCurves {
 				double calibrationTime) {
 			super();
 			this.type = type;
-			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretization(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START));
+			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));
 			this.forwardCurveReceiverName = forwardCurveReceiverName;
 			this.spreadReceiver = spreadReceiver;
 			this.discountCurveReceiverName = discountCurveReceiverName;
-			this.swapTenorDefinitionPayer = new RegularSchedule(new TimeDiscretization(swapTenorDefinitionPayer[0] /* initial */, swapTenorDefinitionPayer[1] /* numberOfTimeSteps */, swapTenorDefinitionPayer[2] /* deltaT */, TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START));
+			this.swapTenorDefinitionPayer = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionPayer[0] /* initial */, swapTenorDefinitionPayer[1] /* numberOfTimeSteps */, swapTenorDefinitionPayer[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));
 			this.forwardCurvePayerName = forwardCurvePayerName;
 			this.spreadPayer = spreadPayer;
 			this.discountCurvePayerName = discountCurvePayerName;
@@ -251,7 +251,7 @@ public class CalibratedCurves {
 				double calibrationTime) {
 			super();
 			this.type = type;
-			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretization(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretization.ShortPeriodLocation.SHORT_PERIOD_AT_START));
+			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));
 			this.forwardCurveReceiverName = forwardCurveReceiverName;
 			this.spreadReceiver = spreadReceiver;
 			this.discountCurveReceiverName = discountCurveReceiverName;
@@ -465,8 +465,8 @@ public class CalibratedCurves {
 			}
 		}
 
-		ScheduleInterface tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
-		ScheduleInterface tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
+		Schedule tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
+		Schedule tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
 
 		AnalyticProductInterface product = null;
 		if(calibrationSpec.type.toLowerCase().equals("deposit")){
@@ -766,7 +766,7 @@ public class CalibratedCurves {
 	 * @param forwardCurveName The name of the forward curve to create.
 	 * @return The forward curve associated with the given name.
 	 */
-	private String createForwardCurve(ScheduleInterface swapTenorDefinition, String forwardCurveName) {
+	private String createForwardCurve(Schedule swapTenorDefinition, String forwardCurveName) {
 
 		/*
 		 * Temporary "hack" - we try to infer index maturity codes from curve name.

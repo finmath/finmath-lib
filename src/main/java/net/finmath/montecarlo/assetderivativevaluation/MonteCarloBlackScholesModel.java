@@ -16,8 +16,8 @@ import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
@@ -53,14 +53,14 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
-	 * @param timeDiscretization The time discretization.
+	 * @param timeDiscretizationFromArray The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
 	 */
 	public MonteCarloBlackScholesModel(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfPaths,
 			double initialValue,
 			double riskFreeRate,
@@ -193,7 +193,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 					newTimes.add(time);
 				}
 			}
-			TimeDiscretizationInterface newTimeDiscretization = new TimeDiscretization(newTimes);
+			TimeDiscretization newTimeDiscretization = new TimeDiscretizationFromArray(newTimes);
 			brownianMotion = brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
 		}
 		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
@@ -221,7 +221,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 

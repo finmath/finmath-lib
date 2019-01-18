@@ -13,14 +13,14 @@ import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements the valuation of a swap using curves (discount curve, forward curve).
  * The swap valuation supports distinct discounting and forward curve.
  * Support for day counting is limited to the capabilities of
- * <code>TimeDiscretizationInterface</code>.
+ * <code>TimeDiscretization</code>.
  *
  * The swap is just the composition of two <code>SwapLeg</code>s, namely the
  * receiver leg and the payer leg. The value of the swap is the value of the receiver leg minus the value of the payer leg.
@@ -48,20 +48,20 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
 	 *
-	 * @param scheduleReceiveLeg Schedule of the receiver leg.
+	 * @param scheduleReceiveLeg ScheduleFromPeriods of the receiver leg.
 	 * @param forwardCurveReceiveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadReceive Fixed spread on the forward or fix rate.
 	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
-	 * @param schedulePayLeg Schedule of the payer leg.
+	 * @param schedulePayLeg ScheduleFromPeriods of the payer leg.
 	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadPay Fixed spread on the forward or fix rate.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 * @param isNotionalExchanged If true, both leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public Swap(ScheduleInterface scheduleReceiveLeg,
+	public Swap(Schedule scheduleReceiveLeg,
 			String forwardCurveReceiveName, double spreadReceive,
 			String discountCurveReceiveName,
-			ScheduleInterface schedulePayLeg,
+			Schedule schedulePayLeg,
 			String forwardCurvePayName, double spreadPay,
 			String discountCurvePayName,
 			boolean isNotionalExchanged
@@ -74,19 +74,19 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	/**
 	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
 	 *
-	 * @param scheduleReceiveLeg Schedule of the receiver leg.
+	 * @param scheduleReceiveLeg ScheduleFromPeriods of the receiver leg.
 	 * @param forwardCurveReceiveName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadReceive Fixed spread on the forward or fix rate.
 	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
-	 * @param schedulePayLeg Schedule of the payer leg.
+	 * @param schedulePayLeg ScheduleFromPeriods of the payer leg.
 	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param spreadPay Fixed spread on the forward or fix rate.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 */
-	public Swap(ScheduleInterface scheduleReceiveLeg,
+	public Swap(Schedule scheduleReceiveLeg,
 			String forwardCurveReceiveName, double spreadReceive,
 			String discountCurveReceiveName,
-			ScheduleInterface schedulePayLeg,
+			Schedule schedulePayLeg,
 			String forwardCurvePayName, double spreadPay,
 			String discountCurvePayName
 			) {
@@ -102,11 +102,11 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		return valueReceiverLeg.sub(valuePayerLeg);
 	}
 
-	public static RandomVariable getForwardSwapRate(TimeDiscretizationInterface fixTenor, TimeDiscretizationInterface floatTenor, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurveInterface forwardCurve) {
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve);
 	}
 
-	public static RandomVariable getForwardSwapRate(TimeDiscretizationInterface fixTenor, TimeDiscretizationInterface floatTenor, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) {
+	public static RandomVariable getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) {
 		AnalyticModel model = null;
 		if(discountCurve != null) {
 			model			= new AnalyticModel(new CurveInterface[] { forwardCurve, discountCurve });
@@ -114,11 +114,11 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);
 	}
 
-	public static RandomVariable getForwardSwapRate(ScheduleInterface fixSchedule, ScheduleInterface floatSchedule, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve) {
 		return getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, null);
 	}
 
-	public static RandomVariable getForwardSwapRate(ScheduleInterface fixSchedule, ScheduleInterface floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModelInterface model) {
+	public static RandomVariable getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModelInterface model) {
 		DiscountCurveInterface discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
 		if(discountCurve == null) {
 			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());

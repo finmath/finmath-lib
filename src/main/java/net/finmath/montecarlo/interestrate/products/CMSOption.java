@@ -13,8 +13,8 @@ import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the valuation of an option on a CMS rate.
@@ -134,11 +134,11 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		System.arraycopy(fixingDates, 0, swapTenor, 0, fixingDates.length);
 		swapTenor[swapTenor.length-1] = paymentDates[paymentDates.length-1];
 
-		TimeDiscretizationInterface fixTenor	= new TimeDiscretization(swapTenor);
-		TimeDiscretizationInterface floatTenor	= new TimeDiscretization(swapTenor);
+		TimeDiscretization fixTenor	= new TimeDiscretizationFromArray(swapTenor);
+		TimeDiscretization floatTenor	= new TimeDiscretizationFromArray(swapTenor);
 		double forwardSwapRate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
 		double swapAnnuity = SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
-		double payoffUnit = SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1] - swapTenor[0]);
+		double payoffUnit = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1] - swapTenor[0]);
 		return AnalyticFormulas.huntKennedyCMSOptionValue(forwardSwapRate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit, strike) * (swapTenor[1] - swapTenor[0]);
 	}
 }

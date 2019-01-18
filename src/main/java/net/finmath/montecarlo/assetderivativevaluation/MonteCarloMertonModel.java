@@ -19,7 +19,7 @@ import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class glues together a <code>MertonModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>, namely <code>ProcessEulerScheme</code>,
@@ -55,7 +55,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization and given parameters.
 	 *
-	 * @param timeDiscretization The time discretization.
+	 * @param timeDiscretizationFromArray The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param seed The seed used for the random number generator.
 	 * @param initialValue Spot value.
@@ -66,7 +66,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
 	 */
 	public MonteCarloMertonModel(
-			final TimeDiscretizationInterface timeDiscretization,
+			final TimeDiscretization timeDiscretization,
 			final int numberOfPaths,
 			final int seed,
 			final double initialValue,
@@ -200,7 +200,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 

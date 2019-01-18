@@ -30,7 +30,7 @@ import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Base class for parametric covariance models, see also {@link AbstractLIBORCovarianceModel}.
@@ -61,11 +61,11 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
 	 *
-	 * @param timeDiscretization The vector of simulation time discretization points.
+	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
 	 */
-	public AbstractLIBORCovarianceModelParametric(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
+	public AbstractLIBORCovarianceModelParametric(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 	}
 

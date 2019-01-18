@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.functions.LinearAlgebra;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Simple correlation model given by R, where R is a factor reduced matrix
@@ -35,7 +35,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	private transient double[][]	correlationMatrix;
 	private transient double[][]	factorMatrix;
 
-	public LIBORCorrelationModelThreeParameterExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a, double b, double c, boolean isCalibrateable) {
+	public LIBORCorrelationModelThreeParameterExponentialDecay(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, double a, double b, double c, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.numberOfFactors = numberOfFactors;

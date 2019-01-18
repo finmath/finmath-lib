@@ -9,7 +9,7 @@ import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements the volatility model
@@ -54,7 +54,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	 * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
 	 * \]
 	 *
-	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -62,7 +62,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
-	public LIBORVolatilityModelFourParameterExponentialFormIntegrated(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
+	public LIBORVolatilityModelFourParameterExponentialFormIntegrated(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 		this.a = a;
 		this.b = b;

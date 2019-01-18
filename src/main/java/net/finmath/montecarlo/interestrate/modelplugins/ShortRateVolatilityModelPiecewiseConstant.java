@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -20,15 +20,15 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 
 	private static final long serialVersionUID = 4266489807755944607L;
 
-	private TimeDiscretizationInterface timeDiscretization;
-	private TimeDiscretizationInterface volatilityTimeDiscretization;
+	private TimeDiscretization timeDiscretization;
+	private TimeDiscretization volatilityTimeDiscretization;
 	private double[] volatility;
 	private double[] meanReversion;
 	private final AbstractRandomVariableFactory randomVariableFactory;
 	private final boolean isVolatilityCalibrateable;
 	private final RandomVariable[] volatilityRandomVariables;
 
-	public ShortRateVolatilityModelPiecewiseConstant(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface volatilityTimeDiscretization, double[] volatility, double[] meanReversion, boolean isVolatilityCalibrateable) {
+	public ShortRateVolatilityModelPiecewiseConstant(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization volatilityTimeDiscretization, double[] volatility, double[] meanReversion, boolean isVolatilityCalibrateable) {
 		super(timeDiscretization);
 
 		this.timeDiscretization = timeDiscretization;

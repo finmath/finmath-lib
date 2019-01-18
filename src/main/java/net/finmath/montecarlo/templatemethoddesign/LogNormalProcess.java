@@ -6,7 +6,7 @@ package net.finmath.montecarlo.templatemethoddesign;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class is an abstract base class to implement an Euler scheme of a multi-dimensional multi-factor log-normal Ito process.
@@ -25,7 +25,7 @@ public abstract class LogNormalProcess {
 	private RandomVariable[][]     discreteProcess         = null;
 	private RandomVariable[]       discreteProcessWeights  = null;
 
-	private TimeDiscretizationInterface	timeDiscretization;
+	private TimeDiscretization	timeDiscretization;
 	private int			numberOfComponents;
 	private int			numberOfFactors;
 	private int			numberOfPaths;
@@ -52,12 +52,12 @@ public abstract class LogNormalProcess {
 	/**
 	 * Create a simulation of log normal process.
 	 *
-	 * @param timeDiscretization The time discretization of the process.
+	 * @param timeDiscretizationFromArray The time discretization of the process.
 	 * @param numberOfComponents The number of components (the dimension of the process).
 	 * @param numberOfPaths The number of path of the simulation.
 	 */
 	public LogNormalProcess(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfComponents,
 			int numberOfPaths) {
 		super();
@@ -77,14 +77,14 @@ public abstract class LogNormalProcess {
 	/**
 	 * Create a simulation of log normal process.
 	 *
-	 * @param timeDiscretization The time discretization of the process.
+	 * @param timeDiscretizationFromArray The time discretization of the process.
 	 * @param numberOfComponents The number of components (the dimension of the process).
 	 * @param numberOfFactors The number of factors of the process.
 	 * @param numberOfPaths The number of path of the simulation.
 	 * @param seed The seed of the underlying random number generator.
 	 */
 	public LogNormalProcess(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfComponents,
 			int numberOfFactors,
 			int numberOfPaths,
@@ -352,9 +352,9 @@ public abstract class LogNormalProcess {
 	}
 
 	/**
-	 * @return Returns the timeDiscretization.
+	 * @return Returns the timeDiscretizationFromArray.
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 

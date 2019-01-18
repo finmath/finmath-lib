@@ -11,7 +11,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * The interface for a model of a stochastic process <i>X</i> where
@@ -62,7 +62,7 @@ public interface AbstractModelInterface {
 	 *
 	 * @return The time discretization
 	 */
-	TimeDiscretizationInterface getTimeDiscretization();
+	TimeDiscretization getTimeDiscretization();
 
 	/**
 	 * Returns the number of components

@@ -21,7 +21,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModel
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements a Hull-White model with time dependent mean reversion speed and time dependent short rate volatility.
@@ -105,7 +105,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 
 	private static final long serialVersionUID = 8677410149401310062L;
 
-	private final TimeDiscretizationInterface		liborPeriodDiscretization;
+	private final TimeDiscretization		liborPeriodDiscretization;
 
 	private String							forwardCurveName;
 	private AnalyticModelInterface			curveModel;
@@ -133,7 +133,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 	 */
 	public HullWhiteModel(
 			AbstractRandomVariableFactory		randomVariableFactory,
-			TimeDiscretizationInterface			liborPeriodDiscretization,
+			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModelInterface				analyticModel,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
@@ -163,7 +163,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 	 * @param properties A map specifying model properties (currently not used, may be null).
 	 */
 	public HullWhiteModel(
-			TimeDiscretizationInterface			liborPeriodDiscretization,
+			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModelInterface				analyticModel,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
@@ -188,7 +188,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 	 */
 	public static HullWhiteModel of(
 			AbstractRandomVariableFactory		randomVariableFactory,
-			TimeDiscretizationInterface			liborPeriodDiscretization,
+			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModelInterface				analyticModel,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
@@ -373,7 +373,7 @@ public class HullWhiteModel extends AbstractModel implements HullWhiteModelInter
 	}
 
 	@Override
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
 

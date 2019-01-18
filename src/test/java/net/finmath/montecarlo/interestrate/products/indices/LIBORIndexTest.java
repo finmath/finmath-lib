@@ -46,8 +46,8 @@ import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.components.Period;
 import net.finmath.montecarlo.interestrate.products.components.ProductCollection;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
@@ -171,7 +171,7 @@ public class LIBORIndexTest {
 		NumberFormat formatDec2 = new DecimalFormat("0.00");
 		NumberFormat formatDec6 = new DecimalFormat("0.000000");
 
-		TimeDiscretizationInterface liborPeriodDiscretization = liborMarketModel.getLiborPeriodDiscretization();
+		TimeDiscretization liborPeriodDiscretization = liborMarketModel.getLiborPeriodDiscretization();
 
 		for(int iPeriodStart=liborPeriodDiscretization.getNumberOfTimeSteps()-2; iPeriodStart < liborPeriodDiscretization.getNumberOfTimeSteps()-1; iPeriodStart++) {
 			double periodStart	= liborPeriodDiscretization.getTime(3);
@@ -208,7 +208,7 @@ public class LIBORIndexTest {
 		 */
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16);
 
@@ -257,16 +257,16 @@ public class LIBORIndexTest {
 		double lastTime	= 20.0;
 		double dt		= 0.50;
 
-		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
+		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double[][] volatility = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for (int timeIndex = 0; timeIndex < volatility.length; timeIndex++) {
 			for (int liborIndex = 0; liborIndex < volatility[timeIndex].length; liborIndex++) {
 				// Create a very simple volatility model here
-				double time = timeDiscretization.getTime(timeIndex);
+				double time = timeDiscretizationFromArray.getTime(timeIndex);
 				double maturity = liborPeriodDiscretization.getTime(liborIndex);
 				double timeToMaturity = maturity - time;
 
@@ -281,13 +281,13 @@ public class LIBORIndexTest {
 				volatility[timeIndex][liborIndex] = instVolatility;
 			}
 		}
-		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretization, liborPeriodDiscretization, volatility);
+		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
 		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
-				timeDiscretization, liborPeriodDiscretization, numberOfFactors,
+				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
 
@@ -295,7 +295,7 @@ public class LIBORIndexTest {
 		 * Combine volatility model and correlation model to a covariance model
 		 */
 		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
-				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization,
+				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// BlendedLocalVolatlityModel (future extension)
@@ -320,7 +320,7 @@ public class LIBORIndexTest {
 		//		LIBORMarketModel(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 8787 /* seed */));
 		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 

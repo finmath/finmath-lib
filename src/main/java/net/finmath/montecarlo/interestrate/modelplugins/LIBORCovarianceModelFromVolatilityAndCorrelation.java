@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import java.util.Arrays;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A covariance model build from a volatility model implementing
@@ -32,7 +32,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	private LIBORVolatilityModel	volatilityModel;
 	private LIBORCorrelationModel	correlationModel;
 
-	public LIBORCovarianceModelFromVolatilityAndCorrelation(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, LIBORVolatilityModel volatilityModel, LIBORCorrelationModel correlationModel) {
+	public LIBORCovarianceModelFromVolatilityAndCorrelation(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, LIBORVolatilityModel volatilityModel, LIBORCorrelationModel correlationModel) {
 		super(timeDiscretization, liborPeriodDiscretization, correlationModel.getNumberOfFactors());
 
 		this.volatilityModel = volatilityModel;

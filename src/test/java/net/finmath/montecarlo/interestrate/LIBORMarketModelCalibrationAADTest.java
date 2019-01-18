@@ -71,9 +71,9 @@ import net.finmath.optimizer.StochasticOptimizerInterface;
 import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
@@ -403,15 +403,15 @@ public class LIBORMarketModelCalibrationAADTest {
 			// If simulation time is below libor time, exceptions will be hard to track.
 			double lastTime	= 40.0;
 			double dt		= 0.25;
-			TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
-			final TimeDiscretizationInterface liborPeriodDiscretization = timeDiscretization;
+			TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+			final TimeDiscretization liborPeriodDiscretization = timeDiscretizationFromArray;
 
 			/*
 			 * Create Brownian motions
 			 */
-			final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+			final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, seed);
 
-			AbstractLIBORCovarianceModelParametric covarianceModelParametric = createInitialCovarianceModel(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, numberOfFactors);
+			AbstractLIBORCovarianceModelParametric covarianceModelParametric = createInitialCovarianceModel(randomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors);
 
 			// Set model properties
 			Map<String, Object> calibrtionProperties = new HashMap<String, Object>();
@@ -541,8 +541,8 @@ public class LIBORMarketModelCalibrationAADTest {
 		curveIsParameter[0] = false;
 		for(int i=0; i<rates.length; i++) {
 
-			ScheduleInterface schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-			ScheduleInterface scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			Schedule scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 
 			curveMaturities[i+1] = Math.max(schedulePay.getPayment(schedulePay.getNumberOfPeriods()-1),scheduleRec.getPayment(scheduleRec.getNumberOfPeriods()-1));
 			curveValue[i+1] = 1.0;
@@ -589,7 +589,7 @@ public class LIBORMarketModelCalibrationAADTest {
 	}
 
 	private static double getParSwaprate(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] swapTenor) {
-		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve, discountCurve);
+		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), forwardCurve, discountCurve);
 	}
 
 	private static CalibrationProduct createATMCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, ValueUnit valueUnit) throws CalculationException {
@@ -615,7 +615,7 @@ public class LIBORMarketModelCalibrationAADTest {
 		switch(valueUnit) {
 		case VALUE:
 			double swaprate = moneyness + getParSwaprate(forwardCurve, discountCurve, swapTenor);
-			double swapannuity = SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve);
+			double swapannuity = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), discountCurve);
 			double targetPrice = AnalyticFormulas.bachelierOptionValue(
 					new RandomVariableFromDoubleArray(swaprate),
 					new RandomVariableFromDoubleArray(targetVolatility), swapTenor[0], swaprate,
@@ -667,7 +667,7 @@ public class LIBORMarketModelCalibrationAADTest {
 			double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(
 					swaprate, targetVolatility,
 					fixingDates[0], swaprate,
-					SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve));
+					SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), discountCurve));
 			calibrationProduct = new CalibrationProduct(swaptionMonteCarlo, targetValuePrice, weight);
 			break;
 		case INTEGRATEDLOGNORMALVARIANCE:
@@ -775,17 +775,17 @@ public class LIBORMarketModelCalibrationAADTest {
 	}
 
 
-	private static AbstractLIBORCovarianceModelParametric createInitialCovarianceModel(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
+	private static AbstractLIBORCovarianceModelParametric createInitialCovarianceModel(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
 		/* volatility model from piecewise constant interpolated matrix */
-		TimeDiscretizationInterface volatilitySurfaceDiscretization = new TimeDiscretization(0.00, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0);
+		TimeDiscretization volatilitySurfaceDiscretization = new TimeDiscretizationFromArray(0.00, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0);
 		RandomVariable[] initialVolatility = new RandomVariable[] { randomVariableFactory.createRandomVariable(0.50 / 100) };
 		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelPiecewiseConstant(timeDiscretization, liborPeriodDiscretization, volatilitySurfaceDiscretization, volatilitySurfaceDiscretization, initialVolatility, true);
 
 		//		/* volatility model from given matrix */
 		//		double initialVolatility = 0.005;
-		//		double[][] volatility = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
-		//		for(int i = 0; i < timeDiscretization.getNumberOfTimeSteps(); i++) Arrays.fill(volatility[i], initialVolatility);
-		//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatility);
+		//		double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		//		for(int i = 0; i < timeDiscretizationFromArray.getNumberOfTimeSteps(); i++) Arrays.fill(volatility[i], initialVolatility);
+		//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 		/* Correlation Model with exponential decay */
 		LIBORCorrelationModel correlationModel = new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, 0.05, false);

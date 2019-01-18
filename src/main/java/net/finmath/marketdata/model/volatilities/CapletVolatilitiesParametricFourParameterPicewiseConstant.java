@@ -9,7 +9,7 @@ package net.finmath.marketdata.model.volatilities;
 import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A parametric caplet volatility surface created form the
@@ -27,7 +27,7 @@ import net.finmath.time.TimeDiscretizationInterface;
 public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends AbstractVolatilitySurfaceParametric {
 
 	private final double a,b,c,d;
-	private final TimeDiscretizationInterface timeDiscretization;
+	private final TimeDiscretization timeDiscretization;
 
 	/**
 	 * Create a model with parameters a,b,c,d.
@@ -38,9 +38,9 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @param b The parameter b
 	 * @param c The parameter c
 	 * @param d The parameter d
-	 * @param timeDiscretization The timeDiscretization used in numerical integration.
+	 * @param timeDiscretizationFromArray The timeDiscretizationFromArray used in numerical integration.
 	 */
-	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, LocalDate referenceDate, double a, double b, double c, double d, TimeDiscretizationInterface timeDiscretization) {
+	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, LocalDate referenceDate, double a, double b, double c, double d, TimeDiscretization timeDiscretization) {
 		super(name, referenceDate);
 		this.a = a;
 		this.b = b;

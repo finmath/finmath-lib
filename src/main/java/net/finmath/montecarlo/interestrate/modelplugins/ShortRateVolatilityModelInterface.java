@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.io.Serializable;
 
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Interface for piecewise constant short rate volatility models with
@@ -26,7 +26,7 @@ public interface ShortRateVolatilityModelInterface extends Serializable {
 	 *
 	 * @return the time discretization \( \{ t_{i} \} \)
 	 */
-	TimeDiscretizationInterface getTimeDiscretization();
+	TimeDiscretization getTimeDiscretization();
 
 	/**
 	 * Returns the value of \( \sigma(t) \) for \( t_{i} \leq t &lt; t_{i+1} \).

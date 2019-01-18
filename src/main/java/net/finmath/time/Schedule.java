@@ -7,14 +7,12 @@
 package net.finmath.time;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
- * A schedule of interest rate periods with
+ * Interface of a schedule of interest rate periods with
  * a fixing and payment.
  *
  * The periods have two representations: one a {@link net.finmath.time.Period}
@@ -26,129 +24,104 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class Schedule implements ScheduleInterface {
+public interface Schedule extends Iterable<Period> {
 
-	private			LocalDate					referenceDate;
+	/**
+	 * Returns the reference data of this schedule.
+	 * The reference date is only used to convert dates to doubles using
+	 * and internal daycount conventions (ACT/365) which does not need to agree
+	 * with the daycount convention used to calculate period length.
+	 *
+	 * @return The reference data of this schedule corresponding to t=0.
+	 */
+	LocalDate getReferenceDate();
 
-	private List<Period>			periods;
-	private DayCountConventionInterface	daycountconvention;
+	/**
+	 * Returns the array of periods.
+	 *
+	 * @return The array of periods.
+	 */
+	List<Period> getPeriods();
 
-	private double[] fixingTimes;
-	private double[] paymentTimes;
-	private double[] periodStartTimes;
-	private double[] periodEndTimes;
-	private double[] periodLength;
+	/**
+	 * Returns the daycount convention used to calculate period lengths.
+	 *
+	 * @return The daycount convention used to calculate period lengths.
+	 */
+	DayCountConventionInterface getDaycountconvention();
 
-	public Schedule(LocalDate referenceDate, DayCountConventionInterface daycountconvention, Period... periods) {
-		this(referenceDate, Arrays.asList(periods), daycountconvention);
-	}
+	/**
+	 * Returns the number of periods.
+	 *
+	 * @return The number of periods.
+	 */
+	int getNumberOfPeriods();
 
-	public Schedule(LocalDate referenceDate, List<Period> periods, DayCountConventionInterface daycountconvention) {
-		super();
-		if(referenceDate == null) throw new IllegalArgumentException("referenceDate must not be null.");
+	/**
+	 * Return the period for a given period index.
+	 *
+	 * @param periodIndex A given period index.
+	 * @return The period for the given period index.
+	 */
+	Period getPeriod(int periodIndex);
 
-		this.referenceDate = referenceDate;
-		this.periods = periods;
-		this.daycountconvention = daycountconvention;
+	/**
+	 * Return the fixing converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 *
+	 * @param periodIndex A given period index.
+	 * @return The fixing converted to the internal daycounting relative to the schedules reference date.
+	 */
+	double getFixing(int periodIndex);
 
-		// Precalculate dates to yearfrac doubles
-		fixingTimes = new double[periods.size()];
-		paymentTimes = new double[periods.size()];
-		periodStartTimes = new double[periods.size()];
-		periodEndTimes = new double[periods.size()];
-		periodLength = new double[periods.size()];
-		for(int periodIndex=0; periodIndex < periods.size(); periodIndex++) {
-			fixingTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getFixing());
-			paymentTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPayment());
-			periodStartTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPeriodStart());
-			periodEndTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPeriodEnd());
-			periodLength[periodIndex] = daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());
-		}
-	}
+	/**
+	 * Return the payment date converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 *
+	 * @param periodIndex A given period index.
+	 * @return The payment date converted to the internal daycounting relative to the schedules reference date.
+	 */
+	double getPayment(int periodIndex);
 
-	@Override
-	public LocalDate getReferenceDate() {
-		return referenceDate;
-	}
+	/**
+	 * Return the period start date converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 *
+	 * @param periodIndex A given period index.
+	 * @return The period start date converted to the internal daycounting relative to the schedules reference date.
+	 */
+	double getPeriodStart(int periodIndex);
 
-	@Override
-	public List<Period> getPeriods() {
-		return periods;
-	}
+	/**
+	 * Return the period end date converted to the internal daycounting relative
+	 * to the schedules reference date.
+	 *
+	 * @param periodIndex A given period index.
+	 * @return The period end date converted to the internal daycounting relative to the schedules reference date.
+	 */
+	double getPeriodEnd(int periodIndex);
 
-	@Override
-	public DayCountConventionInterface getDaycountconvention() {
-		return daycountconvention;
-	}
+	/**
+	 * Return the period length for a given period index.
+	 *
+	 * @param periodIndex A given period index.
+	 * @return The period length for a given period index.
+	 */
+	double getPeriodLength(int periodIndex);
 
-	@Override
-	public int getNumberOfPeriods() {
-		return periods.size();
-	}
+	/**
+	 * Return the index of the period which contains the given time point.
+	 *
+	 * @param time A given time.
+	 * @return The period index of the .
+	 */
+	int getPeriodIndex(double time);
 
-	@Override
-	public Period getPeriod(int periodIndex) {
-		return periods.get(periodIndex);
-	}
-
-	@Override
-	public double getFixing(int periodIndex) {
-		return fixingTimes[periodIndex];
-	}
-
-	@Override
-	public double getPayment(int periodIndex) {
-		return paymentTimes[periodIndex];
-	}
-
-	@Override
-	public double getPeriodStart(int periodIndex) {
-		return periodStartTimes[periodIndex];
-	}
-
-	@Override
-	public double getPeriodEnd(int periodIndex) {
-		return periodEndTimes[periodIndex];
-	}
-
-	@Override
-	public double getPeriodLength(int periodIndex) {
-		return periodLength[periodIndex];
-	}
-
-	@Override
-	public Iterator<Period> iterator() {
-		return periods.iterator();
-	}
-
-	@Override
-	public int getPeriodIndex(double time) {
-		if(time< getPeriodStart(0)|| time>= getPeriodEnd(getNumberOfPeriods()-1)) {
-			throw new IllegalArgumentException("Time point not included");
-		}
-		for(int i=0; i<getNumberOfPeriods()-1;i++) {
-			if(time<=getPeriodEnd(i)) {
-				return i;
-			}
-		}
-		return getNumberOfPeriods()-1;
-	}
-
-	@Override
-	public int getPeriodIndex(LocalDate date) {
-		double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(),date);
-		return getPeriodIndex(floatingDate);
-	}
-
-	@Override
-	public String toString() {
-		String periodOutputString = "Periods (fixing, periodStart, periodEnd, payment):";
-		for(int periodIndex=0; periodIndex<periods.size(); periodIndex++) {
-			periodOutputString += "\n" + periods.get(periodIndex).getFixing() + ", " +
-					periods.get(periodIndex).getPeriodStart() + ", " +
-					periods.get(periodIndex).getPeriodEnd() + ", " +
-					periods.get(periodIndex).getPayment();
-		}
-		return "Schedule [referenceDate=" + referenceDate + ", daycountconvention=" + daycountconvention + "\n" + periodOutputString + "]";
-	}
+	/**
+	 * Return the index of the period which contains the given date.
+	 *
+	 * @param date A given date.
+	 * @return The period index of the .
+	 */
+	int getPeriodIndex(LocalDate date);
 }

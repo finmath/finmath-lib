@@ -4,12 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 import net.finmath.time.Period;
-import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleFromPeriods;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
@@ -43,7 +43,7 @@ public class ScheduleDescriptor {
 	 *
 	 * @param schedule The schedule.
 	 */
-	public ScheduleDescriptor(ScheduleInterface schedule) {
+	public ScheduleDescriptor(Schedule schedule) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(schedule.getPeriods(), schedule.getDaycountconvention());
 	}
@@ -98,7 +98,7 @@ public class ScheduleDescriptor {
 	 * @param referenceDate The desired reference date.
 	 * @return The schedule relative to the reference date.
 	 */
-	public ScheduleInterface getSchedule(LocalDate referenceDate) {
+	public Schedule getSchedule(LocalDate referenceDate) {
 		return descriptor.getSchedule(referenceDate);
 	}
 
@@ -126,7 +126,7 @@ public class ScheduleDescriptor {
 		 * @param referenceDate The desired reference date.
 		 * @return The schedule relative to the reference date.
 		 */
-		ScheduleInterface getSchedule(LocalDate referenceDate);
+		Schedule getSchedule(LocalDate referenceDate);
 	}
 
 	/**
@@ -149,8 +149,8 @@ public class ScheduleDescriptor {
 		}
 
 		@Override
-		public ScheduleInterface getSchedule(LocalDate referenceDate) {
-			return new Schedule(referenceDate, periods, daycountConvention);
+		public Schedule getSchedule(LocalDate referenceDate) {
+			return new ScheduleFromPeriods(referenceDate, periods, daycountConvention);
 		}
 
 	}
@@ -195,7 +195,7 @@ public class ScheduleDescriptor {
 
 
 		@Override
-		public ScheduleInterface getSchedule(LocalDate referenceDate) {
+		public Schedule getSchedule(LocalDate referenceDate) {
 			return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention,
 					businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
 		}

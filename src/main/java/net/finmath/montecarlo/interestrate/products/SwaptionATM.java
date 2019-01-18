@@ -9,8 +9,8 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * A lightweight ATM swaption product used for calibration.
@@ -21,12 +21,12 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 
-	private final TimeDiscretizationInterface	tenor;
+	private final TimeDiscretization	tenor;
 	private final ValueUnit						valueUnit;
 
 	public SwaptionATM(double[] swapTenor, ValueUnit valueUnit) {
 		super();
-		this.tenor = new TimeDiscretization(swapTenor);
+		this.tenor = new TimeDiscretizationFromArray(swapTenor);
 		this.valueUnit = valueUnit;
 	}
 

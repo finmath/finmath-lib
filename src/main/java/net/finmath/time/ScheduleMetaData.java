@@ -49,7 +49,7 @@ public class ScheduleMetaData implements Serializable {
 	 * @param schedule The schedule.
 	 * @return The offset code as String
 	 */
-	public static String getOffsetCodeFromSchedule(ScheduleInterface schedule) {
+	public static String getOffsetCodeFromSchedule(Schedule schedule) {
 
 		double doubleLength = 0;
 		for(int i = 0; i < schedule.getNumberOfPeriods(); i ++) {
@@ -136,7 +136,7 @@ public class ScheduleMetaData implements Serializable {
 	 * @param endDate The end date.
 	 * @return The schedule
 	 */
-	public ScheduleInterface generateSchedule(LocalDate referenceDate, LocalDate startDate, LocalDate endDate) {
+	public Schedule generateSchedule(LocalDate referenceDate, LocalDate startDate, LocalDate endDate) {
 		return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, endDate, getFrequency(), getDaycountConvention(),
 				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
 	}
@@ -149,7 +149,7 @@ public class ScheduleMetaData implements Serializable {
 	 * @param termination Offset of the end date to the reference date in months
 	 * @return The schedule
 	 */
-	public ScheduleInterface generateSchedule(LocalDate referenceDate, int maturity, int termination) {
+	public Schedule generateSchedule(LocalDate referenceDate, int maturity, int termination) {
 		return generateSchedule(referenceDate, maturity, termination, OffsetUnit.MONTHS);
 	}
 
@@ -162,7 +162,7 @@ public class ScheduleMetaData implements Serializable {
 	 * @param unit The convention to use for the offset
 	 * @return The schedule
 	 */
-	public ScheduleInterface generateSchedule(LocalDate referenceDate, int maturity, int termination, OffsetUnit unit) {
+	public Schedule generateSchedule(LocalDate referenceDate, int maturity, int termination, OffsetUnit unit) {
 
 		LocalDate startDate;
 		LocalDate endDate;

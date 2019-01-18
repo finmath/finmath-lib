@@ -35,8 +35,8 @@ import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This test checks several methods for calculating the delta of a digital option. Among the methods
@@ -125,7 +125,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		Map<String, Object> results = new HashMap<String, Object>();
 
 		// Create Brownian motion with specified seed
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		/*

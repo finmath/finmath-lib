@@ -18,7 +18,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModel
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements a Hull-White model with time dependent mean reversion speed and time dependent short rate volatility.
@@ -104,7 +104,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class HullWhiteModelWithDirectSimulation extends AbstractModel implements LIBORModelInterface {
 
-	private final TimeDiscretizationInterface		liborPeriodDiscretization;
+	private final TimeDiscretization		liborPeriodDiscretization;
 
 	private String							forwardCurveName;
 	private AnalyticModelInterface			curveModel;
@@ -133,7 +133,7 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	 * @param properties A map specifying model properties (currently not used, may be null).
 	 */
 	public HullWhiteModelWithDirectSimulation(
-			TimeDiscretizationInterface			liborPeriodDiscretization,
+			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModelInterface				analyticModel,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
@@ -322,7 +322,7 @@ public class HullWhiteModelWithDirectSimulation extends AbstractModel implements
 	}
 
 	@Override
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
 

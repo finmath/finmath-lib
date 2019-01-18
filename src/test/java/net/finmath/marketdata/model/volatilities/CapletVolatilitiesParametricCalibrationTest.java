@@ -144,7 +144,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		double a = 0.5, b = 1.00, c = 0.5, d = 0.20;
 
 		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, a, b, c, d, 1.0);
-		//		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametricFourParameterPicewiseConstant("Caplet", null, a, b, c, d, new TimeDiscretization(0.0, 100, 0.5));
+		//		AbstractVolatilitySurfaceParametric capletVolatility = new CapletVolatilitiesParametricFourParameterPicewiseConstant("Caplet", null, a, b, c, d, new TimeDiscretizationFromArray(0.0, 100, 0.5));
 
 
 		/*

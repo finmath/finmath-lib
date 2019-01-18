@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements the volatility model
@@ -58,7 +58,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -66,7 +66,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
-	public LIBORVolatilityModelFourParameterExponentialForm(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
+	public LIBORVolatilityModelFourParameterExponentialForm(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 		this.randomVariableFactory = randomVariableFactory;
 		this.a = a;
@@ -79,7 +79,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
-	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -87,7 +87,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
-	public LIBORVolatilityModelFourParameterExponentialForm(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
+	public LIBORVolatilityModelFourParameterExponentialForm(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
 		this(null, timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
 	}
 

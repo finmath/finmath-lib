@@ -22,8 +22,8 @@ import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 
 /**
@@ -138,7 +138,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		 */
 		if(model == null) {
 			// Create the time discretization
-			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, deltaT);
+			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
 			int seed = 3141;
 			// Create an instance of a black scholes monte carlo model
@@ -212,7 +212,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		 */
 		AssetModelMonteCarloSimulationInterface model = getModel();
 
-		TimeDiscretizationInterface modelTimeDiscretization = model.getTimeDiscretization();
+		TimeDiscretization modelTimeDiscretization = model.getTimeDiscretization();
 
 		System.out.println("Time \tAverage \t\tVariance");
 		for(double time : modelTimeDiscretization) {
@@ -287,7 +287,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		 */
 		double[] averagingPoints = { 1.0, 1.5, 2.0, 2.5 , 3.0 };
 
-		AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretization(averagingPoints));
+		AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretizationFromArray(averagingPoints));
 		double valueOfAsianOption = myAsianOption.getValue(model);
 
 		/*
@@ -340,7 +340,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 				public void run() {
 					try {
 						for(int i=0;i<10000; i++) {
-							AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretization(averagingPoints));
+							AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretizationFromArray(averagingPoints));
 							double valueOfAsianOption = myAsianOption.getValue(model);
 							System.out.println("Thread " + threadNummer + ": Value of Asian Option " + i + " is " + valueOfAsianOption);
 						}

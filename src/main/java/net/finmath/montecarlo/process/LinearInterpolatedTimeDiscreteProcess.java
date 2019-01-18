@@ -12,8 +12,8 @@ import java.util.function.DoubleUnaryOperator;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * A linear interpolated time discrete process, that is, given a collection of tuples
@@ -32,7 +32,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 
-	private TimeDiscretizationInterface timeDiscretization;
+	private TimeDiscretization timeDiscretization;
 	private Map<Double, RandomVariable> realizations;
 
 	/**
@@ -42,7 +42,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	 */
 	public LinearInterpolatedTimeDiscreteProcess(Map<Double, RandomVariable> realizations) {
 		super();
-		this.timeDiscretization = new TimeDiscretization(realizations.keySet());
+		this.timeDiscretization = new TimeDiscretizationFromArray(realizations.keySet());
 		this.realizations = new HashMap<>();
 		this.realizations.putAll(realizations);
 	}
@@ -50,10 +50,10 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	/**
 	 * Private constructor. Note: The arguments are not cloned.
 	 *
-	 * @param timeDiscretization The time discretization.
+	 * @param timeDiscretizationFromArray The time discretization.
 	 * @param realizations The map from Double to RandomVariable.
 	 */
-	private LinearInterpolatedTimeDiscreteProcess(TimeDiscretizationInterface timeDiscretization, Map<Double, RandomVariable> realizations) {
+	private LinearInterpolatedTimeDiscreteProcess(TimeDiscretization timeDiscretization, Map<Double, RandomVariable> realizations) {
 		this.timeDiscretization = timeDiscretization;
 		this.realizations = realizations;
 	}
@@ -137,7 +137,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 

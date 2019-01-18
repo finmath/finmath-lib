@@ -28,7 +28,7 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
@@ -150,10 +150,10 @@ public class CalibrationTest {
 		// Create a collection of objective functions (calibration products)
 		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<>();
 
-		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
-		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
-		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), null, 0.03, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
-		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
+		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
+		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 1.0)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
+		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 8, 0.5)), null, 0.03, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 8, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
+		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
 		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurveFromDiscountCurve });
@@ -209,11 +209,11 @@ public class CalibrationTest {
 		Vector<AnalyticProductInterface> calibrationProducts2 = new Vector<>();
 
 		// It is possible to mix tenors (although it may not be meaningful in a forward curve calibration)
-		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)), null, 0.06, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 1, 0.5)), "forwardCurve", 0.0, "discountCurve"));
-		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 2, 0.5)), "forwardCurve", 0.0, "discountCurve"));
-		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 6, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 6, 0.5)), "forwardCurve", 0.0, "discountCurve"));
-		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 8, 0.5)), "forwardCurve", 0.0, "discountCurve"));
-		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretization(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve"));
+		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 1.0)), null, 0.06, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 0.5)), "forwardCurve", 0.0, "discountCurve"));
+		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 0.5)), "forwardCurve", 0.0, "discountCurve"));
+		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 6, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 6, 0.5)), "forwardCurve", 0.0, "discountCurve"));
+		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 8, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 8, 0.5)), "forwardCurve", 0.0, "discountCurve"));
+		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve"));
 
 		// Create a collection of curves to calibrate
 		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<>();

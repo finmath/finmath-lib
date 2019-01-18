@@ -6,7 +6,7 @@
 package net.finmath.montecarlo;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Interface description of a time-discrete n-dimensional stochastic process
@@ -61,7 +61,7 @@ public interface IndependentIncrements {
 	 *
 	 * @return The time discretization used for this set of time-discrete Brownian increments.
 	 */
-	TimeDiscretizationInterface getTimeDiscretization();
+	TimeDiscretization getTimeDiscretization();
 
 	/**
 	 * Returns the number of factors.
@@ -108,5 +108,5 @@ public interface IndependentIncrements {
 	 * @param newTimeDiscretization New time discretization
 	 * @return New object implementing BrownianMotion.
 	 */
-	IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization);
+	IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization);
 }

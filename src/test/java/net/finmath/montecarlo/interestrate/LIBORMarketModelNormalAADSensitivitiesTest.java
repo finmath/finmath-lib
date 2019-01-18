@@ -41,7 +41,7 @@ import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * This class tests the sensitivities calculated from a LIBOR market model and products.
@@ -75,7 +75,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 40.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
@@ -106,7 +106,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		swapTenor[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
 
 		// Swaptions swap rate
-		double swaprate = net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve));
+		double swaprate = net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve));
 
 		// Set swap rates for each period
 		double[] swaprates = new double[numberOfPeriods];
@@ -293,7 +293,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 40.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		double[] times = liborPeriodDiscretization.getAsDoubleArray();
 		double[] rates = new double[times.length];
@@ -319,15 +319,15 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		double lastTime	= 40.0;
 		double dt		= 0.125;
 
-		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
+		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		// Use smaller volatility discretization.
-		TimeDiscretization timeDiscretizationVolatility;
+		TimeDiscretizationFromArray timeDiscretizationVolatility;
 		if(isUseReducedVolatilityMatrix) {
-			timeDiscretizationVolatility = new TimeDiscretization(0.0, 4, 10.0);
+			timeDiscretizationVolatility = new TimeDiscretizationFromArray(0.0, 4, 10.0);
 		}
 		else {
-			timeDiscretizationVolatility = liborPeriodDiscretization;//timeDiscretization;
+			timeDiscretizationVolatility = liborPeriodDiscretization;//timeDiscretizationFromArray;
 		}
 
 		/*
@@ -389,7 +389,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		DiscountCurveFromForwardCurve discountCurve = null;
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
 
-		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, seed);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 

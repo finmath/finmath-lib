@@ -10,7 +10,7 @@ import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 
@@ -21,7 +21,7 @@ public class DepositTest {
 	private final double[] dcFactors = { 1., 1. / 1.05 };
 	private final DiscountCurve dc;
 	private AnalyticModel model;
-	private ScheduleInterface sched;
+	private Schedule sched;
 	private final double accuracy = 1e-10;
 
 	public DepositTest() {

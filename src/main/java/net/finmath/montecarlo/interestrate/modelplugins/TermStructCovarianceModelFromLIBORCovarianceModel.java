@@ -9,7 +9,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelWithTenorRefinement;
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -31,8 +31,8 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretizationInterface periodDiscretization, RandomVariable[] realizationAtTimeIndex, TermStructureModelInterface model) {
-		TimeDiscretizationInterface liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
+	public RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretization periodDiscretization, RandomVariable[] realizationAtTimeIndex, TermStructureModelInterface model) {
+		TimeDiscretization liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
 
 		// Cache is really needed.
 		RandomVariable[] liborAtTimeIndex = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];

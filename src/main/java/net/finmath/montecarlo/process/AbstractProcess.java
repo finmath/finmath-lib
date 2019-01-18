@@ -7,7 +7,7 @@ package net.finmath.montecarlo.process;
 
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class is an abstract base class to implement a multi-dimensional multi-factor Ito process.
@@ -23,14 +23,14 @@ import net.finmath.time.TimeDiscretizationInterface;
 public abstract class AbstractProcess implements AbstractProcessInterface, Cloneable {
 
 	private AbstractModelInterface			model;
-	private TimeDiscretizationInterface		timeDiscretization;
+	private TimeDiscretization		timeDiscretization;
 
 	/**
 	 * Create a discretization scheme / a time discrete process.
 	 *
-	 * @param timeDiscretization The time discretization used for the discretization scheme.
+	 * @param timeDiscretizationFromArray The time discretization used for the discretization scheme.
 	 */
-	public AbstractProcess(TimeDiscretizationInterface timeDiscretization) {
+	public AbstractProcess(TimeDiscretization timeDiscretization) {
 		super();
 		this.timeDiscretization	= timeDiscretization;
 	}
@@ -83,7 +83,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	 */
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 

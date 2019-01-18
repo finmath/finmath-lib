@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -23,7 +23,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	private LIBORVolatilityModelMaturityDependentFourParameterExponentialForm	volatilityModel;
 	private LIBORCorrelationModelThreeParameterExponentialDecay					correlationModel;
 
-	public LIBORCovarianceModelExponentialForm7Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
+	public LIBORCovarianceModelExponentialForm7Param(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 
 		parameter[0] = 0.1;

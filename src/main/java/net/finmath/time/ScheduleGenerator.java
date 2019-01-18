@@ -145,7 +145,7 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Schedule generation for given {referenceDate,startDate,maturityDate}.
+	 * ScheduleFromPeriods generation for given {referenceDate,startDate,maturityDate}.
 	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
@@ -169,7 +169,7 @@ public class ScheduleGenerator {
 	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate startDate,
 			LocalDate maturityDate,
@@ -242,7 +242,7 @@ public class ScheduleGenerator {
 
 		// This should not happen.
 		if(periodLengthDays == 0 && periodLengthWeeks == 0 && periodLengthMonth == 0) {
-			throw new IllegalArgumentException("Schedule generation requires positive period length.");
+			throw new IllegalArgumentException("ScheduleFromPeriods generation requires positive period length.");
 		}
 		if(shortPeriodConvention == ShortPeriodConvention.LAST) {
 			/*
@@ -355,11 +355,11 @@ public class ScheduleGenerator {
 			}
 		}
 
-		return new Schedule(referenceDate, periods, daycountConventionObject);
+		return new ScheduleFromPeriods(referenceDate, periods, daycountConventionObject);
 	}
 
 	/**
-	 * Schedule generation for given {referenceDate,startDate,maturityDate}.
+	 * ScheduleFromPeriods generation for given {referenceDate,startDate,maturityDate}.
 	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
@@ -382,7 +382,7 @@ public class ScheduleGenerator {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate startDate,
 			LocalDate maturityDate,
@@ -399,7 +399,7 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Schedule generation for given {referenceDate,startDate,maturityDate}.
+	 * ScheduleFromPeriods generation for given {referenceDate,startDate,maturityDate}.
 	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
@@ -421,7 +421,7 @@ public class ScheduleGenerator {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate startDate,
 			LocalDate maturityDate,
@@ -449,7 +449,7 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Schedule generation for given {referenceDate,startDate,maturityDate}. Method using Date instead of LocalDate for backward compatibility.
+	 * ScheduleFromPeriods generation for given {referenceDate,startDate,maturityDate}. Method using Date instead of LocalDate for backward compatibility.
 	 *
 	 * Generates a schedule based on some meta data.
 	 * <ul>
@@ -471,7 +471,7 @@ public class ScheduleGenerator {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			Date referenceDate,
 			Date startDate,
 			Date maturityDate,
@@ -517,7 +517,7 @@ public class ScheduleGenerator {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate tradeDate,
 			int spotOffsetDays,
@@ -558,7 +558,7 @@ public class ScheduleGenerator {
 	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			int spotOffsetDays,
 			String startOffsetString,
@@ -610,7 +610,7 @@ public class ScheduleGenerator {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			int spotOffsetDays,
 			String startOffsetString,
@@ -645,7 +645,7 @@ public class ScheduleGenerator {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			String startOffsetString,
 			String maturityString,
@@ -663,7 +663,7 @@ public class ScheduleGenerator {
 	}
 
 	/**
-	 * Schedule generation with futureCodes (in the format DEC17). Futures are assumed to expire on the third wednesday in the respective month.
+	 * ScheduleFromPeriods generation with futureCodes (in the format DEC17). Futures are assumed to expire on the third wednesday in the respective month.
 	 *
 	 * @param referenceDate The date which is used in the schedule to internally convert dates to doubles, i.e., the date where t=0.
 	 * @param futureCode Future code in the format DEC17
@@ -678,7 +678,7 @@ public class ScheduleGenerator {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @return The corresponding schedule
 	 */
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			String futureCode,
 			String startOffsetString,
@@ -743,7 +743,7 @@ public class ScheduleGenerator {
 	 * @deprecated Will be removed in version 2.3
 	 */
 	@Deprecated
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate startDate,
 			String frequency,
@@ -787,7 +787,7 @@ public class ScheduleGenerator {
 	 * @deprecated Will be removed in version 2.3
 	 */
 	@Deprecated
-	public static ScheduleInterface createScheduleFromConventions(
+	public static Schedule createScheduleFromConventions(
 			LocalDate referenceDate,
 			LocalDate startDate,
 			String frequency,

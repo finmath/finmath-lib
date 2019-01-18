@@ -13,7 +13,7 @@ import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class glues together an <code>AbstractModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
@@ -118,7 +118,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 

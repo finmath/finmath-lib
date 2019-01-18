@@ -22,8 +22,8 @@ import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class implements an analytic swaption valuation formula under
@@ -82,7 +82,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 	 * @param swaprate The strike swap rate of the swaption.
 	 * @param swapTenor The swap tenor in doubles.
 	 */
-	public SwaptionAnalyticApproximationRebonato(double swaprate, TimeDiscretizationInterface swapTenor) {
+	public SwaptionAnalyticApproximationRebonato(double swaprate, TimeDiscretization swapTenor) {
 		this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE);
 	}
 
@@ -166,8 +166,8 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 		}
 
 		// Use black formula for swaption to calculate the price
-		double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
-		double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), model.getDiscountCurve());
+		double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
+		double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getDiscountCurve());
 
 		double optionMaturity	= swapStart;
 
@@ -187,7 +187,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 	 * @param swapTenor The swap tenor.
 	 * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
 	 */
-	public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
+	public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretization liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
 		/*
 		 * Small workaround for the case that the discount curve is not set. This part will be removed later.
 		 */

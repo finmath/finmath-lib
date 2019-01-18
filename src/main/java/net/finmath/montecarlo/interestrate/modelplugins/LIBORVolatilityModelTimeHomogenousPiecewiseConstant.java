@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements a piecewise constant volatility model, where
@@ -21,7 +21,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 
 	private static final long serialVersionUID = -1942151065049237807L;
 
-	private final TimeDiscretizationInterface timeToMaturityDiscretization;
+	private final TimeDiscretization timeToMaturityDiscretization;
 	private double[] volatility;
 
 	/**
@@ -29,12 +29,12 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	 * \( \sigma(t,T) = sigma_{i} \) where \( i = \max \{ j : \tau_{j} \leq T-t \} \) and
 	 * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
 	 *
-	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param timeToMaturityDiscretization The discretization \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \)  of the piecewise constant volatility function.
 	 * @param volatility The values \( \sigma_{0}, \sigma_{1}, \ldots, \sigma_{n-1} \) of the piecewise constant volatility function.
 	 */
-	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility) {
+	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization timeToMaturityDiscretization, double[] volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		if(timeToMaturityDiscretization.getTime(0) != 0) {

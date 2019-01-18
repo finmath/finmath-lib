@@ -25,7 +25,7 @@ public class ScheduleGeneratorTest {
 
 	@Test
 	public void testScheduleGeneratorMetaData() {
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(
+		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				LocalDate.of(2012, 10, 12) /* startDate */,
 				LocalDate.of(2013, 1, 12) /* maturity */,
@@ -39,7 +39,7 @@ public class ScheduleGeneratorTest {
 
 		System.out.println(schedule);
 
-		ScheduleInterface schedule2 = ScheduleGenerator.createScheduleFromConventions(
+		Schedule schedule2 = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				"9M 2D" /* startOffset */,
 				"3M" /* maturity */,
@@ -66,7 +66,7 @@ public class ScheduleGeneratorTest {
 
 	@Test
 	public void testPeriodStartPeriodEnd() {
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(
+		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				LocalDate.of(2012, 1, 12) /* startDate */,
 				LocalDate.of(2022, 1, 12) /* maturity */,
@@ -93,7 +93,7 @@ public class ScheduleGeneratorTest {
 
 	@Test
 	public void testPeriodLength() {
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(
+		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				LocalDate.of(2012, 1, 12) /* startDate */,
 				LocalDate.of(2022, 1, 12) /* maturity */,

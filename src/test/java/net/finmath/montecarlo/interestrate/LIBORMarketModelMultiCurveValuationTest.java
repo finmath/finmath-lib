@@ -42,8 +42,8 @@ import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximationRebonato;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class tests the LIBOR market model and products.
@@ -88,7 +88,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 */
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
@@ -112,16 +112,16 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		double lastTime	= 20.0;
 		double dt		= 0.5;
 
-		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
+		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double[][] volatility = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for (int timeIndex = 0; timeIndex < volatility.length; timeIndex++) {
 			for (int liborIndex = 0; liborIndex < volatility[timeIndex].length; liborIndex++) {
 				// Create a very simple volatility model here
-				double time = timeDiscretization.getTime(timeIndex);
+				double time = timeDiscretizationFromArray.getTime(timeIndex);
 				double maturity = liborPeriodDiscretization.getTime(liborIndex);
 				double timeToMaturity = maturity - time;
 
@@ -136,13 +136,13 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				volatility[timeIndex][liborIndex] = instVolatility;
 			}
 		}
-		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretization, liborPeriodDiscretization, volatility);
+		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
 		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
-				timeDiscretization, liborPeriodDiscretization, numberOfFactors,
+				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
 
@@ -150,7 +150,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 * Combine volatility model and correlation model to a covariance model
 		 */
 		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
-				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization,
+				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// BlendedLocalVolatlityModel (future extension)
@@ -174,7 +174,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
@@ -603,7 +603,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		/*
 		 * Take discretization and forward curve from liborMarketModel
 		 */
-		TimeDiscretizationInterface timeDiscretization = liborMarketModel.getTimeDiscretization();
+		TimeDiscretization timeDiscretization = liborMarketModel.getTimeDiscretization();
 
 		DiscountCurveInterface discountCurve = liborMarketModel.getModel().getDiscountCurve();
 		ForwardCurveInterface forwardCurve = liborMarketModel.getModel().getForwardRateCurve();
@@ -647,10 +647,10 @@ public class LIBORMarketModelMultiCurveValuationTest {
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
-		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
+		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), liborMarketModel.getModel().getForwardRateCurve(), liborMarketModel.getModel().getDiscountCurve());
 	}
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
-		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), liborMarketModel.getModel().getDiscountCurve());
+		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), liborMarketModel.getModel().getDiscountCurve());
 	}
 }

@@ -21,7 +21,7 @@ import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 
 /**
  * Product factory of interest rate derivatives for use with a Monte-Carlo method based model.
@@ -83,7 +83,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	 * @param schedule
 	 * @return The Libor index or null, if forwardCurveName is null.
 	 */
-	private static AbstractIndex constructLiborIndex(String forwardCurveName, ScheduleInterface schedule) {
+	private static AbstractIndex constructLiborIndex(String forwardCurveName, Schedule schedule) {
 
 		if(forwardCurveName != null) {
 

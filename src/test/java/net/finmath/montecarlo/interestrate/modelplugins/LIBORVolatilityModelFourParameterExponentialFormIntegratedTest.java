@@ -11,8 +11,8 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Unit test for <code>LIBORVolatilityModelFourParameterExponentialFormIntegrated</code>.
@@ -48,7 +48,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 			double d = dMin + random.nextDouble() * (dMax-dMin);
 
 			int numberOfTimePoints = 20000;
-			TimeDiscretizationInterface td = new TimeDiscretization(0.0, numberOfTimePoints, 10.0/numberOfTimePoints);
+			TimeDiscretization td = new TimeDiscretizationFromArray(0.0, numberOfTimePoints, 10.0/numberOfTimePoints);
 			LIBORVolatilityModelFourParameterExponentialFormIntegrated vol1 = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(td, td, a, b, c, d, false);
 			LIBORVolatilityModelFourParameterExponentialForm vol2 = new LIBORVolatilityModelFourParameterExponentialForm(td, td, a, b, c, d, false);
 

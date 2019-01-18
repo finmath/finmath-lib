@@ -27,8 +27,8 @@ import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 public class CMSOptionTest {
 
@@ -95,11 +95,11 @@ public class CMSOptionTest {
 		System.out.println("CMS Option with Hunt-Kennedy/Black-Scholes..................:\t" + formatterPercent.format(valueCMSOptionHK));
 
 		// Value using convexity adjusted forward rate in a Black-Scholes formula
-		TimeDiscretizationInterface fixTenor	= new TimeDiscretization(swapTenor);
-		TimeDiscretizationInterface floatTenor	= new TimeDiscretization(swapTenor);
+		TimeDiscretization fixTenor	= new TimeDiscretizationFromArray(swapTenor);
+		TimeDiscretization floatTenor	= new TimeDiscretizationFromArray(swapTenor);
 		double rate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
 		double swapAnnuity			= SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
-		double payoffUnit			= SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1]-swapTenor[0]);
+		double payoffUnit			= SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1]-swapTenor[0]);
 		double adjustedCMSRate = AnalyticFormulas.huntKennedyCMSAdjustedRate(rate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit);
 		double valueCMSOptionHKAdjRate	= AnalyticFormulas.blackModelSwaptionValue(adjustedCMSRate, swaprateVolatility, exerciseDate, strike, payoffUnit) * (swapTenor[1]-swapTenor[0]);
 		System.out.println("CMS Option with Black-Scholes using Adjusted Forward Swapate:\t" + formatterPercent.format(valueCMSOptionHKAdjRate));
@@ -134,10 +134,10 @@ public class CMSOptionTest {
 
 	public LIBORModelMonteCarloSimulation getLIBORModelMonteCarloSimulation(ForwardCurveInterface forwardCurve) throws CalculationException {
 		// Create the time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, deltaT);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
 		// Create the tenor discretization
-		TimeDiscretizationInterface tenorDiscretization = new TimeDiscretization(0.0, numberOfPeriods, periodLength);
+		TimeDiscretization tenorDiscretization = new TimeDiscretizationFromArray(0.0, numberOfPeriods, periodLength);
 
 		/*
 		 * Create LIBOR Market Model

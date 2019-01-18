@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements a simple volatility model using given piece-wise constant values on
@@ -42,15 +42,15 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * a given discretization grid.
 	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretization Discretization of simulation time.
+	 * @param timeDiscretizationFromArray Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
-	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
+	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
 			AbstractRandomVariableFactory randomVariableFactory,
-			TimeDiscretizationInterface	timeDiscretization,
-			TimeDiscretizationInterface	liborPeriodDiscretization,
+			TimeDiscretization	timeDiscretization,
+			TimeDiscretization	liborPeriodDiscretization,
 			double[][]	volatility,
 			boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
@@ -67,14 +67,14 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * a given discretization grid.
 	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretization Discretization of simulation time.
+	 * @param timeDiscretizationFromArray Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
-	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
+	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
 			AbstractRandomVariableFactory randomVariableFactory,
-			TimeDiscretizationInterface	timeDiscretization,
-			TimeDiscretizationInterface	liborPeriodDiscretization,
+			TimeDiscretization	timeDiscretization,
+			TimeDiscretization	liborPeriodDiscretization,
 			double[][]	volatility) {
 		this(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatility, true);
 	}
@@ -83,13 +83,13 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * Creates a simple volatility model using given piece-wise constant values on
 	 * a given discretization grid.
 	 *
-	 * @param timeDiscretization Discretization of simulation time.
+	 * @param timeDiscretizationFromArray Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
-	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
+	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			TimeDiscretizationInterface	timeDiscretization,
-			TimeDiscretizationInterface	liborPeriodDiscretization,
+			TimeDiscretization	timeDiscretization,
+			TimeDiscretization	liborPeriodDiscretization,
 			double[][]	volatility) {
 		this(new RandomVariableFactory(), timeDiscretization, liborPeriodDiscretization, volatility);
 	}

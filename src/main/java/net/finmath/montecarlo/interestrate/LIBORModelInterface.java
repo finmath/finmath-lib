@@ -11,7 +11,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -27,7 +27,7 @@ public interface LIBORModelInterface extends TermStructureModelInterface, Indepe
 	 *
 	 * @return The tenor time discretization of the forward rate curve.
 	 */
-	TimeDiscretizationInterface getLiborPeriodDiscretization();
+	TimeDiscretization getLiborPeriodDiscretization();
 
 	/**
 	 * Get the number of LIBORs in the LIBOR discretization.

@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.covariancemodels;
 import java.util.ArrayList;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements a simple volatility model using given piece-wise constant values on
@@ -31,13 +31,13 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * Creates a simple volatility model using given piece-wise constant values on
 	 * a given discretization grid.
 	 *
-	 * @param timeDiscretization Discretization of simulation time.
+	 * @param timeDiscretizationFromArray Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
-	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretization and componentIndex from liborPeriodDiscretization
+	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			TimeDiscretizationInterface	timeDiscretization,
-			TimeDiscretizationInterface	liborPeriodDiscretization,
+			TimeDiscretization	timeDiscretization,
+			TimeDiscretization	liborPeriodDiscretization,
 			RandomVariable[][]	volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
 

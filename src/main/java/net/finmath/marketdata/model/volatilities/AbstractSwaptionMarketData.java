@@ -5,7 +5,7 @@
  */
 package net.finmath.marketdata.model.volatilities;
 
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Basic interface to be implemented by classes
@@ -16,8 +16,8 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public interface AbstractSwaptionMarketData {
 
-	TimeDiscretizationInterface	getOptionMaturities();
-	TimeDiscretizationInterface	getTenor();
+	TimeDiscretization	getOptionMaturities();
+	TimeDiscretization	getTenor();
 	double						getSwapPeriodLength();
 
 	/**

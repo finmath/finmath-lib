@@ -6,8 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
@@ -19,7 +19,7 @@ public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModelIn
 
 	private final double volatility;
 
-	private final TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0);
+	private final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0);
 
 	public ShortRateVolatilityModelHoLee(double volatility) {
 		super();
@@ -27,7 +27,7 @@ public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModelIn
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 

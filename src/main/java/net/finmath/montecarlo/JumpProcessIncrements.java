@@ -12,7 +12,7 @@ import java.util.Arrays;
 import net.finmath.functions.PoissonDistribution;
 import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implementation of a time-discrete n-dimensional jump process
@@ -37,7 +37,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 	private static final long serialVersionUID = -5430067621669213475L;
 
-	private final TimeDiscretizationInterface						timeDiscretization;
+	private final TimeDiscretization						timeDiscretization;
 
 	private final int			numberOfPaths;
 	private final int			seed;
@@ -57,14 +57,14 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	 * by different implementations of the RandomVariable (e.g. the RandomVariableFromFloatArray internally
 	 * using float representations).
 	 *
-	 * @param timeDiscretization The time discretization used for the increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the increments.
 	 * @param jumpIntensities The jump intensities, one for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param randomVariableFactory Factory to be used to create random variable.
 	 */
 	public JumpProcessIncrements(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			double[] jumpIntensities,
 			int numberOfPaths,
 			int seed,
@@ -83,13 +83,13 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	/**
 	 * Construct a jump process.
 	 *
-	 * @param timeDiscretization The time discretization used for the Brownian increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
 	 * @param jumpIntensities The vector of jump intensities, one intensity for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 */
 	public JumpProcessIncrements(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			double[] jumpIntensities,
 			int numberOfPaths,
 			int seed) {
@@ -102,7 +102,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	}
 
 	@Override
-	public JumpProcessIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public JumpProcessIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
 		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
 		return new JumpProcessIncrements(newTimeDiscretization, jumpIntensities, getNumberOfPaths(), getSeed());
 	}
@@ -178,7 +178,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
@@ -206,7 +206,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 	@Override
 	public String toString() {
-		return "JumpProcessIncrements [timeDiscretization=" + timeDiscretization + ", numberOfPaths=" + numberOfPaths
+		return "JumpProcessIncrements [timeDiscretizationFromArray=" + timeDiscretization + ", numberOfPaths=" + numberOfPaths
 				+ ", seed=" + seed + ", jumpIntensities=" + Arrays.toString(jumpIntensities)
 				+ ", randomVariableFactory=" + randomVariableFactory + "]";
 	}

@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.io.Serializable;
 
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A base class and interface description for the instantaneous volatility of
@@ -20,14 +20,14 @@ public abstract class AbstractShortRateVolatilityModel implements ShortRateVolat
 
 	private static final long serialVersionUID = 5364544247367259329L;
 
-	private	TimeDiscretizationInterface		timeDiscretization;
+	private	TimeDiscretization		timeDiscretization;
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
 	 *
-	 * @param timeDiscretization The vector of simulation time discretization points.
+	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
 	 */
-	public AbstractShortRateVolatilityModel(TimeDiscretizationInterface timeDiscretization) {
+	public AbstractShortRateVolatilityModel(TimeDiscretization timeDiscretization) {
 		super();
 		this.timeDiscretization			= timeDiscretization;
 	}
@@ -35,9 +35,9 @@ public abstract class AbstractShortRateVolatilityModel implements ShortRateVolat
 	/**
 	 * The simulation time discretization associated with this model.
 	 *
-	 * @return the timeDiscretization
+	 * @return the timeDiscretizationFromArray
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 }

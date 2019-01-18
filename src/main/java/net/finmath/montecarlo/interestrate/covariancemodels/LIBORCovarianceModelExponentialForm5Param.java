@@ -10,7 +10,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelMaturityDependentFourParameterExponentialForm;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * The five parameter covariance model consisting of an
@@ -33,7 +33,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	private LIBORVolatilityModel		volatilityModel;
 	private LIBORCorrelationModel	correlationModel;
 
-	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, RandomVariable[] parameters) {
+	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, RandomVariable[] parameters) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 
 		this.parameter = parameters.clone();

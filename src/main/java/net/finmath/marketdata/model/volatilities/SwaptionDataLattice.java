@@ -17,7 +17,7 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleMetaData;
 
 /**
@@ -568,8 +568,8 @@ public class SwaptionDataLattice implements Serializable {
 			}
 		}
 
-		ScheduleInterface floatSchedule	= floatMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
-		ScheduleInterface fixSchedule	= fixMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
+		Schedule floatSchedule	= floatMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
+		Schedule fixSchedule	= fixMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);
 
 		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 		double optionMaturity = floatSchedule.getFixing(0);

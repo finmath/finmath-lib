@@ -19,8 +19,8 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.time.Period;
+import net.finmath.time.ScheduleFromPeriods;
 import net.finmath.time.Schedule;
-import net.finmath.time.ScheduleInterface;
 
 /**
  * Implements the valuation of a cap via an analytic model,
@@ -41,7 +41,7 @@ import net.finmath.time.ScheduleInterface;
  */
 public class Cap extends AbstractAnalyticProduct {
 
-	private final ScheduleInterface			schedule;
+	private final Schedule			schedule;
 	private final String					forwardCurveName;
 	private final double					strike;
 	private final boolean					isStrikeMoneyness;
@@ -68,7 +68,7 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @param volatilitySurfaceName The volatility surface to be used.
 	 * @param quotingConvention The quoting convention of the value returned by the {@link #getValue}-method.
 	 */
-	public Cap(ScheduleInterface schedule, String forwardCurveName, double strike, boolean isStrikeMoneyness, String discountCurveName, String volatilitySurfaceName, QuotingConvention quotingConvention) {
+	public Cap(Schedule schedule, String forwardCurveName, double strike, boolean isStrikeMoneyness, String discountCurveName, String volatilitySurfaceName, QuotingConvention quotingConvention) {
 		super();
 		this.schedule = schedule;
 		this.forwardCurveName = forwardCurveName;
@@ -92,7 +92,7 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @param discountCurveName The discount curve to be used for discounting.
 	 * @param volatilitySurfaceName The volatility surface to be used.
 	 */
-	public Cap(ScheduleInterface schedule, String forwardCurveName, double strike, boolean isStrikeMoneyness, String discountCurveName, String volatilitySurfaceName) {
+	public Cap(Schedule schedule, String forwardCurveName, double strike, boolean isStrikeMoneyness, String discountCurveName, String volatilitySurfaceName) {
 		this(schedule, forwardCurveName, strike, isStrikeMoneyness, discountCurveName, volatilitySurfaceName, QuotingConvention.PRICE);
 	}
 
@@ -200,7 +200,7 @@ public class Cap extends AbstractAnalyticProduct {
 			return cachedATMForward;
 		}
 
-		ScheduleInterface remainderSchedule = schedule;
+		Schedule remainderSchedule = schedule;
 		if(!isFirstPeriodIncluded) {
 			ArrayList<Period> periods = new ArrayList<>();
 			periods.addAll(schedule.getPeriods());
@@ -208,7 +208,7 @@ public class Cap extends AbstractAnalyticProduct {
 			if(periods.size() > 1) {
 				periods.remove(0);
 			}
-			remainderSchedule = new Schedule(schedule.getReferenceDate(), periods, schedule.getDaycountconvention());
+			remainderSchedule = new ScheduleFromPeriods(schedule.getReferenceDate(), periods, schedule.getDaycountconvention());
 		}
 
 		SwapLeg floatLeg = new SwapLeg(remainderSchedule, forwardCurveName, 0.0, discountCurveName, false);

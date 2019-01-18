@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 import java.io.Serializable;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A base class and interface description for the instantaneous covariance of
@@ -21,18 +21,18 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 
 	private static final long serialVersionUID = 5364544247367259329L;
 
-	private	TimeDiscretizationInterface		timeDiscretization;
-	private TimeDiscretizationInterface		liborPeriodDiscretization;
+	private	TimeDiscretization		timeDiscretization;
+	private TimeDiscretization		liborPeriodDiscretization;
 	private	int								numberOfFactors;
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
 	 *
-	 * @param timeDiscretization The vector of simulation time discretization points.
+	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
 	 */
-	public AbstractLIBORCovarianceModel(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors) {
+	public AbstractLIBORCovarianceModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
 		super();
 		this.timeDiscretization			= timeDiscretization;
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
@@ -162,9 +162,9 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	/**
 	 * The simulation time discretization associated with this model.
 	 *
-	 * @return the timeDiscretization
+	 * @return the timeDiscretizationFromArray
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
@@ -173,7 +173,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable {
 	 *
 	 * @return the forward rate time discretization associated with this model.
 	 */
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
 

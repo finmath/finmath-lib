@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class implements a Brownian bridge, i.e., samples of realizations of a Brownian motion
@@ -45,7 +45,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class BrownianBridge implements BrownianMotion {
 
-	private final TimeDiscretizationInterface						timeDiscretization;
+	private final TimeDiscretization						timeDiscretization;
 
 	private final int	numberOfFactors;
 	private final int	numberOfPaths;
@@ -62,13 +62,13 @@ public class BrownianBridge implements BrownianMotion {
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
 	 *
-	 * @param timeDiscretization The time discretization used for the Brownian increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param start Start value of the Brownian bridge.
 	 * @param end End value of the Brownian bridge.
 	 */
-	public BrownianBridge(TimeDiscretizationInterface timeDiscretization, int numberOfPaths, int seed, RandomVariable[] start, RandomVariable[] end) {
+	public BrownianBridge(TimeDiscretization timeDiscretization, int numberOfPaths, int seed, RandomVariable[] start, RandomVariable[] end) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors = start.length;
@@ -81,13 +81,13 @@ public class BrownianBridge implements BrownianMotion {
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
 	 *
-	 * @param timeDiscretization The time discretization used for the Brownian increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param start Start value of the Brownian bridge.
 	 * @param end End value of the Brownian bridge.
 	 */
-	public BrownianBridge(TimeDiscretizationInterface timeDiscretization, int numberOfPaths, int seed, RandomVariable start, RandomVariable end) {
+	public BrownianBridge(TimeDiscretization timeDiscretization, int numberOfPaths, int seed, RandomVariable start, RandomVariable end) {
 		this(timeDiscretization, numberOfPaths, seed, new RandomVariable[] {start}, new RandomVariable[] {end});
 	}
 
@@ -148,7 +148,7 @@ public class BrownianBridge implements BrownianMotion {
 	 * @see net.finmath.montecarlo.BrownianMotion#getTimeDiscretization()
 	 */
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
@@ -182,10 +182,10 @@ public class BrownianBridge implements BrownianMotion {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
+	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretization)
 	 */
 	@Override
-	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
 		return new BrownianBridge(newTimeDiscretization, getNumberOfFactors(), seed, start, end);
 	}
 
@@ -211,7 +211,7 @@ public class BrownianBridge implements BrownianMotion {
 	 */
 	@Override
 	public String toString() {
-		return "BrownianBridge [timeDiscretization=" + timeDiscretization
+		return "BrownianBridge [timeDiscretizationFromArray=" + timeDiscretization
 				+ ", numberOfFactors=" + numberOfFactors + ", numberOfPaths="
 				+ numberOfPaths + ", seed=" + seed + ", start="
 				+ Arrays.toString(start) + ", end=" + Arrays.toString(end)

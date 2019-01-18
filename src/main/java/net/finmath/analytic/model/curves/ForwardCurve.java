@@ -330,7 +330,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	public static ForwardCurve createForwardCurveFromMonteCarloLiborModel(String name, LIBORModelMonteCarloSimulationInterface model, double startTime) throws CalculationException{
 
 		int timeIndex	= model.getTimeIndex(startTime);
-		// Get all Libors at timeIndex which are not yet fixed (others null) and times for the timeDiscretization of the curves
+		// Get all Libors at timeIndex which are not yet fixed (others null) and times for the timeDiscretizationFromArray of the curves
 		ArrayList<RandomVariable> liborsAtTimeIndex = new ArrayList<>();
 		int firstLiborIndex = model.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(startTime);
 		double firstLiborTime = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class is an abstract base class to implement a model provided to an AbstractProcess.
@@ -89,7 +89,7 @@ public abstract class AbstractModel implements AbstractModelInterface {
 	 * @see net.finmath.montecarlo.process.AbstractProcess#getTimeDiscretization()
 	 */
 	@Override
-	public final TimeDiscretizationInterface getTimeDiscretization() {
+	public final TimeDiscretization getTimeDiscretization() {
 		return process.getTimeDiscretization();
 	}
 

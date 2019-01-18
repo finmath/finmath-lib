@@ -12,8 +12,8 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
@@ -46,7 +46,7 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 	public AssetModelMonteCarloSimulationInterface getModel()
 	{
 		// Create the time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create an instance of a black scholes monte carlo model
 		AssetModelMonteCarloSimulationInterface model = new MonteCarloBlackScholesModel(
@@ -79,7 +79,7 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 
 		double hedgeErrorRMS = hedgeError.getStandardDeviation();
 
-		TimeDiscretizationInterface td = new TimeDiscretization(-1.0-0.01, 101, 0.02);
+		TimeDiscretization td = new TimeDiscretizationFromArray(-1.0-0.01, 101, 0.02);
 		double[] hedgeErrorHist = hedgeError.getHistogram(td.getAsDoubleArray());
 
 		if(isPrintHedgeErrorDistribution) {

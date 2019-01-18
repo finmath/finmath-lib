@@ -20,7 +20,7 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
 
@@ -79,8 +79,8 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		Vector<AnalyticProductInterface> calibrationProducts = new Vector<>();
 		for(int i=0; i<rates.length; i++) {
 
-			ScheduleInterface schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-			ScheduleInterface scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			Schedule scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 
 			calibrationProducts.add(new Swap(schedulePay, null, rates[i], discountCurve.getName(), scheduleRec, forwardCurve.getName(), 0.0, discountCurve.getName()));
 		}

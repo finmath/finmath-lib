@@ -3,7 +3,7 @@ package net.finmath.marketdata.products;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 
 /**
  * Implements the valuation of a FRA in multi-curve setting.
@@ -22,7 +22,7 @@ import net.finmath.time.ScheduleInterface;
  */
 public class ForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
-	private ScheduleInterface					schedule;
+	private Schedule					schedule;
 	private final String						forwardCurveName;
 	private final double						spread;
 	private final String						discountCurveName;
@@ -37,7 +37,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param discountCurveName Name of the discount curve (possibly multi curve setting).
 	 * @param isPayer If true, the fra pays fix, i.e., the payoff is forward - spread. Otherwise it is spread - forward.
 	 */
-	public ForwardRateAgreement(ScheduleInterface schedule,  double spread, String forwardCurveName, String discountCurveName, boolean isPayer) {
+	public ForwardRateAgreement(Schedule schedule,  double spread, String forwardCurveName, String discountCurveName, boolean isPayer) {
 		super();
 		this.schedule = schedule;
 		this.forwardCurveName = forwardCurveName;
@@ -59,7 +59,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param forwardCurveName Name of the forward curve
 	 * @param discountCurveName Name of the discount curve (possibly multi curve setting).
 	 */
-	public ForwardRateAgreement(ScheduleInterface schedule,  double spread, String forwardCurveName, String discountCurveName) {
+	public ForwardRateAgreement(Schedule schedule,  double spread, String forwardCurveName, String discountCurveName) {
 		this(schedule, spread, forwardCurveName, discountCurveName, true /* isPayer */);
 	}
 

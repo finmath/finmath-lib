@@ -19,8 +19,8 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 //import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 //import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.Curve}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
@@ -370,7 +370,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @param forwardRates Array of forward rates.
 	 * @return A new discount factor object.
 	 */
-	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretizationInterface tenor, RandomVariable [] forwardRates) {
+	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretization tenor, RandomVariable [] forwardRates) {
 		DiscountCurve discountFactors = new DiscountCurve(name);
 		RandomVariable df = forwardRates[0].mult(tenor.getTimeStep(0)).add(1.0).invert();
 		discountFactors.addDiscountFactor(tenor.getTime(1), df, tenor.getTime(1) > 0);
@@ -437,7 +437,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 		for(int i=indexOffset;i<liborTimes.length;i++) {
 			liborTimes[i]=model.getLiborPeriod(firstLiborIndex+i-indexOffset)-time;
 		}
-		DiscountCurve df = (DiscountCurve) createDiscountFactorsFromForwardRates("",new TimeDiscretization(liborTimes), forwardRates);
+		DiscountCurve df = (DiscountCurve) createDiscountFactorsFromForwardRates("",new TimeDiscretizationFromArray(liborTimes), forwardRates);
 		return df.getZeroRates(maturities);
 	}
 

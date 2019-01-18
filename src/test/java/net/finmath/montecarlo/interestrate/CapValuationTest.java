@@ -33,8 +33,8 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFour
 import net.finmath.montecarlo.interestrate.products.FlexiCap;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * This class tests the valuation of a Cap using LMM and an AnalyticModel.
@@ -76,7 +76,7 @@ public class CapValuationTest {
 		 */
 		double liborPeriodLength	= 0.25;
 		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		forwardCurve = ForwardCurve.createForwardCurveFromForwards(
@@ -108,11 +108,11 @@ public class CapValuationTest {
 		double lastTime	= 20.0;
 		double dt		= 0.25;
 
-		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
+		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		// LIBOR volatility model
-		LIBORVolatilityModelFourParameterExponentialFormIntegrated volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
-		//		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretization, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+		LIBORVolatilityModelFourParameterExponentialFormIntegrated volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+		//		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -120,14 +120,14 @@ public class CapValuationTest {
 		int		numberOfFactors = 1;
 		double	correlationDecayParam = 0.0;
 		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
-				timeDiscretization, liborPeriodDiscretization, numberOfFactors,
+				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
 		/*
 		 * Combine volatility model and correlation model to a covariance model
 		 */
 		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
-				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization,
+				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// BlendedLocalVolatlityModel (future extension)
@@ -152,7 +152,7 @@ public class CapValuationTest {
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
@@ -174,8 +174,8 @@ public class CapValuationTest {
 			System.out.print(formatterMaturity.format(maturity) + "          ");
 
 			double strike = 0.05;
-			double[] fixingDates	= (new TimeDiscretization(0.25, maturityIndex-2, 0.25)).getAsDoubleArray();
-			double[] paymentDates	= (new TimeDiscretization(0.50, maturityIndex-2, 0.25)).getAsDoubleArray();
+			double[] fixingDates	= (new TimeDiscretizationFromArray(0.25, maturityIndex-2, 0.25)).getAsDoubleArray();
+			double[] paymentDates	= (new TimeDiscretizationFromArray(0.50, maturityIndex-2, 0.25)).getAsDoubleArray();
 			double[] strikes		= new double[maturityIndex-1];
 			Arrays.fill(strikes, strike);
 
@@ -194,8 +194,8 @@ public class CapValuationTest {
 
 			LocalDate startDate = referenceDate.plusMonths(3);
 
-			ScheduleInterface schedule = new RegularSchedule(new TimeDiscretization(0.25, maturityIndex-1, 0.25));
-			//			ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), startDate.getTime(), "quarterly", (maturityIndex-1)*0.25, "act/365", "first");
+			Schedule schedule = new RegularSchedule(new TimeDiscretizationFromArray(0.25, maturityIndex-1, 0.25));
+			//			Schedule schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), startDate.getTime(), "quarterly", (maturityIndex-1)*0.25, "act/365", "first");
 
 			Cap capAnalytic = new Cap(schedule, forwardCurve.getName() /* forwardCurveName */, strike, false /* isStrikeMoneyness */, discountCurve.getName() /* discountCurveName */, "EUR" /* volatiltiySufaceName */);
 			double valueAnalytic = capAnalytic.getValue(model);

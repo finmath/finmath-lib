@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.io.Serializable;
 
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 
 /**
@@ -25,10 +25,10 @@ public abstract class LIBORCorrelationModel implements Serializable {
 
 	private static final long serialVersionUID = -6780424108470638825L;
 
-	final TimeDiscretizationInterface	timeDiscretization;
-	final TimeDiscretizationInterface	liborPeriodDiscretization;
+	final TimeDiscretization	timeDiscretization;
+	final TimeDiscretization	liborPeriodDiscretization;
 
-	public LIBORCorrelationModel(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization) {
+	public LIBORCorrelationModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
@@ -44,14 +44,14 @@ public abstract class LIBORCorrelationModel implements Serializable {
 	/**
 	 * @return Returns the liborPeriodDiscretization.
 	 */
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
 
 	/**
-	 * @return Returns the timeDiscretization.
+	 * @return Returns the timeDiscretizationFromArray.
 	 */
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 

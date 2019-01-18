@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Unit test, testing that the Brownian increment is normal distributed
@@ -22,7 +22,7 @@ public class JarqueBeraTestTest {
 
 	@Test
 	public void test() {
-		BrownianMotionLazyInit bm = new BrownianMotionLazyInit(new TimeDiscretization(0.0, 1.0, 2.0), 1 /* numberOfFactors */, 10000 /* numberOfPaths */, 2342 /* seed */);
+		BrownianMotionLazyInit bm = new BrownianMotionLazyInit(new TimeDiscretizationFromArray(0.0, 1.0, 2.0), 1 /* numberOfFactors */, 10000 /* numberOfPaths */, 2342 /* seed */);
 
 		double test = (new JarqueBeraTest()).test(bm.getBrownianIncrement(0 /* timeIndex */, 0 /* factor */));
 

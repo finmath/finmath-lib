@@ -12,7 +12,7 @@ import java.util.Map;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -27,8 +27,8 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 
 	private final AbstractRandomVariableFactory	randomVariableFactory;
 
-	private final TimeDiscretizationInterface	simulationTimeDiscretization;
-	private final TimeDiscretizationInterface	timeToMaturityDiscretization;
+	private final TimeDiscretization	simulationTimeDiscretization;
+	private final TimeDiscretization	timeToMaturityDiscretization;
 
 	private Map<Integer, HashMap<Integer, Integer>> 	indexMap = new HashMap<>();
 	private double[] volatility;
@@ -37,7 +37,7 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 	private final transient RandomVariable[][] volatilityRandomVariables;
 
 
-	public LIBORVolatilityModelPiecewiseConstantLegacy(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[][] volatility, boolean isCalibrateable) {
+	public LIBORVolatilityModelPiecewiseConstantLegacy(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, double[][] volatility, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.randomVariableFactory = randomVariableFactory;
@@ -73,7 +73,7 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 		this.volatilityRandomVariables = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 	}
 
-	public LIBORVolatilityModelPiecewiseConstantLegacy(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility, boolean isCalibrateable) {
+	public LIBORVolatilityModelPiecewiseConstantLegacy(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, double[] volatility, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.randomVariableFactory = randomVariableFactory;
@@ -112,19 +112,19 @@ public class LIBORVolatilityModelPiecewiseConstantLegacy extends LIBORVolatility
 		this.volatilityRandomVariables = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 	}
 
-	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility, boolean isCalibrateable) {
+	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, double[] volatility, boolean isCalibrateable) {
 		this(new RandomVariableFactory(), timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, volatility, isCalibrateable);
 	}
 
-	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double volatility, boolean isCalibrateable) {
+	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, double volatility, boolean isCalibrateable) {
 		this(timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, new double[] { volatility }, isCalibrateable);
 	}
 
-	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double[] volatility) {
+	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, double[] volatility) {
 		this(timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, volatility, true);
 	}
 
-	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, double volatility) {
+	public LIBORVolatilityModelPiecewiseConstantLegacy(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, double volatility) {
 		this(timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, new double[] { volatility });
 	}
 

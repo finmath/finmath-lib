@@ -42,8 +42,8 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.ScheduleGenerator;
-import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 
@@ -60,7 +60,7 @@ public class ExposureTest {
 		/*
 		 * Create a receiver swap (receive fix, pay float)
 		 */
-		ScheduleInterface legScheduleRec = ScheduleGenerator.createScheduleFromConventions(
+		Schedule legScheduleRec = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */,
 				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
 				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
@@ -72,7 +72,7 @@ public class ExposureTest {
 				0 /* fixingOffsetDays */,
 				0 /* paymentOffsetDays */);
 
-		ScheduleInterface legSchedulePay = ScheduleGenerator.createScheduleFromConventions(
+		Schedule legSchedulePay = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */,
 				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
 				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
@@ -126,8 +126,8 @@ public class ExposureTest {
 		/*
 		 * Create a receiver swap (receive fix, pay float)
 		 */
-		TimeDiscretization tenor = new TimeDiscretization(0.0, 40, 0.25);
-		ScheduleInterface schedule = new RegularSchedule(tenor);
+		TimeDiscretizationFromArray tenor = new TimeDiscretizationFromArray(0.0, 40, 0.25);
+		Schedule schedule = new RegularSchedule(tenor);
 
 		AbstractNotional notional = new Notional(1.0);
 		AbstractIndex index = new LIBORIndex("forwardCurve", 0.0, 0.25);
@@ -176,7 +176,7 @@ public class ExposureTest {
 		 */
 		double liborPeriodLength	= 0.25;
 		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
@@ -199,16 +199,16 @@ public class ExposureTest {
 		double lastTime	= 15.0;
 		double dt		= 0.125;
 
-		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
+		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double[][] volatility = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for (int timeIndex = 0; timeIndex < volatility.length; timeIndex++) {
 			for (int liborIndex = 0; liborIndex < volatility[timeIndex].length; liborIndex++) {
 				// Create a very simple volatility model here
-				double time = timeDiscretization.getTime(timeIndex);
+				double time = timeDiscretizationFromArray.getTime(timeIndex);
 				double maturity = liborPeriodDiscretization.getTime(liborIndex);
 				double timeToMaturity = maturity - time;
 
@@ -223,13 +223,13 @@ public class ExposureTest {
 				volatility[timeIndex][liborIndex] = instVolatility;
 			}
 		}
-		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretization, liborPeriodDiscretization, volatility);
+		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
 		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
-				timeDiscretization, liborPeriodDiscretization, numberOfFactors,
+				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
 
@@ -237,7 +237,7 @@ public class ExposureTest {
 		 * Combine volatility model and correlation model to a covariance model
 		 */
 		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
-				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization,
+				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// BlendedLocalVolatlityModel (future extension)
@@ -262,7 +262,7 @@ public class ExposureTest {
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		ProcessEulerScheme process = new ProcessEulerScheme(
-				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);

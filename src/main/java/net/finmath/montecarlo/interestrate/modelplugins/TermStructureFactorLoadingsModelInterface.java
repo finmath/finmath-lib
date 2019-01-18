@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A base class and interface description for the instantaneous covariance of
@@ -43,7 +43,7 @@ public interface TermStructureFactorLoadingsModelInterface {
 	 * @return The factor loading <i>f<sub>i</sub>(t)</i>.
 	 */
 	RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd,
-			TimeDiscretizationInterface periodDiscretization, RandomVariable[] realizationAtTimeIndex,
+			TimeDiscretization periodDiscretization, RandomVariable[] realizationAtTimeIndex,
 			TermStructureModelInterface model);
 
 	/**

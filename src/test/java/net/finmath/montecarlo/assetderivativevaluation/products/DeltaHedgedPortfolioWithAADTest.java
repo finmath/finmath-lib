@@ -31,8 +31,8 @@ import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
@@ -118,7 +118,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 		// Create a time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
 		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
@@ -152,7 +152,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		AbstractModel model = new HestonModel(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, randomVariableFactory);
 
 		// Create a time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
 		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
@@ -185,7 +185,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 		double hedgeErrorRMS = Math.sqrt(hedgeError.getVariance());
 
-		TimeDiscretizationInterface td = new TimeDiscretization(-1.0-0.01, 101, 0.02);
+		TimeDiscretization td = new TimeDiscretizationFromArray(-1.0-0.01, 101, 0.02);
 		double[] hedgeErrorHist = hedgeError.getHistogram(td.getAsDoubleArray());
 
 		System.out.println("Testing delta hedge of " + option.getClass().getSimpleName() + " using " + model.getClass().getSimpleName() + ".");

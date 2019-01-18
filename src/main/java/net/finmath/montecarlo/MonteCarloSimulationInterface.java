@@ -11,7 +11,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.ModelInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * The interface implemented by a simulation of an SDE.
@@ -41,11 +41,11 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	}
 
 	/**
-	 * Returns the timeDiscretization.
+	 * Returns the timeDiscretizationFromArray.
 	 *
-	 * @return Returns the timeDiscretization.
+	 * @return Returns the timeDiscretizationFromArray.
 	 */
-	TimeDiscretizationInterface getTimeDiscretization();
+	TimeDiscretization getTimeDiscretization();
 
 	/**
 	 * Returns the time for a given time index.

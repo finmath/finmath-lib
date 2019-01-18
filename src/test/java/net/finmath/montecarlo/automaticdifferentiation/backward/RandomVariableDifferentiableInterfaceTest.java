@@ -21,7 +21,7 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Unit test for random variables implementing <code>RandomVariableDifferentiable</code>.
@@ -352,7 +352,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 
 		int numberOfPaths = 100000;
 		int seed = 3141;
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(new TimeDiscretization(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(new TimeDiscretizationFromArray(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
 		RandomVariable brownianIncrement = brownianMotion.getIncrement(0, 0);
 
 		RandomVariableDifferentiable x = randomVariableFactory.createRandomVariable(1.0);

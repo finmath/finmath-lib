@@ -54,8 +54,8 @@ import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationInd
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
-import net.finmath.time.ScheduleInterface;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 /**
@@ -99,7 +99,7 @@ public class HullWhiteModelTest {
 		 */
 		double liborPeriodLength	= 0.5;
 		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretization liborPeriodDiscretization = new TimeDiscretization(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(
@@ -122,7 +122,7 @@ public class HullWhiteModelTest {
 		double lastTime	= 20.0;
 		double dt		= 0.5;
 
-		TimeDiscretization timeDiscretization = new TimeDiscretization(0.0, (int) (lastTime / dt), dt);
+		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create corresponding Hull White model
@@ -132,7 +132,7 @@ public class HullWhiteModelTest {
 			 * Create a volatility model: Hull white with constant coefficients (non time dep.).
 			 */
 			ShortRateVolatilityModelInterface volatilityModel = new ShortRateVolatilityModel(
-					new TimeDiscretization(0.0),
+					new TimeDiscretizationFromArray(0.0),
 					new double[] { shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion } /* meanReversion */);
 
@@ -140,7 +140,7 @@ public class HullWhiteModelTest {
 			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
 					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
 
-			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
+			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
 			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
@@ -154,12 +154,12 @@ public class HullWhiteModelTest {
 			/*
 			 * Create a volatility structure v[i][j] = sigma_j(t_i)
 			 */
-			double[][] volatility = new double[timeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+			double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 			for (int timeIndex = 0; timeIndex < volatility.length; timeIndex++) {
 				for (int liborIndex = 0; liborIndex < volatility[timeIndex].length; liborIndex++) {
 					// Create a very simple volatility model here
-					double time = timeDiscretization.getTime(timeIndex);
-					double time2 = timeDiscretization.getTime(timeIndex+1);
+					double time = timeDiscretizationFromArray.getTime(timeIndex);
+					double time2 = timeDiscretizationFromArray.getTime(timeIndex+1);
 					double maturity = liborPeriodDiscretization.getTime(liborIndex);
 					double maturity2 = liborPeriodDiscretization.getTime(liborIndex+1);
 
@@ -185,20 +185,20 @@ public class HullWhiteModelTest {
 					volatility[timeIndex][liborIndex] = instVolatility;
 				}
 			}
-			LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretization, liborPeriodDiscretization, volatility);
+			LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 			/*
 			 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 			 */
 			LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
-					timeDiscretization, liborPeriodDiscretization, numberOfFactors,
+					timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 					correlationDecay);
 
 			/*
 			 * Combine volatility model and correlation model to a covariance model
 			 */
 			LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
-					new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization,
+					new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 							liborPeriodDiscretization, volatilityModel, correlationModel);
 
 			// BlendedLocalVolatlityModel
@@ -222,7 +222,7 @@ public class HullWhiteModelTest {
 			LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
 					liborPeriodDiscretization, forwardCurve, null /*discountCurve*/, covarianceModel2, calibrationItems, properties);
 
-			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, 3141 /* seed */);
+			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
 
@@ -803,7 +803,7 @@ public class HullWhiteModelTest {
 		String		frequency = "semiannual";
 		String		daycountConvention = "30/360";
 
-		ScheduleInterface schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 
 		/*
 		 * Create the leg with a notional and index
@@ -874,7 +874,7 @@ public class HullWhiteModelTest {
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor, String tenorCode) {
 		DiscountCurveInterface modelCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
 		ForwardCurveInterface forwardCurve = new ForwardCurveFromDiscountCurve(modelCurve.getName(), liborMarketModel.getModel().getForwardRateCurve().getReferenceDate(), tenorCode);
-		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor),
+		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor),
 				forwardCurve,
 				modelCurve);
 	}
@@ -884,6 +884,6 @@ public class HullWhiteModelTest {
 		if(discountCurve == null) {
 			discountCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
 		}
-		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), discountCurve);
+		return net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), discountCurve);
 	}
 }

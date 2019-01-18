@@ -17,7 +17,7 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterfa
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * An Equity Hybrid LIBOR Market Model composed of an object implementing
@@ -81,7 +81,7 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return liborSimulation.getTimeDiscretization();
 	}
 
@@ -96,7 +96,7 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborSimulation.getLiborPeriodDiscretization();
 	}
 

@@ -7,7 +7,7 @@
 package net.finmath.montecarlo;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A Brownian motion which is defined by some factors of a given Brownian motion,
@@ -51,7 +51,7 @@ public class BrownianMotionView implements BrownianMotion {
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return brownianMotion.getTimeDiscretization();
 	}
 
@@ -76,7 +76,7 @@ public class BrownianMotionView implements BrownianMotion {
 	}
 
 	@Override
-	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
 		return new BrownianMotionView(brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factors);
 	}
 

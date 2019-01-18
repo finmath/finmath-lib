@@ -12,7 +12,7 @@ import java.text.ParseException;
 
 import javax.swing.JTextField;
 
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A Java swing bean to represent a number field in a GUI. Features admissible values.
@@ -89,7 +89,7 @@ public class JNumberField extends JTextField implements ActionListener {
 		this.admissibleValues = admissibleValues;
 	}
 
-	public void setAdmissibleValues(TimeDiscretizationInterface timeDiscretization) {
+	public void setAdmissibleValues(TimeDiscretization timeDiscretization) {
 		this.admissibleValues = new double[timeDiscretization.getNumberOfTimeSteps()+1];
 		for(int i=0; i<admissibleValues.length; i++) {
 			this.admissibleValues[i] = timeDiscretization.getTime(i);

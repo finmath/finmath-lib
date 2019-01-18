@@ -11,7 +11,7 @@ import java.util.Map;
 
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -19,14 +19,14 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel {
 
-	private final TimeDiscretizationInterface	simulationTimeDiscretization;
-	private final TimeDiscretizationInterface	timeToMaturityDiscretization;
+	private final TimeDiscretization	simulationTimeDiscretization;
+	private final TimeDiscretization	timeToMaturityDiscretization;
 
 	private Map<Integer, HashMap<Integer, Integer>> 	indexMap = new HashMap<Integer, HashMap<Integer, Integer>>();
 	private RandomVariable[] volatilities;
 	private final	boolean		isCalibrateable;
 
-	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, RandomVariable[][] volatility, boolean isCalibrateable) {
+	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, RandomVariable[][] volatility, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		/*
@@ -59,7 +59,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		this.isCalibrateable = isCalibrateable;
 	}
 
-	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, RandomVariable[] volatility, boolean isCalibrateable) {
+	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, RandomVariable[] volatility, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		/*
@@ -95,7 +95,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		this.isCalibrateable = isCalibrateable;
 	}
 
-	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, TimeDiscretizationInterface simulationTimeDiscretization, TimeDiscretizationInterface timeToMaturityDiscretization, RandomVariable volatility, boolean isCalibrateable) {
+	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, RandomVariable volatility, boolean isCalibrateable) {
 		this(timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, new RandomVariable[] { volatility }, isCalibrateable);
 	}
 

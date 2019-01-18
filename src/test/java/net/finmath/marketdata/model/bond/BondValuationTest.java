@@ -28,7 +28,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.
@@ -111,11 +111,11 @@ public class BondValuationTest {
 
 		// Create a collection of objective functions (calibration products)
 		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<>();
-		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 1, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
-		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 2, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
-		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 3, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
-		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 4, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
-		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretization(0.0, 5, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
+		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
+		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
+		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 3, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
+		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 4, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
+		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 5, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
 		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , survivalProbabilityCurve, basisFactorCurve });
@@ -161,7 +161,7 @@ public class BondValuationTest {
 		Assert.assertTrue(error < errorTolerance);
 
 		System.out.println("__________________________________________________________________________________________\n");
-		RegularSchedule schedule=new RegularSchedule(new TimeDiscretization(0.0, 2, 1));
+		RegularSchedule schedule=new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 1));
 		Bond bond=new Bond(schedule,"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0);
 		double bondPrice=0.9;
 		double yield=bond.getYield(bondPrice, model1);

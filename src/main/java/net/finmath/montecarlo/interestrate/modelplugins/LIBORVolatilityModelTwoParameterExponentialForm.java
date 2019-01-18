@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
@@ -26,25 +26,25 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
 	 *
-	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: exponential decay of the volatility.
 	 */
-	public LIBORVolatilityModelTwoParameterExponentialForm(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b) {
+	public LIBORVolatilityModelTwoParameterExponentialForm(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b) {
 		this(timeDiscretization, liborPeriodDiscretization, a, b, true);
 	}
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
 	 *
-	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: exponential decay of the volatility.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
-	public LIBORVolatilityModelTwoParameterExponentialForm(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, double a, double b, boolean isCalibrateable) {
+	public LIBORVolatilityModelTwoParameterExponentialForm(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 		this.a = a;
 		this.b = b;

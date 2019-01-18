@@ -31,7 +31,7 @@ import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Base class for parametric volatility models, see also {@link AbstractShortRateVolatilityModel}.
@@ -60,9 +60,9 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	/**
 	 * Constructor consuming time discretization.
 	 *
-	 * @param timeDiscretization The vector of simulation time discretization points.
+	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
 	 */
-	public AbstractShortRateVolatilityModelParametric(TimeDiscretizationInterface timeDiscretization) {
+	public AbstractShortRateVolatilityModelParametric(TimeDiscretization timeDiscretization) {
 		super(timeDiscretization);
 	}
 

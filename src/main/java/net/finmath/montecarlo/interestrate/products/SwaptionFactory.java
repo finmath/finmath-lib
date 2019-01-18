@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A factory (helper class) to create swaptions extending {@link AbstractLIBORMonteCarloProduct}
@@ -22,7 +22,7 @@ public class SwaptionFactory {
 	private SwaptionFactory() {
 	}
 
-	public static AbstractLIBORMonteCarloProduct createSwaption(String className, double swaprate, TimeDiscretizationInterface swapTenor, String valueUnitAsString) {
+	public static AbstractLIBORMonteCarloProduct createSwaption(String className, double swaprate, TimeDiscretization swapTenor, String valueUnitAsString) {
 
 		if(className.equals("SwaptionAnalyticApproximation")) {
 			SwaptionAnalyticApproximation.ValueUnit valueUnit = SwaptionAnalyticApproximation.ValueUnit.valueOf(valueUnitAsString);

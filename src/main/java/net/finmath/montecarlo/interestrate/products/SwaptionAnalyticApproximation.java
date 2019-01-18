@@ -22,8 +22,8 @@ import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class implements an analytic swaption valuation formula under
@@ -72,7 +72,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 
 
 	private Map<String, double[]>						cachedLogSwaprateDerivative;
-	private WeakReference<TimeDiscretizationInterface>	cachedLogSwaprateDerivativeTimeDiscretization;
+	private WeakReference<TimeDiscretization>	cachedLogSwaprateDerivativeTimeDiscretization;
 	private WeakReference<DiscountCurveInterface>		cachedLogSwaprateDerivativeDiscountCurve;
 	private WeakReference<ForwardCurveInterface>		cachedLogSwaprateDerivativeForwardCurve;
 	private Object					cachedLogSwaprateDerivativeLock = new Object();
@@ -86,7 +86,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 	 * @param swaprate The strike swap rate of the swaption.
 	 * @param swapTenor The swap tenor in doubles.
 	 */
-	public SwaptionAnalyticApproximation(double swaprate, TimeDiscretizationInterface swapTenor) {
+	public SwaptionAnalyticApproximation(double swaprate, TimeDiscretization swapTenor) {
 		this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE);
 	}
 
@@ -170,8 +170,8 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 		}
 
 		// Use black formula for swaption to calculate the price
-		double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
-		double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), model.getDiscountCurve());
+		double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
+		double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getDiscountCurve());
 
 		double optionMaturity	= swapStart;
 
@@ -190,7 +190,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 	 * @param forwardCurveInterface The forward curve.
 	 * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
 	 */
-	public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface) {
+	public Map<String, double[]> getLogSwaprateDerivative(TimeDiscretization liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface) {
 
 		/*
 		 * We cache the calculation of the log swaprate derivative. In a calibration this method might be called quite often with the same arguments.

@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import net.finmath.functions.NormalDistribution;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 public class AcceptanceRejectionRandomNumberGeneratorTest {
 
@@ -41,7 +41,7 @@ public class AcceptanceRejectionRandomNumberGeneratorTest {
 			normalFromICDF[i] = NormalDistribution.inverseCumulativeDistribution(uniformRandomNumberGenerator1D.getNext()[0]);
 		}
 
-		double[] interv = (new TimeDiscretization(-3, 101, 6.0/100)).getAsDoubleArray();
+		double[] interv = (new TimeDiscretizationFromArray(-3, 101, 6.0/100)).getAsDoubleArray();
 		double[] histOfNormalFromAR = new RandomVariableFromDoubleArray(0.0, normalFromAR).getHistogram(interv);
 		double[] histOfNormalFromICDF = new RandomVariableFromDoubleArray(0.0, normalFromICDF).getHistogram(interv);
 

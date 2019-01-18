@@ -30,7 +30,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	 *
 	 * @param forwardCurveName The name of the forward curve this leg is quoted on. (Or null/empty)
 	 * @param discountCurveName The name of the curve this leg is to be discounted with.
-	 * @param legSchedule Schedule of the leg.
+	 * @param legSchedule ScheduleFromPeriods of the leg.
 	 * @param notional The notional.
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
@@ -57,7 +57,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	 *
 	 * @param forwardCurveName The name of the forward curve this leg is quoted on. (Or null/empty)
 	 * @param discountCurveName The name of the curve this leg is to be discounted with.
-	 * @param legSchedule Schedule of the leg.
+	 * @param legSchedule ScheduleFromPeriods of the leg.
 	 * @param notionals Array of notionals for each period.
 	 * @param spreads Array of fixed spreads on the forward or fix rates for each period.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.

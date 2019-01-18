@@ -13,21 +13,21 @@ import java.util.Iterator;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
- * Simple schedule generated from {@link net.finmath.time.TimeDiscretizationInterface}
+ * Simple schedule generated from {@link net.finmath.time.TimeDiscretization}
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class RegularSchedule implements ScheduleInterface {
+public class RegularSchedule implements Schedule {
 
-	private TimeDiscretizationInterface timeDiscretization;
+	private TimeDiscretization timeDiscretization;
 
 	/**
 	 * Create a schedule from a time discretization.
 	 *
-	 * @param timeDiscretization The time discretization.
+	 * @param timeDiscretizationFromArray The time discretization.
 	 */
-	public RegularSchedule(TimeDiscretizationInterface timeDiscretization) {
+	public RegularSchedule(TimeDiscretization timeDiscretization) {
 		this.timeDiscretization = timeDiscretization;
 	}
 

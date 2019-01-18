@@ -12,8 +12,8 @@ import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class implements a mean variance hedged portfolio of a given product (a hedge simulator).
@@ -34,7 +34,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	private final AbstractAssetMonteCarloProduct productToHedge;
 	private final AssetModelMonteCarloSimulationInterface modelUsedForHedging;
 
-	private final TimeDiscretizationInterface timeDiscretizationForRebalancing;
+	private final TimeDiscretization timeDiscretizationForRebalancing;
 
 	private final int numberOfBins;
 
@@ -48,7 +48,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	 */
 	public LocalRiskMinimizingHedgePortfolio(AbstractAssetMonteCarloProduct productToHedge,
 			AssetModelMonteCarloSimulationInterface modelUsedForHedging,
-			TimeDiscretizationInterface timeDiscretizationForRebalancing,
+			TimeDiscretization timeDiscretizationForRebalancing,
 			int numberOfBins) {
 		super();
 		this.productToHedge = productToHedge;
@@ -157,7 +157,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		double max = underlying.getMax();
 
 		ArrayList<RandomVariable> basisFunctionList = new ArrayList<>();
-		double[] discretization = (new TimeDiscretization(min, numberOfBins, (max-min)/numberOfBins)).getAsDoubleArray();
+		double[] discretization = (new TimeDiscretizationFromArray(min, numberOfBins, (max-min)/numberOfBins)).getAsDoubleArray();
 		for(double discretizationStep : discretization) {
 			RandomVariable indicator = underlying.sub(discretizationStep).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
 			basisFunctionList.add(indicator);

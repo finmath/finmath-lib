@@ -7,7 +7,7 @@ package net.finmath.montecarlo.process;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * The interface for a stochastic process <i>X</i>.
@@ -51,9 +51,9 @@ public interface ProcessInterface {
 	int getNumberOfComponents();
 
 	/**
-	 * @return Returns the timeDiscretization.
+	 * @return Returns the timeDiscretizationFromArray.
 	 */
-	TimeDiscretizationInterface getTimeDiscretization();
+	TimeDiscretization getTimeDiscretization();
 
 	/**
 	 * @param timeIndex Time index.

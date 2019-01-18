@@ -14,8 +14,8 @@ import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the valuation of a simplified (idealized) swaption under a
@@ -36,7 +36,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 		VOLATILITY	/// Backward compatibility, same as VOLATILITY_LOGNORMAL
 	}
 
-	private final TimeDiscretizationInterface	tenor;
+	private final TimeDiscretization	tenor;
 	private final double						swaprate;
 	private final Swaption						swaption;
 	private final ValueUnit						valueUnit;
@@ -46,7 +46,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprate The strike swaprate of the swaption.
 	 * @param swapTenor The swap tenor in doubles.
 	 */
-	public SwaptionSimple(double swaprate, TimeDiscretizationInterface swapTenor) {
+	public SwaptionSimple(double swaprate, TimeDiscretization swapTenor) {
 		this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE);
 	}
 
@@ -58,7 +58,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 	 */
 	public SwaptionSimple(double swaprate, double[] swapTenor, ValueUnit valueUnit) {
 		super();
-		this.tenor = new TimeDiscretization(swapTenor);
+		this.tenor = new TimeDiscretizationFromArray(swapTenor);
 		this.swaprate = swaprate;
 		this.swaption	= new Swaption(swapTenor[0], tenor, swaprate);
 		this.valueUnit	= valueUnit;

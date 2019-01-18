@@ -10,7 +10,7 @@ import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Monte Carlo simulation of a simple Black-Scholes model for a stock generated discrete process
@@ -31,14 +31,14 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
-	 * @param timeDiscretization The time discretization
+	 * @param timeDiscretizationFromArray The time discretization
 	 * @param numberOfPaths The number of Monte-Carlo path to be used
 	 * @param initialValue Spot value
 	 * @param riskFreeRate The risk free rate
 	 * @param volatility The log volatility
 	 */
 	public MonteCarloBlackScholesModel2(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfPaths,
 			double initialValue,
 			double riskFreeRate,
@@ -61,7 +61,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
-	 * @param timeDiscretization The time discretization.
+	 * @param timeDiscretizationFromArray The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
@@ -69,7 +69,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	 * @param seed The seed for the random number generator.
 	 */
 	public MonteCarloBlackScholesModel2(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfPaths,
 			double initialValue,
 			double riskFreeRate,

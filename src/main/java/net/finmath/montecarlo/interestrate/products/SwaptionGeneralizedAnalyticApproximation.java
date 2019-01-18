@@ -22,8 +22,8 @@ import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This class implements an analytic swaption valuation formula under
@@ -79,13 +79,13 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 
 
 	private Map<String, double[]>						cachedLogSwaprateDerivative;
-	private WeakReference<TimeDiscretizationInterface>	cachedLogSwaprateDerivativeTimeDiscretization;
+	private WeakReference<TimeDiscretization>	cachedLogSwaprateDerivativeTimeDiscretization;
 	private WeakReference<DiscountCurveInterface>		cachedLogSwaprateDerivativeDiscountCurve;
 	private WeakReference<ForwardCurveInterface>		cachedLogSwaprateDerivativeForwardCurve;
 	private Object					cachedLogSwaprateDerivativeLock = new Object();
 
 	private Map<String, double[]>						cachedSwaprateDerivative;
-	private WeakReference<TimeDiscretizationInterface>	cachedSwaprateDerivativeTimeDiscretization;
+	private WeakReference<TimeDiscretization>	cachedSwaprateDerivativeTimeDiscretization;
 	private WeakReference<DiscountCurveInterface>		cachedSwaprateDerivativeDiscountCurve;
 	private WeakReference<ForwardCurveInterface>		cachedSwaprateDerivativeForwardCurve;
 	private Object					cachedSwaprateDerivativeLock = new Object();
@@ -120,7 +120,7 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 	 * @param swapTenor The swap tenor in doubles.
 	 * @param stateSpace The state space of the LMM (lognormal or normal)
 	 */
-	public SwaptionGeneralizedAnalyticApproximation(double swaprate, TimeDiscretizationInterface swapTenor, StateSpace stateSpace) {   //extra argument
+	public SwaptionGeneralizedAnalyticApproximation(double swaprate, TimeDiscretization swapTenor, StateSpace stateSpace) {   //extra argument
 		this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE, stateSpace);
 	}
 
@@ -196,8 +196,8 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 		}
 
 		// Use black formula for swaption to calculate the price
-		double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
-		double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), model.getDiscountCurve());
+		double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
+		double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getDiscountCurve());
 
 		double optionMaturity	= swapStart;
 		double valueSwaption;
@@ -222,7 +222,7 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 	 * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
 	 */
 
-	public Map<String, double[]> getLogSwapRateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface) {
+	public Map<String, double[]> getLogSwapRateDerivative(TimeDiscretization liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface) {
 
 		/*
 		 * We cache the calculation of the log swaprate derivative. In a calibration this method might be called quite often with the same arguments.
@@ -328,7 +328,7 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 	//	 NEW METHOD FOR CALCULATING THE DERIVATIVE OF THE SWAP IN THE LIBOR VARIBALES (instead of log-swap value in log-libor varibale)
 
 
-	public Map<String, double[]> getSwapRateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface) {
+	public Map<String, double[]> getSwapRateDerivative(TimeDiscretization liborPeriodDiscretization, DiscountCurveInterface discountCurveInterface, ForwardCurveInterface forwardCurveInterface) {
 
 		/*
 		 * We cache the calculation of the log swaprate derivative. In a calibration this method might be called quite often with the same arguments.

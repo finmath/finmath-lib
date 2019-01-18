@@ -16,7 +16,7 @@ import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
@@ -114,7 +114,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
-	 * @param timeDiscretization The time discretization.
+	 * @param timeDiscretizationFromArray The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
@@ -122,7 +122,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	 * @param correlations A correlation matrix.
 	 */
 	public MonteCarloMultiAssetBlackScholesModel(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfPaths,
 			double[]	initialValues,
 			double		riskFreeRate,

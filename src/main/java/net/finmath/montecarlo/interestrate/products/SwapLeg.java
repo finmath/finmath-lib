@@ -22,7 +22,7 @@ import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.FixedCoupon;
 import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 
 /**
  * @author Christian Fries
@@ -37,7 +37,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
 	 *
-	 * @param legSchedule Schedule of the leg.
+	 * @param legSchedule ScheduleFromPeriods of the leg.
 	 * @param notional The notional.
 	 * @param index The index.
 	 * @param spread Fixed spread on the forward or fix rate.
@@ -45,7 +45,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 * @param isNotionalAccruing If true, the notional is accruing, that is, the notional of a period is given by the notional of the previous period, accrued with the coupon of the previous period.
 	 */
-	public SwapLeg(ScheduleInterface legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged, boolean isNotionalAccruing) {
+	public SwapLeg(Schedule legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged, boolean isNotionalAccruing) {
 		super();
 
 		/*
@@ -96,14 +96,14 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
 	 *
-	 * @param legSchedule Schedule of the leg.
+	 * @param legSchedule ScheduleFromPeriods of the leg.
 	 * @param notionals An array of notionals for each period in the schedule.
 	 * @param index The index.
 	 * @param spreads Fixed spreads on the forward or fix rate.
 	 * @param couponFlow If true, the coupon is payed. If false, the coupon is not payed, but may still be part of an accruing notional, see <code>isNotionalAccruing</code>.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-	public SwapLeg(ScheduleInterface legSchedule, AbstractNotional[] notionals, AbstractIndex index, double[] spreads, boolean couponFlow, boolean isNotionalExchanged) {
+	public SwapLeg(Schedule legSchedule, AbstractNotional[] notionals, AbstractIndex index, double[] spreads, boolean couponFlow, boolean isNotionalExchanged) {
 		super();
 		if(legSchedule.getNumberOfPeriods() != notionals.length) {
 			throw new IllegalArgumentException("Number of notionals ("+notionals.length+") must match number of periods ("+legSchedule.getNumberOfPeriods()+").");
@@ -158,13 +158,13 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components
 	 *
-	 * @param legSchedule Schedule of the leg.
+	 * @param legSchedule ScheduleFromPeriods of the leg.
 	 * @param notional The notional.
 	 * @param index The index.
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-	public SwapLeg(ScheduleInterface legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean isNotionalExchanged) {
+	public SwapLeg(Schedule legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean isNotionalExchanged) {
 		this(legSchedule, notional, index, spread, true, isNotionalExchanged, false);
 	}
 

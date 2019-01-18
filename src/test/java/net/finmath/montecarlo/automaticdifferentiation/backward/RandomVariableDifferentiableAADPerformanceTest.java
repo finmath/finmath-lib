@@ -35,8 +35,8 @@ import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * This unit test checks automatic differentiation of some test functions and
@@ -262,7 +262,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 			// Create a time discretization
-			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
 			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
@@ -333,7 +333,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 			// Create a time discretization
-			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
 			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
@@ -344,7 +344,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			/*
 			 * Value a call option (using the product implementation)
 			 */
-			AsianOption option = new AsianOption(optionMaturity, optionStrike, new TimeDiscretization(0.0, (int)(optionMaturity/deltaT), deltaT));
+			AsianOption option = new AsianOption(optionMaturity, optionStrike, new TimeDiscretizationFromArray(0.0, (int)(optionMaturity/deltaT), deltaT));
 			RandomVariable value = null;
 			try {
 				value = option.getValue(0.0, monteCarloBlackScholesModel);
@@ -399,7 +399,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			AbstractModel model = new BlackScholesModel(initialValue.mult(0.0).add(modelInitialValue), riskFreeRate.mult(0.0).add(modelRiskFreeRate), volatility.mult(0.0).add(modelVolatility), randomVariableFactory);
 
 			// Create a time discretization
-			TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0 /* initial */, numberOfTimeSteps, deltaT);
+			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
 			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));

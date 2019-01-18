@@ -11,7 +11,7 @@ import java.time.ZoneId;
 import java.util.Date;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.Curve}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
@@ -371,7 +371,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @param forwardRates Array of forward rates.
 	 * @return A new discount curve object.
 	 */
-	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretizationInterface tenor, double[] forwardRates) {
+	public static DiscountCurveInterface createDiscountFactorsFromForwardRates(String name, TimeDiscretization tenor, double[] forwardRates) {
 		DiscountCurve discountFactors = new DiscountCurve(name);
 
 		double df = 1.0;

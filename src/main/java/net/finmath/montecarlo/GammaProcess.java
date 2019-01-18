@@ -10,7 +10,7 @@ import java.io.Serializable;
 import net.finmath.functions.GammaDistribution;
 import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implementation of a time-discrete n-dimensional Gamma process
@@ -47,7 +47,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	private final double shape;
 	private final double scale;
 
-	private final TimeDiscretizationInterface						timeDiscretization;
+	private final TimeDiscretization						timeDiscretization;
 
 	private final int			numberOfFactors;
 	private final int			numberOfPaths;
@@ -60,7 +60,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	/**
 	 * Construct a Gamma process with a given shape parameter.
 	 *
-	 * @param timeDiscretization The time discretization used for the Gamma increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the Gamma increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
@@ -68,7 +68,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	 * @param scale The scale parameter of the Gamma distribution.
 	 */
 	public GammaProcess(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfFactors,
 			int numberOfPaths,
 			int seed,
@@ -88,14 +88,14 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	/**
 	 * Construct a Gamma process with a given shape parameter.
 	 *
-	 * @param timeDiscretization The time discretization used for the Gamma increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the Gamma increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param shape The shape parameter of the Gamma distribution.
 	 */
 	public GammaProcess(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfFactors,
 			int numberOfPaths,
 			int seed,
@@ -109,7 +109,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
 		/// @TODO This can be improved: a complete recreation of the Gamma process wouldn't be necessary!
 		return new GammaProcess(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), shape);
 	}
@@ -183,7 +183,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
@@ -212,7 +212,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	@Override
 	public String toString() {
 		return super.toString()
-				+ "\n" + "timeDiscretization: " + timeDiscretization.toString()
+				+ "\n" + "timeDiscretizationFromArray: " + timeDiscretization.toString()
 				+ "\n" + "numberOfPaths: " + numberOfPaths
 				+ "\n" + "numberOfFactors: " + numberOfFactors
 				+ "\n" + "seed: " + seed

@@ -7,7 +7,7 @@
 package net.finmath.montecarlo;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Provides a correlated Brownian motion from given (independent) increments
@@ -75,7 +75,7 @@ public class CorrelatedBrownianMotion implements BrownianMotion {
 	 * @see net.finmath.montecarlo.BrownianMotion#getTimeDiscretization()
 	 */
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return uncollelatedFactors.getTimeDiscretization();
 	}
 
@@ -109,10 +109,10 @@ public class CorrelatedBrownianMotion implements BrownianMotion {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretizationInterface)
+	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretization)
 	 */
 	@Override
-	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
 		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factorLoadings);
 	}
 

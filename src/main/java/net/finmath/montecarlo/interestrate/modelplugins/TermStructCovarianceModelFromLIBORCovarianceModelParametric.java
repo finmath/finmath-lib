@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -38,8 +38,8 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretizationInterface periodDiscretization, RandomVariable[] realizationAtTimeIndex, TermStructureModelInterface model) {
-		TimeDiscretizationInterface liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
+	public RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretization periodDiscretization, RandomVariable[] realizationAtTimeIndex, TermStructureModelInterface model) {
+		TimeDiscretization liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
 
 		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
 		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);

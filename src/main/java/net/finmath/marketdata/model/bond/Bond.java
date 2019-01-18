@@ -17,7 +17,7 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.Period;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
@@ -31,7 +31,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  * </ul>
  *
  * Support for day counting is provided via the class implementing
- * <code>ScheduleInterface</code>.
+ * <code>Schedule</code>.
  *
  * @author Moritz Scherrmann
  * @author Chrisitan Fries
@@ -39,7 +39,7 @@ import net.finmath.time.daycount.DayCountConventionInterface;
  */
 public class Bond extends AbstractAnalyticProduct implements AnalyticProductInterface {
 
-	private final ScheduleInterface	schedule;
+	private final Schedule	schedule;
 	private final String discountCurveName;
 	private final String forwardCurveName; //Set null if fixed- or zero-coupon bond
 	private final String survivalProbabilityCurveName;
@@ -52,7 +52,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	/**
 	 * Creates a bond.
 	 *
-	 * @param schedule Schedule of the bond.
+	 * @param schedule ScheduleFromPeriods of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix coupon bond or a zero-coupon bond.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
@@ -61,7 +61,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param floatingSpread The floating spread of the bond expressed as absolute value.
 	 * @param recoveryRate The recovery rate of the bond.
 	 */
-	public Bond(ScheduleInterface                    schedule,
+	public Bond(Schedule                    schedule,
 			String             discountCurveName,
 			String              forwardCurveName,
 			String  survivalProbabilityCurveName,
@@ -83,21 +83,21 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	/**
 	 * Creates a fixed coupon bond with recovery rate.
 	 *
-	 * @param schedule Schedule of the bond.
+	 * @param schedule ScheduleFromPeriods of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
 	 * @param basisFactorCurveName Name of the basis factor curve.
 	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
 	 * @param recoveryRate The recovery rate of the bond.
 	 */
-	public Bond(ScheduleInterface schedule, String discountCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon, double recoveryRate) {
+	public Bond(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon, double recoveryRate) {
 		this(schedule, discountCurveName, null,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,0, recoveryRate);
 	}
 
 	/**
 	 * Creates a fixed or floating bond without recovery rate.
 	 *
-	 * @param schedule Schedule of the bond.
+	 * @param schedule ScheduleFromPeriods of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix coupon bond or a zero-coupon bond.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
@@ -105,20 +105,20 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
 	 * @param floatingSpread The floating spread of the bond expressed as absolute value.
 	 */
-	public Bond(ScheduleInterface schedule, String discountCurveName,String forwardCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon, double floatingSpread) {
+	public Bond(Schedule schedule, String discountCurveName,String forwardCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon, double floatingSpread) {
 		this(schedule, discountCurveName, forwardCurveName,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,floatingSpread, 0);
 	}
 
 	/**
 	 * Creates a fixed coupon bond without recovery rate.
 	 *
-	 * @param schedule Schedule of the bond.
+	 * @param schedule ScheduleFromPeriods of the bond.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
 	 * @param basisFactorCurveName Name of the basis factor curve.
 	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
 	 */
-	public Bond(ScheduleInterface schedule, String discountCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon) {
+	public Bond(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon) {
 		this(schedule, discountCurveName, null,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,0, 0);
 	}
 
@@ -326,7 +326,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 		return getAccruedInterest(date, model);
 	}
 
-	public ScheduleInterface getSchedule() {
+	public Schedule getSchedule() {
 		return schedule;
 	}
 
@@ -361,7 +361,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 	@Override
 	public String toString() {
-		return "CouponBond [Schedule=" + schedule
+		return "CouponBond [ScheduleFromPeriods=" + schedule
 				+ ", discountCurveName=" + discountCurveName
 				+ ", forwardtCurveName=" + forwardCurveName
 				+ ", survivalProbabilityCurveName=" + survivalProbabilityCurveName

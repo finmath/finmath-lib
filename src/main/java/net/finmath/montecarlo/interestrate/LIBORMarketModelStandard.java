@@ -26,9 +26,9 @@ import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.model.AbstractModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements a basic LIBOR market model with some drift approximation methods.
@@ -62,7 +62,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	public enum Measure				{ SPOT, TERMINAL }
 
-	private final TimeDiscretizationInterface		liborPeriodDiscretization;
+	private final TimeDiscretization		liborPeriodDiscretization;
 
 	private String							forwardCurveName;
 	private AnalyticModelInterface			curveModel;
@@ -88,7 +88,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @param covarianceModel The covariance model to use.
 	 */
 	public LIBORMarketModelStandard(
-			TimeDiscretizationInterface		liborPeriodDiscretization,
+			TimeDiscretization		liborPeriodDiscretization,
 			ForwardCurveInterface			forwardRateCurve,
 			AbstractLIBORCovarianceModel	covarianceModel
 			) {
@@ -106,7 +106,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @param covarianceModel The covariance model to use.
 	 */
 	public LIBORMarketModelStandard(
-			TimeDiscretizationInterface		liborPeriodDiscretization,
+			TimeDiscretization		liborPeriodDiscretization,
 			ForwardCurveInterface			forwardRateCurve,
 			DiscountCurveInterface			discountCurve,
 			AbstractLIBORCovarianceModel	covarianceModel
@@ -128,7 +128,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public LIBORMarketModelStandard(
-			TimeDiscretizationInterface			liborPeriodDiscretization,
+			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurveInterface				forwardRateCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
@@ -147,7 +147,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public LIBORMarketModelStandard(
-			TimeDiscretizationInterface			liborPeriodDiscretization,
+			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			AbstractLIBORCovarianceModel		covarianceModel,
@@ -169,7 +169,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public LIBORMarketModelStandard(
-			TimeDiscretizationInterface				liborPeriodDiscretization,
+			TimeDiscretization				liborPeriodDiscretization,
 			ForwardCurveInterface					forwardRateCurve,
 			DiscountCurveInterface					discountCurve,
 			AbstractLIBORCovarianceModel			covarianceModel,
@@ -196,13 +196,13 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, null);
 	}
 
-	private static CalibrationProduct[] getCalibrationItems(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
+	private static CalibrationProduct[] getCalibrationItems(TimeDiscretization liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
 		if(swaptionMarketData == null) {
 			return null;
 		}
 
-		TimeDiscretizationInterface	optionMaturities		= swaptionMarketData.getOptionMaturities();
-		TimeDiscretizationInterface	tenor					= swaptionMarketData.getTenor();
+		TimeDiscretization	optionMaturities		= swaptionMarketData.getOptionMaturities();
+		TimeDiscretization	tenor					= swaptionMarketData.getTenor();
 		double						swapPeriodLength		= swaptionMarketData.getSwapPeriodLength();
 
 		ArrayList<CalibrationProduct> calibrationProducts = new ArrayList<>();
@@ -235,7 +235,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 
 				// Swaptions swap rate
-				ScheduleInterface swapTenor = new RegularSchedule(new TimeDiscretization(swapTenorTimes));
+				Schedule swapTenor = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorTimes));
 				double swaprate = Swap.getForwardSwapRate(swapTenor, swapTenor, forwardCurve, null);
 
 				// Set swap rates for each period
@@ -594,7 +594,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriodDiscretization()
 	 */
 	@Override
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
 
@@ -748,8 +748,8 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 			return integratedLIBORCovariance;
 		}
 
-		TimeDiscretizationInterface liborPeriodDiscretization = getLiborPeriodDiscretization();
-		TimeDiscretizationInterface simulationTimeDiscretization = getTimeDiscretization();
+		TimeDiscretization liborPeriodDiscretization = getLiborPeriodDiscretization();
+		TimeDiscretization simulationTimeDiscretization = getTimeDiscretization();
 
 		integratedLIBORCovariance = new double[simulationTimeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int componentIndex1 = 0; componentIndex1 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex1++) {
@@ -840,14 +840,14 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 	@Override
 	public LIBORMarketModelStandard getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		TimeDiscretizationInterface		liborPeriodDiscretization	= this.liborPeriodDiscretization;
+		TimeDiscretization		liborPeriodDiscretization	= this.liborPeriodDiscretization;
 		AnalyticModelInterface			analyticModel				= this.curveModel;
 		ForwardCurveInterface			forwardRateCurve			= this.forwardRateCurve;
 		AbstractLIBORCovarianceModel	covarianceModel				= this.covarianceModel;
 		AbstractSwaptionMarketData		swaptionMarketData			= null;
 
 		if(dataModified.containsKey("liborPeriodDiscretization")) {
-			liborPeriodDiscretization = (TimeDiscretizationInterface)dataModified.get("liborPeriodDiscretization");
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.get("liborPeriodDiscretization");
 		}
 		if(dataModified.containsKey("forwardRateCurve")) {
 			forwardRateCurve = (ForwardCurveInterface)dataModified.get("forwardRateCurve");

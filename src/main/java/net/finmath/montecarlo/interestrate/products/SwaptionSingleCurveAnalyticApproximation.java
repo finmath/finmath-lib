@@ -16,7 +16,7 @@ import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.montecarlo.model.AbstractModelInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class implements an analytic swaption valuation formula under
@@ -58,7 +58,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 	 * @param swaprate The strike swap rate of the swaption.
 	 * @param swapTenor The swap tenor in doubles.
 	 */
-	public SwaptionSingleCurveAnalyticApproximation(double swaprate, TimeDiscretizationInterface swapTenor) {
+	public SwaptionSingleCurveAnalyticApproximation(double swaprate, TimeDiscretization swapTenor) {
 		this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE);
 	}
 
@@ -164,7 +164,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 	 * @param swapTenor The swap tenor.
 	 * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
 	 */
-	public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretizationInterface liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
+	public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretization liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
 		double swapStart    = swapTenor[0];
 		double swapEnd      = swapTenor[swapTenor.length-1];
 

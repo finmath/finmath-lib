@@ -12,7 +12,7 @@ import java.util.function.IntFunction;
 
 import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implementation of a time-discrete n-dimensional sequence of independent increments
@@ -46,7 +46,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 */
 	private static final long serialVersionUID = 6270884840989559532L;
 
-	private final TimeDiscretizationInterface						timeDiscretization;
+	private final TimeDiscretization						timeDiscretization;
 
 	private final int			numberOfFactors;
 	private final int			numberOfPaths;
@@ -82,7 +82,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 * by different implementations of the RandomVariable
 	 * (e.g. the RandomVariableFromFloatArray internally using float representations).
 	 *
-	 * @param timeDiscretization The time discretization used for the increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
@@ -90,7 +90,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 * @param randomVariableFactory Factory to be used to create random variable.
 	 */
 	public IndependentIncrementsFromICDF(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfFactors,
 			int numberOfPaths,
 			int seed,
@@ -126,14 +126,14 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 *
 	 * Each \( U_{i,j} \) is samples using <code>numberOfPaths</code>.
 	 *
-	 * @param timeDiscretization The time discretization used for the increments.
+	 * @param timeDiscretizationFromArray The time discretization used for the increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param inverseCumulativeDistributionFunctions A map from the timeIndices to a map from the from the factors to the corresponding inverse cumulative distribution function.
 	 */
 	public IndependentIncrementsFromICDF(
-			TimeDiscretizationInterface timeDiscretization,
+			TimeDiscretization timeDiscretization,
 			int numberOfFactors,
 			int numberOfPaths,
 			int seed,
@@ -147,7 +147,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
 		return new IndependentIncrementsFromICDF(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), inverseCumulativeDistributionFunctions, randomVariableFactory);
 	}
 
@@ -220,7 +220,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
@@ -249,7 +249,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	@Override
 	public String toString() {
 		return super.toString()
-				+ "\n" + "timeDiscretization: " + timeDiscretization.toString()
+				+ "\n" + "timeDiscretizationFromArray: " + timeDiscretization.toString()
 				+ "\n" + "numberOfPaths: " + numberOfPaths
 				+ "\n" + "numberOfFactors: " + numberOfFactors
 				+ "\n" + "seed: " + seed;

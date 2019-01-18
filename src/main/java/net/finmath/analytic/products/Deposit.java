@@ -3,7 +3,7 @@ package net.finmath.analytic.products;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 
 /**
  * Implements the valuation of the (overnight) deposit (maturity t+1 or t+2). May be used in curve calibration.
@@ -27,7 +27,7 @@ import net.finmath.time.ScheduleInterface;
  */
 public class Deposit extends AbstractAnalyticProduct implements AnalyticProductInterface{
 
-	private ScheduleInterface	schedule;
+	private Schedule	schedule;
 	private double				rate;
 	private String				discountCurveName;
 
@@ -36,7 +36,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param rate The deposit rate.
 	 * @param discountCurveName The discount curve name.
 	 */
-	public Deposit(ScheduleInterface schedule, double rate, String discountCurveName) {
+	public Deposit(Schedule schedule, double rate, String discountCurveName) {
 		super();
 		this.schedule =  schedule;
 		this.rate = rate;
@@ -108,7 +108,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 		return discountFactorPayout.div(discountFactor).sub(1).div(periodLength);
 	}
 
-	public ScheduleInterface getSchedule() {
+	public Schedule getSchedule() {
 		return schedule;
 	}
 

@@ -6,7 +6,7 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * @author Christian Fries
@@ -16,11 +16,11 @@ public class ShortRateVolatilityModel implements ShortRateVolatilityModelInterfa
 
 	private static final long serialVersionUID = 2471249188261414930L;
 
-	private TimeDiscretizationInterface timeDiscretization;
+	private TimeDiscretization timeDiscretization;
 	private double[] volatility;
 	private double[] meanReversion;
 
-	public ShortRateVolatilityModel(TimeDiscretizationInterface timeDiscretization, double[] volatility, double[] meanReversion) {
+	public ShortRateVolatilityModel(TimeDiscretization timeDiscretization, double[] volatility, double[] meanReversion) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.volatility = volatility;
@@ -28,7 +28,7 @@ public class ShortRateVolatilityModel implements ShortRateVolatilityModelInterfa
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 

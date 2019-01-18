@@ -14,7 +14,7 @@ import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.process.AbstractProcess;
 import net.finmath.montecarlo.process.AbstractProcessInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements convenient methods for a LIBOR market model,
@@ -87,7 +87,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	}
 
 	@Override
-	public TimeDiscretizationInterface getTimeDiscretization() {
+	public TimeDiscretization getTimeDiscretization() {
 		return model.getProcess().getTimeDiscretization();
 	}
 
@@ -128,7 +128,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	}
 
 	@Override
-	public TimeDiscretizationInterface getLiborPeriodDiscretization() {
+	public TimeDiscretization getLiborPeriodDiscretization() {
 		throw new UnsupportedOperationException();
 	}
 

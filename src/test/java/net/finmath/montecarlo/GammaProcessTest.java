@@ -11,8 +11,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * @author Christian Fries
@@ -35,7 +35,7 @@ public class GammaProcessTest {
 		System.out.println("Test of scaling of Gamma increments.");
 
 		// Create the time discretization
-		TimeDiscretizationInterface timeDiscretization = new TimeDiscretization(0.0, (int)(lastTime/dt), dt);
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		double shape = 3.0;
 		double scale1 = 1.0;

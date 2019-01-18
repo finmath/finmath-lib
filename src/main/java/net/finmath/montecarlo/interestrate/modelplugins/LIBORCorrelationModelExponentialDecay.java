@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import net.finmath.functions.LinearAlgebra;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 
 /**
@@ -37,13 +37,13 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	/**
 	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
 	 *
-	 * @param timeDiscretization Simulation time dicretization. Not used.
-	 * @param liborPeriodDiscretization Tenor time discretization, i.e., the \( T_{i} \)'s.
+	 * @param timeDiscretizationFromArray Simulation time dicretization. Not used.
+	 * @param liborPeriodDiscretization TenorFromArray time discretization, i.e., the \( T_{i} \)'s.
 	 * @param numberOfFactors Number \( n \) of factors to be used.
 	 * @param a Decay parameter. Should be positive. Negative values will be floored to 0.
 	 * @param isCalibrateable If true, the parameter will become a free parameter in a calibration.
 	 */
-	public LIBORCorrelationModelExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a, boolean isCalibrateable) {
+	public LIBORCorrelationModelExponentialDecay(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, double a, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.numberOfFactors	= numberOfFactors;
@@ -53,7 +53,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		initialize(numberOfFactors, a);
 	}
 
-	public LIBORCorrelationModelExponentialDecay(TimeDiscretizationInterface timeDiscretization, TimeDiscretizationInterface liborPeriodDiscretization, int numberOfFactors, double a) {
+	public LIBORCorrelationModelExponentialDecay(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, double a) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.numberOfFactors	= numberOfFactors;

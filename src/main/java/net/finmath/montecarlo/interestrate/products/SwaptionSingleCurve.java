@@ -14,8 +14,8 @@ import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationInterface;
 
 /**
  * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationInterface
@@ -76,7 +76,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 	}
 
 	/**
-	 * Creates a swaption using a TimeDiscretization
+	 * Creates a swaption using a TimeDiscretizationFromArray
 	 *
 	 * @param exerciseDate Exercise date.
 	 * @param swapTenor Object specifying period start and end dates.
@@ -84,7 +84,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 	 */
 	public SwaptionSingleCurve(
 			double				exerciseDate,
-			TimeDiscretizationInterface	swapTenor,
+			TimeDiscretization	swapTenor,
 			double				swaprate) {
 		super();
 		this.exerciseDate = exerciseDate;
@@ -184,8 +184,8 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 		System.arraycopy(fixingDates, 0, swapTenor, 0, fixingDates.length);
 		swapTenor[swapTenor.length-1] = paymentDates[paymentDates.length-1];
 
-		double forwardSwapRate = Swap.getForwardSwapRate(new TimeDiscretization(swapTenor), new TimeDiscretization(swapTenor), forwardCurve);
-		double swapAnnuity = SwapAnnuity.getSwapAnnuity(new TimeDiscretization(swapTenor), forwardCurve);
+		double forwardSwapRate = Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), forwardCurve);
+		double swapAnnuity = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), forwardCurve);
 
 		return AnalyticFormulas.blackModelSwaptionValue(forwardSwapRate, swaprateVolatility, exerciseDate, swaprate, swapAnnuity);
 	}

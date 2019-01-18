@@ -12,7 +12,7 @@ import org.junit.Assert;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.Period;
 import net.finmath.time.ScheduleGenerator;
-import net.finmath.time.ScheduleInterface;
+import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
 import net.finmath.time.daycount.DayCountConventionFactory;
@@ -30,7 +30,7 @@ public class AccruedInterestTest {
 	BusinessdayCalendarInterface businessdayCalendar= new BusinessdayCalendarAny();
 	int	fixingOffsetDays=0;
 	int	paymentOffsetDays=0;
-	ScheduleInterface testSchedule= ScheduleGenerator.createScheduleFromConventions(
+	Schedule testSchedule= ScheduleGenerator.createScheduleFromConventions(
 			referenceDate,
 			startDate,
 			maturityDate,

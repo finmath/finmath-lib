@@ -9,7 +9,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationInterface;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Basic interface which has to be implemented by Monte Carlo models for LIBOR processes.
@@ -29,7 +29,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends TermStructureMo
 	 * Returns the libor period discretization as time discretization representing start and end dates of periods.
 	 * @return Returns the libor period discretization
 	 */
-	TimeDiscretizationInterface getLiborPeriodDiscretization();
+	TimeDiscretization getLiborPeriodDiscretization();
 
 	/**
 	 * @return The number of LIBORs in the LIBOR discretization
@@ -57,7 +57,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends TermStructureMo
 	 * Return the forward rate for a given simulation time index and a given forward rate index.
 	 *
 	 * @param timeIndex Simulation time index.
-	 * @param liborIndex Tenor time index (index corresponding to the fixing of the forward rate).
+	 * @param liborIndex TenorFromArray time index (index corresponding to the fixing of the forward rate).
 	 * @return The forward rate as a random variable.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
