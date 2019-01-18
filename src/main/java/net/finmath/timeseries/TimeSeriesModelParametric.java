@@ -18,5 +18,5 @@ public interface TimeSeriesModelParametric {
 
 	String[] getParameterNames();
 
-	TimeSeriesModelParametric getCloneCalibrated(TimeSeriesInterface timeSeries);
+	TimeSeriesModelParametric getCloneCalibrated(TimeSeries timeSeries);
 }

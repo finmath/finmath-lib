@@ -8,13 +8,13 @@ import java.util.Iterator;
  * @author Christian Fries
  * @version 1.0
  */
-public class TimeSeriesView implements TimeSeriesInterface {
+public class TimeSeriesView implements TimeSeries {
 
-	private final TimeSeriesInterface timeSeries;
+	private final TimeSeries timeSeries;
 	private final int indexStart;
 	private final int indexEnd;
 
-	public TimeSeriesView(TimeSeriesInterface timeSeries, int indexStart, int indexEnd) {
+	public TimeSeriesView(TimeSeries timeSeries, int indexStart, int indexEnd) {
 		super();
 		this.timeSeries = timeSeries;
 		this.indexStart = indexStart;

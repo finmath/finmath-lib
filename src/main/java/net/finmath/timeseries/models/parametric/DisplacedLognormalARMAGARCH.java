@@ -19,7 +19,7 @@ import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerInterface;
 import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
-import net.finmath.timeseries.TimeSeriesInterface;
+import net.finmath.timeseries.TimeSeries;
 import net.finmath.timeseries.TimeSeriesModelParametric;
 import net.finmath.timeseries.TimeSeriesView;
 
@@ -42,7 +42,7 @@ import net.finmath.timeseries.TimeSeriesView;
  */
 public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
 
-	private TimeSeriesInterface timeSeries;
+	private TimeSeries timeSeries;
 
 	private double lowerBoundDisplacement;
 	private double upperBoundDisplacement = 10000000;
@@ -58,11 +58,11 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 	private final double[] lowerBound;
 	private final double[] upperBound;
 
-	public DisplacedLognormalARMAGARCH(TimeSeriesInterface timeSeries) {
+	public DisplacedLognormalARMAGARCH(TimeSeries timeSeries) {
 		this(timeSeries, -Double.MAX_VALUE);
 	}
 
-	public DisplacedLognormalARMAGARCH(TimeSeriesInterface timeSeries, double lowerBoundDisplacement) {
+	public DisplacedLognormalARMAGARCH(TimeSeries timeSeries, double lowerBoundDisplacement) {
 		this.timeSeries = timeSeries;
 
 		double valuesMin = Double.MAX_VALUE;
@@ -75,7 +75,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1, upperBoundDisplacement, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY };
 	}
 
-	public DisplacedLognormalARMAGARCH(TimeSeriesInterface timeSeries, double lowerBoundDisplacement, double upperBoundDisplacement) {
+	public DisplacedLognormalARMAGARCH(TimeSeries timeSeries, double lowerBoundDisplacement, double upperBoundDisplacement) {
 		this.timeSeries = timeSeries;
 
 		double valuesMin = Double.MAX_VALUE;
@@ -349,7 +349,7 @@ public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, H
 	}
 
 	@Override
-	public TimeSeriesModelParametric getCloneCalibrated(TimeSeriesInterface timeSeries) {
+	public TimeSeriesModelParametric getCloneCalibrated(TimeSeries timeSeries) {
 		return new DisplacedLognormalARMAGARCH(timeSeries);
 	}
 
