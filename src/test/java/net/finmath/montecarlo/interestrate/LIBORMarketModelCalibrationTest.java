@@ -407,8 +407,8 @@ public class LIBORMarketModelCalibrationTest {
 		DayCountConvention_ACT_365 modelDC = new DayCountConvention_ACT_365();
 		for(int i=0; i<atmNormalVolatilities.length; i++ ) {
 
-			LocalDate exerciseDate = cal.createDateFromDateAndOffsetCode(referenceDate, atmExpiries[i]);
-			LocalDate tenorEndDate = cal.createDateFromDateAndOffsetCode(exerciseDate, atmTenors[i]);
+			LocalDate exerciseDate = cal.getDateFromDateAndOffsetCode(referenceDate, atmExpiries[i]);
+			LocalDate tenorEndDate = cal.getDateFromDateAndOffsetCode(exerciseDate, atmTenors[i]);
 			double	exercise		= modelDC.getDaycountFraction(referenceDate, exerciseDate);
 			double	tenor			= modelDC.getDaycountFraction(exerciseDate, tenorEndDate);
 

@@ -122,7 +122,7 @@ public class BusinessdayCalendarExcludingLONHolidays extends BusinessdayCalendar
 	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
-	public BusinessdayCalendarExcludingLONHolidays(BusinessdayCalendarInterface baseCalendar) {
+	public BusinessdayCalendarExcludingLONHolidays(BusinessdayCalendar baseCalendar) {
 		super(NAME, baseCalendar, true);
 	}
 

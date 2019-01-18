@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 /**
  * Abstract base class for a forward curve, extending a curve object
@@ -30,8 +30,8 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<>();
 
 	protected final String paymentOffsetCode;
-	protected final BusinessdayCalendarInterface paymentBusinessdayCalendar;
-	protected final BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
+	protected final BusinessdayCalendar paymentBusinessdayCalendar;
+	protected final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
 
 	private final double paymentOffset;
 
@@ -48,7 +48,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
-	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, String discountCurveName) {
+	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, String discountCurveName) {
 		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -69,7 +69,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
-	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, String discountCurveName) {
+	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention, String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, discountCurveName);
 	}
 

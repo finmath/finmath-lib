@@ -44,7 +44,7 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 /**
  * Test the call to getValue on a product using different casts of the model.
@@ -119,7 +119,7 @@ public class LIBORMarketModelHierarchyTest {
 				referenceDate,
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
-				BusinessdayCalendarInterface.DateRollConvention.FOLLOWING,
+				BusinessdayCalendar.DateRollConvention.FOLLOWING,
 				Curve.InterpolationMethod.LINEAR,
 				Curve.ExtrapolationMethod.CONSTANT,
 				Curve.InterpolationEntity.VALUE,

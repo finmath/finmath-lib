@@ -14,7 +14,7 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class BusinessdayCalendarAny extends BusinessdayCalendar {
+public class BusinessdayCalendarAny extends AbstractBusinessdayCalendar {
 
 	private static final long serialVersionUID = -2440422998196510638L;
 

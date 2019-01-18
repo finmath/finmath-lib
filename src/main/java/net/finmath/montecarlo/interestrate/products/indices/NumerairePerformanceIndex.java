@@ -16,8 +16,8 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
@@ -35,14 +35,14 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 	private static final long serialVersionUID = 1L;
 
 	private final String paymentOffsetCode;
-	private final BusinessdayCalendarInterface paymentBusinessdayCalendar;
-	private final BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
+	private final BusinessdayCalendar paymentBusinessdayCalendar;
+	private final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
 
 	private final DayCountConventionInterface daycountConvention;
 
 
 	public NumerairePerformanceIndex(String name, String currency, String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention,
+			BusinessdayCalendar paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention,
 			DayCountConventionInterface daycountConvention) {
 		super(name, currency);
 		this.paymentOffsetCode = paymentOffsetCode;

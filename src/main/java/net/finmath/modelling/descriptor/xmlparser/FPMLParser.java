@@ -21,9 +21,9 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.AbstractBusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 /**
  * Class for parsing trades saved in FpML to product descriptors.
@@ -37,7 +37,7 @@ public class FPMLParser implements XMLParser {
 	private final String homePartyId;
 	private final String discountCurveName;
 
-	private BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+	private AbstractBusinessdayCalendar abstractBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 	private ShortPeriodConvention shortPeriodConvention= ScheduleGenerator.ShortPeriodConvention.LAST;
 
 	/**
@@ -168,7 +168,7 @@ public class FPMLParser implements XMLParser {
 
 		//build schedule
 		ScheduleDescriptor schedule = new ScheduleDescriptor(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
-				dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+				dateRollConvention, abstractBusinessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 
 		// get notional
 		double notional = Double.parseDouble(((Element) leg.getElementsByTagName("notionalSchedule").item(0)).getElementsByTagName("initialValue").item(0).getTextContent());

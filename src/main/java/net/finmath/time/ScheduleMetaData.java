@@ -7,8 +7,8 @@ import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 /**
  * Class to store any relevant information to generate schedules, which have different period structure but otherwise follow the same conventions.
@@ -38,7 +38,7 @@ public class ScheduleMetaData implements Serializable {
 	private final DaycountConvention daycountConvention;
 	private final ShortPeriodConvention shortPeriodConvention;
 	private final DateRollConvention dateRollConvention;
-	private final BusinessdayCalendarInterface businessdayCalendar;
+	private final BusinessdayCalendar businessdayCalendar;
 	private final int	fixingOffsetDays;
 	private final int	paymentOffsetDays;
 	private final boolean isUseEndOfMonth;
@@ -103,7 +103,7 @@ public class ScheduleMetaData implements Serializable {
 	 */
 	public ScheduleMetaData(Frequency frequency, DaycountConvention daycountConvention,
 			ShortPeriodConvention shortPeriodConvention, DateRollConvention dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar, int fixingOffsetDays, int paymentOffsetDays,
+			BusinessdayCalendar businessdayCalendar, int fixingOffsetDays, int paymentOffsetDays,
 			boolean isUseEndOfMonth) {
 		super();
 		this.frequency = frequency;
@@ -209,7 +209,7 @@ public class ScheduleMetaData implements Serializable {
 	/**
 	 * @return the businessdayCalendar
 	 */
-	public BusinessdayCalendarInterface getBusinessdayCalendar() {
+	public BusinessdayCalendar getBusinessdayCalendar() {
 		return businessdayCalendar;
 	}
 

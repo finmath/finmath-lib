@@ -11,15 +11,15 @@ import java.util.Set;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class BusinessdayCalendarExcludingGivenHolidays extends BusinessdayCalendar {
+public abstract class BusinessdayCalendarExcludingGivenHolidays extends AbstractBusinessdayCalendar {
 
 	private static final long serialVersionUID = -7060298609732249650L;
 
 	private final String name;
-	private final BusinessdayCalendarInterface baseCalendar;
+	private final BusinessdayCalendar baseCalendar;
 	private final boolean isExcludeWeekends;
 
-	public BusinessdayCalendarExcludingGivenHolidays(String name, BusinessdayCalendarInterface baseCalendar, boolean isExcludeWeekends) {
+	public BusinessdayCalendarExcludingGivenHolidays(String name, BusinessdayCalendar baseCalendar, boolean isExcludeWeekends) {
 		super();
 		this.name = name;
 		this.baseCalendar = baseCalendar;
@@ -36,7 +36,7 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Business
 	/**
 	 * @return A base calendar, if any. May be null.
 	 */
-	public BusinessdayCalendarInterface getBaseCalendar() {
+	public BusinessdayCalendar getBaseCalendar() {
 		return baseCalendar;
 	}
 

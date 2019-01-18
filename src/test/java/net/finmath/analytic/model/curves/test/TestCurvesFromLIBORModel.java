@@ -43,7 +43,7 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 public class TestCurvesFromLIBORModel {
 	private static final int numberOfPaths		= 1000;
@@ -234,7 +234,7 @@ public class TestCurvesFromLIBORModel {
 		int fixingOffsetDays = 0;
 		int paymentOffsetDays = 1; //error if = 0;
 		String shortPeriodConvention = "first";
-		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		String		frequency = "semiannual";
 		String		daycountConvention = "act/365";
 
@@ -297,7 +297,7 @@ public class TestCurvesFromLIBORModel {
 		int fixingOffsetDays = 0;
 		int paymentOffsetDays = 1; //error if = 0;
 		String shortPeriodConvention = "first";
-		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		String		frequency = "semiannual";
 		String		daycountConvention = "act/365";
 

@@ -49,8 +49,8 @@ import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
@@ -225,8 +225,8 @@ public class LIBORIndexTest {
 			discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR Curve", referenceDate, nssParameters, 1.0);
 
 			String paymentOffsetCode = "6M";
-			BusinessdayCalendarInterface paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
-			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
+			BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+			BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
 			DayCountConventionInterface daycountConvention = null;//new DayCountConvention_ACT_360();
 
 			forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 1.0, 0.0);

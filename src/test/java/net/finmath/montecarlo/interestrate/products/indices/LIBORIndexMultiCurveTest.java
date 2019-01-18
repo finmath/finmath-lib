@@ -57,7 +57,7 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 /**
  * Implements a test valuing a FRA on a LIBOR Market Model referencing different forward rates curves

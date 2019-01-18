@@ -36,8 +36,8 @@ import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 
 /**
@@ -113,7 +113,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 				, 365.0/365.0);
 
 		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD", LocalDate.of(2014, Month.JULY, 17),
-				"3M", new BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendarInterface.DateRollConvention.MODIFIED_FOLLOWING, new DayCountConvention_ACT_360(),
+				"3M", new BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendar.DateRollConvention.MODIFIED_FOLLOWING, new DayCountConvention_ACT_360(),
 				discountCurve.getParameter(), 365.0/365.0, 0.0);
 
 		String[] maturities		= { "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y" };
@@ -154,10 +154,10 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		ArrayList<Double>					marketTargetValues = new ArrayList<>();
 		LocalDate referenceDate = LocalDate.of(2014,  Month.JULY,  15);
 		DaycountConvention capDayCountConvention = DaycountConvention.ACT_360;
-		BusinessdayCalendarInterface businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays(new BusinessdayCalendarExcludingWeekends());
+		BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays(new BusinessdayCalendarExcludingWeekends());
 		for(int i=0; i<maturities.length; i++) {
 			LocalDate	tradeDate		= referenceDate;
-			LocalDate	maturityDate	= businessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);
+			LocalDate	maturityDate	= businessdayCalendar.getDateFromDateAndOffsetCode(referenceDate, maturities[i]);
 			double		volatility		= volatilities[i];
 			Cap cap = new Cap(
 					ScheduleGenerator.createScheduleFromConventions(referenceDate, tradeDate, maturityDate, Frequency.SEMIANNUAL, capDayCountConvention, ShortPeriodConvention.FIRST, DateRollConvention.FOLLOWING, new BusinessdayCalendarExcludingWeekends(), 0, 0),
@@ -186,7 +186,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		ArrayList<Double>					calibrationTargetValues = new ArrayList<>();
 		for(int i=0; i<maturities.length; i++) {
 			LocalDate	tradeDate		= referenceDate;
-			LocalDate	maturityDate	= businessdayCalendar.createDateFromDateAndOffsetCode(referenceDate, maturities[i]);
+			LocalDate	maturityDate	= businessdayCalendar.getDateFromDateAndOffsetCode(referenceDate, maturities[i]);
 			double		volatility		= volatilities[i];
 			Cap cap = new Cap(
 					ScheduleGenerator.createScheduleFromConventions(referenceDate, tradeDate, maturityDate, Frequency.SEMIANNUAL, capDayCountConvention, ShortPeriodConvention.FIRST, DateRollConvention.FOLLOWING, new BusinessdayCalendarExcludingWeekends(), 0, 0),

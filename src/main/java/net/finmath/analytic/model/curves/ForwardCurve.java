@@ -18,7 +18,7 @@ import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 /**
  * A container for a forward (rate) curve. The forward curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.
@@ -68,8 +68,8 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	public ForwardCurve(String name,
 			LocalDate referenceDate,
 			String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentBusinessdayCalendar,
-			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention,
+			BusinessdayCalendar paymentBusinessdayCalendar,
+			BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
 			InterpolationMethod interpolationMethod,
 			ExtrapolationMethod extrapolationMethod,
 			InterpolationEntity interpolationEntity,
@@ -94,7 +94,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
 	public ForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
-		this(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendarInterface.DateRollConvention.FOLLOWING, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, interpolationEntityForward, discountCurveName);
+		this(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendar.DateRollConvention.FOLLOWING, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, interpolationEntityForward, discountCurveName);
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @return A new ForwardCurve object.
 	 */
 	public static ForwardCurve createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention,
+			BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariable[] givenForwards) {
 
@@ -174,7 +174,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @return A new ForwardCurve object.
 	 */
 	public static ForwardCurve createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention,
+			BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
 			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModelInterface model, double[] times, RandomVariable[] givenForwards) {
 

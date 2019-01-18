@@ -14,7 +14,7 @@ import net.finmath.time.Period;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.daycount.DayCountConventionFactory;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
@@ -27,7 +27,7 @@ public class AccruedInterestTest {
 	String daycountConvention= "act/act";
 	String shortPeriodConvention="FIRST";
 	String dateRollConvention="modfollow";
-	BusinessdayCalendarInterface businessdayCalendar= new BusinessdayCalendarAny();
+	BusinessdayCalendar businessdayCalendar= new BusinessdayCalendarAny();
 	int	fixingOffsetDays=0;
 	int	paymentOffsetDays=0;
 	Schedule testSchedule= ScheduleGenerator.createScheduleFromConventions(

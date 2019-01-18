@@ -129,7 +129,7 @@ public class BusinessdayCalendarExcludingNYCHolidays extends BusinessdayCalendar
 	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
-	public BusinessdayCalendarExcludingNYCHolidays(BusinessdayCalendarInterface baseCalendar) {
+	public BusinessdayCalendarExcludingNYCHolidays(BusinessdayCalendar baseCalendar) {
 		super(NAME, baseCalendar, true);
 	}
 

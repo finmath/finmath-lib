@@ -10,9 +10,9 @@ import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
 import net.finmath.time.Schedule;
+import net.finmath.time.businessdaycalendar.AbstractBusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
@@ -64,7 +64,7 @@ public class ScheduleDescriptor {
 	 */
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
-			DateRollConvention dateRollConvention, BusinessdayCalendarInterface businessdayCalendar,
+			DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar,
 			int fixingOffsetDays, int paymentOffsetDays, boolean isUseEndOfMonth) {
 		super();
 		descriptor = new ScheduleDescriptorFromGenerator(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays,
@@ -80,16 +80,16 @@ public class ScheduleDescriptor {
 	 * @param daycountConvention The daycount convention.
 	 * @param shortPeriodConvention If short period exists, have it first or last.
 	 * @param dateRollConvention Adjustment to be applied to the all dates.
-	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param abstractBusinessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
 	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 */
 	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
-			DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar, int fixingOffsetDays,
+			DateRollConvention dateRollConvention, AbstractBusinessdayCalendar abstractBusinessdayCalendar, int fixingOffsetDays,
 			int paymentOffsetDays) {
 		this(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
-				dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays, false);
+				dateRollConvention, abstractBusinessdayCalendar, fixingOffsetDays, paymentOffsetDays, false);
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class ScheduleDescriptor {
 		private final DaycountConvention daycountConvention;
 		private final ShortPeriodConvention shortPeriodConvention;
 		private final DateRollConvention dateRollConvention;
-		private final BusinessdayCalendarInterface businessdayCalendar;
+		private final BusinessdayCalendar businessdayCalendar;
 		private final int fixingOffsetDays;
 		private final int paymentOffsetDays;
 		private final boolean isUseEndOfMonth;
@@ -178,7 +178,7 @@ public class ScheduleDescriptor {
 
 		private ScheduleDescriptorFromGenerator(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
 				DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
-				DateRollConvention dateRollConvention, BusinessdayCalendarInterface businessdayCalendar,
+				DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar,
 				int fixingOffsetDays, int paymentOffsetDays, boolean isUseEndOfMonth) {
 			super();
 			this.startDate = startDate;

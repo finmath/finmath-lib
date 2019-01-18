@@ -36,7 +36,7 @@ import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.productfactory.InterestRateAnalyticProductFactory;
 import net.finmath.modelling.productfactory.ModelWithProductFactoryTest;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 @RunWith(Parameterized.class)
 public class FPMLParserTest {
@@ -145,7 +145,7 @@ public class FPMLParserTest {
 				referenceDate,
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
-				BusinessdayCalendarInterface.DateRollConvention.FOLLOWING,
+				BusinessdayCalendar.DateRollConvention.FOLLOWING,
 				Curve.InterpolationMethod.LINEAR,
 				Curve.ExtrapolationMethod.CONSTANT,
 				Curve.InterpolationEntity.VALUE,

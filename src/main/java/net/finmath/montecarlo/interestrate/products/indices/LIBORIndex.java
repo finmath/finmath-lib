@@ -16,8 +16,8 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 /**
  * A (floating) forward rate index for a given period start offset (offset from fixing) and period length.
@@ -30,8 +30,8 @@ public class LIBORIndex extends AbstractIndex {
 	private static final long serialVersionUID = 1L;
 
 	private final String paymentOffsetCode;
-	private final BusinessdayCalendarInterface paymentBusinessdayCalendar;
-	private final BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
+	private final BusinessdayCalendar paymentBusinessdayCalendar;
+	private final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
 
 	private final double periodStartOffset;
 	private final double periodLength;
@@ -39,7 +39,7 @@ public class LIBORIndex extends AbstractIndex {
 
 
 	public LIBORIndex(String name, String currency, String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention) {
+			BusinessdayCalendar paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention) {
 		super(name, currency);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;

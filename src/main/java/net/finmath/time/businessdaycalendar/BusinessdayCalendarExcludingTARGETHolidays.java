@@ -15,14 +15,14 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalendar {
+public class BusinessdayCalendarExcludingTARGETHolidays extends AbstractBusinessdayCalendar {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -607317161321548729L;
-	private BusinessdayCalendarInterface baseCalendar;
-	private final BusinessdayCalendarInterface weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
+	private BusinessdayCalendar baseCalendar;
+	private final BusinessdayCalendar weekdayCalendar = new BusinessdayCalendarExcludingWeekends();
 
 	/**
 	 * Create TARGET business day calendar.
@@ -35,7 +35,7 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends BusinessdayCalen
 	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
-	public BusinessdayCalendarExcludingTARGETHolidays(BusinessdayCalendarInterface baseCalendar) {
+	public BusinessdayCalendarExcludingTARGETHolidays(BusinessdayCalendar baseCalendar) {
 		this.baseCalendar = baseCalendar;
 	}
 

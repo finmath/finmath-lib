@@ -45,7 +45,7 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 /**
  * @author Christian Fries
@@ -67,7 +67,7 @@ public class ExposureTest {
 				ScheduleGenerator.Frequency.ANNUAL /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
-				BusinessdayCalendarInterface.DateRollConvention.FOLLOWING /* dateRollConvention */,
+				BusinessdayCalendar.DateRollConvention.FOLLOWING /* dateRollConvention */,
 				new BusinessdayCalendarExcludingTARGETHolidays() /* businessdayCalendar */,
 				0 /* fixingOffsetDays */,
 				0 /* paymentOffsetDays */);
@@ -79,7 +79,7 @@ public class ExposureTest {
 				ScheduleGenerator.Frequency.QUARTERLY /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
-				BusinessdayCalendarInterface.DateRollConvention.FOLLOWING /* dateRollConvention */,
+				BusinessdayCalendar.DateRollConvention.FOLLOWING /* dateRollConvention */,
 				new BusinessdayCalendarExcludingTARGETHolidays() /* businessdayCalendar */,
 				0 /* fixingOffsetDays */,
 				0 /* paymentOffsetDays */);

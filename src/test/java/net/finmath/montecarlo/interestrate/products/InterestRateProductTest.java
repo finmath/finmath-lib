@@ -37,7 +37,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFour
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 
 
@@ -99,7 +99,7 @@ public class InterestRateProductTest {
 				referenceDate.toLocalDate(),
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
-				BusinessdayCalendarInterface.DateRollConvention.FOLLOWING,
+				BusinessdayCalendar.DateRollConvention.FOLLOWING,
 				InterpolationMethod.LINEAR,
 				ExtrapolationMethod.CONSTANT,
 				InterpolationEntity.VALUE,

@@ -22,7 +22,7 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 public class NelsonSiegelSvenssonCalibrationTest {
 

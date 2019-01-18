@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.daycount.DayCountConventionInterface;
 
 /**
@@ -32,8 +32,8 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	private static final long serialVersionUID = 8024640795839972709L;
 
 	private String paymentOffsetCode;
-	private BusinessdayCalendarInterface paymentBusinessdayCalendar;
-	private BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
+	private BusinessdayCalendar paymentBusinessdayCalendar;
+	private BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
 	private DayCountConventionInterface daycountConvention;
 	private double periodOffset = 0.0;
 
@@ -50,7 +50,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
 	 */
-	public ForwardCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling, double periodOffset) {
+	public ForwardCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling, double periodOffset) {
 		super(name, referenceDate);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -71,7 +71,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public ForwardCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendarInterface paymentBusinessdayCalendar, BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
+	public ForwardCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention, DayCountConventionInterface daycountConvention, double[] parameter, double timeScaling) {
 		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, parameter, timeScaling, 0.0);
 	}
 

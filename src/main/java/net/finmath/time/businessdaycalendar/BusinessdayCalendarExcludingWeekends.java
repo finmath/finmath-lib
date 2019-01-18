@@ -15,13 +15,13 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
+public class BusinessdayCalendarExcludingWeekends extends AbstractBusinessdayCalendar {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -664535279499214108L;
-	private BusinessdayCalendarInterface baseCalendar;
+	private BusinessdayCalendar baseCalendar;
 
 	/**
 	 * Create business day calendar.
@@ -34,7 +34,7 @@ public class BusinessdayCalendarExcludingWeekends extends BusinessdayCalendar {
 	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
-	public BusinessdayCalendarExcludingWeekends(BusinessdayCalendarInterface baseCalendar) {
+	public BusinessdayCalendarExcludingWeekends(BusinessdayCalendar baseCalendar) {
 		this.baseCalendar = baseCalendar;
 	}
 

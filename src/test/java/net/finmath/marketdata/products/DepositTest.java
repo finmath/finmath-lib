@@ -12,7 +12,7 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
 import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 public class DepositTest {
 

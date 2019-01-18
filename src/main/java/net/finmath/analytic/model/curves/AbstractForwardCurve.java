@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 /**
  * Abstract base class for a forward curve, extending a curve object
@@ -31,8 +31,8 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<>();
 
 	protected final String paymentOffsetCode;
-	protected final BusinessdayCalendarInterface paymentBusinessdayCalendar;
-	protected final BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention;
+	protected final BusinessdayCalendar paymentBusinessdayCalendar;
+	protected final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
 
 	private final double paymentOffset;
 
@@ -52,8 +52,8 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	public AbstractForwardCurve(String name,
 			LocalDate referenceDate,
 			String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentBusinessdayCalendar,
-			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention,
+			BusinessdayCalendar paymentBusinessdayCalendar,
+			BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
 			InterpolationMethod interpolationMethod,
 			ExtrapolationMethod extrapolationMethod,
 			InterpolationEntity interpolationEntity,
@@ -82,8 +82,8 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	public AbstractForwardCurve(String name,
 			LocalDate referenceDate,
 			String paymentOffsetCode,
-			BusinessdayCalendarInterface paymentBusinessdayCalendar,
-			BusinessdayCalendarInterface.DateRollConvention paymentDateRollConvention,
+			BusinessdayCalendar paymentBusinessdayCalendar,
+			BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
 			String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, discountCurveName);
 	}

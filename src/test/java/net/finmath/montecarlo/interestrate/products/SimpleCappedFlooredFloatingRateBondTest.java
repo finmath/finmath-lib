@@ -39,7 +39,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFrom
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 
 /**
  * @author Christian Fries
@@ -107,7 +107,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 				referenceDate,
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
-				BusinessdayCalendarInterface.DateRollConvention.FOLLOWING,
+				BusinessdayCalendar.DateRollConvention.FOLLOWING,
 				Curve.InterpolationMethod.LINEAR,
 				Curve.ExtrapolationMethod.CONSTANT,
 				Curve.InterpolationEntity.VALUE,

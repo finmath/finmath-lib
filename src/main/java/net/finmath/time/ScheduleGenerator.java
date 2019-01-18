@@ -18,8 +18,8 @@ import java.util.Date;
 import java.util.Locale;
 
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.daycount.DayCountConventionInterface;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
@@ -35,7 +35,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
  * <ul>
  * 	<li>The period length is specified via {@link net.finmath.time.ScheduleGenerator.Frequency}.
  * 	<li>The schedule generation considers short periods via the specification of {@link net.finmath.time.ScheduleGenerator.DaycountConvention}.</li>
- * 	<li>The schedule may use an externally provided business day adjustment via an object implementing {@link net.finmath.time.businessdaycalendar.BusinessdayCalendarInterface}</li>
+ * 	<li>The schedule may use an externally provided business day adjustment via an object implementing {@link net.finmath.time.businessdaycalendar.BusinessdayCalendar}</li>
  * 	<li>You may specify fixing and payment adjustments.
  * </ul>
  *
@@ -177,7 +177,7 @@ public class ScheduleGenerator {
 			DaycountConvention daycountConvention,
 			ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays,
 			boolean isUseEndOfMonth
@@ -390,7 +390,7 @@ public class ScheduleGenerator {
 			DaycountConvention daycountConvention,
 			ShortPeriodConvention shortPeriodConvention,
 			DateRollConvention dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
@@ -429,7 +429,7 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
@@ -479,7 +479,7 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
@@ -527,14 +527,14 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
 	{
 		LocalDate spotDate = businessdayCalendar.getRolledDate(tradeDate, spotOffsetDays);
-		LocalDate startDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
-		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(startDate, maturityString);
+		LocalDate startDate = businessdayCalendar.getDateFromDateAndOffsetCode(spotDate, startOffsetString);
+		LocalDate maturityDate = businessdayCalendar.getDateFromDateAndOffsetCode(startDate, maturityString);
 
 		return createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 	}
@@ -567,15 +567,15 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays,
 			boolean isUseEndOfMonth
 			)
 	{
 		LocalDate spotDate = businessdayCalendar.getRolledDate(referenceDate, spotOffsetDays);
-		LocalDate startDate = businessdayCalendar.createDateFromDateAndOffsetCode(spotDate, startOffsetString);
-		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(startDate, maturityString);
+		LocalDate startDate = businessdayCalendar.getDateFromDateAndOffsetCode(spotDate, startOffsetString);
+		LocalDate maturityDate = businessdayCalendar.getDateFromDateAndOffsetCode(startDate, maturityString);
 
 		return createScheduleFromConventions(
 				referenceDate,
@@ -619,7 +619,7 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
@@ -653,7 +653,7 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
@@ -687,7 +687,7 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
@@ -709,7 +709,7 @@ public class ScheduleGenerator {
 		futureExpiryDate = futureExpiryDate.plusWeeks(2);
 		futureExpiryDate = businessdayCalendar.getAdjustedDate(futureExpiryDate, startOffsetString, DateRollConvention.FOLLOWING); // adjust to the next good busday
 
-		LocalDate maturityDate = businessdayCalendar.createDateFromDateAndOffsetCode(futureExpiryDate, maturityString);
+		LocalDate maturityDate = businessdayCalendar.getDateFromDateAndOffsetCode(futureExpiryDate, maturityString);
 
 		return createScheduleFromConventions(
 				referenceDate,
@@ -751,7 +751,7 @@ public class ScheduleGenerator {
 			String daycountConvention,
 			String shortPeriodConvention,
 			String dateRollConvention,
-			BusinessdayCalendarInterface businessdayCalendar,
+			BusinessdayCalendar businessdayCalendar,
 			int	fixingOffsetDays,
 			int	paymentOffsetDays
 			)
