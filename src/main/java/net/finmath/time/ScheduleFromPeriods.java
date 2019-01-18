@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * A schedule of interest rate periods with
@@ -31,7 +31,7 @@ public class ScheduleFromPeriods implements Schedule {
 	private			LocalDate					referenceDate;
 
 	private List<Period>			periods;
-	private DayCountConventionInterface	daycountconvention;
+	private DayCountConvention	daycountconvention;
 
 	private double[] fixingTimes;
 	private double[] paymentTimes;
@@ -39,11 +39,11 @@ public class ScheduleFromPeriods implements Schedule {
 	private double[] periodEndTimes;
 	private double[] periodLength;
 
-	public ScheduleFromPeriods(LocalDate referenceDate, DayCountConventionInterface daycountconvention, Period... periods) {
+	public ScheduleFromPeriods(LocalDate referenceDate, DayCountConvention daycountconvention, Period... periods) {
 		this(referenceDate, Arrays.asList(periods), daycountconvention);
 	}
 
-	public ScheduleFromPeriods(LocalDate referenceDate, List<Period> periods, DayCountConventionInterface daycountconvention) {
+	public ScheduleFromPeriods(LocalDate referenceDate, List<Period> periods, DayCountConvention daycountconvention) {
 		super();
 		if(referenceDate == null) throw new IllegalArgumentException("referenceDate must not be null.");
 
@@ -77,7 +77,7 @@ public class ScheduleFromPeriods implements Schedule {
 	}
 
 	@Override
-	public DayCountConventionInterface getDaycountconvention() {
+	public DayCountConvention getDaycountconvention() {
 		return daycountconvention;
 	}
 

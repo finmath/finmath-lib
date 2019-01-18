@@ -18,7 +18,7 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_UNKNOWN implements DayCountConventionInterface {
+public class DayCountConvention_UNKNOWN implements DayCountConvention {
 
 	private final String errorMessage;
 

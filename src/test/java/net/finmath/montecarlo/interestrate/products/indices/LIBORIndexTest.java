@@ -51,7 +51,7 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * @author Christian Fries
@@ -227,7 +227,7 @@ public class LIBORIndexTest {
 			String paymentOffsetCode = "6M";
 			BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 			BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
-			DayCountConventionInterface daycountConvention = null;//new DayCountConvention_ACT_360();
+			DayCountConvention daycountConvention = null;//new DayCountConvention_ACT_360();
 
 			forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 1.0, 0.0);
 			break;

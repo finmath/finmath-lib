@@ -14,12 +14,12 @@ import java.time.LocalDate;
  *
  * The latter property is probably the relevant property: you may use this day count convention if a coupon period
  * pays the coupon without applying a year fraction of the accrual period, but the implementation requires an object implementing
- * {@link DayCountConventionInterface}.
+ * {@link DayCountConvention}.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_NONE implements DayCountConventionInterface {
+public class DayCountConvention_NONE implements DayCountConvention {
 
 	/**
 	 * Create a day count convention with a constant year fraction of 1.0 for all periods.

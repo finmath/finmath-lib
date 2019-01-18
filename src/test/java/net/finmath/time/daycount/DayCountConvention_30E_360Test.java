@@ -95,7 +95,7 @@ public class DayCountConvention_30E_360Test {
 
 	@Test
 	public void test() {
-		DayCountConventionInterface daycount = new DayCountConvention_30E_360();
+		DayCountConvention daycount = new DayCountConvention_30E_360();
 		for(int i=0; i<startDates.length; i++) {
 			String message = "Test of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
 

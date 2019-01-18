@@ -18,7 +18,7 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * A (floating) rate index representing the performance of the numeraire asset for a given period start offset (offset from fixing) and period length.
@@ -38,12 +38,12 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 	private final BusinessdayCalendar paymentBusinessdayCalendar;
 	private final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
 
-	private final DayCountConventionInterface daycountConvention;
+	private final DayCountConvention daycountConvention;
 
 
 	public NumerairePerformanceIndex(String name, String currency, String paymentOffsetCode,
 			BusinessdayCalendar paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention,
-			DayCountConventionInterface daycountConvention) {
+			DayCountConvention daycountConvention) {
 		super(name, currency);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;

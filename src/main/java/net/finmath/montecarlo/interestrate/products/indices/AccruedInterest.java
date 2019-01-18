@@ -11,7 +11,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * An accrued interest index.
@@ -42,7 +42,7 @@ public class AccruedInterest extends AbstractIndex {
 
 	private final AbstractIndex					index;
 	private final Double						indexFixingTime;
-	private final DayCountConventionInterface	daycountConvention;
+	private final DayCountConvention	daycountConvention;
 	private final boolean						isNegativeAccruedInterest;
 
 	/**
@@ -62,7 +62,7 @@ public class AccruedInterest extends AbstractIndex {
 			String currency,
 			LocalDate referenceDate, LocalDate periodStartDate,
 			LocalDate periodEndDate, AbstractIndex index, Double indexFixingTime,
-			DayCountConventionInterface daycountConvention, boolean isNegativeAccruedInterest) {
+			DayCountConvention daycountConvention, boolean isNegativeAccruedInterest) {
 		super(name, currency);
 		this.referenceDate = referenceDate;
 		this.periodStartDate = periodStartDate;

@@ -9,7 +9,7 @@ package net.finmath.time;
 import java.time.LocalDate;
 import java.util.List;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Interface of a schedule of interest rate periods with
@@ -48,7 +48,7 @@ public interface Schedule extends Iterable<Period> {
 	 *
 	 * @return The daycount convention used to calculate period lengths.
 	 */
-	DayCountConventionInterface getDaycountconvention();
+	DayCountConvention getDaycountconvention();
 
 	/**
 	 * Returns the number of periods.

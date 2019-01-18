@@ -13,7 +13,7 @@ import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.AbstractBusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Descriptor for a schedule. All data to generate a schedule for any given reference date is stored. Either via a set of periods or conventions.
@@ -33,7 +33,7 @@ public class ScheduleDescriptor {
 	 * @param daycountConvention The common daycount convention.
 	 */
 	public ScheduleDescriptor(List<Period> periods,
-			DayCountConventionInterface daycountConvention) {
+			DayCountConvention daycountConvention) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(periods, daycountConvention);
 	}
@@ -139,10 +139,10 @@ public class ScheduleDescriptor {
 	private static class ScheduleDescriptorFromPeriods implements InternalScheduleDescriptor {
 
 		private final List<Period> periods;
-		private final DayCountConventionInterface daycountConvention;
+		private final DayCountConvention daycountConvention;
 
 		private ScheduleDescriptorFromPeriods(List<Period> periods,
-				DayCountConventionInterface daycountConvention) {
+				DayCountConvention daycountConvention) {
 			super();
 			this.periods = periods;
 			this.daycountConvention = daycountConvention;

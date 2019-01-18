@@ -16,7 +16,7 @@ import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.daycount.DayCountConventionFactory;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 public class AccruedInterestTest {
 
@@ -59,7 +59,7 @@ public class AccruedInterestTest {
 	private double getAccruedInterest(LocalDate date) {
 		int periodIndex=getPeriodIndex(date);
 		Period period=testSchedule.getPeriod(periodIndex);
-		DayCountConventionInterface dcc= testSchedule.getDaycountconvention();
+		DayCountConvention dcc= testSchedule.getDaycountconvention();
 		double accruedInterest=coupon*dcc.getDaycount(period.getPeriodStart(), date)/dcc.getDaycount(period.getPeriodStart(), period.getPeriodEnd());
 		return accruedInterest;
 	}

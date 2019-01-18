@@ -11,7 +11,7 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Abstract base class for a volatility surface. It stores the name of the surface and
@@ -28,7 +28,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	protected ForwardCurveInterface forwardCurve;
 	protected DiscountCurveInterface discountCurve;
 	protected QuotingConvention quotingConvention;
-	protected DayCountConventionInterface daycountConvention;
+	protected DayCountConvention daycountConvention;
 
 	public AbstractVolatilitySurface(String name, LocalDate referenceDate) {
 		super();

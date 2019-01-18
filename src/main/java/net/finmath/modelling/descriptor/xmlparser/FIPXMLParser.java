@@ -20,7 +20,7 @@ import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.Period;
 import net.finmath.time.daycount.DayCountConventionFactory;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Class for parsing trades saved in FIPXML to product descriptors.
@@ -98,7 +98,7 @@ public class FIPXMLParser implements XMLParser {
 			throw new IllegalArgumentException("This xml parser is not set up to process trade of type "+doc.getElementsByTagName("instrumentName").item(0).getTextContent());
 		}
 
-		DayCountConventionInterface daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
+		DayCountConvention daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName("dayCountFraction").item(0).getTextContent());
 
 		//TODO try to get curves from file. Problems if there are two float/fixed legs
 		//forward curve
@@ -150,7 +150,7 @@ public class FIPXMLParser implements XMLParser {
 	 * @return Descriptor of the swap leg.
 	 */
 	private static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg, String forwardCurveName, String discountCurveName,
-			DayCountConventionInterface daycountConvention) {
+			DayCountConvention daycountConvention) {
 
 		boolean isFixed = leg.getElementsByTagName("interestType").item(0).getTextContent().equalsIgnoreCase("FIX");
 

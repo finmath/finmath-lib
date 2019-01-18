@@ -38,7 +38,7 @@ public class DayCountConventionFactory {
 	 * @param convention A convention string.
 	 * @return A day count convention object.
 	 */
-	public static DayCountConventionInterface getDayCountConvention(String convention) {
+	public static DayCountConvention getDayCountConvention(String convention) {
 		if(convention.compareToIgnoreCase("act/act isda") == 0) {
 			return new DayCountConvention_ACT_ACT_ISDA();
 		}
@@ -74,7 +74,7 @@ public class DayCountConventionFactory {
 	 * @return The number of days within the given period.
 	 */
 	public static double getDaycount(LocalDate startDate, LocalDate endDate, String convention) {
-		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
+		DayCountConvention daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycount(startDate, endDate);
 	}
 
@@ -88,7 +88,7 @@ public class DayCountConventionFactory {
 	 * @return The daycount fraction corresponding to the given period.
 	 */
 	public static double getDaycountFraction(LocalDate startDate, LocalDate endDate, String convention) {
-		DayCountConventionInterface daycountConvention = getDayCountConvention(convention);
+		DayCountConvention daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycountFraction(startDate, endDate);
 	}
 

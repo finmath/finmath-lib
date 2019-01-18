@@ -17,7 +17,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
@@ -147,7 +147,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	public static double[] computeSeasonalAdjustments(LocalDate referenceDate, Map<LocalDate, Double> indexFixings, int numberOfYearsToAverage) {
-		DayCountConventionInterface modelDcc = new DayCountConvention_ACT_365();			// Not needed: remove
+		DayCountConvention modelDcc = new DayCountConvention_ACT_365();			// Not needed: remove
 
 		double[] fixingTimes = new double[indexFixings.size()];								// Not needed: remove
 		double[] realizedCPIValues = new double[indexFixings.size()];

@@ -23,7 +23,7 @@ import java.time.chrono.IsoChronology;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_NL_365 implements DayCountConventionInterface {
+public class DayCountConvention_NL_365 implements DayCountConvention {
 
 	/**
 	 * Create an NL/365 day count convention.

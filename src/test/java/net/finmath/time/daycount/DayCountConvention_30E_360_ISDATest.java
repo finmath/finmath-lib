@@ -120,7 +120,7 @@ public class DayCountConvention_30E_360_ISDATest {
 
 	@Test
 	public void testAssumingEndDateIsNotATerminationDate() {
-		DayCountConventionInterface daycount = new DayCountConvention_30E_360_ISDA(false);
+		DayCountConvention daycount = new DayCountConvention_30E_360_ISDA(false);
 		for(int i=0; i<startDates.length; i++) {
 			String message = "Test " + i + " of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
 
@@ -132,7 +132,7 @@ public class DayCountConvention_30E_360_ISDATest {
 
 	@Test
 	public void testAssumingEndDateIsATerminationDate() {
-		DayCountConventionInterface daycount = new DayCountConvention_30E_360_ISDA(true);
+		DayCountConvention daycount = new DayCountConvention_30E_360_ISDA(true);
 		for(int i=0; i<startDates.length; i++) {
 			String message = "Test " + i + " of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
 

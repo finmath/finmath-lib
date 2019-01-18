@@ -18,7 +18,7 @@ import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.Period;
 import net.finmath.time.Schedule;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Implements the valuation of a bond (zero-coupon, fixed coupon or floating coupon)
@@ -309,7 +309,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	public double getAccruedInterest(LocalDate date, AnalyticModelInterface model) {
 		int periodIndex=schedule.getPeriodIndex(date);
 		Period period=schedule.getPeriod(periodIndex);
-		DayCountConventionInterface dcc= schedule.getDaycountconvention();
+		DayCountConvention dcc= schedule.getDaycountconvention();
 		double accruedInterest=getCouponPayment(periodIndex,model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/schedule.getPeriodLength(periodIndex);
 		return accruedInterest;
 	}

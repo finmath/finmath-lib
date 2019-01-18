@@ -16,7 +16,7 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class DayCountConvention_ACT implements DayCountConventionInterface {
+public abstract class DayCountConvention_ACT implements DayCountConvention {
 
 	/**
 	 * Create an ACT day count convention.
@@ -25,7 +25,7 @@ public abstract class DayCountConvention_ACT implements DayCountConventionInterf
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {

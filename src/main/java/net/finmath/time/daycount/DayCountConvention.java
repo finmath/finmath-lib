@@ -20,7 +20,7 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public interface DayCountConventionInterface {
+public interface DayCountConvention {
 
 	/**
 	 * Return the number of days between startDate and endDate given the

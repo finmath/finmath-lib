@@ -10,7 +10,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
 /**
@@ -48,7 +48,7 @@ public class FloatingpointDate {
 
 	private static final long SECONDS_PER_DAY = 365*24*60*60;
 
-	private static DayCountConventionInterface	internalDayCounting = new DayCountConvention_ACT_365();
+	private static DayCountConvention	internalDayCounting = new DayCountConvention_ACT_365();
 
 	private FloatingpointDate() {
 	}

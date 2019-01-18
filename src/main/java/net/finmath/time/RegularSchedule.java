@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Simple schedule generated from {@link net.finmath.time.TimeDiscretization}
@@ -42,7 +42,7 @@ public class RegularSchedule implements Schedule {
 	}
 
 	@Override
-	public DayCountConventionInterface getDaycountconvention() {
+	public DayCountConvention getDaycountconvention() {
 		return null;
 	}
 

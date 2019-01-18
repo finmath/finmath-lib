@@ -16,7 +16,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 
 /**
@@ -34,7 +34,7 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 		String paymentOffsetCode = "3M";
 		BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
-		DayCountConventionInterface daycountConvention = new DayCountConvention_ACT_360();
+		DayCountConvention daycountConvention = new DayCountConvention_ACT_360();
 
 		ForwardCurveInterface forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0, 0.0);
 

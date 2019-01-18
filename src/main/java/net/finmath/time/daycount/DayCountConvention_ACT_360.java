@@ -29,7 +29,7 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implements DayCountConventionInterface {
+public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implements DayCountConvention {
 
 	/**
 	 * Create an ACT/360 day count convention.
@@ -39,7 +39,7 @@ public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implement
 
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

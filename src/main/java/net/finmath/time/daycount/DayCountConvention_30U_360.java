@@ -31,7 +31,7 @@ import java.time.Month;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_30U_360 implements DayCountConventionInterface {
+public class DayCountConvention_30U_360 implements DayCountConvention {
 
 	private boolean isEndOfMonth =  true;
 
@@ -51,7 +51,7 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycount(LocalDate startDate, LocalDate endDate) {
@@ -94,7 +94,7 @@ public class DayCountConvention_30U_360 implements DayCountConventionInterface {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConventionInterface#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {

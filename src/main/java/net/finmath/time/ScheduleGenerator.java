@@ -20,7 +20,7 @@ import java.util.Locale;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
-import net.finmath.time.daycount.DayCountConventionInterface;
+import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
 import net.finmath.time.daycount.DayCountConvention_30U_360;
@@ -188,7 +188,7 @@ public class ScheduleGenerator {
 		 */
 		ArrayList<Period> periods = new ArrayList<>();
 
-		DayCountConventionInterface daycountConventionObject = null;
+		DayCountConvention daycountConventionObject = null;
 		switch (daycountConvention) {
 		case E30_360_ISDA:
 			daycountConventionObject = new DayCountConvention_30E_360_ISDA();
