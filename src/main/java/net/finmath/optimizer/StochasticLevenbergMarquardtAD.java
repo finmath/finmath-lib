@@ -155,7 +155,7 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 			for(int valueIndex=0; valueIndex<values.length && isParameterRandomVariableDifferentiable; valueIndex++) {
 				isValueRandomVariableDifferentiable = (values[valueIndex] instanceof RandomVariableDifferentiableInterface) && isValueRandomVariableDifferentiable;
 			}
-	
+
 			if(!isValueRandomVariableDifferentiable) {
 				logger.info("Using " + this.getClass().getSimpleName() + " with random variables not implementing " + RandomVariableDifferentiableInterface.class.getSimpleName());
 			}
@@ -170,13 +170,13 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
 				if(values[valueIndex] instanceof RandomVariableDifferentiableInterface) {
-				Map<Long, RandomVariableInterface> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient();
-				for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
-					derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameters[parameterIndex]).getID());
-					if(derivatives[parameterIndex][valueIndex] != null) {
-						derivatives[parameterIndex][valueIndex] = derivatives[parameterIndex][valueIndex].average();
+					Map<Long, RandomVariableInterface> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiableInterface)values[valueIndex]).getGradient();
+					for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
+						derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiableInterface)parameters[parameterIndex]).getID());
+						if(derivatives[parameterIndex][valueIndex] != null) {
+							derivatives[parameterIndex][valueIndex] = derivatives[parameterIndex][valueIndex].average();
+						}
 					}
-				}
 				}
 			}
 		}
