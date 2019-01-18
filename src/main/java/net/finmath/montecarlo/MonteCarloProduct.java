@@ -11,7 +11,20 @@ import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
 import net.finmath.stochastic.RandomVariable;
 
+/**
+ * Interface for products requiring an MonteCarloSimulationModel for valuation.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
 public interface MonteCarloProduct {
+
+	/**
+	 * Returns the currency string of this product.
+	 *
+	 * @return the currency
+	 */
+	String getCurrency();
 
 	Object getValue(double evaluationTime, Model model);
 
@@ -124,12 +137,4 @@ public interface MonteCarloProduct {
 	 */
 	Map<String, Object> getValuesForModifiedData(MonteCarloSimulationModel model, String entityKey, Object dataModified)
 			throws CalculationException;
-
-	/**
-	 * Returns the currency string of this notional.
-	 *
-	 * @return the currency
-	 */
-	String getCurrency();
-
 }

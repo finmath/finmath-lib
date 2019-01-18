@@ -16,6 +16,7 @@ import net.finmath.functions.NormalDistribution;
 import net.finmath.functions.PoissonDistribution;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.IndependentIncrementsFromICDF;
+import net.finmath.montecarlo.assetderivativevaluation.models.MertonModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -38,10 +39,10 @@ import net.finmath.time.TimeDiscretization;
  * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
  * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
  *
- * For details on the construction of the model see {@link net.finmath.montecarlo.assetderivativevaluation.MertonModel}.
+ * For details on the construction of the model see {@link net.finmath.montecarlo.assetderivativevaluation.models.MertonModel}.
  *
  * @author Christian Fries
- * @see net.finmath.montecarlo.assetderivativevaluation.MertonModel
+ * @see net.finmath.montecarlo.assetderivativevaluation.models.MertonModel
  * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0

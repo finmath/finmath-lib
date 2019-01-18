@@ -11,10 +11,10 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrements;
-import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves;
+import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 
 /**
@@ -134,7 +134,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		 */
 		private HestonModelMonteCarlo(HestonModelDescriptor descriptor, Scheme scheme, AbstractRandomVariableFactory randomVariableFactory,
 				IndependentIncrements stochasticDriver) {
-			super(new net.finmath.montecarlo.assetderivativevaluation.HestonModel(descriptor, scheme, randomVariableFactory),
+			super(new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(descriptor, scheme, randomVariableFactory),
 					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor 	= descriptor;
 			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());

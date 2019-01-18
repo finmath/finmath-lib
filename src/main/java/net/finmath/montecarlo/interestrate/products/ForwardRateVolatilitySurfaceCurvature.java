@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
+import net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 

@@ -47,7 +47,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 		 * We build the class implementing DescribedModel<BlackScholesModelDescriptor> as an inner class.
 		 * For larger applications this should be a dedicated class file.
 		 */
-		AbstractProcessModel model = new net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves(
+		AbstractProcessModel model = new net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves(
 				modelDescriptor.getInitialValue(),
 				modelDescriptor.getDiscountCurveForForwardRate(),
 				modelDescriptor.getVolatility(),

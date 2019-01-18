@@ -8,9 +8,9 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 

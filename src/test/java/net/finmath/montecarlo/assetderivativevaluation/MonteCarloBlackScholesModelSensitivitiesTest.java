@@ -21,6 +21,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.MonteCarloProduct;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanDigitalOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanDigitalOption.ExerciseMethod;

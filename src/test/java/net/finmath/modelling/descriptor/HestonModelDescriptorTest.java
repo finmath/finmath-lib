@@ -25,7 +25,7 @@ import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
+import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
