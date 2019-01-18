@@ -19,8 +19,8 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
 import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.time.Period;
-import net.finmath.time.ScheduleFromPeriods;
 import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleFromPeriods;
 
 /**
  * Implements the valuation of a cap via an analytic model,

@@ -18,17 +18,17 @@ import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
-import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.Product;
+import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Unit test creating a Heston model and a European option from corresponding model descriptors and product descriptors

@@ -14,10 +14,10 @@ import java.util.function.IntFunction;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.NormalDistribution;
 import net.finmath.functions.PoissonDistribution;
-import net.finmath.montecarlo.IndependentIncrementsFromICDF;
 import net.finmath.montecarlo.IndependentIncrements;
-import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.IndependentIncrementsFromICDF;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 

@@ -11,8 +11,8 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Unit test for <code>LIBORVolatilityModelFourParameterExponentialFormIntegrated</code>.

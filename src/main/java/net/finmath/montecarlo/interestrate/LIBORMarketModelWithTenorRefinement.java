@@ -19,8 +19,8 @@ import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceM
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Implements a discretized Heath-Jarrow-Morton model / LIBOR market model with dynamic tenor refinement, see

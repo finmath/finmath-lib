@@ -23,10 +23,10 @@ import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
 import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.marketdata.products.AnalyticProductInterface;
 import net.finmath.optimizer.SolverException;
-import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
+import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 /**
  * This class makes some basic tests related to the setup, use and calibration of discount curves and forward curve.

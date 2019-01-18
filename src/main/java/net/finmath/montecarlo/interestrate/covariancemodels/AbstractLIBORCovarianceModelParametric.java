@@ -19,8 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
@@ -29,8 +29,8 @@ import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceM
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.SolverException;
-import net.finmath.optimizer.StochasticOptimizerFactory;
 import net.finmath.optimizer.StochasticOptimizer;
+import net.finmath.optimizer.StochasticOptimizerFactory;
 import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;

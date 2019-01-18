@@ -22,16 +22,16 @@ import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.model.AbstractProcessModel;
-import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
-import net.finmath.time.TimeDiscretizationFromArray;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * @author Christian Fries

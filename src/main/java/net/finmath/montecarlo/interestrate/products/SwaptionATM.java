@@ -9,8 +9,8 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * A lightweight ATM swaption product used for calibration.

@@ -8,11 +8,11 @@ import org.junit.Test;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.CurveInterface;
 import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarAny;
 
 public class DepositTest {
 

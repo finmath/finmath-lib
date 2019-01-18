@@ -6,8 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * @author Christian Fries

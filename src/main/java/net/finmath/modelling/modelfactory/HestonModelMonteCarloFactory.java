@@ -18,8 +18,8 @@ import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.model.ProcessModel;
-import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 
 /**
  * @author Christian Fries

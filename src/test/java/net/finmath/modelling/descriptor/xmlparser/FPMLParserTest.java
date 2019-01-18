@@ -35,8 +35,8 @@ import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.productfactory.InterestRateAnalyticProductFactory;
 import net.finmath.modelling.productfactory.ModelWithProductFactoryTest;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 @RunWith(Parameterized.class)
 public class FPMLParserTest {

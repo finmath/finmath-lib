@@ -19,8 +19,8 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 //import net.finmath.montecarlo.interestrate.LIBORMarketModelFromCovarianceModel;
 //import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.Curve}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.Curve} class.

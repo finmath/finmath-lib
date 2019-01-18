@@ -13,8 +13,8 @@ import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
-import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.Product;
+import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
@@ -22,12 +22,12 @@ import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescripto
 import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.HestonModelMonteCarloFactory;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.time.FloatingpointDate;
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 public class ModelWithProductFactoryTest {
 

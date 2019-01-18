@@ -66,11 +66,11 @@ import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
-import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleGenerator;
+import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretizationFromArray.ShortPeriodLocation;
-import net.finmath.time.TimeDiscretization;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 

@@ -12,9 +12,9 @@ import java.util.Vector;
 
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
-import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 
 /**

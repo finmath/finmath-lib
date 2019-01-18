@@ -53,8 +53,8 @@ import net.finmath.montecarlo.interestrate.products.indices.LaggedIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 

@@ -12,8 +12,8 @@ import java.util.function.DoubleUnaryOperator;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * A linear interpolated time discrete process, that is, given a collection of tuples

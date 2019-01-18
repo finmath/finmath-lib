@@ -18,10 +18,10 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
@@ -31,12 +31,12 @@ import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDi
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory.DiracDeltaApproximationMethod;
 import net.finmath.montecarlo.conditionalexpectation.LinearRegression;
 import net.finmath.montecarlo.model.AbstractProcessModel;
-import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
-import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * This test checks several methods for calculating the delta of a digital option. Among the methods

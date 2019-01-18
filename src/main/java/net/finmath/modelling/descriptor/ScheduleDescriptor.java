@@ -4,12 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 import net.finmath.time.Period;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleFromPeriods;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
 import net.finmath.time.businessdaycalendar.AbstractBusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;

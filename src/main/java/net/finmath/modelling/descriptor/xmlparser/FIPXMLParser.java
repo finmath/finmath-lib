@@ -19,8 +19,8 @@ import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.Period;
-import net.finmath.time.daycount.DayCountConventionFactory;
 import net.finmath.time.daycount.DayCountConvention;
+import net.finmath.time.daycount.DayCountConventionFactory;
 
 /**
  * Class for parsing trades saved in FIPXML to product descriptors.
