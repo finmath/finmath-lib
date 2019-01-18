@@ -12,15 +12,15 @@ import net.finmath.exception.CalculationException;
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
- * and forms a Monte-Carlo implementation of the Black-Scholes Model by implementing <code>AssetModelMonteCarloSimulationInterface</code>.
+ * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>
+ * and forms a Monte-Carlo implementation of the Black-Scholes Model by implementing <code>AssetModelMonteCarloSimulationModel</code>.
  *
  * The model is
  * \[
@@ -33,20 +33,20 @@ import net.finmath.time.TimeDiscretization;
  * 	dW_{i} dW_{j} = \rho_{i,j} dt,
  * \]
  *
- * The class provides the model of \( S_{i} \) to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
+ * The class provides the model of \( S_{i} \) to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = exp \), \( \mu_{i} = r - \frac{1}{2} \sigma_{i}^2 \), \( \lambda_{i,j} = \sigma_{i} g_{i,j} \), i.e.,
  * of the SDE
  * \[
  * 	dX_{i} = \mu_{i} dt + \lambda_{i,j} dW, \quad X_{i}(0) = \log(S_{i,0}),
  * \]
- * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
+ * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
  * @author Christian Fries
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
  */
-public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel implements AssetModelMonteCarloSimulationInterface {
+public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel implements AssetModelMonteCarloSimulationModel {
 
 	private final double[]		initialValues;
 	private final double		riskFreeRate;		// Actually the same as the drift (which is not stochastic)
@@ -78,7 +78,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 		super();
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 
 		this.initialValues	= initialValues;
 		this.riskFreeRate	= riskFreeRate;
@@ -234,7 +234,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 
 	/**
 	 * @return The number of paths.
-	 * @see net.finmath.montecarlo.process.AbstractProcess#getNumberOfPaths()
+	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getNumberOfPaths()
 	 */
 	@Override
 	public int getNumberOfPaths() {
@@ -266,7 +266,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractModel impleme
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
 		// TODO Auto-generated method stub
 		return null;
 	}

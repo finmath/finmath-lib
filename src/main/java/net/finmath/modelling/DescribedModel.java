@@ -8,7 +8,7 @@ package net.finmath.modelling;
  * @param <M> An interface extending the <code>ModelDescriptor</code> interface, being rich enough to describe the model implementing this interface.
  * @version 1.0
  */
-public interface DescribedModel<M extends ModelDescriptor> extends ModelInterface {
+public interface DescribedModel<M extends ModelDescriptor> extends Model {
 
 	/**
 	 * Return a model descriptor representing this model.

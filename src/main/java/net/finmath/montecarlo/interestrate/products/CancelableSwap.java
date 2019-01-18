@@ -11,13 +11,13 @@ import java.util.Arrays;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
- * Implements the pricing of a cancelable swap under a <code>LIBORModelMonteCarloSimulationInterface</code>
+ * Implements the pricing of a cancelable swap under a <code>LIBORModelMonteCarloSimulationModel</code>
  *
  * @author Christian Fries
  * @version 1.2
@@ -61,7 +61,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
 		RandomVariable values = new RandomVariableFromDoubleArray(fixingDates[fixingDates.length-1], 0.0);
@@ -114,7 +114,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * @return
 	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private ConditionalExpectationEstimator getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	private ConditionalExpectationEstimator getConditionalExpectationEstimator(int fixingDateIndex, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(fixingDates[fixingDateIndex], model));
 		return condExpEstimator;
 	}
@@ -127,7 +127,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	 * @return The basis functions for the regression suitable for this product.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private RandomVariable[] getRegressionBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	private RandomVariable[] getRegressionBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 

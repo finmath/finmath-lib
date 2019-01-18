@@ -2,7 +2,7 @@ package net.finmath.finitedifference.models;
 
 import java.util.function.DoubleUnaryOperator;
 
-import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.Model;
 
 /**
  * Interface one dimensional finite difference models.
@@ -10,7 +10,7 @@ import net.finmath.modelling.ModelInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public interface FiniteDifference1DModel extends ModelInterface {
+public interface FiniteDifference1DModel extends Model {
 
 	/**
 	 * Return the conditional expectation of the given values at a given time contrained by the given boundary conditions.

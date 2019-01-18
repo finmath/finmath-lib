@@ -7,12 +7,12 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
  * Implements the valuation of a digital caplet using a given
- * <code>LIBORModelMonteCarloSimulationInterface</code>.
+ * <code>LIBORModelMonteCarloSimulationModel</code>.
  * The digital caplet pays periodLength if <i>L &gt; K</i> and else 0.
  * Here <i>L = L(T<sub>i</sub>,T<sub>i+1</sub>;t)</i> is the
  * forward rate with period start <i>T<sub>i</sub></i>
@@ -56,7 +56,7 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Set payment date and period length
 		double	paymentDate		= periodEnd;

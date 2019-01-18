@@ -11,17 +11,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
- * Implements the valuation of a Bermudan swaption under a <code>LIBORModelMonteCarloSimulationInterface</code>
+ * Implements the valuation of a Bermudan swaption under a <code>LIBORModelMonteCarloSimulationModel</code>
  *
  * @author Christian Fries
  * @version 1.3
@@ -87,7 +87,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
 		RandomVariable values				= model.getRandomVariableForConstant(0.0);
@@ -166,7 +166,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return (RandomVariable) getValues(evaluationTime, model).get("value");
 	}
 
@@ -178,7 +178,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	 * @return The conditional expectation estimator suitable for this product
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public ConditionalExpectationEstimator getConditionalExpectationEstimator(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public ConditionalExpectationEstimator getConditionalExpectationEstimator(double fixingDate, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(fixingDate, model) : getBasisFunctions(fixingDate, model);
 		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctions);
 
@@ -194,12 +194,12 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable[] getBasisFunctions(double fixingDate, MonteCarloSimulationInterface model) throws CalculationException {
-		if(model instanceof LIBORModelMonteCarloSimulationInterface) {
-			return getBasisFunctions(fixingDate, (LIBORModelMonteCarloSimulationInterface)model);
+	public RandomVariable[] getBasisFunctions(double fixingDate, MonteCarloSimulationModel model) throws CalculationException {
+		if(model instanceof LIBORModelMonteCarloSimulationModel) {
+			return getBasisFunctions(fixingDate, (LIBORModelMonteCarloSimulationModel)model);
 		}
 		else {
-			throw new IllegalArgumentException("Requires model to implement LIBORModelMonteCarloSimulationInterface.");
+			throw new IllegalArgumentException("Requires model to implement LIBORModelMonteCarloSimulationModel.");
 		}
 	}
 
@@ -211,7 +211,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	 * @return The basis functions for the regression suitable for this product.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariable[] getBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable[] getBasisFunctions(double fixingDate, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 

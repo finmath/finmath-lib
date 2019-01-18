@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Christian Fries
  * @version 1.0
  */
-public interface ProductInterface {
+public interface Product {
 
 	/**
 	 * Return the valuation of the product using the given model.
@@ -28,7 +28,7 @@ public interface ProductInterface {
 	 * @param model The model under which the product is valued.
 	 * @return Object containing the value of the product using the given model.
 	 */
-	Object getValue(double evaluationTime, ModelInterface model);
+	Object getValue(double evaluationTime, Model model);
 
 	/**
 	 * Return the valuation of the product using the given model.
@@ -42,5 +42,5 @@ public interface ProductInterface {
 	 * @param model The model under which the product is valued.
 	 * @return Map containing the value of the product using the given model.
 	 */
-	default Map<String, Object> getValues(double evaluationTime, ModelInterface model) { throw new UnsupportedOperationException(); }
+	default Map<String, Object> getValues(double evaluationTime, Model model) { throw new UnsupportedOperationException(); }
 }

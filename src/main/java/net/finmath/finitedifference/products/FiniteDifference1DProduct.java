@@ -1,8 +1,8 @@
 package net.finmath.finitedifference.products;
 
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
-import net.finmath.modelling.ModelInterface;
-import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
 
 /**
  * Interface one dimensional finite difference products.
@@ -10,7 +10,7 @@ import net.finmath.modelling.ProductInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public interface FiniteDifference1DProduct extends ProductInterface {
+public interface FiniteDifference1DProduct extends Product {
 
 	/**
 	 * Return the value of the product under the given model.
@@ -23,7 +23,7 @@ public interface FiniteDifference1DProduct extends ProductInterface {
 
 
 	@Override
-	default Object getValue(double evaluationTime, ModelInterface model) {
+	default Object getValue(double evaluationTime, Model model) {
 		if(model instanceof FiniteDifference1DModel) {
 			return getValue(evaluationTime, (FiniteDifference1DModel) model);
 		}

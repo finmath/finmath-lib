@@ -11,30 +11,30 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements convenient methods for a LIBOR market model,
- * based on a given <code>LIBORMarketModel</code> model
+ * based on a given <code>LIBORMarketModelFromCovarianceModel</code> model
  * and <code>AbstractLogNormalProcess</code> process.
  *
  * @author Christian Fries
  * @version 0.7
  */
-public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCarloSimulationInterface {
+public class LIBORMonteCarloSimulationFromTermStructureModel implements LIBORModelMonteCarloSimulationModel {
 
-	private final TermStructureModelInterface model;
+	private final TermStructureModel model;
 
 	/**
-	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel and an AbstractProcess.
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel and an MonteCarloProcessFromProcessModel.
 	 *
-	 * @param model The LIBORMarketModel.
+	 * @param model The LIBORMarketModelFromCovarianceModel.
 	 * @param process The process.
 	 */
-	public TermStructureModelMonteCarloSimulation(TermStructureModelInterface model, AbstractProcess process) {
+	public LIBORMonteCarloSimulationFromTermStructureModel(TermStructureModel model, MonteCarloProcessFromProcessModel process) {
 		super();
 		this.model		= model;
 
@@ -43,11 +43,11 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	}
 
 	/**
-	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModel.
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel.
 	 *
-	 * @param model The LIBORMarketModel.
+	 * @param model The LIBORMarketModelFromCovarianceModel.
 	 */
-	public TermStructureModelMonteCarloSimulation(TermStructureModelInterface model) {
+	public LIBORMonteCarloSimulationFromTermStructureModel(TermStructureModel model) {
 		super();
 		this.model		= model;
 	}
@@ -152,35 +152,35 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	}
 
 	@Override
-	public TermStructureModelInterface getModel() {
+	public TermStructureModel getModel() {
 		return model;
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getProcess()
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel#getProcess()
 	 */
 	@Override
-	public AbstractProcessInterface getProcess() {
+	public MonteCarloProcess getProcess() {
 		return model.getProcess();
 	}
 
 	@Override
 	public Object getCloneWithModifiedSeed(int seed) {
-		AbstractProcess process = (AbstractProcess) ((AbstractProcess)getProcess()).getCloneWithModifiedSeed(seed);
-		return new TermStructureModelMonteCarloSimulation(model, process);
+		MonteCarloProcessFromProcessModel process = (MonteCarloProcessFromProcessModel) ((MonteCarloProcessFromProcessModel)getProcess()).getCloneWithModifiedSeed(seed);
+		return new LIBORMonteCarloSimulationFromTermStructureModel(model, process);
 	}
 
 	@Override
-	public LIBORModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		TermStructureModelInterface modelClone = model.getCloneWithModifiedData(dataModified);
+	public LIBORModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+		TermStructureModel modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {
 			// In this case we may re-use the underlying process
-			TermStructureModelMonteCarloSimulation lmmSimClone = new TermStructureModelMonteCarloSimulation(modelClone);
+			LIBORMonteCarloSimulationFromTermStructureModel lmmSimClone = new LIBORMonteCarloSimulationFromTermStructureModel(modelClone);
 			modelClone.setProcess(getProcess());		// Reuse process associated with other model
 			return lmmSimClone;
 		}
 		else {
-			return new TermStructureModelMonteCarloSimulation(modelClone, (AbstractProcess)getProcess().clone());
+			return new LIBORMonteCarloSimulationFromTermStructureModel(modelClone, (MonteCarloProcessFromProcessModel)getProcess().clone());
 		}
 	}
 
@@ -192,7 +192,7 @@ public class TermStructureModelMonteCarloSimulation implements LIBORModelMonteCa
 	 * @return Returns a clone of this model, where the specified part of the data is modified data (then it is no longer a clone :-)
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public TermStructureModelMonteCarloSimulationInterface getCloneWithModifiedData(String entityKey, Object dataModified) throws CalculationException
+	public TermStructureMonteCarloSimulationModel getCloneWithModifiedData(String entityKey, Object dataModified) throws CalculationException
 	{
 		Map<String, Object> dataModifiedMap = new HashMap<>();
 		dataModifiedMap.put(entityKey, dataModified);

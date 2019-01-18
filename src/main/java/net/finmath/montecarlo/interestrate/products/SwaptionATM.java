@@ -5,7 +5,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
@@ -31,7 +31,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		ForwardCurveInterface forwardCurve	 = model.getModel().getForwardRateCurve();
 		DiscountCurveInterface discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
@@ -43,7 +43,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 		double parSwapRate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());
 
 		// define an atm swaption
-		AbstractLIBORMonteCarloProduct swaption = new Swaption(tenor.getTime(0), tenor, parSwapRate);
+		TermStructureMonteCarloProduct swaption = new Swaption(tenor.getTime(0), tenor, parSwapRate);
 
 		// get swaption value
 		RandomVariable optionValue = swaption.getValue(evaluationTime, model);

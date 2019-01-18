@@ -16,14 +16,14 @@ import net.finmath.functions.NormalDistribution;
 import net.finmath.functions.PoissonDistribution;
 import net.finmath.montecarlo.IndependentIncrementsFromICDF;
 import net.finmath.montecarlo.IndependentIncrements;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * This class glues together a <code>MertonModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>, namely <code>ProcessEulerScheme</code>,
- * and forms a Monte-Carlo implementation of the Merton model by implementing <code>AssetModelMonteCarloSimulationInterface</code>.
+ * This class glues together a <code>MertonModel</code> and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>, namely <code>EulerSchemeFromProcessModel</code>,
+ * and forms a Monte-Carlo implementation of the Merton model by implementing <code>AssetModelMonteCarloSimulationModel</code>.
  *
  * The model is
  * \[
@@ -42,11 +42,11 @@ import net.finmath.time.TimeDiscretization;
  *
  * @author Christian Fries
  * @see net.finmath.montecarlo.assetderivativevaluation.MertonModel
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
  */
-public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInterface {
+public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationModel {
 
 	private final MertonModel model;
 	private final double initialValue;
@@ -122,7 +122,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 		};
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(icrements);
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(icrements);
 
 		// Link model and process for delegation
 		process.setModel(model);
@@ -162,7 +162,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumberOfAssets()
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumberOfAssets()
 	 */
 	@Override
 	public int getNumberOfAssets() {
@@ -170,7 +170,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
@@ -188,7 +188,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationInte
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
 		Map<String, Object> dataModified = new HashMap<>();
 		dataModified.put("seed", new Integer(seed));
 		return getCloneWithModifiedData(dataModified);

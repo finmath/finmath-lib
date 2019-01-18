@@ -31,7 +31,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExp
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
 import net.finmath.montecarlo.interestrate.products.FlexiCap;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.Schedule;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -47,7 +47,7 @@ public class CapValuationTest {
 
 	private ForwardCurveInterface					forwardCurve;
 	private DiscountCurveInterface					discountCurve;
-	private LIBORModelMonteCarloSimulationInterface	liborMarketModel;
+	private LIBORModelMonteCarloSimulationModel	liborMarketModel;
 	private AbstractVolatilitySurface				capletVol;
 
 	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -137,10 +137,10 @@ public class CapValuationTest {
 		Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
-		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
+		properties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.SPOT.name());
 
 		// Choose log normal model
-		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
+		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
 		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
@@ -148,15 +148,15 @@ public class CapValuationTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
+		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
 				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(
+		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
-		this.liborMarketModel = new LIBORModelMonteCarloSimulation(liborMarketModel, process);
+		this.liborMarketModel = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
 
 	@Test

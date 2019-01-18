@@ -12,16 +12,16 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
- * and forms a Monte-Carlo implementation of the Black-Scholes Model by implementing <code>AssetModelMonteCarloSimulationInterface</code>.
+ * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>
+ * and forms a Monte-Carlo implementation of the Black-Scholes Model by implementing <code>AssetModelMonteCarloSimulationModel</code>.
  *
  * The model is
  * \[
@@ -31,20 +31,20 @@ import net.finmath.time.TimeDiscretization;
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
  *
- * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
+ * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 \), \( \lambda_{1,1} = \sigma \), i.e.,
  * of the SDE
  * \[
  * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
  * \]
- * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
+ * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
  * @author Christian Fries
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
  */
-public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulationInterface {
+public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulationModel {
 
 	private final BlackScholesModel model;
 	private final double initialValue;
@@ -73,7 +73,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Link model and process for delegation
 		process.setModel(model);
@@ -92,7 +92,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 			double initialValue,
 			double riskFreeRate,
 			double volatility,
-			AbstractProcess process) {
+			MonteCarloProcessFromProcessModel process) {
 		super();
 
 		this.initialValue = initialValue;
@@ -106,7 +106,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(double, int)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getAssetValue(double, int)
 	 */
 	@Override
 	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
@@ -114,7 +114,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getAssetValue(int, int)
 	 */
 	@Override
 	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
@@ -122,7 +122,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(int)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumeraire(int)
 	 */
 	@Override
 	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
@@ -132,7 +132,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumeraire(double)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumeraire(double)
 	 */
 	@Override
 	public RandomVariable getNumeraire(double time) throws CalculationException {
@@ -140,7 +140,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(double)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getMonteCarloWeights(double)
 	 */
 	@Override
 	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
@@ -148,7 +148,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getNumberOfAssets()
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumberOfAssets()
 	 */
 	@Override
 	public int getNumberOfAssets() {
@@ -156,11 +156,11 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getCloneWithModifiedData(java.util.Map)
 	 * @TODO THE METHOD NEED TO BE CHANGED. NEED
 	 */
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
@@ -196,17 +196,17 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 			TimeDiscretization newTimeDiscretization = new TimeDiscretizationFromArray(newTimes);
 			brownianMotion = brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
 		}
-		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getCloneWithModifiedSeed(int)
 	 */
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
 		return new MonteCarloBlackScholesModel(initialValue, model.getRiskFreeRate().getAverage(), model.getVolatility().getAverage(), process);
 	}
 
@@ -236,7 +236,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getRandomVariableForConstant(double)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getRandomVariableForConstant(double)
 	 * @TODO Move this to base class
 	 */
 	@Override
@@ -245,7 +245,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(int)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getMonteCarloWeights(int)
 	 */
 	@Override
 	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
@@ -253,7 +253,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	/**
-	 * Returns the {@link AbstractModel} used for this Monte-Carlo simulation.
+	 * Returns the {@link AbstractProcessModel} used for this Monte-Carlo simulation.
 	 *
 	 * @return the model
 	 */

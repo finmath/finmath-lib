@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.products.components;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -39,12 +39,12 @@ public class NotionalFromComponent implements AbstractNotional {
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
+	public RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
 		return this.getNotionalAtPeriodStart(period, model);
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationInterface model) {
+	public RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
 		RandomVariable notionalValue = null;
 		try {
 			notionalValue = notional.getValue(period.getPeriodStart(), model);

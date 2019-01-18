@@ -40,18 +40,18 @@ import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.montecarlo.interestrate.LIBORMarketModelFromCovarianceModel;
+import net.finmath.montecarlo.interestrate.LIBORMarketModelFromCovarianceModel.Measure;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
-import net.finmath.montecarlo.interestrate.LIBORMarketModel.Measure;
-import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.components.Period;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
@@ -106,7 +106,7 @@ public class LIBORIndexMultiCurveTest {
 	private double[] tolerance		= { 3E-5, 3E-5, 3E-5, 3E-5, 3E-5, 3E-5, 5E-5, 6E-5, 3E-5 , 3E-5 };		// Tolerance at 100.000 path
 
 	private String indexCurve;
-	private LIBORModelMonteCarloSimulationInterface liborMarketModel;
+	private LIBORModelMonteCarloSimulationModel liborMarketModel;
 
 	public LIBORIndexMultiCurveTest(Integer numberOfPaths, String forwardCurveName) throws CalculationException, SolverException, CloneNotSupportedException {
 		indexCurve = forwardCurveName;
@@ -375,7 +375,7 @@ public class LIBORIndexMultiCurveTest {
 		return calibratedModel;
 	}
 
-	public static LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
+	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
 			String forwardCurveName,
 			Measure measure,
 			int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException, SolverException, CloneNotSupportedException {
@@ -462,7 +462,7 @@ public class LIBORIndexMultiCurveTest {
 		properties.put("measure", measure.name());
 
 		// Choose log normal model
-		properties.put("stateSpace", LIBORMarketModel.StateSpace.LOGNORMAL.name());
+		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
 		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
@@ -470,13 +470,13 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, analyticModel, analyticModel.getForwardCurve(forwardCurveName),  analyticModel.getDiscountCurve(DISCOUNT_CURVE_NAME), covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, analyticModel.getForwardCurve(forwardCurveName),  analyticModel.getDiscountCurve(DISCOUNT_CURVE_NAME), covarianceModel, calibrationItems, properties);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(
+		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 8787 /* seed */));
-		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
-		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
+		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
 }

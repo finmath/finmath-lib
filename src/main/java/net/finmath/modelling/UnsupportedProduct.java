@@ -20,7 +20,7 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class UnsupportedProduct implements ProductInterface, AnalyticProductInterface, Serializable {
+public class UnsupportedProduct implements Product, AnalyticProductInterface, Serializable {
 
 	private static final long serialVersionUID = 5375406324063846793L;
 	private final Exception exception;
@@ -36,7 +36,7 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 	}
 
 	@Override
-	public Object getValue(double evaluationTime, ModelInterface model) {
+	public Object getValue(double evaluationTime, Model model) {
 		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
 	}
 
@@ -46,7 +46,7 @@ public class UnsupportedProduct implements ProductInterface, AnalyticProductInte
 	}
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+	public Map<String, Object> getValues(double evaluationTime, Model model) {
 		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
 	}
 

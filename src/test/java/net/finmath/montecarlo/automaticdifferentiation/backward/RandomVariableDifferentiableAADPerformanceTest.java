@@ -24,16 +24,16 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
@@ -245,7 +245,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private final double	optionMaturity = 50.0;
 		private final double	optionStrike = 1.10;
 
-		private AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
+		private AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 
 		private long peakMemory;
 
@@ -259,13 +259,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			RandomVariable volatility		= arguments[2].mult(0).add(modelVolatility);
 
 			// Create a model
-			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 			// Create a time discretization
 			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -316,7 +316,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private final double	optionMaturity = 50.0;
 		private final double	optionStrike = 1.05;
 
-		private AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
+		private AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 
 		private long peakMemory;
 
@@ -330,13 +330,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			RandomVariable volatility		= arguments[2];
 
 			// Create a model
-			AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 			// Create a time discretization
 			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -382,7 +382,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		private final int		seed				= 31415;
 
-		private AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
+		private AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 
 		private long peakMemory;
 
@@ -396,13 +396,13 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			RandomVariable volatility		= arguments[2];
 
 			// Create a model
-			AbstractModel model = new BlackScholesModel(initialValue.mult(0.0).add(modelInitialValue), riskFreeRate.mult(0.0).add(modelRiskFreeRate), volatility.mult(0.0).add(modelVolatility), randomVariableFactory);
+			AbstractProcessModel model = new BlackScholesModel(initialValue.mult(0.0).add(modelInitialValue), riskFreeRate.mult(0.0).add(modelRiskFreeRate), volatility.mult(0.0).add(modelVolatility), randomVariableFactory);
 
 			// Create a time discretization
 			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);

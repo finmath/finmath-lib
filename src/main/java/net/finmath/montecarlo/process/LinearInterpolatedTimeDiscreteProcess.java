@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretization;
 /**
  * A linear interpolated time discrete process, that is, given a collection of tuples
  * (Double,  RandomVariableFromDoubleArray) representing realizations \( X(t_{i}) \) this class implements
- * the {@link ProcessInterface} and creates a stochastic process \( t \mapsto X(t) \)
+ * the {@link Process} and creates a stochastic process \( t \mapsto X(t) \)
  * where
  * \[
  * 	X(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} X(t_{i}) + \frac{t - t_{i}}{t_{i+1}-t_{i}} X(t_{i+1})
@@ -30,7 +30,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
+public class LinearInterpolatedTimeDiscreteProcess implements Process {
 
 	private TimeDiscretization timeDiscretization;
 	private Map<Double, RandomVariable> realizations;
@@ -152,7 +152,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements ProcessInterface {
 	}
 
 	@Override
-	public ProcessInterface clone() {
+	public Process clone() {
 		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, realizations);
 	}
 }

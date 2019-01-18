@@ -243,7 +243,7 @@ public class Curve extends AbstractCurve implements Serializable, Cloneable {
 	private RationalFunctionInterpolation	rationalFunctionInterpolation =  null;
 	private transient Object					rationalFunctionInterpolationLazyInitLock = new Object();
 	private SoftReference<Map<Double, RandomVariable>> curveCacheReference = null;
-	//private LIBORModelMonteCarloSimulationInterface model;
+	//private LIBORModelMonteCarloSimulationModel model;
 
 
 	private static final long serialVersionUID = -4126228588123963885L;

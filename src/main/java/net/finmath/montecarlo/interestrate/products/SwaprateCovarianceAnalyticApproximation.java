@@ -7,10 +7,10 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORMarketModel;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORMarketModelFromCovarianceModel;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -38,11 +38,11 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationInterface)
+	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationModel)
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
-		return getValue(evaluationTime, (LIBORMarketModel)((LIBORModelMonteCarloSimulationInterface) model).getModel());
+	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
+		return getValue(evaluationTime, (LIBORMarketModelFromCovarianceModel)((LIBORModelMonteCarloSimulationModel) model).getModel());
 	}
 
 	/**
@@ -50,11 +50,11 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
 	 *
 	 * @param evaluationTime The evaluation time.
-	 * @param model A model implementing the LIBORMarketModel
+	 * @param model A model implementing the LIBORMarketModelFromCovarianceModel
 	 * @return Returns the approximated integrated instantaneous covariance of two swap rates.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariable getValue(double evaluationTime, LIBORMarketModel model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORMarketModelFromCovarianceModel model) throws CalculationException {
 
 		int swapStartIndex1  = model.getLiborPeriodIndex(swapTenor1[0]);
 		int swapEndIndex1    = model.getLiborPeriodIndex(swapTenor1[swapTenor1.length-1]);

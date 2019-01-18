@@ -6,12 +6,12 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * Implements the valuation of a zero swap under a LIBORModelMonteCarloSimulationInterface.
+ * Implements the valuation of a zero swap under a LIBORModelMonteCarloSimulationModel.
  * The notional of the swap accrues with the floatIndex.
  *
  * The swap is "simple" in the sense that it does not consider complex schedules and
@@ -91,7 +91,7 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable values						= model.getRandomVariableForConstant(0.0);
 
 		RandomVariable notional					= model.getRandomVariableForConstant(1.0);

@@ -8,7 +8,7 @@ package net.finmath.montecarlo.assetderivativevaluation;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimulationInterface {
+public interface AssetModelMonteCarloSimulationModel extends MonteCarloSimulationModel {
 
 	/**
 	 * Returns the number of asset price processes.
@@ -76,15 +76,15 @@ public interface AssetModelMonteCarloSimulationInterface extends MonteCarloSimul
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+	AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 
 	/**
-	 * Create a clone of the object implementing <code>AssetModelMonteCarloSimulationInterface</code>
+	 * Create a clone of the object implementing <code>AssetModelMonteCarloSimulationModel</code>
 	 * using a different Monte-Carlo seed.
 	 *
 	 * @param seed The seed of the underlying random number generator.
 	 * @return Returns a clone of this model except for a modified Monte-Carlo seed.
 	 * @throws CalculationException Thrown if cloning failed.
 	 */
-	AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed)  throws CalculationException;
+	AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed)  throws CalculationException;
 }

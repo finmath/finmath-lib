@@ -9,11 +9,12 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -53,7 +54,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	private final double							exerciseDate;
 	private final double							strikePrice;
 	private final AbstractLIBORMonteCarloProduct	underlying;
-	private final AbstractLIBORMonteCarloProduct	strikeProduct;
+	private final TermStructureMonteCarloProduct	strikeProduct;
 	private final boolean							isCall;
 
 	private final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider;
@@ -86,7 +87,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param underlying The underlying.
 	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
 	 */
-	public Option(double exerciseDate, boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+	public Option(double exerciseDate, boolean isCall,  TermStructureMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
 		this.exerciseDate	= exerciseDate;
 		this.strikePrice	= Double.NaN;
@@ -104,7 +105,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
 	 * @param underlying The underlying.
 	 */
-	public Option(double exerciseDate, boolean isCall,  AbstractLIBORMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying) {
+	public Option(double exerciseDate, boolean isCall,  TermStructureMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying) {
 		this(exerciseDate, isCall, strikeProduct, underlying, null);
 	}
 
@@ -149,7 +150,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames = null;
-		for(AbstractLIBORMonteCarloProduct product : new AbstractLIBORMonteCarloProduct[] {underlying, strikeProduct}) {
+		for(TermStructureMonteCarloProduct product : new TermStructureMonteCarloProduct[] {underlying, strikeProduct}) {
 			if(product instanceof AbstractProductComponent) {
 				Set<String> productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
 				if(productUnderlyingNames != null) {
@@ -178,7 +179,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		final RandomVariable one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariable zero	= model.getRandomVariableForConstant(0.0);
@@ -247,12 +248,12 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	}
 
 	@Override
-	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
-		if(model instanceof LIBORModelMonteCarloSimulationInterface) {
-			return getBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationInterface)model);
+	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
+		if(model instanceof LIBORModelMonteCarloSimulationModel) {
+			return getBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationModel)model);
 		}
 		else {
-			throw new IllegalArgumentException("getBasisFunctions requires an model of type LIBORModelMonteCarloSimulationInterface.");
+			throw new IllegalArgumentException("getBasisFunctions requires an model of type LIBORModelMonteCarloSimulationModel.");
 		}
 	}
 
@@ -264,7 +265,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @return Array of random variables.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariable[] getBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable[] getBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 

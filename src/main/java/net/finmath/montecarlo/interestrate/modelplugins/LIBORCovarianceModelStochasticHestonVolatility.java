@@ -11,9 +11,9 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -57,7 +57,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 	private boolean isCalibrateable = false;
 
-	private AbstractProcessInterface stochasticVolatilityScalings = null;
+	private MonteCarloProcess stochasticVolatilityScalings = null;
 
 	/**
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
@@ -143,11 +143,11 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 		synchronized (this) {
 			if(stochasticVolatilityScalings == null) {
-				stochasticVolatilityScalings = new ProcessEulerScheme(brownianMotion);
-				stochasticVolatilityScalings.setModel(new AbstractModelInterface() {
+				stochasticVolatilityScalings = new EulerSchemeFromProcessModel(brownianMotion);
+				stochasticVolatilityScalings.setModel(new ProcessModel() {
 
 					@Override
-					public void setProcess(AbstractProcessInterface process) {
+					public void setProcess(MonteCarloProcess process) {
 					}
 
 					@Override
@@ -161,7 +161,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 					}
 
 					@Override
-					public AbstractProcessInterface getProcess() {
+					public MonteCarloProcess getProcess() {
 						return stochasticVolatilityScalings;
 					}
 
@@ -211,7 +211,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 					}
 
 					@Override
-					public AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+					public ProcessModel getCloneWithModifiedData(Map<String, Object> dataModified) {
 						throw new UnsupportedOperationException("Method not implemented");
 					}
 				});

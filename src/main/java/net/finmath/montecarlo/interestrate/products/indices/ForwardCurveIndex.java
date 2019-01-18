@@ -9,7 +9,7 @@ import java.util.Set;
 
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -36,7 +36,7 @@ public class ForwardCurveIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) {
 		return new RandomVariableFromDoubleArray(forwardCurve.getForward(null,  evaluationTime));
 	}
 

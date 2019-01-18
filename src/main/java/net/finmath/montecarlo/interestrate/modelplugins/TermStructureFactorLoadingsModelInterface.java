@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.modelplugins;
 
-import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
+import net.finmath.montecarlo.interestrate.TermStructureModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -44,7 +44,7 @@ public interface TermStructureFactorLoadingsModelInterface {
 	 */
 	RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd,
 			TimeDiscretization periodDiscretization, RandomVariable[] realizationAtTimeIndex,
-			TermStructureModelInterface model);
+			TermStructureModel model);
 
 	/**
 	 * @return the numberOfFactors

@@ -8,8 +8,8 @@ package net.finmath.montecarlo.interestrate.products.components;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -24,7 +24,7 @@ public class Selector extends AbstractProductComponent {
 	private static final long serialVersionUID = 3211126102506873636L;
 
 	private final String key;
-	private final AbstractLIBORMonteCarloProduct underlying;
+	private final TermStructureMonteCarloProduct underlying;
 
 	/**
 	 * Creates the function underlying.getValues()[key]
@@ -32,7 +32,7 @@ public class Selector extends AbstractProductComponent {
 	 * @param key Name of the key to be selected.
 	 * @param underlying Underlying to which the selector should be applied.
 	 */
-	public Selector(String key, AbstractLIBORMonteCarloProduct underlying) {
+	public Selector(String key, TermStructureMonteCarloProduct underlying) {
 		super();
 		this.key = key;
 		this.underlying = underlying;
@@ -58,7 +58,7 @@ public class Selector extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return (RandomVariable)(underlying.getValues(evaluationTime, model).get(key));
 	}
 }

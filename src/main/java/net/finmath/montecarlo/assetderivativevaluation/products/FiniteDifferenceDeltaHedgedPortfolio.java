@@ -11,7 +11,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -29,7 +29,7 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 
 	// Model assumptions for the hedge
 	private final AbstractAssetMonteCarloProduct productToHedge;
-	private final AssetModelMonteCarloSimulationInterface modelUsedForHedging;
+	private final AssetModelMonteCarloSimulationModel modelUsedForHedging;
 
 	/**
 	 * Construction of a delta hedge portfolio using finite differences on every path and
@@ -39,14 +39,14 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 	 * @param productToHedge The financial product for which the hedge portfolio should be constructed.
 	 * @param modelUsedForHedging The model used for calculating the hedge rations (deltas). This may differ from the model passed to <code>getValue</code>.
 	 */
-	public FiniteDifferenceDeltaHedgedPortfolio(AbstractAssetMonteCarloProduct productToHedge, AssetModelMonteCarloSimulationInterface modelUsedForHedging) {
+	public FiniteDifferenceDeltaHedgedPortfolio(AbstractAssetMonteCarloProduct productToHedge, AssetModelMonteCarloSimulationModel modelUsedForHedging) {
 		super();
 		this.productToHedge = productToHedge;
 		this.modelUsedForHedging = modelUsedForHedging;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);

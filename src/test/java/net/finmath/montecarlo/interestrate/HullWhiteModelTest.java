@@ -51,7 +51,7 @@ import net.finmath.montecarlo.interestrate.products.indices.FixedCoupon;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LaggedIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
@@ -79,8 +79,8 @@ public class HullWhiteModelTest {
 	private final double shortRateVolatility = 0.02;	// Investigating LIBOR in Arrears, use a high volatility here (e.g. 0.1)
 	private final double shortRateMeanreversion = 0.1;
 
-	private LIBORModelMonteCarloSimulationInterface hullWhiteModelSimulation;
-	private LIBORModelMonteCarloSimulationInterface liborMarketModelSimulation;
+	private LIBORModelMonteCarloSimulationModel hullWhiteModelSimulation;
+	private LIBORModelMonteCarloSimulationModel liborMarketModelSimulation;
 
 	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -136,15 +136,15 @@ public class HullWhiteModelTest {
 					new double[] { shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion } /* meanReversion */);
 
-			// TODO Left hand side type should be TermStructureModelInterface once interface are refactored
-			LIBORModelInterface hullWhiteModel = new HullWhiteModel(
+			// TODO Left hand side type should be TermStructureModel once interface are refactored
+			LIBORModel hullWhiteModel = new HullWhiteModel(
 					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
 
 			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
-			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
+			EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
-			hullWhiteModelSimulation = new LIBORModelMonteCarloSimulation(hullWhiteModel, process);
+			hullWhiteModelSimulation = new LIBORMonteCarloSimulationFromLIBORModel(hullWhiteModel, process);
 		}
 
 		/*
@@ -208,10 +208,10 @@ public class HullWhiteModelTest {
 			Map<String, String> properties = new HashMap<>();
 
 			// Choose the simulation measure
-			properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
+			properties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.SPOT.name());
 
 			// Choose log normal model
-			properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
+			properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.NORMAL.name());
 
 			// Empty array of calibration items - hence, model will use given covariance
 			CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
@@ -219,14 +219,14 @@ public class HullWhiteModelTest {
 			/*
 			 * Create corresponding LIBOR Market Model
 			 */
-			LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(
+			LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
 					liborPeriodDiscretization, forwardCurve, null /*discountCurve*/, covarianceModel2, calibrationItems, properties);
 
 			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
-			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
+			EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
-			liborMarketModelSimulation = new LIBORModelMonteCarloSimulation(liborMarketModel, process);
+			liborMarketModelSimulation = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 		}
 	}
 
@@ -871,7 +871,7 @@ public class HullWhiteModelTest {
 		Assert.assertTrue(deviationHWLMM >= 0);
 	}
 
-	private static double getParSwaprate(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor, String tenorCode) {
+	private static double getParSwaprate(LIBORModelMonteCarloSimulationModel liborMarketModel, double[] swapTenor, String tenorCode) {
 		DiscountCurveInterface modelCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
 		ForwardCurveInterface forwardCurve = new ForwardCurveFromDiscountCurve(modelCurve.getName(), liborMarketModel.getModel().getForwardRateCurve().getReferenceDate(), tenorCode);
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor),
@@ -879,7 +879,7 @@ public class HullWhiteModelTest {
 				modelCurve);
 	}
 
-	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationInterface liborMarketModel, double[] swapTenor) {
+	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationModel liborMarketModel, double[] swapTenor) {
 		DiscountCurveInterface discountCurve = liborMarketModel.getModel().getDiscountCurve();
 		if(discountCurve == null) {
 			discountCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());

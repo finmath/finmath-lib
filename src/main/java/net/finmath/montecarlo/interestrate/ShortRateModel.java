@@ -9,20 +9,20 @@ package net.finmath.montecarlo.interestrate;
 import net.finmath.montecarlo.interestrate.modelplugins.ShortRateVolatilityModelInterface;
 
 /**
- * Interface for Hull White Models which are determined by a ShortRateVolatilityModelInterface.
+ * Interface for Short Rate models which are determined by a ShortRateVolatilityModelInterface.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public interface HullWhiteModelInterface {
+public interface ShortRateModel {
 
 	/**
-	 * Create a new object implementing HullWhiteModelInterface, using the new volatility model.
+	 * Create a new object implementing ShortRateModel, using the new volatility model.
 	 *
 	 * @param volatilityModel The new volatility model.
-	 * @return A new object implementing HullWhiteModelInterface, using the new volatility model.
+	 * @return A new object implementing ShortRateModel, using the new volatility model.
 	 */
-	HullWhiteModelInterface getCloneWithModifiedVolatilityModel(ShortRateVolatilityModelInterface volatilityModel);
+	ShortRateModel getCloneWithModifiedVolatilityModel(ShortRateVolatilityModelInterface volatilityModel);
 
 	/**
 	 * Return the volatility model.

@@ -11,7 +11,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
@@ -20,7 +20,7 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * This class implements a delta hedged portfolio (a hedge simulator).
  * The delta hedge uses numerical calculation of
- * the delta and - in theory - works for any model implementing <code>AssetModelMonteCarloSimulationInterface</code>
+ * the delta and - in theory - works for any model implementing <code>AssetModelMonteCarloSimulationModel</code>
  * and any product implementing <code>AbstractAssetMonteCarloProduct</code>.
  * The results however somewhat depend on the choice of the internal regression basis functions.
  *
@@ -33,7 +33,7 @@ import net.finmath.stochastic.RandomVariable;
 public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct {
 
 	// The financial product we like to replicate
-	private final AbstractAssetMonteCarloProduct productToReplicate;
+	private final AssetMonteCarloProduct productToReplicate;
 
 	private int			orderOfRegressionPolynomial		= 4;
 
@@ -42,19 +42,19 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 	/**
 	 * Construction of a delta hedge portfolio. The delta hedge uses numerical calculation of
-	 * the delta and - in theory - works for any model implementing <code>AssetModelMonteCarloSimulationInterface</code>
+	 * the delta and - in theory - works for any model implementing <code>AssetModelMonteCarloSimulationModel</code>
 	 * and any product implementing <code>AbstractAssetMonteCarloProduct</code>.
 	 * The results however somewhat depend on the choice of the internal regression basis functions.
 	 *
 	 * @param productToReplicate The product for which the replication portfolio should be build. May be any product implementing the <code>AbstractAssetMonteCarloProduct</code> interface.
 	 */
-	public DeltaHedgedPortfolioWithAAD(AbstractAssetMonteCarloProduct productToReplicate) {
+	public DeltaHedgedPortfolioWithAAD(AssetMonteCarloProduct productToReplicate) {
 		super();
 		this.productToReplicate = productToReplicate;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);

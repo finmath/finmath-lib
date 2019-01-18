@@ -16,8 +16,8 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelInterface;
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureCovarianceModelParametric;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
@@ -35,7 +35,7 @@ import net.finmath.time.TimeDiscretization;
  * <br>
  * The model uses an <code>AbstractLIBORCovarianceModel</code> for the specification of
  * <i>(&lambda;<sub>1,j</sub>,...,&lambda;<sub>m,j</sub>)</i> as a covariance model.
- * See {@link net.finmath.montecarlo.model.AbstractModelInterface} for details on the implemented interface
+ * See {@link net.finmath.montecarlo.model.ProcessModel} for details on the implemented interface
  * <br><br>
  * The model uses an <code>AbstractLIBORCovarianceModel</code> as a covariance model.
  * If the covariance model is of type <code>AbstractLIBORCovarianceModelParametric</code>
@@ -63,11 +63,11 @@ import net.finmath.time.TimeDiscretization;
  *
  * @author Christian Fries
  * @version 1.2
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @see <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699</a>
  */
-public class LIBORMarketModelWithTenorRefinement extends AbstractModel implements TermStructureModelInterface {
+public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel implements TermStructureModel {
 
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }
 
@@ -84,7 +84,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 	// Cache for the numeraires, needs to be invalidated if process changes
 	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
-	private AbstractProcessInterface									numerairesProcess = null;
+	private MonteCarloProcess									numerairesProcess = null;
 
 	/**
 	 * Creates a model for given covariance.
@@ -518,7 +518,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
@@ -714,7 +714,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	}
 
 	@Override
-	public TermStructureModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+	public TermStructureModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		CalibrationProduct[] calibrationItems = null;
 		Map<String, ?> properties = null;
 

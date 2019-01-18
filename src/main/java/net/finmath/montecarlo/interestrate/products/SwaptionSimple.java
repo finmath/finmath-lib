@@ -11,7 +11,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -19,7 +19,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements the valuation of a simplified (idealized) swaption under a
- * LIBORModelMonteCarloSimulationInterface
+ * LIBORModelMonteCarloSimulationModel
  *
  * @author Christian Fries
  * @version 1.2
@@ -75,7 +75,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable value = swaption.getValue(evaluationTime, model);
 
 		if(valueUnit == ValueUnit.VALUE) {

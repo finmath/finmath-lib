@@ -20,7 +20,7 @@ import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
@@ -46,7 +46,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 	private final double	deltaT				= 0.5;
 
 
-	private AssetModelMonteCarloSimulationInterface model = null;
+	private AssetModelMonteCarloSimulationModel model = null;
 
 	/**
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
@@ -131,7 +131,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		return testNumber;
 	}
 
-	public AssetModelMonteCarloSimulationInterface getModel()
+	public AssetModelMonteCarloSimulationModel getModel()
 	{
 		/*
 		 * Lazy initialize the model
@@ -144,7 +144,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			// Create an instance of a black scholes monte carlo model
 			model = new MonteCarloAssetModel(
 					new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility),
-					new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed)));
+					new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed)));
 		}
 
 		return model;
@@ -159,7 +159,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
@@ -210,7 +210,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		TimeDiscretization modelTimeDiscretization = model.getTimeDiscretization();
 
@@ -236,7 +236,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		RandomVariable stockAtTimeOne = model.getAssetValue(1.0, 0);
 
@@ -268,7 +268,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		/*
 		 * Common parameters
@@ -371,7 +371,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
@@ -441,7 +441,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");

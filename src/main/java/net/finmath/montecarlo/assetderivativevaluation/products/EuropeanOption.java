@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.modelling.ModelInterface;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.modelling.Model;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -85,7 +85,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		// Get underlying and numeraire
 
 		// Get S(T)
@@ -108,11 +108,11 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+	public Map<String, Object> getValues(double evaluationTime, Model model) {
 		Map<String, Object>  result = new HashMap<>();
 
 		try {
-			double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface) model).getAverage();
+			double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationModel) model).getAverage();
 			result.put("value", value);
 		} catch (CalculationException e) {
 			result.put("exception", e);

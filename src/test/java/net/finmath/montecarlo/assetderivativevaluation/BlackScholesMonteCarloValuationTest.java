@@ -29,9 +29,9 @@ import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
-import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
@@ -70,7 +70,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 	private final int		seed				= 3141;
 
-	private AssetModelMonteCarloSimulationInterface model = null;
+	private AssetModelMonteCarloSimulationModel model = null;
 	private AbstractRandomVariableFactory randomVariableFactory = null;
 
 	/**
@@ -157,7 +157,7 @@ public class BlackScholesMonteCarloValuationTest {
 		return testNumber;
 	}
 
-	public AssetModelMonteCarloSimulationInterface getModel()
+	public AssetModelMonteCarloSimulationModel getModel()
 	{
 		/*
 		 * Lazy initialize the model
@@ -167,10 +167,10 @@ public class BlackScholesMonteCarloValuationTest {
 			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
 			// Create the model
-			AbstractModelInterface blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+			ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
 
 			model = new MonteCarloAssetModel(blackScholesModel, process);
 		}
@@ -187,7 +187,7 @@ public class BlackScholesMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
@@ -237,7 +237,7 @@ public class BlackScholesMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		TimeDiscretization modelTimeDiscretization = model.getTimeDiscretization();
 
@@ -263,7 +263,7 @@ public class BlackScholesMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		RandomVariable stockAtTimeOne = model.getAssetValue(1.0, 0);
 
@@ -291,7 +291,7 @@ public class BlackScholesMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		/*
 		 * Common parameters
@@ -394,7 +394,7 @@ public class BlackScholesMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
@@ -465,7 +465,7 @@ public class BlackScholesMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationInterface model = getModel();
+		AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
 		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");

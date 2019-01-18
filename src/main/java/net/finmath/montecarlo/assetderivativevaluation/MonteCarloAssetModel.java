@@ -9,26 +9,26 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * This class glues together an <code>AbstractModel</code> and a Monte-Carlo implementation of a <code>AbstractProcess</code>
- * and implements <code>AssetModelMonteCarloSimulationInterface</code>.
+ * This class glues together an <code>AbstractProcessModel</code> and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>
+ * and implements <code>AssetModelMonteCarloSimulationModel</code>.
  *
- * The model is specified via the object implementing <code>AbstractModelInterface</code>.
+ * The model is specified via the object implementing <code>ProcessModel</code>.
  *
  * @author Christian Fries
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
  */
-public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInterface {
+public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel {
 
-	private final AbstractModelInterface model;
+	private final ProcessModel model;
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
@@ -37,8 +37,8 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	 * @param process The numerical scheme to be used.
 	 */
 	public MonteCarloAssetModel(
-			AbstractModelInterface model,
-			AbstractProcessInterface process) {
+			ProcessModel model,
+			MonteCarloProcess process) {
 		super();
 
 		this.model = model;
@@ -81,12 +81,12 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		AbstractProcessInterface process = model.getProcess();
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+		MonteCarloProcess process = model.getProcess();
 
-		AbstractModelInterface		newModel	= model.getCloneWithModifiedData(dataModified);
+		ProcessModel		newModel	= model.getCloneWithModifiedData(dataModified);
 
-		AbstractProcessInterface	newProcess;
+		MonteCarloProcess	newProcess;
 		try {
 			newProcess = process.getCloneWithModifiedData(dataModified);
 		}
@@ -103,7 +103,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
@@ -123,7 +123,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTime(int)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getTime(int)
 	 */
 	@Override
 	public double getTime(int timeIndex) {
@@ -131,7 +131,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getTimeIndex(double)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getTimeIndex(double)
 	 */
 	@Override
 	public int getTimeIndex(double time) {
@@ -139,7 +139,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getRandomVariableForConstant(double)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getRandomVariableForConstant(double)
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
@@ -147,7 +147,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getMonteCarloWeights(int)
+	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getMonteCarloWeights(int)
 	 */
 	@Override
 	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
@@ -155,11 +155,11 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationInter
 	}
 
 	/**
-	 * Returns the {@link AbstractModel} used for this Monte-Carlo simulation.
+	 * Returns the {@link AbstractProcessModel} used for this Monte-Carlo simulation.
 	 *
 	 * @return the model
 	 */
-	public AbstractModelInterface getModel() {
+	public ProcessModel getModel() {
 		return model;
 	}
 }

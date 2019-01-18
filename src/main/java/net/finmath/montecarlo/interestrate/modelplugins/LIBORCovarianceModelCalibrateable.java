@@ -4,7 +4,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
-import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 
 /**
  * Interface for covariance models which may perform a calibration by providing the corresponding <code>getCloneCalibrated</code>-method.
@@ -36,7 +36,7 @@ public interface LIBORCovarianceModelCalibrateable {
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
-	LIBORCovarianceModelCalibrateable getCloneCalibrated(LIBORMarketModelInterface calibrationModel,
+	LIBORCovarianceModelCalibrateable getCloneCalibrated(LIBORMarketModel calibrationModel,
 			CalibrationProduct[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException;
 
 }

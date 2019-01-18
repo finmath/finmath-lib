@@ -13,7 +13,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
@@ -75,7 +75,7 @@ public class LIBORIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Check if model provides this index
 		if(getName() != null && model.getModel().getForwardRateCurve().getName() != null) {
@@ -124,7 +124,7 @@ public class LIBORIndex extends AbstractIndex {
 		return periodStartOffset;
 	}
 
-	public double getPeriodLength(LIBORModelMonteCarloSimulationInterface model, double fixingTime) {
+	public double getPeriodLength(LIBORModelMonteCarloSimulationModel model, double fixingTime) {
 		if(paymentOffsetCode != null) {
 			LocalDateTime referenceDate = model.getReferenceDate();
 			LocalDateTime fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);

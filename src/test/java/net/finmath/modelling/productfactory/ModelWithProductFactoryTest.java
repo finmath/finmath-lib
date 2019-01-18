@@ -14,7 +14,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.Product;
 import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
@@ -92,7 +92,7 @@ public class ModelWithProductFactoryTest {
 		//		};
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface digitalOptionFourier = blackScholesModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
+		Product digitalOptionFourier = blackScholesModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
 
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -112,7 +112,7 @@ public class ModelWithProductFactoryTest {
 		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface digitalOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
+		Product digitalOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
 
 		Map<String, Object> valueMonteCarlo = digitalOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
 
@@ -126,7 +126,7 @@ public class ModelWithProductFactoryTest {
 		//		DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
 		//
 		//		// Create product implementation compatible with Black-Scholes model
-		//		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(digitalOptionDescriptor);
+		//		Product europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(digitalOptionDescriptor);
 		//
 		//		Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
 		//
@@ -192,7 +192,7 @@ public class ModelWithProductFactoryTest {
 		//		};
 
 		// Create product implementation compatible with Heston model
-		ProductInterface digitalOptionFourier = hestonModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
+		Product digitalOptionFourier = hestonModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
 
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -212,7 +212,7 @@ public class ModelWithProductFactoryTest {
 		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		ProductInterface digitalOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
+		Product digitalOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
 
 		Map<String, Object> valueMonteCarlo = digitalOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 

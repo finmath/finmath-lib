@@ -15,7 +15,7 @@ import java.util.stream.DoubleStream;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
@@ -327,7 +327,7 @@ public class ForwardCurve extends AbstractForwardCurve implements Serializable {
 	 * @return a forward curve from forwards given by a LIBORMonteCarloModel.
 	 * @throws CalculationException Thrown if the model failed to provide the forward rates.
 	 */
-	public static ForwardCurve createForwardCurveFromMonteCarloLiborModel(String name, LIBORModelMonteCarloSimulationInterface model, double startTime) throws CalculationException{
+	public static ForwardCurve createForwardCurveFromMonteCarloLiborModel(String name, LIBORModelMonteCarloSimulationModel model, double startTime) throws CalculationException{
 
 		int timeIndex	= model.getTimeIndex(startTime);
 		// Get all Libors at timeIndex which are not yet fixed (others null) and times for the timeDiscretizationFromArray of the curves

@@ -22,9 +22,9 @@ import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.HullWhiteModel;
-import net.finmath.montecarlo.interestrate.HullWhiteModelInterface;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.interestrate.ShortRateModel;
+import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.Optimizer;
@@ -106,7 +106,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
-	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final HullWhiteModelInterface calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
+	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final ShortRateModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
@@ -159,8 +159,8 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 				// Create a HullWhiteModel with the new volatility structure.
 				// TODO the case has be removed after the interface has been refactored:
 				HullWhiteModel model = (HullWhiteModel)calibrationModel.getCloneWithModifiedVolatilityModel(calibrationVolatilityModel);
-				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-				final LIBORModelMonteCarloSimulation modelMonteCarloSimulation = new LIBORModelMonteCarloSimulation(model, process);
+				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final LIBORMonteCarloSimulationFromLIBORModel modelMonteCarloSimulation = new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
 				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {

@@ -7,7 +7,7 @@ package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Map;
 
-import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -36,20 +36,20 @@ import net.finmath.stochastic.RandomVariable;
  * The model's implied Bachelier volatility for a given maturity T is
  * <code>volatility * Math.exp(riskFreeRate * optionMaturity)</code>
  *
- * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
+ * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = \text{identity} \), \( \mu = \frac{exp(r \Delta t_{i}) - 1}{\Delta t_{i}} S(t_{i}) \), \( \lambda_{1,1} = \sigma \), i.e.,
  * of the SDE
  * \[
  * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
  * \]
- * with \( S = X \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
+ * with \( S = X \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
  * @author Christian Fries
  * @version 1.0
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  */
-public class BachelierModel extends AbstractModel {
+public class BachelierModel extends AbstractProcessModel {
 
 	private final double initialValue;
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)

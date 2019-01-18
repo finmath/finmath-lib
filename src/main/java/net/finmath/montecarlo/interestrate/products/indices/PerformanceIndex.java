@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products.indices;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
 import net.finmath.stochastic.RandomVariable;
 
@@ -38,7 +38,7 @@ public class PerformanceIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return numeratorIndex.getValue(evaluationTime, model).div(denominatorIndex.getValue(evaluationTime, model));
 	}
 

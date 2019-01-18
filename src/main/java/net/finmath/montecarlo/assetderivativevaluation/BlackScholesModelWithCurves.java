@@ -9,7 +9,7 @@ import java.util.Map;
 
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -24,20 +24,20 @@ import net.finmath.stochastic.RandomVariable;
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
  *
- * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
+ * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 \), \( \lambda_{1,1} = \sigma \), i.e.,
  * of the SDE
  * \[
  * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
  * \]
- * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
+ * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
  * @author Christian Fries
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
  */
-public class BlackScholesModelWithCurves extends AbstractModel {
+public class BlackScholesModelWithCurves extends AbstractProcessModel {
 
 	private final RandomVariable initialValue;
 	private final RandomVariable volatility;
@@ -47,13 +47,13 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 
 	private final AbstractRandomVariableFactory randomVariableFactory;
 
-	// Cache for arrays provided though AbstractModel
+	// Cache for arrays provided though AbstractProcessModel
 	private final RandomVariable[]	initialState;
 	private final RandomVariable	driftAdjustment;
 	private final RandomVariable[]	factorLoadings;
 
 	/**
-	 * Create a Black-Scholes specification implementing AbstractModel.
+	 * Create a Black-Scholes specification implementing AbstractProcessModel.
 	 *
 	 * @param initialValue Spot value.
 	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
@@ -79,7 +79,7 @@ public class BlackScholesModelWithCurves extends AbstractModel {
 	}
 
 	/**
-	 * Create a Black-Scholes specification implementing AbstractModel.
+	 * Create a Black-Scholes specification implementing AbstractProcessModel.
 	 *
 	 * @param initialValue Spot value.
 	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.

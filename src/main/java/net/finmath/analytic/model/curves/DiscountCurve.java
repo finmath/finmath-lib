@@ -14,10 +14,10 @@ import java.util.stream.DoubleStream;
 import net.finmath.analytic.model.AnalyticModelInterface;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 //import net.finmath.montecarlo.AbstractRandomVariableFactory;
-//import net.finmath.montecarlo.interestrate.LIBORMarketModel;
-//import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+//import net.finmath.montecarlo.interestrate.LIBORMarketModelFromCovarianceModel;
+//import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
@@ -391,7 +391,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 	 * @return a discount curve from forwards given by a LIBORMonteCarloModel.
 	 * @throws CalculationException Thrown if the model failed to provide the forward rates.
 	 */
-	public static DiscountCurveInterface createDiscountCurveFromMonteCarloLiborModel(String forwardCurveName,  LIBORModelMonteCarloSimulationInterface model, double startTime) throws CalculationException{
+	public static DiscountCurveInterface createDiscountCurveFromMonteCarloLiborModel(String forwardCurveName,  LIBORModelMonteCarloSimulationModel model, double startTime) throws CalculationException{
 		// Check if the LMM uses a discount curve which is created from a forward curve
 		if(model.getModel().getDiscountCurve()==null || model.getModel().getDiscountCurve().getName().toLowerCase().contains("DiscountCurveFromForwardCurve".toLowerCase())){
 			return new DiscountCurveFromForwardCurve(ForwardCurve.createForwardCurveFromMonteCarloLiborModel(forwardCurveName, model, startTime));
@@ -405,7 +405,7 @@ public class DiscountCurve extends Curve implements Serializable, DiscountCurveI
 
 
 	// INSERTED
-	public static RandomVariable[] createZeroRates(double time, double[] maturities, LIBORModelMonteCarloSimulationInterface model) throws CalculationException{
+	public static RandomVariable[] createZeroRates(double time, double[] maturities, LIBORModelMonteCarloSimulationModel model) throws CalculationException{
 
 		// get time index of first libor fixing time after time
 		int firstLiborIndex = model.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(time);

@@ -8,8 +8,8 @@ package net.finmath.montecarlo.assetderivativevaluation;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -39,23 +39,23 @@ import net.finmath.stochastic.RandomVariable;
  * \]
  * with \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \).
  *
- * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.AbstractProcessInterface}</code> via the specification of
+ * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \), \( \lambda_{1,1} = \sigma, \lambda_{1,2} = a - \frac{1}{2} b^2, \lambda_{1,3} = b \), i.e.,
  * of the SDE
  * \[
  * 	dX = \mu dt + \lambda_{1,1} dW + \lambda_{1,2} dN + \lambda_{1,3} Z dN, \quad X(0) = \log(S_{0}),
  * \]
- * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.AbstractProcessInterface} for the notation.
+ * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
  * For an example on the construction of the three factors \( dW \), \( dN \), and \( Z dN \) see {@link net.finmath.montecarlo.assetderivativevaluation.MonteCarloMertonModel}.
  *
  * @author Christian Fries
  * @see net.finmath.montecarlo.assetderivativevaluation.MonteCarloMertonModel
- * @see net.finmath.montecarlo.process.AbstractProcessInterface The interface for numerical schemes.
- * @see net.finmath.montecarlo.model.AbstractModelInterface The interface for models provinding parameters to numerical schemes.
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
  */
-public class MertonModel extends AbstractModel {
+public class MertonModel extends AbstractProcessModel {
 
 	private final double initialValue;
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
@@ -134,7 +134,7 @@ public class MertonModel extends AbstractModel {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
@@ -142,7 +142,7 @@ public class MertonModel extends AbstractModel {
 	}
 
 	@Override
-	public AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public ProcessModel getCloneWithModifiedData(Map<String, Object> dataModified) {
 		// TODO Auto-generated method stub
 		return null;
 	}

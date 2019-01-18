@@ -17,8 +17,8 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.interestrate.LIBORMarketModel;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
+import net.finmath.montecarlo.interestrate.LIBORMarketModelFromCovarianceModel;
+import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelTwoParameterExponentialForm;
@@ -26,7 +26,7 @@ import net.finmath.montecarlo.interestrate.products.CMSOption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
 
@@ -63,7 +63,7 @@ public class CMSOptionTest {
 				periodLength);
 
 		// Create a LIBOR market model Monte-Carlo simulation
-		LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation = this.getLIBORModelMonteCarloSimulation(forwardCurve);
+		LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation = this.getLIBORModelMonteCarloSimulation(forwardCurve);
 
 		double		exerciseDate	= 5.0;
 		double[]	fixingDates		= {5.0, 5.5, 6.0, 6.5, 7.0, 7.5};
@@ -132,7 +132,7 @@ public class CMSOptionTest {
 		System.out.println("Swaption with Black-Scholes.................................:\t" + formatterPercent.format(valueSwaptionAnalytic * swaptionNotional));
 	}
 
-	public LIBORModelMonteCarloSimulation getLIBORModelMonteCarloSimulation(ForwardCurveInterface forwardCurve) throws CalculationException {
+	public LIBORMonteCarloSimulationFromLIBORModel getLIBORModelMonteCarloSimulation(ForwardCurveInterface forwardCurve) throws CalculationException {
 		// Create the time discretization
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
@@ -142,7 +142,7 @@ public class CMSOptionTest {
 		/*
 		 * Create LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModel(
+		LIBORMarketModelFromCovarianceModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
 				tenorDiscretization,
 				forwardCurve,
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(
@@ -153,10 +153,10 @@ public class CMSOptionTest {
 
 		BrownianMotionLazyInit brownianMotionLazyInit = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotionLazyInit);
-		//		process.setScheme(ProcessEulerScheme.Scheme.PREDICTOR_CORRECTOR);
+		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotionLazyInit);
+		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
-		LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(liborMarketModel, process);
+		LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 
 		return liborMarketModelMonteCarloSimulation;
 	}

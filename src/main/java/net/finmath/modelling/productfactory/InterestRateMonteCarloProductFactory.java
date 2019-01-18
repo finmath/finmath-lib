@@ -12,9 +12,10 @@ import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwaptionProductDescriptor;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
+import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.components.Option;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
@@ -148,8 +149,8 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	 */
 	public static class SwapMonteCarlo extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapProductDescriptor> {
 
-		private final AbstractLIBORMonteCarloProduct legReceiver;
-		private final AbstractLIBORMonteCarloProduct legPayer;
+		private final TermStructureMonteCarloProduct legReceiver;
+		private final TermStructureMonteCarloProduct legPayer;
 
 		/**
 		 * Create product from descriptor.
@@ -160,13 +161,13 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		public SwapMonteCarlo(InterestRateSwapProductDescriptor descriptor, LocalDate referenceDate) {
 			InterestRateMonteCarloProductFactory factory	= new InterestRateMonteCarloProductFactory(referenceDate);
 			InterestRateProductDescriptor legDescriptor 	= (InterestRateProductDescriptor) descriptor.getLegReceiver();
-			this.legReceiver 								= (AbstractLIBORMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
+			this.legReceiver 								= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
 			legDescriptor 									= (InterestRateProductDescriptor) descriptor.getLegPayer();
-			this.legPayer 									= (AbstractLIBORMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
+			this.legPayer 									= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
 		}
 
 		@Override
-		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 			RandomVariable value = new RandomVariableFromDoubleArray(0);
 			if(legPayer != null) {
 				value = value.add(legReceiver.getValue(evaluationTime, model));
@@ -225,7 +226,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		}
 
 		@Override
-		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model)
+		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model)
 				throws CalculationException {
 			return swaption.getValue(evaluationTime, model);
 		}

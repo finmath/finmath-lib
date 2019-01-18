@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.Model;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -21,7 +21,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public interface MonteCarloSimulationInterface extends ModelInterface {
+public interface MonteCarloSimulationModel extends Model {
 
 	/**
 	 * Returns the numberOfPaths.
@@ -65,7 +65,7 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 
 	/**
 	 * Returns a random variable which is initialized to a constant,
-	 * but has exactly the same number of paths or discretization points as the ones used by this <code>MonteCarloSimulationInterface</code>.
+	 * but has exactly the same number of paths or discretization points as the ones used by this <code>MonteCarloSimulationModel</code>.
 	 *
 	 * @param value The constant value to be used for initialized the random variable.
 	 * @return A new random variable.
@@ -97,5 +97,5 @@ public interface MonteCarloSimulationInterface extends ModelInterface {
 	 * @return Returns a clone of this model, with some data modified (then it is no longer a clone :-)
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	MonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+	MonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

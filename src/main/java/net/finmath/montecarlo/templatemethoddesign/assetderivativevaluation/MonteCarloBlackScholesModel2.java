@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.2
  */
-public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements AssetModelMonteCarloSimulationInterface {
+public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements AssetModelMonteCarloSimulationModel {
 
 	private double initialValue;
 	private double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
@@ -120,7 +120,7 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getAssetValue(int, int)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getAssetValue(int, int)
 	 */
 	@Override
 	public RandomVariable getAssetValue(int timeIndex, int assetIndex) {
@@ -186,12 +186,12 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedSeed(int seed) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
 		return new MonteCarloBlackScholesModel2(this.getTimeDiscretization(), this.getNumberOfPaths(), this.getInitialValue()[0].get(0), this.getRiskFreeRate(), this.getVolatility(), seed);
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
 		throw new UnsupportedOperationException();
 	}
 }

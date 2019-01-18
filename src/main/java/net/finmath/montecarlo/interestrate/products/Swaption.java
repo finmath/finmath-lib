@@ -16,13 +16,13 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationInterface
+ * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationModel
  *
  * Important: If the LIBOR Market Model is a multi-curve model in the sense that the
  * numeraire is not calculated from the forward curve, then this valuation does
@@ -129,7 +129,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		/*
 		 * Calculate value of the swap at exercise date on each path (beware of perfect foresight - all rates are simulationTime=exerciseDate)
 		 */
@@ -233,7 +233,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	}
 
 	@Deprecated
-	public RandomVariable getExerciseIndicator(LIBORModelMonteCarloSimulationInterface model) throws CalculationException{
+	public RandomVariable getExerciseIndicator(LIBORModelMonteCarloSimulationModel model) throws CalculationException{
 		return getValue(exerciseDate, model).mult(-1.0).choose(new RandomVariableFromDoubleArray(0.0), new RandomVariableFromDoubleArray(1.0));
 	}
 

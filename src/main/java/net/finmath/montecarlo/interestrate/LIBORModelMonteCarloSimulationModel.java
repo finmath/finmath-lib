@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretization;
  * @version 1.0
  */
 
-public interface LIBORModelMonteCarloSimulationInterface extends TermStructureModelMonteCarloSimulationInterface, IndependentModelParameterProvider {
+public interface LIBORModelMonteCarloSimulationModel extends TermStructureMonteCarloSimulationModel, IndependentModelParameterProvider {
 
 	/**
 	 * @return Returns the numberOfFactors.
@@ -87,7 +87,7 @@ public interface LIBORModelMonteCarloSimulationInterface extends TermStructureMo
 	 * @return The underlying model
 	 */
 	@Override
-	TermStructureModelInterface getModel();
+	TermStructureModel getModel();
 
 	/**
 	 * Return a clone of this model with a modified Brownian motion using a different seed.

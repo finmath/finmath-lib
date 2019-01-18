@@ -20,10 +20,10 @@ import java.util.logging.Logger;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.interestrate.TermStructureModel;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
-import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
-import net.finmath.montecarlo.interestrate.TermStructureModelMonteCarloSimulation;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromTermStructureModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.Optimizer;
@@ -73,7 +73,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 	 * @return A clone of this model, using the calibrated parameters.
 	 * @throws CalculationException Exception indicating failure in calibration.
 	 */
-	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModelInterface calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException {
+	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
@@ -124,14 +124,14 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 				// Create a term structure model with the new covariance structure.
 				HashMap<String, Object> data = new HashMap<>();
 				data.put("covarianceModel", calibrationCovarianceModel);
-				TermStructureModelInterface model;
+				TermStructureModel model;
 				try {
 					model = calibrationModel.getCloneWithModifiedData(data);
 				} catch (CalculationException e) {
 					throw new SolverException(e);
 				}
-				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-				final TermStructureModelMonteCarloSimulation termStructureModelMonteCarloSimulation =  new TermStructureModelMonteCarloSimulation(model, process);
+				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final LIBORMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new LIBORMonteCarloSimulationFromTermStructureModel(model, process);
 
 				ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
@@ -140,7 +140,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 						@Override
 						public Double call() {
 							try {
-								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,termStructureModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight()).getAverage();
+								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,lIBORMonteCarloSimulationFromTermStructureModel).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight()).getAverage();
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return 0.0;

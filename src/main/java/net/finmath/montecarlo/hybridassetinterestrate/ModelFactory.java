@@ -10,10 +10,10 @@ import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
@@ -60,7 +60,7 @@ public class ModelFactory {
 	 * @throws CalculationException Thrown if calibration fails.
 	 */
 	public HybridAssetLIBORModelMonteCarloSimulationInterface getHybridAssetLIBORModel(
-			final LIBORModelMonteCarloSimulationInterface baseModel,
+			final LIBORModelMonteCarloSimulationModel baseModel,
 			final BrownianMotion brownianMotion,
 			final double[] initialValues,
 			final double riskFreeRate,
@@ -75,7 +75,7 @@ public class ModelFactory {
 
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
-				AssetModelMonteCarloSimulationInterface model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, parameters, correlations);
+				AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, parameters, correlations);
 				HybridAssetLIBORModelMonteCarloSimulation hybridModel = new HybridAssetLIBORModelMonteCarloSimulation(baseModel, model);
 
 				try {
@@ -103,7 +103,7 @@ public class ModelFactory {
 			}
 		}
 
-		AssetModelMonteCarloSimulationInterface model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);
+		AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);
 
 		/*
 		 * Test calibration

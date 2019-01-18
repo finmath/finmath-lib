@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public interface ProcessInterface {
+public interface Process {
 
 	/**
 	 * This method returns the realization of the process for a given time index.
@@ -74,6 +74,6 @@ public interface ProcessInterface {
 	 *
 	 * @return Clone of the process
 	 */
-	ProcessInterface clone();
+	Process clone();
 
 }

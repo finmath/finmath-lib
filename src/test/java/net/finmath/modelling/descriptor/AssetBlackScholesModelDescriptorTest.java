@@ -20,7 +20,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.Product;
 import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFiniteDifference1D;
@@ -78,7 +78,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionFourier = blackScholesModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
+		Product europeanOptionFourier = blackScholesModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
 
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -98,7 +98,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFactory, brownianMotion, null)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
+		Product europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
 
@@ -112,7 +112,7 @@ public class AssetBlackScholesModelDescriptorTest {
 		DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		ProductInterface europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(europeanOptionDescriptor);
+		Product europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
 

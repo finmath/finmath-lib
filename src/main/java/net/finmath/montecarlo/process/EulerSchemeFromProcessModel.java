@@ -38,15 +38,15 @@ import net.finmath.stochastic.RandomVariable;
  * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
  *
  * @author Christian Fries
- * @see AbstractProcessInterface The interface definition contains more details.
+ * @see MonteCarloProcess The interface definition contains more details.
  * @version 1.4
  */
-public class ProcessEulerScheme extends AbstractProcess {
+public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessModel {
 
 	private static boolean isUseMultiThreadding;
 	static {
 		// Default value is true
-		isUseMultiThreadding = Boolean.parseBoolean(System.getProperty("net.finmath.montecarlo.process.ProcessEulerScheme.isUseMultiThreadding","true"));
+		isUseMultiThreadding = Boolean.parseBoolean(System.getProperty("net.finmath.montecarlo.process.EulerSchemeFromProcessModel.isUseMultiThreadding","true"));
 	}
 
 	public enum Scheme {
@@ -73,7 +73,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 * @param scheme The scheme to use. See {@link Scheme}.
 	 */
-	public ProcessEulerScheme(IndependentIncrements stochasticDriver, Scheme scheme) {
+	public EulerSchemeFromProcessModel(IndependentIncrements stochasticDriver, Scheme scheme) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
 		this.scheme = scheme;
@@ -84,7 +84,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
-	public ProcessEulerScheme(IndependentIncrements stochasticDriver) {
+	public EulerSchemeFromProcessModel(IndependentIncrements stochasticDriver) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
 	}
@@ -343,24 +343,24 @@ public class ProcessEulerScheme extends AbstractProcess {
 	}
 
 	@Override
-	public ProcessEulerScheme clone() {
-		return new ProcessEulerScheme(getStochasticDriver(), scheme);
+	public EulerSchemeFromProcessModel clone() {
+		return new EulerSchemeFromProcessModel(getStochasticDriver(), scheme);
 	}
 
 	@Override
-	public AbstractProcessInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public MonteCarloProcess getCloneWithModifiedData(Map<String, Object> dataModified) {
 		// @TODO Implement cloning with modified properties
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	@Override
 	public Object getCloneWithModifiedSeed(int seed) {
-		return new ProcessEulerScheme(getBrownianMotion().getCloneWithModifiedSeed(seed));
+		return new EulerSchemeFromProcessModel(getBrownianMotion().getCloneWithModifiedSeed(seed));
 	}
 
 	@Override
 	public String toString() {
-		return "ProcessEulerScheme [stochasticDriver=" + stochasticDriver + ", scheme=" + scheme + ", executor="
+		return "EulerSchemeFromProcessModel [stochasticDriver=" + stochasticDriver + ", scheme=" + scheme + ", executor="
 				+ executor + "]";
 	}
 

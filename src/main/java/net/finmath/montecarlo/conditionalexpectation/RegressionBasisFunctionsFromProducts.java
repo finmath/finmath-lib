@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -33,7 +33,7 @@ public class RegressionBasisFunctionsFromProducts implements RegressionBasisFunc
 	}
 
 	@Override
-	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationInterface model) {
+	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel model) {
 
 		Function<AbstractMonteCarloProduct, RandomVariable> valuation = p -> {
 			RandomVariable value = null;

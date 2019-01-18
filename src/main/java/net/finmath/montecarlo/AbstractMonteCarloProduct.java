@@ -9,17 +9,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.modelling.ModelInterface;
-import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * Base class for products requiring an MonteCarloSimulationInterface for valuation.
+ * Base class for products requiring an MonteCarloSimulationModel for valuation.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractMonteCarloProduct implements ProductInterface {
+public abstract class AbstractMonteCarloProduct implements Product, MonteCarloProduct {
 
 	private final String currency;
 
@@ -32,11 +32,14 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 		this(null);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValue(double, net.finmath.modelling.Model)
+	 */
 	@Override
-	public Object getValue(double evaluationTime, ModelInterface model) {
-		if(model instanceof MonteCarloSimulationInterface) {
+	public Object getValue(double evaluationTime, Model model) {
+		if(model instanceof MonteCarloSimulationModel) {
 			try {
-				return getValue(evaluationTime, (MonteCarloSimulationInterface)model);
+				return getValue(evaluationTime, (MonteCarloSimulationModel)model);
 			} catch (CalculationException e) {
 				return null;
 			}
@@ -44,16 +47,19 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 		else {
 			throw new IllegalArgumentException("The product " + this.getClass()
 			+ " cannot be valued against a model " + model.getClass() + "."
-			+ "It requires a model of type " + MonteCarloSimulationInterface.class + ".");
+			+ "It requires a model of type " + MonteCarloSimulationModel.class + ".");
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValues(double, net.finmath.modelling.Model)
+	 */
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+	public Map<String, Object> getValues(double evaluationTime, Model model) {
 		Map<String, Object> results;
-		if(model instanceof MonteCarloSimulationInterface) {
+		if(model instanceof MonteCarloSimulationModel) {
 			try {
-				results = getValues(evaluationTime, (MonteCarloSimulationInterface)model);
+				results = getValues(evaluationTime, (MonteCarloSimulationModel)model);
 			} catch (CalculationException e) {
 				results = new HashMap<>();
 				results.put("exception", e);
@@ -62,7 +68,7 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 		else {
 			Exception e = new IllegalArgumentException("The product " + this.getClass()
 			+ " cannot be valued against a model " + model.getClass() + "."
-			+ "It requires a model of type " + MonteCarloSimulationInterface.class + ".");
+			+ "It requires a model of type " + MonteCarloSimulationModel.class + ".");
 			results = new HashMap<>();
 			results.put("exception", e);
 		}
@@ -70,47 +76,26 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 		return results;
 	}
 
-	/**
-	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
-	 *
-	 * For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
-	 *
-	 * More generally: The value random variable is a random variable <i>V<sup>*(t)</sup></i> such that
-	 * the time-<i>t</i> conditional expectation of <i>V<sup>*(t)</sup></i> is equal
-	 * to the value of the financial product in time <i>t</i>.
-	 *
-	 * An example for <i>V<sup>*(t)</sup></i> is the sum of <i>t</i>-discounted payoffs.
-	 *
-	 * Cashflows prior evaluationTime are not considered.
-	 *
-	 * @param evaluationTime The time on which this products value should be observed.
-	 * @param model The model used to price the product.
-	 * @return The random variable representing the value of the product discounted to evaluation time
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationModel)
 	 */
-	public abstract RandomVariable getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException;
+	@Override
+	public abstract RandomVariable getValue(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException;
 
 
-	/**
-	 * This method returns the value of the product under the specified model.
-	 *
-	 * @param model A model used to evaluate the product.
-	 * @return The value of the product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValue(net.finmath.montecarlo.MonteCarloSimulationModel)
 	 */
-	public double getValue(MonteCarloSimulationInterface model) throws CalculationException {
+	@Override
+	public double getValue(MonteCarloSimulationModel model) throws CalculationException {
 		return getValue(0.0, model).getAverage();
 	}
 
-	/**
-	 * This method returns the value of the product under the specified model and other information in a key-value map.
-	 *
-	 * @param evaluationTime The time on which this products value should be observed.
-	 * @param model A model used to evaluate the product.
-	 * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValues(double, net.finmath.montecarlo.MonteCarloSimulationModel)
 	 */
-	public Map<String, Object> getValues(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException
+	@Override
+	public Map<String, Object> getValues(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException
 	{
 		RandomVariable values = getValue(evaluationTime, model);
 
@@ -129,95 +114,59 @@ public abstract class AbstractMonteCarloProduct implements ProductInterface {
 		return results;
 	}
 
-	/**
-	 * This method returns the value under shifted market data (or model parameters).
-	 * In its default implementation it does bump (creating a new model) and revalue.
-	 * Override the way the new model is created, to implemented improved techniques (proxy scheme, re-calibration).
-	 *
-	 * @param evaluationTime The time on which this products value should be observed.
-	 * @param model The model used to price the product, except for the market data to modify
-	 * @param dataModified The new market data object to use (could be of different types)
-	 *
-	 * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValuesForModifiedData(double, net.finmath.montecarlo.MonteCarloSimulationModel, java.util.Map)
 	 */
-	public Map<String, Object> getValuesForModifiedData(double evaluationTime, MonteCarloSimulationInterface model, Map<String,Object> dataModified) throws CalculationException
+	@Override
+	public Map<String, Object> getValuesForModifiedData(double evaluationTime, MonteCarloSimulationModel model, Map<String,Object> dataModified) throws CalculationException
 	{
-		MonteCarloSimulationInterface modelModified = model.getCloneWithModifiedData(dataModified);
+		MonteCarloSimulationModel modelModified = model.getCloneWithModifiedData(dataModified);
 
 		return getValues(evaluationTime, modelModified);
 	}
 
-	/**
-	 * This method returns the value under shifted market data (or model parameters).
-	 * In its default implementation it does bump (creating a new model) and revalue.
-	 * Override the way the new model is created, to implemented improved techniques (proxy scheme, re-calibration).
-	 *
-	 * @param evaluationTime The time on which this products value should be observed.
-	 * @param model The model used to price the product, except for the market data to modify
-	 * @param entityKey The entity to change, it depends on the model if the model reacts to this key.
-	 * @param dataModified The new market data object to use (could be of different types)
-	 *
-	 * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValuesForModifiedData(double, net.finmath.montecarlo.MonteCarloSimulationModel, java.lang.String, java.lang.Object)
 	 */
-	public Map<String, Object> getValuesForModifiedData(double evaluationTime, MonteCarloSimulationInterface model, String entityKey, Object dataModified) throws CalculationException
+	@Override
+	public Map<String, Object> getValuesForModifiedData(double evaluationTime, MonteCarloSimulationModel model, String entityKey, Object dataModified) throws CalculationException
 	{
 		Map<String, Object> dataModifiedMap = new HashMap<>();
 		dataModifiedMap.put(entityKey, dataModified);
 		return getValuesForModifiedData(evaluationTime, model, dataModifiedMap);
 	}
 
-	/**
-	 * This method returns the value of the product under the specified model and other information in a key-value map.
-	 *
-	 * @param model A model used to evaluate the product.
-	 * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValues(net.finmath.montecarlo.MonteCarloSimulationModel)
 	 */
-	public Map<String, Object> getValues(MonteCarloSimulationInterface model) throws CalculationException
+	@Override
+	public Map<String, Object> getValues(MonteCarloSimulationModel model) throws CalculationException
 	{
 		return getValues(0.0, model);
 	}
 
-	/**
-	 * This method returns the value under shifted market data (or model parameters).
-	 * In its default implementation it does bump (creating a new model) and revalue.
-	 * Override the way the new model is created, to implemented improved techniques (proxy scheme, re-calibration).
-	 *
-	 * @param model The model used to price the product, except for the market data to modify
-	 * @param dataModified The new market data object to use (could be of different types)
-	 *
-	 * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValuesForModifiedData(net.finmath.montecarlo.MonteCarloSimulationModel, java.util.Map)
 	 */
-	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationInterface model, Map<String,Object> dataModified) throws CalculationException
+	@Override
+	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationModel model, Map<String,Object> dataModified) throws CalculationException
 	{
 		return getValuesForModifiedData(0.0, model, dataModified);
 	}
 
-	/**
-	 * This method returns the value under shifted market data (or model parameters).
-	 * In its default implementation it does bump (creating a new model) and revalue.
-	 * Override the way the new model is created, to implemented improved techniques (proxy scheme, re-calibration).
-	 *
-	 * @param model The model used to price the product, except for the market data to modify
-	 * @param entityKey The entity to change, it depends on the model if the model reacts to this key.
-	 * @param dataModified The new market data object to use (could be of different types)
-	 *
-	 * @return The values of the product.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getValuesForModifiedData(net.finmath.montecarlo.MonteCarloSimulationModel, java.lang.String, java.lang.Object)
 	 */
-	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationInterface model, String entityKey, Object dataModified) throws CalculationException
+	@Override
+	public Map<String, Object> getValuesForModifiedData(MonteCarloSimulationModel model, String entityKey, Object dataModified) throws CalculationException
 	{
 		return getValuesForModifiedData(0.0, model, entityKey, dataModified);
 	}
 
-	/**
-	 * Returns the currency string of this notional.
-	 *
-	 * @return the currency
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.MonteCarloProduct#getCurrency()
 	 */
+	@Override
 	public String getCurrency() {
 		return currency;
 	}

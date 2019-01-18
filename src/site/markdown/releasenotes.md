@@ -6,6 +6,19 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.0.0 (20.01.2019)
+
+### General
+
+ - *Refactoring* of names. Interfaces come with plain names like `RandomVariable` 
+   while implementation come with implementation details as in `RandomVariableFromDoubleArray`.
+   Details can be found in doc/refactoring-3.6.x-to-4.0.0.
+
+ - Removed deprecated methods: The method `barrier` has been removed from RandomVariable. 
+   Use `choose` instead.
+
+ - 
+
 ## 3.6.3 (15.01.2019)
 
 ### General

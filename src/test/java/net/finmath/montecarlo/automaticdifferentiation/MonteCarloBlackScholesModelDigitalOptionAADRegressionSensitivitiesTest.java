@@ -22,7 +22,7 @@ import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.DigitalOption;
@@ -30,9 +30,9 @@ import net.finmath.montecarlo.assetderivativevaluation.products.DigitalOptionDel
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory.DiracDeltaApproximationMethod;
 import net.finmath.montecarlo.conditionalexpectation.LinearRegression;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -112,10 +112,10 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 	 */
 	public MonteCarloAssetModel getModel(AbstractRandomVariableFactory randomVariableFactory, BrownianMotion brownianMotion) {
 		// Create a model
-		AbstractModel model = new BlackScholesModel(modelInitialValue, modelRiskFreeRate, modelVolatility, randomVariableFactory);
+		AbstractProcessModel model = new BlackScholesModel(modelInitialValue, modelRiskFreeRate, modelVolatility, randomVariableFactory);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(brownianMotion);
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		return new MonteCarloAssetModel(model, process);
@@ -239,8 +239,8 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			randomVariablePropsInftyWidth.put("diracDeltaApproximationWidthPerStdDev", Double.POSITIVE_INFINITY);
 			RandomVariableDifferentiableAADFactory randomVariableFactoryInftyWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariablePropsInftyWidth);
 
-			AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModelZeroWidth = getModel(randomVariableFactoryZeroWidth, brownianMotion);
-			AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModelInftyWidth = getModel(randomVariableFactoryInftyWidth, brownianMotion);
+			AssetModelMonteCarloSimulationModel monteCarloBlackScholesModelZeroWidth = getModel(randomVariableFactoryZeroWidth, brownianMotion);
+			AssetModelMonteCarloSimulationModel monteCarloBlackScholesModelInftyWidth = getModel(randomVariableFactoryInftyWidth, brownianMotion);
 
 			RandomVariableDifferentiable initialValueZeroWidth = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelZeroWidth).getModel()).getInitialValue()[0];
 			RandomVariableDifferentiable initialValueInftyWidth = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelInftyWidth).getModel()).getInitialValue()[0];

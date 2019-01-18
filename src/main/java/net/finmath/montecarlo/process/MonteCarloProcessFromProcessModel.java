@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.process;
 
-import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -17,12 +17,12 @@ import net.finmath.time.TimeDiscretization;
  * This base class manages the time discretization and delegation to the model.
  *
  * @author Christian Fries
- * @see AbstractProcessInterface The interface definition contains more details.
+ * @see MonteCarloProcess The interface definition contains more details.
  * @version 1.5
  */
-public abstract class AbstractProcess implements AbstractProcessInterface, Cloneable {
+public abstract class MonteCarloProcessFromProcessModel implements MonteCarloProcess, Cloneable {
 
-	private AbstractModelInterface			model;
+	private ProcessModel			model;
 	private TimeDiscretization		timeDiscretization;
 
 	/**
@@ -30,7 +30,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	 *
 	 * @param timeDiscretizationFromArray The time discretization used for the discretization scheme.
 	 */
-	public AbstractProcess(TimeDiscretization timeDiscretization) {
+	public MonteCarloProcessFromProcessModel(TimeDiscretization timeDiscretization) {
 		super();
 		this.timeDiscretization	= timeDiscretization;
 	}
@@ -42,7 +42,7 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	 */
 
 	@Override
-	public void setModel(AbstractModelInterface model) {
+	public void setModel(ProcessModel model) {
 		if(this.model != null) {
 			throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
 		}
@@ -101,5 +101,5 @@ public abstract class AbstractProcess implements AbstractProcessInterface, Clone
 	}
 
 	@Override
-	public abstract AbstractProcess clone();
+	public abstract MonteCarloProcessFromProcessModel clone();
 }

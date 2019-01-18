@@ -61,7 +61,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.TermStructureTenorTimeSc
 import net.finmath.montecarlo.interestrate.modelplugins.TermStructureTenorTimeScalingPicewiseConstant;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
@@ -246,7 +246,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		TimeDiscretization liborPeriodDiscretizationFine = new TimeDiscretizationFromArray(0.0, 40.0, 0.0625, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 		TimeDiscretization liborPeriodDiscretizationMedium = new TimeDiscretizationFromArray(0.0, 40.0, 0.25, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 		TimeDiscretization liborPeriodDiscretizationCoarse = new TimeDiscretizationFromArray(0.0, 40.0, 4.0, ShortPeriodLocation.SHORT_PERIOD_AT_START);
-		TermStructureModelInterface liborMarketModelCalibrated = new LIBORMarketModelWithTenorRefinement(
+		TermStructureModel liborMarketModelCalibrated = new LIBORMarketModelWithTenorRefinement(
 				new TimeDiscretization[] { liborPeriodDiscretizationFine, liborPeriodDiscretizationMedium, liborPeriodDiscretizationCoarse },
 				new Integer[] { 4, 8, 200 },
 				null,
@@ -264,8 +264,8 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			System.out.println(formatterParam.format(p));
 		}
 
-		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-		TermStructureModelMonteCarloSimulation simulationCalibrated = new TermStructureModelMonteCarloSimulation(liborMarketModelCalibrated, process);
+		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		LIBORMonteCarloSimulationFromTermStructureModel simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 
 		System.out.println("\nValuation on calibrated model:");
 		double deviationSum			= 0.0;
@@ -416,7 +416,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		//		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionCudaWithRandomVariableCuda(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 31415 /* seed */);
 
 		int test = 0;			// 0 LMM with refinment, 1 LMMM, 2 HW 1 mr param, 3 HW with vector mr
-		LIBORModelMonteCarloSimulationInterface simulationCalibrated = null;
+		LIBORModelMonteCarloSimulationModel simulationCalibrated = null;
 		if(test == 0) {
 			TimeDiscretization optionMaturityDiscretization = new TimeDiscretizationFromArray(0.0, 0.25, 0.50, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0);
 
@@ -496,7 +496,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				TimeDiscretization liborPeriodDiscretizationCoarse = new TimeDiscretizationFromArray(0.0, 40.0, 1.0, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 				TimeDiscretization liborPeriodDiscretizationCoarse2 = new TimeDiscretizationFromArray(0.0, 40.0, 5.0, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 				TimeDiscretization liborPeriodDiscretizationNormal = new TimeDiscretizationFromArray(0.0, 40.0, 1.0, ShortPeriodLocation.SHORT_PERIOD_AT_START);
-				TermStructureModelInterface liborMarketModelCalibrated = new LIBORMarketModelWithTenorRefinement(
+				TermStructureModel liborMarketModelCalibrated = new LIBORMarketModelWithTenorRefinement(
 						//					new TimeDiscretization[] { liborPeriodDiscretizationNormal },
 						//					new Integer[] { 200 },
 						new TimeDiscretization[] { liborPeriodDiscretizationMedium, liborPeriodDiscretizationCoarse, liborPeriodDiscretizationCoarse2 },
@@ -518,8 +518,8 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				}
 				bestParameters = param;
 
-				ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-				simulationCalibrated = new TermStructureModelMonteCarloSimulation(liborMarketModelCalibrated, process);
+				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 			}
 		}
 		if(test == 1) {
@@ -564,7 +564,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			for(int i=0; i<calibrationItemNames.size(); i++) {
 				calibrationItemsLMM[i] = new CalibrationProduct(calibrationProducts.get(i).getProduct(), calibrationProducts.get(i).getTargetValue(), calibrationProducts.get(i).getWeight());
 			}
-			TermStructureModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
+			TermStructureModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
 					liborPeriodDiscretization,
 					curveModel,
 					forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve),
@@ -573,14 +573,14 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					properties);
 
 			System.out.println("\nCalibrated parameters are:");
-			double[] param = ((AbstractLIBORCovarianceModelParametric)((LIBORMarketModel) liborMarketModelCalibrated).getCovarianceModel()).getParameter();
+			double[] param = ((AbstractLIBORCovarianceModelParametric)((LIBORMarketModelFromCovarianceModel) liborMarketModelCalibrated).getCovarianceModel()).getParameter();
 			//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
 			for (double p : param) {
 				System.out.println(p);
 			}
 
-			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-			simulationCalibrated = new TermStructureModelMonteCarloSimulation(liborMarketModelCalibrated, process);
+			EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 		}
 		else if(test == 2) {
 			final TimeDiscretization shortRateVolTimeDis = new TimeDiscretizationFromArray(0.00, 0.50, 1.00, 2.00, 3.00, 4.00, 5.00, 7.00, 10.00, 15.00, 20.00, 25.00, 30.00, 35.00, 40.00, 45.00 );
@@ -635,10 +635,10 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							meanReversion);
 
 					// Create a LIBOR market model with the new covariance structure.
-					LIBORModelInterface model = new HullWhiteModel(
+					LIBORModel model = new HullWhiteModel(
 							liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModel, null);
-					ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-					final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
+					EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+					final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
 					ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.size());
 					for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.size(); calibrationProductIndex++) {
@@ -720,10 +720,10 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					meanReversionCalib);
 
 			// Create a LIBOR market model with the new covariance structure.
-			LIBORModelInterface modelCalibrated = new HullWhiteModel(
+			LIBORModel modelCalibrated = new HullWhiteModel(
 					liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModelCalibrated, null);
-			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-			simulationCalibrated =  new LIBORModelMonteCarloSimulation(modelCalibrated, process);
+			EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			simulationCalibrated =  new LIBORMonteCarloSimulationFromLIBORModel(modelCalibrated, process);
 		}
 		else if(test == 3) {
 			final TimeDiscretization shortRateVolTimeDis = new TimeDiscretizationFromArray(0.00, 0.50, 1.00, 2.00, 3.00, 4.00, 5.00, 7.00, 10.00, 15.00, 20.00, 25.00, 30.00, 35.00, 40.00, 45.00 );
@@ -778,10 +778,10 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							meanReversion);
 
 					// Create a LIBOR market model with the new covariance structure.
-					LIBORModelInterface model = new HullWhiteModel(
+					LIBORModel model = new HullWhiteModel(
 							liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModel, null);
-					ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-					final LIBORModelMonteCarloSimulation liborMarketModelMonteCarloSimulation =  new LIBORModelMonteCarloSimulation(model, process);
+					EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+					final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
 					ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.size());
 					for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.size(); calibrationProductIndex++) {
@@ -865,10 +865,10 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					meanReversionCalib);
 
 			// Create a LIBOR market model with the new covariance structure.
-			LIBORModelInterface modelCalibrated = new HullWhiteModel(
+			LIBORModel modelCalibrated = new HullWhiteModel(
 					liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModelCalibrated, null);
-			ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-			simulationCalibrated =  new LIBORModelMonteCarloSimulation(modelCalibrated, process);
+			EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			simulationCalibrated =  new LIBORMonteCarloSimulationFromLIBORModel(modelCalibrated, process);
 		}
 
 

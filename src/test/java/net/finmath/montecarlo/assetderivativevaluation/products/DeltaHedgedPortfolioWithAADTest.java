@@ -20,16 +20,16 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
@@ -64,8 +64,8 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 	private static final int	seed				= 31415;
 
-	private AssetModelMonteCarloSimulationInterface model = null;
-	private AbstractAssetMonteCarloProduct option = null;
+	private AssetModelMonteCarloSimulationModel model = null;
+	private AssetMonteCarloProduct option = null;
 
 	@Parameters(name="{0}-{1}")
 	public static Collection<Object[]> data() {
@@ -73,16 +73,16 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 		double maturity = timeHorizon;
 		double strike = modelInitialValue*Math.exp(modelRiskFreeRate * maturity);
-		AbstractAssetMonteCarloProduct europeanOption = new EuropeanOption(maturity,strike);
+		AssetMonteCarloProduct europeanOption = new EuropeanOption(maturity,strike);
 
 		double[] exerciseDates = new double[] {2.0, 3.0, 4.0, maturity };
 		double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
 		double[] strikes = new double[] { 0.7*strike, 0.75*strike, 0.85*strike, strike };
-		AbstractAssetMonteCarloProduct bermudanOption = new BermudanOption(exerciseDates, notionals, strikes);
+		AssetMonteCarloProduct bermudanOption = new BermudanOption(exerciseDates, notionals, strikes);
 
 		// Create a Model (see method getModel)
-		AssetModelMonteCarloSimulationInterface blackScholesModel = getBlackScholesModel();
-		AssetModelMonteCarloSimulationInterface hestonModel = getHestonModel();
+		AssetModelMonteCarloSimulationModel blackScholesModel = getBlackScholesModel();
+		AssetModelMonteCarloSimulationModel hestonModel = getHestonModel();
 
 		/*
 		 * For performance: either use a warm up period or focus on a single product.
@@ -95,14 +95,14 @@ public class DeltaHedgedPortfolioWithAADTest {
 		return testParameters;
 	}
 
-	public DeltaHedgedPortfolioWithAADTest(AssetModelMonteCarloSimulationInterface model, AbstractAssetMonteCarloProduct product) {
+	public DeltaHedgedPortfolioWithAADTest(AssetModelMonteCarloSimulationModel model, AssetMonteCarloProduct product) {
 		super();
 
 		this.model = model;
 		this.option = product;
 	}
 
-	public static AssetModelMonteCarloSimulationInterface getBlackScholesModel()
+	public static AssetModelMonteCarloSimulationModel getBlackScholesModel()
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("barrierDiracWidth", new Double(0.0));
@@ -115,7 +115,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
-		AbstractModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+		AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 		// Create a time discretization
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
@@ -124,15 +124,15 @@ public class DeltaHedgedPortfolioWithAADTest {
 		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(brownianMotion, net.finmath.montecarlo.process.ProcessEulerScheme.Scheme.EULER_FUNCTIONAL);
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 		return monteCarloBlackScholesModel;
 	}
 
-	public static AssetModelMonteCarloSimulationInterface getHestonModel()
+	public static AssetModelMonteCarloSimulationModel getHestonModel()
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("barrierDiracWidth", new Double(0.0));
@@ -149,7 +149,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		RandomVariableDifferentiable rho	= randomVariableFactory.createRandomVariable(modelRho);
 
 		// Create a model
-		AbstractModel model = new HestonModel(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, randomVariableFactory);
+		AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, randomVariableFactory);
 
 		// Create a time discretization
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
@@ -158,10 +158,10 @@ public class DeltaHedgedPortfolioWithAADTest {
 		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
-		AbstractProcess process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER_FUNCTIONAL);
+		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		AssetModelMonteCarloSimulationInterface monteCarloHestonModel = new MonteCarloAssetModel(model, process);
+		AssetModelMonteCarloSimulationModel monteCarloHestonModel = new MonteCarloAssetModel(model, process);
 
 		return monteCarloHestonModel;
 	}

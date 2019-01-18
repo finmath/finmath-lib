@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretization;
  *
  * @version 1.0
  */
-public interface LIBORModelInterface extends TermStructureModelInterface, IndependentModelParameterProvider {
+public interface LIBORModel extends TermStructureModel, IndependentModelParameterProvider {
 
 	RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
@@ -53,12 +53,12 @@ public interface LIBORModelInterface extends TermStructureModelInterface, Indepe
 	int getLiborPeriodIndex(double time);
 
 	/**
-	 * Create a new object implementing LIBORModelInterface, using the new data.
+	 * Create a new object implementing LIBORModel, using the new data.
 	 *
 	 * @param dataModified A map with values to be used in constructions (keys are identical to parameter names of the constructors).
-	 * @return A new object implementing LIBORModelInterface, using the new data.
+	 * @return A new object implementing LIBORModel, using the new data.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	LIBORModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+	LIBORModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

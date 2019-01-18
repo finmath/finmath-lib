@@ -61,8 +61,8 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.SwaptionATM;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.montecarlo.process.ProcessEulerScheme.Scheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticLevenbergMarquardt.RegularizationMethod;
 import net.finmath.optimizer.StochasticLevenbergMarquardtAD;
@@ -417,10 +417,10 @@ public class LIBORMarketModelCalibrationAADTest {
 			Map<String, Object> calibrtionProperties = new HashMap<String, Object>();
 
 			// Choose the simulation measure
-			calibrtionProperties.put("measure", LIBORMarketModel.Measure.SPOT.name());
+			calibrtionProperties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.SPOT.name());
 
 			// Choose normal state space for the Euler scheme (the covariance model above carries a linear local volatility model, such that the resulting model is log-normal).
-			calibrtionProperties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
+			calibrtionProperties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.NORMAL.name());
 
 			double[] parameterStandardDeviation = new double[covarianceModelParametric.getParameter().length];
 			double[] parameterLowerBound = new double[covarianceModelParametric.getParameter().length];
@@ -454,7 +454,7 @@ public class LIBORMarketModelCalibrationAADTest {
 				CalibrationProduct calibrationProduct = valueUnit == ValueUnit.VALUE ? calibrationItemsVALUE.get(i) : calibrationItemsVOLATILITYNORMAL.get(i);
 				calibrationItemsLMM[i] = new CalibrationProduct(calibrationProduct.getProduct(),calibrationProduct.getTargetValue(),calibrationProduct.getWeight());
 			}
-			LIBORModelInterface liborMarketModelCalibrated = new LIBORMarketModel(
+			LIBORModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
 					liborPeriodDiscretization,
 					curveModel,
 					forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve),
@@ -682,19 +682,19 @@ public class LIBORMarketModelCalibrationAADTest {
 		return calibrationProduct;
 	}
 
-	private static void evaluateCalibration(LIBORModelInterface liborMarketModelCalibrated, BrownianMotion brownianMotion,
+	private static void evaluateCalibration(LIBORModel liborMarketModelCalibrated, BrownianMotion brownianMotion,
 			List<String> calibrationItemNames ,List<CalibrationProduct> calibrationItemsVALUE, List<CalibrationProduct> calibrationItemsVOLATILITYNORMAL,
 			double assertTrueVALUE, double assertTrueVOLATILITYNORMAL, String fileName){
 
 		System.out.println("\nCalibrated parameters are:");
-		AbstractLIBORCovarianceModelParametric calibratedCovarianceModel = (AbstractLIBORCovarianceModelParametric) ((LIBORMarketModel) liborMarketModelCalibrated).getCovarianceModel();
+		AbstractLIBORCovarianceModelParametric calibratedCovarianceModel = (AbstractLIBORCovarianceModelParametric) ((LIBORMarketModelFromCovarianceModel) liborMarketModelCalibrated).getCovarianceModel();
 		RandomVariable[] param = calibratedCovarianceModel.getParameter();
 		for (RandomVariable p : param) {
 			System.out.println(formatterParam.format(p.doubleValue()));
 		}
 
-		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion);
-		LIBORModelMonteCarloSimulationInterface simulationCalibrated = new LIBORModelMonteCarloSimulation(liborMarketModelCalibrated, process);
+		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		LIBORModelMonteCarloSimulationModel simulationCalibrated = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModelCalibrated, process);
 
 		System.out.println("\nValuation on calibrated prices:");
 		double deviationSumVALUE			= 0.0;

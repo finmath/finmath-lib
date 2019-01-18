@@ -15,7 +15,7 @@ import net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurv
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 
 /**
  * Constructs asset models, which evaluate products via Monte-Carlo method.
@@ -95,7 +95,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 					descriptor.getVolatility(),
 					descriptor.getDiscountCurveForDiscountRate(),
 					randomVariableFactory),
-					new ProcessEulerScheme(stochasticDriver));
+					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor 	= descriptor;
 			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
@@ -135,7 +135,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		private HestonModelMonteCarlo(HestonModelDescriptor descriptor, Scheme scheme, AbstractRandomVariableFactory randomVariableFactory,
 				IndependentIncrements stochasticDriver) {
 			super(new net.finmath.montecarlo.assetderivativevaluation.HestonModel(descriptor, scheme, randomVariableFactory),
-					new ProcessEulerScheme(stochasticDriver));
+					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor 	= descriptor;
 			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}

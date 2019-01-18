@@ -9,11 +9,11 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * Implements the valuation of a swap under a LIBORModelMonteCarloSimulationInterface
+ * Implements the valuation of a swap under a LIBORModelMonteCarloSimulationModel
  *
  * @author Christian Fries
  * @version 1.2
@@ -133,7 +133,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable values						= model.getRandomVariableForConstant(0.0);
 
 		for(int period=0; period<fixingDates.length; period++)

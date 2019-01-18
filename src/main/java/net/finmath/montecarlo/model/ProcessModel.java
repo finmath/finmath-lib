@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -21,10 +21,10 @@ import net.finmath.time.TimeDiscretization;
  * \]
  *
  * <ul>
- * <li>The value of <i>Y(0)</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getInitialState}.
- * <li>The value of &mu; is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getDrift}.
- * <li>The value &lambda;<sub>j</sub> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#getFactorLoading}.
- * <li>The function <i>f</i> is provided by the method {@link net.finmath.montecarlo.model.AbstractModelInterface#applyStateSpaceTransform}.
+ * <li>The value of <i>Y(0)</i> is provided by the method {@link net.finmath.montecarlo.model.ProcessModel#getInitialState}.
+ * <li>The value of &mu; is provided by the method {@link net.finmath.montecarlo.model.ProcessModel#getDrift}.
+ * <li>The value &lambda;<sub>j</sub> is provided by the method {@link net.finmath.montecarlo.model.ProcessModel#getFactorLoading}.
+ * <li>The function <i>f</i> is provided by the method {@link net.finmath.montecarlo.model.ProcessModel#applyStateSpaceTransform}.
  * </ul>
  * Here, &mu; and &lambda;<sub>j</sub> may depend on <i>X</i>, which allows to implement stochastic drifts (like in a LIBOR market model)
  * of local volatility models.
@@ -45,7 +45,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public interface AbstractModelInterface {
+public interface ProcessModel {
 
 	/**
 	 * Returns the model's date corresponding to the time discretization's \( t = 0 \).
@@ -161,7 +161,7 @@ public interface AbstractModelInterface {
 	 *
 	 * @param process The process.
 	 */
-	void setProcess(AbstractProcessInterface process);
+	void setProcess(MonteCarloProcess process);
 
 	/**
 	 * Get the numerical scheme used to generate the stochastic process.
@@ -170,7 +170,7 @@ public interface AbstractModelInterface {
 	 *
 	 * @return the process
 	 */
-	AbstractProcessInterface getProcess();
+	MonteCarloProcess getProcess();
 
 	/**
 	 * Returns a clone of this model where the specified properties have been modified.
@@ -183,5 +183,5 @@ public interface AbstractModelInterface {
 	 * @return A clone of this model (or this model if no parameter was modified).
 	 * @throws CalculationException Thrown when the model could not be created.
 	 */
-	AbstractModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+	ProcessModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

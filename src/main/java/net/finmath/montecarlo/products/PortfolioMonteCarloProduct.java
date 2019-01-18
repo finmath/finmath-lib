@@ -16,7 +16,8 @@ import java.util.concurrent.Future;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
+import net.finmath.montecarlo.MonteCarloProduct;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -28,7 +29,7 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 
-	private AbstractMonteCarloProduct[] products;
+	private MonteCarloProduct[] products;
 	private double weights[];
 
 	/**
@@ -36,7 +37,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 *
 	 * @param products An array of products.
 	 */
-	public PortfolioMonteCarloProduct(AbstractMonteCarloProduct[] products) {
+	public PortfolioMonteCarloProduct(MonteCarloProduct[] products) {
 		this(products, weightsOfOne(products.length));
 	}
 
@@ -48,7 +49,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 * @param weights An array of weights.
 	 */
 	public PortfolioMonteCarloProduct(
-			AbstractMonteCarloProduct[] products,
+			MonteCarloProduct[] products,
 			double[] weights) {
 		super();
 		this.products = products;
@@ -68,7 +69,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
 
 		if(products == null || products.length == 0) {
 			return null;
@@ -82,7 +83,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 			// Start calculation threads for each product
 			Vector<Future<RandomVariable>> values = new Vector<>(products.length);
 			for(int i=0; i<products.length; i++) {
-				final AbstractMonteCarloProduct product = products[i];
+				final MonteCarloProduct product = products[i];
 				final double weight = weights[i];
 
 				Callable<RandomVariable> worker = new  Callable<RandomVariable>() {

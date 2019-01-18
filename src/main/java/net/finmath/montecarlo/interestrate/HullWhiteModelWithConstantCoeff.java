@@ -14,8 +14,8 @@ import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -30,7 +30,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LIBORModelInterface {
+public class HullWhiteModelWithConstantCoeff extends AbstractProcessModel implements LIBORModel {
 
 	private final TimeDiscretization		liborPeriodDiscretization;
 
@@ -46,14 +46,14 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 
 	// Cache for the numeraires, needs to be invalidated if process changes
 	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
-	private AbstractProcessInterface									numerairesProcess = null;
+	private MonteCarloProcess									numerairesProcess = null;
 
 
 	// Initialized lazily using process time discretization
 	private RandomVariable[] initialState;
 
 	/**
-	 * Creates a Hull-White model which implements <code>LIBORMarketModelInterface</code>.
+	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.
 	 *
 	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
 	 * @param analyticModel The analytic model to be used (currently not used, may be null).
@@ -214,7 +214,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
@@ -279,7 +279,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractModel implements LI
 	}
 
 	@Override
-	public LIBORMarketModelInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public LIBORMarketModel getCloneWithModifiedData(Map<String, Object> dataModified) {
 		throw new UnsupportedOperationException();
 	}
 

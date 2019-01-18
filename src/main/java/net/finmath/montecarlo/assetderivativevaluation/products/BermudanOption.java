@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
@@ -111,7 +111,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	 *
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		if(this.exerciseMethod == ExerciseMethod.UPPER_BOUND_METHOD) {
 			// Find optimal lambda
 			GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);
@@ -127,7 +127,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		}
 	}
 
-	private RandomVariable getValues(double evaluationTime, AssetModelMonteCarloSimulationInterface model, double lambda) throws CalculationException {
+	private RandomVariable getValues(double evaluationTime, AssetModelMonteCarloSimulationModel model, double lambda) throws CalculationException {
 		/*
 		 * We are going backward in time (note that this bears the risk of an foresight bias).
 		 * We store the value of the option, if not exercised in a vector. Is is not allowed to used the specific entry in this vector

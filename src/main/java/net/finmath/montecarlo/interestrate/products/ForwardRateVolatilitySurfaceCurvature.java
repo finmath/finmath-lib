@@ -6,10 +6,10 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceModel;
-import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariable;
  *
  * <br>
  *
- * The value returned by the <code>{@link #getValue(double, LIBORModelMonteCarloSimulationInterface)}</code> method is calculated as follows:
+ * The value returned by the <code>{@link #getValue(double, LIBORModelMonteCarloSimulationModel)}</code> method is calculated as follows:
  * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
  * <center>
  * \[	\sqrt{ \frac{1}{t_{n} - t_{1}} \sum_{i=1}^{n-1} ( f(t_{i}) )^{2} \cdot (t_{i+1} - t_{i}) } \]
@@ -98,12 +98,12 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
-		AbstractModelInterface modelBase = model.getModel();
-		if(modelBase instanceof LIBORMarketModelInterface) {
-			return getValues(evaluationTime, (LIBORMarketModelInterface)modelBase);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) {
+		ProcessModel modelBase = model.getModel();
+		if(modelBase instanceof LIBORMarketModel) {
+			return getValues(evaluationTime, (LIBORMarketModel)modelBase);
 		} else {
-			throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModelInterface.");
+			throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModel.");
 		}
 	}
 
@@ -111,10 +111,10 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 	 * Calculates the squared curvature of the LIBOR instantaneous variance.
 	 *
 	 * @param evaluationTime Time at which the product is evaluated.
-	 * @param model A model implementing the LIBORModelMonteCarloSimulationInterface
+	 * @param model A model implementing the LIBORModelMonteCarloSimulationModel
 	 * @return The squared curvature of the LIBOR instantaneous variance (reduced a possible tolerance). The return value is &ge; 0.
 	 */
-	public RandomVariable getValues(double evaluationTime, LIBORMarketModelInterface model) {
+	public RandomVariable getValues(double evaluationTime, LIBORMarketModel model) {
 		if(evaluationTime > 0) {
 			throw new RuntimeException("Forward start evaluation currently not supported.");
 		}

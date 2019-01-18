@@ -8,7 +8,7 @@ package net.finmath.modelling;
  * @param <T> An interface extending the <code>ProductDescriptor</code> interface, being rich enough to describe the product implementing this interface.
  * @version 1.0
  */
-public interface DescribedProduct<T extends ProductDescriptor> extends ProductInterface {
+public interface DescribedProduct<T extends ProductDescriptor> extends Product {
 
 	/**
 	 * Return a product descriptor representing this product.
@@ -16,5 +16,4 @@ public interface DescribedProduct<T extends ProductDescriptor> extends ProductIn
 	 * @return The product descriptor of this product.
 	 */
 	T getDescriptor();
-
 }

@@ -19,7 +19,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.Product;
 import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
@@ -82,7 +82,7 @@ public class HestonModelDescriptorTest {
 		DescribedModel<?> hestonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		ProductInterface europeanOptionFourier = hestonModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
+		Product europeanOptionFourier = hestonModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
 
 		// Evaluate product
 		double evaluationTime = 0.0;
@@ -102,7 +102,7 @@ public class HestonModelDescriptorTest {
 		DescribedModel<?> hestonModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFactory, brownianMotion, Scheme.FULL_TRUNCATION)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		ProductInterface europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
+		Product europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
 		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 

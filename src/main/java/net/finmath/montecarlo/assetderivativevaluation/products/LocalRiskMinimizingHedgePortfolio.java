@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -32,7 +32,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 
 	// Model assumptions for the hedge
 	private final AbstractAssetMonteCarloProduct productToHedge;
-	private final AssetModelMonteCarloSimulationInterface modelUsedForHedging;
+	private final AssetModelMonteCarloSimulationModel modelUsedForHedging;
 
 	private final TimeDiscretization timeDiscretizationForRebalancing;
 
@@ -47,7 +47,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	 * @param numberOfBins The number of bins to use in the estimation of the conditional expectation.
 	 */
 	public LocalRiskMinimizingHedgePortfolio(AbstractAssetMonteCarloProduct productToHedge,
-			AssetModelMonteCarloSimulationInterface modelUsedForHedging,
+			AssetModelMonteCarloSimulationModel modelUsedForHedging,
 			TimeDiscretization timeDiscretizationForRebalancing,
 			int numberOfBins) {
 		super();
@@ -58,7 +58,7 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ask the model for its discretization
 		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);

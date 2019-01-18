@@ -23,7 +23,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceM
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
-import net.finmath.montecarlo.model.AbstractModel;
+import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.Schedule;
@@ -40,7 +40,7 @@ import net.finmath.time.TimeDiscretization;
  * <br>
  * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i>
  * <br>
- * see {@link net.finmath.montecarlo.model.AbstractModelInterface} for details on the implemented interface.
+ * see {@link net.finmath.montecarlo.model.ProcessModel} for details on the implemented interface.
  * <br>
  * The model uses an <code>AbstractLIBORCovarianceModel</code> for the specification of <i>(&lambda;<sub>1,j</sub>,...,&lambda;<sub>m,j</sub>)</i> as a covariance model,
  * which may have the ability to calibrate to swaptions.
@@ -50,7 +50,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.1
  */
-public class LIBORMarketModelStandard extends AbstractModel implements LIBORMarketModelInterface {
+public class LIBORMarketModelStandard extends AbstractProcessModel implements LIBORMarketModel {
 
 	private static final boolean isUseAnalyticApproximation;
 	static {
@@ -434,7 +434,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.AbstractModelInterface#getRandomVariableForConstant(double)
+	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
@@ -562,7 +562,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getNumberOfLibors()
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getNumberOfLibors()
 	 */
 	@Override
 	public int getNumberOfLibors()
@@ -572,7 +572,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriod(int)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getLiborPeriod(int)
 	 */
 	@Override
 	public double getLiborPeriod(int timeIndex) {
@@ -583,7 +583,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriodIndex(double)
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getLiborPeriodIndex(double)
 	 */
 	@Override
 	public int getLiborPeriodIndex(double time) {
@@ -591,7 +591,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getLiborPeriodDiscretization()
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getLiborPeriodDiscretization()
 	 */
 	@Override
 	public TimeDiscretization getLiborPeriodDiscretization() {
@@ -740,7 +740,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getIntegratedLIBORCovariance()
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getIntegratedLIBORCovariance()
 	 */
 	@Override
 	public synchronized double[][][] getIntegratedLIBORCovariance() {
@@ -820,7 +820,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 	}
 
 	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModelInterface#getCovarianceModel()
+	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getCovarianceModel()
 	 */
 	@Override
 	public AbstractLIBORCovarianceModel getCovarianceModel() {

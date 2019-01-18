@@ -7,17 +7,17 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * Base calls for product that need an AbstractLIBORMarketModel as base class
+ * Base class for products requiring an AssetModelMonteCarloSimulationModel for valuation.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloProduct {
+public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloProduct implements AssetMonteCarloProduct {
 
 	/**
 	 *
@@ -26,18 +26,19 @@ public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloP
 		super();
 	}
 
-	public abstract RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationInterface model) throws CalculationException;
+	@Override
+	public abstract RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException;
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationInterface model) throws CalculationException {
-		// This product requires an AssetModelMonteCarloSimulationInterface model, otherwise there will be a class cast exception
-		if(model instanceof AssetModelMonteCarloSimulationInterface) {
-			return getValue(evaluationTime, (AssetModelMonteCarloSimulationInterface)model);
+	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
+		// This product requires an AssetModelMonteCarloSimulationModel model, otherwise there will be a class cast exception
+		if(model instanceof AssetModelMonteCarloSimulationModel) {
+			return getValue(evaluationTime, (AssetModelMonteCarloSimulationModel)model);
 		}
 		else {
 			throw new IllegalArgumentException("The product " + this.getClass()
 			+ " cannot be valued against a model " + model.getClass() + "."
-			+ "It requires a model of type " + AssetModelMonteCarloSimulationInterface.class + ".");
+			+ "It requires a model of type " + AssetModelMonteCarloSimulationModel.class + ".");
 		}
 	}
 }

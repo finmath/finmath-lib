@@ -4,7 +4,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
-import net.finmath.montecarlo.interestrate.HullWhiteModelInterface;
+import net.finmath.montecarlo.interestrate.ShortRateModel;
 
 /**
  * Interface for covariance models which may perform a calibration by providing the corresponding <code>getCloneCalibrated</code>-method.
@@ -32,7 +32,7 @@ public interface ShortRateVolatilityModelCalibrateable extends ShortRateVolatili
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
-	ShortRateVolatilityModelCalibrateable getCloneCalibrated(HullWhiteModelInterface calibrationModel,
+	ShortRateVolatilityModelCalibrateable getCloneCalibrated(ShortRateModel calibrationModel,
 			CalibrationProduct[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException;
 
 }

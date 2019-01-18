@@ -16,10 +16,10 @@ import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
-import net.finmath.montecarlo.model.AbstractModel;
-import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 
 /**
  * @author Christian Fries
@@ -47,7 +47,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 		 * We build the class implementing DescribedModel<BlackScholesModelDescriptor> as an inner class.
 		 * For larger applications this should be a dedicated class file.
 		 */
-		AbstractModel model = new net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves(
+		AbstractProcessModel model = new net.finmath.montecarlo.assetderivativevaluation.BlackScholesModelWithCurves(
 				modelDescriptor.getInitialValue(),
 				modelDescriptor.getDiscountCurveForForwardRate(),
 				modelDescriptor.getVolatility(),
@@ -59,7 +59,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 
 			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
 
-			BlackScholesMonteCarloModel(AbstractModelInterface model, AbstractProcessInterface process) {
+			BlackScholesMonteCarloModel(ProcessModel model, MonteCarloProcess process) {
 				super(model, process);
 			}
 
@@ -80,7 +80,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 			}
 		}
 
-		return new BlackScholesMonteCarloModel(model, new ProcessEulerScheme(brownianMotion));
+		return new BlackScholesMonteCarloModel(model, new EulerSchemeFromProcessModel(brownianMotion));
 	}
 
 }

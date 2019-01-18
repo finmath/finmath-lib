@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
@@ -26,7 +26,7 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 
-	private AbstractLIBORMonteCarloProduct option;
+	private TermStructureMonteCarloProduct option;
 
 	/**
 	 * @param exerciseDate The exercise date
@@ -91,7 +91,7 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 	 * @throws CalculationException Thrown when valuation fails from valuation model.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable	values	= 	option.getValue(evaluationTime, model);
 
 		return values;

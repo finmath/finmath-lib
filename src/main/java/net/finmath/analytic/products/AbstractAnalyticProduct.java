@@ -7,7 +7,7 @@
 package net.finmath.analytic.products;
 
 import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.Model;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -21,7 +21,7 @@ public abstract class AbstractAnalyticProduct implements AnalyticProductInterfac
 	 * @see net.finmath.marketdata.products.ProductInterface#getValue(double, net.finmath.marketdata.products.ModelInterface)
 	 */
 	@Override
-	public Object getValue(double evaluationTime, ModelInterface model) {
+	public Object getValue(double evaluationTime, Model model) {
 		throw new IllegalArgumentException("The product " + this.getClass()
 		+ " cannot be valued against a model " + model.getClass() + "."
 		+ "It requires a model of type " + AnalyticModelInterface.class + ".");

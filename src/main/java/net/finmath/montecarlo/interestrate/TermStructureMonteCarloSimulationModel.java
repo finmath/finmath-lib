@@ -9,9 +9,9 @@ package net.finmath.montecarlo.interestrate;
 import java.time.LocalDateTime;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.MonteCarloSimulationInterface;
-import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 
@@ -20,7 +20,7 @@ import net.finmath.time.FloatingpointDate;
  *
  * @version 1.0
  */
-public interface TermStructureModelMonteCarloSimulationInterface extends MonteCarloSimulationInterface {
+public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimulationModel {
 
 	/**
 	 * Return the forward rate for a given simulation time and a given period start and period end.
@@ -80,11 +80,11 @@ public interface TermStructureModelMonteCarloSimulationInterface extends MonteCa
 	 *
 	 * @return The underlying model
 	 */
-	AbstractModelInterface getModel();
+	ProcessModel getModel();
 
 	/**
 	 * @return The implementation of the process
 	 */
-	AbstractProcessInterface getProcess();
+	MonteCarloProcess getProcess();
 
 }

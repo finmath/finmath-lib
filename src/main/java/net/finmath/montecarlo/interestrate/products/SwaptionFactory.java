@@ -22,7 +22,7 @@ public class SwaptionFactory {
 	private SwaptionFactory() {
 	}
 
-	public static AbstractLIBORMonteCarloProduct createSwaption(String className, double swaprate, TimeDiscretization swapTenor, String valueUnitAsString) {
+	public static TermStructureMonteCarloProduct createSwaption(String className, double swaprate, TimeDiscretization swapTenor, String valueUnitAsString) {
 
 		if(className.equals("SwaptionAnalyticApproximation")) {
 			SwaptionAnalyticApproximation.ValueUnit valueUnit = SwaptionAnalyticApproximation.ValueUnit.valueOf(valueUnitAsString);

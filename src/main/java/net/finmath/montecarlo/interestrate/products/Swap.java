@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariable;
@@ -28,8 +28,8 @@ import net.finmath.time.Schedule;
  */
 public class Swap extends AbstractLIBORMonteCarloProduct {
 
-	private final AbstractLIBORMonteCarloProduct legReceiver;
-	private final AbstractLIBORMonteCarloProduct legPayer;
+	private final TermStructureMonteCarloProduct legReceiver;
+	private final TermStructureMonteCarloProduct legPayer;
 
 	/**
 	 * Create a swap which values as <code>legReceiver - legPayer</code>.
@@ -37,7 +37,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payer leg.
 	 */
-	public Swap(AbstractLIBORMonteCarloProduct legReceiver, AbstractLIBORMonteCarloProduct legPayer) {
+	public Swap(TermStructureMonteCarloProduct legReceiver, TermStructureMonteCarloProduct legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;
@@ -84,7 +84,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable value = legReceiver.getValue(evaluationTime, model);
 		if(legPayer != null) {
 			value = value.sub(legPayer.getValue(evaluationTime, model));

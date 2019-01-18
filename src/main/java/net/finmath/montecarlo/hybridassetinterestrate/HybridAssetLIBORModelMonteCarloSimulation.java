@@ -12,18 +12,18 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.TermStructureModelInterface;
-import net.finmath.montecarlo.process.AbstractProcessInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
  * An Equity Hybrid LIBOR Market Model composed of an object implementing
- * <code>LIBORModelMonteCarloSimulationInterface</code> providing the interest
+ * <code>LIBORModelMonteCarloSimulationModel</code> providing the interest
  * rate simulation and the numeraire and an object implementing
- * <code>AssetModelMonteCarloSimulationInterface</code> providing the
+ * <code>AssetModelMonteCarloSimulationModel</code> providing the
  * asset simulation.
  *
  * <b>The interest rate model needs to be in spot measure.</b>
@@ -33,26 +33,26 @@ import net.finmath.time.TimeDiscretization;
  */
 public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIBORModelMonteCarloSimulationInterface {
 
-	private LIBORModelMonteCarloSimulationInterface	liborSimulation;
-	private AssetModelMonteCarloSimulationInterface	assetSimulation;
+	private LIBORModelMonteCarloSimulationModel	liborSimulation;
+	private AssetModelMonteCarloSimulationModel	assetSimulation;
 	private DiscountCurveInterface					discountCurve;
 
 	/**
 	 * Create an Equity Hybrid LIBOR Market Model composed of an object implementing
-	 * <code>LIBORModelMonteCarloSimulationInterface</code> providing the interest
+	 * <code>LIBORModelMonteCarloSimulationModel</code> providing the interest
 	 * rate simulation and the numeraire and an object implementing
-	 * <code>AssetModelMonteCarloSimulationInterface</code> providing the
+	 * <code>AssetModelMonteCarloSimulationModel</code> providing the
 	 * asset simulation.
 	 *
 	 * The interest rate model needs to be in spot measure.
 	 *
-	 * @param liborSimulation An object implementing <code>LIBORModelMonteCarloSimulationInterface</code> providing the interest rate simulation and the numeraire.
-	 * @param assetSimulation An object implementing <code>AssetModelMonteCarloSimulationInterface</code> providing the asset simulation.
+	 * @param liborSimulation An object implementing <code>LIBORModelMonteCarloSimulationModel</code> providing the interest rate simulation and the numeraire.
+	 * @param assetSimulation An object implementing <code>AssetModelMonteCarloSimulationModel</code> providing the asset simulation.
 	 * @param discountCurve An optional object implementing <code>DiscountCurveInterface</code> to adjust the numeraire for a deterministic discounting spread.
 	 */
 	public HybridAssetLIBORModelMonteCarloSimulation(
-			LIBORModelMonteCarloSimulationInterface liborSimulation,
-			AssetModelMonteCarloSimulationInterface assetSimulation,
+			LIBORModelMonteCarloSimulationModel liborSimulation,
+			AssetModelMonteCarloSimulationModel assetSimulation,
 			DiscountCurveInterface discountCurve) {
 		super();
 		this.liborSimulation = liborSimulation;
@@ -65,8 +65,8 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	public HybridAssetLIBORModelMonteCarloSimulation(
-			LIBORModelMonteCarloSimulationInterface liborSimulation,
-			AssetModelMonteCarloSimulationInterface assetSimulation) {
+			LIBORModelMonteCarloSimulationModel liborSimulation,
+			AssetModelMonteCarloSimulationModel assetSimulation) {
 		this(liborSimulation, assetSimulation, null);
 	}
 
@@ -182,18 +182,18 @@ public class HybridAssetLIBORModelMonteCarloSimulation implements HybridAssetLIB
 	}
 
 	@Override
-	public TermStructureModelInterface getModel() {
+	public TermStructureModel getModel() {
 		return liborSimulation.getModel();
 	}
 
 	@Override
-	public AbstractProcessInterface getProcess() {
+	public MonteCarloProcess getProcess() {
 		return liborSimulation.getProcess();
 	}
 
 	/**
 	 * @deprecated
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface#getCloneWithModifiedSeed(int)
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel#getCloneWithModifiedSeed(int)
 	 */
 	@Override
 	@Deprecated

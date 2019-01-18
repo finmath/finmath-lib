@@ -6,13 +6,13 @@
 
 package net.finmath.montecarlo.hybridassetinterestrate;
 
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 
 /**
  * @author Christian Fries
  * @version 1.0
  */
-public interface HybridAssetLIBORModelMonteCarloSimulationInterface extends LIBORModelMonteCarloSimulationInterface, AssetModelMonteCarloSimulationInterface
+public interface HybridAssetLIBORModelMonteCarloSimulationInterface extends LIBORModelMonteCarloSimulationModel, AssetModelMonteCarloSimulationModel
 {
 }

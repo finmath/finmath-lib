@@ -1,5 +1,5 @@
 /**
- * Products which may be valued using an <code>AssetModelMonteCarloSimulationInterface</code>.
+ * Products which may be valued using an <code>AssetModelMonteCarloSimulationModel</code>.
  *
  * @author Christian Fries
  */

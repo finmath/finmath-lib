@@ -39,7 +39,7 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 
@@ -280,7 +280,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		this.isVerbose = isVerbose;
 	}
 
-	public LIBORModelMonteCarloSimulationInterface createLIBORMarketModel(
+	public LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
 			AbstractRandomVariableFactory randomVariableFactoryInitialValue,
 			AbstractRandomVariableFactory randomVariableFactoryVolatility,
 			int numberOfPaths, int numberOfFactors, double correlationDecayParam,
@@ -371,10 +371,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		Map<String, Object> properties = new HashMap<String, Object>();
 
 		// Choose the simulation measure
-		properties.put("measure", LIBORMarketModel.Measure.SPOT.name());
+		properties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.SPOT.name());
 
 		// Choose log normal model
-		properties.put("stateSpace", LIBORMarketModel.StateSpace.NORMAL.name());
+		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.NORMAL.name());
 
 		// Current the calculation of delta with AAD requires that we disable liborCap (on enable retaining of all AAD nodes)
 		properties.put("liborCap", Double.POSITIVE_INFINITY);
@@ -387,13 +387,13 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 		//		DiscountCurveFromForwardCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 		DiscountCurveFromForwardCurve discountCurve = null;
-		LIBORMarketModelInterface liborMarketModel = new LIBORMarketModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null, forwardCurve, discountCurve, randomVariableFactoryInitialValue, covarianceModel, calibrationItems, properties);
 
 		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, seed);
 
-		ProcessEulerScheme process = new ProcessEulerScheme(brownianMotion, ProcessEulerScheme.Scheme.EULER);
+		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
-		return new LIBORModelMonteCarloSimulation(liborMarketModel, process);
+		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
 
 	/**
@@ -424,7 +424,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		// Create a libor market model
 		AbstractRandomVariableFactory randomVariableFactoryInitialValue = new RandomVariableFactory();
 		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableDifferentiableAADFactory();
-		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryVolatility, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModel = createLIBORMarketModel(randomVariableFactoryVolatility, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				Optional.empty(), 0.0, bucketVegaTimeIndex, 0, 0.0);
 
 		/*
@@ -487,7 +487,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 * Test valuation
 		 */
 
-		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				Optional.empty(), 0.0, 0, 0, 0.0);
 
 		long timingCalculation2Start = System.currentTimeMillis();
@@ -506,11 +506,11 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		long timingCalculation3Start = System.currentTimeMillis();
 
-		LIBORModelMonteCarloSimulationInterface liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				Optional.empty(), 0.0, bucketVegaTimeIndex, bucketVegaLIBORIndex, -bucketShift);
 		double valueSimulationDown = product.getValue(liborMarketModelDnShift);
 
-		LIBORModelMonteCarloSimulationInterface liborMarketModelUpShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModelUpShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				Optional.empty(), 0.0, bucketVegaTimeIndex, bucketVegaLIBORIndex, bucketShift);
 		double valueSimulationUp = product.getValue(liborMarketModelUpShift);
 
@@ -569,7 +569,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		AbstractRandomVariableFactory randomVariableFactoryInitialValue = randomVariableFactoryAAD;
 		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableFactory();
-		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, Optional.empty(), 0.0, 0, 0, 0.0);
+		LIBORModelMonteCarloSimulationModel liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, Optional.empty(), 0.0, 0, 0, 0.0);
 
 		/*
 		 * Test valuation
@@ -628,7 +628,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 * Test valuation
 		 */
 
-		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				Optional.empty(), 0.0, 0, 0, 0);
 
 		long timingCalculation2Start = System.currentTimeMillis();
@@ -647,11 +647,11 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		long timingCalculation3Start = System.currentTimeMillis();
 
-		LIBORModelMonteCarloSimulationInterface liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModelDnShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				bucketDeltaLIBORIndex, -bucketShift, 0, 0, 0.0);
 		double valueSimulationDown = product.getValue(liborMarketModelDnShift);
 
-		LIBORModelMonteCarloSimulationInterface liborMarketModelUpShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModelUpShift = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				bucketDeltaLIBORIndex, bucketShift, 0, 0, 0.0);
 		double valueSimulationUp = product.getValue(liborMarketModelUpShift);
 
@@ -728,7 +728,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		AbstractRandomVariableFactory randomVariableFactoryInitialValue = randomVariableFactoryAAD;
 		AbstractRandomVariableFactory randomVariableFactoryVolatility = new RandomVariableFactory();
-		LIBORModelMonteCarloSimulationInterface liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, Optional.empty(), 0.0, 0, 0, 0.0);
+		LIBORModelMonteCarloSimulationModel liborMarketModel = createLIBORMarketModel(randomVariableFactoryInitialValue, randomVariableFactoryVolatility,  numberOfPaths, numberOfFactors, 0.0 /* Correlation */, Optional.empty(), 0.0, 0, 0, 0.0);
 
 		/*
 		 * Test valuation
@@ -790,7 +790,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 * Test valuation
 		 */
 
-		LIBORModelMonteCarloSimulationInterface liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
+		LIBORModelMonteCarloSimulationModel liborMarketModelPlain = createLIBORMarketModel(new RandomVariableFactory(), new RandomVariableFactory(),  numberOfPaths, numberOfFactors, 0.0 /* Correlation */,
 				Optional.empty(), 0.0, 0, 0, 0);
 
 		long timingCalculation2Start = System.currentTimeMillis();
@@ -841,7 +841,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				double optionMaturity = 5.0;
 				double optionStrike = forward;
 
-				double integratedVariance = ((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
+				double integratedVariance = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
 				double volatility = Math.sqrt(integratedVariance/optionMaturity);
 				double periodLength = 0.5;
 				double discountFactor = liborMarketModel.getNumeraire(optionMaturity+periodLength).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();
@@ -864,7 +864,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				double optionMaturity = 10.0;
 				double optionStrike = forward;
 
-				double integratedVariance = ((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
+				double integratedVariance = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
 				double volatility = Math.sqrt(integratedVariance/optionMaturity);
 				double periodLength = 0.5;
 				double discountFactor = liborMarketModel.getNumeraire(optionMaturity+periodLength).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();

@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -57,7 +57,7 @@ public class DateIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double fixingTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double fixingTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate()
 				.plusDays((int)Math.round(fixingTime*365));
 

@@ -14,9 +14,9 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
-import net.finmath.montecarlo.model.AbstractModelInterface;
-import net.finmath.montecarlo.process.AbstractProcess;
-import net.finmath.montecarlo.process.ProcessEulerScheme;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
 
@@ -52,13 +52,13 @@ public class DisplacedLognomalModelTest {
 		// Create a brownianMotion
 		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
-		AssetModelMonteCarloSimulationInterface monteCarloDisplacedModel;
+		AssetModelMonteCarloSimulationModel monteCarloDisplacedModel;
 		{
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(brownianMotion);
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			AbstractModelInterface displacedModel2 = new InhomogeneousDisplacedLognomalModel(initialValue, riskFreeRate, displacement, volatility);
+			ProcessModel displacedModel2 = new InhomogeneousDisplacedLognomalModel(initialValue, riskFreeRate, displacement, volatility);
 
 			monteCarloDisplacedModel = new MonteCarloAssetModel(displacedModel2, process);
 		}
@@ -76,24 +76,24 @@ public class DisplacedLognomalModelTest {
 		 * 	a = 1/(1+d)
 		 */
 		double alpha = 1/(1+displacement);
-		AssetModelMonteCarloSimulationInterface monteCarloBlackScholesModel;
+		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 		{
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(brownianMotion);
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			AbstractModelInterface blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+			ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(blackScholesModel, process);
 		}
 
-		AssetModelMonteCarloSimulationInterface monteCarloBachelierModel;
+		AssetModelMonteCarloSimulationModel monteCarloBachelierModel;
 		{
 			// Create a corresponding MC process
-			AbstractProcess process = new ProcessEulerScheme(brownianMotion);
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			AbstractModelInterface bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility*displacement);
+			ProcessModel bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility*displacement);
 
 			monteCarloBachelierModel = new MonteCarloAssetModel(bachelierModel, process);
 		}

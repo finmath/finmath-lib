@@ -15,7 +15,7 @@ import net.finmath.finitedifference.products.FDMEuropeanCallOption;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
-import net.finmath.modelling.ModelInterface;
+import net.finmath.modelling.Model;
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
@@ -75,12 +75,12 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 						}
 
 						@Override
-						public Object getValue(double evaluationTime, ModelInterface model) {
+						public Object getValue(double evaluationTime, Model model) {
 							return getValues(evaluationTime, model);
 						}
 
 						@Override
-						public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+						public Map<String, Object> getValues(double evaluationTime, Model model) {
 							double[][] valueFDM = this.getValue(0.0, (FiniteDifference1DModel)model);
 							double[] initialStockPrice = valueFDM[0];
 							double[] optionValue = valueFDM[1];

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
 import net.finmath.montecarlo.interestrate.products.components.AccruingNotional;
@@ -169,7 +169,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return components.getValue(evaluationTime, model);
 	}
 

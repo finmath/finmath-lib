@@ -17,10 +17,10 @@ import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
-import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
-import net.finmath.montecarlo.model.AbstractModelInterface;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.TimeDiscretization;
@@ -108,12 +108,12 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationInterface model) {
-		AbstractModelInterface modelBase = model.getModel();
-		if(modelBase instanceof LIBORMarketModelInterface) {
-			return getValues(evaluationTime, (LIBORMarketModelInterface)modelBase);
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) {
+		ProcessModel modelBase = model.getModel();
+		if(modelBase instanceof LIBORMarketModel) {
+			return getValues(evaluationTime, (LIBORMarketModel)modelBase);
 		} else {
-			throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModelInterface.");
+			throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModel.");
 		}
 	}
 
@@ -122,13 +122,13 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 	 * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
 	 *
 	 * @param evaluationTime Time at which the product is evaluated.
-	 * @param model A model implementing the LIBORModelMonteCarloSimulationInterface
+	 * @param model A model implementing the LIBORModelMonteCarloSimulationModel
 	 * @return Depending on the value of value unit, the method returns either
 	 * the approximated integrated instantaneous variance of the swap rate (ValueUnit.INTEGRATEDVARIANCE)
 	 * or the value using the Black formula (ValueUnit.VALUE).
 	 * @TODO make initial values an arg and use evaluation time.
 	 */
-	public RandomVariable getValues(double evaluationTime, LIBORMarketModelInterface model) {
+	public RandomVariable getValues(double evaluationTime, LIBORMarketModel model) {
 		if(evaluationTime > 0) {
 			throw new RuntimeException("Forward start evaluation currently not supported.");
 		}
@@ -290,7 +290,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 		}
 	}
 
-	public static double[][][] getIntegratedLIBORCovariance(LIBORMarketModel model) {
+	public static double[][][] getIntegratedLIBORCovariance(LIBORMarketModelFromCovarianceModel model) {
 		return model.getIntegratedLIBORCovariance();
 	}
 }

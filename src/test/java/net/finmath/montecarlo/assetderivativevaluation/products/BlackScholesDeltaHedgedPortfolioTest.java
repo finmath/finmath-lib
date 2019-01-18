@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -34,7 +34,7 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 	private final int		numberOfTimeSteps	= 100;
 	private final double	timeHorizon 		= 5;
 
-	private AssetModelMonteCarloSimulationInterface model = null;
+	private AssetModelMonteCarloSimulationModel model = null;
 
 	public BlackScholesDeltaHedgedPortfolioTest() {
 		super();
@@ -43,13 +43,13 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 		model = getModel();
 	}
 
-	public AssetModelMonteCarloSimulationInterface getModel()
+	public AssetModelMonteCarloSimulationModel getModel()
 	{
 		// Create the time discretization
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create an instance of a black scholes monte carlo model
-		AssetModelMonteCarloSimulationInterface model = new MonteCarloBlackScholesModel(
+		AssetModelMonteCarloSimulationModel model = new MonteCarloBlackScholesModel(
 				timeDiscretization,
 				numberOfPaths,
 				initialValue,

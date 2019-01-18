@@ -17,18 +17,18 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
 import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
 import net.finmath.integration.RealIntegral;
 import net.finmath.integration.SimpsonRealIntegrator;
-import net.finmath.modelling.ModelInterface;
-import net.finmath.modelling.ProductInterface;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
 
 /**
  * @author Christian Fries
  *
  * @version 1.0
  */
-public abstract class AbstractProductFourierTransform implements CharacteristicFunctionInterface, ProductInterface {
+public abstract class AbstractProductFourierTransform implements CharacteristicFunctionInterface, Product {
 
 	@Override
-	public Double getValue(double evaluationTime, ModelInterface model) {
+	public Double getValue(double evaluationTime, Model model) {
 		Double value = null;
 		try {
 			value = getValue((ProcessCharacteristicFunctionInterface) model);
@@ -39,7 +39,7 @@ public abstract class AbstractProductFourierTransform implements CharacteristicF
 	}
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, ModelInterface model) {
+	public Map<String, Object> getValues(double evaluationTime, Model model) {
 		Map<String, Object>  result = new HashMap<>();
 
 		try {
