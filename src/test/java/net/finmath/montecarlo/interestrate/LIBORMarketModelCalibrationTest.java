@@ -60,7 +60,7 @@ import net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelPiec
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.optimizer.OptimizerFactoryInterface;
+import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
@@ -252,7 +252,7 @@ public class LIBORMarketModelCalibrationTest {
 		Double accuracy = new Double(1E-5);
 		int maxIterations = 100;
 		int numberOfThreads = 4;		// two concurrent models
-		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 		calibrationParameters.put("optimizerFactory", optimizerFactory);
 
 		// Pass the calibrationParameters to the model.
@@ -471,7 +471,7 @@ public class LIBORMarketModelCalibrationTest {
 		Double accuracy = new Double(1E-6);	// Lower accuracy to reduce runtime of the unit test
 		int maxIterations = 100;
 		int numberOfThreads = 4;
-		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		double[] parameterStandardDeviation = new double[covarianceModelParametric.getParameter().length];
 		double[] parameterLowerBound = new double[covarianceModelParametric.getParameter().length];

@@ -16,7 +16,7 @@ import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.PointValuePair;
 
 import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
 
@@ -273,7 +273,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		guessParameters[3] = -Math.log(1.0/((guessDisplacement-lowerBoundDisplacement)/(upperBoundDisplacement-lowerBoundDisplacement))-1.0);
 
 		// Seek optimal parameter configuration
-		OptimizerInterface lm = new LevenbergMarquardt(guessParameters, new double[] { 1000 }, 10*maxIterations, 2) {
+		Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000 }, 10*maxIterations, 2) {
 			private static final long serialVersionUID = 8030873619034187741L;
 
 			@Override

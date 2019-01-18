@@ -66,9 +66,9 @@ import net.finmath.montecarlo.process.ProcessEulerScheme.Scheme;
 import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticLevenbergMarquardt.RegularizationMethod;
 import net.finmath.optimizer.StochasticLevenbergMarquardtAD;
-import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
-import net.finmath.optimizer.StochasticOptimizerInterface;
-import net.finmath.optimizer.StochasticOptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.StochasticOptimizerFactory;
+import net.finmath.optimizer.StochasticOptimizer;
+import net.finmath.optimizer.StochasticOptimizer.ObjectiveFunction;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.Schedule;
@@ -212,16 +212,16 @@ public class LIBORMarketModelCalibrationAADTest {
 		final int numberOfPaths 		= (int) 	testProperties.getOrDefault("numberOfPathsATM", (int)1E3);
 		final int seed 					= (int) 	testProperties.getOrDefault("seed", 1234);
 
-		StochasticOptimizerFactoryInterface optimizerFactory = (StochasticOptimizerFactoryInterface) testProperties.get("OptimizerFactory");
+		StochasticOptimizerFactory optimizerFactory = (StochasticOptimizerFactory) testProperties.get("OptimizerFactory");
 		Map<String, Object> optimizerProperties = new HashMap<>();
 		optimizerProperties.putAll(testProperties);
 		optimizerProperties.putIfAbsent("maxIterations", 	maxIterations);
 		optimizerProperties.putIfAbsent("maxRunTime", 		maxRunTimeInMillis);
 		optimizerProperties.putIfAbsent("errorTolerance", 	errorTolerance);
-		optimizerFactory = new StochasticOptimizerFactoryInterface()
+		optimizerFactory = new StochasticOptimizerFactory()
 		{
 			@Override
-			public StochasticOptimizerInterface getOptimizer(ObjectiveFunction objectiveFunction,
+			public StochasticOptimizer getOptimizer(ObjectiveFunction objectiveFunction,
 					RandomVariable[] initialParameters, RandomVariable[] lowerBound,
 					RandomVariable[] upperBound, RandomVariable[] parameterStep,
 					RandomVariable[] targetValues) {

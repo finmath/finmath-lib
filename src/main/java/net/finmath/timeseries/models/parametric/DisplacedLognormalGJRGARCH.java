@@ -17,7 +17,7 @@ import org.apache.commons.math3.optim.SimplePointChecker;
 import org.apache.commons.math3.random.MersenneTwister;
 
 import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
 import net.finmath.timeseries.TimeSeries;
@@ -244,7 +244,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 
 
 		// Seek optimal parameter configuration
-		OptimizerInterface lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations*100, 2) {
+		Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations*100, 2) {
 			private static final long serialVersionUID = -3791313169935939272L;
 
 			@Override

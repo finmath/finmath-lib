@@ -63,7 +63,7 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerFactoryInterface;
+import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
@@ -467,7 +467,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				Double accuracy = 1E-12;
 				int maxIterations = 400;
 				int numberOfThreads = 6;
-				OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+				OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 				double[] parameterStandardDeviation = new double[termStructureCovarianceModel.getParameter().length];
 				double[] parameterLowerBound = new double[termStructureCovarianceModel.getParameter().length];
@@ -538,7 +538,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			Double accuracy = new Double(1E-8);
 			int maxIterations = 400;
 			int numberOfThreads = 2;
-			OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+			OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 			double[] parameterStandardDeviation = new double[covarianceModelParametric.getParameter().length];
 			double[] parameterLowerBound = new double[covarianceModelParametric.getParameter().length];

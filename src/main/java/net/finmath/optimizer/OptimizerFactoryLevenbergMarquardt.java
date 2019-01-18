@@ -6,13 +6,13 @@
 
 package net.finmath.optimizer;
 
-import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.Optimizer.ObjectiveFunction;
 
 /**
  * @author Christian Fries
  * @version 1.0
  */
-public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInterface {
+public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactory {
 
 	private final LevenbergMarquardt.RegularizationMethod regularizationMethod;
 	private final int	maxIterations;
@@ -36,17 +36,17 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactoryInter
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, double[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, double[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, double[] initialParameters, double[] lowerBound,double[]  upperBound, double[] parameterSteps, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, double[] initialParameters, double[] lowerBound,double[]  upperBound, double[] parameterSteps, double[] targetValues) {
 		return (new LevenbergMarquardt(
 				regularizationMethod,
 				initialParameters,

@@ -9,8 +9,8 @@
 	Given that there are a variety of numerical libraries featuring optimization algorithms
 	(e.g., Apache Commons Math), why do we provide a package inside finmath lib?
 	This packages provides a unified interface for passing optimizers to other classes
-	via an <code>OptimizationFactoryInterface</code> and an <code>OptimizerInterface</code>
-	and an <code>OptimizerInterface.ObjectiveFunction</code>.
+	via an <code>OptimizationFactoryInterface</code> and an <code>Optimizer</code>
+	and an <code>Optimizer.ObjectiveFunction</code>.
 	This allows use of different optimization frameworks without bothering with the
 	framework specific constructors and framework specific definitions of objective functions.
 </p>
@@ -21,25 +21,25 @@
 	of the initial values and the objective function still open. It provides a factory
 	method which takes the objective function and initial values as parameters and
 	constructs the specific optimizer by returning an object implementing
-	<code>OptimizerInterface</code>.
+	<code>Optimizer</code>.
 </p>
 
 <b>Example</b>
 
 <p>
 
-The following code is an example of an optimization problem using an <code>OptimizerFactoryInterface</code>
+The following code is an example of an optimization problem using an <code>OptimizerFactory</code>
 as argument.
 <pre><code>
-	public void testOptimizerWithRosenbrockFunction(OptimizerFactoryInterface optimizerFactory) throws SolverException {
-		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
+	public void testOptimizerWithRosenbrockFunction(OptimizerFactory optimizerFactory) throws SolverException {
+		Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
 				public void setValues(double[] parameters, double[] values) {
 					values[0] = 10.0 * (parameters[1] - parameters[0]*parameters[0]);
 					values[1] = 1.0 - parameters[0];
 				}
 		};
 
-		OptimizerInterface optimizer = optimizerFactory.getOptimizer(
+		Optimizer optimizer = optimizerFactory.getOptimizer(
 				objectiveFunction,
 				new double[] { 0.5, 0.5 }, // initialParameters
 				new double[] { Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY }, // lowerBound
@@ -64,7 +64,7 @@ Now, we may pass different optimizers to the optimization problem. For example t
 <pre>
 	public void testRosenbrockFunctionWithCMAES() throws SolverException {
 
-		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryCMAES(0.0, 200);
+		OptimizerFactory optimizerFactory = new OptimizerFactoryCMAES(0.0, 200);
 		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
 </pre>
@@ -73,7 +73,7 @@ Or the multi-threadded Levenberg Marquardt solver (using two threads) from finma
 <pre>
 	public void testRosenbrockFunctionWithLevenbergMarquard() throws SolverException {
 
-		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(200, 2);
+		OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(200, 2);
 		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
 </pre>

@@ -22,7 +22,7 @@ import net.finmath.marketdata.calibration.ParameterTransformation;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModelInterface;
 import net.finmath.marketdata.products.AnalyticProductInterface;
-import net.finmath.optimizer.OptimizerFactoryInterface;
+import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.SolverException;
 
 /**
@@ -70,7 +70,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 	 * @return An object having the same type as this one, using (hopefully) calibrated parameters.
 	 * @throws SolverException Exception thrown when solver fails.
 	 */
-	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModelInterface calibrationModel, final Vector<AnalyticProductInterface> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation, OptimizerFactoryInterface optimizerFactory) throws SolverException {
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModelInterface calibrationModel, final Vector<AnalyticProductInterface> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation, OptimizerFactory optimizerFactory) throws SolverException {
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
 		}
@@ -78,7 +78,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		Double	evaluationTimeParameter		= (Double)calibrationParameters.get("evaluationTime");
 
-		// @TODO currently ignored, we use the setting form the OptimizerFactoryInterface
+		// @TODO currently ignored, we use the setting form the OptimizerFactory
 		int maxIterations		= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 600;
 		double accuracy			= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;
 		double evaluationTime	= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;

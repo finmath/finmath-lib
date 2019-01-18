@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 
 /**
@@ -78,7 +78,7 @@ public class CurveTest {
 		 */
 
 		// Define the objective function
-		OptimizerInterface optimizer = new LevenbergMarquardt(
+		Optimizer optimizer = new LevenbergMarquardt(
 				curve.getParameter()	/* initial parameters */,
 				givenValues				/* target values */,
 				100,					/* max iterations */

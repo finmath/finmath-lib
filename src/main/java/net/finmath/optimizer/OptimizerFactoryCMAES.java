@@ -9,14 +9,14 @@ package net.finmath.optimizer;
 import org.apache.commons.math3.optim.SimplePointChecker;
 import org.apache.commons.math3.random.MersenneTwister;
 
-import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.Optimizer.ObjectiveFunction;
 
 /**
  * @author Christian Fries
  *
  * @version 1.0
  */
-public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
+public class OptimizerFactoryCMAES implements OptimizerFactory {
 
 	private final double	accuracy;
 	private final int		maxIterations;
@@ -54,24 +54,24 @@ public class OptimizerFactoryCMAES implements OptimizerFactoryInterface {
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, double[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
 	@Override
-	public OptimizerInterface getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterStep, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterStep, double[] targetValues) {
 		final double[] values = new double[targetValues.length];
 		final double[] effectiveParameterLowerBound			= parameterLowerBound != null ? this.parameterLowerBound : lowerBound;
 		final double[] effectiveParameterUpperBound			= parameterUppderBound != null ? this.parameterUppderBound : upperBound;
 		final double[] effectiveParameterStandardDeviation	= parameterStandardDeviation != null ? this.parameterStandardDeviation : parameterStep;
 
 		// Throw exception if std dev is non null, but lower bound / upper bound are null.
-		return new OptimizerInterface() {
+		return new Optimizer() {
 
 			private org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer optimizer;
 			private org.apache.commons.math3.optim.PointValuePair result;

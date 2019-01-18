@@ -18,19 +18,19 @@ public class OptimizerFactoryTest {
 	@Test
 	public void testRosenbrockFunctionWithCMAES() throws SolverException {
 
-		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryCMAES(0.0 /* accuracy */, 200 /* maxIterations */);
+		OptimizerFactory optimizerFactory = new OptimizerFactoryCMAES(0.0 /* accuracy */, 200 /* maxIterations */);
 		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
 
 	@Test
 	public void testRosenbrockFunctionWithLevenbergMarquard() throws SolverException {
 
-		OptimizerFactoryInterface optimizerFactory = new OptimizerFactoryLevenbergMarquardt(200 /* maxIterations */, 2 /* maxThreads */);
+		OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(200 /* maxIterations */, 2 /* maxThreads */);
 		this.testOptimizerWithRosenbrockFunction(optimizerFactory);
 	}
 
-	public void testOptimizerWithRosenbrockFunction(OptimizerFactoryInterface optimizerFactory) throws SolverException {
-		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
+	public void testOptimizerWithRosenbrockFunction(OptimizerFactory optimizerFactory) throws SolverException {
+		Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
 			@Override
 			public void setValues(double[] parameters, double[] values) {
 				values[0] = 10.0 * (parameters[1] - parameters[0]*parameters[0]);
@@ -38,7 +38,7 @@ public class OptimizerFactoryTest {
 			}
 		};
 
-		OptimizerInterface optimizer = optimizerFactory.getOptimizer(
+		Optimizer optimizer = optimizerFactory.getOptimizer(
 				objectiveFunction,
 				new double[] { 0.5, 0.5 } /* initialParameters */,
 				new double[] { Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY } /* lowerBound */,

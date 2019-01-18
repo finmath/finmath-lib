@@ -29,8 +29,8 @@ import net.finmath.montecarlo.interestrate.modelplugins.AbstractLIBORCovarianceM
 import net.finmath.montecarlo.interestrate.modelplugins.LIBORCovarianceModelCalibrateable;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
 import net.finmath.optimizer.SolverException;
-import net.finmath.optimizer.StochasticOptimizerFactoryInterface;
-import net.finmath.optimizer.StochasticOptimizerInterface;
+import net.finmath.optimizer.StochasticOptimizerFactory;
+import net.finmath.optimizer.StochasticOptimizer;
 import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -150,7 +150,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
 		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
-		StochasticOptimizerInterface.ObjectiveFunction calibrationError = new StochasticOptimizerInterface.ObjectiveFunction() {
+		StochasticOptimizer.ObjectiveFunction calibrationError = new StochasticOptimizer.ObjectiveFunction() {
 			// Calculate model values for given parameters
 			@Override
 			public void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
@@ -218,8 +218,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		RandomVariable[] bestParameters;
 		int numberOfIterations;
 
-		if(optimizerFactory instanceof StochasticOptimizerFactoryInterface) {
-			StochasticOptimizerInterface optimizer = ((StochasticOptimizerFactoryInterface)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zerosForTargetValues);
+		if(optimizerFactory instanceof StochasticOptimizerFactory) {
+			StochasticOptimizer optimizer = ((StochasticOptimizerFactory)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zerosForTargetValues);
 			try {
 				optimizer.run();
 			}

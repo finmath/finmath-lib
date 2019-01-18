@@ -24,10 +24,10 @@ import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModelInterface;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulation;
 import net.finmath.montecarlo.process.ProcessEulerScheme;
-import net.finmath.optimizer.OptimizerFactoryInterface;
+import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
-import net.finmath.optimizer.OptimizerInterface.ObjectiveFunction;
+import net.finmath.optimizer.Optimizer;
+import net.finmath.optimizer.Optimizer.ObjectiveFunction;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -144,14 +144,14 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 * memory requirement is not the limiting factor.
 		 */
 		int numberOfThreads = 2;
-		OptimizerFactoryInterface optimizerFactoryParameter = (OptimizerFactoryInterface)calibrationParameters.get("optimizerFactory");
+		OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get("optimizerFactory");
 
 		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
 		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
-		OptimizerFactoryInterface optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
 		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
@@ -209,7 +209,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			}
 		};
 
-		OptimizerInterface optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
+		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
 		try {
 			optimizer.run();
 		}

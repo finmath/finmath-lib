@@ -16,7 +16,7 @@ import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.PointValuePair;
 
 import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 import net.finmath.timeseries.HistoricalSimulationModel;
 
@@ -233,7 +233,7 @@ public class GARCH implements HistoricalSimulationModel {
 		guessParameters[2] = -Math.log(-Math.log(guessMuema));
 
 		// Seek optimal parameter configuration
-		OptimizerInterface lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations, 2) {
+		Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations, 2) {
 			private static final long serialVersionUID = 611999941537812214L;
 
 			@Override

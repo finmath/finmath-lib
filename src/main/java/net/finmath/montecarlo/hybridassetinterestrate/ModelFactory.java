@@ -15,7 +15,7 @@ import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlack
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationInterface;
 import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 
 /**
@@ -70,7 +70,7 @@ public class ModelFactory {
 			final double[] volatilities,
 			final DiscountCurveInterface discountCurve) throws CalculationException {
 
-		OptimizerInterface optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
+		Optimizer optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
 			private static final long serialVersionUID = -9199565564991442848L;
 
 			@Override
