@@ -7,6 +7,7 @@
 package net.finmath.montecarlo.products;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -31,14 +32,28 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 
 	private MonteCarloProduct[] products;
 	private double weights[];
+	private final Optional<Integer> numberOfThreads;
 
 	/**
-	 * Create a portfolio of products, each product being of AbstractMonteCarloProduct type.
+	 * Create a portfolio of products, each product being of AbstractMonteCarloProduct type
+	 * and weighted with a given weight.
 	 *
 	 * @param products An array of products.
+	 * @param weights An array of weights.
+	 * @param numberOfThreads Number of parallel threads to used. Required to be > 0.
 	 */
-	public PortfolioMonteCarloProduct(MonteCarloProduct[] products) {
-		this(products, weightsOfOne(products.length));
+	public PortfolioMonteCarloProduct(
+			MonteCarloProduct[] products,
+			double[] weights,
+			Optional<Integer> numberOfThreads) {
+		super();
+		this.products = products;
+		this.weights = weights;
+		this.numberOfThreads = numberOfThreads;
+		
+		if(numberOfThreads.isPresent() && numberOfThreads.get() < 1) {
+			throw new IllegalArgumentException("The parameter numberOfThreads is required to be > 0 if present.");
+		}
 	}
 
 	/**
@@ -51,9 +66,16 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	public PortfolioMonteCarloProduct(
 			MonteCarloProduct[] products,
 			double[] weights) {
-		super();
-		this.products = products;
-		this.weights = weights;
+		this(products, weights, Optional.empty());
+	}
+
+	/**
+	 * Create a portfolio of products, each product being of AbstractMonteCarloProduct type.
+	 *
+	 * @param products An array of products.
+	 */
+	public PortfolioMonteCarloProduct(MonteCarloProduct[] products) {
+		this(products, weightsOfOne(products.length));
 	}
 
 	/**
@@ -75,8 +97,8 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 			return null;
 		}
 
-		int numberOfThreads = Runtime.getRuntime().availableProcessors();
-		ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+		int numberOfThreadsEffective = numberOfThreads.orElse(Runtime.getRuntime().availableProcessors());
+		ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsEffective);
 
 		RandomVariable value = null;
 		try {
@@ -100,10 +122,8 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 			for(int i=0; i<products.length; i++) {
 				value = value.add(values.get(i).get());
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CalculationException(e.getCause());
 		} finally {
 			executor.shutdown();
 		}
