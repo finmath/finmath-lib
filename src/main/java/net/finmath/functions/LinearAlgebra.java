@@ -67,7 +67,7 @@ public class LinearAlgebra {
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
-	 * using a standard Tikonov regularization, i.e., we solve in the least square sense
+	 * using a standard Tikhonov regularization, i.e., we solve in the least square sense
 	 *   A* x = b*
 	 * where A* = (A^T, lambda I)^T and b* = (b^T , 0)^T.
 	 * 
