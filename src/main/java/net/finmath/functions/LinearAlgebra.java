@@ -67,6 +67,44 @@ public class LinearAlgebra {
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
+	 * using a standard Tikonov regularization, i.e., we solve in the least square sense
+	 *   A* x = b*
+	 * where A* = (A^T, lambda I)^T and b* = (b^T , 0)^T.
+	 * 
+	 * @param matrixA The matrix A (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambbda) {
+		/*
+		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
+		 * And SVD is an alternative to this method.
+		 */
+		int rows = matrixA.length;
+		int cols = matrixA[0].length;
+		double[][] matrixRegularized = new double[rows+cols][cols];
+		double[] bRegularized = new double[rows+cols];
+		for(int i=0; i<rows; i++) {
+			for(int j=0; j<cols; j++) {
+				matrixRegularized[i][j] = matrixA[i][j];
+			}
+			bRegularized[i] = b[i];
+		}
+		for(int j=0; j<cols; j++) {
+			matrixRegularized[rows+j][j] = lambbda;
+		}
+
+		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
+		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * <ul>
+	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>b is an m - vector given as double[m],</li>
+	 * <li>x is an n - vector given as double[n],</li>
+	 * </ul>
 	 *
 	 * @param matrixA The matrix A (left hand side of the linear equation).
 	 * @param b The vector (right hand of the linear equation).
@@ -102,6 +140,39 @@ public class LinearAlgebra {
 		}
 	}
 
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * <ul>
+	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>b is an m - vector given as double[m],</li>
+	 * <li>x is an n - vector given as double[n],</li>
+	 * </ul>
+	 *
+	 * @param matrixA The matrix A (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquationSVD(double[][] matrixA, double[] b) {
+
+		if(isSolverUseApacheCommonsMath) {
+			Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
+
+			// Using SVD - very slow
+			DecompositionSolver solver = new SingularValueDecomposition(matrix).getSolver();
+
+			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
+		}
+		else {
+			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
+
+			// For use of colt:
+			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
+			// return linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
+
+			// For use of parallel colt:
+			// return new cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleLUDecomposition(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D(A)).solve(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D(b)).toArray();
+		}
+	}	
 	/**
 	 * Returns the inverse of a given matrix.
 	 *
