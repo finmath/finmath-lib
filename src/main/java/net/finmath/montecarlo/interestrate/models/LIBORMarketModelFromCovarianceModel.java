@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
@@ -1229,7 +1230,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	@Override
 	public Map<String, RandomVariable> getModelParameters() {
-		Map<String, RandomVariable> modelParameters = new HashMap<>();
+		Map<String, RandomVariable> modelParameters = new TreeMap<>();
 
 		// Add initial values
 		for(int liborIndex=0; liborIndex<getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborIndex++) {
