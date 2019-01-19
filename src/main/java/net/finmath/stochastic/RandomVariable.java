@@ -144,7 +144,8 @@ public interface RandomVariable extends Serializable {
 
 	/**
 	 * Returns the expectation of this random variable.
-	 *
+	 * The result of this method has to agrees with <code>average().doubleValue()</code>.
+	 * 
 	 * @return The average assuming equi-distribution.
 	 */
 	double getAverage();
