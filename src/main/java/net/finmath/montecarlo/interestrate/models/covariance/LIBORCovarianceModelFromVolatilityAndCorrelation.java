@@ -93,7 +93,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	@Override
 	public RandomVariable[] getParameter() {
 		RandomVariable[] volatilityParameter	= volatilityModel.getParameter();
-		double[] correlationParameter	= null; /// correlationModel.getParameter();  // Currently unsupported
+		RandomVariable[] correlationParameter	= correlationModel.getParameter();
 
 		int parameterLength = 0;
 		parameterLength += volatilityParameter	!= null ? volatilityParameter.length : 0;
