@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo.interestrate;
 
+import java.util.Map;
+
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel;
 
 /**
@@ -17,7 +19,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceMode
 public interface LIBORMarketModel extends LIBORModel {
 
 	/**
-	 * Return the libor covariance model.
+	 * Return the forward rate (LIBOR) covariance model.
 	 *
 	 * @return The covariance model.
 	 */
