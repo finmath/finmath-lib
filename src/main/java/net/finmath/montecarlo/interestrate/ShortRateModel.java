@@ -6,7 +6,7 @@
 
 package net.finmath.montecarlo.interestrate;
 
-import net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModelInterface;
+import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface;
 
 /**
  * Interface for Short Rate models which are determined by a ShortRateVolatilityModelInterface.

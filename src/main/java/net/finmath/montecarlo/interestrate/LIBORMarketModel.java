@@ -6,7 +6,7 @@
 
 package net.finmath.montecarlo.interestrate;
 
-import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModel;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel;
 
 /**
  * Interface for LIBOR Market Models which are determined by a covariance structure defined on discrete forward rates.

@@ -20,8 +20,8 @@ import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
-import net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModelParametric;
-import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModel;
+import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
@@ -47,7 +47,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * The model uses an <code>AbstractLIBORCovarianceModel</code> for the specification of <i>(&lambda;<sub>1,j</sub>,...,&lambda;<sub>m,j</sub>)</i> as a covariance model,
  * which may have the ability to calibrate to swaptions.
  *
- * @see net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModel
+ * @see net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModel
  *
  * @author Christian Fries
  * @version 1.1

@@ -12,8 +12,8 @@
     </display>  
   </class>  
   <class id="2" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModelHoLee" project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/ShortRateVolatilityModelHoLee.java" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelHoLee" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelHoLee.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1792" y="1600"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -23,9 +23,9 @@
     </display>  
   </class>  
   <interface id="3" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModelInterface" 
-    project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/ShortRateVolatilityModelInterface.java" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface" project="finmath lib" 
+    
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelInterface.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1964" y="1388"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -34,9 +34,9 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </interface>  
-  <class id="4" language="java" name="net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModel" 
+  <class id="4" language="java" name="net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/ShortRateVolatilityModel.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2189" y="1600"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 

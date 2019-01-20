@@ -22,7 +22,7 @@ finmath lib Release Notes
    for convenience in case the random variable parameter is deterministic.
 
  - The packages `net.finmath.montecarlo.interestrate.models.modelplugins` and `net.finmath.montecarlo.interestrate.models.covariancemodels` 
-   have been merged.
+   have been merged. The resulting package has been renamed to `net.finmath.montecarlo.interestrate.models.covariance`.
  
  - Refactoring: Package hierarchy. 1) A package `net.finmath.montecarlo.interestrate.models` is introduced. The classes implementing ProcessModel (or extending AbstractProcessModel) for the HullWhiteModel and LMM are moved into this package (from `net.finmath.montecarlo.interestrate`). The packages covariancemodels, modelplugins, factordrift are moved into this package. 2) A package `net.finmath.montecarlo.assetderivativevaluation.models` is introduced. The classes implementing ProcessModel (or extending `AbstractProcessModel`) for the `BlackScholes`, `Bacheler`, `Merton`, `Bates`, etc. are moved into this package (from `net.finmath.montecarlo.assetderivativevaluation`).
 

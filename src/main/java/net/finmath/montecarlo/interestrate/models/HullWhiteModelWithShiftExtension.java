@@ -15,7 +15,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModel;
-import net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModelInterface;
+import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
@@ -94,10 +94,10 @@ import net.finmath.time.TimeDiscretization;
  * Hence, we interpret both, short rate mean reversion speed and short rate volatility as part of the <i>volatility model</i>.
  *
  * The mean reversion speed and the short rate volatility have to be provided to this class via an object implementing
- * {@link net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModelInterface}.
+ * {@link net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface}.
  *
  *
- * @see net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModelInterface
+ * @see net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface
  * @see net.finmath.montecarlo.interestrate.models.HullWhiteModel
  *
  * @author Christian Fries

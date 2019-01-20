@@ -2,8 +2,8 @@
 <class-diagram version="1.2.2" icons="true" automaticImage="SVG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
   <class id="1" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModel" project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/AbstractLIBORCovarianceModel.java" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModel" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/AbstractLIBORCovarianceModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1488" y="252"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -13,9 +13,9 @@
     </display>  
   </class>  
   <class id="2" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModelParametric" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/AbstractLIBORCovarianceModelParametric.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/AbstractLIBORCovarianceModelParametric.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1488" y="541"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -24,9 +24,9 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModel" 
+  <class id="3" language="java" name="net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/LIBORVolatilityModel.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="780" y="1173"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -36,9 +36,9 @@
     </display>  
   </class>  
   <class id="4" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCorrelationModelThreeParameterExponentialDecay" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelThreeParameterExponentialDecay" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/LIBORCorrelationModelThreeParameterExponentialDecay.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/LIBORCorrelationModelThreeParameterExponentialDecay.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2996" y="1574"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -48,9 +48,9 @@
     </display>  
   </class>  
   <class id="5" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModelTwoParameterExponentialForm" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelTwoParameterExponentialForm" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/LIBORVolatilityModelTwoParameterExponentialForm.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelTwoParameterExponentialForm.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="288" y="1556"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -60,9 +60,9 @@
     </display>  
   </class>  
   <class id="6" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModelFourParameterExponentialForm" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFourParameterExponentialForm" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/LIBORVolatilityModelFourParameterExponentialForm.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelFourParameterExponentialForm.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1206" y="1547"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -71,9 +71,9 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCorrelationModel" 
+  <class id="7" language="java" name="net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModel" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/LIBORCorrelationModel.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/LIBORCorrelationModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2458" y="1191"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -83,9 +83,9 @@
     </display>  
   </class>  
   <class id="8" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/LIBORCovarianceModelFromVolatilityAndCorrelation.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelFromVolatilityAndCorrelation.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1488" y="844"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -95,9 +95,9 @@
     </display>  
   </class>  
   <class id="9" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCorrelationModelExponentialDecay" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/modelplugins/LIBORCorrelationModelExponentialDecay.java" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/LIBORCorrelationModelExponentialDecay.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2128" y="1574"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 

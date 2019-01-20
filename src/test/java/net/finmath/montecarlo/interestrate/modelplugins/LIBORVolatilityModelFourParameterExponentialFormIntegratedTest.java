@@ -11,7 +11,7 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
