@@ -468,7 +468,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if(properties != null && properties.containsKey("stateSpace")) {
 			stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
 		}
-		if(properties != null && properties.containsKey("stateSpace")) {
+		if(properties != null && properties.containsKey("interpolationMethod")) {
 			interpolationMethod	= InterpolationMethod.valueOf(((String)properties.get("interpolationMethod")).toUpperCase());
 		}
 		if(properties != null && properties.containsKey("liborCap")) {
