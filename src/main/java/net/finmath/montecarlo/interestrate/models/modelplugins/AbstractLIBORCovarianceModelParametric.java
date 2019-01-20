@@ -33,7 +33,6 @@ import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
 import net.finmath.optimizer.StochasticOptimizer;
 import net.finmath.optimizer.StochasticOptimizerFactory;
-import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
@@ -232,7 +231,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 */
 		int numberOfThreads = 2;
 		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
-//		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
+		//		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
 
 		/*
 		 * Obtain besterParameters and numberOfIterations

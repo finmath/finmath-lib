@@ -11,7 +11,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * Interface for covariance models providing a vector of (possibly stochastic) factor loadings.
- * 
+ *
  * Classes implementing this interface can be used as "plug ins" for {@link LIBORMarketModelFromCovarianceModel}.
  *
  * @author Christian Fries
