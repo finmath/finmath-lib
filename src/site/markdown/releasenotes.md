@@ -10,14 +10,26 @@ finmath lib Release Notes
 
 ### General
 
- - *Refactoring* of names. Interfaces come with plain names like `RandomVariable` 
+ - *Refactoring of names*. Interfaces come with plain names like `RandomVariable` 
    while implementation come with implementation details as in `RandomVariableFromDoubleArray`.
    Details can be found in doc/refactoring-3.6.x-to-4.0.0.
 
- - Removed deprecated methods: The method `barrier` has been removed from RandomVariable. 
+ - *Refactoring of `RandomVariable`*. Removed deprecated methods: The method `barrier` has been removed from RandomVariable. 
    Use `choose` instead.
 
- - 
+ - *Refactoring: Interest rate model plugins (covariance models)*. Refactoring of methods: the method `getParameter` returns a
+   `RandomVariable[]` to allow for generic parameters, possibly enabling AAD. A method getParameterAsDoubleArray is provided
+   for convenience in case the random variable parameter is deterministic.
+
+ - The packages `net.finmath.montecarlo.interestrate.models.modelplugins` and `net.finmath.montecarlo.interestrate.models.covariancemodels` 
+   have been merged.
+ 
+ - Refactoring: Package hierarchy. 1) A package `net.finmath.montecarlo.interestrate.models` is introduced. The classes implementing ProcessModel (or extending AbstractProcessModel) for the HullWhiteModel and LMM are moved into this package (from `net.finmath.montecarlo.interestrate`). The packages covariancemodels, modelplugins, factordrift are moved into this package. 2) A package `net.finmath.montecarlo.assetderivativevaluation.models` is introduced. The classes implementing ProcessModel (or extending `AbstractProcessModel`) for the `BlackScholes`, `Bacheler`, `Merton`, `Bates`, etc. are moved into this package (from `net.finmath.montecarlo.assetderivativevaluation`).
+
+### Linear Algebra
+
+ - Added *solve linear equation* with *Tikhonov regularization*.
+    
 
 ## 3.6.3 (15.01.2019)
 
