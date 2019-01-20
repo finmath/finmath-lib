@@ -74,7 +74,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
 	 *
-	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModelFromCuvesAndVols)}.
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModel)}.
 	 *
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.
@@ -90,7 +90,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
 	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
 	 *
-	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModelFromCuvesAndVols)}.
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModel)}.
 	 *
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param forwardCurve The forward curve.
