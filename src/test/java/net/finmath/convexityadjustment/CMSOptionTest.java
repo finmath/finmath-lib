@@ -12,8 +12,8 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
@@ -57,7 +57,7 @@ public class CMSOptionTest {
 	public void testCMSOption() throws CalculationException {
 
 		// Create a flat forward rate curve
-		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards("forwardCurve",
+		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards("forwardCurve",
 				new double[] { 0.0, numberOfPeriods*periodLength },
 				new double[] { initialValue, initialValue },
 				periodLength);
@@ -132,7 +132,7 @@ public class CMSOptionTest {
 		System.out.println("Swaption with Black-Scholes.................................:\t" + formatterPercent.format(valueSwaptionAnalytic * swaptionNotional));
 	}
 
-	public LIBORMonteCarloSimulationFromLIBORModel getLIBORModelMonteCarloSimulation(ForwardCurveInterface forwardCurve) throws CalculationException {
+	public LIBORMonteCarloSimulationFromLIBORModel getLIBORModelMonteCarloSimulation(ForwardCurve forwardCurve) throws CalculationException {
 		// Create the time discretization
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 

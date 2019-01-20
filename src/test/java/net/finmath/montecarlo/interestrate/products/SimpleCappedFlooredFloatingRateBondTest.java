@@ -20,13 +20,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -102,16 +102,16 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				referenceDate,
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				BusinessdayCalendar.DateRollConvention.FOLLOWING,
-				Curve.InterpolationMethod.LINEAR,
-				Curve.ExtrapolationMethod.CONSTANT,
-				Curve.InterpolationEntity.VALUE,
-				ForwardCurve.InterpolationEntityForward.FORWARD,
+				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
+				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
+				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
@@ -119,10 +119,10 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 				);
 
 		// No discount curve - single curve model
-		DiscountCurveInterface discountCurve = null;
+		DiscountCurve discountCurve = null;
 
-		//		AnalyticModelInterface model = new AnalyticModel(new CurveInterface[] { forwardCurve , discountCurve });
-		AnalyticModelInterface model = new AnalyticModel(new CurveInterface[] { forwardCurve });
+		//		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new CurveInterface[] { forwardCurve , discountCurve });
+		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve });
 
 		/*
 		 * Create the libor tenor structure and the initial values

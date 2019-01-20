@@ -8,7 +8,7 @@ package net.finmath.montecarlo.hybridassetinterestrate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlackScholesModel;
@@ -68,7 +68,7 @@ public class ModelFactory {
 			final double[] maturities,
 			final double[] strikes,
 			final double[] volatilities,
-			final DiscountCurveInterface discountCurve) throws CalculationException {
+			final DiscountCurve discountCurve) throws CalculationException {
 
 		Optimizer optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
 			private static final long serialVersionUID = -9199565564991442848L;

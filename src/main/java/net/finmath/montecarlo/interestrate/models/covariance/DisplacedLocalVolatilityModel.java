@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -37,7 +37,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private RandomVariable displacement;
 
-	private ForwardCurveInterface forwardCurve;
+	private ForwardCurve forwardCurve;
 
 	private boolean isCalibrateable = false;
 

@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
@@ -19,7 +19,7 @@ import net.finmath.optimizer.SolverException;
 
 /**
  * Generates a calibrated model for a given set
- * of <code>calibrationProducts</code> with respect to given <code>Curve</code>s.
+ * of <code>calibrationProducts</code> with respect to given <code>CurveFromInterpolationPoints</code>s.
  *
  * The model and the curve are assumed to be immutable, i.e., the solver
  * will return a calibrate clone, containing clones for every curve
@@ -33,8 +33,8 @@ import net.finmath.optimizer.SolverException;
  */
 public class Solver {
 
-	private final AnalyticModelInterface			model;
-	private final List<AnalyticProductInterface>	calibrationProducts;
+	private final AnalyticModel			model;
+	private final List<AnalyticProduct>	calibrationProducts;
 	private final List<Double>						calibrationTargetValues;
 	private final double							calibrationAccuracy;
 	private final ParameterTransformation			parameterTransformation;
@@ -58,7 +58,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param optimizerFactory A factory providing the optimizer (for the given objective function)
 	 */
-	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, OptimizerFactory optimizerFactory) {
+	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, OptimizerFactory optimizerFactory) {
 		super();
 		this.model = model;
 		this.calibrationProducts = calibrationProducts;
@@ -80,7 +80,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy The error tolerance of the solver.
 	 */
-	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, double calibrationAccuracy) {
+	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, double calibrationAccuracy) {
 		super();
 		this.model = model;
 		this.calibrationProducts = calibrationProducts;
@@ -101,7 +101,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy The error tolerance of the solver.
 	 */
-	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, List<Double> calibrationTargetValues, double evaluationTime, double calibrationAccuracy) {
+	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, List<Double> calibrationTargetValues, double evaluationTime, double calibrationAccuracy) {
 		this(model, calibrationProducts, calibrationTargetValues, null, evaluationTime, calibrationAccuracy);
 	}
 
@@ -114,7 +114,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy The error tolerance of the solver.
 	 */
-	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts, double evaluationTime, double calibrationAccuracy) {
+	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, double evaluationTime, double calibrationAccuracy) {
 		this(model, calibrationProducts, null, null, evaluationTime, calibrationAccuracy);
 	}
 
@@ -125,7 +125,7 @@ public class Solver {
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
 	 */
-	public Solver(AnalyticModelInterface model, Vector<AnalyticProductInterface> calibrationProducts) {
+	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts) {
 		this(model, calibrationProducts, 0.0, 0.0);
 	}
 
@@ -142,7 +142,7 @@ public class Solver {
 	 * @return A reference to a calibrated clone of the given model.
 	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
 	 */
-	public AnalyticModelInterface getCalibratedModel(Set<ParameterObjectInterface> objectsToCalibrate) throws SolverException {
+	public AnalyticModel getCalibratedModel(Set<ParameterObjectInterface> objectsToCalibrate) throws SolverException {
 		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<>(objectsToCalibrate);
 
 		// Set solver parameters
@@ -175,7 +175,7 @@ public class Solver {
 					}
 
 					Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
-					AnalyticModelInterface modelClone = model.getCloneForParameter(curvesParameterPairs);
+					AnalyticModel modelClone = model.getCloneForParameter(curvesParameterPairs);
 					for(int i=0; i<calibrationProducts.size(); i++) {
 						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);
 					}
@@ -205,7 +205,7 @@ public class Solver {
 			bestParameters = parameterTransformation.getParameter(bestParameters);
 		}
 
-		AnalyticModelInterface calibratedModel = null;
+		AnalyticModel calibratedModel = null;
 		try {
 
 			Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);

@@ -7,13 +7,13 @@ package net.finmath.marketdata.model.bond;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.products.AbstractAnalyticProduct;
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.Period;
@@ -37,7 +37,7 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Chrisitan Fries
  * @version 1.0
  */
-public class Bond extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final Schedule	schedule;
 	private final String discountCurveName;
@@ -126,7 +126,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 
 		boolean positiveRecoveryRate = recoveryRate>0;
 
@@ -134,22 +134,22 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 			throw new IllegalArgumentException("model==null");
 		}
 
-		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		CurveInterface survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);
+		Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);
 		if(survivalProbabilityCurve == null) {
 			throw new IllegalArgumentException("No survival probability curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		CurveInterface basisFactorCurve = model.getCurve(basisFactorCurveName);
+		Curve basisFactorCurve = model.getCurve(basisFactorCurveName);
 		if(basisFactorCurve == null) {
 			throw new IllegalArgumentException("No basis factor curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
@@ -206,9 +206,9 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The value of the coupon payment in the given period.
 	 */
-	public double getCouponPayment(int periodIndex, AnalyticModelInterface model) {
+	public double getCouponPayment(int periodIndex, AnalyticModel model) {
 
-		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
@@ -232,7 +232,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The value of the bond for the given curve and spread.
 	 */
-	public double getValueWithGivenSpreadOverCurve(double evaluationTime,CurveInterface referenceCurve, double spread, AnalyticModelInterface model) {
+	public double getValueWithGivenSpreadOverCurve(double evaluationTime,Curve referenceCurve, double spread, AnalyticModel model) {
 		double value=0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods();periodIndex++) {
 			double paymentDate	= schedule.getPayment(periodIndex);
@@ -253,8 +253,8 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The value of the bond for the given yield.
 	 */
-	public double getValueWithGivenYield(double evaluationTime, double rate, AnalyticModelInterface model) {
-		DiscountCurveInterface referenceCurve = DiscountCurve.createDiscountCurveFromDiscountFactors("referenceCurve", new double[] {0.0, 1.0}, new double[]  {1.0, 1.0});
+	public double getValueWithGivenYield(double evaluationTime, double rate, AnalyticModel model) {
+		DiscountCurve referenceCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("referenceCurve", new double[] {0.0, 1.0}, new double[]  {1.0, 1.0});
 		return getValueWithGivenSpreadOverCurve(evaluationTime, referenceCurve, rate, model);
 	}
 
@@ -267,7 +267,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The optimal spread value.
 	 */
-	public double getSpread(double bondPrice, CurveInterface referenceCurve, AnalyticModelInterface model) {
+	public double getSpread(double bondPrice, Curve referenceCurve, AnalyticModel model) {
 		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
 			double x = search.getNextPoint();
@@ -287,7 +287,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The optimal yield value.
 	 */
-	public double getYield(double bondPrice, AnalyticModelInterface model) {
+	public double getYield(double bondPrice, AnalyticModel model) {
 		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
 			double x = search.getNextPoint();
@@ -306,7 +306,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The accrued interest.
 	 */
-	public double getAccruedInterest(LocalDate date, AnalyticModelInterface model) {
+	public double getAccruedInterest(LocalDate date, AnalyticModel model) {
 		int periodIndex=schedule.getPeriodIndex(date);
 		Period period=schedule.getPeriod(periodIndex);
 		DayCountConvention dcc= schedule.getDaycountconvention();
@@ -321,7 +321,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param model The model under which the product is valued.
 	 * @return The accrued interest.
 	 */
-	public double getAccruedInterest(double time, AnalyticModelInterface model) {
+	public double getAccruedInterest(double time, AnalyticModel model) {
 		LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(schedule.getReferenceDate(), time);
 		return getAccruedInterest(date, model);
 	}

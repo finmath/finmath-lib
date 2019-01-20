@@ -5,8 +5,8 @@
  */
 package net.finmath.marketdata.model.volatilities;
 
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
@@ -23,9 +23,9 @@ import net.finmath.time.TimeDiscretizationFromArray;
  */
 public class SwaptionMarketData implements AbstractSwaptionMarketData {
 
-	// @TODO: Curve data currently not used.
-	private final ForwardCurveInterface				forwardCurve;
-	private final DiscountCurveInterface			discountCurve;
+	// @TODO: CurveFromInterpolationPoints data currently not used.
+	private final ForwardCurve				forwardCurve;
+	private final DiscountCurve			discountCurve;
 
 	private final TimeDiscretization		optionMaturities;
 	private final TimeDiscretization		tenor;
@@ -44,7 +44,7 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] optionMaturities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionMarketData(ForwardCurve forwardCurve, DiscountCurve discountCurve, double[] optionMaturities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
@@ -54,7 +54,7 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionMarketData(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, TimeDiscretization optionMatruities, TimeDiscretization tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionMarketData(ForwardCurve forwardCurve, DiscountCurve discountCurve, TimeDiscretization optionMatruities, TimeDiscretization tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;

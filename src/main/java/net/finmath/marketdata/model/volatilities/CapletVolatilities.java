@@ -18,17 +18,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 
 /**
  * A very simple container for Caplet volatilities.
  *
  * It performs piecewise constant interpolation (discretization) in maturity dimension on iso-moneyness lines
- * and uses the default interpolation from the Curve class in strike dimension.
+ * and uses the default interpolation from the CurveFromInterpolationPoints class in strike dimension.
  *
  * It allows to convert from several quoting conventions.
  *
@@ -41,7 +41,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  */
 public class CapletVolatilities extends AbstractVolatilitySurface {
 
-	private Map<Double, CurveInterface>	capletVolatilities = new HashMap<>();
+	private Map<Double, Curve>	capletVolatilities = new HashMap<>();
 
 	private transient Double[]	maturities;
 	private transient Object		lazyInitLock = new Object();
@@ -56,12 +56,12 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	 * @param volatilityConvention The quoting convention of the volatilities provided.
 	 * @param discountCurve The associated discount curve.
 	 */
-	public CapletVolatilities(String name, LocalDate referenceDate, ForwardCurveInterface forwardCurve,
+	public CapletVolatilities(String name, LocalDate referenceDate, ForwardCurve forwardCurve,
 			double[] maturities,
 			double[] strikes,
 			double[] volatilities,
 			QuotingConvention volatilityConvention,
-			DiscountCurveInterface discountCurve)  {
+			DiscountCurve discountCurve)  {
 		super(name, referenceDate);
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
@@ -95,10 +95,10 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	 * @param volatility
 	 */
 	private void add(double maturity, double strike, double volatility) {
-		CurveInterface curve = capletVolatilities.get(maturity);
+		Curve curve = capletVolatilities.get(maturity);
 		try {
 			if(curve == null) {
-				curve = (new Curve.CurveBuilder()).addPoint(strike, volatility, true).build();
+				curve = (new CurveFromInterpolationPoints.Builder()).addPoint(strike, volatility, true).build();
 			} else {
 				curve = curve.getCloneBuilder().addPoint(strike, volatility, true).build();
 			}
@@ -112,12 +112,12 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 	}
 
 	@Override
-	public double getValue(double maturity, double strike, VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
+	public double getValue(double maturity, double strike, VolatilitySurface.QuotingConvention quotingConvention) {
 		return getValue(null, maturity, strike, quotingConvention);
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double maturity, double strike, VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
+	public double getValue(AnalyticModel model, double maturity, double strike, VolatilitySurface.QuotingConvention quotingConvention) {
 		if(maturity == 0) {
 			return 0;
 		}

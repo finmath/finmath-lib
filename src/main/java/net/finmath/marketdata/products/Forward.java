@@ -5,9 +5,9 @@
  */
 package net.finmath.marketdata.products;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 
 /**
  * Implements the valuation of a forward using curves (discount curve, forward curve).
@@ -20,7 +20,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class Forward extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Forward extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final double						maturity;
 	private final double						paymentOffset;
@@ -50,11 +50,11 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
-		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
+	public double getValue(double evaluationTime, AnalyticModel model) {
+		ForwardCurve	forwardCurve	= model.getForwardCurve(forwardCurveName);
+		DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);
 
-		DiscountCurveInterface	discountCurveForForward = null;
+		DiscountCurve	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			// User might like to get forward from discount curve.
 			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);

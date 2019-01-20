@@ -1,6 +1,6 @@
 package net.finmath.analytic.products;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.Schedule;
@@ -25,7 +25,7 @@ import net.finmath.time.Schedule;
  * @author Christian Fries
  * @version 1.0
  */
-public class Deposit extends AbstractAnalyticProduct implements AnalyticProductInterface{
+public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 
 	private Schedule	schedule;
 	private double				rate;
@@ -49,7 +49,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -88,7 +88,7 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param model The given model containing the curve of name <code>discountCurveName</code>.
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
-	public RandomVariable getRate(AnalyticModelInterface model) {
+	public RandomVariable getRate(AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}

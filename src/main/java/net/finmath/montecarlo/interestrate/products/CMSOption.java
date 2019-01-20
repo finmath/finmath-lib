@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
@@ -129,7 +129,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprateVolatility The volatility of the log-swaprate.
 	 * @return Value of this product
 	 */
-	public double getValue(ForwardCurveInterface forwardCurve, double swaprateVolatility) {
+	public double getValue(ForwardCurve forwardCurve, double swaprateVolatility) {
 		double[] swapTenor = new double[fixingDates.length+1];
 		System.arraycopy(fixingDates, 0, swapTenor, 0, fixingDates.length);
 		swapTenor[swapTenor.length-1] = paymentDates[paymentDates.length-1];

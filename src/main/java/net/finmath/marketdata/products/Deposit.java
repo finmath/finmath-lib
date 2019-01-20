@@ -1,7 +1,7 @@
 package net.finmath.marketdata.products;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.time.Schedule;
 
 /**
@@ -24,7 +24,7 @@ import net.finmath.time.Schedule;
  * @author Christian Fries
  * @version 1.0
  */
-public class Deposit extends AbstractAnalyticProduct implements AnalyticProductInterface{
+public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 
 	private Schedule	schedule;
 	private double				rate;
@@ -48,12 +48,12 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
@@ -83,12 +83,12 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @param model The given model containing the curve of name <code>discountCurveName</code>.
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
-	public double getRate(AnalyticModelInterface model) {
+	public double getRate(AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}

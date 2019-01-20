@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.time.FloatingpointDate;
 
 /**
@@ -19,7 +19,7 @@ import net.finmath.time.FloatingpointDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class DiscountCurveRenormalized implements DiscountCurveInterface, Serializable {
+public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 
 	private static final long serialVersionUID = -7603795467908495733L;
 
@@ -55,17 +55,17 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface, Serial
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		return getDiscountFactor(model, time);
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() {
+	public CurveBuilder getCloneBuilder() {
 		throw new UnsupportedOperationException("Method not supported.");
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		throw new UnsupportedOperationException("Method not supported.");
 	}
 
@@ -85,7 +85,7 @@ public class DiscountCurveRenormalized implements DiscountCurveInterface, Serial
 	}
 
 	@Override
-	public double getDiscountFactor(AnalyticModelInterface model, double maturity) {
+	public double getDiscountFactor(AnalyticModel model, double maturity) {
 		return model.getDiscountCurve(baseCurveName).getDiscountFactor(model, maturity)
 				/ model.getDiscountCurve(baseCurveName).getDiscountFactor(model, spotOffset);
 	}

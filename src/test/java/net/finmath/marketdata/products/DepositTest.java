@@ -5,9 +5,9 @@ import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
@@ -19,16 +19,16 @@ public class DepositTest {
 	private final String dcName = "discountCurve";
 	private final double[] times = { 0., 1. };
 	private final double[] dcFactors = { 1., 1. / 1.05 };
-	private final DiscountCurve dc;
-	private AnalyticModel model;
+	private final DiscountCurveInterpolation dc;
+	private AnalyticModelFromCuvesAndVols model;
 	private Schedule sched;
 	private final double accuracy = 1e-10;
 
 	public DepositTest() {
-		dc = DiscountCurve.createDiscountCurveFromDiscountFactors(dcName, times, dcFactors);
+		dc = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(dcName, times, dcFactors);
 
 		// set up model
-		model = new AnalyticModel(new CurveInterface[] { dc });
+		model = new AnalyticModelFromCuvesAndVols(new Curve[] { dc });
 
 		// set up deposit
 		LocalDate refDate = LocalDate.of(2017, 1, 1);

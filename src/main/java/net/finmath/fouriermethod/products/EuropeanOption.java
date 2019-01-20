@@ -23,7 +23,7 @@ import org.apache.commons.math3.complex.Complex;
  * @author Alessandro Gnoatto
  * @version 1.0
  */
-public class EuropeanOption extends AbstractProductFourierTransform {
+public class EuropeanOption extends AbstractFourierTransformProduct {
 
 	private final String underlyingName;
 	private final double maturity;

@@ -28,18 +28,18 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.CalibratedCurves;
 import net.finmath.marketdata.calibration.CalibratedCurves.CalibrationSpec;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
-import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -138,7 +138,7 @@ public class LIBORIndexMultiCurveTest {
 			Period period = new Period(periodStart, periodEnd, fixingTime, paymentTime, new Notional(1.0), index, periodLength, true, false, false);
 			double value = period.getValue(liborMarketModel);
 
-			AnalyticModelInterface analyticModel = liborMarketModel.getModel().getAnalyticModel();
+			AnalyticModel analyticModel = liborMarketModel.getModel().getAnalyticModel();
 			double forward = analyticModel.getForwardCurve(forwardCurveName).getForward(analyticModel, fixingTime, paymentTime-fixingTime);
 			double discountFactor = liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(paymentTime);
 
@@ -160,7 +160,7 @@ public class LIBORIndexMultiCurveTest {
 	}
 
 
-	public static AnalyticModelInterface createCurves() throws SolverException, CloneNotSupportedException {
+	public static AnalyticModel createCurves() throws SolverException, CloneNotSupportedException {
 
 		/*
 		 * Calibration of a single curve - OIS curve - self disocunted curve, from a set of calibration products.
@@ -244,12 +244,12 @@ public class LIBORIndexMultiCurveTest {
 		double[] discountFactors = { 1.0 };
 		boolean[] isParameter = { false };
 
-		DiscountCurve discountCurveOIS = DiscountCurve.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
-		ForwardCurveInterface forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
-		ForwardCurveInterface forwardCurve3M = new ForwardCurve("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
-		ForwardCurveInterface forwardCurve6M = new ForwardCurve("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
+		DiscountCurveInterpolation discountCurveOIS = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
+		ForwardCurve forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
+		ForwardCurve forwardCurve3M = new ForwardCurveInterpolation("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveFromInterpolationPoints.InterpolationMethod.LINEAR, CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT, CurveFromInterpolationPoints.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
+		ForwardCurve forwardCurve6M = new ForwardCurveInterpolation("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveFromInterpolationPoints.InterpolationMethod.LINEAR, CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT, CurveFromInterpolationPoints.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
 
-		AnalyticModel forwardCurveModel = new AnalyticModel(new CurveInterface[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
+		AnalyticModelFromCuvesAndVols forwardCurveModel = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
 
 		List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
 
@@ -370,7 +370,7 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Get the calibrated model
 		 */
-		AnalyticModelInterface calibratedModel = calibratedCurves.getModel();
+		AnalyticModel calibratedModel = calibratedCurves.getModel();
 
 		return calibratedModel;
 	}
@@ -394,7 +394,7 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Create forwardCurve and discountCurve. The two need to fit to each other for this test.
 		 */
-		AnalyticModelInterface analyticModel = createCurves();
+		AnalyticModel analyticModel = createCurves();
 
 		DiscountCurveFromForwardCurve d = new DiscountCurveFromForwardCurve(FORWARD_CURVE_NAME);
 		ForwardCurveFromDiscountCurve f = new ForwardCurveFromDiscountCurve(d.getName(), d.getReferenceDate(), null);

@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * A curve derived from other curves by multiplying the values.
@@ -16,11 +16,11 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class CurveFromProductOfCurves extends AbstractCurve implements Serializable, CurveInterface {
+public class CurveFromProductOfCurves extends AbstractCurve implements Serializable, Curve {
 
 	private static final long serialVersionUID = 8850409340966149755L;
 
-	private CurveInterface[] curves;
+	private Curve[] curves;
 
 	/**
 	 * Create a curve using one or more curves.
@@ -29,17 +29,17 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 	 * @param referenceDate The reference date of this curve.
 	 * @param curves Argument list or array of curves.
 	 */
-	public CurveFromProductOfCurves(String name, LocalDate referenceDate, CurveInterface... curves) {
+	public CurveFromProductOfCurves(String name, LocalDate referenceDate, Curve... curves) {
 		super(name, referenceDate);
 
 		this.curves = curves;
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		double value = 1.0;
 
-		for(CurveInterface curve : curves) {
+		for(Curve curve : curves) {
 			value *= curve.getValue(model, time);
 		}
 
@@ -57,7 +57,7 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException("Cloning is unsupported for this curve.");
 	}
 }

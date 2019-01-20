@@ -5,7 +5,7 @@
  */
 package net.finmath.analytic.products;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public class Performance extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Performance extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final AbstractAnalyticProduct productNumerator;
 	private final AbstractAnalyticProduct productDenominator;
@@ -39,7 +39,7 @@ public class Performance extends AbstractAnalyticProduct implements AnalyticProd
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
 
 		RandomVariable valueNumerator	= productNumerator.getValue(evaluationTime, model);
 		RandomVariable valueDenominator	= productDenominator.getValue(evaluationTime, model);

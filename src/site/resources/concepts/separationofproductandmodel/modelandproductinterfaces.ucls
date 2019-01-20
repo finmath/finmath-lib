@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.2.2" icons="true" automaticImage="SVG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
-  <interface id="1" language="java" name="net.finmath.marketdata.model.AnalyticModelInterface" project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/marketdata/model/AnalyticModelInterface.java" binary="false" 
+  <interface id="1" language="java" name="net.finmath.marketdata.model.AnalyticModel" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/marketdata/model/AnalyticModel.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="-73" y="407"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -39,10 +39,10 @@
       <operations public="true" package="true" protected="false" private="false" static="false"/>    
     </display>  
   </interface>  
-  <interface id="5" language="java" name="net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface" 
+  <interface id="5" language="java" name="net.finmath.fouriermethod.models.CharacteristicFunctionModel" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/fouriermethod/models/ProcessCharacteristicFunctionInterface.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
+    file="/finmath lib/src/main/java/net/finmath/fouriermethod/models/CharacteristicFunctionModel.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="895" y="290"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
@@ -91,9 +91,9 @@
       <operations public="true" package="true" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="10" language="java" name="net.finmath.fouriermethod.products.AbstractProductFourierTransform" 
+  <class id="10" language="java" name="net.finmath.fouriermethod.products.AbstractFourierTransformProduct" 
     project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/fouriermethod/products/AbstractProductFourierTransform.java" 
+    file="/finmath lib/src/main/java/net/finmath/fouriermethod/products/AbstractFourierTransformProduct.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="962" y="1271"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -102,9 +102,8 @@
       <operations public="true" package="true" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <interface id="11" language="java" name="net.finmath.marketdata.products.AnalyticProductInterface" 
-    project="finmath lib" 
-    file="/finmath lib/src/main/java/net/finmath/marketdata/products/AnalyticProductInterface.java" binary="false" 
+  <interface id="11" language="java" name="net.finmath.marketdata.products.AnalyticProduct" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/marketdata/products/AnalyticProduct.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="-172" y="1217"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -168,60 +167,60 @@
     </display>  
   </interface>  
   <generalization id="17">    
-    <end type="SOURCE" refId="15"/>    
-    <end type="TARGET" refId="2"/>  
-  </generalization>  
-  <generalization id="18">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="2"/>  
-  </generalization>  
-  <generalization id="19">    
     <end type="SOURCE" refId="11"/>    
     <end type="TARGET" refId="8"/>  
   </generalization>  
-  <generalization id="20">    
-    <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="9"/>  
+  <generalization id="18">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="2"/>  
   </generalization>  
-  <realization id="21">    
-    <end type="SOURCE" refId="10"/>    
+  <generalization id="19">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="20">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="21">    
+    <end type="SOURCE" refId="14"/>    
     <end type="TARGET" refId="8"/>  
-  </realization>  
+  </generalization>  
   <generalization id="22">    
-    <end type="SOURCE" refId="7"/>    
-    <end type="TARGET" refId="4"/>  
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="2"/>  
   </generalization>  
   <generalization id="23">    
-    <end type="SOURCE" refId="12"/>    
-    <end type="TARGET" refId="9"/>  
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="8"/>  
   </generalization>  
   <realization id="24">    
     <end type="SOURCE" refId="9"/>    
     <end type="TARGET" refId="8"/>  
   </realization>  
   <generalization id="25">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <generalization id="26">    
     <end type="SOURCE" refId="5"/>    
     <end type="TARGET" refId="2"/>  
   </generalization>  
-  <generalization id="26">    
+  <realization id="27">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="8"/>  
+  </realization>  
+  <generalization id="28">    
     <end type="SOURCE" refId="6"/>    
     <end type="TARGET" refId="4"/>  
   </generalization>  
-  <generalization id="27">    
-    <end type="SOURCE" refId="16"/>    
-    <end type="TARGET" refId="8"/>  
-  </generalization>  
-  <generalization id="28">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="2"/>  
-  </generalization>  
   <generalization id="29">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="2"/>  
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="9"/>  
   </generalization>  
   <generalization id="30">    
-    <end type="SOURCE" refId="14"/>    
-    <end type="TARGET" refId="8"/>  
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="9"/>  
   </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    

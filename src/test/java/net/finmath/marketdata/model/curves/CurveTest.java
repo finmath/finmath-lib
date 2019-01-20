@@ -17,7 +17,7 @@ import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 
 /**
- * A short demo on how to use {@link net.finmath.marketdata.model.curves.Curve}.
+ * A short demo on how to use {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}.
  *
  * @author Christian Fries
  */
@@ -26,7 +26,7 @@ public class CurveTest {
 	private static NumberFormat numberFormat = new DecimalFormat("0.0000");
 
 	/**
-	 * Run a short demo on how to use {@link net.finmath.marketdata.model.curves.Curve}.
+	 * Run a short demo on how to use {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}.
 	 *
 	 * @param args Not used.
 	 * @throws SolverException Thrown if optimizer fails.
@@ -48,24 +48,24 @@ public class CurveTest {
 		/*
 		 * Build a curve (initial guess for our fitting problem, defines the times).
 		 */
-		Curve.CurveBuilder curveBuilder = new Curve.CurveBuilder();
+		CurveFromInterpolationPoints.Builder builder = new CurveFromInterpolationPoints.Builder();
 
-		curveBuilder.setInterpolationMethod(Curve.InterpolationMethod.LINEAR);
-		curveBuilder.setExtrapolationMethod(Curve.ExtrapolationMethod.LINEAR);
-		curveBuilder.setInterpolationEntity(Curve.InterpolationEntity.VALUE);
+		builder.setInterpolationMethod(CurveFromInterpolationPoints.InterpolationMethod.LINEAR);
+		builder.setExtrapolationMethod(CurveFromInterpolationPoints.ExtrapolationMethod.LINEAR);
+		builder.setInterpolationEntity(CurveFromInterpolationPoints.InterpolationEntity.VALUE);
 
 		// Add some points - which will not be fitted
-		curveBuilder.addPoint(-1.0 /* time */, 1.0 /* value */, false /* isParameter */);
-		curveBuilder.addPoint( 0.0 /* time */, 1.0 /* value */, false /* isParameter */);
+		builder.addPoint(-1.0 /* time */, 1.0 /* value */, false /* isParameter */);
+		builder.addPoint( 0.0 /* time */, 1.0 /* value */, false /* isParameter */);
 
 		// Add some points - which will be fitted
-		curveBuilder.addPoint( 0.5  /* time */, 2.0 /* value */, true /* isParameter */);
-		curveBuilder.addPoint( 0.75 /* time */, 2.0 /* value */, true /* isParameter */);
-		curveBuilder.addPoint( 1.0 /* time */, 2.0 /* value */, true /* isParameter */);
-		curveBuilder.addPoint( 2.2 /* time */, 2.0 /* value */, true /* isParameter */);
-		curveBuilder.addPoint( 3.0 /* time */, 2.0 /* value */, true /* isParameter */);
+		builder.addPoint( 0.5  /* time */, 2.0 /* value */, true /* isParameter */);
+		builder.addPoint( 0.75 /* time */, 2.0 /* value */, true /* isParameter */);
+		builder.addPoint( 1.0 /* time */, 2.0 /* value */, true /* isParameter */);
+		builder.addPoint( 2.2 /* time */, 2.0 /* value */, true /* isParameter */);
+		builder.addPoint( 3.0 /* time */, 2.0 /* value */, true /* isParameter */);
 
-		final CurveInterface curve = curveBuilder.build();
+		final Curve curve = builder.build();
 
 		/*
 		 * Create data to which the curve should be fitted to
@@ -90,7 +90,7 @@ public class CurveTest {
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
 
-				CurveInterface curveGuess = null;
+				Curve curveGuess = null;
 				try {
 					curveGuess = curve.getCloneForParameter(parameters);
 				} catch (CloneNotSupportedException e) {
@@ -106,7 +106,7 @@ public class CurveTest {
 		// Fit the curve (find best parameters)
 		optimizer.run();
 
-		final CurveInterface fittedCurve = curve.getCloneForParameter(optimizer.getBestFitParameters());
+		final Curve fittedCurve = curve.getCloneForParameter(optimizer.getBestFitParameters());
 
 		// Print out fitted curve
 		for(double time = -2.0; time < 5.0; time += 0.1) {

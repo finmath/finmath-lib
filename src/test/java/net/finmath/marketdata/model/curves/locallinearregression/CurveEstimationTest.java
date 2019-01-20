@@ -13,7 +13,7 @@ import org.jblas.DoubleMatrix;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.Curve;
 
 public class CurveEstimationTest {
 
@@ -48,7 +48,7 @@ public class CurveEstimationTest {
 		if(isJBLASPresent) {
 			// The following code only works if JBlas is present
 			CurveEstimation estimatedcurve = new CurveEstimation(date, bandwidth, X, Y, X, 0.5);
-			CurveInterface regressionCurve = estimatedcurve.getRegressionCurve();
+			Curve regressionCurve = estimatedcurve.getRegressionCurve();
 
 			Assert.assertEquals("left extrapolatoin", 1.0, regressionCurve.getValue(-0.5), 1E-12);
 			Assert.assertEquals("left interpolation", 0.95, regressionCurve.getValue(0.25), 1E-12);

@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -21,9 +21,9 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public class Portfolio extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduct {
 
-	private ArrayList<AnalyticProductInterface>	products;
+	private ArrayList<AnalyticProduct>	products;
 	private ArrayList<Double>					weights;
 
 	/**
@@ -41,7 +41,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 * @param weights Array of weights used in the valuation as a multiplicator.
 	 */
-	public Portfolio(List<AnalyticProductInterface> products, List<Double> weights) {
+	public Portfolio(List<AnalyticProduct> products, List<Double> weights) {
 		super();
 		this.products = new ArrayList<>();
 		this.weights = new ArrayList<>();
@@ -65,7 +65,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 * @param weights Array of weights used in the valuation as a multiplicator.
 	 */
-	public Portfolio(Portfolio portfolio, List<AnalyticProductInterface> products, List<Double> weights) {
+	public Portfolio(Portfolio portfolio, List<AnalyticProduct> products, List<Double> weights) {
 		super();
 		this.products = new ArrayList<>();
 		this.weights = new ArrayList<>();
@@ -81,7 +81,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * @param product A product, implementing  implementing <code>AnalyticProductInterface</code>.
 	 * @param weight A weight used in the valuation as a multiplicator.
 	 */
-	public Portfolio(AnalyticProductInterface product, double weight) {
+	public Portfolio(AnalyticProduct product, double weight) {
 		super();
 		this.products = new ArrayList<>();
 		this.weights = new ArrayList<>();
@@ -103,12 +103,12 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 *
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 */
-	public Portfolio(List<AnalyticProductInterface> products) {
+	public Portfolio(List<AnalyticProduct> products) {
 		this(products, Collections.nCopies(products.size(), Double.valueOf(1.0)));
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final AnalyticModelInterface model) {
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 		RandomVariable value = model.getRandomVariableForConstant(0.0);
 
 		List<RandomVariable> productValues	= products.parallelStream().map(product -> product.getValue(evaluationTime, model)).collect(Collectors.toList());
@@ -125,7 +125,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 *
 	 * @return The list of products as an unmodifiable list.
 	 */
-	public List<AnalyticProductInterface> getProducts() {
+	public List<AnalyticProduct> getProducts() {
 		return Collections.unmodifiableList(products);
 	}
 

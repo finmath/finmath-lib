@@ -5,7 +5,7 @@
  */
 package net.finmath.analytic.products;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
 import net.finmath.stochastic.RandomVariable;
@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public class Forward extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Forward extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final double						maturity;
 	private final double						paymentOffset;
@@ -51,7 +51,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProductI
 	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
 		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
 		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 

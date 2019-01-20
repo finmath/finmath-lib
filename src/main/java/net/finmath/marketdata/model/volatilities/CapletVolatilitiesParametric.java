@@ -8,9 +8,9 @@ package net.finmath.marketdata.model.volatilities;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 
 /**
  * A parametric caplet volatility surface created form the four parameter model
@@ -46,8 +46,8 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param quotingConvention The quoting convention reflected by the parametetric form (e.g. lognormal or normal).
 	 */
 	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
-			ForwardCurveInterface forwardCurve,
-			DiscountCurveInterface discountCurve,
+			ForwardCurve forwardCurve,
+			DiscountCurve discountCurve,
 			double a, double b, double c, double d, double timeScaling, QuotingConvention quotingConvention) {
 		super(name, referenceDate);
 		this.forwardCurve = forwardCurve;
@@ -74,8 +74,8 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
 	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
-			ForwardCurveInterface forwardCurve,
-			DiscountCurveInterface discountCurve,
+			ForwardCurve forwardCurve,
+			DiscountCurve discountCurve,
 			double a, double b, double c, double d, double timeScaling) {
 		super(name, referenceDate);
 		this.forwardCurve = forwardCurve;
@@ -130,7 +130,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface#getValue(net.finmath.marketdata.model.AnalyticModelInterface, double, double, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention)
 	 */
 	@Override
-	public double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(AnalyticModel model, double maturity, double strike, QuotingConvention quotingConvention) {
 		if(maturity <= 0) {
 			return 0;
 		}

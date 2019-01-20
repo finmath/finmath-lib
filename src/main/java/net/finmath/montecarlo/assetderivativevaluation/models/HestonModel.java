@@ -7,7 +7,7 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -90,12 +90,12 @@ public class HestonModel extends AbstractProcessModel {
 
 	private final RandomVariable initialValue;
 
-	private final DiscountCurveInterface discountCurveForForwardRate;
+	private final DiscountCurve discountCurveForForwardRate;
 	private final RandomVariable riskFreeRate;		// Constant rate, used if discountCurveForForwardRate is null
 
 	private final RandomVariable volatility;
 
-	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final DiscountCurve discountCurveForDiscountRate;
 	private final RandomVariable discountRate;		// Constant rate, used if discountCurveForForwardRate is null
 
 	private final RandomVariable theta;
@@ -154,9 +154,9 @@ public class HestonModel extends AbstractProcessModel {
 	 */
 	public HestonModel(
 			RandomVariable initialValue,
-			DiscountCurveInterface discountCurveForForwardRate,
+			DiscountCurve discountCurveForForwardRate,
 			RandomVariable volatility,
-			DiscountCurveInterface discountCurveForDiscountRate,
+			DiscountCurve discountCurveForDiscountRate,
 			RandomVariable theta,
 			RandomVariable kappa,
 			RandomVariable xi,

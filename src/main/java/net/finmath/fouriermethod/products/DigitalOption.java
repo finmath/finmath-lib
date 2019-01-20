@@ -22,7 +22,7 @@ import org.apache.commons.math3.complex.Complex;
  * @author Christian Fries
  * @version 1.0
  */
-public class DigitalOption extends AbstractProductFourierTransform {
+public class DigitalOption extends AbstractFourierTransformProduct {
 
 	private final double maturity;
 	private final double strike;

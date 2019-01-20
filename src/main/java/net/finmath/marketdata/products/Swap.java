@@ -5,12 +5,12 @@
  */
 package net.finmath.marketdata.products;
 
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.InterestRateProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
@@ -30,10 +30,10 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface, DescribedProduct<InterestRateSwapProductDescriptor> {
+public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, DescribedProduct<InterestRateSwapProductDescriptor> {
 
-	private final AnalyticProductInterface legReceiver;
-	private final AnalyticProductInterface legPayer;
+	private final AnalyticProduct legReceiver;
+	private final AnalyticProduct legPayer;
 
 	/**
 	 * Create a swap which values as <code>legReceiver - legPayer</code>.
@@ -41,7 +41,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payler leg.
 	 */
-	public Swap(AnalyticProductInterface legReceiver, AnalyticProductInterface legPayer) {
+	public Swap(AnalyticProduct legReceiver, AnalyticProduct legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;
@@ -115,7 +115,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 
 		double valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
 		double valuePayerLeg	= legPayer.getValue(evaluationTime, model);
@@ -123,27 +123,27 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		return valueReceiverLeg - valuePayerLeg;
 	}
 
-	public static double getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurveInterface forwardCurve) {
+	public static double getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurve forwardCurve) {
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve);
 	}
 
-	public static double getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) {
-		AnalyticModel model = null;
+	public static double getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurve forwardCurve, DiscountCurve discountCurve) {
+		AnalyticModelFromCuvesAndVols model = null;
 		if(discountCurve != null) {
-			model			= new AnalyticModel(new CurveInterface[] { forwardCurve, discountCurve });
+			model			= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);
 	}
 
-	public static double getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve) {
+	public static double getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurve forwardCurve) {
 		return getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, null);
 	}
 
-	public static double getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModelInterface model) {
-		DiscountCurveInterface discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
+	public static double getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurve forwardCurve, AnalyticModel model) {
+		DiscountCurve discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
 		if(discountCurve == null) {
 			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
-			model			= new AnalyticModel(new CurveInterface[] { forwardCurve, discountCurve });
+			model			= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 
 		double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
@@ -171,7 +171,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 *
 	 * @return The receiver leg of the swap.
 	 */
-	public AnalyticProductInterface getLegReceiver() {
+	public AnalyticProduct getLegReceiver() {
 		return legReceiver;
 	}
 
@@ -180,7 +180,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 *
 	 * @return The payer leg of the swap.
 	 */
-	public AnalyticProductInterface getLegPayer() {
+	public AnalyticProduct getLegPayer() {
 		return legPayer;
 	}
 

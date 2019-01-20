@@ -5,12 +5,12 @@
  */
 package net.finmath.marketdata.products;
 
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.Schedule;
 import net.finmath.time.TimeDiscretization;
@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final Schedule	schedule;
 	private final String			discountCurveName;
@@ -41,8 +41,8 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
-		DiscountCurveInterface discountCurve = (DiscountCurveInterface) model.getCurve(discountCurveName);
+	public double getValue(double evaluationTime, AnalyticModel model) {
+		DiscountCurve discountCurve = (DiscountCurve) model.getCurve(discountCurveName);
 
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, model);
 	}
@@ -54,7 +54,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(TimeDiscretization tenor, DiscountCurveInterface discountCurve) {
+	public static double getSwapAnnuity(TimeDiscretization tenor, DiscountCurve discountCurve) {
 		return getSwapAnnuity(new RegularSchedule(tenor), discountCurve);
 	}
 
@@ -67,20 +67,20 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(TimeDiscretization tenor, ForwardCurveInterface forwardCurve) {
+	public static double getSwapAnnuity(TimeDiscretization tenor, ForwardCurve forwardCurve) {
 		return getSwapAnnuity(new RegularSchedule(tenor), forwardCurve);
 	}
 
 	/**
 	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
 	 *
-	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurveInterface, AnalyticModelInterface)}.
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModelFromCuvesAndVols)}.
 	 *
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(Schedule schedule, DiscountCurveInterface discountCurve) {
+	public static double getSwapAnnuity(Schedule schedule, DiscountCurve discountCurve) {
 		double evaluationTime = 0.0;	// Consider only payment time > 0
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);
 	}
@@ -90,16 +90,16 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
 	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
 	 *
-	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurveInterface, AnalyticModelInterface)}.
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModelFromCuvesAndVols)}.
 	 *
 	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(Schedule schedule, ForwardCurveInterface forwardCurve) {
-		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
+	public static double getSwapAnnuity(Schedule schedule, ForwardCurve forwardCurve) {
+		DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
 		double evaluationTime = 0.0;	// Consider only payment time > 0
-		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModel( new CurveInterface[] {forwardCurve, discountCurve} ));
+		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModelFromCuvesAndVols( new Curve[] {forwardCurve, discountCurve} ));
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(double evaluationTime, Schedule schedule, DiscountCurveInterface discountCurve, AnalyticModelInterface model) {
+	public static double getSwapAnnuity(double evaluationTime, Schedule schedule, DiscountCurve discountCurve, AnalyticModel model) {
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
 			double paymentDate		= schedule.getPayment(periodIndex);

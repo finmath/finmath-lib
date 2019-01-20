@@ -6,14 +6,14 @@
 
 package net.finmath.marketdata.model.curves;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * @author Christian Fries
  *
  * @version 1.0
  */
-public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCurveInterface {
+public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCurve {
 
 	private static final long serialVersionUID = -6192098475095644443L;
 
@@ -21,31 +21,31 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 	 * Create a piecewise forward curve.
 	 *
 	 * @param curveInterface Base curve, to be used by default.
-	 * @param fixedPartCurve Curve to be used for the open time interval from fixedPartStartTime to fixedPartEndTime.
+	 * @param fixedPartCurve CurveFromInterpolationPoints to be used for the open time interval from fixedPartStartTime to fixedPartEndTime.
 	 * @param fixedPartStartTime Start time of the interval where we use the fixedPartCurve.
 	 * @param fixedPartEndTime End time of the interval where we use the fixedPartCurve.
 	 */
-	public ForwardCurveWithFixings(ForwardCurveInterface curveInterface, ForwardCurveInterface fixedPartCurve, double fixedPartStartTime, double fixedPartEndTime) {
+	public ForwardCurveWithFixings(ForwardCurve curveInterface, ForwardCurve fixedPartCurve, double fixedPartStartTime, double fixedPartEndTime) {
 		super(curveInterface, fixedPartCurve, fixedPartStartTime, fixedPartEndTime);
 	}
 
 	@Override
-	public double getForward(AnalyticModelInterface model, double fixingTime) {
+	public double getForward(AnalyticModel model, double fixingTime) {
 		if(fixingTime > this.getFixedPartStartTime() && fixingTime < this.getFixedPartEndTime()) {
-			return ((ForwardCurveInterface)getFixedPartCurve()).getForward(model, fixingTime);
+			return ((ForwardCurve)getFixedPartCurve()).getForward(model, fixingTime);
 		}
 		else {
-			return ((ForwardCurveInterface)getBaseCurve()).getForward(model, fixingTime);
+			return ((ForwardCurve)getBaseCurve()).getForward(model, fixingTime);
 		}
 	}
 
 	@Override
-	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
+	public double getForward(AnalyticModel model, double fixingTime, double paymentOffset) {
 		if(fixingTime > this.getFixedPartStartTime() && fixingTime < this.getFixedPartEndTime()) {
-			return ((ForwardCurveInterface)getFixedPartCurve()).getForward(model, fixingTime, paymentOffset);
+			return ((ForwardCurve)getFixedPartCurve()).getForward(model, fixingTime, paymentOffset);
 		}
 		else {
-			return ((ForwardCurveInterface)getBaseCurve()).getForward(model, fixingTime, paymentOffset);
+			return ((ForwardCurve)getBaseCurve()).getForward(model, fixingTime, paymentOffset);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
 	 */
-	public double[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
+	public double[] getForwards(AnalyticModel model, double[] fixingTimes)
 	{
 		double[] values = new double[fixingTimes.length];
 
@@ -69,21 +69,21 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 
 	@Override
 	public String getDiscountCurveName() {
-		return ((ForwardCurveInterface)getBaseCurve()).getDiscountCurveName();
+		return ((ForwardCurve)getBaseCurve()).getDiscountCurveName();
 	}
 
 	@Override
 	public double getPaymentOffset(double fixingTime) {
-		return ((ForwardCurveInterface)getBaseCurve()).getPaymentOffset(fixingTime);
+		return ((ForwardCurve)getBaseCurve()).getPaymentOffset(fixingTime);
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		return new ForwardCurveWithFixings((ForwardCurveInterface)getBaseCurve().getCloneForParameter(value), (ForwardCurveInterface)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());
+	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
+		return new ForwardCurveWithFixings((ForwardCurve)getBaseCurve().getCloneForParameter(value), (ForwardCurve)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());
 	}
 
 	@Override
 	public ForwardCurveWithFixings clone() throws CloneNotSupportedException {
-		return new ForwardCurveWithFixings((ForwardCurveInterface)getBaseCurve().clone(), (ForwardCurveInterface)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());
+		return new ForwardCurveWithFixings((ForwardCurve)getBaseCurve().clone(), (ForwardCurve)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());
 	}
 }

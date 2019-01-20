@@ -1,8 +1,8 @@
 package net.finmath.marketdata.products;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.time.Schedule;
 
 /**
@@ -20,7 +20,7 @@ import net.finmath.time.Schedule;
  * @author Christian Fries
  * @version 1.0
  */
-public class ForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class ForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private Schedule					schedule;
 	private final String						forwardCurveName;
@@ -64,17 +64,17 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve==null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve==null && forwardCurveName!=null && forwardCurveName.length()>0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
@@ -100,12 +100,12 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param model A given model.
 	 * @return The par FRA rate.
 	 */
-	public double getRate(AnalyticModelInterface model) {
+	public double getRate(AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve==null) {
 			throw new IllegalArgumentException("No forward curve of name '" + forwardCurveName + "' found in given model:\n" + model.toString());
 		}

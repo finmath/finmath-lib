@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -44,12 +44,12 @@ public class AnalyticModelIndex extends AbstractIndex {
 	@Override
 	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
+		AnalyticModel analyticModel = model.getModel().getAnalyticModel();
 		if(analyticModel == null) {
 			throw new IllegalArgumentException("Provided model does not carry an associated analytic model.");
 		}
 
-		CurveInterface curve = analyticModel.getCurve(curveName);
+		Curve curve = analyticModel.getCurve(curveName);
 		if(curve == null) {
 			throw new IllegalArgumentException("Associated analytic model does not carry a curve of the name " +  curveName + ".");
 		}

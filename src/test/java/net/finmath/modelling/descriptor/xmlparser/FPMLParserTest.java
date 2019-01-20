@@ -20,13 +20,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.xml.sax.SAXException;
 
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapLeg;
 import net.finmath.modelling.DescribedProduct;
@@ -120,9 +120,9 @@ public class FPMLParserTest {
 
 
 		LocalDate referenceDate = LocalDate.of(1995,1,10);
-		DiscountCurveInterface discountCurve = ModelWithProductFactoryTest.getDiscountCurve("discount", referenceDate, 0.05);
-		ForwardCurveInterface forwardCurve = getForwardCurve("EUR-LIBOR-BBA", referenceDate);
-		AnalyticModelInterface model = new AnalyticModel(referenceDate, new CurveInterface[] { discountCurve, forwardCurve });
+		DiscountCurve discountCurve = ModelWithProductFactoryTest.getDiscountCurve("discount", referenceDate, 0.05);
+		ForwardCurve forwardCurve = getForwardCurve("EUR-LIBOR-BBA", referenceDate);
+		AnalyticModel model = new AnalyticModelFromCuvesAndVols(referenceDate, new Curve[] { discountCurve, forwardCurve });
 
 		InterestRateAnalyticProductFactory productFactory = new InterestRateAnalyticProductFactory(referenceDate);
 		DescribedProduct<? extends ProductDescriptor> legReceiverProduct = productFactory.getProductFromDescriptor(legReceiver);
@@ -139,17 +139,17 @@ public class FPMLParserTest {
 		Assert.assertEquals("Benchmark value", valueBenchmark, value,1E-2);
 	}
 
-	public static ForwardCurve getForwardCurve(String name, LocalDate referenceDate) {
-		return ForwardCurve.createForwardCurveFromForwards(
+	public static ForwardCurveInterpolation getForwardCurve(String name, LocalDate referenceDate) {
+		return ForwardCurveInterpolation.createForwardCurveFromForwards(
 				name,
 				referenceDate,
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				BusinessdayCalendar.DateRollConvention.FOLLOWING,
-				Curve.InterpolationMethod.LINEAR,
-				Curve.ExtrapolationMethod.CONSTANT,
-				Curve.InterpolationEntity.VALUE,
-				ForwardCurve.InterpolationEntityForward.FORWARD,
+				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
+				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
+				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,

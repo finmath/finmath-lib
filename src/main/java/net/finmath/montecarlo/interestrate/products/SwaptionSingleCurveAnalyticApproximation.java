@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -160,11 +160,11 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 	 * It also returns some useful other quantities like the corresponding discount factors and swap annuities.
 	 *
 	 * @param liborPeriodDiscretization The libor period discretization.
-	 * @param forwardCurveInterface The forward curve.
+	 * @param forwardCurve The forward curve.
 	 * @param swapTenor The swap tenor.
 	 * @return A map containing the partial derivatives (key "value"), the discount factors (key "discountFactors") and the annuities (key "annuities") as vectors of double[] (indexed by forward rate tenor index starting at swap start)
 	 */
-	public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretization liborPeriodDiscretization, ForwardCurveInterface forwardCurveInterface, double[] swapTenor) {
+	public static Map<String, double[]> getLogSwaprateDerivative(TimeDiscretization liborPeriodDiscretization, ForwardCurve forwardCurve, double[] swapTenor) {
 		double swapStart    = swapTenor[0];
 		double swapEnd      = swapTenor[swapTenor.length-1];
 
@@ -179,14 +179,14 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 		// Calculate discount factor at swap start
 		discountFactors[0] = 1.0;
 		for(int liborPeriodIndex = 0; liborPeriodIndex < swapStartIndex; liborPeriodIndex++) {
-			double libor = forwardCurveInterface.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
+			double libor = forwardCurve.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
 			double liborPeriodLength = liborPeriodDiscretization.getTimeStep(liborPeriodIndex);
 			discountFactors[0] /= 1 + libor * liborPeriodLength;
 		}
 
 		// Calculate discount factors for swap period ends (used for swap annuity)
 		for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex < swapEndIndex; liborPeriodIndex++) {
-			double libor = forwardCurveInterface.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
+			double libor = forwardCurve.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
 			double liborPeriodLength = liborPeriodDiscretization.getTimeStep(liborPeriodIndex);
 
 			forwardRates[liborPeriodIndex-swapStartIndex]       = libor;

@@ -15,7 +15,7 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractCurve implements CurveInterface, Serializable, Cloneable {
+public abstract class AbstractCurve implements Curve, Serializable, Cloneable {
 
 	private static final long serialVersionUID = 584342257323693502L;
 
@@ -74,7 +74,7 @@ public abstract class AbstractCurve implements CurveInterface, Serializable, Clo
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 

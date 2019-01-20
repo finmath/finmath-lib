@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * A discount curve derived from other discount curves
@@ -17,11 +17,11 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class DiscountCurveFromProductOfCurves extends AbstractCurve implements Serializable, DiscountCurveInterface {
+public class DiscountCurveFromProductOfCurves extends AbstractCurve implements Serializable, DiscountCurve {
 
 	private static final long serialVersionUID = 8850409340966149755L;
 
-	private DiscountCurveInterface[] curves;
+	private DiscountCurve[] curves;
 
 	/**
 	 * Create a discount curve using one or more curves.
@@ -30,7 +30,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	 * @param referenceDate The reference date of this curve.
 	 * @param curves Argument list or array of curves.
 	 */
-	public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, DiscountCurveInterface... curves) {
+	public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, DiscountCurve... curves) {
 		super(name, referenceDate);
 
 		this.curves = curves;
@@ -42,10 +42,10 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	}
 
 	@Override
-	public double getDiscountFactor(AnalyticModelInterface model, double maturity) {
+	public double getDiscountFactor(AnalyticModel model, double maturity) {
 		double discountFactor = 1.0;
 
-		for(DiscountCurveInterface curve : curves) {
+		for(DiscountCurve curve : curves) {
 			discountFactor *= curve.getDiscountFactor(model, maturity);
 		}
 
@@ -53,7 +53,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		return getDiscountFactor(model, time);
 	}
 
@@ -72,7 +72,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getCloneBuilder()
 	 */
 	@Override
-	public CurveBuilderInterface getCloneBuilder() {
+	public CurveBuilder getCloneBuilder() {
 		// TODO Auto-generated method stub
 		return null;
 	}

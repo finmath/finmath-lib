@@ -5,7 +5,7 @@
  */
 package net.finmath.marketdata.products;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * Implements an analytic product given by the ratio
@@ -20,7 +20,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class Performance extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Performance extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final AbstractAnalyticProduct productNumerator;
 	private final AbstractAnalyticProduct productDenominator;
@@ -38,7 +38,7 @@ public class Performance extends AbstractAnalyticProduct implements AnalyticProd
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 
 		double valueNumerator	= productNumerator.getValue(evaluationTime, model);
 		double valueDenominator	= productDenominator.getValue(evaluationTime, model);

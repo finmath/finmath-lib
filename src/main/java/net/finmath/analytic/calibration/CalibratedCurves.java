@@ -16,15 +16,15 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.analytic.model.AnalyticModel;
-import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.analytic.model.curves.CurveInterface;
-import net.finmath.analytic.model.curves.DiscountCurve;
+import net.finmath.analytic.model.curves.Curve;
+import net.finmath.analytic.model.curves.DiscountCurveInterpolation;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
-import net.finmath.analytic.model.curves.ForwardCurve;
+import net.finmath.analytic.model.curves.ForwardCurveInterpolation;
 import net.finmath.analytic.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.analytic.products.AnalyticProductInterface;
+import net.finmath.analytic.products.AnalyticProduct;
 import net.finmath.analytic.products.Deposit;
 import net.finmath.analytic.products.ForwardRateAgreement;
 import net.finmath.analytic.products.Swap;
@@ -280,9 +280,9 @@ public class CalibratedCurves {
 		}
 	}
 
-	private AnalyticModelInterface				model				= new AnalyticModel();
+	private AnalyticModel				model				= new AnalyticModelFromCuvesAndVols();
 	private Set<ParameterObjectInterface>		objectsToCalibrate	= new LinkedHashSet<>();
-	private Vector<AnalyticProductInterface>	calibrationProducts			= new Vector<>();
+	private Vector<AnalyticProduct>	calibrationProducts			= new Vector<>();
 	private Vector<String>						calibrationProductsSymbols	= new Vector<>();
 
 	private List<CalibrationSpec>				calibrationSpecs	= new ArrayList<>();
@@ -314,7 +314,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(List<CalibrationSpec> calibrationSpecs, AnalyticModelInterface calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(List<CalibrationSpec> calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		if(calibrationModel != null) {
 			model	= calibrationModel.getCloneForParameter(null);
 		}
@@ -349,7 +349,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCuvesAndVols calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		if(calibrationModel != null) {
 			model	= calibrationModel.getCloneForParameter(null);
 		}
@@ -383,7 +383,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCuvesAndVols calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs, calibrationModel, 0.0, calibrationAccuracy);
 	}
 
@@ -406,7 +406,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModel calibrationModel) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCuvesAndVols calibrationModel) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs, calibrationModel, 0.0);
 	}
 
@@ -434,7 +434,7 @@ public class CalibratedCurves {
 		this(calibrationSpecs, null, 0.0);
 	}
 
-	public AnalyticProductInterface getCalibrationProductForSpec(CalibrationSpec calibrationSpec) {
+	public AnalyticProduct getCalibrationProductForSpec(CalibrationSpec calibrationSpec) {
 		String forwardCurveReceiverName = calibrationSpec.forwardCurveReceiverName;
 		String forwardCurvePayerName	= calibrationSpec.forwardCurvePayerName;
 
@@ -468,7 +468,7 @@ public class CalibratedCurves {
 		Schedule tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
 		Schedule tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
 
-		AnalyticProductInterface product = null;
+		AnalyticProduct product = null;
 		if(calibrationSpec.type.toLowerCase().equals("deposit")){
 			product = new Deposit(tenorReceiver, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName);
 		}
@@ -514,7 +514,7 @@ public class CalibratedCurves {
 	 *
 	 * @return The calibrated model.
 	 */
-	public AnalyticModelInterface getModel() {
+	public AnalyticModel getModel() {
 		return model;
 	}
 
@@ -524,7 +524,7 @@ public class CalibratedCurves {
 	 * @param name Name of the curve
 	 * @return The curve model.
 	 */
-	public CurveInterface getCurve(String name) {
+	public Curve getCurve(String name) {
 		return model.getCurve(name);
 	}
 
@@ -656,7 +656,7 @@ public class CalibratedCurves {
 	 * @param symbol A given symbol string.
 	 * @return The product associated with that symbol.
 	 */
-	public AnalyticProductInterface getCalibrationProductForSymbol(String symbol) {
+	public AnalyticProduct getCalibrationProductForSymbol(String symbol) {
 
 		/*
 		 * The internal data structure is not optimal here (a map would make more sense here),
@@ -703,7 +703,7 @@ public class CalibratedCurves {
 		// Create parameter to calibrate
 
 		// Fetch old curve
-		CurveInterface calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
+		Curve calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
 		if(calibrationCurveOld == null) {
 			throw new IllegalArgumentException("Calibration curve " + calibrationSpec.calibrationCurveName + " does not exist. This should not happen. Possible reason: The given calibration product does not depend on the given calibration curve.");
 		}
@@ -712,7 +712,7 @@ public class CalibratedCurves {
 		objectsToCalibrate.remove(calibrationCurveOld);
 
 		// Create and add new curve
-		CurveInterface calibrationCurve = null;
+		Curve calibrationCurve = null;
 		if(DiscountCurveInterface.class.isInstance(calibrationCurveOld)) {
 			@SuppressWarnings("unused")
 			double paymentTime	= calibrationSpec.swapTenorDefinitionReceiver.getPayment(calibrationSpec.swapTenorDefinitionReceiver.getNumberOfPeriods()-1);
@@ -752,7 +752,7 @@ public class CalibratedCurves {
 	private DiscountCurveInterface createDiscountCurve(String discountCurveName) {
 		DiscountCurveInterface discountCurve	= model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
-			discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
+			discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
 			model = model.addCurves(discountCurve);
 		}
 
@@ -790,17 +790,17 @@ public class CalibratedCurves {
 		}
 
 		// Check if the curves exists, if not create it
-		CurveInterface	curve = model.getCurve(forwardCurveName);
+		Curve	curve = model.getCurve(forwardCurveName);
 
-		CurveInterface	forwardCurve = null;
+		Curve	forwardCurve = null;
 		if(curve == null) {
 			// Create a new forward curve
 			if(isUseForwardCurve) {
-				curve = new ForwardCurve(forwardCurveName, swapTenorDefinition.getReferenceDate(), indexMaturityCode, ForwardCurve.InterpolationEntityForward.FORWARD, null);
+				curve = new ForwardCurveInterpolation(forwardCurveName, swapTenorDefinition.getReferenceDate(), indexMaturityCode, ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, null);
 			}
 			else {
 				// Alternative: Model the forward curve through an underlying discount curve.
-				curve = DiscountCurve.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { 0.0 }, new double[] { 1.0 });
+				curve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { 0.0 }, new double[] { 1.0 });
 				model = model.addCurves(curve);
 			}
 		}

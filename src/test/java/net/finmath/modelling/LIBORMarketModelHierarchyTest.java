@@ -16,14 +16,14 @@ import java.util.Map;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
@@ -114,16 +114,16 @@ public class LIBORMarketModelHierarchyTest {
 
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				referenceDate,
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				BusinessdayCalendar.DateRollConvention.FOLLOWING,
-				Curve.InterpolationMethod.LINEAR,
-				Curve.ExtrapolationMethod.CONSTANT,
-				Curve.InterpolationEntity.VALUE,
-				ForwardCurve.InterpolationEntityForward.FORWARD,
+				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
+				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
+				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
@@ -131,19 +131,19 @@ public class LIBORMarketModelHierarchyTest {
 				);
 
 		// Create the discount curve
-		DiscountCurve discountCurve = DiscountCurve.createDiscountCurveFromZeroRates(
+		DiscountCurveInterpolation discountCurveInterpolation = DiscountCurveInterpolation.createDiscountCurveFromZeroRates(
 				"discountCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* maturities */,
 				new double[] {0.04, 0.04, 0.04, 0.04, 0.05}	/* zero rates */
 				);
 
-		return createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, discountCurve, forwardCurve);
+		return createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, discountCurveInterpolation, forwardCurveInterpolation);
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
-			int numberOfPaths, int numberOfFactors, double correlationDecayParam, DiscountCurveInterface discountCurve, ForwardCurveInterface forwardCurve) throws CalculationException {
+			int numberOfPaths, int numberOfFactors, double correlationDecayParam, DiscountCurve discountCurve, ForwardCurve forwardCurve) throws CalculationException {
 
-		AnalyticModelInterface model = new AnalyticModel(new CurveInterface[] { forwardCurve , discountCurve });
+		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve , discountCurve });
 
 		/*
 		 * Create the libor tenor structure and the initial values

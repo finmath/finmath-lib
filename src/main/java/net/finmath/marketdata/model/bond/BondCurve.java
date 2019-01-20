@@ -7,13 +7,13 @@ package net.finmath.marketdata.model.bond;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.AbstractCurve;
-import net.finmath.marketdata.model.curves.CurveBuilderInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.CurveBuilder;
+import net.finmath.marketdata.model.curves.Curve;
 
 /**
- * Implements the bond curve as a curve object, see {@link net.finmath.marketdata.model.curves.CurveInterface}.
+ * Implements the bond curve as a curve object, see {@link net.finmath.marketdata.model.curves.Curve}.
  *
  * The bond curve is built as a product of a given reference discount curve and spread curve.
  * Since it is not clear in general if the reference curve or the spread curve are given in terms of
@@ -48,8 +48,8 @@ public class BondCurve extends AbstractCurve  {
 
 	private String name;
 	private LocalDate referenceDate;
-	private CurveInterface referenceCurve;
-	private CurveInterface spreadCurve;
+	private Curve referenceCurve;
+	private Curve spreadCurve;
 	private Type type;
 
 	/**
@@ -64,8 +64,8 @@ public class BondCurve extends AbstractCurve  {
 	public BondCurve(
 			String name,
 			LocalDate referenceDate,
-			CurveInterface referenceCurve,
-			CurveInterface spreadCurve,
+			Curve referenceCurve,
+			Curve spreadCurve,
 			Type type
 			) {
 		super(name,referenceDate);
@@ -80,7 +80,7 @@ public class BondCurve extends AbstractCurve  {
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		switch(type) {
 		case DISCOUNTFACTOR_DISCOUNTFACTOR:
 			return referenceCurve.getValue(model, time)*spreadCurve.getValue(model, time);
@@ -98,7 +98,7 @@ public class BondCurve extends AbstractCurve  {
 		return getValue(time);
 	}
 
-	public double getDiscountFactor(AnalyticModelInterface model, double time) {
+	public double getDiscountFactor(AnalyticModel model, double time) {
 		return getValue(model, time);
 	}
 
@@ -119,7 +119,7 @@ public class BondCurve extends AbstractCurve  {
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -134,11 +134,11 @@ public class BondCurve extends AbstractCurve  {
 		return referenceDate;
 	}
 
-	public CurveInterface getReferenceCurve() {
+	public Curve getReferenceCurve() {
 		return referenceCurve;
 	}
 
-	public CurveInterface getSpreadCurve() {
+	public Curve getSpreadCurve() {
 		return spreadCurve;
 	}
 

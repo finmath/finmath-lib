@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.daycount.DayCountConvention;
@@ -27,7 +27,7 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Christian Fries
  * @version 1.0
  */
-public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, ForwardCurveInterface {
+public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, ForwardCurve {
 
 	private static final long serialVersionUID = 8024640795839972709L;
 
@@ -40,7 +40,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	private DiscountCurveNelsonSiegelSvensson discountCurve;
 
 	/**
-	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModel}.
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols}.
 	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
 	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
 	 * @param paymentBusinessdayCalendar The payment businessday calendar.
@@ -62,7 +62,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	/**
-	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModel}.
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols}.
 	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
 	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
 	 * @param paymentBusinessdayCalendar The payment businessday calendar.
@@ -76,12 +76,12 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	@Override
-	public double getForward(AnalyticModelInterface model, double fixingTime) {
+	public double getForward(AnalyticModel model, double fixingTime) {
 		return getForward(model, fixingTime, getPaymentOffset(fixingTime+periodOffset));
 	}
 
 	@Override
-	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset) {
+	public double getForward(AnalyticModel model, double fixingTime, double paymentOffset) {
 		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());
 		if(daycountConvention != null) {
 			LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);
@@ -98,15 +98,15 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() {
-		return new CurveBuilderInterface() {
+	public CurveBuilder getCloneBuilder() {
+		return new CurveBuilder() {
 			@Override
-			public CurveInterface build() {
+			public Curve build() {
 				return ForwardCurveNelsonSiegelSvensson.this;
 			}
 
 			@Override
-			public CurveBuilderInterface addPoint(double time, double value, boolean isParameter) {
+			public CurveBuilder addPoint(double time, double value, boolean isParameter) {
 				throw new UnsupportedOperationException("NSS curve does not support adding points.");
 			}
 		};
@@ -123,7 +123,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		return getForward(model, time, getPaymentOffset(time));
 	}
 
@@ -139,7 +139,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
 	 */
-	public double[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
+	public double[] getForwards(AnalyticModel model, double[] fixingTimes)
 	{
 		double[] values = new double[fixingTimes.length];
 

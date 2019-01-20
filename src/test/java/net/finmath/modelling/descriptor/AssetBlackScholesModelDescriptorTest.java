@@ -13,11 +13,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
-import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.Product;
 import net.finmath.modelling.ProductDescriptor;
@@ -150,13 +150,13 @@ public class AssetBlackScholesModelDescriptorTest {
 	 *
 	 * @return the discount curve using the riskFreeRate.
 	 */
-	private static DiscountCurveInterface getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
+	private static DiscountCurve getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
 		double[] times = new double[] { 1.0 };
 		double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
 		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
 		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
 		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
-		DiscountCurveInterface discountCurve = DiscountCurve.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
+		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
 		return discountCurve;
 	}
 

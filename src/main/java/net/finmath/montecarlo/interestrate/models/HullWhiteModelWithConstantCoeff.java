@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModel;
@@ -37,11 +37,11 @@ public class HullWhiteModelWithConstantCoeff extends AbstractProcessModel implem
 	private final TimeDiscretization		liborPeriodDiscretization;
 
 	private String							forwardCurveName;
-	private AnalyticModelInterface			curveModel;
+	private AnalyticModel			curveModel;
 
-	private ForwardCurveInterface			forwardRateCurve;
-	private DiscountCurveInterface			discountCurve;
-	private DiscountCurveInterface			discountCurveFromForwardCurve;
+	private ForwardCurve			forwardRateCurve;
+	private DiscountCurve			discountCurve;
+	private DiscountCurve			discountCurveFromForwardCurve;
 
 	private final double meanReversion;
 	private final double volatility;
@@ -67,9 +67,9 @@ public class HullWhiteModelWithConstantCoeff extends AbstractProcessModel implem
 	 */
 	public HullWhiteModelWithConstantCoeff(
 			TimeDiscretization			liborPeriodDiscretization,
-			AnalyticModelInterface				analyticModel,
-			ForwardCurveInterface				forwardRateCurve,
-			DiscountCurveInterface				discountCurve,
+			AnalyticModel				analyticModel,
+			ForwardCurve				forwardRateCurve,
+			DiscountCurve				discountCurve,
 			double 								meanReversion,
 			double								volatility,
 			Map<String, ?>						properties
@@ -266,17 +266,17 @@ public class HullWhiteModelWithConstantCoeff extends AbstractProcessModel implem
 	}
 
 	@Override
-	public AnalyticModelInterface getAnalyticModel() {
+	public AnalyticModel getAnalyticModel() {
 		return curveModel;
 	}
 
 	@Override
-	public DiscountCurveInterface getDiscountCurve() {
+	public DiscountCurve getDiscountCurve() {
 		return discountCurve;
 	}
 
 	@Override
-	public ForwardCurveInterface getForwardRateCurve() {
+	public ForwardCurve getForwardRateCurve() {
 		return forwardRateCurve;
 	}
 

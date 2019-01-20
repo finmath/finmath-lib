@@ -5,9 +5,9 @@
  */
 package net.finmath.analytic.products;
 
+import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.analytic.model.AnalyticModel;
-import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.analytic.model.curves.CurveInterface;
+import net.finmath.analytic.model.curves.Curve;
 import net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
@@ -28,10 +28,10 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class Swap extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Swap extends AbstractAnalyticProduct implements AnalyticProduct {
 
-	private final AnalyticProductInterface legReceiver;
-	private final AnalyticProductInterface legPayer;
+	private final AnalyticProduct legReceiver;
+	private final AnalyticProduct legPayer;
 
 	/**
 	 * Create a swap which values as <code>legReceiver - legPayer</code>.
@@ -39,7 +39,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payler leg.
 	 */
-	public Swap(AnalyticProductInterface legReceiver, AnalyticProductInterface legPayer) {
+	public Swap(AnalyticProduct legReceiver, AnalyticProduct legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;
@@ -94,7 +94,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
 
 		RandomVariable valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
 		RandomVariable valuePayerLeg	= legPayer.getValue(evaluationTime, model);
@@ -107,9 +107,9 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	}
 
 	public static RandomVariable getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) {
-		AnalyticModel model = null;
+		AnalyticModelFromCuvesAndVols model = null;
 		if(discountCurve != null) {
-			model			= new AnalyticModel(new CurveInterface[] { forwardCurve, discountCurve });
+			model			= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);
 	}
@@ -118,11 +118,11 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 		return getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, null);
 	}
 
-	public static RandomVariable getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModelInterface model) {
+	public static RandomVariable getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModel model) {
 		DiscountCurveInterface discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
 		if(discountCurve == null) {
 			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
-			model			= new AnalyticModel(new CurveInterface[] { forwardCurve, discountCurve });
+			model			= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 
 		double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
@@ -159,7 +159,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 *
 	 * @return The receiver leg of the swap.
 	 */
-	public AnalyticProductInterface getLegReceiver() {
+	public AnalyticProduct getLegReceiver() {
 		return legReceiver;
 	}
 
@@ -168,7 +168,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProductInte
 	 *
 	 * @return The payer leg of the swap.
 	 */
-	public AnalyticProductInterface getLegPayer() {
+	public AnalyticProduct getLegPayer() {
 		return legPayer;
 	}
 

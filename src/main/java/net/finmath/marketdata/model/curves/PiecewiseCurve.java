@@ -8,23 +8,23 @@ package net.finmath.marketdata.model.curves;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * A piecewise curve. The curve consists of a base curve and a second curve.
- * If the <code>time</code> parameter of the {@link #getValue(AnalyticModelInterface, double)}
+ * If the <code>time</code> parameter of the {@link #getValue(AnalyticModel, double)}
  * method falls inside a pre-defined open interval, it is delegated to the second curve,
  * otherwise it is delegated to the base curve.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
+public class PiecewiseCurve extends AbstractCurve implements Curve {
 
 	private static final long serialVersionUID = 8846923173857477343L;
 
-	private CurveInterface	baseCurve;
-	private CurveInterface	fixedPartCurve;
+	private Curve	baseCurve;
+	private Curve	fixedPartCurve;
 
 	private double fixedPartStartTime;
 	private double fixedPartEndTime;
@@ -36,7 +36,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	 *
 	 * @author Christian Fries
 	 */
-	public static class CurveBuilder extends Curve.CurveBuilder implements CurveBuilderInterface {
+	public static class Builder extends CurveFromInterpolationPoints.Builder implements CurveBuilder {
 
 		private PiecewiseCurve			curve = null;
 
@@ -46,13 +46,13 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 		 * @param piecewiseCurve The piecewise curve from which to copy the fixed part upon build().
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
-		public CurveBuilder(PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
-			super((Curve)(piecewiseCurve.baseCurve));
+		public Builder(PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
+			super((CurveFromInterpolationPoints)(piecewiseCurve.baseCurve));
 			this.curve = piecewiseCurve;
 		}
 
 		@Override
-		public CurveInterface build() throws CloneNotSupportedException {
+		public Curve build() throws CloneNotSupportedException {
 			PiecewiseCurve buildCurve = curve.clone();
 			buildCurve.baseCurve = super.build();
 			curve = null;
@@ -60,11 +60,11 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 		}
 	}
 
-	public PiecewiseCurve(CurveInterface curveInterface,
-			CurveInterface fixedPartCurve, double fixedPartStartTime,
+	public PiecewiseCurve(Curve curve,
+			Curve fixedPartCurve, double fixedPartStartTime,
 			double fixedPartEndTime) {
-		super(curveInterface.getName(), curveInterface.getReferenceDate());
-		this.baseCurve = curveInterface;
+		super(curve.getName(), curve.getReferenceDate());
+		this.baseCurve = curve;
 		this.fixedPartCurve = fixedPartCurve;
 		this.fixedPartStartTime = fixedPartStartTime;
 		this.fixedPartEndTime = fixedPartEndTime;
@@ -93,14 +93,14 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	/**
 	 * @return the baseCurve
 	 */
-	public CurveInterface getBaseCurve() {
+	public Curve getBaseCurve() {
 		return baseCurve;
 	}
 
 	/**
 	 * @return the fixedPartCurve
 	 */
-	public CurveInterface getFixedPartCurve() {
+	public Curve getFixedPartCurve() {
 		return fixedPartCurve;
 	}
 
@@ -124,7 +124,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		if(time >fixedPartStartTime && time < this.fixedPartEndTime) {
 			return fixedPartCurve.getValue(model, time);
 		}
@@ -134,7 +134,7 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		PiecewiseCurve newCurve = clone();
 		newCurve.baseCurve = baseCurve.getCloneForParameter(value);
 
@@ -143,12 +143,12 @@ public class PiecewiseCurve extends AbstractCurve implements CurveInterface {
 
 	@Override
 	public PiecewiseCurve clone() throws CloneNotSupportedException {
-		return new PiecewiseCurve((CurveInterface) baseCurve.clone(), fixedPartCurve, fixedPartStartTime, fixedPartEndTime);
+		return new PiecewiseCurve((Curve) baseCurve.clone(), fixedPartCurve, fixedPartStartTime, fixedPartEndTime);
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
-		return new CurveBuilder(this);
+	public Builder getCloneBuilder() throws CloneNotSupportedException {
+		return new Builder(this);
 	}
 
 	@Override

@@ -5,8 +5,8 @@
  */
 package net.finmath.marketdata.products;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
  * Implements the valuation of a single cashflow by a discount curve.
@@ -16,7 +16,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class Cashflow extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final double	flowAmount;
 	private final double	flowDate;
@@ -42,12 +42,12 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}

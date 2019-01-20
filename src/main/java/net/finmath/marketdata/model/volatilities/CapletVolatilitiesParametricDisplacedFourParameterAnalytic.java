@@ -9,9 +9,9 @@ package net.finmath.marketdata.model.volatilities;
 import java.time.LocalDate;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 
 /**
  * A parametric caplet volatility surface created form the four parameter model
@@ -51,8 +51,8 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
 	public CapletVolatilitiesParametricDisplacedFourParameterAnalytic(String name, LocalDate referenceDate,
-			ForwardCurveInterface forwardCurve,
-			DiscountCurveInterface discountCurve,
+			ForwardCurve forwardCurve,
+			DiscountCurve discountCurve,
 			double displacement, boolean isDisplacementCalibrateable,
 			double a, double b, double c, double d, double timeScaling) {
 		super(name, referenceDate);
@@ -74,7 +74,7 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(AnalyticModel model, double maturity, double strike, QuotingConvention quotingConvention) {
 		if(maturity == 0) {
 			return 0;
 		}

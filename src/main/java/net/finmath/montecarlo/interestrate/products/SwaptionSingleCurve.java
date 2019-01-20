@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -172,7 +172,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprateVolatility The Black volatility.
 	 * @return Value of this product
 	 */
-	public double getValue(ForwardCurveInterface forwardCurve, double swaprateVolatility) {
+	public double getValue(ForwardCurve forwardCurve, double swaprateVolatility) {
 		double swaprate = swaprates[0];
 		for (double swaprate1 : swaprates) {
 			if (swaprate1 != swaprate) {

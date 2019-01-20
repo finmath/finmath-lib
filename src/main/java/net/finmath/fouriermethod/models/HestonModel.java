@@ -10,8 +10,8 @@ import java.time.LocalDate;
 
 import org.apache.commons.math3.complex.Complex;
 
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
  * Implements the characteristic function of a Heston model.
@@ -52,16 +52,16 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * @author Lorenzo Toricelli
  * @version 1.0
  */
-public class HestonModel implements ProcessCharacteristicFunctionInterface {
+public class HestonModel implements CharacteristicFunctionModel {
 
 	private final LocalDate referenceDate;
 
 	private final double initialValue;
 
-	private final DiscountCurveInterface discountCurveForForwardRate;
+	private final DiscountCurve discountCurveForForwardRate;
 	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
 
-	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final DiscountCurve discountCurveForDiscountRate;
 	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
 
 	private final double volatility;
@@ -86,7 +86,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurveInterface discountCurveForForwardRate, double volatility, DiscountCurveInterface discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
+	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate, double volatility, DiscountCurve discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
@@ -113,7 +113,7 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(double initialValue, DiscountCurveInterface discountCurveForForwardRate, double volatility, DiscountCurveInterface discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
+	public HestonModel(double initialValue, DiscountCurve discountCurveForForwardRate, double volatility, DiscountCurve discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
 		this(null, initialValue, discountCurveForForwardRate, volatility, discountCurveForDiscountRate, theta, kappa, xi, rho);
 	}
 
@@ -151,12 +151,12 @@ public class HestonModel implements ProcessCharacteristicFunctionInterface {
 	}
 
 	@Override
-	public CharacteristicFunctionInterface apply(final double time) {
+	public CharacteristicFunction apply(final double time) {
 
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 
-		return new CharacteristicFunctionInterface() {
+		return new CharacteristicFunction() {
 			@Override
 			public Complex apply(Complex argument) {
 

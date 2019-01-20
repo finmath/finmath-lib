@@ -19,15 +19,15 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveNelsonSiegelSvensson;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Cap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.ScheduleGenerator;
@@ -98,7 +98,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		 */
 
 		// Create a discount curve
-		DiscountCurveInterface		discountCurve					= new DiscountCurveNelsonSiegelSvensson(
+		DiscountCurve		discountCurve					= new DiscountCurveNelsonSiegelSvensson(
 				"EUR",
 				LocalDate.of(2014, Month.JULY, 17),
 				new double[]
@@ -112,7 +112,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 						}
 				, 365.0/365.0);
 
-		ForwardCurveInterface	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD", LocalDate.of(2014, Month.JULY, 17),
+		ForwardCurve	forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR FWD", LocalDate.of(2014, Month.JULY, 17),
 				"3M", new BusinessdayCalendarExcludingTARGETHolidays(), BusinessdayCalendar.DateRollConvention.MODIFIED_FOLLOWING, new DayCountConvention_ACT_360(),
 				discountCurve.getParameter(), 365.0/365.0, 0.0);
 
@@ -120,7 +120,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		Double[] volatilities	= { 0.72, 0.86, 0.75, 0.69, 0.67, 0.64, 0.58, 0.52, 0.47, 0.44, 0.40, 0.35, 0.32 };
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModel model = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurve });
+		AnalyticModelFromCuvesAndVols model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve , forwardCurve });
 
 		System.out.println("Given a discount curve:");
 		System.out.println(discountCurve.toString());
@@ -150,7 +150,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		/*
 		 * Convert given market products (which are in VOLATILITYLOGNORMAL) to the calibration (objective function) quoting conventions
 		 */
-		Vector<AnalyticProductInterface>	marketProducts = new Vector<>();
+		Vector<AnalyticProduct>	marketProducts = new Vector<>();
 		ArrayList<Double>					marketTargetValues = new ArrayList<>();
 		LocalDate referenceDate = LocalDate.of(2014,  Month.JULY,  15);
 		DaycountConvention capDayCountConvention = DaycountConvention.ACT_360;
@@ -170,7 +170,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 
 			// Create flat lognormal surface under the same name, using market quoted lognormal volatility.
 			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric(capletVolatility.getName(), null, forwardCurve, discountCurve, 0, 0, 0, volatility, 1.0);
-			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
+			AnalyticModel flatModel = model.clone().addVolatilitySurfaces(flatSurface);
 
 			// Convert to calibrationTargetValueQuotingConvention
 			double valueMarket = cap.getValue(0.0, flatModel);
@@ -182,7 +182,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		/*
 		 * Calibrate a surface to given marketTargetValues using the calibrationTargetValueQuotingConvention
 		 */
-		Vector<AnalyticProductInterface>	calibrationProducts = new Vector<>();
+		Vector<AnalyticProduct>	calibrationProducts = new Vector<>();
 		ArrayList<Double>					calibrationTargetValues = new ArrayList<>();
 		for(int i=0; i<maturities.length; i++) {
 			LocalDate	tradeDate		= referenceDate;
@@ -198,7 +198,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 					calibrationTargetValueQuotingConvention);
 
 			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, 0, 0, 0, volatility, 1.0);
-			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
+			AnalyticModel flatModel = model.clone().addVolatilitySurfaces(flatSurface);
 			double valueTarget = cap.getValue(0.0, flatModel);
 
 			calibrationProducts.add(cap);
@@ -209,7 +209,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		AbstractVolatilitySurfaceParametric calibratedSurface = capletVolatility.getCloneCalibrated(model, calibrationProducts, calibrationTargetValues, null);
 		double[] calibratedParameters = calibratedSurface.getParameter();
 
-		AnalyticModelInterface modelCalibrated = model.clone();
+		AnalyticModel modelCalibrated = model.clone();
 		modelCalibrated = modelCalibrated.addVolatilitySurfaces(calibratedSurface);
 
 		double rms = 0.0;
@@ -221,7 +221,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 			System.out.print("\t" + value);
 
 			AbstractVolatilitySurfaceParametric flatSurface = new CapletVolatilitiesParametric("Caplet", null, forwardCurve, discountCurve, 0, 0, 0, volatilityTarget, 1.0);
-			AnalyticModelInterface flatModel = model.clone().addVolatilitySurfaces(flatSurface);
+			AnalyticModel flatModel = model.clone().addVolatilitySurfaces(flatSurface);
 			double valueMarket = marketProducts.get(i).getValue(0.0, flatModel);
 			System.out.print("\t" + valueMarket);
 			System.out.println("\t" + (value-valueMarket));

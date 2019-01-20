@@ -8,7 +8,7 @@ package net.finmath.analytic.model.curves;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
@@ -122,7 +122,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	}
 
 	@Override
-	public RandomVariable getForward(AnalyticModelInterface model, double fixingTime)
+	public RandomVariable getForward(AnalyticModel model, double fixingTime)
 	{
 		double paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 		return getForward(model, fixingTime, paymentOffset);
@@ -132,7 +132,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @see net.finmath.marketdata.ForwardCurveInterface#getForward(double)
 	 */
 	@Override
-	public RandomVariable getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
+	public RandomVariable getForward(AnalyticModel model, double fixingTime, double paymentOffset)
 	{
 		if(model==null) {
 			throw new IllegalArgumentException(this.getName() + ": model==null");
@@ -161,7 +161,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public RandomVariable getValue(AnalyticModelInterface model, double time) {
+	public RandomVariable getValue(AnalyticModel model, double time) {
 		return getForward(model, time);
 	}
 

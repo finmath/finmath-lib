@@ -8,9 +8,9 @@ package net.finmath.analytic.model.volatilities;
 import java.time.LocalDate;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.time.daycount.DayCountConvention;
 
 /**
@@ -20,13 +20,13 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInterface, Cloneable {
+public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cloneable {
 
 	private	final	LocalDate	referenceDate;
 	private final	String		name;
 
-	protected ForwardCurveInterface forwardCurve;
-	protected DiscountCurveInterface discountCurve;
+	protected ForwardCurve forwardCurve;
+	protected DiscountCurve discountCurve;
 	protected QuotingConvention quotingConvention;
 	protected DayCountConvention daycountConvention;
 
@@ -72,7 +72,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurfaceInte
 	 * @param toQuotingConvention The quoting convention requested.
 	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>.
 	 */
-	public double convertFromTo(AnalyticModelInterface model, double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
+	public double convertFromTo(AnalyticModel model, double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
 
 		if(fromQuotingConvention.equals(toQuotingConvention)) {
 			return value;

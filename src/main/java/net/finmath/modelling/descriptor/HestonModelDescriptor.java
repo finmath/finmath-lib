@@ -8,7 +8,7 @@ package net.finmath.modelling.descriptor;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
  * @author Christian Fries
@@ -21,8 +21,8 @@ public class HestonModelDescriptor implements AssetModelDescriptor {
 
 	private final Double initialValue;
 
-	private final DiscountCurveInterface discountCurveForForwardRate;
-	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final DiscountCurve discountCurveForForwardRate;
+	private final DiscountCurve discountCurveForDiscountRate;
 
 	private final Double volatility;
 
@@ -32,7 +32,7 @@ public class HestonModelDescriptor implements AssetModelDescriptor {
 	private final Double rho;
 
 	public HestonModelDescriptor(LocalDate referenceDate, Double initialValue,
-			DiscountCurveInterface discountCurveForForwardRate, DiscountCurveInterface discountCurveForDiscountRate,
+			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate,
 			Double volatility, Double theta, Double kappa, Double xi, Double rho) {
 		super();
 		this.referenceDate = referenceDate;
@@ -73,14 +73,14 @@ public class HestonModelDescriptor implements AssetModelDescriptor {
 	/**
 	 * @return the discountCurveForForwardRate
 	 */
-	public DiscountCurveInterface getDiscountCurveForForwardRate() {
+	public DiscountCurve getDiscountCurveForForwardRate() {
 		return discountCurveForForwardRate;
 	}
 
 	/**
 	 * @return the discountCurveForDiscountRate
 	 */
-	public DiscountCurveInterface getDiscountCurveForDiscountRate() {
+	public DiscountCurve getDiscountCurveForDiscountRate() {
 		return discountCurveForDiscountRate;
 	}
 

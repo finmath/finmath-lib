@@ -7,7 +7,7 @@ package net.finmath.marketdata.model.curves;
 
 import java.io.Serializable;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * A discount curve derived from a given forward curve.
@@ -30,12 +30,12 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class DiscountCurveFromForwardCurve extends AbstractCurve implements Serializable, DiscountCurveInterface {
+public class DiscountCurveFromForwardCurve extends AbstractCurve implements Serializable, DiscountCurve {
 
 	private static final long serialVersionUID = -4126228588123963885L;
 
 	private String					forwardCurveName;
-	private ForwardCurveInterface	forwardCurve;
+	private ForwardCurve	forwardCurve;
 
 	private final double			timeScaling;
 
@@ -68,7 +68,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @param forwardCurve The forward curve used for calculation of the discount factors.
 	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
 	 */
-	public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve, double periodLengthTimeScaling) {
+	public DiscountCurveFromForwardCurve(ForwardCurve forwardCurve, double periodLengthTimeScaling) {
 		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
 
 		this.forwardCurve	= forwardCurve;
@@ -99,7 +99,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 *
 	 * @param forwardCurve The forward curve used for calculation of the discount factors.
 	 */
-	public DiscountCurveFromForwardCurve(ForwardCurveInterface forwardCurve) {
+	public DiscountCurveFromForwardCurve(ForwardCurve forwardCurve) {
 		this(forwardCurve, 1.0);
 	}
 
@@ -115,8 +115,8 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
 	 */
 	@Override
-	public double getDiscountFactor(AnalyticModelInterface model, double maturity) {
-		ForwardCurveInterface	forwardCurve;
+	public double getDiscountFactor(AnalyticModel model, double maturity) {
+		ForwardCurve	forwardCurve;
 		if(this.forwardCurve != null) {
 			forwardCurve = this.forwardCurve;
 		} else {
@@ -146,7 +146,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		return getDiscountFactor(model, time);
 	}
 
@@ -160,7 +160,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 

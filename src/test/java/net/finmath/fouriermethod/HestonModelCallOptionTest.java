@@ -18,10 +18,10 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
 import net.finmath.fouriermethod.models.HestonModel;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.fouriermethod.products.DigitalOption;
 import net.finmath.fouriermethod.products.EuropeanOption;
+import net.finmath.fouriermethod.products.FourierTransformProduct;
 
 /**
  * Test class for the valuation of a call option under Heston
@@ -46,7 +46,7 @@ public class HestonModelCallOptionTest {
 		});
 	}
 
-	private final AbstractProductFourierTransform product;
+	private final FourierTransformProduct product;
 
 	// Model properties
 	private final double	initialValue   = 1.0;
@@ -61,7 +61,7 @@ public class HestonModelCallOptionTest {
 	private static final double maturity	= 1.0;
 	private static final double strike		= 0.95;
 
-	public HestonModelCallOptionTest(AbstractProductFourierTransform product) {
+	public HestonModelCallOptionTest(FourierTransformProduct product) {
 		super();
 		this.product = product;
 	}
@@ -72,8 +72,8 @@ public class HestonModelCallOptionTest {
 		// For xi close to zero we should recover the Black Scholes model
 		double xi = 0.000001;
 
-		ProcessCharacteristicFunctionInterface modelBS = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-		ProcessCharacteristicFunctionInterface modelHS = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
+		CharacteristicFunctionModel modelBS = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		CharacteristicFunctionModel modelHS = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
 
 		long startMillis	= System.currentTimeMillis();
 

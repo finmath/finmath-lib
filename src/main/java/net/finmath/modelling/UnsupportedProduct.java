@@ -9,8 +9,8 @@ package net.finmath.modelling;
 import java.io.Serializable;
 import java.util.Map;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.products.AnalyticProduct;
 
 /**
  * A product throwing an exception if its <code>getValue</code> method is called.
@@ -20,7 +20,7 @@ import net.finmath.marketdata.products.AnalyticProductInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class UnsupportedProduct implements Product, AnalyticProductInterface, Serializable {
+public class UnsupportedProduct implements Product, AnalyticProduct, Serializable {
 
 	private static final long serialVersionUID = 5375406324063846793L;
 	private final Exception exception;
@@ -41,7 +41,7 @@ public class UnsupportedProduct implements Product, AnalyticProductInterface, Se
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
 	}
 

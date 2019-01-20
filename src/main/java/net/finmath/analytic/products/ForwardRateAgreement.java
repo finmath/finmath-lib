@@ -1,6 +1,6 @@
 package net.finmath.analytic.products;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
@@ -22,7 +22,7 @@ import net.finmath.time.Schedule;
  * @author Christian Fries
  * @version 1.0
  */
-public class ForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class ForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private Schedule					schedule;
 	private final String						forwardCurveName;
@@ -66,7 +66,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
@@ -102,7 +102,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param model A given model.
 	 * @return The par FRA rate.
 	 */
-	public RandomVariable getRate(AnalyticModelInterface model) {
+	public RandomVariable getRate(AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}

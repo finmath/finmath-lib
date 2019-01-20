@@ -19,17 +19,17 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.analytic.calibration.ParameterObjectInterface;
 import net.finmath.analytic.calibration.Solver;
+import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.analytic.model.AnalyticModel;
-import net.finmath.analytic.model.AnalyticModelInterface;
-import net.finmath.analytic.model.curves.Curve.ExtrapolationMethod;
-import net.finmath.analytic.model.curves.Curve.InterpolationEntity;
-import net.finmath.analytic.model.curves.Curve.InterpolationMethod;
-import net.finmath.analytic.model.curves.CurveInterface;
-import net.finmath.analytic.model.curves.DiscountCurve;
-import net.finmath.analytic.model.curves.ForwardCurve;
+import net.finmath.analytic.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
+import net.finmath.analytic.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
+import net.finmath.analytic.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.analytic.model.curves.Curve;
+import net.finmath.analytic.model.curves.DiscountCurveInterpolation;
+import net.finmath.analytic.model.curves.ForwardCurveInterpolation;
 import net.finmath.analytic.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
-import net.finmath.analytic.products.AnalyticProductInterface;
+import net.finmath.analytic.products.AnalyticProduct;
 import net.finmath.analytic.products.Swap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariable;
@@ -93,7 +93,7 @@ public class CalibrationTest {
 		 */
 
 		// Create a discount curve
-		DiscountCurve			discountCurve					= DiscountCurve.createDiscountCurveFromDiscountFactors(
+		DiscountCurveInterpolation			discountCurve					= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				"discountCurve"								/* name */,
 				new double[] {0.0,  1.0,  2.0,  4.0,  5.0}	/* maturities */,
 				new double[] {1.0, 0.95, 0.90, 0.85, 0.80}	/* discount factors */
@@ -107,7 +107,7 @@ public class CalibrationTest {
 				);
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurveFromDiscountCurve });
+		AnalyticModelFromCuvesAndVols model1 = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve , forwardCurveFromDiscountCurve });
 
 		System.out.println("Given a discount curve:");
 		System.out.println(discountCurve.toString());
@@ -131,13 +131,13 @@ public class CalibrationTest {
 		/*
 		 * CALIBRATING A CURVE - SINGLE CURVE SETUP
 		 *
-		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
+		 * Note: Only maturity > 0 (DiscountCurveInterpolation) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
 
 		System.out.println("Calibrating a discount curve from swaps (single-curve/self-discounting).");
 
 		// Create a discount curve
-		DiscountCurve			discountCurve					= DiscountCurve.createDiscountCurveFromDiscountFactors(
+		DiscountCurveInterpolation			discountCurve					= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				"discountCurve"								/* name */,
 				new double[] {0.0,  1.0,  2.0,  4.0,  5.0}	/* maturities */,
 				new double[] {1.0, 0.95, 0.90, 0.85, 0.80}	/* discount factors */,
@@ -154,7 +154,7 @@ public class CalibrationTest {
 				);
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts1 = new Vector<>();
+		Vector<AnalyticProduct> calibrationProducts1 = new Vector<>();
 
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 1.0)), null, 0.05, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 1.0)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 2, 1.0)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
@@ -162,7 +162,7 @@ public class CalibrationTest {
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModel model1 = new AnalyticModel(new CurveInterface[] { discountCurve , forwardCurveFromDiscountCurve });
+		AnalyticModelFromCuvesAndVols model1 = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve , forwardCurveFromDiscountCurve });
 
 		// Create a collection of curves to calibrate
 		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<>();
@@ -170,7 +170,7 @@ public class CalibrationTest {
 
 		// Calibrate the curve
 		Solver solver1 = new Solver(model1, calibrationProducts1);
-		AnalyticModelInterface calibratedModel1 = solver1.getCalibratedModel(curvesToCalibrate1);
+		AnalyticModel calibratedModel1 = solver1.getCalibratedModel(curvesToCalibrate1);
 		System.out.println("The solver required " + solver1.getIterations() + " iterations.");
 		System.out.println("The best fit curve is:");
 		System.out.println(calibratedModel1.getCurve(discountCurve.getName()).toString());
@@ -185,7 +185,7 @@ public class CalibrationTest {
 		double evaluationTime = 0.0;
 		double error = 0;
 		for(int calibrationProductIndex = 0; calibrationProductIndex < calibrationProducts1.size(); calibrationProductIndex++) {
-			AnalyticProductInterface	calibrationProduct		= calibrationProducts1.get(calibrationProductIndex);
+			AnalyticProduct	calibrationProduct		= calibrationProducts1.get(calibrationProductIndex);
 			RandomVariable		calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel1);
 			System.out.println("Calibration product " + calibrationProductIndex + ":\t" + calibrationProductValue);
 
@@ -200,19 +200,19 @@ public class CalibrationTest {
 		/*
 		 * CALIBRATE A FORWARD CURVE, USING THE GIVEN DISCOUNT CURVE (MULTI-CURVE SETUP)
 		 *
-		 * Note: Only maturity > 0 (DiscountCurve) and fixing > 0 (ForwardCurve) are calibration parameters (!)
+		 * Note: Only maturity > 0 (DiscountCurveInterpolation) and fixing > 0 (ForwardCurve) are calibration parameters (!)
 		 */
 
 		// Create initial guess for the curve
-		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards("forwardCurve", new double[] {2.0/365.0, 1.0, 2.0, 3.0, 4.0}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05}, model1, discountCurve.getName(), 0.5);
+		ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards("forwardCurve", new double[] {2.0/365.0, 1.0, 2.0, 3.0, 4.0}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05}, model1, discountCurve.getName(), 0.5);
 
 		// Make collection of all curves used in valuation
-		AnalyticModel model2 = new AnalyticModel( new CurveInterface[] { discountCurve, forwardCurve } );
+		AnalyticModelFromCuvesAndVols model2 = new AnalyticModelFromCuvesAndVols( new Curve[] { discountCurve, forwardCurveInterpolation } );
 
 		System.out.println("Calibrating a forward curve from swaps using the given discount curve.");
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts2 = new Vector<>();
+		Vector<AnalyticProduct> calibrationProducts2 = new Vector<>();
 
 		// It is possible to mix tenors (although it may not be meaningful in a forward curve calibration)
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 1.0)), null, 0.06, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 1, 0.5)), "forwardCurve", 0.0, "discountCurve"));
@@ -223,14 +223,14 @@ public class CalibrationTest {
 
 		// Create a collection of curves to calibrate
 		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<>();
-		curvesToCalibrate2.add(forwardCurve);
+		curvesToCalibrate2.add(forwardCurveInterpolation);
 
 		// Calibrate the curve
 		Solver solver2 = new Solver(model2, calibrationProducts2);
-		AnalyticModelInterface calibratedModel2 = solver2.getCalibratedModel(curvesToCalibrate2);
+		AnalyticModel calibratedModel2 = solver2.getCalibratedModel(curvesToCalibrate2);
 		System.out.println("The solver required " + solver2.getIterations() + " iterations.");
 		System.out.println("The best fit curve is:");
-		System.out.println(calibratedModel2.getCurve(forwardCurve.getName()).toString());
+		System.out.println(calibratedModel2.getCurve(forwardCurveInterpolation.getName()).toString());
 
 		/*
 		 * The model calibratedModel2 now contains a set of calibrated curves.
@@ -241,7 +241,7 @@ public class CalibrationTest {
 		System.out.println("Calibration check:");
 		double error2 = 0;
 		for(int calibrationProductIndex = 0; calibrationProductIndex < calibrationProducts2.size(); calibrationProductIndex++) {
-			AnalyticProductInterface	calibrationProduct		= calibrationProducts2.get(calibrationProductIndex);
+			AnalyticProduct	calibrationProduct		= calibrationProducts2.get(calibrationProductIndex);
 			RandomVariable		calibrationProductValue	= calibrationProduct.getValue(evaluationTime, calibratedModel2);
 			System.out.println("Calibration product " + calibrationProductIndex + ":\t" + calibrationProductValue);
 

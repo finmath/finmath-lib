@@ -20,10 +20,10 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModelWithDirectSimulation;
@@ -106,11 +106,11 @@ public class HullWhiteModelTest {
 		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				LocalDate.of(2014, Month.AUGUST, 12),
 				"6M",
-				ForwardCurve.InterpolationEntityForward.FORWARD,
+				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
@@ -118,7 +118,7 @@ public class HullWhiteModelTest {
 				);
 
 		// Create the discount curve
-		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+		DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 
 		/*
 		 * Create a simulation time discretization
@@ -262,7 +262,7 @@ public class HullWhiteModelTest {
 			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
 
 			// Bond price analytic
-			DiscountCurveInterface discountCurve = hullWhiteModelSimulation.getModel().getDiscountCurve();
+			DiscountCurve discountCurve = hullWhiteModelSimulation.getModel().getDiscountCurve();
 			if(discountCurve == null) {
 				discountCurve = new DiscountCurveFromForwardCurve(hullWhiteModelSimulation.getModel().getForwardRateCurve());
 			}
@@ -876,15 +876,15 @@ public class HullWhiteModelTest {
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationModel liborMarketModel, double[] swapTenor, String tenorCode) {
-		DiscountCurveInterface modelCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
-		ForwardCurveInterface forwardCurve = new ForwardCurveFromDiscountCurve(modelCurve.getName(), liborMarketModel.getModel().getForwardRateCurve().getReferenceDate(), tenorCode);
+		DiscountCurve modelCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
+		ForwardCurve forwardCurve = new ForwardCurveFromDiscountCurve(modelCurve.getName(), liborMarketModel.getModel().getForwardRateCurve().getReferenceDate(), tenorCode);
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor),
 				forwardCurve,
 				modelCurve);
 	}
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationModel liborMarketModel, double[] swapTenor) {
-		DiscountCurveInterface discountCurve = liborMarketModel.getModel().getDiscountCurve();
+		DiscountCurve discountCurve = liborMarketModel.getModel().getDiscountCurve();
 		if(discountCurve == null) {
 			discountCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
 		}

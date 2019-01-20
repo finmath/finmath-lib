@@ -11,8 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
@@ -102,12 +102,12 @@ public class LIBORIndex extends AbstractIndex {
 
 		if(getName() != null && !model.getModel().getForwardRateCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
-			AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
+			AnalyticModel analyticModel = model.getModel().getAnalyticModel();
 			if(analyticModel == null) {
 				throw new IllegalArgumentException("Index " + getName() + " does not aggree with model curve " + model.getModel().getForwardRateCurve().getName() + " and requires analytic model for adjustment. The analyticModel is null.");
 			}
-			ForwardCurveInterface indexForwardCurve = analyticModel.getForwardCurve(getName());
-			ForwardCurveInterface modelForwardCurve = model.getModel().getForwardRateCurve();
+			ForwardCurve indexForwardCurve = analyticModel.getForwardCurve(getName());
+			ForwardCurve modelForwardCurve = model.getModel().getForwardRateCurve();
 			double adjustment = (1.0 + indexForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength) / (1.0 + modelForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength);
 			forwardRate = forwardRate.mult(periodLength).add(1.0).mult(adjustment).sub(1.0).div(periodLength);
 		}

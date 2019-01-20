@@ -6,7 +6,7 @@ package net.finmath.analytic.model.curves;
 
 import java.io.Serializable;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 
@@ -116,7 +116,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
 	 */
 	@Override
-	public RandomVariable getDiscountFactor(AnalyticModelInterface model, double maturity) {
+	public RandomVariable getDiscountFactor(AnalyticModel model, double maturity) {
 		ForwardCurveInterface	forwardCurve;
 		if(this.forwardCurve != null) {
 			forwardCurve = this.forwardCurve;
@@ -146,7 +146,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public RandomVariable getValue(AnalyticModelInterface model, double time) {
+	public RandomVariable getValue(AnalyticModel model, double time) {
 		return getDiscountFactor(model, time);
 	}
 
@@ -160,7 +160,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 

@@ -6,7 +6,7 @@
 
 package net.finmath.fouriermethod.models;
 
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
+import net.finmath.fouriermethod.CharacteristicFunction;
 import net.finmath.modelling.Model;
 
 /**
@@ -17,7 +17,7 @@ import net.finmath.modelling.Model;
  * @version 1.0
  */
 @FunctionalInterface
-public interface ProcessCharacteristicFunctionInterface extends Model {
+public interface CharacteristicFunctionModel extends Model {
 
 	/**
 	 * Returns the characteristic function of X(t), where X is <code>this</code> stochastic process.
@@ -25,5 +25,5 @@ public interface ProcessCharacteristicFunctionInterface extends Model {
 	 * @param time The time at which the stochastic process is observed.
 	 * @return The characteristic function of X(t).
 	 */
-	CharacteristicFunctionInterface apply(double time);
+	CharacteristicFunction apply(double time);
 }

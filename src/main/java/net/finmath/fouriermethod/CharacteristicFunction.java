@@ -20,6 +20,6 @@ import org.apache.commons.math3.complex.Complex;
  * @version 1.0
  */
 @FunctionalInterface
-public interface CharacteristicFunctionInterface extends Function<Complex, Complex> {
+public interface CharacteristicFunction extends Function<Complex, Complex> {
 
 }

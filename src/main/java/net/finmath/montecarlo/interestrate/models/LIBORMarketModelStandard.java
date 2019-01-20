@@ -10,10 +10,10 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.volatilities.AbstractSwaptionMarketData;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
@@ -67,10 +67,10 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	private final TimeDiscretization		liborPeriodDiscretization;
 
 	private String							forwardCurveName;
-	private AnalyticModelInterface			curveModel;
+	private AnalyticModel			curveModel;
 
-	private ForwardCurveInterface			forwardRateCurve;
-	private DiscountCurveInterface			discountCurve;
+	private ForwardCurve			forwardRateCurve;
+	private DiscountCurve			discountCurve;
 
 	private LIBORCovarianceModel	covarianceModel;
 
@@ -91,7 +91,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretization		liborPeriodDiscretization,
-			ForwardCurveInterface			forwardRateCurve,
+			ForwardCurve			forwardRateCurve,
 			LIBORCovarianceModel	covarianceModel
 			) {
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
@@ -109,8 +109,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretization		liborPeriodDiscretization,
-			ForwardCurveInterface			forwardRateCurve,
-			DiscountCurveInterface			discountCurve,
+			ForwardCurve			forwardRateCurve,
+			DiscountCurve			discountCurve,
 			LIBORCovarianceModel	covarianceModel
 			) {
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
@@ -131,7 +131,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretization			liborPeriodDiscretization,
-			ForwardCurveInterface				forwardRateCurve,
+			ForwardCurve				forwardRateCurve,
 			LIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
@@ -150,8 +150,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretization			liborPeriodDiscretization,
-			ForwardCurveInterface				forwardRateCurve,
-			DiscountCurveInterface				discountCurve,
+			ForwardCurve				forwardRateCurve,
+			DiscountCurve				discountCurve,
 			LIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
@@ -172,8 +172,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 */
 	public LIBORMarketModelStandard(
 			TimeDiscretization				liborPeriodDiscretization,
-			ForwardCurveInterface					forwardRateCurve,
-			DiscountCurveInterface					discountCurve,
+			ForwardCurve					forwardRateCurve,
+			DiscountCurve					discountCurve,
 			LIBORCovarianceModel			covarianceModel,
 			CalibrationProduct[]						calibrationProducts
 			) throws CalculationException {
@@ -198,7 +198,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, null);
 	}
 
-	private static CalibrationProduct[] getCalibrationItems(TimeDiscretization liborPeriodDiscretization, ForwardCurveInterface forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
+	private static CalibrationProduct[] getCalibrationItems(TimeDiscretization liborPeriodDiscretization, ForwardCurve forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
 		if(swaptionMarketData == null) {
 			return null;
 		}
@@ -333,7 +333,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		 * Adjust for discounting
 		 */
 		if(discountCurve != null) {
-			DiscountCurveInterface discountcountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);
+			DiscountCurve discountcountCurveFromForwardPerformance = new DiscountCurveFromForwardCurve(forwardRateCurve);
 			double deterministicNumeraireAdjustment = discountcountCurveFromForwardPerformance.getDiscountFactor(time) / discountCurve.getDiscountFactor(time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
@@ -473,7 +473,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModel must not be null
+			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, periodEnd-previousEndTime);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
@@ -498,7 +498,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModel must not be null
+			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-periodStart);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-previousStartTime);
@@ -793,14 +793,14 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	}
 
 	@Override
-	public AnalyticModelInterface getAnalyticModel() {
+	public AnalyticModel getAnalyticModel() {
 		return curveModel;
 	}
 
 	@Override
-	public DiscountCurveInterface getDiscountCurve() {
+	public DiscountCurve getDiscountCurve() {
 		if(discountCurve == null) {
-			DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(getForwardRateCurve());
+			DiscountCurve discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(getForwardRateCurve());
 			return discountCurveFromForwardCurve;
 		}
 
@@ -808,7 +808,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	}
 
 	@Override
-	public ForwardCurveInterface getForwardRateCurve() {
+	public ForwardCurve getForwardRateCurve() {
 		return forwardRateCurve;
 	}
 
@@ -843,8 +843,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	@Override
 	public LIBORMarketModelStandard getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		TimeDiscretization		liborPeriodDiscretization	= this.liborPeriodDiscretization;
-		AnalyticModelInterface			analyticModel				= this.curveModel;
-		ForwardCurveInterface			forwardRateCurve			= this.forwardRateCurve;
+		AnalyticModel			analyticModel				= this.curveModel;
+		ForwardCurve			forwardRateCurve			= this.forwardRateCurve;
 		LIBORCovarianceModel	covarianceModel				= this.covarianceModel;
 		AbstractSwaptionMarketData		swaptionMarketData			= null;
 
@@ -852,7 +852,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.get("liborPeriodDiscretization");
 		}
 		if(dataModified.containsKey("forwardRateCurve")) {
-			forwardRateCurve = (ForwardCurveInterface)dataModified.get("forwardRateCurve");
+			forwardRateCurve = (ForwardCurve)dataModified.get("forwardRateCurve");
 		}
 		if(dataModified.containsKey("forwardRateShift")) {
 			throw new RuntimeException("Forward rate shift clone currently disabled.");

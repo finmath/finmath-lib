@@ -19,8 +19,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.fouriermethod.products.FourierTransformProduct;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
@@ -119,7 +119,7 @@ public class HestonModelTest {
 			monteCarloHestonModel = new MonteCarloAssetModel(model, process);
 		}
 
-		ProcessCharacteristicFunctionInterface characteristFunctionHeston = new net.finmath.fouriermethod.models.HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
+		CharacteristicFunctionModel characteristFunctionHeston = new net.finmath.fouriermethod.models.HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
 
 		System.out.println("Implied volatilties using:\n"
 				+ "  (mc/bs) = Monte-Carlo/Black-Scholes\n"
@@ -149,7 +149,7 @@ public class HestonModelTest {
 			/*
 			 * Valuation using Fourier transform models
 			 */
-			AbstractProductFourierTransform europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
+			FourierTransformProduct europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
 			double valueHestonFourier = europeanFourier.getValue(characteristFunctionHeston);
 			double impliedVolHestonFourier = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueHestonFourier);
 

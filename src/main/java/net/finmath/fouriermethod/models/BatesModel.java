@@ -7,7 +7,7 @@ package net.finmath.fouriermethod.models;
 
 import org.apache.commons.math3.complex.Complex;
 
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
+import net.finmath.fouriermethod.CharacteristicFunction;
 
 /**
  * Implements the characteristic function of a Bates model.
@@ -60,7 +60,7 @@ import net.finmath.fouriermethod.CharacteristicFunctionInterface;
  * @author Lorenzo Toricelli
  * @version 1.0
  */
-public class BatesModel implements ProcessCharacteristicFunctionInterface {
+public class BatesModel implements CharacteristicFunctionModel {
 
 	private final double initialValue;
 	private final double riskFreeRate; // Actually the same as the drift (which is not stochastic)
@@ -207,8 +207,8 @@ public class BatesModel implements ProcessCharacteristicFunctionInterface {
 	 * @see net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface#apply(double)
 	 */
 	@Override
-	public CharacteristicFunctionInterface apply(final double time) {
-		return new CharacteristicFunctionInterface() {
+	public CharacteristicFunction apply(final double time) {
+		return new CharacteristicFunction() {
 			@Override
 			public Complex apply(Complex argument) {
 

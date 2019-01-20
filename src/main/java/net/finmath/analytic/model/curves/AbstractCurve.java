@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractCurve implements CurveInterface, Cloneable {
+public abstract class AbstractCurve implements Curve, Cloneable {
 
 	private	final	LocalDate	referenceDate;
 	private final	String		name;
@@ -74,7 +74,7 @@ public abstract class AbstractCurve implements CurveInterface, Cloneable {
 
 
 	@Override
-	public CurveInterface getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 

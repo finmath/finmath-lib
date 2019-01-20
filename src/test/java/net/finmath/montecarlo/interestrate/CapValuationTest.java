@@ -18,12 +18,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
 import net.finmath.marketdata.products.Cap;
@@ -38,7 +38,7 @@ import net.finmath.time.Schedule;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
- * This class tests the valuation of a Cap using LMM and an AnalyticModel.
+ * This class tests the valuation of a Cap using LMM and an AnalyticModelFromCuvesAndVols.
  *
  * @author Christian Fries
  */
@@ -46,8 +46,8 @@ public class CapValuationTest {
 
 	LocalDate referenceDate = LocalDate.of(2014, Month.JUNE, 15);
 
-	private ForwardCurveInterface					forwardCurve;
-	private DiscountCurveInterface					discountCurve;
+	private ForwardCurve					forwardCurve;
+	private DiscountCurve					discountCurve;
 	private LIBORModelMonteCarloSimulationModel	liborMarketModel;
 	private AbstractVolatilitySurface				capletVol;
 
@@ -80,7 +80,7 @@ public class CapValuationTest {
 		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
 				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */,
@@ -88,7 +88,7 @@ public class CapValuationTest {
 				);
 
 		// Create the discount curve
-		discountCurve = DiscountCurve.createDiscountCurveFromZeroRates(
+		discountCurve = DiscountCurveInterpolation.createDiscountCurveFromZeroRates(
 				"discountCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* maturities */,
 				new double[] {0.04, 0.04, 0.04, 0.04, 0.05}	/* zero rates */
@@ -188,7 +188,7 @@ public class CapValuationTest {
 			System.out.print(formatterValue.format(valueSimulation) + "          ");
 
 			// Value analytic
-			AnalyticModelInterface model = new AnalyticModel();
+			AnalyticModel model = new AnalyticModelFromCuvesAndVols();
 			model = model.addCurves(forwardCurve);
 			model = model.addCurves(discountCurve);
 			model = model.addVolatilitySurfaces(capletVol);

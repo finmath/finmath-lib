@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
@@ -23,7 +23,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractForwardCurve extends Curve implements ForwardCurveInterface {
+public abstract class AbstractForwardCurve extends CurveFromInterpolationPoints implements ForwardCurveInterface {
 
 	private static final long serialVersionUID = 3735595267579329042L;
 
@@ -148,7 +148,7 @@ public abstract class AbstractForwardCurve extends Curve implements ForwardCurve
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
 	 */
-	public RandomVariable[] getForwards(AnalyticModelInterface model, double[] fixingTimes)
+	public RandomVariable[] getForwards(AnalyticModel model, double[] fixingTimes)
 	{
 		RandomVariable[] values = new RandomVariable[fixingTimes.length];
 

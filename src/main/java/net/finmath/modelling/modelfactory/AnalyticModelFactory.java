@@ -3,9 +3,9 @@ package net.finmath.modelling.modelfactory;
 import java.time.LocalDate;
 import java.util.Map;
 
-import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
@@ -28,17 +28,17 @@ public class AnalyticModelFactory implements ModelFactory<AnalyticModelDescripto
 	}
 
 	/**
-	 * Class extending {@link net.finmath.marketdata.model.AnalyticModel} with the funtionality of a described model.
+	 * Class extending {@link net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols} with the funtionality of a described model.
 	 *
 	 * @author Christian Fries
 	 * @author Roland Bachl
 	 *
 	 */
-	public static class DescribedAnalyticModel extends AnalyticModel implements DescribedModel<AnalyticModelDescriptor> {
+	public static class DescribedAnalyticModel extends AnalyticModelFromCuvesAndVols implements DescribedModel<AnalyticModelDescriptor> {
 
 		private static final long serialVersionUID = -2884913997994052340L;
 
-		public DescribedAnalyticModel(LocalDate referenceDate, Map<String, CurveInterface> curvesMap, Map<String, VolatilitySurfaceInterface> volatilitySurfaceMap) {
+		public DescribedAnalyticModel(LocalDate referenceDate, Map<String, Curve> curvesMap, Map<String, VolatilitySurface> volatilitySurfaceMap) {
 			super(referenceDate, curvesMap, volatilitySurfaceMap);
 		}
 

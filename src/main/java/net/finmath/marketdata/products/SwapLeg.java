@@ -11,9 +11,9 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Optional;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.ScheduleDescriptor;
@@ -31,7 +31,7 @@ import net.finmath.time.Schedule;
  * @author Christian Fries
  * @version 1.0
  */
-public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductInterface, DescribedProduct<InterestRateSwapLegProductDescriptor> {
+public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct, DescribedProduct<InterestRateSwapLegProductDescriptor> {
 
 	private final Optional<LocalDateTime>	cashFlowEffectiveDate;
 
@@ -162,12 +162,12 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
@@ -181,12 +181,12 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, productRefereceDate);
 		}
 
-		DiscountCurveInterface discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
+		DiscountCurve discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
 		if(discountCurveForNotionalReset == null  && notionals == null) {
 			throw new IllegalArgumentException("No discountCurveForNotionalReset with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
 		}
 
-		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}

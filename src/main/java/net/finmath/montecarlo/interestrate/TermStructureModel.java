@@ -9,9 +9,9 @@ package net.finmath.montecarlo.interestrate;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -30,21 +30,21 @@ public interface TermStructureModel extends ProcessModel {
 	 *
 	 * @return The associated analytic model.
 	 */
-	AnalyticModelInterface getAnalyticModel();
+	AnalyticModel getAnalyticModel();
 
 	/**
 	 * Return the discount curve associated the forwards.
 	 *
 	 * @return the discount curve associated the forwards.
 	 */
-	DiscountCurveInterface getDiscountCurve();
+	DiscountCurve getDiscountCurve();
 
 	/**
 	 * Return the initial forward rate curve.
 	 *
 	 * @return the forward rate curve
 	 */
-	ForwardCurveInterface getForwardRateCurve();
+	ForwardCurve getForwardRateCurve();
 
 	/**
 	 * Returns the term structure covariance model.

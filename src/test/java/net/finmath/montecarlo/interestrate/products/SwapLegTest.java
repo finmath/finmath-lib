@@ -17,14 +17,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -103,7 +103,7 @@ public class SwapLegTest {
 		/*
 		 * Analytic value
 		 */
-		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		AnalyticModel modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("Float leg (analytic)..: " + valueAnalytic);
 
@@ -161,7 +161,7 @@ public class SwapLegTest {
 		/*
 		 * Analytic value
 		 */
-		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		AnalyticModel modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("Fixed leg (analytic)..: " + valueAnalytic);
 
@@ -219,7 +219,7 @@ public class SwapLegTest {
 		/*
 		 * Analytic value
 		 */
-		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		AnalyticModel modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("CMS   leg (analytic, zero vol)...: " + valueAnalytic);
 		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
@@ -288,7 +288,7 @@ public class SwapLegTest {
 		/*
 		 * Analytic value
 		 */
-		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		AnalyticModel modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("CMS leg (analytic, zero vol): " + valueAnalytic);
 		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
@@ -348,7 +348,7 @@ public class SwapLegTest {
 		/*
 		 * Analytic value
 		 */
-		AnalyticModelInterface modelAnalytic = model.getModel().getAnalyticModel();
+		AnalyticModel modelAnalytic = model.getModel().getAnalyticModel();
 		double valueAnalytic = legAnalytic.getValue(0.0, modelAnalytic);
 		System.out.println("Arrears leg (analytic, zero vol): " + valueAnalytic);
 		System.out.println("Note: Analytic value does not consider the convexity adjustment.");
@@ -364,16 +364,16 @@ public class SwapLegTest {
 
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				referenceDate,
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				BusinessdayCalendar.DateRollConvention.FOLLOWING,
-				Curve.InterpolationMethod.LINEAR,
-				Curve.ExtrapolationMethod.CONSTANT,
-				Curve.InterpolationEntity.VALUE,
-				ForwardCurve.InterpolationEntityForward.FORWARD,
+				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
+				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
+				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
@@ -381,19 +381,19 @@ public class SwapLegTest {
 				);
 
 		// Create the discount curve
-		DiscountCurve discountCurve = DiscountCurve.createDiscountCurveFromZeroRates(
+		DiscountCurveInterpolation discountCurveInterpolation = DiscountCurveInterpolation.createDiscountCurveFromZeroRates(
 				"discountCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* maturities */,
 				new double[] {0.04, 0.04, 0.04, 0.04, 0.05}	/* zero rates */
 				);
 
-		return createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, discountCurve, forwardCurve);
+		return createLIBORMarketModel(numberOfPaths, numberOfFactors, correlationDecayParam, discountCurveInterpolation, forwardCurveInterpolation);
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
-			int numberOfPaths, int numberOfFactors, double correlationDecayParam, DiscountCurveInterface discountCurve, ForwardCurveInterface forwardCurve) throws CalculationException {
+			int numberOfPaths, int numberOfFactors, double correlationDecayParam, DiscountCurve discountCurve, ForwardCurve forwardCurve) throws CalculationException {
 
-		AnalyticModelInterface model = new AnalyticModel(new CurveInterface[] { forwardCurve , discountCurve });
+		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve , discountCurve });
 
 		/*
 		 * Create the libor tenor structure and the initial values

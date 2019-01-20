@@ -31,19 +31,19 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.Solver;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
-import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionView;
@@ -82,7 +82,7 @@ public class LIBORMarketModelCalibrationTest {
 	private static DecimalFormat formatterParam		= new DecimalFormat(" #0.000;-#0.000", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	private CalibrationProduct createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, String targetVolatilityType, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) throws CalculationException {
+	private CalibrationProduct createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, String targetVolatilityType, ForwardCurve forwardCurve, DiscountCurve discountCurve) throws CalculationException {
 
 		double[]	fixingDates			= new double[numberOfPeriods];
 		double[]	paymentDates		= new double[numberOfPeriods];
@@ -156,7 +156,7 @@ public class LIBORMarketModelCalibrationTest {
 		double liborPeriodLength = 0.5;
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+		ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"		/* name of the curve */,
 				fixingTimes			/* fixings of the forward */,
 				forwardRates		/* forwards */,
@@ -164,7 +164,7 @@ public class LIBORMarketModelCalibrationTest {
 				);
 
 
-		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve, liborPeriodLength);
+		DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurveInterpolation, liborPeriodLength);
 
 		/*
 		 * Create a set of calibration products.
@@ -182,7 +182,7 @@ public class LIBORMarketModelCalibrationTest {
 			double	moneyness			= smileMoneynesses[i];
 			double	targetVolatility	= smileVolatilities[i];
 
-			calibrationProducts.add(createCalibrationItem(1.0 /* weight */, exerciseDate, swapPeriodLength, numberOfPeriods, moneyness, targetVolatility, "VOLATILITYLOGNORMAL", forwardCurve, discountCurve));
+			calibrationProducts.add(createCalibrationItem(1.0 /* weight */, exerciseDate, swapPeriodLength, numberOfPeriods, moneyness, targetVolatility, "VOLATILITYLOGNORMAL", forwardCurveInterpolation, discountCurve));
 		}
 
 
@@ -195,7 +195,7 @@ public class LIBORMarketModelCalibrationTest {
 			double	moneyness			= 0.0;
 			double	targetVolatility	= atmOptionVolatilities[i];
 
-			calibrationProducts.add(createCalibrationItem(1.0 /* weight */, exerciseDate, swapPeriodLength, numberOfPeriods, moneyness, targetVolatility, "VOLATILITYLOGNORMAL", forwardCurve, discountCurve));
+			calibrationProducts.add(createCalibrationItem(1.0 /* weight */, exerciseDate, swapPeriodLength, numberOfPeriods, moneyness, targetVolatility, "VOLATILITYLOGNORMAL", forwardCurveInterpolation, discountCurve));
 		}
 
 		/*
@@ -261,7 +261,7 @@ public class LIBORMarketModelCalibrationTest {
 
 		LIBORMarketModelFromCovarianceModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
 				liborPeriodDiscretization,
-				forwardCurve, discountCurve, covarianceModelStochasticParametric, calibrationProducts.toArray(new CalibrationProduct[0]), properties);
+				forwardCurveInterpolation, discountCurve, covarianceModelStochasticParametric, calibrationProducts.toArray(new CalibrationProduct[0]), properties);
 
 
 		/*
@@ -330,11 +330,11 @@ public class LIBORMarketModelCalibrationTest {
 		 */
 		System.out.println("Calibration of rate curves:");
 
-		final AnalyticModelInterface curveModel = getCalibratedCurve();
+		final AnalyticModel curveModel = getCalibratedCurve();
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		final ForwardCurveInterface forwardCurve = curveModel.getForwardCurve("ForwardCurveFromDiscountCurve(discountCurve-EUR,6M)");
-		final DiscountCurveInterface discountCurve = curveModel.getDiscountCurve("discountCurve-EUR");
+		final ForwardCurve forwardCurve = curveModel.getForwardCurve("ForwardCurveFromDiscountCurve(discountCurve-EUR,6M)");
+		final DiscountCurve discountCurve = curveModel.getDiscountCurve("discountCurve-EUR");
 		//		curveModel.addCurve(discountCurve.getName(), discountCurve);
 
 		long millisCurvesEnd = System.currentTimeMillis();
@@ -591,7 +591,7 @@ public class LIBORMarketModelCalibrationTest {
 		Assert.assertTrue(Math.abs(averageDeviation) < 2E-4);
 	}
 
-	public AnalyticModelInterface getCalibratedCurve() throws SolverException {
+	public AnalyticModel getCalibratedCurve() throws SolverException {
 		final String[] maturity					= { "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "11Y", "12Y", "15Y", "20Y", "25Y", "30Y", "35Y", "40Y", "45Y", "50Y" };
 		final String[] frequency				= { "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual" };
 		final String[] frequencyFloat			= { "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual" };
@@ -614,7 +614,7 @@ public class LIBORMarketModelCalibrationTest {
 		return getCalibratedCurve(null, parameters);
 	}
 
-	private static AnalyticModelInterface getCalibratedCurve(AnalyticModelInterface model2, Map<String, Object> parameters) throws SolverException {
+	private static AnalyticModel getCalibratedCurve(AnalyticModel model2, Map<String, Object> parameters) throws SolverException {
 
 		final LocalDate	referenceDate		= (LocalDate) parameters.get("referenceDate");
 		final String	currency			= (String) parameters.get("currency");
@@ -646,10 +646,10 @@ public class LIBORMarketModelCalibrationTest {
 		 * would result in a problem where both, the forward curve and the discount curve
 		 * have free parameters.
 		 */
-		ForwardCurveInterface forwardCurve		= new ForwardCurveFromDiscountCurve(curveNameDiscount, referenceDate, forwardCurveTenor);
+		ForwardCurve forwardCurve		= new ForwardCurveFromDiscountCurve(curveNameDiscount, referenceDate, forwardCurveTenor);
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts = new Vector<>();
+		Vector<AnalyticProduct> calibrationProducts = new Vector<>();
 		double[] curveMaturities	= new double[rates.length+1];
 		double[] curveValue			= new double[rates.length+1];
 		boolean[] curveIsParameter	= new boolean[rates.length+1];
@@ -670,7 +670,7 @@ public class LIBORMarketModelCalibrationTest {
 		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
 
 		// Create a discount curve
-		DiscountCurve			discountCurve					= DiscountCurve.createDiscountCurveFromDiscountFactors(
+		DiscountCurveInterpolation			discountCurveInterpolation					= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				curveNameDiscount								/* name */,
 				curveMaturities	/* maturities */,
 				curveValue		/* discount factors */,
@@ -683,31 +683,31 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Model consists of the two curves, but only one of them provides free parameters.
 		 */
-		AnalyticModelInterface model = new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
 
 		/*
 		 * Create a collection of curves to calibrate
 		 */
 		Set<ParameterObjectInterface> curvesToCalibrate = new HashSet<>();
-		curvesToCalibrate.add(discountCurve);
+		curvesToCalibrate.add(discountCurveInterpolation);
 
 		/*
 		 * Calibrate the curve
 		 */
 		Solver solver = new Solver(model, calibrationProducts, 0.0, 1E-4 /* target accuracy */);
-		AnalyticModelInterface calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
+		AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
 		System.out.println("Solver reported acccurary....: " + solver.getAccuracy());
 
 		Assert.assertEquals("Calibration accurarcy", 0.0, solver.getAccuracy(), 1E-3);
 
 		// Get best parameters
-		double[] parametersBest = calibratedModel.getDiscountCurve(discountCurve.getName()).getParameter();
+		double[] parametersBest = calibratedModel.getDiscountCurve(discountCurveInterpolation.getName()).getParameter();
 
 		// Test calibration
 		model			= calibratedModel;
 
 		double squaredErrorSum = 0.0;
-		for(AnalyticProductInterface c : calibrationProducts) {
+		for(AnalyticProduct c : calibrationProducts) {
 			double value = c.getValue(0.0, model);
 			double valueTaget = 0.0;
 			double error = value - valueTaget;
@@ -720,12 +720,12 @@ public class LIBORMarketModelCalibrationTest {
 		System.out.println("Calibrated discount curve: ");
 		for(int i=0; i<curveMaturities.length; i++) {
 			double maturity = curveMaturities[i];
-			System.out.println(maturity + "\t" + calibratedModel.getDiscountCurve(discountCurve.getName()).getDiscountFactor(maturity));
+			System.out.println(maturity + "\t" + calibratedModel.getDiscountCurve(discountCurveInterpolation.getName()).getDiscountFactor(maturity));
 		}
 		return model;
 	}
 
-	private static double getParSwaprate(ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve, double[] swapTenor) {
+	private static double getParSwaprate(ForwardCurve forwardCurve, DiscountCurve discountCurve, double[] swapTenor) {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), forwardCurve, discountCurve);
 	}
 }

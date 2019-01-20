@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.util.Set;
 
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
@@ -15,7 +15,7 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * A fixed coupon index paying coupon calculated from a forward curve.
  *
- * @see net.finmath.marketdata.model.curves.ForwardCurveInterface
+ * @see net.finmath.marketdata.model.curves.ForwardCurve
  * @author Christian Fries
  * @version 1.0
  */
@@ -23,14 +23,14 @@ public class ForwardCurveIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 5375406324063846793L;
 
-	private final ForwardCurveInterface forwardCurve;
+	private final ForwardCurve forwardCurve;
 
 	/**
 	 * Creates a forward curve index.
 	 *
 	 * @param forwardCurve The forward curve.
 	 */
-	public ForwardCurveIndex(ForwardCurveInterface forwardCurve) {
+	public ForwardCurveIndex(ForwardCurve forwardCurve) {
 		super();
 		this.forwardCurve = forwardCurve;
 	}

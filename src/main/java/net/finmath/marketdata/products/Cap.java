@@ -11,12 +11,12 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.volatilities.CapletVolatilities;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.optimizer.GoldenSectionSearch;
 import net.finmath.time.Period;
 import net.finmath.time.Schedule;
@@ -30,7 +30,7 @@ import net.finmath.time.ScheduleFromPeriods;
  *
  * The class can value a caplet with a given strike or given moneyness. If moneyness is given,
  * the class calculates the ATM forward. Note that this is done by omitting the first (fixed) period,
- * see {@link #getATMForward(AnalyticModelInterface, boolean)}.
+ * see {@link #getATMForward(AnalyticModel, boolean)}.
  *
  * Note: A fixing in arrears is not handled correctly since a convexity adjustment is currently not applied.
  *
@@ -48,10 +48,10 @@ public class Cap extends AbstractAnalyticProduct {
 	private final String					discountCurveName;
 	private final String					volatiltiySufaceName;
 
-	private final VolatilitySurfaceInterface.QuotingConvention quotingConvention;
+	private final VolatilitySurface.QuotingConvention quotingConvention;
 
 	private transient double cachedATMForward = Double.NaN;
-	private transient SoftReference<AnalyticModelInterface> cacheStateModel;
+	private transient SoftReference<AnalyticModel> cacheStateModel;
 	private transient boolean cacheStateIsFirstPeriodIncluded;
 
 	/**
@@ -97,7 +97,7 @@ public class Cap extends AbstractAnalyticProduct {
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModelInterface model) {
+	public double getValue(double evaluationTime, AnalyticModel model) {
 		if(quotingConvention == QuotingConvention.PRICE) {
 			return getValueAsPrice(evaluationTime, model);
 		} else {
@@ -112,11 +112,11 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @param model The model.
 	 * @return Value of this product und the given model.
 	 */
-	public double getValueAsPrice(double evaluationTime, AnalyticModelInterface model) {
-		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
+	public double getValueAsPrice(double evaluationTime, AnalyticModel model) {
+		ForwardCurve	forwardCurve	= model.getForwardCurve(forwardCurveName);
+		DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);
 
-		DiscountCurveInterface	discountCurveForForward = null;
+		DiscountCurve	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			// User might like to get forward from discount curve.
 			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
@@ -164,17 +164,17 @@ public class Cap extends AbstractAnalyticProduct {
 				effektiveStrike += getATMForward(model, true);
 			}
 
-			VolatilitySurfaceInterface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
+			VolatilitySurface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
 			if(volatilitySurface == null) {
 				throw new IllegalArgumentException("Volatility surface not found in model: " + volatiltiySufaceName);
 			}
 			if(volatilitySurface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL) {
-				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurfaceInterface.QuotingConvention.VOLATILITYLOGNORMAL);
+				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurface.QuotingConvention.VOLATILITYLOGNORMAL);
 				value += AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);
 			}
 			else {
 				// Default to normal volatility as quoting convention
-				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurfaceInterface.QuotingConvention.VOLATILITYNORMAL);
+				double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurface.QuotingConvention.VOLATILITYNORMAL);
 				value += AnalyticFormulas.bachelierOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);
 			}
 		}
@@ -195,7 +195,7 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @param isFirstPeriodIncluded If true, the forward will be determined by considering the periods after removal of the first periods (except, if the Cap consists only of 1 period).
 	 * @return The ATM forward of this cap.
 	 */
-	public double getATMForward(AnalyticModelInterface model, boolean isFirstPeriodIncluded) {
+	public double getATMForward(AnalyticModel model, boolean isFirstPeriodIncluded) {
 		if(!Double.isNaN(cachedATMForward) && cacheStateModel.get() == model && cacheStateIsFirstPeriodIncluded == isFirstPeriodIncluded) {
 			return cachedATMForward;
 		}
@@ -229,7 +229,7 @@ public class Cap extends AbstractAnalyticProduct {
 	 * @param quotingConvention The quoting convention requested for the return value.
 	 * @return The value of the product using the given model in terms of a implied volatility.
 	 */
-	public double getImpliedVolatility(double evaluationTime, AnalyticModelInterface model, VolatilitySurfaceInterface.QuotingConvention quotingConvention) {
+	public double getImpliedVolatility(double evaluationTime, AnalyticModel model, VolatilitySurface.QuotingConvention quotingConvention) {
 		double lowerBound = Double.MAX_VALUE;
 		double upperBound = -Double.MAX_VALUE;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
@@ -245,7 +245,7 @@ public class Cap extends AbstractAnalyticProduct {
 				effektiveStrike += getATMForward(model, true);
 			}
 
-			VolatilitySurfaceInterface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
+			VolatilitySurface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);
 			double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, quotingConvention);
 			lowerBound = Math.min(volatility, lowerBound);
 			upperBound = Math.max(volatility, upperBound);
@@ -261,8 +261,8 @@ public class Cap extends AbstractAnalyticProduct {
 			double[] maturities		= { 1.0 };
 			double[] strikes		= { 0.0 };
 			double[] volatilities	= { volatility };
-			VolatilitySurfaceInterface flatSurface = new CapletVolatilities(model.getVolatilitySurface(volatiltiySufaceName).getName(), model.getVolatilitySurface(volatiltiySufaceName).getReferenceDate(), model.getForwardCurve(forwardCurveName), maturities, strikes, volatilities, quotingConvention, model.getDiscountCurve(discountCurveName));
-			AnalyticModelInterface flatModel = model.clone();
+			VolatilitySurface flatSurface = new CapletVolatilities(model.getVolatilitySurface(volatiltiySufaceName).getName(), model.getVolatilitySurface(volatiltiySufaceName).getReferenceDate(), model.getForwardCurve(forwardCurveName), maturities, strikes, volatilities, quotingConvention, model.getDiscountCurve(discountCurveName));
+			AnalyticModel flatModel = model.clone();
 			flatModel = flatModel.addVolatilitySurfaces(flatSurface);
 			double flatModelValue = this.getValueAsPrice(evaluationTime, flatModel);
 			double error = value-flatModelValue;

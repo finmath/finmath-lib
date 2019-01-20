@@ -9,11 +9,11 @@ package net.finmath.marketdata.model.volatilities;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 
 /**
  * Test of the caplet volatilities class.
@@ -28,16 +28,16 @@ public class CapletVolatilitiesTest {
 		double[] times			= { 0.0, 1.0, 2.0, 10.0 };
 		double[] givenForwards	= { 0.02, 0.02, 0.02, 0.02 };
 		double paymentOffset	= 0.25;
-		ForwardCurveInterface forwardCurve = ForwardCurve.createForwardCurveFromForwards("EUR 3M", times, givenForwards, paymentOffset);
+		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards("EUR 3M", times, givenForwards, paymentOffset);
 
 		double[] maturities		= { 0.0, 1.0, 2.0, 10.0 };
 		double[] strikes		= { 0.02, 0.02, 0.02, 0.02 };
 		double[] volatilities	= { 0.2, 0.2, 0.2, 0.2 };
-		VolatilitySurfaceInterface.QuotingConvention volatilityConvention = QuotingConvention.VOLATILITYLOGNORMAL;
+		VolatilitySurface.QuotingConvention volatilityConvention = QuotingConvention.VOLATILITYLOGNORMAL;
 
 		double[] timesDf				= { 0.0, 1.0, 2.0, 10.0 };
 		double[] givenDiscountFactors	= { 1.0, 0.98, 0.96, 0.90 };
-		DiscountCurveInterface discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors("EUR OIS", timesDf, givenDiscountFactors);
+		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("EUR OIS", timesDf, givenDiscountFactors);
 
 		AbstractVolatilitySurface capletVolatilities = new CapletVolatilities("EUR Caplet", null, forwardCurve, maturities, strikes, volatilities, volatilityConvention, discountCurve);
 

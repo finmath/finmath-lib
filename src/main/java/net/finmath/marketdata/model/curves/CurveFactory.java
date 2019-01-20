@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
-import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
@@ -55,7 +55,7 @@ public class CurveFactory {
 	 * @param forwardsFixingType The fixing type (e.g. "endOfMonth")
 	 * @return An index curve.
 	 */
-	public static CurveInterface createIndexCurveWithSeasonality(String name, LocalDate referenceDate, Map<LocalDate, Double> indexFixings, Map<String, Double> seasonalityAdjustments, Integer seasonalAveragingNumberOfYears, Map<LocalDate, Double> annualizedZeroRates, String forwardsFixingLag, String forwardsFixingType) {
+	public static Curve createIndexCurveWithSeasonality(String name, LocalDate referenceDate, Map<LocalDate, Double> indexFixings, Map<String, Double> seasonalityAdjustments, Integer seasonalAveragingNumberOfYears, Map<LocalDate, Double> annualizedZeroRates, String forwardsFixingLag, String forwardsFixingType) {
 
 		/*
 		 * Create a curve containing past fixings (using picewise constant interpolation)
@@ -70,12 +70,12 @@ public class CurveFactory {
 			fixingValue[i] = indexFixings.get(fixingDate).doubleValue();
 			i++;
 		}
-		CurveInterface curveOfFixings = new Curve(name, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, fixingTimes, fixingValue);
+		Curve curveOfFixings = new CurveFromInterpolationPoints(name, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, fixingTimes, fixingValue);
 
 		/*
 		 * Create a curve modeling the seasonality
 		 */
-		CurveInterface seasonCurve = null;
+		Curve seasonCurve = null;
 		if(seasonalityAdjustments != null && seasonalityAdjustments.size() > 0 && seasonalAveragingNumberOfYears == null) {
 			String[] monthList = { "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december" };
 			double[] seasonTimes = new double[12];
@@ -86,7 +86,7 @@ public class CurveFactory {
 				seasonTimes[j] = j/12.0;
 				seasonValue[j] = seasonValueCummulated;
 			}
-			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate,new Curve(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue));
+			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate,new CurveFromInterpolationPoints(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue));
 		}
 		else if(seasonalAveragingNumberOfYears != null && seasonalityAdjustments == null) {
 			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate, indexFixings, seasonalAveragingNumberOfYears);
@@ -130,7 +130,7 @@ public class CurveFactory {
 			givenDiscountFactors[index] = 1.0/Math.pow(1 + rate, (new DayCountConvention_30E_360()).getDaycountFraction(referenceDate, forwardDate));
 			index++;
 		}
-		DiscountCurveInterface discountCurve = DiscountCurve.createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
+		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
 
 		LocalDate baseDate = referenceDate;
 		if(forwardsFixingType != null && forwardsFixingType.equals("endOfMonth") && forwardsFixingLag != null) {
@@ -152,7 +152,7 @@ public class CurveFactory {
 		 */
 		Double baseValue	= indexFixings.get(baseDate);
 		if(baseValue == null) {
-			throw new IllegalArgumentException("Curve " + name + " has missing index value for base date " + baseDate);
+			throw new IllegalArgumentException("CurveFromInterpolationPoints " + name + " has missing index value for base date " + baseDate);
 		}
 		double baseTime		= FloatingpointDate.getFloatingPointDateFromDate(referenceDate, baseDate);
 
@@ -164,13 +164,13 @@ public class CurveFactory {
 			// Rescale initial value of with seasonality
 			currentProjectedIndexValue /= seasonCurve.getValue(baseTime);
 
-			CurveInterface indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
-			CurveInterface indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, indexCurve, seasonCurve);
+			Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
+			Curve indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, indexCurve, seasonCurve);
 			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurveWithSeason, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1] + 1.0/365.0);
 			return indexCurveWithFixing;
 		}
 		else {
-			CurveInterface indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
+			Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
 			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurve, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1]);
 			return indexCurveWithFixing;
 		}

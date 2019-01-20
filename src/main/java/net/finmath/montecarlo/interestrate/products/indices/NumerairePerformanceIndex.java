@@ -11,8 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
@@ -76,9 +76,9 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 
 		if(getName() != null && !model.getModel().getDiscountCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
-			AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
-			DiscountCurveInterface indexDiscountCurve = analyticModel.getDiscountCurve(getName());
-			DiscountCurveInterface modelDisountCurve = model.getModel().getDiscountCurve();
+			AnalyticModel analyticModel = model.getModel().getAnalyticModel();
+			DiscountCurve indexDiscountCurve = analyticModel.getDiscountCurve(getName());
+			DiscountCurve modelDisountCurve = model.getModel().getDiscountCurve();
 			double forwardBondOnIndexCurve = indexDiscountCurve.getDiscountFactor(analyticModel, fixingTime)/indexDiscountCurve.getDiscountFactor(analyticModel, paymentTime);
 			double forwardBondOnModelCurve = modelDisountCurve.getDiscountFactor(analyticModel, fixingTime)/modelDisountCurve.getDiscountFactor(analyticModel, paymentTime);
 			double adjustment = forwardBondOnModelCurve/forwardBondOnIndexCurve;

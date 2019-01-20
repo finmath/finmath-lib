@@ -14,7 +14,7 @@ import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.time.Schedule;
@@ -241,7 +241,7 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @return The converted lattice.
 	 */
-	public SwaptionDataLattice convertLattice(QuotingConvention targetConvention, AnalyticModelInterface model) {
+	public SwaptionDataLattice convertLattice(QuotingConvention targetConvention, AnalyticModel model) {
 		return convertLattice(targetConvention, 0, model);
 	}
 
@@ -255,7 +255,7 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @return The converted lattice.
 	 */
-	public SwaptionDataLattice convertLattice(QuotingConvention targetConvention, double displacement, AnalyticModelInterface model) {
+	public SwaptionDataLattice convertLattice(QuotingConvention targetConvention, double displacement, AnalyticModel model) {
 
 		if(displacement != 0 && targetConvention != QuotingConvention.PAYERVOLATILITYLOGNORMAL) {
 			throw new IllegalArgumentException("SwaptionDataLattice only supports displacement, when using QuotingCOnvention.PAYERVOLATILITYLOGNORMAL.");
@@ -294,7 +294,7 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @return The lattice with the combined swaption entries.
 	 */
-	public SwaptionDataLattice append(SwaptionDataLattice other, AnalyticModelInterface model) {
+	public SwaptionDataLattice append(SwaptionDataLattice other, AnalyticModel model) {
 
 		SwaptionDataLattice combined = new SwaptionDataLattice(referenceDate, quotingConvention, displacement,
 				forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
@@ -498,7 +498,7 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @return The value converted to the convention.
 	 */
-	public double getValue(double maturity, double tenor, int moneyness, QuotingConvention convention, double displacement, AnalyticModelInterface model) {
+	public double getValue(double maturity, double tenor, int moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(maturity, tenor, moneyness);
 		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
@@ -516,7 +516,7 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @return The value converted to the convention.
 	 */
-	public double getValue(int maturity, int tenor, int moneyness, QuotingConvention convention, double displacement, AnalyticModelInterface model) {
+	public double getValue(int maturity, int tenor, int moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(maturity, tenor, moneyness);
 		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
@@ -533,7 +533,7 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @return The value converted to the convention.
 	 */
-	public double getValue(String tenorCode, int moneyness, QuotingConvention convention, double displacement, AnalyticModelInterface model) {
+	public double getValue(String tenorCode, int moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(tenorCode, moneyness);
 		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
@@ -553,7 +553,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @return The converted value.
 	 */
 	private double convertToConvention(double value, DataKey key, QuotingConvention toConvention, double toDisplacement,
-			QuotingConvention fromConvention, double fromDisplacement, AnalyticModelInterface model) {
+			QuotingConvention fromConvention, double fromDisplacement, AnalyticModel model) {
 
 		if(toConvention == fromConvention) {
 			if(toConvention != QuotingConvention.PAYERVOLATILITYLOGNORMAL) {

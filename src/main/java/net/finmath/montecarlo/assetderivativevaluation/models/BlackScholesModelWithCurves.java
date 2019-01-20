@@ -7,7 +7,7 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -42,8 +42,8 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	private final RandomVariable initialValue;
 	private final RandomVariable volatility;
 
-	private final DiscountCurveInterface discountCurveForForwardRate;
-	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final DiscountCurve discountCurveForForwardRate;
+	private final DiscountCurve discountCurveForDiscountRate;
 
 	private final AbstractRandomVariableFactory randomVariableFactory;
 
@@ -63,9 +63,9 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 */
 	public BlackScholesModelWithCurves(
 			RandomVariable initialValue,
-			DiscountCurveInterface discountCurveForForwardRate,
+			DiscountCurve discountCurveForForwardRate,
 			RandomVariable volatility,
-			DiscountCurveInterface discountCurveForDiscountRate,
+			DiscountCurve discountCurveForDiscountRate,
 			AbstractRandomVariableFactory randomVariableFactory) {
 		this.initialValue = initialValue;
 		this.volatility = volatility;
@@ -89,9 +89,9 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 */
 	public BlackScholesModelWithCurves(
 			Double initialValue,
-			DiscountCurveInterface discountCurveForForwardRate,
+			DiscountCurve discountCurveForForwardRate,
 			Double volatility,
-			DiscountCurveInterface discountCurveForDiscountRate,
+			DiscountCurve discountCurveForDiscountRate,
 			AbstractRandomVariableFactory randomVariableFactory) {
 		this(randomVariableFactory.createRandomVariable(initialValue), discountCurveForForwardRate, randomVariableFactory.createRandomVariable(volatility), discountCurveForDiscountRate, randomVariableFactory);
 	}

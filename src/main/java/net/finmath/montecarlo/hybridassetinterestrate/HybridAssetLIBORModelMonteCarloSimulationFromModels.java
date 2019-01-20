@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -35,7 +35,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 
 	private LIBORModelMonteCarloSimulationModel	liborSimulation;
 	private AssetModelMonteCarloSimulationModel	assetSimulation;
-	private DiscountCurveInterface					discountCurve;
+	private DiscountCurve					discountCurve;
 
 	/**
 	 * Create an Equity Hybrid LIBOR Market Model composed of an object implementing
@@ -53,7 +53,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	public HybridAssetLIBORModelMonteCarloSimulationFromModels(
 			LIBORModelMonteCarloSimulationModel liborSimulation,
 			AssetModelMonteCarloSimulationModel assetSimulation,
-			DiscountCurveInterface discountCurve) {
+			DiscountCurve discountCurve) {
 		super();
 		this.liborSimulation = liborSimulation;
 		this.assetSimulation = assetSimulation;

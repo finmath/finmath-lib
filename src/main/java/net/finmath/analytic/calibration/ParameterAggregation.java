@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.finmath.analytic.model.curves.CurveInterface;
+import net.finmath.analytic.model.curves.Curve;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -134,7 +134,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
 		throw new UnsupportedOperationException("Method getCloneForParameter not supported on an aggregate.");
 	}
 }

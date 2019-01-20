@@ -23,14 +23,14 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.CurveInterface;
+import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata.model.curves.ForwardCurveNelsonSiegelSvensson;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
@@ -217,25 +217,25 @@ public class LIBORIndexTest {
 		/*
 		 * Create forwardCurve and discountCurve. The two need to fit to each other for this test.
 		 */
-		DiscountCurveInterface discountCurve;
-		ForwardCurveInterface forwardCurve;
+		DiscountCurve discountCurve;
+		ForwardCurve forwardCurve;
 		switch(curveSetup) {
 		case NSS:
 		{
-			discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR Curve", referenceDate, nssParameters, 1.0);
+			discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", referenceDate, nssParameters, 1.0);
 
 			String paymentOffsetCode = "6M";
 			BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 			BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
 			DayCountConvention daycountConvention = null;//new DayCountConvention_ACT_360();
 
-			forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 1.0, 0.0);
+			forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 1.0, 0.0);
 			break;
 		}
 		case DISCRETE:
 		{
 			// Create the forward curve (initial value of the LIBOR market model)
-			forwardCurve = ForwardCurve.createForwardCurveFromForwards(
+			forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 					"forwardCurve"								/* name of the curve */,
 					new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
 					new double[] {0.02, 0.025, 0.03, 0.035, 0.04}	/* forwards */,
@@ -250,7 +250,7 @@ public class LIBORIndexTest {
 			throw new IllegalArgumentException("Unknown curve setup: " + curveSetup.toString());
 		}
 
-		AnalyticModelInterface analyticModel = new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
+		AnalyticModel analyticModel = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve, forwardCurve });
 		/*
 		 * Create a simulation time discretization
 		 */

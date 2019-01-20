@@ -8,8 +8,8 @@ package net.finmath.fouriermethod.models;
 
 import org.apache.commons.math3.complex.Complex;
 
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
  * Implements the characteristic function of a Black Scholes model.
@@ -18,22 +18,22 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterface;
  * @author Alessandro Gnoatto
  * @version 1.0
  */
-public class BlackScholesModel implements ProcessCharacteristicFunctionInterface {
+public class BlackScholesModel implements CharacteristicFunctionModel {
 
 	private final double initialValue;
 
-	private final DiscountCurveInterface discountCurveForForwardRate;
+	private final DiscountCurve discountCurveForForwardRate;
 	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
 
-	private final DiscountCurveInterface discountCurveForDiscountRate;
+	private final DiscountCurve discountCurveForDiscountRate;
 	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
 
 	private final double volatility;
 
 
 
-	public BlackScholesModel(double initialValue, DiscountCurveInterface discountCurveForForwardRate,
-			double volatility, DiscountCurveInterface discountCurveForDiscountRate) {
+	public BlackScholesModel(double initialValue, DiscountCurve discountCurveForForwardRate,
+			double volatility, DiscountCurve discountCurveForDiscountRate) {
 		super();
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
@@ -58,7 +58,7 @@ public class BlackScholesModel implements ProcessCharacteristicFunctionInterface
 	}
 
 	@Override
-	public CharacteristicFunctionInterface apply(double time) {
+	public CharacteristicFunction apply(double time) {
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 

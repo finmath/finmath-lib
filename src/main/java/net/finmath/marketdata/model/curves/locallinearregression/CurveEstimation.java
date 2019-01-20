@@ -14,9 +14,9 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterface;
-import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 
 /**
  * This class implements the method of local linear regression with discrete kernel function, see see https://ssrn.com/abstract=3073942
@@ -29,7 +29,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
  *
  * The resulting curve is piecewise linear. That means, only the knot points of the curve are computed in this algorithm.
  * The final curve is then provided with linear interpolation of the knot points,
- * see {@link net.finmath.marketdata.model.curves.Curve}.
+ * see {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}.
  *
  * @author Moritz Scherrmann
  * @author Christian Fries
@@ -51,7 +51,7 @@ public class CurveEstimation{
 	private double[] independentValues;
 	private double[] dependentValues;
 	private Partition partition;
-	private DiscountCurve regressionCurve=null;
+	private DiscountCurveInterpolation regressionCurve=null;
 	private AbstractRealDistribution kernel;
 
 	/**
@@ -120,7 +120,7 @@ public class CurveEstimation{
 	 *
 	 * @return The regression curve.
 	 */
-	public CurveInterface getRegressionCurve(){
+	public Curve getRegressionCurve(){
 		// @TODO Add threadsafe lazy init.
 		if(regressionCurve !=null) {
 			return regressionCurve;
@@ -131,12 +131,12 @@ public class CurveEstimation{
 		for(int i=1;i<curvePoints.length;i++) {
 			curvePoints[i]=curvePoints[i-1]+a.get(i)*(partition.getIntervalLength(i-1));
 		}
-		return new Curve(
+		return new CurveFromInterpolationPoints(
 				"RegressionCurve",
 				referenceDate,
-				Curve.InterpolationMethod.LINEAR,
-				Curve.ExtrapolationMethod.CONSTANT,
-				Curve.InterpolationEntity.VALUE,
+				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
+				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
+				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
 				partition.getPoints(),
 				curvePoints);
 	}

@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import net.finmath.marketdata.calibration.ParameterObjectInterface;
 import net.finmath.marketdata.calibration.Solver;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.Schedule;
@@ -58,7 +58,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 
 		double[] initialParameters	= new double[] { 0.025, -0.015, -0.025, 0.03, 1.5, 10 };
 
-		DiscountCurveInterface discountCurve	= new DiscountCurveNelsonSiegelSvensson("discountCurve-" + currency, referenceDate, initialParameters, 1.0);
+		DiscountCurve discountCurve	= new DiscountCurveNelsonSiegelSvensson("discountCurve-" + currency, referenceDate, initialParameters, 1.0);
 
 		/*
 		 * We create a forward curve by referencing the same discount curve, since
@@ -68,15 +68,15 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		 * would result in a problem where both, the forward curve and the discount curve
 		 * have free parameters.
 		 */
-		ForwardCurveInterface forwardCurve		= new ForwardCurveFromDiscountCurve(discountCurve.getName(), referenceDate, forwardCurveTenor);
+		ForwardCurve forwardCurve		= new ForwardCurveFromDiscountCurve(discountCurve.getName(), referenceDate, forwardCurveTenor);
 
 		/*
 		 * Model consists of the two curves, but only one of them provides free parameters.
 		 */
-		AnalyticModelInterface model = new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve, forwardCurve });
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProductInterface> calibrationProducts = new Vector<>();
+		Vector<AnalyticProduct> calibrationProducts = new Vector<>();
 		for(int i=0; i<rates.length; i++) {
 
 			Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
@@ -95,7 +95,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		 * Calibrate the curve
 		 */
 		Solver solver = new Solver(model, calibrationProducts);
-		AnalyticModelInterface calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
+		AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
 		System.out.println("Solver reported acccurary....: " + solver.getAccuracy());
 
 		Assert.assertEquals("Calibration accurarcy", 0.0, solver.getAccuracy(), 1E-3);
@@ -106,10 +106,10 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		// Test calibration
 		discountCurve	= new DiscountCurveNelsonSiegelSvensson(discountCurve.getName(), referenceDate, parametersBest, 1.0);
 		forwardCurve	= new ForwardCurveFromDiscountCurve(forwardCurve.getName(), discountCurve.getName(), referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.MODIFIED_FOLLOWING, 365.0/365.0, 0.0);
-		model			= new AnalyticModel(new CurveInterface[] { discountCurve, forwardCurve });
+		model			= new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve, forwardCurve });
 
 		double squaredErrorSum = 0.0;
-		for(AnalyticProductInterface c : calibrationProducts) {
+		for(AnalyticProduct c : calibrationProducts) {
 			double value = c.getValue(0.0, model);
 			double valueTaget = 0.0;
 			double error = value - valueTaget;

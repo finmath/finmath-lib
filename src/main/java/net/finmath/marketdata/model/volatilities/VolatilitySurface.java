@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.volatilities;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * Interface for classes representing a volatility surface,
@@ -17,7 +17,7 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public interface VolatilitySurfaceInterface {
+public interface VolatilitySurface {
 
 	/**
 	 * Quoting conventions.
@@ -65,7 +65,7 @@ public interface VolatilitySurfaceInterface {
 	 * @param quotingConvention The quoting convention to be used for the return value.
 	 * @return The price or implied volatility depending on the quoting convention.
 	 */
-	double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention);
+	double getValue(AnalyticModel model, double maturity, double strike, QuotingConvention quotingConvention);
 
 	/**
 	 * Return the default quoting convention of this surface.

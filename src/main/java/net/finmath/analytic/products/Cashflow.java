@@ -5,7 +5,7 @@
  */
 package net.finmath.analytic.products;
 
-import net.finmath.analytic.model.AnalyticModelInterface;
+import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.stochastic.RandomVariable;
 
@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public class Cashflow extends AbstractAnalyticProduct implements AnalyticProductInterface {
+public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final double	flowAmount;
 	private final double	flowDate;
@@ -43,7 +43,7 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModelInterface model) {
+	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}

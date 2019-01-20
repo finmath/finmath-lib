@@ -12,7 +12,7 @@ import java.time.Month;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
@@ -36,9 +36,9 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 		BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
 		DayCountConvention daycountConvention = new DayCountConvention_ACT_360();
 
-		ForwardCurveInterface forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR Curve", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0, 0.0);
+		ForwardCurve forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0, 0.0);
 
-		AnalyticModelInterface model = null;		// No model context needed
+		AnalyticModel model = null;		// No model context needed
 
 		Assert.assertEquals("Forward", 0.0037364893, forwardCurve.getForward(model,  1.0), 1E-9);
 		Assert.assertEquals("Forward", 0.0179295573, forwardCurve.getForward(model,  5.0), 1E-9);

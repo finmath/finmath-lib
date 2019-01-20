@@ -2,7 +2,7 @@ package net.finmath.modelling.productfactory;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapLeg;
 import net.finmath.modelling.DescribedProduct;
@@ -45,9 +45,9 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 		else if(descriptor instanceof InterestRateSwapProductDescriptor){
 			InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;
 			InterestRateProductDescriptor legDescriptor = (InterestRateProductDescriptor) swap.getLegReceiver();
-			AnalyticProductInterface legReceiver =  (AnalyticProductInterface) getProductFromDescriptor(legDescriptor);
+			AnalyticProduct legReceiver =  (AnalyticProduct) getProductFromDescriptor(legDescriptor);
 			legDescriptor = (InterestRateProductDescriptor) swap.getLegPayer();
-			AnalyticProductInterface legPayer = (AnalyticProductInterface) getProductFromDescriptor(legDescriptor);
+			AnalyticProduct legPayer = (AnalyticProduct) getProductFromDescriptor(legDescriptor);
 			DescribedProduct<InterestRateSwapProductDescriptor> product = new Swap(legReceiver, legPayer);
 			return product;
 		}

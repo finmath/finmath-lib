@@ -9,10 +9,10 @@ import java.util.Arrays;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
@@ -159,10 +159,10 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			double discountingDate = Math.max(fixingDate,exerciseDate);
 			double discountingAdjustment = 1.0;
 			if(model.getModel() != null && model.getModel().getDiscountCurve() != null) {
-				AnalyticModelInterface analyticModel = model.getModel().getAnalyticModel();
-				DiscountCurveInterface discountCurve = model.getModel().getDiscountCurve();
-				ForwardCurveInterface forwardCurve = model.getModel().getForwardRateCurve();
-				DiscountCurveInterface discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+				AnalyticModel analyticModel = model.getModel().getAnalyticModel();
+				DiscountCurve discountCurve = model.getModel().getDiscountCurve();
+				ForwardCurve forwardCurve = model.getModel().getForwardRateCurve();
+				DiscountCurve discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 
 				// @TODO: Need to add functional dependency for ADD on discounting adjustment
 				double forwardBondOnForwardCurve = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurveFromForwardCurve.getDiscountFactor(analyticModel, paymentDate);
@@ -201,7 +201,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprateVolatility The Black volatility.
 	 * @return Value of this product
 	 */
-	public double getValue(ForwardCurveInterface forwardCurve, double swaprateVolatility) {
+	public double getValue(ForwardCurve forwardCurve, double swaprateVolatility) {
 		double swaprate = swaprates[0];
 		for (double swaprate1 : swaprates) {
 			if (swaprate1 != swaprate) {

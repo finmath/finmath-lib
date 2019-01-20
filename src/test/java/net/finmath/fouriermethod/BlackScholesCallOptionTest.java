@@ -11,10 +11,10 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
-import net.finmath.fouriermethod.products.AbstractProductFourierTransform;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.fouriermethod.products.DigitalOption;
 import net.finmath.fouriermethod.products.EuropeanOption;
+import net.finmath.fouriermethod.products.FourierTransformProduct;
 import net.finmath.functions.AnalyticFormulas;
 
 /**
@@ -35,9 +35,9 @@ public class BlackScholesCallOptionTest {
 	@Test
 	public void test() throws CalculationException {
 
-		ProcessCharacteristicFunctionInterface model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
-		AbstractProductFourierTransform product = new EuropeanOption(maturity, strike);
+		FourierTransformProduct product = new EuropeanOption(maturity, strike);
 
 		long startMillis	= System.currentTimeMillis();
 
@@ -56,9 +56,9 @@ public class BlackScholesCallOptionTest {
 	@Test
 	public void testDigitalOption() throws CalculationException {
 
-		ProcessCharacteristicFunctionInterface model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
-		AbstractProductFourierTransform product = new DigitalOption(maturity, strike);
+		FourierTransformProduct product = new DigitalOption(maturity, strike);
 
 		long startMillis	= System.currentTimeMillis();
 

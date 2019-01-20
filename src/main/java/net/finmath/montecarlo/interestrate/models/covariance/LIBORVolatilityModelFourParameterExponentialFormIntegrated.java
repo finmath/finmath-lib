@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;

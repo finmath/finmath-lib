@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.volatilities;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -62,7 +62,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface#getValue(net.finmath.marketdata.model.AnalyticModelInterface, double, double, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention)
 	 */
 	@Override
-	public double getValue(AnalyticModelInterface model, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(AnalyticModel model, double maturity, double strike, QuotingConvention quotingConvention) {
 		if(maturity == 0) {
 			return 0;
 		}

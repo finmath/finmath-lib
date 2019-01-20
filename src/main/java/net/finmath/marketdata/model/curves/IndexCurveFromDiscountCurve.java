@@ -6,7 +6,7 @@
 
 package net.finmath.marketdata.model.curves;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 
 /**
  * An index curve there the value at time t is given by indexValue / discountCurve.getValue(t).
@@ -14,19 +14,19 @@ import net.finmath.marketdata.model.AnalyticModelInterface;
  * @author Christian Fries
  * @version 1.0
  */
-public class IndexCurveFromDiscountCurve extends AbstractCurve implements CurveInterface {
+public class IndexCurveFromDiscountCurve extends AbstractCurve implements Curve {
 
 	private static final long serialVersionUID = -3760460344256117452L;
 
 	private final double indexValue;
-	private final DiscountCurveInterface discountCurve;
+	private final DiscountCurve discountCurve;
 
 	/**
 	 * @param name The name of this curve.
 	 * @param indexValue The index value at the discount curve's t=0, i.e., the reference date of the discount curve.
 	 * @param discountCurve The discont curve.
 	 */
-	public IndexCurveFromDiscountCurve(String name, double indexValue, DiscountCurveInterface discountCurve) {
+	public IndexCurveFromDiscountCurve(String name, double indexValue, DiscountCurve discountCurve) {
 		super(name, discountCurve.getReferenceDate());
 
 		this.indexValue = indexValue;
@@ -44,12 +44,12 @@ public class IndexCurveFromDiscountCurve extends AbstractCurve implements CurveI
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		return indexValue / discountCurve.getDiscountFactor(model, time);
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 }

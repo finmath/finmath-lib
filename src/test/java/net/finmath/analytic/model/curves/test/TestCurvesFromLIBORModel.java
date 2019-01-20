@@ -11,8 +11,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.analytic.model.AnalyticModel;
-import net.finmath.analytic.model.curves.CurveInterface;
+import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.analytic.model.curves.Curve;
 import net.finmath.analytic.products.AbstractAnalyticProduct;
 import net.finmath.analytic.products.Swap;
 import net.finmath.analytic.products.SwapLeg;
@@ -94,13 +94,13 @@ public class TestCurvesFromLIBORModel {
 		// Get value with Monte Carlo
 		double valueMonteCarlo = swapMonteCarlo.getValue(evaluationTime, liborMarketModel).getConditionalExpectation(conditionalExpectationOperator).getAverage();
 
-		// Create Forward Curve from the LIBORMonteCarloModel
-		net.finmath.analytic.model.curves.ForwardCurve forwardCurve = net.finmath.analytic.model.curves.ForwardCurve.createForwardCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
+		// Create Forward CurveFromInterpolationPoints from the LIBORMonteCarloModel
+		net.finmath.analytic.model.curves.ForwardCurveInterpolation forwardCurveInterpolation = net.finmath.analytic.model.curves.ForwardCurveInterpolation.createForwardCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
 		// Get value of analytic swap
-		net.finmath.analytic.model.curves.DiscountCurveInterface discountCurve = new net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve(net.finmath.analytic.model.curves.ForwardCurve.createForwardCurveFromMonteCarloLiborModel(forwardCurve.getName(), liborMarketModel, 0));
-		//net.finmath.analytic.model.curves.DiscountCurve.createDiscountCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
+		net.finmath.analytic.model.curves.DiscountCurveInterface discountCurve = new net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve(net.finmath.analytic.model.curves.ForwardCurveInterpolation.createForwardCurveFromMonteCarloLiborModel(forwardCurveInterpolation.getName(), liborMarketModel, 0));
+		//net.finmath.analytic.model.curves.DiscountCurveInterpolation.createDiscountCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
 
-		double valueWithCurves = swapAnalytic.getValue(0.0, new AnalyticModel(randomVariableFactory, new CurveInterface[]{forwardCurve,discountCurve})).getAverage();
+		double valueWithCurves = swapAnalytic.getValue(0.0, new AnalyticModelFromCuvesAndVols(randomVariableFactory, new Curve[]{forwardCurveInterpolation,discountCurve})).getAverage();
 
 		System.out.println("" + valueMonteCarlo + "\t" + valueWithCurves);
 
@@ -134,13 +134,13 @@ public class TestCurvesFromLIBORModel {
 		LocalDate referenceDate = LocalDate.of(2017, 8, 20);
 
 		// Create the forward curve (initial value of the LIBOR market model). This curve is still double!
-		net.finmath.marketdata.model.curves.DiscountCurve discountCurve = net.finmath.marketdata.model.curves.DiscountCurve.createDiscountCurveFromZeroRates(
+		net.finmath.marketdata.model.curves.DiscountCurveInterpolation discountCurveInterpolation = net.finmath.marketdata.model.curves.DiscountCurveInterpolation.createDiscountCurveFromZeroRates(
 				"discountCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0, 2.0, 5.0, 30.0}	/* fixings of the forward */,
 				new double[] {0.01, 0.02, 0.02, 0.022, 0.025}	/* zero rates */
 				);
 
-		net.finmath.marketdata.model.curves.ForwardCurveInterface forwardCurve = new net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve(discountCurve.getName(), referenceDate, "6M");
+		net.finmath.marketdata.model.curves.ForwardCurve forwardCurve = new net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve(discountCurveInterpolation.getName(), referenceDate, "6M");
 		//		ForwardCurve forwardCurve = ForwardCurve.createForwardCurveFromForwards(
 		//				"forwardCurve"								/* name of the curve */,
 		//				new double[] {0.5 , 1.0, 2.0, 5.0, 30.0}	/* fixings of the forward */,
@@ -199,7 +199,7 @@ public class TestCurvesFromLIBORModel {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, new net.finmath.marketdata.model.AnalyticModel(new net.finmath.marketdata.model.curves.CurveInterface[]{forwardCurve, discountCurve}), forwardCurve, discountCurve, randomVariableFactory, covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, new net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols(new net.finmath.marketdata.model.curves.Curve[]{forwardCurve, discountCurveInterpolation}), forwardCurve, discountCurveInterpolation, randomVariableFactory, covarianceModel, calibrationItems, properties);
 
 		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 

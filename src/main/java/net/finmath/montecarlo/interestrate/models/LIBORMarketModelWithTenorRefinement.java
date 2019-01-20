@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.TermStructureModel;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelInterface;
@@ -77,10 +77,10 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	private final Integer[]							numberOfDiscretizationIntervalls;
 
 	private String							forwardCurveName;
-	private AnalyticModelInterface			curveModel;
+	private AnalyticModel			curveModel;
 
-	private ForwardCurveInterface			forwardRateCurve;
-	private DiscountCurveInterface			discountCurve;
+	private ForwardCurve			forwardRateCurve;
+	private DiscountCurve			discountCurve;
 
 	private TermStructureCovarianceModelInterface	covarianceModel;
 
@@ -136,9 +136,9 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	public LIBORMarketModelWithTenorRefinement(
 			TimeDiscretization[]		liborPeriodDiscretizations,
 			Integer[]							numberOfDiscretizationIntervalls,
-			AnalyticModelInterface				analyticModel,
-			ForwardCurveInterface				forwardRateCurve,
-			DiscountCurveInterface				discountCurve,
+			AnalyticModel				analyticModel,
+			ForwardCurve				forwardRateCurve,
+			DiscountCurve				discountCurve,
 			TermStructureCovarianceModelInterface	covarianceModel,
 			CalibrationProduct[]					calibrationProducts,
 			Map<String, ?>						properties
@@ -701,17 +701,17 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	}
 
 	@Override
-	public AnalyticModelInterface getAnalyticModel() {
+	public AnalyticModel getAnalyticModel() {
 		return curveModel;
 	}
 
 	@Override
-	public DiscountCurveInterface getDiscountCurve() {
+	public DiscountCurve getDiscountCurve() {
 		return discountCurve;
 	}
 
 	@Override
-	public ForwardCurveInterface getForwardRateCurve() {
+	public ForwardCurve getForwardRateCurve() {
 		return forwardRateCurve;
 	}
 

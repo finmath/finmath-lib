@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
-import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
 import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
@@ -31,16 +31,16 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  *
  * The base curve has to be constructed according to this time convention (e.g.,
  * as a piecewise constant curve with values at i / 12 for i=1,...,12 using
- * {@link Curve.InterpolationMethod} with <code>PIECEWISE_CONSTANT_RIGHTPOINT</code>.
+ * {@link CurveFromInterpolationPoints.InterpolationMethod} with <code>PIECEWISE_CONSTANT_RIGHTPOINT</code>.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class SeasonalCurve extends AbstractCurve implements CurveInterface {
+public class SeasonalCurve extends AbstractCurve implements Curve {
 
 	private static final long serialVersionUID = 4021745191829488593L;
 
-	private CurveInterface baseCurve;
+	private Curve baseCurve;
 
 	/**
 	 * A builder (following the builder pattern) for SeasonalCurve objects.
@@ -48,7 +48,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	 *
 	 * @author Christian Fries
 	 */
-	public static class CurveBuilder extends Curve.CurveBuilder implements CurveBuilderInterface {
+	public static class Builder extends CurveFromInterpolationPoints.Builder implements CurveBuilder {
 
 		private SeasonalCurve			curve = null;
 
@@ -58,13 +58,13 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 		 * @param seasonalCurve The seasonal curve from which to copy the fixed part upon build().
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
-		public CurveBuilder(SeasonalCurve seasonalCurve) throws CloneNotSupportedException {
-			super((Curve)(seasonalCurve.baseCurve));
+		public Builder(SeasonalCurve seasonalCurve) throws CloneNotSupportedException {
+			super((CurveFromInterpolationPoints)(seasonalCurve.baseCurve));
 			this.curve = seasonalCurve;
 		}
 
 		@Override
-		public CurveInterface build() throws CloneNotSupportedException {
+		public Curve build() throws CloneNotSupportedException {
 			SeasonalCurve buildCurve = curve.clone();
 			buildCurve.baseCurve = super.build();
 			curve = null;
@@ -93,7 +93,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 			seasonTimes[j] = j/12.0;
 			seasonValue[j] = seasonValueCummulated;
 		}
-		this.baseCurve = new Curve(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue);
+		this.baseCurve = new CurveFromInterpolationPoints(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue);
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	 * @param referenceDate The reference date for this curve (i.e. t=0).
 	 * @param baseCurve The base curve, i.e., the discount curve used to calculate the seasonal adjustment factors.
 	 */
-	public SeasonalCurve(String name, LocalDate referenceDate, CurveInterface baseCurve) {
+	public SeasonalCurve(String name, LocalDate referenceDate, Curve baseCurve) {
 		super(name, referenceDate);
 		this.baseCurve = baseCurve;
 	}
@@ -117,7 +117,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		LocalDate calendar = getReferenceDate().plusDays((int) Math.round(time*365));
 
 		int month = calendar.getMonthValue();				// Note: month = 1,2,3,...,12
@@ -129,7 +129,7 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 	}
 
 	@Override
-	public CurveInterface getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		SeasonalCurve newCurve = clone();
 		newCurve.baseCurve = baseCurve.getCloneForParameter(value);
 
@@ -138,12 +138,12 @@ public class SeasonalCurve extends AbstractCurve implements CurveInterface {
 
 	@Override
 	public SeasonalCurve clone() throws CloneNotSupportedException {
-		return new SeasonalCurve(this.getName(), this.getReferenceDate(), (CurveInterface) baseCurve.clone());
+		return new SeasonalCurve(this.getName(), this.getReferenceDate(), (Curve) baseCurve.clone());
 	}
 
 	@Override
-	public CurveBuilderInterface getCloneBuilder() throws CloneNotSupportedException {
-		return new CurveBuilder(this);
+	public Builder getCloneBuilder() throws CloneNotSupportedException {
+		return new Builder(this);
 	}
 
 	public static double[] computeSeasonalAdjustments(LocalDate referenceDate, Map<LocalDate, Double> indexFixings, int numberOfYearsToAverage) {

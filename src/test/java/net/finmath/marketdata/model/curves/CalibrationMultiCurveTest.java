@@ -16,12 +16,12 @@ import org.junit.Test;
 
 import net.finmath.marketdata.calibration.CalibratedCurves;
 import net.finmath.marketdata.calibration.CalibratedCurves.CalibrationSpec;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.Curve.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.Curve.InterpolationEntity;
-import net.finmath.marketdata.model.curves.Curve.InterpolationMethod;
-import net.finmath.marketdata.products.AnalyticProductInterface;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
@@ -120,12 +120,12 @@ public class CalibrationMultiCurveTest {
 		double[] discountFactors = { 1.0 };
 		boolean[] isParameter = { false };
 
-		DiscountCurve discountCurveOIS = DiscountCurve.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
-		ForwardCurveInterface forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
-		ForwardCurveInterface forwardCurve3M = new ForwardCurve("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
-		ForwardCurveInterface forwardCurve6M = new ForwardCurve("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, Curve.InterpolationMethod.LINEAR, Curve.ExtrapolationMethod.CONSTANT, Curve.InterpolationEntity.VALUE,ForwardCurve.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
+		DiscountCurveInterpolation discountCurveOIS = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
+		ForwardCurve forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
+		ForwardCurve forwardCurve3M = new ForwardCurveInterpolation("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveFromInterpolationPoints.InterpolationMethod.LINEAR, CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT, CurveFromInterpolationPoints.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
+		ForwardCurve forwardCurve6M = new ForwardCurveInterpolation("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveFromInterpolationPoints.InterpolationMethod.LINEAR, CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT, CurveFromInterpolationPoints.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
 
-		AnalyticModel forwardCurveModel = new AnalyticModel(new CurveInterface[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
+		AnalyticModelFromCuvesAndVols forwardCurveModel = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
 
 		List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
 
@@ -246,7 +246,7 @@ public class CalibrationMultiCurveTest {
 		/*
 		 * Get the calibrated model
 		 */
-		AnalyticModelInterface calibratedModel = calibratedCurves.getModel();
+		AnalyticModel calibratedModel = calibratedCurves.getModel();
 
 		/*
 		 * Print calibration errors
@@ -255,7 +255,7 @@ public class CalibrationMultiCurveTest {
 
 		double sumOfSquaredErrors = 0.0;
 		for(CalibrationSpec calibratedSpec : calibrationSpecs) {
-			AnalyticProductInterface product = calibratedCurves.getCalibrationProductForSpec(calibratedSpec);
+			AnalyticProduct product = calibratedCurves.getCalibrationProductForSpec(calibratedSpec);
 			double value = product.getValue(0.0, calibratedModel);
 			sumOfSquaredErrors += value*value;
 		}
@@ -263,9 +263,9 @@ public class CalibrationMultiCurveTest {
 		/*
 		 * Print calibrated curves
 		 */
-		DiscountCurveInterface discountCurveCalibrated = calibratedModel.getDiscountCurve("discount-EUR-OIS");
-		ForwardCurveInterface forwardCurve3MCalibrated = calibratedModel.getForwardCurve("forward-EUR-3M");
-		ForwardCurveInterface forwardCurve6MCalibrated = calibratedModel.getForwardCurve("forward-EUR-6M");
+		DiscountCurve discountCurveCalibrated = calibratedModel.getDiscountCurve("discount-EUR-OIS");
+		ForwardCurve forwardCurve3MCalibrated = calibratedModel.getForwardCurve("forward-EUR-3M");
+		ForwardCurve forwardCurve6MCalibrated = calibratedModel.getForwardCurve("forward-EUR-6M");
 
 		System.out.println("\nCalibrated discount curve:");
 		System.out.println(discountCurveCalibrated);

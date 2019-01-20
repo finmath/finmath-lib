@@ -16,7 +16,7 @@ import java.util.Locale;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 
 /**
  * @author Christian Fries

@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 
@@ -122,7 +122,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	}
 
 	@Override
-	public double getForward(AnalyticModelInterface model, double fixingTime)
+	public double getForward(AnalyticModel model, double fixingTime)
 	{
 		double paymentOffset = getPaymentOffset(fixingTime+periodOffset);
 		return getForward(model, fixingTime, paymentOffset);
@@ -132,12 +132,12 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @see net.finmath.marketdata.ForwardCurveInterface#getForward(double)
 	 */
 	@Override
-	public double getForward(AnalyticModelInterface model, double fixingTime, double paymentOffset)
+	public double getForward(AnalyticModel model, double fixingTime, double paymentOffset)
 	{
 		if(model == null) {
 			throw new IllegalArgumentException(this.getName() + ": model==null");
 		}
-		DiscountCurveInterface referenceDiscountCurveForForwards = model.getDiscountCurve(referenceDiscountCurveForForwardsName); // do not use discountCurveName here (usually this is an OIS curve)
+		DiscountCurve referenceDiscountCurveForForwards = model.getDiscountCurve(referenceDiscountCurveForForwardsName); // do not use discountCurveName here (usually this is an OIS curve)
 		if(referenceDiscountCurveForForwards == null) {
 			throw new IllegalArgumentException(this.getName() + ": referenceDiscountCurveForForwards " + referenceDiscountCurveForForwardsName + " not found in the model:\n" + model.toString());
 		}
@@ -161,7 +161,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public double getValue(AnalyticModelInterface model, double time) {
+	public double getValue(AnalyticModel model, double time) {
 		return getForward(model, time);
 	}
 
