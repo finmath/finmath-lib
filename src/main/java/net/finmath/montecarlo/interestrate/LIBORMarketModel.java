@@ -6,8 +6,6 @@
 
 package net.finmath.montecarlo.interestrate;
 
-import java.util.Map;
-
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel;
 
 /**

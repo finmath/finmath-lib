@@ -164,7 +164,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	private final AbstractRandomVariableFactory	randomVariableFactory;
 	private LIBORCovarianceModel	covarianceModel;
-	
+
 	private AbstractSwaptionMarketData		swaptionMarketData;
 
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
@@ -184,7 +184,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
-	 * 
+	 *
 	 * The map <code>properties</code> allows to configure the model. The following keys may be used:
 	 * <ul>
 	 * 		<li>
@@ -258,7 +258,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if(properties != null && properties.containsKey("stateSpace")) {
 			stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
 		}
-		if(properties != null && properties.containsKey("stateSpace")) {
+		if(properties != null && properties.containsKey("interpolationMethod")) {
 			interpolationMethod	= InterpolationMethod.valueOf(((String)properties.get("interpolationMethod")).toUpperCase());
 		}
 		if(properties != null && properties.containsKey("liborCap")) {
@@ -280,7 +280,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		numeraires = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
 		numeraireAdjustments = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
 	}
-	
+
 	/**
 	 * Creates a LIBOR Market Model for given covariance with a calibration (if calibration items are given).
 	 * <br>
@@ -375,9 +375,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			}
 
 			LIBORCovarianceModel covarianceModelCalibrated = covarianceModelParametric.getCloneCalibrated(model, calibrationProducts, calibrationParameters);
-			
+
 			LIBORMarketModelFromCovarianceModel modelCalibrated = model.getCloneWithModifiedCovarianceModel(covarianceModelCalibrated);
-			
+
 			return modelCalibrated;
 		}
 		else {

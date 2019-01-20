@@ -49,7 +49,7 @@ public interface RandomVariableArray extends RandomVariable {
 
 	/**
 	 * Component wise operation
-	 * 
+	 *
 	 * @param operator A function operator mapping random variables x &rarr; operator(x).
 	 * @return An array where operator has been applied to eeach element.
 	 */
