@@ -6,6 +6,8 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import net.finmath.functions.LinearAlgebra;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 
@@ -64,12 +66,12 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	}
 
 	@Override
-	public LIBORCorrelationModelExponentialDecay getCloneWithModifiedParameter(double[] parameter) {
+	public LIBORCorrelationModelExponentialDecay getCloneWithModifiedParameter(RandomVariable[] parameter) {
 		if(!isCalibrateable) {
 			return this;
 		}
 
-		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter[0]);
+		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter[0].doubleValue());
 	}
 
 	@Override
@@ -127,14 +129,14 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	}
 
 	@Override
-	public double[] getParameter() {
+	public RandomVariable[] getParameter() {
 		if(!isCalibrateable) {
 			return null;
 		}
 
-		double[] parameter = new double[1];
+		RandomVariable[] parameter = new RandomVariable[1];
 
-		parameter[0] = a;
+		parameter[0] = new Scalar(a);
 
 		return parameter;
 	}

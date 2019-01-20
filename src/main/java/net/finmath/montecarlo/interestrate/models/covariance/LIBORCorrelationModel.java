@@ -7,6 +7,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.io.Serializable;
 
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 
@@ -34,8 +35,8 @@ public abstract class LIBORCorrelationModel implements Serializable {
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
 	}
 
-	public abstract double[]	getParameter();
-	public abstract LIBORCorrelationModel		getCloneWithModifiedParameter(double[] parameter);
+	public abstract RandomVariable[]	getParameter();
+	public abstract LIBORCorrelationModel		getCloneWithModifiedParameter(RandomVariable[] parameter);
 
 	public abstract	double	getFactorLoading(int timeIndex, int factor, int component);
 	public abstract	double	getCorrelation(int timeIndex, int component1, int component2);

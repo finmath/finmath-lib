@@ -141,7 +141,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 		LIBORCorrelationModel correlationModel = this.correlationModel;
 
 		RandomVariable[] volatilityParameter = volatilityModel.getParameter();
-		double[] correlationParameter = correlationModel.getParameter();
+		RandomVariable[] correlationParameter = correlationModel.getParameter();
 
 		int parameterIndex = 0;
 		if(volatilityParameter != null) {
@@ -154,7 +154,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 		}
 
 		if(correlationParameter != null) {
-			double[] newCorrelationParameter = new double[correlationParameter.length];
+			RandomVariable[] newCorrelationParameter = new RandomVariable[correlationParameter.length];
 			System.arraycopy(parameters, parameterIndex, newCorrelationParameter, 0, newCorrelationParameter.length);
 			parameterIndex += newCorrelationParameter.length;
 			if(!Arrays.equals(newCorrelationParameter, correlationModel.getParameter())) {
