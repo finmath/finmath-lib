@@ -188,6 +188,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param volatilityModel The volatility model specifying mean reversion and instantaneous volatility of the short rate.
 	 * @param calibrationProducts The products to be used for calibration
 	 * @param properties The calibration properties
+	 * @return A (possibly calibrated) Hull White model.
+	 * @throws CalculationException Thrown if calibration fails.
 	 */
 	public static HullWhiteModel of(
 			AbstractRandomVariableFactory		randomVariableFactory,

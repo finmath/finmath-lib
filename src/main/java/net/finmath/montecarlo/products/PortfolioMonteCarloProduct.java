@@ -40,7 +40,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 *
 	 * @param products An array of products.
 	 * @param weights An array of weights.
-	 * @param numberOfThreads Number of parallel threads to used. Required to be > 0.
+	 * @param numberOfThreads Number of parallel threads to used. Required to be &gt; 0.
 	 */
 	public PortfolioMonteCarloProduct(
 			MonteCarloProduct[] products,

@@ -60,7 +60,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	/**
 	 * Construct a Gamma process with a given shape parameter.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the Gamma increments.
+	 * @param timeDiscretization The time discretization used for the Gamma increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
@@ -88,7 +88,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	/**
 	 * Construct a Gamma process with a given shape parameter.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the Gamma increments.
+	 * @param timeDiscretization The time discretization used for the Gamma increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.

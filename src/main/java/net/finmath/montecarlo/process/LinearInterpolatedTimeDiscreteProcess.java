@@ -50,7 +50,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements Process {
 	/**
 	 * Private constructor. Note: The arguments are not cloned.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization.
+	 * @param timeDiscretization The time discretization.
 	 * @param realizations The map from Double to RandomVariable.
 	 */
 	private LinearInterpolatedTimeDiscreteProcess(TimeDiscretization timeDiscretization, Map<Double, RandomVariable> realizations) {

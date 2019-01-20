@@ -54,7 +54,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	 * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
 	 * \]
 	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -78,7 +78,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	 * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
 	 * \]
 	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).

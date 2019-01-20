@@ -57,7 +57,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 	 * by different implementations of the RandomVariable (e.g. the RandomVariableFromFloatArray internally
 	 * using float representations).
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
@@ -83,7 +83,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 	/**
 	 * Construct a Brownian motion.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.

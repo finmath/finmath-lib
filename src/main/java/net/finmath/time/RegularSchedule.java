@@ -25,7 +25,7 @@ public class RegularSchedule implements Schedule {
 	/**
 	 * Create a schedule from a time discretization.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization.
+	 * @param timeDiscretization The time discretization.
 	 */
 	public RegularSchedule(TimeDiscretization timeDiscretization) {
 		this.timeDiscretization = timeDiscretization;

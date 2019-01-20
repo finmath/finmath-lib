@@ -135,7 +135,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  *
  * The calibration of the covariance structure is not part of this class. For the calibration
  * of parametric models of the instantaneous covariance see
- * {@link net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric#getCloneCalibrated(LIBORMarketModel, AbstractLIBORMonteCarloProduct[], double[], double[], Map)}.
+ * {@link net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric#getCloneCalibrated(LIBORMarketModel, CalibrationProduct[], Map)}.
  *
  * @author Christian Fries
  * @version 1.2

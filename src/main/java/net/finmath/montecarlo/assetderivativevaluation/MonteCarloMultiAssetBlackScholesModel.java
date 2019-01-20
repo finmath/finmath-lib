@@ -114,7 +114,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization.
+	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.

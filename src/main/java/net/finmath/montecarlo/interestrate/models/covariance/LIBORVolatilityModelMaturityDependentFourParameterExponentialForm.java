@@ -45,7 +45,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
 	/**
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -67,7 +67,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
 	/**
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -88,7 +88,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 	}
 
 	/**
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -101,7 +101,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 	}
 
 	/**
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).

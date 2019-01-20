@@ -59,7 +59,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -80,7 +80,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -96,7 +96,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).
@@ -117,7 +117,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: the slope at the short end (shortly before maturity).

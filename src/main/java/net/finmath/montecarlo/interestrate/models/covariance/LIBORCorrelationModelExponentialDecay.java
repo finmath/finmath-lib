@@ -37,7 +37,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	/**
 	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
 	 *
-	 * @param timeDiscretizationFromArray Simulation time dicretization. Not used.
+	 * @param timeDiscretization Simulation time dicretization. Not used.
 	 * @param liborPeriodDiscretization TenorFromArray time discretization, i.e., the \( T_{i} \)'s.
 	 * @param numberOfFactors Number \( n \) of factors to be used.
 	 * @param a Decay parameter. Should be positive. Negative values will be floored to 0.

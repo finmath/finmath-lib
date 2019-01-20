@@ -28,7 +28,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
 	 *
-	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
+	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
 	 */

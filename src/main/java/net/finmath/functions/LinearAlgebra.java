@@ -73,6 +73,7 @@ public class LinearAlgebra {
 	 *
 	 * @param matrixA The matrix A (left hand side of the linear equation).
 	 * @param b The vector (right hand of the linear equation).
+	 * @param lambbda The parameter lambda of the Tikhonov regularization. Lambda effectively measures which small numbers are considered zero.
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambbda) {

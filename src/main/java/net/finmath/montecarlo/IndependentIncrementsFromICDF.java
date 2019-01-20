@@ -82,7 +82,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 * by different implementations of the RandomVariable
 	 * (e.g. the RandomVariableFromFloatArray internally using float representations).
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the increments.
+	 * @param timeDiscretization The time discretization used for the increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
@@ -126,7 +126,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 *
 	 * Each \( U_{i,j} \) is samples using <code>numberOfPaths</code>.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the increments.
+	 * @param timeDiscretization The time discretization used for the increments.
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.

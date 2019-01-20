@@ -54,7 +54,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization.
+	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.

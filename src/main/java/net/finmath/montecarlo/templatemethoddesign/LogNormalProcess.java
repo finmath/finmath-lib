@@ -52,7 +52,7 @@ public abstract class LogNormalProcess {
 	/**
 	 * Create a simulation of log normal process.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization of the process.
+	 * @param timeDiscretization The time discretization of the process.
 	 * @param numberOfComponents The number of components (the dimension of the process).
 	 * @param numberOfPaths The number of path of the simulation.
 	 */
@@ -77,7 +77,7 @@ public abstract class LogNormalProcess {
 	/**
 	 * Create a simulation of log normal process.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization of the process.
+	 * @param timeDiscretization The time discretization of the process.
 	 * @param numberOfComponents The number of components (the dimension of the process).
 	 * @param numberOfFactors The number of factors of the process.
 	 * @param numberOfPaths The number of path of the simulation.

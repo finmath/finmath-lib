@@ -28,7 +28,7 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 	/**
 	 * Create model.
 	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization.
+	 * @param timeDiscretization The simulation time discretization.
 	 * @param liborPeriodDiscretization The fixed forward rate discretization.
 	 * @param numberOfFactors The number of factors.
 	 * @param parameter Vector of size 5.
@@ -41,7 +41,7 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 	/**
 	 * Create model with default parameter.
 	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization.
+	 * @param timeDiscretization The simulation time discretization.
 	 * @param liborPeriodDiscretization The fixed forward rate discretization.
 	 * @param numberOfFactors The number of factors.
 	 */

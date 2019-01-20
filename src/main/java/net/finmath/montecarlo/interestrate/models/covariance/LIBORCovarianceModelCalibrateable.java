@@ -35,8 +35,6 @@ public interface LIBORCovarianceModelCalibrateable {
 	 *
 	 * @param calibrationModel The LIBOR market model to be used for calibrations (specifies forward curve and tenor discretization).
 	 * @param calibrationProducts The array of calibration products.
-	 * @param calibrationTargetValues The array of target values.
-	 * @param calibrationWeights The array of weights.
 	 * @param calibrationParameters A map of type Map&lt;String, Object&gt; specifying some (optional) calibration parameters.
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.

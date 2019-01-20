@@ -62,7 +62,7 @@ public class BrownianBridge implements BrownianMotion {
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param start Start value of the Brownian bridge.
@@ -81,7 +81,7 @@ public class BrownianBridge implements BrownianMotion {
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param start Start value of the Brownian bridge.

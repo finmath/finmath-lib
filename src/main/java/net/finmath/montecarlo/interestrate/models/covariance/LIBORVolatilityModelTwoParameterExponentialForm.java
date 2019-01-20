@@ -35,12 +35,10 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
 	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
-	 * @param b The parameter b: the slope at the short end (shortly before maturity).
-	 * @param c The parameter c: exponential decay of the volatility in time-to-maturity.
-	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
+	 * @param b The parameter b: exponential decay of the volatility.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
 	public LIBORVolatilityModelTwoParameterExponentialForm(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, RandomVariable a, RandomVariable b, boolean isCalibrateable) {
@@ -55,7 +53,7 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
 	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: exponential decay of the volatility.
@@ -68,7 +66,7 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
 	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
 	 * @param b The parameter b: exponential decay of the volatility.

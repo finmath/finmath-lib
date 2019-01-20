@@ -38,7 +38,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @param b The parameter b
 	 * @param c The parameter c
 	 * @param d The parameter d
-	 * @param timeDiscretizationFromArray The timeDiscretizationFromArray used in numerical integration.
+	 * @param timeDiscretization The timeDiscretizationFromArray used in numerical integration.
 	 */
 	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, LocalDate referenceDate, double a, double b, double c, double d, TimeDiscretization timeDiscretization) {
 		super(name, referenceDate);

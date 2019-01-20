@@ -68,7 +68,6 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 *
-	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param forwardCurve The given forward curve L<sub>0</sub>
 	 * @param displacement The displacement <i>a</i>.

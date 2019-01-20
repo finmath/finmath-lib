@@ -57,7 +57,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	 * by different implementations of the RandomVariable (e.g. the RandomVariableFromFloatArray internally
 	 * using float representations).
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the increments.
+	 * @param timeDiscretization The time discretization used for the increments.
 	 * @param jumpIntensities The jump intensities, one for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
@@ -83,7 +83,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	/**
 	 * Construct a jump process.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization used for the Brownian increments.
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
 	 * @param jumpIntensities The vector of jump intensities, one intensity for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.

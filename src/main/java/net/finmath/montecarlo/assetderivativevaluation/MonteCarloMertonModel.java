@@ -56,7 +56,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization and given parameters.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization.
+	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param seed The seed used for the random number generator.
 	 * @param initialValue Spot value.

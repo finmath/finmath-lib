@@ -66,7 +66,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
 	 *
-	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
+	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
 	 */
@@ -139,8 +139,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 *
 	 * @param calibrationModel The LIBOR market model to be used for calibrations (specifies forward curve and tenor discretization).
 	 * @param calibrationProducts The array of calibration products.
-	 * @param calibrationTargetValues The array of target values.
-	 * @param calibrationWeights The array of weights.
 	 * @param calibrationParameters A map of type Map&lt;String, Object&gt; specifying some (optional) calibration parameters.
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.

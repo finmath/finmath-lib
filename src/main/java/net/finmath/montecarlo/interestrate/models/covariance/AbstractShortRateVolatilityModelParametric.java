@@ -60,7 +60,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	/**
 	 * Constructor consuming time discretization.
 	 *
-	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
+	 * @param timeDiscretization The vector of simulation time discretization points.
 	 */
 	public AbstractShortRateVolatilityModelParametric(TimeDiscretization timeDiscretization) {
 		super(timeDiscretization);

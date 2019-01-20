@@ -54,7 +54,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	/**
 	 * Construct a tenor from a time discretization.
 	 *
-	 * @param timeDiscretizationFromArray A time discretization.
+	 * @param timeDiscretization A time discretization.
 	 */
 	public TenorFromArray(double[] timeDiscretization) {
 		super(timeDiscretization);
@@ -64,7 +64,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	/**
 	 * Construct a tenor from a time discretization.
 	 *
-	 * @param timeDiscretizationFromArray A time discretization.
+	 * @param timeDiscretization A time discretization.
 	 */
 	public TenorFromArray(Double[] timeDiscretization) {
 		super(timeDiscretization);

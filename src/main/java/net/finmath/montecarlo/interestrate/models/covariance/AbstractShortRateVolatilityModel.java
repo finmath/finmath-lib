@@ -25,7 +25,7 @@ public abstract class AbstractShortRateVolatilityModel implements ShortRateVolat
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
 	 *
-	 * @param timeDiscretizationFromArray The vector of simulation time discretization points.
+	 * @param timeDiscretization The vector of simulation time discretization points.
 	 */
 	public AbstractShortRateVolatilityModel(TimeDiscretization timeDiscretization) {
 		super();
