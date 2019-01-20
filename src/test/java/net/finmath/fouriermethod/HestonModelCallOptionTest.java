@@ -17,8 +17,8 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
-import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.fouriermethod.products.DigitalOption;
 import net.finmath.fouriermethod.products.EuropeanOption;
 import net.finmath.fouriermethod.products.FourierTransformProduct;

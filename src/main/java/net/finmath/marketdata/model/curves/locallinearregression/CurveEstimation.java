@@ -14,8 +14,8 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 
 /**

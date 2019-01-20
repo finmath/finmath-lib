@@ -9,10 +9,10 @@ package net.finmath.marketdata.model.volatilities;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 
 /**

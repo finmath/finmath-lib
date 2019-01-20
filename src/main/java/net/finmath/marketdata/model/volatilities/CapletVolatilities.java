@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 

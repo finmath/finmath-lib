@@ -5,8 +5,8 @@
  */
 package net.finmath.analytic.products;
 
-import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.analytic.model.AnalyticModel;
+import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.analytic.model.curves.Curve;
 import net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;

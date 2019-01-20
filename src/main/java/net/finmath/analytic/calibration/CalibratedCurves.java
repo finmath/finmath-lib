@@ -16,14 +16,14 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.analytic.model.AnalyticModel;
+import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.analytic.model.curves.Curve;
-import net.finmath.analytic.model.curves.DiscountCurveInterpolation;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
-import net.finmath.analytic.model.curves.ForwardCurveInterpolation;
+import net.finmath.analytic.model.curves.DiscountCurveInterpolation;
 import net.finmath.analytic.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
+import net.finmath.analytic.model.curves.ForwardCurveInterpolation;
 import net.finmath.analytic.products.AnalyticProduct;
 import net.finmath.analytic.products.Deposit;
 import net.finmath.analytic.products.ForwardRateAgreement;

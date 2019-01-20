@@ -9,8 +9,8 @@ import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.AbstractCurve;
-import net.finmath.marketdata.model.curves.CurveBuilder;
 import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveBuilder;
 
 /**
  * Implements the bond curve as a curve object, see {@link net.finmath.marketdata.model.curves.Curve}.

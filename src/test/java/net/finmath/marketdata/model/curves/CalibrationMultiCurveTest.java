@@ -16,8 +16,8 @@ import org.junit.Test;
 
 import net.finmath.marketdata.calibration.CalibratedCurves;
 import net.finmath.marketdata.calibration.CalibratedCurves.CalibrationSpec;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
