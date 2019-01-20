@@ -55,7 +55,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * 		dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
  * \]
  * <br>
- * The model uses an {@link net.finmath.montecarlo.interestrate.models.LIBORCovarianceModel} for the specification of
+ * The model uses an {@link net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel} for the specification of
  * <i>(&lambda;<sub>1,j</sub>,...,&lambda;<sub>m,j</sub>)</i> as a covariance model.
  * See {@link net.finmath.montecarlo.model.ProcessModel} for details on the implemented interface
  * <br><br>
@@ -238,7 +238,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
 	 * @param randomVariableFactory The random variable factory used to create the inital values of the model.
 	 * @param covarianceModel The covariance model to use.
-	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
@@ -287,7 +286,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * <br>
 	 * If calibrationItems in non-empty and the covariance model is a parametric model,
 	 * the covariance will be replaced by a calibrate version of the same model, i.e.,
-	 * the LIBOR Market Model will be calibrated.
+	 * the LIBOR Market Model will be calibrated. Note: Calibration is not lazy.
 	 * <br>
 	 * The map <code>properties</code> allows to configure the model. The following keys may be used:
 	 * <ul>
@@ -344,6 +343,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @param covarianceModel The covariance model to use.
 	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
+	 * @return A new instance of LIBORMarketModelFromCovarianceModel, possibly calibrated.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public static LIBORMarketModelFromCovarianceModel of(
