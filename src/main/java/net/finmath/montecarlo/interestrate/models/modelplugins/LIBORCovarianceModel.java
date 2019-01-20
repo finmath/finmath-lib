@@ -1,8 +1,22 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2006
+ */
 package net.finmath.montecarlo.interestrate.models.modelplugins;
 
+import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
+/**
+ * Interface for covariance models providing a vector of (possibly stochastic) factor loadings.
+ * 
+ * Classes implementing this interface can be used as "plug ins" for {@link LIBORMarketModelFromCovarianceModel}.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
 public interface LIBORCovarianceModel {
 
 	/**
