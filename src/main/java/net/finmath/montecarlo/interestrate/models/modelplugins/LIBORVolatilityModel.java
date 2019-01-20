@@ -43,8 +43,8 @@ public abstract class LIBORVolatilityModel implements Serializable {
 		this.liborPeriodDiscretization = liborPeriodDiscretization;
 	}
 
-	public abstract double[]	getParameter();
-	public abstract LIBORVolatilityModel	getCloneWithModifiedParameter(double[] parameter);
+	public abstract RandomVariable[] getParameter();
+	public abstract LIBORVolatilityModel getCloneWithModifiedParameter(RandomVariable[] parameter);
 
 	/**
 	 * Implement this method to complete the implementation.

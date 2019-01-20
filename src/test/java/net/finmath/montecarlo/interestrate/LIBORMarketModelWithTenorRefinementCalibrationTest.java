@@ -543,9 +543,9 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			int numberOfThreads = 2;
 			OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-			double[] parameterStandardDeviation = new double[covarianceModelParametric.getParameter().length];
-			double[] parameterLowerBound = new double[covarianceModelParametric.getParameter().length];
-			double[] parameterUpperBound = new double[covarianceModelParametric.getParameter().length];
+			double[] parameterStandardDeviation = new double[covarianceModelParametric.getParameterAsDouble().length];
+			double[] parameterLowerBound = new double[covarianceModelParametric.getParameterAsDouble().length];
+			double[] parameterUpperBound = new double[covarianceModelParametric.getParameterAsDouble().length];
 			Arrays.fill(parameterStandardDeviation, 0.20/100.0);
 			Arrays.fill(parameterLowerBound, Double.NEGATIVE_INFINITY);
 			Arrays.fill(parameterUpperBound, Double.POSITIVE_INFINITY);
@@ -576,7 +576,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					properties);
 
 			System.out.println("\nCalibrated parameters are:");
-			double[] param = ((AbstractLIBORCovarianceModelParametric)((LIBORMarketModelFromCovarianceModel) liborMarketModelCalibrated).getCovarianceModel()).getParameter();
+			double[] param = ((AbstractLIBORCovarianceModelParametric)((LIBORMarketModelFromCovarianceModel) liborMarketModelCalibrated).getCovarianceModel()).getParameterAsDouble();
 			//		((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).setParameter(param);
 			for (double p : param) {
 				System.out.println(p);

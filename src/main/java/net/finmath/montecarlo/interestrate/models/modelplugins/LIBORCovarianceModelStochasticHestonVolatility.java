@@ -1,9 +1,3 @@
-/*
- * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- *
- * Created on 15 Jan 2015
- */
-
 package net.finmath.montecarlo.interestrate.models.modelplugins;
 
 import java.time.LocalDateTime;
@@ -15,6 +9,7 @@ import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -49,15 +44,36 @@ import net.finmath.time.TimeDiscretization;
  */
 public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBORCovarianceModelParametric {
 
-	private static final long serialVersionUID = -1907512921302707075L;
-
+	private static final long serialVersionUID = -1438451123632424212L;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private BrownianMotion brownianMotion;
-	private	double kappa, theta, xi;
+	private	RandomVariable kappa, theta, xi;
 
 	private boolean isCalibrateable = false;
 
 	private MonteCarloProcess stochasticVolatilityScalings = null;
+
+	/**
+	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
+	 *
+	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
+	 * @param brownianMotion An object implementing {@link BrownianMotion} with at least two factors. This class uses the first two factors, but you may use {@link net.finmath.montecarlo.BrownianMotionView} to change this.
+	 * @param kappa The initial value for <i>&kappa;</i>, the mean reversion speed of the variance process V.
+	 * @param theta The initial value for <i>&theta;</i> the mean reversion level of the variance process V.
+	 * @param xi The initial value for <i>&xi;</i> the volatility of the variance process V.
+	 * @param isCalibrateable If true, the parameters <i>&nu;</i> and <i>&rho;</i> are parameters. Note that the covariance model (<code>covarianceModel</code>) may have its own parameter calibration settings.
+	 */
+	public LIBORCovarianceModelStochasticHestonVolatility(AbstractLIBORCovarianceModelParametric covarianceModel, BrownianMotion brownianMotion, RandomVariable kappa, RandomVariable theta, RandomVariable xi, boolean isCalibrateable) {
+		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
+
+		this.covarianceModel = covarianceModel;
+		this.brownianMotion = brownianMotion;
+		this.kappa = kappa;
+		this.theta = theta;
+		this.xi = xi;
+
+		this.isCalibrateable = isCalibrateable;
+	}
 
 	/**
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
@@ -74,26 +90,26 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 		this.covarianceModel = covarianceModel;
 		this.brownianMotion = brownianMotion;
-		this.kappa = kappa;
-		this.theta = theta;
-		this.xi = xi;
+		this.kappa = new Scalar(kappa);
+		this.theta = new Scalar(theta);
+		this.xi = new Scalar(xi);
 
 		this.isCalibrateable = isCalibrateable;
 	}
 
 	@Override
-	public double[] getParameter() {
+	public RandomVariable[] getParameter() {
 		if(!isCalibrateable) {
 			return covarianceModel.getParameter();
 		}
 
-		double[] covarianceParameters = covarianceModel.getParameter();
+		RandomVariable[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) {
-			return new double[] { theta, kappa, xi };
+			return new RandomVariable[] { theta, kappa, xi };
 		}
 
 		// Append nu and rho to the end of covarianceParameters
-		double[] jointParameters = new double[covarianceParameters.length+3];
+		RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+3];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
 		jointParameters[covarianceParameters.length+0] = kappa;
 		jointParameters[covarianceParameters.length+1] = theta;
@@ -103,7 +119,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	}
 
 	//	@Override
-	private void setParameter(double[] parameter) {
+	private void setParameter(RandomVariable[] parameter) {
 		if(parameter == null || parameter.length == 0) {
 			return;
 		}
@@ -113,7 +129,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 			return;
 		}
 
-		double[] covarianceParameters = new double[parameter.length-3];
+		RandomVariable[] covarianceParameters = new RandomVariable[parameter.length-3];
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
@@ -132,10 +148,23 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		LIBORCovarianceModelStochasticHestonVolatility model = (LIBORCovarianceModelStochasticHestonVolatility)this.clone();
 		model.setParameter(parameters);
 		return model;
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+		RandomVariable[] parameters = getParameter();
+		double[] parametersAsDouble = new double[parameters.length];
+		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
+		return parametersAsDouble;
 	}
 
 	@Override
@@ -192,7 +221,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 					@Override
 					public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
-						return new RandomVariable[] { realizationAtTimeIndex[0].sub(theta).mult(-kappa) };
+						return new RandomVariable[] { realizationAtTimeIndex[0].sub(theta).mult(kappa.mult(-1)) };
 					}
 
 					@Override

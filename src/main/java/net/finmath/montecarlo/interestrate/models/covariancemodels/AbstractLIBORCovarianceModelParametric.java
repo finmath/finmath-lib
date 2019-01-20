@@ -121,7 +121,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
-			calibrationParameters = new HashMap<String,Object>();
+			calibrationParameters = new HashMap<>();
 		}
 		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
 		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
@@ -129,6 +129,12 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
+
+		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
+		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
+		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
+		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
+		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		RandomVariable[] initialParameters = this.getParameter();
 		RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
@@ -140,12 +146,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 		RandomVariable[] zerosForTargetValues = new RandomVariable[calibrationProducts.length];
 		Arrays.fill(zerosForTargetValues, new RandomVariableFromDoubleArray(0.0));
-
-		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
-		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
-		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 
 		int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
 		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
@@ -184,7 +184,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<RandomVariable> valueFutureTask = new FutureTask<RandomVariable>(worker);
+						FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}

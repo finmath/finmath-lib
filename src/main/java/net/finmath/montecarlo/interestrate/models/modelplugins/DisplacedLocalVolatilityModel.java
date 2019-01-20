@@ -7,6 +7,7 @@ package net.finmath.montecarlo.interestrate.models.modelplugins;
 
 import net.finmath.marketdata.model.curves.ForwardCurveInterface;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Displaced model build on top of a standard covariance model.
@@ -32,10 +33,9 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 
-	private static final long serialVersionUID = 8032949024525942210L;
-
+	private static final long serialVersionUID = 4522227972747028512L;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
-	private double displacement;
+	private RandomVariable displacement;
 
 	private ForwardCurveInterface forwardCurve;
 
@@ -64,10 +64,40 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public DisplacedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
+	public DisplacedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, RandomVariable displacement, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 		this.covarianceModel	= covarianceModel;
 		this.displacement		= displacement;
+		this.isCalibrateable	= isCalibrateable;
+	}
+
+	/**
+	 * Displaced model build on top of a standard covariance model.
+	 *
+	 * The model constructed for the <i>i</i>-th factor loading is
+	 * <center>
+	 * <i>(L<sub>i</sub>(t) + d) F<sub>i</sub>(t)</i>
+	 * </center>
+	 * where <i>d</i> is the displacement and <i>L<sub>i</sub></i> is
+	 * the realization of the <i>i</i>-th component of the stochastic process and
+	 * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, consisting
+	 * of the parameter vector of the given base covariance model and
+	 * appending the displacement parameter at the end.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model, i.e., only the displacement parameter will be not
+	 * part of the calibration.
+	 *
+	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
+	 * @param displacement The displacement <i>a</i>.
+	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public DisplacedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
+		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
+		this.covarianceModel	= covarianceModel;
+		this.displacement		= new Scalar(displacement);
 		this.isCalibrateable	= isCalibrateable;
 	}
 
@@ -93,18 +123,18 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public double[] getParameter() {
+	public RandomVariable[] getParameter() {
 		if(!isCalibrateable) {
 			return covarianceModel.getParameter();
 		}
 
-		double[] covarianceParameters = covarianceModel.getParameter();
+		RandomVariable[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) {
-			return new double[] { displacement };
+			return new RandomVariable[] { displacement };
 		}
 
 		// Append displacement to the end of covarianceParameters
-		double[] jointParameters = new double[covarianceParameters.length+1];
+		RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
 		jointParameters[covarianceParameters.length] = displacement;
 
@@ -112,23 +142,35 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		DisplacedLocalVolatilityModel model = (DisplacedLocalVolatilityModel)this.clone();
+	public double[] getParameterAsDouble() {
+		RandomVariable[] parameters = getParameter();
+		double[] parametersAsDouble = new double[parameters.length];
+		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
+		return parametersAsDouble;
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		if(parameters == null || parameters.length == 0) {
-			return model;
+			return this;
 		}
 
 		if(!isCalibrateable) {
-			model.covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameters);
-			return model;
+			return new DisplacedLocalVolatilityModel(covarianceModel.getCloneWithModifiedParameters(parameters), displacement, isCalibrateable);
 		}
 
-		double[] covarianceParameters = new double[parameters.length-1];
+		RandomVariable[] covarianceParameters = new RandomVariable[parameters.length-1];
 		System.arraycopy(parameters, 0, covarianceParameters, 0, covarianceParameters.length);
 
-		model.covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
-		model.displacement = parameters[covarianceParameters.length];
-		return model;
+		AbstractLIBORCovarianceModelParametric newCovarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
+		RandomVariable newDisplacement = parameters[covarianceParameters.length];
+
+		return new DisplacedLocalVolatilityModel(newCovarianceModel, newDisplacement, isCalibrateable);
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
 	}
 
 	@Override

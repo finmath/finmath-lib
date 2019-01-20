@@ -31,8 +31,8 @@ import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
-import net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModelParametric;
+import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModelCalibrateable;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
@@ -161,7 +161,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private DiscountCurveInterface			discountCurve;
 
 	private final AbstractRandomVariableFactory	randomVariableFactory;
-	private AbstractLIBORCovarianceModel	covarianceModel;
+	private LIBORCovarianceModel	covarianceModel;
 
 	private AbstractSwaptionMarketData		swaptionMarketData;
 
@@ -249,7 +249,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
 			AbstractRandomVariableFactory		randomVariableFactory,
-			AbstractLIBORCovarianceModel		covarianceModel,
+			LIBORCovarianceModel		covarianceModel,
 			CalibrationProduct[]					calibrationProducts,
 			Map<String, ?>						properties
 			) throws CalculationException {
@@ -292,7 +292,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				throw new ClassCastException("Calibration restricted to covariance models implementing LIBORCovarianceModelCalibrateable.");
 			}
 
-			this.covarianceModel    = (AbstractLIBORCovarianceModel) covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationParameters);
+			this.covarianceModel    = (LIBORCovarianceModel) covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationParameters);
 		}
 
 		numeraires = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
@@ -367,7 +367,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			AnalyticModelInterface				analyticModel,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
-			AbstractLIBORCovarianceModel		covarianceModel,
+			LIBORCovarianceModel		covarianceModel,
 			CalibrationProduct[]					calibrationItems,
 			Map<String, ?>						properties
 			) throws CalculationException {
@@ -385,7 +385,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	public LIBORMarketModelFromCovarianceModel(
 			TimeDiscretization		liborPeriodDiscretization,
 			ForwardCurveInterface			forwardRateCurve,
-			AbstractLIBORCovarianceModel	covarianceModel
+			LIBORCovarianceModel	covarianceModel
 			) throws CalculationException {
 		this(liborPeriodDiscretization, forwardRateCurve, new DiscountCurveFromForwardCurve(forwardRateCurve), covarianceModel, new CalibrationProduct[0], null);
 	}
@@ -403,7 +403,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			TimeDiscretization		liborPeriodDiscretization,
 			ForwardCurveInterface			forwardRateCurve,
 			DiscountCurveInterface			discountCurve,
-			AbstractLIBORCovarianceModel	covarianceModel
+			LIBORCovarianceModel	covarianceModel
 			) throws CalculationException {
 		this(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, new CalibrationProduct[0], null);
 	}
@@ -421,7 +421,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	public LIBORMarketModelFromCovarianceModel(
 			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurveInterface				forwardRateCurve,
-			AbstractLIBORCovarianceModel		covarianceModel,
+			LIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
 		this(liborPeriodDiscretization, forwardRateCurve, new DiscountCurveFromForwardCurve(forwardRateCurve), covarianceModel, swaptionMarketData, null);
@@ -441,7 +441,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
-			AbstractLIBORCovarianceModel		covarianceModel,
+			LIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
 		this(
@@ -469,7 +469,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
-			AbstractLIBORCovarianceModel		covarianceModel,
+			LIBORCovarianceModel		covarianceModel,
 			AbstractSwaptionMarketData			swaptionMarketData,
 			Map<String, ?>					properties
 			) throws CalculationException {
@@ -553,7 +553,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurveInterface				forwardRateCurve,
 			DiscountCurveInterface				discountCurve,
-			AbstractLIBORCovarianceModel		covarianceModel,
+			LIBORCovarianceModel		covarianceModel,
 			CalibrationProduct[]					calibrationItems,
 			Map<String, ?>						properties
 			) throws CalculationException {
@@ -1177,7 +1177,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModel getCovarianceModel() {
+	public LIBORCovarianceModel getCovarianceModel() {
 		return covarianceModel;
 	}
 
@@ -1186,7 +1186,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @return A new <code>LIBORMarketModelFromCovarianceModel</code> using the specified covariance model.
 	 */
 	@Override
-	public LIBORMarketModelFromCovarianceModel getCloneWithModifiedCovarianceModel(AbstractLIBORCovarianceModel covarianceModel) {
+	public LIBORMarketModelFromCovarianceModel getCloneWithModifiedCovarianceModel(LIBORCovarianceModel covarianceModel) {
 		LIBORMarketModelFromCovarianceModel model = (LIBORMarketModelFromCovarianceModel)this.clone();
 		model.covarianceModel = covarianceModel;
 		return model;
@@ -1198,7 +1198,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		AnalyticModelInterface			analyticModel				= this.curveModel;
 		ForwardCurveInterface			forwardRateCurve			= this.forwardRateCurve;
 		DiscountCurveInterface			discountCurve				= this.discountCurve;
-		AbstractLIBORCovarianceModel	covarianceModel				= this.covarianceModel;
+		LIBORCovarianceModel	covarianceModel				= this.covarianceModel;
 		AbstractSwaptionMarketData		swaptionMarketData			= null;		// No recalibration, unless new swaption data is specified
 		Map<String, Object>				properties					= new HashMap<>();
 		properties.put("measure",		measure.name());
@@ -1217,7 +1217,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			throw new RuntimeException("Forward rate shift clone currently disabled.");
 		}
 		if(dataModified != null && dataModified.containsKey("covarianceModel")) {
-			covarianceModel = (AbstractLIBORCovarianceModel)dataModified.get("covarianceModel");
+			covarianceModel = (LIBORCovarianceModel)dataModified.get("covarianceModel");
 		}
 		if(dataModified != null && dataModified.containsKey("swaptionMarketData")) {
 			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
@@ -1244,13 +1244,11 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		// Add volatilities
-		// TODO This part should be refactored to avoid the instanceof and/or work with more general models
-		if(covarianceModel instanceof net.finmath.montecarlo.interestrate.models.covariancemodels.AbstractLIBORCovarianceModelParametric) {
-			RandomVariable[] covarianceModelParameters = ((net.finmath.montecarlo.interestrate.models.covariancemodels.AbstractLIBORCovarianceModelParametric) covarianceModel).getParameter();
+		if(covarianceModel instanceof AbstractLIBORCovarianceModelParametric) {
+			RandomVariable[] covarianceModelParameters = ((AbstractLIBORCovarianceModelParametric) covarianceModel).getParameter();
 
 			for(int covarianceModelParameterIndex=0; covarianceModelParameterIndex<covarianceModelParameters.length; covarianceModelParameterIndex++) {
 				modelParameters.put("COVARIANCEMODELPARAMETER("+ covarianceModelParameterIndex + ")", covarianceModelParameters[covarianceModelParameterIndex]);
-
 			}
 		}
 

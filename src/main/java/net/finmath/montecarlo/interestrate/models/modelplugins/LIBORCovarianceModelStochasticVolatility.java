@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
  *
  * Created on 15 Jan 2015
  */
@@ -16,6 +16,7 @@ import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -50,15 +51,34 @@ import net.finmath.time.TimeDiscretization;
  */
 public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovarianceModelParametric {
 
-	private static final long serialVersionUID = -1907512921302707075L;
-
+	private static final long serialVersionUID = -559341617850035368L;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private BrownianMotion brownianMotion;
-	private	double rho, nu;
+	private	RandomVariable rho, nu;
 
 	private boolean isCalibrateable = false;
 
 	private MonteCarloProcess stochasticVolatilityScalings = null;
+
+	/**
+	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
+	 *
+	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
+	 * @param brownianMotion An object implementing {@link BrownianMotion} with at least two factors. This class uses the first two factors, but you may use {@link BrownianMotionView} to change this.
+	 * @param nu The initial value for <i>&nu;</i>, the volatility of the volatility.
+	 * @param rho The initial value for <i>&rho;</i> the correlation to the first factor.
+	 * @param isCalibrateable If true, the parameters <i>&nu;</i> and <i>&rho;</i> are parameters. Note that the covariance model (<code>covarianceModel</code>) may have its own parameter calibration settings.
+	 */
+	public LIBORCovarianceModelStochasticVolatility(AbstractLIBORCovarianceModelParametric covarianceModel, BrownianMotion brownianMotion, RandomVariable nu, RandomVariable rho, boolean isCalibrateable) {
+		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
+
+		this.covarianceModel = covarianceModel;
+		this.brownianMotion = brownianMotion;
+		this.nu		= nu;
+		this.rho		= rho;
+
+		this.isCalibrateable = isCalibrateable;
+	}
 
 	/**
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
@@ -74,25 +94,25 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 		this.covarianceModel = covarianceModel;
 		this.brownianMotion = brownianMotion;
-		this.nu		= nu;
-		this.rho	= rho;
+		this.nu		= new Scalar(nu);
+		this.rho	= new Scalar(rho);
 
 		this.isCalibrateable = isCalibrateable;
 	}
 
 	@Override
-	public double[] getParameter() {
+	public RandomVariable[] getParameter() {
 		if(!isCalibrateable) {
 			return covarianceModel.getParameter();
 		}
 
-		double[] covarianceParameters = covarianceModel.getParameter();
+		RandomVariable[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) {
-			return new double[] { nu, rho };
+			return new RandomVariable[] { nu, rho };
 		}
 
 		// Append nu and rho to the end of covarianceParameters
-		double[] jointParameters = new double[covarianceParameters.length+2];
+		RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+2];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
 		jointParameters[covarianceParameters.length+0] = nu;
 		jointParameters[covarianceParameters.length+1] = rho;
@@ -101,7 +121,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 	}
 
 	//	@Override
-	private void setParameter(double[] parameter) {
+	private void setParameter(RandomVariable[] parameter) {
 		if(parameter == null || parameter.length == 0) {
 			return;
 		}
@@ -111,7 +131,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 			return;
 		}
 
-		double[] covarianceParameters = new double[parameter.length-2];
+		RandomVariable[] covarianceParameters = new RandomVariable[parameter.length-2];
 		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);
 
 		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
@@ -129,10 +149,23 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		LIBORCovarianceModelStochasticVolatility model = (LIBORCovarianceModelStochasticVolatility)this.clone();
 		model.setParameter(parameters);
 		return model;
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+		RandomVariable[] parameters = getParameter();
+		double[] parametersAsDouble = new double[parameters.length];
+		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
+		return parametersAsDouble;
 	}
 
 	@Override
@@ -184,12 +217,12 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 					@Override
 					public RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex) {
-						return new RandomVariable[] { brownianMotion.getRandomVariableForConstant(rho * nu) , brownianMotion.getRandomVariableForConstant(Math.sqrt(1.0 - rho*rho) * nu) };
+						return new RandomVariable[] { rho.mult(nu) , rho.squared().sub(1).mult(-1).sqrt().mult(nu) };
 					}
 
 					@Override
 					public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
-						return new RandomVariable[] { brownianMotion.getRandomVariableForConstant(- 0.5 * nu*nu) };
+						return new RandomVariable[] { nu.squared().mult(-0.5) };
 					}
 
 					@Override

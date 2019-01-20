@@ -92,11 +92,11 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 	@Override
 	public double[] getParameter() {
 		if(tenorTimeScalingModel == null) {
-			return covarianceModel.getParameter();
+			return covarianceModel.getParameterAsDouble();
 		}
 
 		double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
-		double[] covarianceParameter = covarianceModel.getParameter();
+		double[] covarianceParameter = covarianceModel.getParameterAsDouble();
 		double[] parameter = new double[tenorTimeScalingParameter.length + covarianceParameter.length];
 		System.arraycopy(tenorTimeScalingParameter, 0, parameter, 0, tenorTimeScalingParameter.length);
 		System.arraycopy(covarianceParameter, 0, parameter, tenorTimeScalingParameter.length, covarianceParameter.length);
@@ -110,7 +110,7 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 		}
 
 		double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
-		double[] covarianceParameter = covarianceModel.getParameter();
+		double[] covarianceParameter = covarianceModel.getParameterAsDouble();
 		System.arraycopy(parameters, 0, tenorTimeScalingParameter, 0, tenorTimeScalingParameter.length);
 		System.arraycopy(parameters, tenorTimeScalingParameter.length, covarianceParameter, 0, covarianceParameter.length);
 

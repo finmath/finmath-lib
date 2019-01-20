@@ -25,4 +25,23 @@ public abstract class AbstractRandomVariableFactory implements Serializable{
 	public abstract RandomVariable createRandomVariable(double time, double value);
 
 	public abstract RandomVariable createRandomVariable(double time, double[] values);
+
+	public RandomVariable[] createRandomVariableArray(double[] values) {
+		RandomVariable[] valuesAsRandomVariables = new RandomVariable[values.length];
+		for(int i=0; i<values.length; i++) {
+			valuesAsRandomVariables[i] = this.createRandomVariable(Double.NEGATIVE_INFINITY, values[i]);
+		}
+		return valuesAsRandomVariables;
+	}
+
+	public RandomVariable[][] createRandomVariableMatrix(double[][] values) {
+		RandomVariable[][] valuesAsRandomVariables = new RandomVariable[values.length][];
+		for(int i=0; i<values.length; i++) {
+			valuesAsRandomVariables[i] = new RandomVariable[values[i].length];
+			for(int j=0; j<values[i].length; j++) {
+				valuesAsRandomVariables[i][j] = this.createRandomVariable(Double.NEGATIVE_INFINITY, values[i][j]);
+			}
+		}
+		return valuesAsRandomVariables;
+	}
 }

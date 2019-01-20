@@ -609,7 +609,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 
 				// Calculate new parameter
 				for (int i = 0; i < parameterCurrent.length; i++) {
-					parameterTest[i] = parameterCurrent[i].add(new RandomVariableFromDoubleArray(0.0, parameterIncrement[i]));
+					parameterTest[i] = parameterCurrent[i].add(numberOfPaths == 1 ? new Scalar(parameterIncrement[i][0]) : new RandomVariableFromDoubleArray(0.0, parameterIncrement[i]));
 				}
 
 				// Log iteration

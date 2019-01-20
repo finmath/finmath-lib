@@ -5,7 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.models.modelplugins;
 
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -18,10 +20,50 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 
 	private static final long serialVersionUID = 8398006103722351360L;
 
-	private double a;
-	private double b;
+	private final AbstractRandomVariableFactory	randomVariableFactory;
+
+	private RandomVariable a;
+	private RandomVariable b;
 
 	private boolean isCalibrateable = false;
+
+	// A lazy init cache
+	private transient RandomVariable[][] volatility;
+	private Object volatilityLazyInitLock = new Object();
+
+	/**
+	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
+	 *
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
+	 * @param a The parameter a: an initial volatility level.
+	 * @param b The parameter b: the slope at the short end (shortly before maturity).
+	 * @param c The parameter c: exponential decay of the volatility in time-to-maturity.
+	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
+	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
+	 */
+	public LIBORVolatilityModelTwoParameterExponentialForm(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, RandomVariable a, RandomVariable b, boolean isCalibrateable) {
+		super(timeDiscretization, liborPeriodDiscretization);
+		this.randomVariableFactory = randomVariableFactory;
+		this.a = a;
+		this.b = b;
+		this.isCalibrateable = isCalibrateable;
+	}
+
+	/**
+	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
+	 *
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
+	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
+	 * @param a The parameter a: an initial volatility level.
+	 * @param b The parameter b: exponential decay of the volatility.
+	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
+	 */
+	public LIBORVolatilityModelTwoParameterExponentialForm(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, boolean isCalibrateable) {
+		this(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, randomVariableFactory.createRandomVariable(a), randomVariableFactory.createRandomVariable(b), isCalibrateable);
+	}
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
@@ -32,32 +74,17 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	 * @param b The parameter b: exponential decay of the volatility.
 	 */
 	public LIBORVolatilityModelTwoParameterExponentialForm(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b) {
-		this(timeDiscretization, liborPeriodDiscretization, a, b, true);
+		this(new RandomVariableFactory(), timeDiscretization, liborPeriodDiscretization, a, b, true);
 	}
 
-	/**
-	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = a * exp(-b (T<sub>i</sub>-t<sub>j</sub>))
-	 *
-	 * @param timeDiscretizationFromArray The simulation time discretization t<sub>j</sub>.
-	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
-	 * @param a The parameter a: an initial volatility level.
-	 * @param b The parameter b: exponential decay of the volatility.
-	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
-	 */
-	public LIBORVolatilityModelTwoParameterExponentialForm(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, boolean isCalibrateable) {
-		super(timeDiscretization, liborPeriodDiscretization);
-		this.a = a;
-		this.b = b;
-		this.isCalibrateable = isCalibrateable;
-	}
 
 	@Override
-	public double[] getParameter() {
+	public RandomVariable[] getParameter() {
 		if(!isCalibrateable) {
 			return null;
 		}
 
-		double[] parameter = new double[2];
+		RandomVariable[] parameter = new RandomVariable[2];
 		parameter[0] = a;
 		parameter[1] = b;
 
@@ -65,46 +92,54 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 	}
 
 	@Override
-	public LIBORVolatilityModelTwoParameterExponentialForm getCloneWithModifiedParameter(double[] parameter) {
+	public LIBORVolatilityModelTwoParameterExponentialForm getCloneWithModifiedParameter(RandomVariable[] parameter) {
 		if(!isCalibrateable) {
 			return this;
 		}
 
 		return new LIBORVolatilityModelTwoParameterExponentialForm(
+				randomVariableFactory,
 				getTimeDiscretization(),
 				getLiborPeriodDiscretization(),
-				a,
-				b,
+				parameter[0],
+				parameter[1],
 				isCalibrateable
 				);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModel#getVolatility(int, int)
-	 */
 	@Override
-	public RandomVariableFromDoubleArray getVolatility(int timeIndex, int liborIndex) {
-		// Create a very simple volatility model here
-		double time             = getTimeDiscretization().getTime(timeIndex);
-		double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
-		double timeToMaturity   = maturity-time;
+	public RandomVariable getVolatility(int timeIndex, int liborIndex) {
 
-		double volatilityInstanteaneous;
-		if(timeToMaturity <= 0)
-		{
-			volatilityInstanteaneous = 0;   // This forward rate is already fixed, no volatility
-		}
-		else
-		{
-			volatilityInstanteaneous = a * Math.exp(-b * timeToMaturity);
-		}
+		synchronized (volatilityLazyInitLock) {
+			if(volatility == null) {
+				volatility = new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
+			}
 
-		return new RandomVariableFromDoubleArray(getTimeDiscretization().getTime(timeIndex), volatilityInstanteaneous);
+			if(volatility[timeIndex][liborIndex] == null) {
+				double time             = getTimeDiscretization().getTime(timeIndex);
+				double maturity         = getLiborPeriodDiscretization().getTime(liborIndex);
+				double timeToMaturity   = maturity-time;
+
+				RandomVariable volatilityInstanteaneous;
+				if(timeToMaturity <= 0)
+				{
+					volatilityInstanteaneous = randomVariableFactory.createRandomVariable(0.0);   // This forward rate is already fixed, no volatility
+				}
+				else
+				{
+					volatilityInstanteaneous = a.mult(b.mult(-timeToMaturity).exp());
+				}
+
+				volatility[timeIndex][liborIndex] = volatilityInstanteaneous;
+			}
+
+			return volatility[timeIndex][liborIndex];
+		}
 	}
-
 	@Override
 	public Object clone() {
 		return new LIBORVolatilityModelTwoParameterExponentialForm(
+				randomVariableFactory,
 				getTimeDiscretization(),
 				getLiborPeriodDiscretization(),
 				a,

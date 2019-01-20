@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModel;
+import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -120,7 +120,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 		}
 
 		// Fetch the covariance model of the model
-		AbstractLIBORCovarianceModel covarianceModel = model.getCovarianceModel();
+		LIBORCovarianceModel covarianceModel = model.getCovarianceModel();
 
 		// We sum over all forward rates
 		int numberOfComponents = covarianceModel.getLiborPeriodDiscretization().getNumberOfTimeSteps();

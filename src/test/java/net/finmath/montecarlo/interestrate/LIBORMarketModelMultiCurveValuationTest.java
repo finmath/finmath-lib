@@ -630,7 +630,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel calMode = new net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel(
 				liborMarketModelCalibrated, process);
 
-		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameter();
+		double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameterAsDouble();
 		for (double p : param) {
 			System.out.println(p);
 		}

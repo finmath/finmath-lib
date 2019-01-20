@@ -11,7 +11,6 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModelFourParameterExponentialForm;
 import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -52,13 +51,13 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 			int numberOfTimePoints = 20000;
 			TimeDiscretization td = new TimeDiscretizationFromArray(0.0, numberOfTimePoints, 10.0/numberOfTimePoints);
 			LIBORVolatilityModelFourParameterExponentialFormIntegrated vol1 = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(td, td, a, b, c, d, false);
-			LIBORVolatilityModelFourParameterExponentialForm vol2 = new LIBORVolatilityModelFourParameterExponentialForm(td, td, a, b, c, d, false);
 
 			int timeIndex = random.nextInt(numberOfTimePoints-1);
 			int liborIndex = random.nextInt(numberOfTimePoints-timeIndex-1)+1;
 
+			double timeToMaturity = td.getTime(timeIndex+liborIndex) - td.getTime(timeIndex);
 			double v1 = vol1.getVolatility(timeIndex, timeIndex+liborIndex).getAverage();
-			double v2 = vol2.getVolatility(timeIndex, timeIndex+liborIndex).getAverage();
+			double v2 = (a + b * timeToMaturity) * Math.exp(-c * timeToMaturity) + d;
 
 			error = Math.max(error, Math.abs(v1-v2));
 		}

@@ -50,7 +50,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 		this.products = products;
 		this.weights = weights;
 		this.numberOfThreads = numberOfThreads;
-		
+
 		if(numberOfThreads.isPresent() && numberOfThreads.get() < 1) {
 			throw new IllegalArgumentException("The parameter numberOfThreads is required to be > 0 if present.");
 		}

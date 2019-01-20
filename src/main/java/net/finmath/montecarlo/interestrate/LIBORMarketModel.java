@@ -6,7 +6,7 @@
 
 package net.finmath.montecarlo.interestrate;
 
-import net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModel;
+import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModel;
 
 /**
  * Interface for LIBOR Market Models which are determined by a covariance structure defined on discrete forward rates.
@@ -21,7 +21,7 @@ public interface LIBORMarketModel extends LIBORModel {
 	 *
 	 * @return The covariance model.
 	 */
-	AbstractLIBORCovarianceModel getCovarianceModel();
+	LIBORCovarianceModel getCovarianceModel();
 
 	/**
 	 * Create a new object implementing LIBORMarketModel, using the new covariance model.
@@ -29,7 +29,7 @@ public interface LIBORMarketModel extends LIBORModel {
 	 * @param calibrationCovarianceModel The new covariance model.
 	 * @return A new object implementing LIBORMarketModel, using the new covariance model.
 	 */
-	LIBORMarketModel getCloneWithModifiedCovarianceModel(AbstractLIBORCovarianceModel calibrationCovarianceModel);
+	LIBORMarketModel getCloneWithModifiedCovarianceModel(LIBORCovarianceModel calibrationCovarianceModel);
 
 	/**
 	 * Returns the integrated instantaneous log-forward rate covariance, i.e.,

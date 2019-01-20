@@ -1,3 +1,8 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2006
+ */
 package net.finmath.montecarlo.interestrate.models.modelplugins;
 
 import java.util.Map;
@@ -36,7 +41,6 @@ public interface LIBORCovarianceModelCalibrateable {
 	 * @return A new parametric model of the same type than <code>this</code> one, but with calibrated parameters.
 	 * @throws CalculationException Thrown if calibration has failed.
 	 */
-	LIBORCovarianceModelCalibrateable getCloneCalibrated(LIBORMarketModel calibrationModel,
-			CalibrationProduct[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException;
+	LIBORCovarianceModelCalibrateable getCloneCalibrated(LIBORMarketModel calibrationModel, CalibrationProduct[] calibrationProducts, Map<String, Object> calibrationParameters) throws CalculationException;
 
 }

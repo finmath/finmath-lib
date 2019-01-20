@@ -63,7 +63,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public double[] getParameter() {
+	public double[] getParameterAsDouble() {
 		return parameter;
 	}
 

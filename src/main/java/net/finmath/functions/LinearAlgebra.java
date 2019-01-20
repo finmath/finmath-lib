@@ -70,7 +70,7 @@ public class LinearAlgebra {
 	 * using a standard Tikhonov regularization, i.e., we solve in the least square sense
 	 *   A* x = b*
 	 * where A* = (A^T, lambda I)^T and b* = (b^T , 0)^T.
-	 * 
+	 *
 	 * @param matrixA The matrix A (left hand side of the linear equation).
 	 * @param b The vector (right hand of the linear equation).
 	 * @return A solution x to A x = b.
@@ -172,7 +172,7 @@ public class LinearAlgebra {
 			// For use of parallel colt:
 			// return new cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleLUDecomposition(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D(A)).solve(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D(b)).toArray();
 		}
-	}	
+	}
 	/**
 	 * Returns the inverse of a given matrix.
 	 *

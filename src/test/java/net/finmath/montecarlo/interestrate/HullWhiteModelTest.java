@@ -29,9 +29,9 @@ import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModelWithDirectSimulation;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModelWithShiftExtension;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
-import net.finmath.montecarlo.interestrate.models.modelplugins.AbstractLIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.modelplugins.HullWhiteLocalVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCorrelationModelExponentialDecay;
+import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.modelplugins.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.models.modelplugins.ShortRateVolatilityModel;
@@ -206,7 +206,7 @@ public class HullWhiteModelTest {
 							liborPeriodDiscretization, volatilityModel, correlationModel);
 
 			// BlendedLocalVolatlityModel
-			AbstractLIBORCovarianceModel covarianceModel2 = new HullWhiteLocalVolatilityModel(covarianceModel, liborPeriodLength);
+			LIBORCovarianceModel covarianceModel2 = new HullWhiteLocalVolatilityModel(covarianceModel, liborPeriodLength);
 
 			// Set model properties
 			Map<String, String> properties = new HashMap<>();
