@@ -9,7 +9,7 @@ package net.finmath.montecarlo.hybridassetinterestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
 import net.finmath.modelling.Product;
-import net.finmath.montecarlo.hybridassetinterestrate.HybridAssetLIBORModelMonteCarloSimulationInterface;
+import net.finmath.montecarlo.hybridassetinterestrate.HybridAssetLIBORModelMonteCarloSimulation;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -46,7 +46,7 @@ public class WorstOfExpressCertificate implements Product {
 		return null;
 	}
 
-	public double getValue(double evaluationTime, HybridAssetLIBORModelMonteCarloSimulationInterface model) throws CalculationException {
+	public double getValue(double evaluationTime, HybridAssetLIBORModelMonteCarloSimulation model) throws CalculationException {
 
 		RandomVariable zero				= model.getRandomVariableForConstant(0.0);
 		RandomVariable values				= model.getRandomVariableForConstant(0.0);
@@ -92,7 +92,7 @@ public class WorstOfExpressCertificate implements Product {
 	 * @return
 	 * @throws CalculationException
 	 */
-	private static RandomVariable getWorstPerformance(HybridAssetLIBORModelMonteCarloSimulationInterface model, double exerciseDate, double[] baseLevels) throws CalculationException {
+	private static RandomVariable getWorstPerformance(HybridAssetLIBORModelMonteCarloSimulation model, double exerciseDate, double[] baseLevels) throws CalculationException {
 		RandomVariable worstPerformance = null;
 		for(int assetIndex=0; assetIndex<baseLevels.length; assetIndex++) {
 			RandomVariable underlying = model.getAssetValue(exerciseDate, assetIndex);

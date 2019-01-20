@@ -1,6 +1,6 @@
 /**
  * Provides classes which implement financial products which may be
- * valued using a <code>net.finmath.montecarlo.hybridassetinterestrate.HybridAssetLIBORModelMonteCarloSimulationInterface</code>.
+ * valued using a <code>net.finmath.montecarlo.hybridassetinterestrate.HybridAssetLIBORModelMonteCarloSimulation</code>.
  *
  * @author Christian Fries
  */

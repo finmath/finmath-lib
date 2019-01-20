@@ -18,7 +18,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public interface CrossCurrencyTermStructureModelMonteCarloSimulationInterface extends MonteCarloSimulationModel {
+public interface CrossCurrencyTermStructureMonteCarloSimulationModel extends MonteCarloSimulationModel {
 
 	/**
 	 * Return the forward rate for a given simulation time and a given period start and period end.

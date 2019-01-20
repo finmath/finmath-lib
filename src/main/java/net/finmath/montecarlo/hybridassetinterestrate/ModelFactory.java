@@ -56,10 +56,10 @@ public class ModelFactory {
 	 * @param strikes Strikes of the options (one for each asset process).
 	 * @param volatilities Implied volatilities of the options (one for each asset process).
 	 * @param discountCurve Discount curve used for the final hybrid model (not used in calibration).
-	 * @return An object implementing {@link HybridAssetLIBORModelMonteCarloSimulationInterface}, where each asset process is calibrated to a given option.
+	 * @return An object implementing {@link HybridAssetLIBORModelMonteCarloSimulation}, where each asset process is calibrated to a given option.
 	 * @throws CalculationException Thrown if calibration fails.
 	 */
-	public HybridAssetLIBORModelMonteCarloSimulationInterface getHybridAssetLIBORModel(
+	public HybridAssetLIBORModelMonteCarloSimulation getHybridAssetLIBORModel(
 			final LIBORModelMonteCarloSimulationModel baseModel,
 			final BrownianMotion brownianMotion,
 			final double[] initialValues,
@@ -76,7 +76,7 @@ public class ModelFactory {
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
 				AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, parameters, correlations);
-				HybridAssetLIBORModelMonteCarloSimulation hybridModel = new HybridAssetLIBORModelMonteCarloSimulation(baseModel, model);
+				HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model);
 
 				try {
 					for(int assetIndex=0; assetIndex<values.length; assetIndex++) {
@@ -108,7 +108,7 @@ public class ModelFactory {
 		/*
 		 * Test calibration
 		 */
-		HybridAssetLIBORModelMonteCarloSimulation hybridModelWithoutDiscountAdjustment = new HybridAssetLIBORModelMonteCarloSimulation(baseModel, model, null);
+		HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModelWithoutDiscountAdjustment = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, null);
 		for(int assetIndex=0; assetIndex<volatilities.length; assetIndex++) {
 			double df = hybridModelWithoutDiscountAdjustment.getNumeraire(maturities[assetIndex]).invert().getAverage();
 			double spot = hybridModelWithoutDiscountAdjustment.getAssetValue(0.0, assetIndex).getAverage();
@@ -123,7 +123,7 @@ public class ModelFactory {
 		/*
 		 * Construct model with discounting (options will then use the discounting spread adjustment).
 		 */
-		HybridAssetLIBORModelMonteCarloSimulation hybridModel = new HybridAssetLIBORModelMonteCarloSimulation(baseModel, model, discountCurve);
+		HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, discountCurve);
 		return hybridModel;
 	}
 }
