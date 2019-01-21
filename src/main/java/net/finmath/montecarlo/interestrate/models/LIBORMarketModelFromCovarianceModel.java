@@ -177,10 +177,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private double[][][]		integratedLIBORCovariance;
 	private transient Object	integratedLIBORCovarianceLazyInitLock = new Object();
 
-	// Cache for the numeraires, needs to be invalidated if process changes
+	// Cache for the numeraires, needs to be invalidated if process changes - move out of the object (to process?)
 	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
 	private final ConcurrentHashMap<Double, RandomVariable>	numeraireAdjustments;
-	private MonteCarloProcess									numerairesProcess = null;
+	private transient MonteCarloProcess						numerairesProcess = null;
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.

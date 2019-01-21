@@ -51,7 +51,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 	private boolean isCalibrateable = false;
 
-	private MonteCarloProcess stochasticVolatilityScalings = null;
+	private transient MonteCarloProcess stochasticVolatilityScalings = null;
 
 	/**
 	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
