@@ -5,6 +5,13 @@
  */
 package net.finmath.montecarlo;
 
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,6 +26,7 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.functions.JarqueBeraTest;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
+import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -229,4 +237,58 @@ public class BrownianMotionTest {
 
 		System.out.println();
 	}
+	
+	@Test
+	public void testSerialization() {
+		// The parameters
+		int numberOfPaths	= 10000;
+		int seed			= 53252;
+
+		double lastTime = 2.0;
+		double dt = 0.1;
+
+		// Create the time discretization
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
+
+		// Test the quality of the Brownian motion
+		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+				timeDiscretization,
+				2,
+				numberOfPaths,
+				seed,
+				randomVariableFactory
+				);
+
+		RandomVariable value = brownian.getBrownianIncrement(10, 0);
+		
+		/*
+		 * Serialize to a byte stream
+		 */
+		byte[] serializedObject = null;
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream( baos );
+			oos.writeObject(brownian);
+			serializedObject = baos.toByteArray();
+		} catch (IOException e) {
+			fail("Serialization failed with exception " + e.getMessage());
+		}
+
+		/*
+		 * De-serialize from a byte stream
+		 */
+		BrownianMotion brownianClone = null;
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedObject) );
+			brownianClone = (BrownianMotion)ois.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			fail("Deserialization failed with exception " + e.getMessage());
+		}
+		
+		RandomVariable valueClone = brownianClone.getBrownianIncrement(10, 0);
+		
+		Assert.assertTrue("Comparing random variable from original and deserialized object: different references.", value != valueClone);
+		Assert.assertTrue("Comparing random variable from original and deserialized object: equals().", value.equals(valueClone));
+	}
+
 }
