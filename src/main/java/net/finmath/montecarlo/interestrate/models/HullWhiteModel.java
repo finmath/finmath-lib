@@ -150,7 +150,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
-		this.properties			= properties;
+		this.properties			= null;//properties;		// Note: if properties are stored, this may cause issues in serialization. Field will be removed.
 
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 	}
