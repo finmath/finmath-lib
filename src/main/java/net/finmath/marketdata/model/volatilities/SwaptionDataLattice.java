@@ -38,7 +38,7 @@ import net.finmath.time.ScheduleMetaData;
  */
 public class SwaptionDataLattice implements Serializable {
 
-	private static final long serialVersionUID = -3106297186490797114L;
+	private static final long serialVersionUID = 5041960065072626043L;
 
 	/**
 	 * Quoting convention for swaption data in a lattice.
@@ -655,6 +655,21 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public ScheduleMetaData getFixMetaSchedule() {
 		return fixMetaSchedule;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(super.toString());
+		builder.append("[referenceDate= " + getReferenceDate() + ", quotingConvention= " + getQuotingConvention() + ", displacement= " + getDisplacement() +
+				", forwardCurveName= " + getForwardCurveName() + ", discountCurveName= " + getDiscountCurveName() + ", floatMetaSchedule= " + getFloatMetaSchedule() +
+				", fixMetaSchedule= " + getFixMetaSchedule() +", Entries:\n");
+		builder.append("Maturity\tTenor\tMoneyness\tValue\n");
+		for(DataKey key : entryMap.keySet()) {
+			builder.append(key.maturity + "\t" + key.tenor + "\t" + key.moneyness + "\t" + getValue(key) + "\n");
+		}
+		builder.append("]");
+
+		return builder.toString();
 	}
 
 	/**
