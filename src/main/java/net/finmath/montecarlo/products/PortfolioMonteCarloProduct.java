@@ -119,7 +119,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 
 			// Collect and sum results
 			value = values.get(0).get();
-			for(int i=0; i<products.length; i++) {
+			for(int i=1; i<products.length; i++) {
 				value = value.add(values.get(i).get());
 			}
 		} catch (InterruptedException | ExecutionException e) {
