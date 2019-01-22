@@ -166,7 +166,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
 	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
-	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_UNCORRECTED;
+	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_CORRECTED;
 	private double				liborCap					= 1E5;
 
 	// This is a cache of the integrated covariance.
@@ -1184,7 +1184,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			int	previousStartIndex   = (-periodStartIndex-1)-1;
 			int	periodStartTimeIndex = getTimeIndex(periodStart);
 			double nextStartTime	 = getLiborPeriod(previousStartIndex+1);
-			RandomVariable onePlusLongLIBORdt         = getLIBOR(time, nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0);
+			RandomVariable onePlusLongLIBORdt         = periodEnd > nextStartTime ?
+					getLIBOR(time, nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0) :
+					getRandomVariableForConstant(1.0);
 			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodStartTimeIndex, previousStartIndex)
 															.mult(nextStartTime - periodStart).add(1.0);
 			return onePlusLongLIBORdt.mult(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
@@ -1237,10 +1239,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		double tenorPeriodEndTime         = getLiborPeriod(liborIndex + 1);
 		double tenorDt                    = tenorPeriodEndTime - tenorPeriodStartTime;
 		//Fixed at Long LIBOR period Start.
-		             evaluationTimeIndex  = Math.max(evaluationTimeIndex, getTimeIndex(getTime(liborIndex)));
+		             evaluationTimeIndex  = Math.min(evaluationTimeIndex, getTimeIndex(tenorPeriodStartTime));
 		RandomVariable onePlusLongLIBORDt = getLIBOR(evaluationTimeIndex , liborIndex).mult(tenorDt).add(1.0);
 
-		double periodStartTime            = getLiborPeriod(periodStartTimeIndex);
+		double periodStartTime            = getTime(periodStartTimeIndex);
 		double smallDt                    = tenorPeriodEndTime - periodStartTime;
 		double alpha                      = smallDt / tenorDt;
 
@@ -1254,10 +1256,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.log().mult(alpha).exp();
 				break;
 			case LOG_LINEAR_CORRECTED:
-				double adjustmentCoefficient     = 0.5 * smallDt * (periodStartTime - tenorPeriodStartTime);
+				double adjustmentCoefficient     = 0.5 * smallDt * (tenorPeriodStartTime - periodStartTime);
 				RandomVariable adjustment        = getInterpolationDriftAdjustment(evaluationTimeIndex, liborIndex);
 				adjustment = adjustment.mult(adjustmentCoefficient);
-				onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.log().mult(alpha).add(adjustment).exp();
+				onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.log().mult(alpha).sub(adjustment).exp();
 				break;
 			default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
 		}
@@ -1278,7 +1280,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					break;
 				case LOG_LINEAR_UNCORRECTED:
 				case LOG_LINEAR_CORRECTED:
-					analyticOnePlusInterpolatedLIBORDt = Math.exp(Math.log(1 + analyticOnePlusLongLIBORDt * alpha));
+					analyticOnePlusInterpolatedLIBORDt = Math.exp(Math.log(analyticOnePlusLongLIBORDt) * alpha);
 					break;
 				default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
 			}
@@ -1336,7 +1338,11 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					{
 						previousIntegrand = previousIntegrand.add(oneFactor.squared());
 					}
-					previousIntegrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).sub(1.0)).squared() );
+					previousIntegrand = previousIntegrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).add(1.0)).squared() );
+					if(stateSpace == StateSpace.LOGNORMAL)
+					{
+						previousIntegrand = previousIntegrand.mult( realizationsAtTimeIndex[liborIndex].squared() );
+					}
 				}
 
 				for(int sumTimeIndex = 1; sumTimeIndex <= evaluationTimeIndex; sumTimeIndex++)
@@ -1344,7 +1350,8 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
 					for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
 					{
-						realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(sumTimeIndex, liborIndexForRealization);
+						int evaluationTimeIndexForRealizations = Math.min(sumTimeIndex, getTimeIndex(getLiborPeriod(liborIndexForRealization)));
+						realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(evaluationTimeIndexForRealizations, liborIndexForRealization);
 					}
 					RandomVariable[] factorLoading = getFactorLoading(sumTimeIndex, liborIndex, realizationsAtTimeIndex);
 					//o_{Li}(t)
@@ -1353,9 +1360,14 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					{
 						integrand = integrand.add(oneFactor.squared());
 					}
-					integrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).sub(1.0)).squared() );
-					double integralDt = 0.5 * (getTime(sumTimeIndex) - getTimeIndex(sumTimeIndex - 1));
+					integrand = integrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).add(1.0)).squared() );
+					if(stateSpace == StateSpace.LOGNORMAL)
+					{
+						integrand = integrand.mult( realizationsAtTimeIndex[liborIndex].squared() );
+					}
+					double integralDt = 0.5 * (getTime(sumTimeIndex) - getTime(sumTimeIndex - 1));
 					driftAdjustment = driftAdjustment.add( (integrand.add(previousIntegrand)).mult(integralDt) );
+					previousIntegrand = integrand;
 				}
 				//Cache for fixing time
 				if(evaluationTimeIndex == tenorPeriodStartIndex)
