@@ -1,8 +1,3 @@
-/*
- * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- *
- * Created on 10.02.2004
- */
 package net.finmath.montecarlo.interestrate;
 
 import java.text.DecimalFormat;
@@ -52,9 +47,8 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
- * This class tests the LIBOR market model and products.
+ * This class tests interpolated LIBORS
  *
- * @author Christian Fries
  */
 @RunWith(Parameterized.class)
 public class LIBORMarketModelValuationTest {

@@ -1159,7 +1159,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 		time = Math.min(time, periodStart);
 		int timeIndex           = getTimeIndex(time);
-
 		// If time is not part of the discretization, use the latest available point.
 		if(timeIndex < 0) {
 			timeIndex = -timeIndex-2;
@@ -1170,7 +1169,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate end date
 		if(periodEndIndex < 0) {
 			int		previousEndIndex	= (-periodEndIndex-1)-1;
-			int     periodEndTimeIndex = getTimeIndex(periodEnd);
+			int     periodEndTimeIndex  = getTimeIndex(periodEnd);
+			if(periodEndTimeIndex < 0) {
+				periodEndTimeIndex = -periodEndTimeIndex-2;
+			}
 			double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
 			// Interpolate libor from periodStart to periodEnd on periodEnd
 			RandomVariable onePlusLongLIBORdt         = getLIBOR(time, periodStart, nextEndTime).mult(nextEndTime - periodStart).add(1.0);
@@ -1179,10 +1181,13 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			return onePlusLongLIBORdt.div(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
 		}
 
-		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate start date
+		// Interpolation on tenor using interpolationMethod
 		if(periodStartIndex < 0) {
 			int	previousStartIndex   = (-periodStartIndex-1)-1;
 			int	periodStartTimeIndex = getTimeIndex(periodStart);
+			if(periodStartTimeIndex < 0) {
+				periodStartTimeIndex = -periodStartTimeIndex-2;
+			}
 			double nextStartTime	 = getLiborPeriod(previousStartIndex+1);
 			RandomVariable onePlusLongLIBORdt         = periodEnd > nextStartTime ?
 					getLIBOR(time, nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0) :
