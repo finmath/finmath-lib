@@ -1359,7 +1359,12 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
 					for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
 					{
+
 						int evaluationTimeIndexForRealizations = Math.min(sumTimeIndex, getTimeIndex(getLiborPeriod(liborIndexForRealization)));
+						if(evaluationTimeIndexForRealizations < 0)
+						{
+							evaluationTimeIndexForRealizations = - evaluationTimeIndexForRealizations - 2;
+						}
 						realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(evaluationTimeIndexForRealizations, liborIndexForRealization);
 					}
 					RandomVariable[] factorLoading = getFactorLoading(sumTimeIndex, liborIndex, realizationsAtTimeIndex);
