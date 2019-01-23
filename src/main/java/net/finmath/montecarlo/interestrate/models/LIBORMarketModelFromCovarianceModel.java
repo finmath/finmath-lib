@@ -170,7 +170,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
 	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
-	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_CORRECTED;
+	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_UNCORRECTED;
 	private double				liborCap					= 1E5;
 
 	// This is a cache of the integrated covariance.
@@ -1173,14 +1173,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate end date
 		if(periodEndIndex < 0) {
 			int		previousEndIndex	= (-periodEndIndex-1)-1;
-			int     periodEndTimeIndex  = getTimeIndex(periodEnd);
-			if(periodEndTimeIndex < 0) {
-				periodEndTimeIndex = -periodEndTimeIndex-2;
-			}
 			double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
 			// Interpolate libor from periodStart to periodEnd on periodEnd
 			RandomVariable onePlusLongLIBORdt         = getLIBOR(time, periodStart, nextEndTime).mult(nextEndTime - periodStart).add(1.0);
-			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodEndTimeIndex, previousEndIndex)
+			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodEnd, previousEndIndex)
 															.mult(nextEndTime - periodEnd).add(1.0);
 			return onePlusLongLIBORdt.div(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
 		}
@@ -1188,15 +1184,11 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		// Interpolation on tenor using interpolationMethod
 		if(periodStartIndex < 0) {
 			int	previousStartIndex   = (-periodStartIndex-1)-1;
-			int	periodStartTimeIndex = getTimeIndex(periodStart);
-			if(periodStartTimeIndex < 0) {
-				periodStartTimeIndex = -periodStartTimeIndex-2;
-			}
 			double nextStartTime	 = getLiborPeriod(previousStartIndex+1);
 			RandomVariable onePlusLongLIBORdt         = periodEnd > nextStartTime ?
 					getLIBOR(time, nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0) :
 					getRandomVariableForConstant(1.0);
-			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodStartTimeIndex, previousStartIndex)
+			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodStart, previousStartIndex)
 															.mult(nextStartTime - periodStart).add(1.0);
 			return onePlusLongLIBORdt.mult(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
 		}
@@ -1237,12 +1229,12 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	/**
 	 *
 	 * @param evaluationTimeIndex
-	 * @param periodStartTimeIndex
+	 * @param periodStartTime
 	 * @param liborIndex
 	 * @return
 	 * @throws CalculationException
 	 */
-	private RandomVariable getInterpolatedLIBOR(int evaluationTimeIndex, int periodStartTimeIndex, int liborIndex) throws CalculationException
+	private RandomVariable getInterpolatedLIBOR(int evaluationTimeIndex, double periodStartTime, int liborIndex) throws CalculationException
 	{
 		double tenorPeriodStartTime       = getLiborPeriod(liborIndex);
 		double tenorPeriodEndTime         = getLiborPeriod(liborIndex + 1);
@@ -1251,7 +1243,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		evaluationTimeIndex  = Math.min(evaluationTimeIndex, getTimeIndex(tenorPeriodStartTime));
 		RandomVariable onePlusLongLIBORDt = getLIBOR(evaluationTimeIndex , liborIndex).mult(tenorDt).add(1.0);
 
-		double periodStartTime            = getTime(periodStartTimeIndex);
 		double smallDt                    = tenorPeriodEndTime - periodStartTime;
 		double alpha                      = smallDt / tenorDt;
 
