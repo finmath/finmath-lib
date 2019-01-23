@@ -10,8 +10,12 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
@@ -1244,7 +1248,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		double tenorPeriodEndTime         = getLiborPeriod(liborIndex + 1);
 		double tenorDt                    = tenorPeriodEndTime - tenorPeriodStartTime;
 		//Fixed at Long LIBOR period Start.
-		             evaluationTimeIndex  = Math.min(evaluationTimeIndex, getTimeIndex(tenorPeriodStartTime));
+		evaluationTimeIndex  = Math.min(evaluationTimeIndex, getTimeIndex(tenorPeriodStartTime));
 		RandomVariable onePlusLongLIBORDt = getLIBOR(evaluationTimeIndex , liborIndex).mult(tenorDt).add(1.0);
 
 		double periodStartTime            = getTime(periodStartTimeIndex);
