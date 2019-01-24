@@ -137,6 +137,11 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		}
 
 		@Override
+		public String toString() {
+			return "Point [time=" + time + ", value=" + value + ", isParameter=" + isParameter + "]";
+		}
+
+		@Override
 		public Object clone() {
 			return new Point(time,value,isParameter);
 		}
