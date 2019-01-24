@@ -26,7 +26,6 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.functions.JarqueBeraTest;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
-import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -237,7 +236,7 @@ public class BrownianMotionTest {
 
 		System.out.println();
 	}
-	
+
 	@Test
 	public void testSerialization() {
 		// The parameters
@@ -260,7 +259,7 @@ public class BrownianMotionTest {
 				);
 
 		RandomVariable value = brownian.getBrownianIncrement(10, 0);
-		
+
 		/*
 		 * Serialize to a byte stream
 		 */
@@ -284,9 +283,9 @@ public class BrownianMotionTest {
 		} catch (IOException | ClassNotFoundException e) {
 			fail("Deserialization failed with exception " + e.getMessage());
 		}
-		
+
 		RandomVariable valueClone = brownianClone.getBrownianIncrement(10, 0);
-		
+
 		Assert.assertTrue("Comparing random variable from original and deserialized object: different references.", value != valueClone);
 		Assert.assertTrue("Comparing random variable from original and deserialized object: equals().", value.equals(valueClone));
 	}

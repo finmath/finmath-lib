@@ -107,5 +107,5 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 				+ ", diracDeltaApproximationDensityRegressionWidthPerStdDev="
 				+ diracDeltaApproximationDensityRegressionWidthPerStdDev + ", isGradientRetainsLeafNodesOnly="
 				+ isGradientRetainsLeafNodesOnly + ", toString()=" + super.toString() + "]";
-	}	
+	}
 }

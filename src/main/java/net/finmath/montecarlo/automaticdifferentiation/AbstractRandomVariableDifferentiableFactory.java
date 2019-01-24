@@ -63,5 +63,5 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	public String toString() {
 		return "AbstractRandomVariableDifferentiableFactory [randomVariableFactoryForNonDifferentiable="
 				+ randomVariableFactoryForNonDifferentiable + "]";
-	}	
+	}
 }
