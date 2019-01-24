@@ -9,8 +9,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * A forward curve derived from a given discount curve.
@@ -34,8 +36,33 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 
 	private final String referenceDiscountCurveForForwardsName; // The (pseudo-)discount curve that the forwards are calculated from. Note that this is in general different from the discount curve associated with the forwards
 
+	private final DayCountConvention daycountConvention;
 	private final double daycountScaling;
+
 	private final double periodOffset;
+
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
+	 *
+	 * @param name The name under which the forward curve can be referenced.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (usually OIS).
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
+	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
+	 * @param daycountConvention The daycount convention \( dcf(t,t+d) \) use the time-scale the performance ratio derived from the discount factors.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
+	 */
+	public ForwardCurveFromDiscountCurve(String name, String referenceDiscountCurveName, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentOffsetBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention, DayCountConvention daycountConvention, double periodOffset) {
+		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
+
+		this.referenceDiscountCurveForForwardsName = referenceDiscountCurveName;
+		this.daycountConvention = daycountConvention;
+		this.daycountScaling = 1.0;
+		this.periodOffset = periodOffset;
+	}
 
 	/**
 	 * Create a forward curve using a given referenceDiscountCurveForForwards.
@@ -54,6 +81,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 
 		this.referenceDiscountCurveForForwardsName = referenceDiscountCurveName;
+		this.daycountConvention = null;
 		this.daycountScaling = daycountScaling;
 		this.periodOffset = periodOffset;
 	}
@@ -145,7 +173,12 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 			throw new IllegalArgumentException(this.getName() + ": Requesting forward with paymentOffset " + paymentOffset + " not allowed.");
 		}
 
-		double daycount = paymentOffset * daycountScaling;
+		double daycount = (daycountConvention != null ?
+				daycountConvention.getDaycount(
+						FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), fixingTime), 
+						FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), fixingTime+paymentOffset)
+						) 
+				: paymentOffset) * daycountScaling;
 		return (referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+periodOffset) / referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;
 	}
 
