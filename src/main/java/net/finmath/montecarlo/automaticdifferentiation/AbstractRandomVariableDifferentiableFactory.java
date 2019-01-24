@@ -58,4 +58,10 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	public RandomVariable createRandomVariableNonDifferentiable(double time, double[] values) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, values);
 	}
+
+	@Override
+	public String toString() {
+		return "AbstractRandomVariableDifferentiableFactory [randomVariableFactoryForNonDifferentiable="
+				+ randomVariableFactoryForNonDifferentiable + "]";
+	}	
 }

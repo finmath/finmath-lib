@@ -99,4 +99,13 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	public boolean isGradientRetainsLeafNodesOnly() {
 		return isGradientRetainsLeafNodesOnly;
 	}
+
+	@Override
+	public String toString() {
+		return "RandomVariableDifferentiableAADFactory [diracDeltaApproximationMethod=" + diracDeltaApproximationMethod
+				+ ", diracDeltaApproximationWidthPerStdDev=" + diracDeltaApproximationWidthPerStdDev
+				+ ", diracDeltaApproximationDensityRegressionWidthPerStdDev="
+				+ diracDeltaApproximationDensityRegressionWidthPerStdDev + ", isGradientRetainsLeafNodesOnly="
+				+ isGradientRetainsLeafNodesOnly + ", toString()=" + super.toString() + "]";
+	}	
 }
