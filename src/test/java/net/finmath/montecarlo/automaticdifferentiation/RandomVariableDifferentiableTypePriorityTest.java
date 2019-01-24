@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
-public class RandomVariableDifferentiableInterfaceTypePriorityTest {
+public class RandomVariableDifferentiableTypePriorityTest {
 
 	/* parameters specify the factories one wants to test against each other */
 	@Parameters
@@ -37,7 +37,7 @@ public class RandomVariableDifferentiableInterfaceTypePriorityTest {
 	private final AbstractRandomVariableFactory randomVariableFactoryValue;
 	private final AbstractRandomVariableFactory randomVariableFactoryDifferentiable;
 
-	public RandomVariableDifferentiableInterfaceTypePriorityTest(AbstractRandomVariableFactory randomVariableFactoryValue, AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
+	public RandomVariableDifferentiableTypePriorityTest(AbstractRandomVariableFactory randomVariableFactoryValue, AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
 		this.randomVariableFactoryValue = randomVariableFactoryValue;
 		this.randomVariableFactoryDifferentiable = randomVariableFactoryDifferentiable;
 	}

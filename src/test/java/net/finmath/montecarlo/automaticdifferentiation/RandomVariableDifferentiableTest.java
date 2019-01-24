@@ -1,7 +1,7 @@
 /**
  *
  */
-package net.finmath.montecarlo.automaticdifferentiation.backward;
+package net.finmath.montecarlo.automaticdifferentiation;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +20,8 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
+import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 
@@ -30,7 +32,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @author Stefan Sedlmair
  */
 @RunWith(Parameterized.class)
-public class RandomVariableDifferentiableInterfaceTest {
+public class RandomVariableDifferentiableTest {
 
 	/* parameters specify the factories one wants to test against each other */
 	@Parameters
@@ -38,12 +40,14 @@ public class RandomVariableDifferentiableInterfaceTest {
 		return Arrays.asList(new Object[][] {
 			{new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
 			{new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{new RandomVariableDifferentiableADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{new RandomVariableDifferentiableADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
 		});
 	}
 
 	private final AbstractRandomVariableDifferentiableFactory randomVariableFactory;
 
-	public RandomVariableDifferentiableInterfaceTest(AbstractRandomVariableDifferentiableFactory factory) {
+	public RandomVariableDifferentiableTest(AbstractRandomVariableDifferentiableFactory factory) {
 		this.randomVariableFactory = factory;
 	}
 
@@ -220,7 +224,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 	public void testRandomVariableGradientBigSum(){
 
 		/* OutOfMemoryError for >= 10^6*/
-		int lengthOfVectors = (int) Math.pow(10, 4);
+		int lengthOfVectors = (int) Math.pow(10, 5);
 
 		double[] x = new double[lengthOfVectors];
 
@@ -259,7 +263,7 @@ public class RandomVariableDifferentiableInterfaceTest {
 
 		try {
 			/* OutOfMemoryError for >= 10^6 for some implementations! */
-			int lengthOfVectors = (int) Math.pow(10, 7);
+			int lengthOfVectors = (int) Math.pow(10, 6);
 
 			double[] x = new double[lengthOfVectors];
 			Random random = new Random(314151);

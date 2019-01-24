@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  */
 @RunWith(Parameterized.class)
-public class RandomVariableDifferentiableInterfaceArithmeticTest {
+public class RandomVariableDifferentiableArithmeticTest {
 
 	/* parameters specify the factories one wants to test against each other */
 	@Parameters
@@ -36,7 +36,7 @@ public class RandomVariableDifferentiableInterfaceArithmeticTest {
 
 	private final AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable;
 
-	public RandomVariableDifferentiableInterfaceArithmeticTest(AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
+	public RandomVariableDifferentiableArithmeticTest(AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
 		this.randomVariableFactoryDifferentiable = randomVariableFactoryDifferentiable;
 	}
 
