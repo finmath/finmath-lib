@@ -40,15 +40,15 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 
 	@Override
 	public double getMaturity() {
-		return 1.0;//this.maturity;
+		return maturity;
 	}
 
 	public double[] getStrikes() {
-		return this.strikes;
+		return strikes;
 	}
 
 	public String getUnderlyingName() {
-		return this.underlyingName;
+		return underlyingName;
 	}
 
 	@Override
