@@ -10,8 +10,8 @@ import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.interpolation.RationalFunctionInterpolation;
 import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
 import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
@@ -74,9 +74,9 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 		this.extMethod = extMethod;
 	}
 
-	public Map<String, Function<Double, Double>> getValue(double evaluationTime, ProcessCharacteristicFunctionInterface model) throws CalculationException {
+	public Map<String, Function<Double, Double>> getValue(double evaluationTime, CharacteristicFunctionModel model) throws CalculationException {
 
-		CharacteristicFunctionInterface modelCF = model.apply(getMaturity());
+		CharacteristicFunction modelCF = model.apply(getMaturity());
 
 		final double lineOfIntegration = 0.5 * (getIntegrationDomainImagUpperBound()+getIntegrationDomainImagLowerBound());
 

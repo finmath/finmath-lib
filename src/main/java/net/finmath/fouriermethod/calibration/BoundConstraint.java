@@ -2,11 +2,11 @@ package net.finmath.fouriermethod.calibration;
 
 /**
  * A class applying a bound constraint to a parameter.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */
-public class BoundConstraint implements ScalarConstraintInterface {
+public class BoundConstraint implements ScalarConstraint {
 	private final double lowerBound;
 	private final double upperBound;
 

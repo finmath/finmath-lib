@@ -2,7 +2,7 @@ package net.finmath.fouriermethod.calibration;
 
 /**
  * Negativity constraint for calibration parameters.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */

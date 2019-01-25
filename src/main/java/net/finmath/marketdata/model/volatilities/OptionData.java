@@ -2,7 +2,7 @@ package net.finmath.marketdata.model.volatilities;
 
 import java.time.LocalDate;
 
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 
 /**
  * An Equity option quote is a function of strike and maturity. The quote can be represented in terms of prices or volatilities.

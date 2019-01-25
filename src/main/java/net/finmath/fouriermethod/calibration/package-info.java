@@ -1,5 +1,5 @@
 /**
- * Classes related to the calibration of fourier models.
+ * Classes related to the calibration of Fourier models.
  *
  * @author Alessandro Gnoatto
  * @author Christian Fries

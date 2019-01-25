@@ -2,11 +2,11 @@ package net.finmath.fouriermethod.calibration;
 
 /**
  * Base interface for scalar parameter constraints.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */
-public interface ScalarConstraintInterface extends ConstraintInterface{
+public interface ScalarConstraint extends Constraint{
 
 	/**
 	 * Forces the parameter to respect a certain condition.

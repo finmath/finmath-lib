@@ -1,7 +1,7 @@
 package net.finmath.fouriermethod.calibration.models;
 
+import net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation;
 import net.finmath.fouriermethod.calibration.ScalarParameterInformation;
-import net.finmath.fouriermethod.calibration.ScalarParameterInformationInterface;
 import net.finmath.fouriermethod.calibration.Unconstrained;
 import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.modelling.ModelDescriptor;
@@ -9,22 +9,22 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
 
 /**
  * This class is creates new instances of HestonModel and communicates with the optimization algorithm.
- * 
+ *
  * This class provides clones of herself: in such a way the information concerning constraints is not lost.
- * 
+ *
  * The method getCharacteristicFunction is then passed to the FFT pricing routine.
  *
  * @author Alessandro Gnoatto
- * 
+ *
  */
-public class CalibrableHestonModel implements  CalibrableProcessInterface {
+public class CalibrableHestonModel implements  CalibrableProcess {
 	private final HestonModelDescriptor descriptor;
 
-	private final ScalarParameterInformationInterface volatilityInfo;
-	private final ScalarParameterInformationInterface thetaInfo;
-	private final ScalarParameterInformationInterface kappaInfo;
-	private final ScalarParameterInformationInterface xiInfo;
-	private final ScalarParameterInformationInterface rhoInfo;
+	private final ScalarParameterInformation volatilityInfo;
+	private final ScalarParameterInformation thetaInfo;
+	private final ScalarParameterInformation kappaInfo;
+	private final ScalarParameterInformation xiInfo;
+	private final ScalarParameterInformation rhoInfo;
 	private final boolean applyFellerConstraint;
 
 	/*
@@ -39,17 +39,17 @@ public class CalibrableHestonModel implements  CalibrableProcessInterface {
 	/**
 	 * Basic constructor where all parameters are to be calibrated.
 	 * All parameters are unconstrained.
-	 * 
+	 *
 	 * @param descriptor
 	 */
 	public CalibrableHestonModel(HestonModelDescriptor descriptor) {
 		super();
 		this.descriptor = descriptor;
-		this.volatilityInfo = new ScalarParameterInformation(true, new Unconstrained());
-		this.thetaInfo =new ScalarParameterInformation(true, new Unconstrained());
-		this.kappaInfo = new ScalarParameterInformation(true, new Unconstrained());
-		this.xiInfo = new ScalarParameterInformation(true, new Unconstrained());
-		this.rhoInfo = new ScalarParameterInformation(true, new Unconstrained());
+		this.volatilityInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
+		this.thetaInfo =new ScalarParameterInformationImplementation(true, new Unconstrained());
+		this.kappaInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
+		this.xiInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
+		this.rhoInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
 		this.applyFellerConstraint = false;
 		this.parameterUpperBounds = extractUpperBounds();
 		this.parameterLowerBounds = extractLowerBounds();
@@ -61,7 +61,7 @@ public class CalibrableHestonModel implements  CalibrableProcessInterface {
 	 * The choice on the parameters to be applied is left to the user.
 	 * This implies that he user could create Heston models which are not admissible in the sense of Duffie Filipovic and Schachermayer (2003).
 	 * For example, it is up to the user to impose constraints such that the product of kappa and theta is positive.
-	 * 
+	 *
 	 * @param descriptor
 	 * @param volatilityConstraint
 	 * @param thetaConstraint
@@ -70,9 +70,9 @@ public class CalibrableHestonModel implements  CalibrableProcessInterface {
 	 * @param rhoConstraint
 	 * @param applyFellerConstraint
 	 */
-	public CalibrableHestonModel(HestonModelDescriptor descriptor, ScalarParameterInformationInterface volatilityConstraint,
-			ScalarParameterInformationInterface thetaConstraint, ScalarParameterInformationInterface kappaConstraint, ScalarParameterInformationInterface xiConstraint,
-			ScalarParameterInformationInterface rhoConstraint, boolean applyFellerConstraint) {
+	public CalibrableHestonModel(HestonModelDescriptor descriptor, ScalarParameterInformation volatilityConstraint,
+			ScalarParameterInformation thetaConstraint, ScalarParameterInformation kappaConstraint, ScalarParameterInformation xiConstraint,
+			ScalarParameterInformation rhoConstraint, boolean applyFellerConstraint) {
 		this.descriptor = descriptor;
 		this.volatilityInfo = volatilityConstraint;
 		this.thetaInfo = thetaConstraint;

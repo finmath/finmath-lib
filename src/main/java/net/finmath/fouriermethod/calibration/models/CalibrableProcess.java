@@ -1,6 +1,6 @@
 package net.finmath.fouriermethod.calibration.models;
 
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.modelling.ModelDescriptor;
 
 /**
@@ -18,14 +18,14 @@ import net.finmath.modelling.ModelDescriptor;
  * @author Alessandro Gnoatto
  *
  */
-public interface CalibrableProcessInterface {
+public interface CalibrableProcess {
 	/**
 	 * Calibration substitutes in the model the parameters of the process with calibrated ones.
 	 * Market observables such as the initial stock value should not be changed.
 	 * @param parameters
 	 * @return a clone of the original model with modified parameters.
 	 */
-	CalibrableProcessInterface getCloneForModifiedParameters(double[] parameters);
+	CalibrableProcess getCloneForModifiedParameters(double[] parameters);
 
 	/**
 	 * Every class implementing this interface must contain a ModelDescriptor from which we can create
@@ -38,7 +38,7 @@ public interface CalibrableProcessInterface {
 	 * Directly returns the characteristic function.
 	 * @return the characteristic function
 	 */
-	ProcessCharacteristicFunctionInterface getCharacteristiFunction();
+	CharacteristicFunctionModel getCharacteristiFunction();
 
 	/**
 	 * Extracts parameter lower bounds for the optimizer factory.

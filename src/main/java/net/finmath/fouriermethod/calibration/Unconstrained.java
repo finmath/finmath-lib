@@ -2,7 +2,7 @@ package net.finmath.fouriermethod.calibration;
 
 /**
  * Absence of constraints.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */

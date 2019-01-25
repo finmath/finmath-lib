@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.functions.AnalyticFormulas;
 
 /**
@@ -34,7 +34,7 @@ public class TestCarrMadan {
 		for(int i = 0; i<20;i++)
 			strikes[i] = 10 + i*10;
 
-		ProcessCharacteristicFunctionInterface model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 		EuropeanOptionSmile mySmile = new EuropeanOptionSmileByCarrMadan(maturity,strikes);
 

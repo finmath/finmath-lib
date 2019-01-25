@@ -1,53 +1,23 @@
 package net.finmath.fouriermethod.calibration;
 
 /**
- * This class tells us if a parameter has to be calibrated and if it is constrained.
+ * An interface representing a scalar parameter.
+ *
  * @author Alessandro Gnoatto
  *
  */
-public class ScalarParameterInformation implements ScalarParameterInformationInterface{
-
-	private final boolean isParameterToCalibrate;
-	private final ScalarConstraintInterface constraint;
+public interface ScalarParameterInformation extends ParameterInformation{
 
 	/**
-	 * Full constructor.
-	 * @param isParameterToCalibrate
-	 * @param constraint
+	 * boolean flag for parameters that need to be calibrated.
+	 * @return true if the parameter must be calibrated.
 	 */
-	public ScalarParameterInformation(boolean isParameterToCalibrate, ScalarConstraintInterface constraint) {
-		super();
-		this.isParameterToCalibrate = isParameterToCalibrate;
-		this.constraint = constraint;
-	}
+	boolean getIsParameterToCalibrate();
 
 	/**
-	 * Constructs an unconstrained parameter.
-	 * @param isParameterToCalibrate
+	 * Returns the constraint.
+	 * @return the constraint.
 	 */
-	public ScalarParameterInformation(boolean isParameterToCalibrate) {
-		super();
-		this.isParameterToCalibrate = isParameterToCalibrate;
-		this.constraint = new Unconstrained();
-	}
+	ScalarConstraint getConstraint();
 
-	/**
-	 * Constructs a parameter that needs to be calibrated.
-	 * @param constraint
-	 */
-	public ScalarParameterInformation(ScalarConstraintInterface constraint) {
-		super();
-		this.isParameterToCalibrate = true;
-		this.constraint = constraint;
-	}
-
-	@Override
-	public boolean getIsParameterToCalibrate() {
-		return isParameterToCalibrate;
-	}
-
-	@Override
-	public ScalarConstraintInterface getConstraint() {
-		return constraint;
-	}
 }

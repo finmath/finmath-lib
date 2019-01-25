@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.CharacteristicFunctionInterface;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 
 /**
  * Base interface for all Fourier-based pricers.
@@ -15,7 +15,7 @@ import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
  * @author Alessandro Gnoatto
  *
  */
-public interface SmileByIntegralTransform extends CharacteristicFunctionInterface{
+public interface SmileByIntegralTransform extends CharacteristicFunction {
 
 	/**
 	 * Return the maturity of the associated payoff.
@@ -47,6 +47,6 @@ public interface SmileByIntegralTransform extends CharacteristicFunctionInterfac
 	 * @return The map of product values mapping from strike to value.
 	 * @throws CalculationException Thrown if the valuation failed.
 	 */
-	Map<String, Function<Double,Double>> getValue(double evaluationTime, ProcessCharacteristicFunctionInterface model) throws CalculationException;
+	Map<String, Function<Double,Double>> getValue(double evaluationTime, CharacteristicFunctionModel model) throws CalculationException;
 
 }

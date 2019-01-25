@@ -7,14 +7,14 @@ import java.util.function.Function;
 import org.apache.commons.lang3.ArrayUtils;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.calibration.models.CalibrableProcessInterface;
-import net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface;
+import net.finmath.fouriermethod.calibration.models.CalibrableProcess;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.fouriermethod.products.EuropeanOptionSmile;
 import net.finmath.marketdata.model.volatilities.OptionSmileData;
 import net.finmath.marketdata.model.volatilities.OptionSurfaceData;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
-import net.finmath.optimizer.OptimizerFactoryInterface;
-import net.finmath.optimizer.OptimizerInterface;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.optimizer.Optimizer;
+import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.SolverException;
 
 /**
@@ -40,8 +40,8 @@ import net.finmath.optimizer.SolverException;
 public class CalibratedModel {
 
 	private final OptionSurfaceData surface; //target calibration instruments. They dictate the calibration entity: vol/price.
-	private final CalibrableProcessInterface model; //Pricing model
-	private final OptimizerFactoryInterface optimizerFactory; //construct the instance of the optimization algorithm inside the class.
+	private final CalibrableProcess model; //Pricing model
+	private final OptimizerFactory optimizerFactory; //construct the instance of the optimization algorithm inside the class.
 	private final EuropeanOptionSmile pricer; //How do we compute prices: Carr Madan, Cos, Conv, Lewis...
 
 	//Optimizer parameters
@@ -50,8 +50,8 @@ public class CalibratedModel {
 	private final double[] upperBound;
 	private final double[] parameterStep;
 
-	public CalibratedModel(OptionSurfaceData surface, CalibrableProcessInterface model,
-			OptimizerFactoryInterface optimizerFactory, EuropeanOptionSmile pricer, double[] initialParameters,
+	public CalibratedModel(OptionSurfaceData surface, CalibrableProcess model,
+			OptimizerFactory optimizerFactory, EuropeanOptionSmile pricer, double[] initialParameters,
 			double[] parameterStep) {
 		super();
 		this.surface = surface;
@@ -71,13 +71,13 @@ public class CalibratedModel {
 	 */
 	public OptimizationResult getCalibration() throws SolverException {
 
-		OptimizerInterface.ObjectiveFunction objectiveFunction = new OptimizerInterface.ObjectiveFunction() {
+		Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
 			@Override
 			public void setValues(double[] parameters, double[] values) {
 
 				//We change the parameters of the model
-				CalibrableProcessInterface newModel = model.getCloneForModifiedParameters(parameters);
-				ProcessCharacteristicFunctionInterface newModelFourier = newModel.getCharacteristiFunction();
+				CalibrableProcess newModel = model.getCloneForModifiedParameters(parameters);
+				CharacteristicFunctionModel newModelFourier = newModel.getCharacteristiFunction();
 
 				int numberOfMaturities = surface.getMaturities().length;
 				double mats[] = surface.getMaturities();
@@ -127,7 +127,7 @@ public class CalibratedModel {
 			}
 		};
 
-		OptimizerInterface optimizer = optimizerFactory.getOptimizer(
+		Optimizer optimizer = optimizerFactory.getOptimizer(
 				objectiveFunction,
 				initialParameters,
 				lowerBound,
@@ -140,7 +140,7 @@ public class CalibratedModel {
 
 		ArrayList<String> calibrationOutput = outputCalibrationResult(optimizer.getBestFitParameters());
 
-		CalibrableProcessInterface calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
+		CalibrableProcess calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
 
 		return new OptimizationResult(calibratedModel,optimizer.getBestFitParameters(),optimizer.getIterations(),optimizer.getRootMeanSquaredError(),calibrationOutput);
 	}
@@ -180,8 +180,8 @@ public class CalibratedModel {
 		ArrayList<String> calibrationOutput = new ArrayList<String>();
 
 		//We change the parameters of the model
-		CalibrableProcessInterface newModel = model.getCloneForModifiedParameters(parameters);
-		ProcessCharacteristicFunctionInterface newModelFourier = newModel.getCharacteristiFunction();
+		CalibrableProcess newModel = model.getCloneForModifiedParameters(parameters);
+		CharacteristicFunctionModel newModelFourier = newModel.getCharacteristiFunction();
 
 		int numberOfMaturities = surface.getMaturities().length;
 		double mats[] = surface.getMaturities();
@@ -249,13 +249,13 @@ public class CalibratedModel {
 	 *
 	 */
 	public class OptimizationResult{
-		private final CalibrableProcessInterface model; //the calibrated model
+		private final CalibrableProcess model; //the calibrated model
 		private final double[] bestFitParameters;
 		private final int iterations;
 		private final double rootMeanSquaredError;
 		private final ArrayList<String> calibrationOutput;
 
-		public OptimizationResult(CalibrableProcessInterface model, double[] bestFitParameters,
+		public OptimizationResult(CalibrableProcess model, double[] bestFitParameters,
 				int iterations, double rootMeanSquaredError, ArrayList<String> calibrationOutput) {
 			super();
 			this.model = model;
@@ -265,7 +265,7 @@ public class CalibratedModel {
 			this.calibrationOutput = calibrationOutput;
 		}
 
-		public CalibrableProcessInterface getModel() {
+		public CalibrableProcess getModel() {
 			return model;
 		}
 

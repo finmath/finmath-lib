@@ -3,9 +3,9 @@ package net.finmath.marketdata.model.volatilities;
 import java.time.LocalDate;
 import java.util.HashMap;
 
-import net.finmath.marketdata.model.AnalyticModelInterface;
-import net.finmath.marketdata.model.curves.DiscountCurveInterface;
-import net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 
 /**
  * An option quote surface with the ability to query option quotes for different strikes and maturities.
@@ -24,8 +24,8 @@ public class OptionSurfaceData {
 
 	private final String underlying;
 	private final LocalDate referenceDate;
-	private final DiscountCurveInterface discountCurve; //\exp(-r*T) needed e.g. for application of the B&S formula
-	private final DiscountCurveInterface equityForwardCurve; //S0*\exp((r-d)*T)
+	private final DiscountCurve discountCurve; //\exp(-r*T) needed e.g. for application of the B&S formula
+	private final DiscountCurve equityForwardCurve; //S0*\exp((r-d)*T)
 	private final QuotingConvention convention; //either price or volatility (lognormal/normal)
 	private final HashMap<Double, OptionSmileData> surface;
 	private final double[] maturities;
@@ -43,8 +43,8 @@ public class OptionSurfaceData {
 	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
 	 */
 	public OptionSurfaceData(String underlying, LocalDate referenceDate, double[] strikes,
-			double[] maturities, double[][] values, QuotingConvention convention, DiscountCurveInterface discountCurve,
-			DiscountCurveInterface equityForwardCurve) {
+			double[] maturities, double[][] values, QuotingConvention convention, DiscountCurve discountCurve,
+			DiscountCurve equityForwardCurve) {
 		if(strikes.length != values.length || maturities.length != values[0].length ) {
 			throw new IllegalArgumentException("Inconsistent number of strikes, maturities or values");
 		}else {
@@ -80,8 +80,8 @@ public class OptionSurfaceData {
 	 * @param discountCurve A discount curve for discounting (funding/collateral rate).
 	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
 	 */
-	public OptionSurfaceData(OptionSmileData[] smiles, DiscountCurveInterface discountCurve,
-			DiscountCurveInterface equityForwardCurve) {
+	public OptionSurfaceData(OptionSmileData[] smiles, DiscountCurve discountCurve,
+			DiscountCurve equityForwardCurve) {
 
 		OptionSmileData firstSmile = smiles[0];
 		String myUnderlying = firstSmile.getUnderlying();
@@ -120,11 +120,11 @@ public class OptionSurfaceData {
 
 	}
 
-	public DiscountCurveInterface getDiscountCurve() {
+	public DiscountCurve getDiscountCurve() {
 		return this.discountCurve;
 	}
 
-	public DiscountCurveInterface getEquityForwardCurve() {
+	public DiscountCurve getEquityForwardCurve() {
 		return this.equityForwardCurve;
 	}
 
@@ -160,7 +160,7 @@ public class OptionSurfaceData {
 	}
 
 
-	public double getValue(AnalyticModelInterface model, double maturity, double strike,
+	public double getValue(AnalyticModel model, double maturity, double strike,
 			QuotingConvention quotingConvention) {
 		if(quotingConvention.equals(this.convention)) {
 			OptionSmileData relevantSmile = this.surface.get(maturity);
