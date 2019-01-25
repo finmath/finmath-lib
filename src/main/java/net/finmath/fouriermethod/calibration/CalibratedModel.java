@@ -9,7 +9,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.calibration.models.CalibrableProcess;
 import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
-import net.finmath.fouriermethod.products.EuropeanOptionSmile;
+import net.finmath.fouriermethod.products.smile.EuropeanOptionSmile;
 import net.finmath.marketdata.model.volatilities.OptionSmileData;
 import net.finmath.marketdata.model.volatilities.OptionSurfaceData;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;

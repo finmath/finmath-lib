@@ -9,6 +9,8 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.BlackScholesModel;
 import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.fouriermethod.products.smile.EuropeanOptionSmile;
+import net.finmath.fouriermethod.products.smile.EuropeanOptionSmileByCarrMadan;
 import net.finmath.functions.AnalyticFormulas;
 
 /**

@@ -1,4 +1,4 @@
-package net.finmath.fouriermethod.products;
+package net.finmath.fouriermethod.products.smile;
 
 import java.util.HashMap;
 import java.util.Map;

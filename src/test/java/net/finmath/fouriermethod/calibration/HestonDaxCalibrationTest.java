@@ -9,7 +9,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.calibration.CalibratedModel.OptimizationResult;
 import net.finmath.fouriermethod.calibration.models.CalibrableHestonModel;
-import net.finmath.fouriermethod.products.EuropeanOptionSmileByCarrMadan;
+import net.finmath.fouriermethod.products.smile.EuropeanOptionSmileByCarrMadan;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
