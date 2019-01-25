@@ -35,7 +35,7 @@ public class BoundConstraint implements ScalarConstraint {
 	}
 
 	@Override
-	public double applyConstraint(double parameterToTest) {
+	public double apply(double parameterToTest) {
 
 		if(parameterToTest > upperBound || parameterToTest < lowerBound) {
 			double u = 1.0/(Math.exp(parameterToTest)+1.0); //maps R to  to [0,1];

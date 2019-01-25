@@ -20,7 +20,7 @@ import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMeth
  * This class computes the prices of a collection of call options for a fixed maturity and a family of strikes.
  *
  * The pricing method is the FFT methodology as introduced in Carr and Madan (1999).
- * The transform is taken for -1 <\alpha<0, hence we have a correction term since we are applying the residue theorem as reported in Lee (2004).
+ * The transform is taken for -1 &lt; \alpha &lt; 0, hence we have a correction term since we are applying the residue theorem as reported in Lee (2004).
  * In this strip the transform of any meaningful financial model is well defined because we expect the following conditions to be satisfied:
  *
  * 1) When computed in the point z=-i, the discounted characteristic function gives us the initial asset price due to the martingale property.
@@ -31,14 +31,14 @@ import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMeth
  * From a financial point of view the choice of this strip corresponds to transforming a covered call position.
  *
  * References:
- *<p><ul>
- * <li> Carr. P. and Madan, D. (1999) Option Valuation Using the Fast Fourier Transform. Journal of Computational Finance.
- * <li> Lee, R. (2004) Option pricing by transform methods: extensions, unification and error control. Journal of Computational Finance.
- * <li> Lewis, A. (2002) A simple option formula for general jump diffusion and other exponential Levy processes.
- * <li> Lukacks, E. (1970) Characteristic Functions. 2nd edition.
- *</p></ul>
- * @author Alessandro Gnoatto
+ * <ul>
+ *  <li> Carr. P. and Madan, D. (1999) Option Valuation Using the Fast Fourier Transform. Journal of Computational Finance.</li>
+ *  <li> Lee, R. (2004) Option pricing by transform methods: extensions, unification and error control. Journal of Computational Finance.</li>
+ *  <li> Lewis, A. (2002) A simple option formula for general jump diffusion and other exponential Levy processes.</li>
+ *  <li> Lukacks, E. (1970) Characteristic Functions. 2nd edition.
+ * </ul>
  *
+ * @author Alessandro Gnoatto
  */
 public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 	//Fields

@@ -64,10 +64,11 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 	public abstract Map<String, Function<Double,Double>> getValue(double evaluationTime, CharacteristicFunctionModel model) throws CalculationException;
 
 	/**
-	 * This method allows us to reuse the same pricer (same pricing algorithm) over different option smiles.
-	 * @param maturity
-	 * @param strikes
-	 * @return the same pricer now referring to a different smile.
+	 * Returns the same valuation method for different parameters (maturity and strikes).
+	 * 
+	 * @param maturity The new maturity.
+	 * @param strikes The new strikes.
+	 * @return the same valuation method now referring to a different maturity and strike grid.
 	 */
 	public abstract EuropeanOptionSmile getCloneWithModifiedParameters(double maturity, double[] strikes);
 
@@ -79,6 +80,8 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 
 	/**
 	 * Return a collection of product descriptors for each option in the smile.
+	 * 
+	 * @param referenceDate The reference date (translating the maturity floating point date to dates.
 	 * @return a collection of product descriptors for each option in the smile.
 	 */
 	public Map<Double, SingleAssetEuropeanOptionProductDescriptor> getDescriptors(LocalDate referenceDate){
@@ -96,14 +99,16 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 
 	/**
 	 * Return a product descriptor for a specific strike.
-	 * @param index
+	 * 
+	 * @param referenceDate The reference date (translating the maturity floating point date to dates.
+	 * @param index The index corresponding to the strike grid.
 	 * @return a product descriptor for a specific strike.
-	 * @throws IllegalArgumentException
+	 * @throws ArrayIndexOutOfBoundsException Thrown if index is out of bound.
 	 */
-	public SingleAssetEuropeanOptionProductDescriptor getDescriptor(LocalDate referenceDate, int index) throws IllegalArgumentException{
+	public SingleAssetEuropeanOptionProductDescriptor getDescriptor(LocalDate referenceDate, int index) throws ArrayIndexOutOfBoundsException{
 		LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);
 		if(index >= strikes.length) {
-			throw new IllegalArgumentException("Strike index out of bounds");
+			throw new ArrayIndexOutOfBoundsException("Strike index out of bounds");
 		}else {
 			return new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strikes[index]);
 		}

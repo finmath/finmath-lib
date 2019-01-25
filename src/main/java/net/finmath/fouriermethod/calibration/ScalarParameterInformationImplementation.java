@@ -2,8 +2,8 @@ package net.finmath.fouriermethod.calibration;
 
 /**
  * This class tells us if a parameter has to be calibrated and if it is constrained.
+ * 
  * @author Alessandro Gnoatto
- *
  */
 public class ScalarParameterInformationImplementation implements ScalarParameterInformation{
 
@@ -11,9 +11,10 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 	private final ScalarConstraint constraint;
 
 	/**
-	 * Full constructor.
-	 * @param isParameterToCalibrate
-	 * @param constraint
+	 * Constructs a parameter.
+	 * 
+	 * @param isParameterToCalibrate If true, the parameter will be varied during calibration.
+	 * @param constraint A constraint for the parameter.
 	 */
 	public ScalarParameterInformationImplementation(boolean isParameterToCalibrate, ScalarConstraint constraint) {
 		super();
@@ -23,7 +24,8 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 
 	/**
 	 * Constructs an unconstrained parameter.
-	 * @param isParameterToCalibrate
+	 * 
+	 * @param isParameterToCalibrate If true, the parameter will be varied during calibration.
 	 */
 	public ScalarParameterInformationImplementation(boolean isParameterToCalibrate) {
 		super();
@@ -33,7 +35,7 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 
 	/**
 	 * Constructs a parameter that needs to be calibrated.
-	 * @param constraint
+	 * @param constraint A constraint for the parameter.
 	 */
 	public ScalarParameterInformationImplementation(ScalarConstraint constraint) {
 		super();

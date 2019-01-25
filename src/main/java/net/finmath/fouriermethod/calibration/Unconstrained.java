@@ -13,7 +13,7 @@ public class Unconstrained extends BoundConstraint{
 	}
 
 	@Override
-	public double applyConstraint(double parameterToTest) {
+	public double apply(double parameterToTest) {
 		return parameterToTest;
 	}
 

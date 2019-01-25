@@ -15,7 +15,6 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
  * The method getCharacteristicFunction is then passed to the FFT pricing routine.
  *
  * @author Alessandro Gnoatto
- *
  */
 public class CalibrableHestonModel implements  CalibrableProcess {
 	private final HestonModelDescriptor descriptor;
@@ -40,7 +39,7 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 	 * Basic constructor where all parameters are to be calibrated.
 	 * All parameters are unconstrained.
 	 *
-	 * @param descriptor
+	 * @param descriptor The model descriptor for the Heston model.
 	 */
 	public CalibrableHestonModel(HestonModelDescriptor descriptor) {
 		super();
@@ -62,13 +61,13 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 	 * This implies that he user could create Heston models which are not admissible in the sense of Duffie Filipovic and Schachermayer (2003).
 	 * For example, it is up to the user to impose constraints such that the product of kappa and theta is positive.
 	 *
-	 * @param descriptor
-	 * @param volatilityConstraint
-	 * @param thetaConstraint
-	 * @param kappaConstraint
-	 * @param xiConstraint
-	 * @param rhoConstraint
-	 * @param applyFellerConstraint
+	 * @param descriptor The model descriptor for the Heston model.
+	 * @param volatilityConstraint The volatility constraint.
+	 * @param thetaConstraint The constraint for the theta parameter.
+	 * @param kappaConstraint The constraint for the kappa parameter.
+	 * @param xiConstraint The constraint for the xi parameter.
+	 * @param rhoConstraint The constraint for the rho parameter.
+	 * @param applyFellerConstraint If true, the Feller constraint is applied.
 	 */
 	public CalibrableHestonModel(HestonModelDescriptor descriptor, ScalarParameterInformation volatilityConstraint,
 			ScalarParameterInformation thetaConstraint, ScalarParameterInformation kappaConstraint, ScalarParameterInformation xiConstraint,
@@ -88,11 +87,11 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 	public CalibrableHestonModel getCloneForModifiedParameters(double[] parameters) {
 
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
-		double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().applyConstraint(parameters[0]) : descriptor.getVolatility();
-		double theta = thetaInfo.getIsParameterToCalibrate() == true ? thetaInfo.getConstraint().applyConstraint(parameters[1]) : descriptor.getTheta();
-		double kappa = kappaInfo.getIsParameterToCalibrate() == true ? kappaInfo.getConstraint().applyConstraint(parameters[2]) : descriptor.getKappa();
-		double xi = xiInfo.getIsParameterToCalibrate() == true ? xiInfo.getConstraint().applyConstraint(parameters[3]) : descriptor.getXi();
-		double rho = rhoInfo.getIsParameterToCalibrate() == true ? rhoInfo.getConstraint().applyConstraint(parameters[4]) : descriptor.getRho();
+		double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
+		double theta = thetaInfo.getIsParameterToCalibrate() == true ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
+		double kappa = kappaInfo.getIsParameterToCalibrate() == true ? kappaInfo.getConstraint().apply(parameters[2]) : descriptor.getKappa();
+		double xi = xiInfo.getIsParameterToCalibrate() == true ? xiInfo.getConstraint().apply(parameters[3]) : descriptor.getXi();
+		double rho = rhoInfo.getIsParameterToCalibrate() == true ? rhoInfo.getConstraint().apply(parameters[4]) : descriptor.getRho();
 
 		if(applyFellerConstraint && 2*kappa*theta < xi*xi) {
 			//bump long term volatility so that the Feller test is satisfied.

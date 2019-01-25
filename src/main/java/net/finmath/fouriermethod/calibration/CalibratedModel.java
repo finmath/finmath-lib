@@ -19,18 +19,20 @@ import net.finmath.optimizer.SolverException;
 
 /**
  * This class solves a calibration problem. The problem is defined in terms of:
- * <p><ul>
+ * <ul>
  * <li> a generic container of market data OptionSurfaceData.
  * <li> a generic pricing model.
  * <li> a generic calibration algorithm.
  * <li> a generic pricer for claims.
- * </ul><p>
+ * </ul>
+ * 
  * The class supports both calibration in terms of:
- * <p><ul>
+ * <ul>
  * <li> Prices
  * <li> Log-normal implied volatilities.
  * <li> Normal implied volatilities.
- * </ul><p>
+ * </ul>
+ * 
  * To change the calibration entity please change the convention in the option surface.
  * The calibration entity (i.e. price/vol/normal vol) is directly detected from market data.
  *
@@ -66,8 +68,8 @@ public class CalibratedModel {
 
 	/**
 	 * Solves the calibration problem thus providing a calibrated model.
-	 * @return the calibrated model
-	 * @throws SolverException
+	 * @return the calibrated model wrapped in an {@link OptimizationResult}.
+	 * @throws SolverException Thrown if the calibration problem cannot be solved.
 	 */
 	public OptimizationResult getCalibration() throws SolverException {
 
@@ -172,8 +174,9 @@ public class CalibratedModel {
 	}
 
 	/**
-	 * When the calibration is over this method is called to produce a table
-	 * @param parameters
+	 * When the calibration is done this method is called to produce a table
+	 * 
+	 * @param parameters Calibration parameters.
 	 */
 	private ArrayList<String> outputCalibrationResult(double[] parameters) {
 
@@ -245,8 +248,8 @@ public class CalibratedModel {
 
 	/**
 	 * Helper class for calibration results.
+	 * 
 	 * @author Alessandro Gnoatto
-	 *
 	 */
 	public class OptimizationResult{
 		private final CalibrableProcess model; //the calibrated model

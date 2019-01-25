@@ -10,10 +10,11 @@ public interface ScalarConstraint extends Constraint{
 
 	/**
 	 * Forces the parameter to respect a certain condition.
-	 * @param parameterToTest
+	 * 
+	 * @param parameterToTest The value to which the constraint should be applied.
 	 * @return the parameter after application of the constraint.
 	 */
-	double applyConstraint(double parameterToTest);
+	double apply(double parameterToTest);
 
 	/**
 	 * Returns the lower bound, possibly given by Double.NEGATIVE_INFINITY.
