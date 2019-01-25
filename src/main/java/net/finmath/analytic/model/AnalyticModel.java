@@ -8,7 +8,7 @@ package net.finmath.analytic.model;
 import java.util.Map;
 import java.util.Set;
 
-import net.finmath.analytic.calibration.ParameterObjectInterface;
+import net.finmath.analytic.calibration.ParameterObject;
 import net.finmath.analytic.model.curves.Curve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
@@ -114,5 +114,5 @@ public interface AnalyticModel extends Model, Cloneable {
 
 	AnalyticModel clone();
 
-	AnalyticModel getCloneForParameter(Map<ParameterObjectInterface, RandomVariable[]> curvesParameterPairs) throws CloneNotSupportedException;
+	AnalyticModel getCloneForParameter(Map<ParameterObject, RandomVariable[]> curvesParameterPairs) throws CloneNotSupportedException;
 }

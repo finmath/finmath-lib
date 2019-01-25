@@ -15,7 +15,7 @@ import java.util.Vector;
 
 import org.junit.Assert;
 
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
@@ -125,7 +125,7 @@ public class BondValuationTest {
 		}
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<>();
+		Set<ParameterObject> curvesToCalibrate1 = new HashSet<>();
 		curvesToCalibrate1.add(basisFactorCurve);
 
 		// Calibrate the curve

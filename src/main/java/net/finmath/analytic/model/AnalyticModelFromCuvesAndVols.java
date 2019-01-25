@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.finmath.analytic.calibration.ParameterObjectInterface;
+import net.finmath.analytic.calibration.ParameterObject;
 import net.finmath.analytic.model.curves.Curve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
 import net.finmath.analytic.model.curves.ForwardCurveInterface;
@@ -248,15 +248,15 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	}
 
 	@Override
-	public AnalyticModel getCloneForParameter(Map<ParameterObjectInterface, RandomVariable[]> curveParameterPairs) throws CloneNotSupportedException {
+	public AnalyticModel getCloneForParameter(Map<ParameterObject, RandomVariable[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
 		AnalyticModelFromCuvesAndVols modelClone = clone();
 
 		// Add modified clones of curves to model clone
 		if(curveParameterPairs != null) {
-			for(Entry<ParameterObjectInterface, RandomVariable[]> curveParameterPair : curveParameterPairs.entrySet()) {
-				ParameterObjectInterface newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
+			for(Entry<ParameterObject, RandomVariable[]> curveParameterPair : curveParameterPairs.entrySet()) {
+				ParameterObject newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
 				modelClone.set(newCurve);
 			}
 		}

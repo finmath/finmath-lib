@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.ParameterTransformation;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -31,7 +31,7 @@ import net.finmath.optimizer.SolverException;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolatilitySurface implements ParameterObjectInterface {
+public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolatilitySurface implements ParameterObject {
 
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
@@ -86,7 +86,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		AnalyticModel model = calibrationModel.addVolatilitySurfaces(this);
 		Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation, evaluationTime, optimizerFactory);
 
-		Set<ParameterObjectInterface> objectsToCalibrate = new HashSet<>();
+		Set<ParameterObject> objectsToCalibrate = new HashSet<>();
 		objectsToCalibrate.add(this);
 		AnalyticModel modelCalibrated = solver.getCalibratedModel(objectsToCalibrate);
 

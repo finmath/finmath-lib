@@ -7,7 +7,7 @@ package net.finmath.analytic.model.curves;
 
 import java.time.LocalDate;
 
-import net.finmath.analytic.calibration.ParameterObjectInterface;
+import net.finmath.analytic.calibration.ParameterObject;
 import net.finmath.analytic.model.AnalyticModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public interface Curve extends ParameterObjectInterface, Cloneable {
+public interface Curve extends ParameterObject, Cloneable {
 
 	/**
 	 * Get the name of the curve.

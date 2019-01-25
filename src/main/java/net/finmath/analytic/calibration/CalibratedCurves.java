@@ -281,7 +281,7 @@ public class CalibratedCurves {
 	}
 
 	private AnalyticModel				model				= new AnalyticModelFromCuvesAndVols();
-	private Set<ParameterObjectInterface>		objectsToCalibrate	= new LinkedHashSet<>();
+	private Set<ParameterObject>		objectsToCalibrate	= new LinkedHashSet<>();
 	private Vector<AnalyticProduct>	calibrationProducts			= new Vector<>();
 	private Vector<String>						calibrationProductsSymbols	= new Vector<>();
 

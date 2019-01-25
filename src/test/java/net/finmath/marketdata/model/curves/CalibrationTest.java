@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
@@ -159,7 +159,7 @@ public class CalibrationTest {
 		AnalyticModelFromCuvesAndVols model1 = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation , forwardCurveFromDiscountCurve });
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<>();
+		Set<ParameterObject> curvesToCalibrate1 = new HashSet<>();
 		curvesToCalibrate1.add(discountCurveInterpolation);
 
 		// Calibrate the curve
@@ -216,7 +216,7 @@ public class CalibrationTest {
 		calibrationProducts2.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve"));
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate2 = new HashSet<>();
+		Set<ParameterObject> curvesToCalibrate2 = new HashSet<>();
 		curvesToCalibrate2.add(forwardCurveInterpolation);
 
 		// Calibrate the curve

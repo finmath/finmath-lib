@@ -8,7 +8,7 @@ package net.finmath.marketdata.model;
 import java.util.Map;
 import java.util.Set;
 
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -113,6 +113,6 @@ public interface AnalyticModel extends Model, Cloneable {
 
 	AnalyticModel clone();
 
-	AnalyticModel getCloneForParameter(Map<ParameterObjectInterface, double[]> curvesParameterPairs) throws CloneNotSupportedException;
+	AnalyticModel getCloneForParameter(Map<ParameterObject, double[]> curvesParameterPairs) throws CloneNotSupportedException;
 
 }

@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
@@ -688,7 +688,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Create a collection of curves to calibrate
 		 */
-		Set<ParameterObjectInterface> curvesToCalibrate = new HashSet<>();
+		Set<ParameterObject> curvesToCalibrate = new HashSet<>();
 		curvesToCalibrate.add(discountCurveInterpolation);
 
 		/*

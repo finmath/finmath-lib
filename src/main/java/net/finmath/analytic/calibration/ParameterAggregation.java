@@ -30,9 +30,9 @@ import net.finmath.stochastic.RandomVariable;
  * @param <E> A class implementing the ParameterObjectInterface
  * @version 1.0
  */
-public class ParameterAggregation<E extends ParameterObjectInterface> implements ParameterObjectInterface {
+public class ParameterAggregation<E extends ParameterObject> implements ParameterObject {
 
-	private final Set<ParameterObjectInterface> parameters;
+	private final Set<ParameterObject> parameters;
 
 	/**
 	 * Create a collection of parametrized objects.
@@ -83,7 +83,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	public RandomVariable[] getParameter() {
 		// Calculate the size of the total parameter vector
 		int parameterArraySize = 0;
-		for(ParameterObjectInterface parameterVector : parameters) {
+		for(ParameterObject parameterVector : parameters) {
 			if(parameterVector.getParameter() != null) {
 				parameterArraySize += parameterVector.getParameter().length;
 			}
@@ -93,7 +93,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 
 		// Copy parameter object parameters to aggregated parameter vector
 		int parameterIndex = 0;
-		for(ParameterObjectInterface parameterVector : parameters) {
+		for(ParameterObject parameterVector : parameters) {
 			RandomVariable[] parameterVectorOfDouble = parameterVector.getParameter();
 			if(parameterVectorOfDouble != null) {
 				System.arraycopy(parameterVectorOfDouble, 0, parameterArray, parameterIndex, parameterVectorOfDouble.length);
@@ -107,7 +107,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	@Override
 	public void setParameter(RandomVariable[] parameter) {
 		int parameterIndex = 0;
-		for(ParameterObjectInterface parametrizedObject : parameters) {
+		for(ParameterObject parametrizedObject : parameters) {
 			RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble
@@ -121,7 +121,7 @@ public class ParameterAggregation<E extends ParameterObjectInterface> implements
 	public Map<E, RandomVariable[]> getObjectsToModifyForParameter(RandomVariable[] parameter) {
 		Map<E, RandomVariable[]> result = new HashMap<>();
 		int parameterIndex = 0;
-		for(ParameterObjectInterface parametrizedObject : parameters) {
+		for(ParameterObject parametrizedObject : parameters) {
 			RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter().clone();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble

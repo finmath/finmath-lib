@@ -3,9 +3,8 @@
  *
  * Created on 26.11.2012
  */
-package net.finmath.analytic.calibration;
+package net.finmath.marketdata.calibration;
 
-import net.finmath.stochastic.RandomVariable;
 
 /**
  * An objects having a dependence on a parameter (double[]).
@@ -16,14 +15,14 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public interface ParameterObjectInterface {
+public interface ParameterObject {
 
 	/**
 	 * Get the current parameter associated with the state of the objects.
 	 *
 	 * @return The parameter.
 	 */
-	RandomVariable[] getParameter();
+	double[] getParameter();
 
 	/**
 	 * Create a clone with a modified parameter.
@@ -32,7 +31,7 @@ public interface ParameterObjectInterface {
 	 * @return A clone with an otherwise modified parameter.
 	 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 	 */
-	ParameterObjectInterface getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException;
+	ParameterObject getCloneForParameter(double[] value) throws CloneNotSupportedException;
 
 	/**
 	 * Set the current parameter and change the state of the objects.
@@ -40,6 +39,6 @@ public interface ParameterObjectInterface {
 	 * @param parameter The parameter associated with the new state of the objects.
 	 */
 	@Deprecated
-	void setParameter(RandomVariable[] parameter);
+	void setParameter(double[] parameter);
 
 }
