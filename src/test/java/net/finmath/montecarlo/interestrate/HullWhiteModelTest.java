@@ -82,6 +82,7 @@ public class HullWhiteModelTest {
 	// Hull White parameters (example: sigma = 0.02, a = 0.1 or sigma = 0.05, a = 0.5)
 	private final double shortRateVolatility = 0.02;	// Investigating LIBOR in Arrears, use a high volatility here (e.g. 0.1)
 	private final double shortRateMeanreversion = 0.1;
+	private final LocalDate referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 	private LIBORModelMonteCarloSimulationModel hullWhiteModelSimulation;
 	private LIBORModelMonteCarloSimulationModel liborMarketModelSimulation;
@@ -108,7 +109,7 @@ public class HullWhiteModelTest {
 		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
-				LocalDate.of(2014, Month.AUGUST, 12),
+				referenceDate,
 				"6M",
 				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
@@ -421,7 +422,7 @@ public class HullWhiteModelTest {
 			// Value with analytic formula
 			double forwardBondVolatility = Double.NaN;
 			if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModel) {
-				forwardBondVolatility = Math.sqrt(((HullWhiteModel)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);
+				forwardBondVolatility = Math.sqrt(((HullWhiteModel)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength).doubleValue()/optionMaturity);
 			}
 			else if(hullWhiteModelSimulation.getModel() instanceof HullWhiteModelWithDirectSimulation) {
 				forwardBondVolatility = Math.sqrt(((HullWhiteModelWithDirectSimulation)(hullWhiteModelSimulation.getModel())).getIntegratedBondSquaredVolatility(optionMaturity, optionMaturity+periodLength)/optionMaturity);

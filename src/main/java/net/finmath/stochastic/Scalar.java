@@ -275,17 +275,11 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable mult(RandomVariable randomVariable) {
-		if(value == 0) {
-			return new Scalar(0.0);
-		}
 		return randomVariable.mult(value);
 	}
 
 	@Override
 	public RandomVariable div(RandomVariable randomVariable) {
-		if(value == 0) {
-			return new Scalar(0.0);
-		}
 		return randomVariable.invert().mult(value);
 	}
 
@@ -317,20 +311,15 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable accrue(RandomVariable rate, double periodLength) {
-		if(rate.isDeterministic()) {
-			return new Scalar(value * (1 + rate.get(0) * periodLength));
-		} else {
-			return rate.mult(periodLength*value).add(value);
-		}
+		return rate.mult(periodLength*value).add(value);
 	}
 
 	@Override
 	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		if(value == 0) {
 			return new Scalar(0.0);
-		} else if(rate.isDeterministic()) {
-			return new Scalar(value / (1 + rate.get(0) * periodLength));
-		} else {
+		}
+		else {
 			return rate.mult(periodLength/value).add(1.0/value).invert();
 		}
 	}
@@ -346,9 +335,6 @@ public class Scalar implements RandomVariable {
 		return new Scalar(1.0/value);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#abs()
-	 */
 	@Override
 	public RandomVariable abs() {
 		return new Scalar(Math.abs(value));

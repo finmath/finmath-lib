@@ -6,6 +6,7 @@
 package net.finmath.montecarlo;
 
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * A factory (helper class) to create random variables.
@@ -33,12 +34,20 @@ public class RandomVariableFactory extends AbstractRandomVariableFactory {
 	}
 
 	@Override
+	public RandomVariable createRandomVariable(double value) {
+		return new Scalar(value);
+	}
+
+	@Override
 	public RandomVariable createRandomVariable(double time, double value) {
+		return new Scalar(value);
+		/*
 		if(isUseDoublePrecisionFloatingPointImplementation) {
 			return new RandomVariableFromDoubleArray(time, value);
 		} else {
 			return new RandomVariableFromFloatArray(time, value);
 		}
+		*/
 	}
 
 	@Override

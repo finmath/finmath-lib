@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -33,12 +35,12 @@ public class ShortRateVolatilityModel implements ShortRateVolatilityModelInterfa
 	}
 
 	@Override
-	public double getVolatility(int timeIndex) {
-		return volatility[timeIndex];
+	public RandomVariable getVolatility(int timeIndex) {
+		return new Scalar(volatility[timeIndex]);
 	}
 
 	@Override
-	public double getMeanReversion(int timeIndex) {
-		return meanReversion[timeIndex];
+	public RandomVariable getMeanReversion(int timeIndex) {
+		return new Scalar(meanReversion[timeIndex]);
 	}
 }

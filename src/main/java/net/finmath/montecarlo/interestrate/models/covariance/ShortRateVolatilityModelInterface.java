@@ -8,6 +8,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.io.Serializable;
 
+import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -34,7 +35,7 @@ public interface ShortRateVolatilityModelInterface extends Serializable {
 	 * @param timeIndex The index \( i \).
 	 * @return the value of \( \sigma(t) \) for \( t_{i} \leq t &lt; t_{i+1} \)
 	 */
-	double getVolatility(int timeIndex);
+	RandomVariable getVolatility(int timeIndex);
 
 	/**
 	 * Returns the value of \( a(t) \) for \( t_{i} \leq t &lt; t_{i+1} \).
@@ -42,5 +43,5 @@ public interface ShortRateVolatilityModelInterface extends Serializable {
 	 * @param timeIndex The index \( i \).
 	 * @return the value of \( a(t) \) for \( t_{i} \leq t &lt; t_{i+1} \)
 	 */
-	double getMeanReversion(int timeIndex);
+	RandomVariable getMeanReversion(int timeIndex);
 }
