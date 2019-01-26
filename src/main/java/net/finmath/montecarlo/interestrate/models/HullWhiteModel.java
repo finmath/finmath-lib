@@ -28,6 +28,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovari
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractShortRateVolatilityModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelCalibrateable;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface;
+import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelParametric;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -749,8 +750,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 
 		// Add volatilities
-		if(volatilityModel instanceof AbstractShortRateVolatilityModelParametric) {
-			RandomVariable[] parameters = ((AbstractShortRateVolatilityModelParametric) volatilityModel).getParameter();
+		if(volatilityModel instanceof ShortRateVolatilityModelParametric) {
+			RandomVariable[] parameters = ((ShortRateVolatilityModelParametric) volatilityModel).getParameter();
 
 			for(int volatilityModelParameterIndex=0; volatilityModelParameterIndex<parameters.length; volatilityModelParameterIndex++) {
 				modelParameters.put("VOLATILITYMODELPARAMETER("+ volatilityModelParameterIndex + ")", parameters[volatilityModelParameterIndex]);

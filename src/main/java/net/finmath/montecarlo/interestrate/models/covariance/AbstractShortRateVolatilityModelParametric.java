@@ -52,7 +52,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Ruben Duarte
  * @version 1.1
  */
-public abstract class AbstractShortRateVolatilityModelParametric extends AbstractShortRateVolatilityModel implements ShortRateVolatilityModelCalibrateable {
+public abstract class AbstractShortRateVolatilityModelParametric extends AbstractShortRateVolatilityModel implements ShortRateVolatilityModelParametric, ShortRateVolatilityModelCalibrateable {
 
 	private static final long serialVersionUID = 7015719361182945464L;
 
@@ -316,7 +316,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 			@Override
 			public void setValues(double[] parameters, double[] values) throws SolverException {
 
-				AbstractShortRateVolatilityModelParametric calibrationVolatilityModel = AbstractShortRateVolatilityModelParametric.this.getCloneWithModifiedParameters(parameters);
+				ShortRateVolatilityModelParametric calibrationVolatilityModel = AbstractShortRateVolatilityModelParametric.this.getCloneWithModifiedParameters(parameters);
 
 				// Create a HullWhiteModel with the new volatility structure.
 				// TODO the case has be removed after the interface has been refactored:
