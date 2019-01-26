@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
 import net.finmath.montecarlo.interestrate.ShortRateModel;
@@ -86,7 +85,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
 		return parametersAsDouble;
 	}
-	
+
 	/**
 	 * Return an instance of this model using a new set of parameters.
 	 * Note: To improve performance it is admissible to return the same instance of the object given that the parameters have not changed. Models should be immutable.
@@ -129,125 +128,125 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final ShortRateModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		return getCloneCalibratedLegazy(calibrationModel, calibrationProducts, calibrationParameters);
-		
-//		if(calibrationParameters == null) {
-//			calibrationParameters = new HashMap<>();
-//		}
-//		int numberOfPaths	= (Integer)calibrationParameters.getOrDefault("numberOfPaths", 2000);
-//		int seed			= (Integer)calibrationParameters.getOrDefault("seed", 31415);
-//		int numberOfFactors	= 2;	// Hull-White model implementation uses two factors for exact discretization.
-//		int maxIterations	= (Integer)calibrationParameters.getOrDefault("maxIterations", 400);
-//		double accuracy		= (Double)calibrationParameters.getOrDefault("accuracy", 1E-7);
-//		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionLazyInit(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed));
-//
-//		RandomVariable[] initialParameters = this.getParameter();
-//		RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
-//		RandomVariable[] upperBound = new RandomVariable[initialParameters.length];
-//		RandomVariable[] parameterStep = new RandomVariable[initialParameters.length];
-//		Arrays.fill(lowerBound, new RandomVariableFromDoubleArray(Double.NEGATIVE_INFINITY));
-//		Arrays.fill(upperBound, new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY));
-//		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
-//		Arrays.fill(parameterStep,  new RandomVariableFromDoubleArray(parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4));
-//
-//		/*
-//		 * We allow for 2 simultaneous calibration models.
-//		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
-//		 * one model with 2 times the number of paths. In the case of an analytic calibration
-//		 * memory requirement is not the limiting factor.
-//		 */
-//		int numberOfThreads = 2;
-//		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
-//		OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get("optimizerFactory");
-//
-//		final ExecutorService executor = null;
-//		//		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
-//		//		Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
-//
-//		ObjectiveFunction calibrationError = new ObjectiveFunction() {
-//			// Calculate model values for given parameters
-//			@Override
-//			public void setValues(double[] parameters, double[] values) throws SolverException {
-//
-//				AbstractShortRateVolatilityModelParametric calibrationVolatilityModel = AbstractShortRateVolatilityModelParametric.this.getCloneWithModifiedParameters(parameters);
-//
-//				// Create a HullWhiteModel with the new volatility structure.
-//				// TODO the case has be removed after the interface has been refactored:
-//				HullWhiteModel model = (HullWhiteModel)calibrationModel.getCloneWithModifiedVolatilityModel(calibrationVolatilityModel);
-//				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
-//				final LIBORMonteCarloSimulationFromLIBORModel modelMonteCarloSimulation = new LIBORMonteCarloSimulationFromLIBORModel(model, process);
-//
-//				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
-//				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
-//					final int workerCalibrationProductIndex = calibrationProductIndex;
-//					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
-//						@Override
-//						public RandomVariable call() {
-//							try {
-//								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, modelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-//							} catch (CalculationException e) {
-//								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-//								return null;
-//							} catch (Exception e) {
-//								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-//								return null;
-//							}
-//						}
-//					};
-//					if(executor != null) {
-//						Future<RandomVariable> valueFuture = executor.submit(worker);
-//						valueFutures.add(calibrationProductIndex, valueFuture);
-//					}
-//					else {
-//						FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
-//						valueFutureTask.run();
-//						valueFutures.add(calibrationProductIndex, valueFutureTask);
-//					}
-//				}
-//				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
-//					try {
-//						RandomVariable value = valueFutures.get(calibrationProductIndex).get();
-//						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;;
-//					}
-//					catch (InterruptedException e) {
-//						throw new SolverException(e);
-//					} catch (ExecutionException e) {
-//						throw new SolverException(e);
-//					}
-//				}
-//			}
-//		};
-//
-//		RandomVariable[] zerosForTargetValues = new RandomVariable[calibrationProducts.length];
-//		Arrays.fill(zerosForTargetValues, new RandomVariableFromDoubleArray(0.0));
-//		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zerosForTargetValues);
-//		try {
-//			optimizer.run();
-//		}
-//		catch(SolverException e) {
-//			throw new CalculationException(e);
-//		}
-//		finally {
-//			if(executor != null) {
-//				executor.shutdown();
-//			}
-//		}
-//
-//		// Get volatility model corresponding to the best parameter set.
-//		double[] bestParameters = optimizer.getBestFitParameters();
-//		AbstractShortRateVolatilityModelParametric calibrationVolatilityModel = this.getCloneWithModifiedParameters(bestParameters);
-//
-//		// Diagnostic output
-//		if (logger.isLoggable(Level.FINE)) {
-//			logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-//
-//			String logString = "Best parameters:";
-//			for(int i=0; i<bestParameters.length; i++) {
-//				logString += "\tparameter["+i+"]: " + bestParameters[i];
-//			}
-//			logger.fine(logString);
-//		}
-//
-//		return calibrationVolatilityModel;
+
+		//		if(calibrationParameters == null) {
+		//			calibrationParameters = new HashMap<>();
+		//		}
+		//		int numberOfPaths	= (Integer)calibrationParameters.getOrDefault("numberOfPaths", 2000);
+		//		int seed			= (Integer)calibrationParameters.getOrDefault("seed", 31415);
+		//		int numberOfFactors	= 2;	// Hull-White model implementation uses two factors for exact discretization.
+		//		int maxIterations	= (Integer)calibrationParameters.getOrDefault("maxIterations", 400);
+		//		double accuracy		= (Double)calibrationParameters.getOrDefault("accuracy", 1E-7);
+		//		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionLazyInit(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed));
+		//
+		//		RandomVariable[] initialParameters = this.getParameter();
+		//		RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
+		//		RandomVariable[] upperBound = new RandomVariable[initialParameters.length];
+		//		RandomVariable[] parameterStep = new RandomVariable[initialParameters.length];
+		//		Arrays.fill(lowerBound, new RandomVariableFromDoubleArray(Double.NEGATIVE_INFINITY));
+		//		Arrays.fill(upperBound, new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY));
+		//		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
+		//		Arrays.fill(parameterStep,  new RandomVariableFromDoubleArray(parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4));
+		//
+		//		/*
+		//		 * We allow for 2 simultaneous calibration models.
+		//		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
+		//		 * one model with 2 times the number of paths. In the case of an analytic calibration
+		//		 * memory requirement is not the limiting factor.
+		//		 */
+		//		int numberOfThreads = 2;
+		//		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
+		//		OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get("optimizerFactory");
+		//
+		//		final ExecutorService executor = null;
+		//		//		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
+		//		//		Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		//
+		//		ObjectiveFunction calibrationError = new ObjectiveFunction() {
+		//			// Calculate model values for given parameters
+		//			@Override
+		//			public void setValues(double[] parameters, double[] values) throws SolverException {
+		//
+		//				AbstractShortRateVolatilityModelParametric calibrationVolatilityModel = AbstractShortRateVolatilityModelParametric.this.getCloneWithModifiedParameters(parameters);
+		//
+		//				// Create a HullWhiteModel with the new volatility structure.
+		//				// TODO the case has be removed after the interface has been refactored:
+		//				HullWhiteModel model = (HullWhiteModel)calibrationModel.getCloneWithModifiedVolatilityModel(calibrationVolatilityModel);
+		//				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		//				final LIBORMonteCarloSimulationFromLIBORModel modelMonteCarloSimulation = new LIBORMonteCarloSimulationFromLIBORModel(model, process);
+		//
+		//				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
+		//				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
+		//					final int workerCalibrationProductIndex = calibrationProductIndex;
+		//					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
+		//						@Override
+		//						public RandomVariable call() {
+		//							try {
+		//								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, modelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
+		//							} catch (CalculationException e) {
+		//								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+		//								return null;
+		//							} catch (Exception e) {
+		//								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+		//								return null;
+		//							}
+		//						}
+		//					};
+		//					if(executor != null) {
+		//						Future<RandomVariable> valueFuture = executor.submit(worker);
+		//						valueFutures.add(calibrationProductIndex, valueFuture);
+		//					}
+		//					else {
+		//						FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
+		//						valueFutureTask.run();
+		//						valueFutures.add(calibrationProductIndex, valueFutureTask);
+		//					}
+		//				}
+		//				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
+		//					try {
+		//						RandomVariable value = valueFutures.get(calibrationProductIndex).get();
+		//						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;;
+		//					}
+		//					catch (InterruptedException e) {
+		//						throw new SolverException(e);
+		//					} catch (ExecutionException e) {
+		//						throw new SolverException(e);
+		//					}
+		//				}
+		//			}
+		//		};
+		//
+		//		RandomVariable[] zerosForTargetValues = new RandomVariable[calibrationProducts.length];
+		//		Arrays.fill(zerosForTargetValues, new RandomVariableFromDoubleArray(0.0));
+		//		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zerosForTargetValues);
+		//		try {
+		//			optimizer.run();
+		//		}
+		//		catch(SolverException e) {
+		//			throw new CalculationException(e);
+		//		}
+		//		finally {
+		//			if(executor != null) {
+		//				executor.shutdown();
+		//			}
+		//		}
+		//
+		//		// Get volatility model corresponding to the best parameter set.
+		//		double[] bestParameters = optimizer.getBestFitParameters();
+		//		AbstractShortRateVolatilityModelParametric calibrationVolatilityModel = this.getCloneWithModifiedParameters(bestParameters);
+		//
+		//		// Diagnostic output
+		//		if (logger.isLoggable(Level.FINE)) {
+		//			logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+		//
+		//			String logString = "Best parameters:";
+		//			for(int i=0; i<bestParameters.length; i++) {
+		//				logString += "\tparameter["+i+"]: " + bestParameters[i];
+		//			}
+		//			logger.fine(logString);
+		//		}
+		//
+		//		return calibrationVolatilityModel;
 	}
 
 	/**
@@ -395,7 +394,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 
 		return calibrationVolatilityModel;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "AbstractShortRateVolatilityModelParametric [getParameter()="

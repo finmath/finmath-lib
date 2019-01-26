@@ -47,7 +47,7 @@ public class RandomVariableFactory extends AbstractRandomVariableFactory {
 		} else {
 			return new RandomVariableFromFloatArray(time, value);
 		}
-		*/
+		 */
 	}
 
 	@Override

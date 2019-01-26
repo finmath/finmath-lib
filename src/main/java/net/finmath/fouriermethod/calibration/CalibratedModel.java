@@ -25,14 +25,14 @@ import net.finmath.optimizer.SolverException;
  * <li> a generic calibration algorithm.
  * <li> a generic pricer for claims.
  * </ul>
- * 
+ *
  * The class supports both calibration in terms of:
  * <ul>
  * <li> Prices
  * <li> Log-normal implied volatilities.
  * <li> Normal implied volatilities.
  * </ul>
- * 
+ *
  * To change the calibration entity please change the convention in the option surface.
  * The calibration entity (i.e. price/vol/normal vol) is directly detected from market data.
  *
@@ -175,7 +175,7 @@ public class CalibratedModel {
 
 	/**
 	 * When the calibration is done this method is called to produce a table
-	 * 
+	 *
 	 * @param parameters Calibration parameters.
 	 */
 	private ArrayList<String> outputCalibrationResult(double[] parameters) {
@@ -248,7 +248,7 @@ public class CalibratedModel {
 
 	/**
 	 * Helper class for calibration results.
-	 * 
+	 *
 	 * @author Alessandro Gnoatto
 	 */
 	public class OptimizationResult{

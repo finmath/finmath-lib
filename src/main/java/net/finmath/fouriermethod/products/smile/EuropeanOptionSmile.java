@@ -65,7 +65,7 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 
 	/**
 	 * Returns the same valuation method for different parameters (maturity and strikes).
-	 * 
+	 *
 	 * @param maturity The new maturity.
 	 * @param strikes The new strikes.
 	 * @return the same valuation method now referring to a different maturity and strike grid.
@@ -80,7 +80,7 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 
 	/**
 	 * Return a collection of product descriptors for each option in the smile.
-	 * 
+	 *
 	 * @param referenceDate The reference date (translating the maturity floating point date to dates.
 	 * @return a collection of product descriptors for each option in the smile.
 	 */
@@ -99,7 +99,7 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 
 	/**
 	 * Return a product descriptor for a specific strike.
-	 * 
+	 *
 	 * @param referenceDate The reference date (translating the maturity floating point date to dates.
 	 * @param index The index corresponding to the strike grid.
 	 * @return a product descriptor for a specific strike.

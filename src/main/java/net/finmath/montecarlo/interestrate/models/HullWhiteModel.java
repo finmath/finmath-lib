@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -24,8 +23,6 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORModel;
 import net.finmath.montecarlo.interestrate.ShortRateModel;
-import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
-import net.finmath.montecarlo.interestrate.models.covariance.AbstractShortRateVolatilityModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelCalibrateable;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelParametric;
@@ -133,7 +130,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final List<RandomVariable> discountFactorCache = new ArrayList<>();
 	private final List<RandomVariable> discountFactorForForwardCurveCache = new ArrayList<>();;
-	
+
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.
 	 *
@@ -434,7 +431,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		double timeNext = getProcess().getTime(timeIndex+1);
 
 		RandomVariable zeroRate = getDiscountFactorFromForwarCurve(time).div(getDiscountFactorFromForwarCurve(timeNext)).log().div(timeNext-time);
-				
+
 		RandomVariable alpha = getDV(0, time).add(zeroRate);
 
 		RandomVariable value = getProcess().getProcessValue(timeIndex, 0);
@@ -614,10 +611,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
 			RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
 			integral = integral.add(volatilityPerMeanReversionSquared.mult(
-							expMRTimeNext.sub(expMRTimePrev).mult(-2).div(meanReversion)
-							.add( expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(meanReversion).div(2.0))
-							.add(timeNext-timePrev)
-							));
+					expMRTimeNext.sub(expMRTimePrev).mult(-2).div(meanReversion)
+					.add( expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(meanReversion).div(2.0))
+					.add(timeNext-timePrev)
+					));
 			timePrev = timeNext;
 			expMRTimePrev = expMRTimeNext;
 		}
@@ -765,7 +762,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		return modelParameters;
 	}
-	
+
 	private RandomVariable getDiscountFactor(int timeIndex) {
 		synchronized(discountFactorCache) {
 			if(discountFactorCache.size() <= timeIndex+1) {
@@ -776,9 +773,9 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 					discountFactorCache.add(dfAsRandomVariable);
 				}
 			}
-			
+
 		}
-		
+
 		return discountFactorCache.get(timeIndex);
 	}
 
@@ -798,9 +795,9 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 					discountFactorForForwardCurveCache.add(dfAsRandomVariable);
 				}
 			}
-			
+
 		}
-		
+
 		return discountFactorForForwardCurveCache.get(timeIndex);
 	}
 }

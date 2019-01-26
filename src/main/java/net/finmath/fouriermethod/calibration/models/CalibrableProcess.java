@@ -22,7 +22,7 @@ public interface CalibrableProcess {
 	/**
 	 * Calibration substitutes in the model the parameters of the process with calibrated ones.
 	 * Market observables such as the initial stock value should not be changed.
-	 * 
+	 *
 	 * @param parameters The new parameters.
 	 * @return a clone of the original model with modified parameters.
 	 */
@@ -30,28 +30,28 @@ public interface CalibrableProcess {
 
 	/**
 	 * Every class implementing this interface must contain a ModelDescriptor from which we can create some concrete model.
-	 * 
+	 *
 	 * @return The descriptor for this model.
 	 */
 	ModelDescriptor getModelDescriptor();
 
 	/**
 	 * Directly returns the characteristic function.
-	 * 
+	 *
 	 * @return the characteristic function
 	 */
 	CharacteristicFunctionModel getCharacteristiFunction();
 
 	/**
 	 * Extracts parameter lower bounds for the optimizer factory.
-	 * 
+	 *
 	 * @return parameter lower bounds for the optimizer factory.
 	 */
 	double[] getParameterLowerBounds();
 
 	/**
 	 * Extracts parameter upper bounds for the optimizer factory.
-	 * 
+	 *
 	 * @return parameter upper bounds for the optimizer factory.
 	 */
 	double[] getParameterUpperBounds();
