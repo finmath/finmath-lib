@@ -1,7 +1,7 @@
 package net.finmath.fouriermethod.calibration.models;
 
-import net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation;
 import net.finmath.fouriermethod.calibration.ScalarParameterInformation;
+import net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation;
 import net.finmath.fouriermethod.calibration.Unconstrained;
 import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.modelling.ModelDescriptor;

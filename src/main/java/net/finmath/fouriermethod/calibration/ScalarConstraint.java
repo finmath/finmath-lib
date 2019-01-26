@@ -10,7 +10,7 @@ public interface ScalarConstraint extends Constraint{
 
 	/**
 	 * Forces the parameter to respect a certain condition.
-	 * 
+	 *
 	 * @param parameterToTest The value to which the constraint should be applied.
 	 * @return the parameter after application of the constraint.
 	 */

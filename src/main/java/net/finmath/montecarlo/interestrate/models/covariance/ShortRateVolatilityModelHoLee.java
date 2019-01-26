@@ -6,6 +6,8 @@
 
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
@@ -13,17 +15,17 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @author Christian Fries
  * @version 1.0
  */
-public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModelInterface {
+public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModel {
 
 	private static final long serialVersionUID = -4958907273981969081L;
 
-	private final double volatility;
+	private final RandomVariable volatility;
 
 	private final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0);
 
 	public ShortRateVolatilityModelHoLee(double volatility) {
 		super();
-		this.volatility = volatility;
+		this.volatility = new Scalar(volatility);
 	}
 
 	@Override
@@ -32,12 +34,12 @@ public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModelIn
 	}
 
 	@Override
-	public double getVolatility(int timeIndex) {
+	public RandomVariable getVolatility(int timeIndex) {
 		return volatility;
 	}
 
 	@Override
-	public double getMeanReversion(int timeIndex) {
-		return 0.0;
+	public RandomVariable getMeanReversion(int timeIndex) {
+		return new Scalar(0.0);
 	}
 }

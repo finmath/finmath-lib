@@ -168,13 +168,18 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 	private ArrayList<RandomVariable> getRegressionBasisFunctionsBinning(RandomVariable underlying, RandomVariable indicator) {
 		ArrayList<RandomVariable> basisFunctions = new ArrayList<RandomVariable>();
 
-		int numberOfBins = 20;
-		double[] values = underlying.getRealizations();
-		Arrays.sort(values);
-		for(int i = 0; i<numberOfBins; i++) {
-			double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
-			RandomVariable basisFunction = underlying.sub(binLeft).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)).mult(indicator);
-			basisFunctions.add(basisFunction);
+		if(underlying.isDeterministic()) {
+			basisFunctions.add(underlying);
+		}
+		else {
+			int numberOfBins = 20;
+			double[] values = underlying.getRealizations();
+			Arrays.sort(values);
+			for(int i = 0; i<numberOfBins; i++) {
+				double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
+				RandomVariable basisFunction = underlying.sub(binLeft).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)).mult(indicator);
+				basisFunctions.add(basisFunction);
+			}
 		}
 
 		return basisFunctions;

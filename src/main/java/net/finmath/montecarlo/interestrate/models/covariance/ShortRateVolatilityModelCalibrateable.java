@@ -12,7 +12,7 @@ import net.finmath.montecarlo.interestrate.ShortRateModel;
  * @author Christian Fries
  * @version 1.0
  */
-public interface ShortRateVolatilityModelCalibrateable extends ShortRateVolatilityModelInterface {
+public interface ShortRateVolatilityModelCalibrateable extends ShortRateVolatilityModel {
 
 	/**
 	 * Performs a calibration of the model by
