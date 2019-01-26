@@ -476,10 +476,10 @@ public class BlackScholesMonteCarloValuationTest {
 		/*
 		 * Cast the model to to get the parameters for analytic valuation
 		 */
-		double initialValue	= model.getAssetValue(0.0, 0).get(0);
+		double initialValue	= model.getAssetValue(0.0, 0).doubleValue();
 		// @TODO This needs to be changes to use random variables.
-		double riskFreeRate	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getRiskFreeRate().getAverage();
-		double volatility	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getVolatility().getAverage();
+		double riskFreeRate	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getRiskFreeRate().doubleValue();
+		double volatility	= ((BlackScholesModel)((MonteCarloAssetModel)model).getModel()).getVolatility().doubleValue();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Vega (European options with maturity 1.0):");
@@ -492,7 +492,7 @@ public class BlackScholesMonteCarloValuationTest {
 			EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
 
 			// Value the product with Monte Carlo
-			double shift = volatility * 1E-6;
+			double shift = volatility * 1E-4;
 
 			Map<String,Object> dataUpShift = new HashMap<>();
 			dataUpShift.put("volatility", volatility + shift);
@@ -522,7 +522,7 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatValue.format(vegaAnalytic) +
 					"\t" + numberFormatDeviation.format(vega-vegaAnalytic));
 
-			Assert.assertTrue(Math.abs(vega-vegaAnalytic) < 1E-01);
+			Assert.assertTrue(Math.abs(vega-vegaAnalytic) < 5E-02);
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}
