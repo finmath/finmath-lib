@@ -6,6 +6,25 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.0.5 (27.01.2019)
+
+### General
+
+ - Some minor refactorings:
+    - `CurveFromInterpolationPoints` renamed to `CurveInterpolation`.
+    - Fixed typo in class name `AnalyticModelFromCurvesAndVols`.
+    
+### Algorithmic Differentiation / Interest Rate Models
+
+ - The Hull White Model (`HullWhiteModel`) and the Short Rate Volatility Models (implementing `ShortRateVolatilityParametricModel` support
+   objects implementing `RandomVariable` as parameters.
+   This enables the model to use Algorithmic Differentiation and Adjoint Algorithmic Differentiation.
+
+### Interest Rate Models
+
+ - A unit test for the calibration of the Hull-White model has been added.
+ 
+
 ## 4.0.1 (20.01.2019)
 
 ### General
@@ -24,7 +43,8 @@ finmath lib Release Notes
  - The packages `net.finmath.montecarlo.interestrate.models.modelplugins` and `net.finmath.montecarlo.interestrate.models.covariancemodels` 
    have been merged. The resulting package has been renamed to `net.finmath.montecarlo.interestrate.models.covariance`.
  
- - Refactoring: Package hierarchy. 1) A package `net.finmath.montecarlo.interestrate.models` is introduced. The classes implementing ProcessModel (or extending AbstractProcessModel) for the HullWhiteModel and LMM are moved into this package (from `net.finmath.montecarlo.interestrate`). The packages covariancemodels, modelplugins, factordrift are moved into this package. 2) A package `net.finmath.montecarlo.assetderivativevaluation.models` is introduced. The classes implementing ProcessModel (or extending `AbstractProcessModel`) for the `BlackScholes`, `Bacheler`, `Merton`, `Bates`, etc. are moved into this package (from `net.finmath.montecarlo.assetderivativevaluation`).
+ - Refactoring: Package hierarchy. 1) A package `net.finmath.montecarlo.interestrate.models` is introduced.
+   The classes implementing `ProcessModel` (or extending `AbstractProcessModel`) for the `HullWhiteModel` and LMM are moved into this package (from `net.finmath.montecarlo.interestrate`). The packages covariancemodels, modelplugins, factordrift are moved into this package. 2) A package `net.finmath.montecarlo.assetderivativevaluation.models` is introduced. The classes implementing ProcessModel (or extending `AbstractProcessModel`) for the `BlackScholes`, `Bacheler`, `Merton`, `Bates`, etc. are moved into this package (from `net.finmath.montecarlo.assetderivativevaluation`).
 
 ### Linear Algebra
 

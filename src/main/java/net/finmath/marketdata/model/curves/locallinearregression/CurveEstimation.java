@@ -15,7 +15,7 @@ import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 
 /**
@@ -29,7 +29,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
  *
  * The resulting curve is piecewise linear. That means, only the knot points of the curve are computed in this algorithm.
  * The final curve is then provided with linear interpolation of the knot points,
- * see {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}.
+ * see {@link net.finmath.marketdata.model.curves.CurveInterpolation}.
  *
  * @author Moritz Scherrmann
  * @author Christian Fries
@@ -131,12 +131,12 @@ public class CurveEstimation{
 		for(int i=1;i<curvePoints.length;i++) {
 			curvePoints[i]=curvePoints[i-1]+a.get(i)*(partition.getIntervalLength(i-1));
 		}
-		return new CurveFromInterpolationPoints(
+		return new CurveInterpolation(
 				"RegressionCurve",
 				referenceDate,
-				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
-				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
-				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				CurveInterpolation.InterpolationMethod.LINEAR,
+				CurveInterpolation.ExtrapolationMethod.CONSTANT,
+				CurveInterpolation.InterpolationEntity.VALUE,
 				partition.getPoints(),
 				curvePoints);
 	}

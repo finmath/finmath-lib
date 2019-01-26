@@ -36,7 +36,7 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 	 *
 	 * @author Christian Fries
 	 */
-	public static class Builder extends CurveFromInterpolationPoints.Builder implements CurveBuilder {
+	public static class Builder extends CurveInterpolation.Builder implements CurveBuilder {
 
 		private PiecewiseCurve			curve = null;
 
@@ -47,7 +47,7 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
 		public Builder(PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
-			super((CurveFromInterpolationPoints)(piecewiseCurve.baseCurve));
+			super((CurveInterpolation)(piecewiseCurve.baseCurve));
 			this.curve = piecewiseCurve;
 		}
 

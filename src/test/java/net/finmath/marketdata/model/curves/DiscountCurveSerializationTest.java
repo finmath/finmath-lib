@@ -5,13 +5,10 @@
  */
 package net.finmath.marketdata.model.curves;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,13 +16,12 @@ import java.io.ObjectOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Test serialization and de-serialization of a DiscountCurveInterpolation.
- * 
+ *
  * @author Christian Fries
  */
 public class DiscountCurveSerializationTest {

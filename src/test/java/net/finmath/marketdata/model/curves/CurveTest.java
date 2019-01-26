@@ -17,7 +17,7 @@ import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.SolverException;
 
 /**
- * A short demo on how to use {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}.
+ * A short demo on how to use {@link net.finmath.marketdata.model.curves.CurveInterpolation}.
  *
  * @author Christian Fries
  */
@@ -26,7 +26,7 @@ public class CurveTest {
 	private static NumberFormat numberFormat = new DecimalFormat("0.0000");
 
 	/**
-	 * Run a short demo on how to use {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}.
+	 * Run a short demo on how to use {@link net.finmath.marketdata.model.curves.CurveInterpolation}.
 	 *
 	 * @param args Not used.
 	 * @throws SolverException Thrown if optimizer fails.
@@ -48,11 +48,11 @@ public class CurveTest {
 		/*
 		 * Build a curve (initial guess for our fitting problem, defines the times).
 		 */
-		CurveFromInterpolationPoints.Builder builder = new CurveFromInterpolationPoints.Builder();
+		CurveInterpolation.Builder builder = new CurveInterpolation.Builder();
 
-		builder.setInterpolationMethod(CurveFromInterpolationPoints.InterpolationMethod.LINEAR);
-		builder.setExtrapolationMethod(CurveFromInterpolationPoints.ExtrapolationMethod.LINEAR);
-		builder.setInterpolationEntity(CurveFromInterpolationPoints.InterpolationEntity.VALUE);
+		builder.setInterpolationMethod(CurveInterpolation.InterpolationMethod.LINEAR);
+		builder.setExtrapolationMethod(CurveInterpolation.ExtrapolationMethod.LINEAR);
+		builder.setInterpolationEntity(CurveInterpolation.InterpolationEntity.VALUE);
 
 		// Add some points - which will not be fitted
 		builder.addPoint(-1.0 /* time */, 1.0 /* value */, false /* isParameter */);

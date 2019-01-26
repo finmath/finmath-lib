@@ -23,7 +23,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractForwardCurve extends CurveFromInterpolationPoints implements ForwardCurveInterface {
+public abstract class AbstractForwardCurve extends CurveInterpolation implements ForwardCurveInterface {
 
 	private static final long serialVersionUID = 3735595267579329042L;
 

@@ -19,7 +19,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -120,9 +120,9 @@ public class LIBORMarketModelHierarchyTest {
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				BusinessdayCalendar.DateRollConvention.FOLLOWING,
-				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
-				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
-				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				CurveInterpolation.InterpolationMethod.LINEAR,
+				CurveInterpolation.ExtrapolationMethod.CONSTANT,
+				CurveInterpolation.InterpolationEntity.VALUE,
 				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,

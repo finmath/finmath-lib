@@ -20,10 +20,10 @@ import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.optimizer.SolverException;
@@ -94,7 +94,7 @@ public class BondValuationTest {
 
 
 		// Create a survival probability curve which is constant 1 ( non defaultable)
-		Curve	survivalProbabilityCurve	= new CurveFromInterpolationPoints("survivalProbabilityCurve",
+		Curve	survivalProbabilityCurve	= new CurveInterpolation("survivalProbabilityCurve",
 				LocalDate.now() ,
 				InterpolationMethod.LINEAR,
 				ExtrapolationMethod.CONSTANT,
@@ -103,7 +103,7 @@ public class BondValuationTest {
 				new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
 
 		// Create a basis factor curve which is constant 1 ( start value)
-		CurveFromInterpolationPoints basisFactorCurve	= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
+		CurveInterpolation basisFactorCurve	= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				"basisFactorCurve",
 				new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0},
 				new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0});

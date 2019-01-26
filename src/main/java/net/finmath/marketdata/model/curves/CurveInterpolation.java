@@ -37,9 +37,9 @@ import net.finmath.time.FloatingpointDate;
  *
  * <br>
  *
- * For the interpolation methods provided see {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod}.
- * For the extrapolation methods provided see {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod}.
- * For the possible interpolation entities see {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity}.
+ * For the interpolation methods provided see {@link net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod}.
+ * For the extrapolation methods provided see {@link net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod}.
+ * For the possible interpolation entities see {@link net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity}.
  *
  * To construct the curve, please use the inner class CurveBuilder (a builder pattern).
  *
@@ -49,7 +49,7 @@ import net.finmath.time.FloatingpointDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class CurveFromInterpolationPoints extends AbstractCurve implements Serializable, Cloneable {
+public class CurveInterpolation extends AbstractCurve implements Serializable, Cloneable {
 
 	/**
 	 * Possible interpolation methods.
@@ -154,13 +154,13 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 	 * @author Christian Fries
 	 */
 	public static class Builder implements CurveBuilder {
-		private CurveFromInterpolationPoints curveFromInterpolationPoints = null;
+		private CurveInterpolation curveInterpolation = null;
 
 		/**
 		 * Build a curve.
 		 */
 		public Builder() {
-			curveFromInterpolationPoints = new CurveFromInterpolationPoints(null, null);
+			curveInterpolation = new CurveInterpolation(null, null);
 		}
 
 		/**
@@ -170,17 +170,17 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 		 */
 		public Builder(String name, LocalDate referenceDate) {
-			curveFromInterpolationPoints = new CurveFromInterpolationPoints(name, referenceDate);
+			curveInterpolation = new CurveInterpolation(name, referenceDate);
 		}
 
 		/**
 		 * Build a curve by cloning a given curve.
 		 *
-		 * @param curveFromInterpolationPoints A curve to be used as starting point for the new curve.
+		 * @param curveInterpolation A curve to be used as starting point for the new curve.
 		 * @throws CloneNotSupportedException Thrown, when the curve could not be cloned.
 		 */
-		public Builder(CurveFromInterpolationPoints curveFromInterpolationPoints) throws CloneNotSupportedException {
-			this.curveFromInterpolationPoints = curveFromInterpolationPoints.clone();
+		public Builder(CurveInterpolation curveInterpolation) throws CloneNotSupportedException {
+			this.curveInterpolation = curveInterpolation.clone();
 		}
 
 		/* (non-Javadoc)
@@ -188,8 +188,8 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		 */
 		@Override
 		public Curve build() throws CloneNotSupportedException {
-			CurveFromInterpolationPoints buildCurve = curveFromInterpolationPoints;
-			curveFromInterpolationPoints = null;
+			CurveInterpolation buildCurve = curveInterpolation;
+			curveInterpolation = null;
 			return buildCurve;
 		}
 
@@ -200,7 +200,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		 * @return A self reference to this curve build object.
 		 */
 		public CurveBuilder setInterpolationMethod(InterpolationMethod interpolationMethod) {
-			curveFromInterpolationPoints.interpolationMethod = interpolationMethod;
+			curveInterpolation.interpolationMethod = interpolationMethod;
 			return this;
 		}
 
@@ -211,7 +211,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		 * @return A self reference to this curve build object.
 		 */
 		public CurveBuilder setExtrapolationMethod(ExtrapolationMethod extrapolationMethod) {
-			curveFromInterpolationPoints.extrapolationMethod = extrapolationMethod;
+			curveInterpolation.extrapolationMethod = extrapolationMethod;
 			return this;
 		}
 
@@ -222,7 +222,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		 * @return A self reference to this curve build object.
 		 */
 		public CurveBuilder setInterpolationEntity(InterpolationEntity interpolationEntity) {
-			curveFromInterpolationPoints.interpolationEntity = interpolationEntity;
+			curveInterpolation.interpolationEntity = interpolationEntity;
 			return this;
 		}
 
@@ -231,7 +231,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		 */
 		@Override
 		public CurveBuilder addPoint(double time, double value, boolean isParameter) {
-			curveFromInterpolationPoints.addPoint(time, value, isParameter);
+			curveInterpolation.addPoint(time, value, isParameter);
 			return this;
 		}
 	}
@@ -261,7 +261,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 	 * @param times A vector of times.
 	 * @param values A vector of corresponding values.
 	 */
-	public CurveFromInterpolationPoints(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, double[] times, double[] values) {
+	public CurveInterpolation(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, double[] times, double[] values) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
@@ -283,7 +283,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
-	protected CurveFromInterpolationPoints(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+	protected CurveInterpolation(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
@@ -296,7 +296,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
 	 */
-	private CurveFromInterpolationPoints(String name, LocalDate referenceDate) {
+	private CurveInterpolation(String name, LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
 
@@ -484,8 +484,8 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 	}
 
 	@Override
-	public CurveFromInterpolationPoints clone() throws CloneNotSupportedException {
-		CurveFromInterpolationPoints newCurve = (CurveFromInterpolationPoints) super.clone();
+	public CurveInterpolation clone() throws CloneNotSupportedException {
+		CurveInterpolation newCurve = (CurveInterpolation) super.clone();
 
 		newCurve.points					= new ArrayList<>();
 		newCurve.pointsBeingParameters	= new ArrayList<>();
@@ -507,7 +507,7 @@ public class CurveFromInterpolationPoints extends AbstractCurve implements Seria
 		if(Arrays.equals(parameter, getParameter())) {
 			return this;
 		}
-		CurveFromInterpolationPoints newCurve = this.clone();
+		CurveInterpolation newCurve = this.clone();
 		newCurve.setParameterPrivate(parameter);
 
 		return newCurve;

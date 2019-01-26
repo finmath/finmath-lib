@@ -35,7 +35,7 @@ public interface CurveBuilder {
 	 *
 	 * @param time The time of the corresponding point.
 	 * @param value The value of the corresponding point.
-	 * @param isParameter A boolean, specifying weather the point should be considered a free parameter (true) or not (false). Fee parameters can be used to create a clone with modified values, see {@link CurveFromInterpolationPoints#getCloneForParameter(double[])}
+	 * @param isParameter A boolean, specifying weather the point should be considered a free parameter (true) or not (false). Fee parameters can be used to create a clone with modified values, see {@link CurveInterpolation#getCloneForParameter(double[])}
 	 * @return A self reference to this curve build object.
 	 */
 	CurveBuilder addPoint(double time, double value, boolean isParameter);
