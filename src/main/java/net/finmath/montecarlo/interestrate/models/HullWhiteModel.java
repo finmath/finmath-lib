@@ -295,7 +295,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 
 		RandomVariable logNum = getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));
-		RandomVariable discountFactorFromForwardCurve =  getDiscountFactorFromForwarCurve(timeIndex);
+		RandomVariable discountFactorFromForwardCurve =  getDiscountFactorFromForwardCurve(timeIndex);
 		RandomVariable numeraire = logNum.exp().div(discountFactorFromForwardCurve);
 
 		/*
@@ -430,7 +430,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		double timePrev = timeIndex > 0 ? getProcess().getTime(timeIndex-1) : time;
 		double timeNext = getProcess().getTime(timeIndex+1);
 
-		RandomVariable zeroRate = getDiscountFactorFromForwarCurve(time).div(getDiscountFactorFromForwarCurve(timeNext)).log().div(timeNext-time);
+		RandomVariable zeroRate = getDiscountFactorFromForwardCurve(timeIndex).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);
 
 		RandomVariable alpha = getDV(0, time).add(zeroRate);
 
@@ -492,9 +492,9 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		int timeIndex = getProcess().getTimeIndex(time);
 		double timeStep = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
 
-		RandomVariable zeroRate = getDiscountFactorFromForwarCurve(timeIndex).div(getDiscountFactorFromForwarCurve(timeIndex+1)).log().div(timeStep);
+		RandomVariable zeroRate = getDiscountFactorFromForwardCurve(timeIndex).div(getDiscountFactorFromForwardCurve(timeIndex+1)).log().div(timeStep);
 
-		RandomVariable forwardBond = getDiscountFactorFromForwarCurve(maturity).div(getDiscountFactorFromForwarCurve(time)).log();
+		RandomVariable forwardBond = getDiscountFactorFromForwardCurve(maturity).div(getDiscountFactorFromForwardCurve(time)).log();
 
 		RandomVariable B = getB(time,maturity);
 
@@ -743,7 +743,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		// Add initial values
 		for(int timeIndex=0; timeIndex<getTimeDiscretization().getNumberOfTimes(); timeIndex++) {
-			modelParameters.put("FORWARDCURVEDISCOUNTFACTOR("+ getTime(timeIndex) + ")", getDiscountFactorFromForwarCurve(timeIndex));
+			modelParameters.put("FORWARDCURVEDISCOUNTFACTOR("+ getTime(timeIndex) + ")", getDiscountFactorFromForwardCurve(timeIndex));
 		}
 
 		// Add volatilities
@@ -769,7 +769,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 				// Initialize cache
 				for(int i=discountFactorCache.size(); i<= timeIndex; i++) {
 					double df = discountCurve.getDiscountFactor(curveModel, getTime(i));
-					RandomVariable dfAsRandomVariable = new Scalar(df);//randomVariableFactory.createRandomVariable(df);
+					RandomVariable dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
 					discountFactorCache.add(dfAsRandomVariable);
 				}
 			}
@@ -779,19 +779,29 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return discountFactorCache.get(timeIndex);
 	}
 
-	private RandomVariable getDiscountFactorFromForwarCurve(double time) {
-		int timeIndex = getProcess().getTimeIndex(time);
-		if(timeIndex >= 0) return getDiscountFactorFromForwarCurve(timeIndex);
-		else throw new UnsupportedOperationException("Interpolation of forward curve currently not supported.");
+	private RandomVariable getDiscountFactorFromForwardCurve(double time) {
+		int timeIndex = getTimeIndex(time);
+		if(timeIndex >= 0) {
+			return getDiscountFactorFromForwardCurve(timeIndex);
+		}
+		else {
+			int timeIndexPrev = Math.min(-timeIndex-1, getTimeDiscretization().getNumberOfTimes()-2);
+			int timeIndexNext = timeIndexPrev+1;
+			double timePrev = getTime(timeIndexPrev);
+			double timeNext = getTime(timeIndexNext);
+			RandomVariable discountFactorPrev = getDiscountFactorFromForwardCurve(timeIndexPrev);
+			RandomVariable discountFactorNext = getDiscountFactorFromForwardCurve(timeIndexNext);
+			return discountFactorPrev.mult(discountFactorNext.div(discountFactorPrev).pow((time-timePrev)/(timeNext-timePrev)));
+		}
 	}
 
-	private RandomVariable getDiscountFactorFromForwarCurve(int timeIndex) {
+	private RandomVariable getDiscountFactorFromForwardCurve(int timeIndex) {
 		synchronized(discountFactorForForwardCurveCache) {
 			if(discountFactorForForwardCurveCache.size() <= timeIndex+1) {
 				// Initialize cache
 				for(int i=discountFactorForForwardCurveCache.size(); i<=timeIndex; i++) {
-					double df = discountCurve.getDiscountFactor(curveModel, getTime(i));
-					RandomVariable dfAsRandomVariable = new Scalar(df);//randomVariableFactory.createRandomVariable(df);
+					double df = discountCurveFromForwardCurve.getDiscountFactor(curveModel, getTime(i));
+					RandomVariable dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
 					discountFactorForForwardCurveCache.add(dfAsRandomVariable);
 				}
 			}

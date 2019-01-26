@@ -90,7 +90,7 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	@Override
 	public double getTime(int timeIndex) {
 		if(timeIndex < 0 || timeIndex >= timeDiscretization.getNumberOfTimes()) {
-			throw new ArrayIndexOutOfBoundsException("Index for process time discretization out of bounds.");
+			throw new ArrayIndexOutOfBoundsException("Index " + timeIndex + " for process time discretization out of bounds.");
 		}
 		return timeDiscretization.getTime(timeIndex);
 	}
