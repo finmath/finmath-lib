@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractShortRateVolatilityModel implements ShortRateVolatilityModelInterface, Serializable {
+public abstract class AbstractShortRateVolatilityModel implements ShortRateVolatilityModel, Serializable {
 
 	private static final long serialVersionUID = 5364544247367259329L;
 

@@ -2,7 +2,12 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 
 import net.finmath.stochastic.RandomVariable;
 
-public interface ShortRateVolatilityModelParametric extends ShortRateVolatilityModelInterface {
+/**
+ * Interface for short rate volatility models which are determined by a vector of parameter.
+ *
+ * @author Christian Fries
+ */
+public interface ShortRateVolatilityModelParametric extends ShortRateVolatilityModel {
 
 	/**
 	 * Get the parameters of determining this parametric

@@ -17,7 +17,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRateVolatilityModelParametric implements ShortRateVolatilityModelInterface {
+public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRateVolatilityModelParametric implements ShortRateVolatilityModel {
 
 	private static final long serialVersionUID = 4266489807755944607L;
 

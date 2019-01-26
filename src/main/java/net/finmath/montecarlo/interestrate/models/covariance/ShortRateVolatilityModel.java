@@ -6,41 +6,42 @@
 
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.io.Serializable;
+
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
+ * Interface for piecewise constant short rate volatility models with
+ * piecewise constant instantaneous short rate volatility \( t \mapsto \sigma(t) \)
+ * and piecewise constant short rate mean reversion speed \( t \mapsto a(t) \).
+ *
  * @author Christian Fries
  * @version 1.0
  */
-public class ShortRateVolatilityModel implements ShortRateVolatilityModelInterface {
+public interface ShortRateVolatilityModel extends Serializable {
 
-	private static final long serialVersionUID = 2471249188261414930L;
+	/**
+	 * Returns the time discretization \( \{ t_{i} \} \) associated
+	 * with the piecewise constant functions.
+	 *
+	 * @return the time discretization \( \{ t_{i} \} \)
+	 */
+	TimeDiscretization getTimeDiscretization();
 
-	private TimeDiscretization timeDiscretization;
-	private double[] volatility;
-	private double[] meanReversion;
+	/**
+	 * Returns the value of \( \sigma(t) \) for \( t_{i} \leq t &lt; t_{i+1} \).
+	 *
+	 * @param timeIndex The index \( i \).
+	 * @return the value of \( \sigma(t) \) for \( t_{i} \leq t &lt; t_{i+1} \)
+	 */
+	RandomVariable getVolatility(int timeIndex);
 
-	public ShortRateVolatilityModel(TimeDiscretization timeDiscretization, double[] volatility, double[] meanReversion) {
-		super();
-		this.timeDiscretization = timeDiscretization;
-		this.volatility = volatility;
-		this.meanReversion = meanReversion;
-	}
-
-	@Override
-	public TimeDiscretization getTimeDiscretization() {
-		return timeDiscretization;
-	}
-
-	@Override
-	public RandomVariable getVolatility(int timeIndex) {
-		return new Scalar(volatility[timeIndex]);
-	}
-
-	@Override
-	public RandomVariable getMeanReversion(int timeIndex) {
-		return new Scalar(meanReversion[timeIndex]);
-	}
+	/**
+	 * Returns the value of \( a(t) \) for \( t_{i} \leq t &lt; t_{i+1} \).
+	 *
+	 * @param timeIndex The index \( i \).
+	 * @return the value of \( a(t) \) for \( t_{i} \leq t &lt; t_{i+1} \)
+	 */
+	RandomVariable getMeanReversion(int timeIndex);
 }

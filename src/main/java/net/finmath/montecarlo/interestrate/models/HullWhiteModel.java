@@ -24,7 +24,7 @@ import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORModel;
 import net.finmath.montecarlo.interestrate.ShortRateModel;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelCalibrateable;
-import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface;
+import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelParametric;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -101,9 +101,9 @@ import net.finmath.time.TimeDiscretization;
  * Hence, we interpret both, short rate mean reversion speed and short rate volatility as part of the <i>volatility model</i>.
  *
  * The mean reversion speed and the short rate volatility have to be provided to this class via an object implementing
- * {@link net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface}.
+ * {@link net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel}.
  *
- * @see net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface
+ * @see net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel
  * @see <a href="http://ssrn.com/abstract=2737091">ssrn.com/abstract=2737091</a>
  *
  * @author Christian Fries
@@ -124,7 +124,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final AbstractRandomVariableFactory	randomVariableFactory;
 
-	private final ShortRateVolatilityModelInterface volatilityModel;
+	private final ShortRateVolatilityModel volatilityModel;
 
 	private final Map<String, ?>			properties;
 
@@ -148,7 +148,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			AnalyticModel				analyticModel,
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
-			ShortRateVolatilityModelInterface	volatilityModel,
+			ShortRateVolatilityModel	volatilityModel,
 			Map<String, ?>						properties
 			) {
 
@@ -178,7 +178,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			AnalyticModel				analyticModel,
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
-			ShortRateVolatilityModelInterface	volatilityModel,
+			ShortRateVolatilityModel	volatilityModel,
 			Map<String, ?>						properties
 			) {
 		this(new RandomVariableFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
@@ -205,7 +205,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			AnalyticModel				analyticModel,
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
-			ShortRateVolatilityModelInterface	volatilityModel,
+			ShortRateVolatilityModel	volatilityModel,
 			CalibrationProduct[]					calibrationProducts,
 			Map<String, Object>					properties
 			) throws CalculationException {
@@ -728,12 +728,12 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	@Override
-	public HullWhiteModel getCloneWithModifiedVolatilityModel(ShortRateVolatilityModelInterface volatilityModel) {
+	public HullWhiteModel getCloneWithModifiedVolatilityModel(ShortRateVolatilityModel volatilityModel) {
 		return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, curveModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
 
 	@Override
-	public ShortRateVolatilityModelInterface getVolatilityModel() {
+	public ShortRateVolatilityModel getVolatilityModel() {
 		return volatilityModel;
 	}
 
