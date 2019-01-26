@@ -15,7 +15,7 @@ import org.junit.Test;
 import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
@@ -73,7 +73,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		/*
 		 * Model consists of the two curves, but only one of them provides free parameters.
 		 */
-		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve, forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve });
 
 		// Create a collection of objective functions (calibration products)
 		Vector<AnalyticProduct> calibrationProducts = new Vector<>();
@@ -106,7 +106,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		// Test calibration
 		discountCurve	= new DiscountCurveNelsonSiegelSvensson(discountCurve.getName(), referenceDate, parametersBest, 1.0);
 		forwardCurve	= new ForwardCurveFromDiscountCurve(forwardCurve.getName(), discountCurve.getName(), referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.MODIFIED_FOLLOWING, 365.0/365.0, 0.0);
-		model			= new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve, forwardCurve });
+		model			= new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve });
 
 		double squaredErrorSum = 0.0;
 		for(AnalyticProduct c : calibrationProducts) {

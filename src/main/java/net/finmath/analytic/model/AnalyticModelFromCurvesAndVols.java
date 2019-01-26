@@ -31,7 +31,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializable, Cloneable {
+public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializable, Cloneable {
 
 	/**
 	 *
@@ -44,7 +44,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	/**
 	 * Create an empty analytic model.
 	 */
-	public AnalyticModelFromCuvesAndVols() {
+	public AnalyticModelFromCurvesAndVols() {
 		randomVariableFactory = new RandomVariableFactory();
 	}
 
@@ -53,7 +53,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 *
 	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 */
-	public AnalyticModelFromCuvesAndVols(AbstractRandomVariableFactory randomVariableFactory) {
+	public AnalyticModelFromCurvesAndVols(AbstractRandomVariableFactory randomVariableFactory) {
 		this.randomVariableFactory = randomVariableFactory;
 	}
 
@@ -62,7 +62,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 *
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCuvesAndVols(Curve[] curves) {
+	public AnalyticModelFromCurvesAndVols(Curve[] curves) {
 		this();
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
@@ -75,7 +75,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCuvesAndVols(AbstractRandomVariableFactory randomVariableFactory, Curve[] curves) {
+	public AnalyticModelFromCurvesAndVols(AbstractRandomVariableFactory randomVariableFactory, Curve[] curves) {
 		this(randomVariableFactory);
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
@@ -87,7 +87,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 *
 	 * @param curves A collection of curves.
 	 */
-	public AnalyticModelFromCuvesAndVols(Collection<Curve> curves) {
+	public AnalyticModelFromCurvesAndVols(Collection<Curve> curves) {
 		this();
 		for(Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
@@ -113,20 +113,20 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 
 	@Override
 	public AnalyticModel addCurve(String name, Curve curve) {
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.put(name, curve);
 		return newModel;
 	}
 
 	public AnalyticModel addCurve(Curve curve) {
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.put(curve.getName(), curve);
 		return newModel;
 	}
 
 	@Override
 	public AnalyticModel addCurves(Curve... curves) {
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		for(Curve curve : curves) {
 			newModel.curvesMap.put(curve.getName(), curve);
 		}
@@ -135,7 +135,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 
 	@Override
 	public AnalyticModel addCurves(Set<Curve> curves) {
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		for(Curve curve : curves) {
 			newModel.curvesMap.put(curve.getName(), curve);
 		}
@@ -199,7 +199,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 
 	public AnalyticModel addVolatilitySurface(VolatilitySurface volatilitySurface)
 	{
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 		return newModel;
 	}
@@ -207,7 +207,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	@Override
 	public AnalyticModel addVolatilitySurfaces(VolatilitySurface... volatilitySurfaces)
 	{
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		for(VolatilitySurface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 		}
@@ -216,7 +216,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 
 	@Override
 	public AnalyticModel addVolatilitySurfaces(Set<VolatilitySurface> volatilitySurfaces) {
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		for(VolatilitySurface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 		}
@@ -239,9 +239,9 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	}
 
 	@Override
-	public AnalyticModelFromCuvesAndVols clone()
+	public AnalyticModelFromCurvesAndVols clone()
 	{
-		AnalyticModelFromCuvesAndVols newModel = new AnalyticModelFromCuvesAndVols();
+		AnalyticModelFromCurvesAndVols newModel = new AnalyticModelFromCurvesAndVols();
 		newModel.curvesMap.putAll(curvesMap);
 		newModel.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
 		return newModel;
@@ -251,7 +251,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	public AnalyticModel getCloneForParameter(Map<ParameterObject, RandomVariable[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
-		AnalyticModelFromCuvesAndVols modelClone = clone();
+		AnalyticModelFromCurvesAndVols modelClone = clone();
 
 		// Add modified clones of curves to model clone
 		if(curveParameterPairs != null) {

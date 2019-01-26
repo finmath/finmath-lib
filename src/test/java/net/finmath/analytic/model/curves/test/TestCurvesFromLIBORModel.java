@@ -11,7 +11,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.analytic.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.analytic.model.curves.Curve;
 import net.finmath.analytic.products.AbstractAnalyticProduct;
 import net.finmath.analytic.products.Swap;
@@ -100,7 +100,7 @@ public class TestCurvesFromLIBORModel {
 		net.finmath.analytic.model.curves.DiscountCurveInterface discountCurve = new net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve(net.finmath.analytic.model.curves.ForwardCurveInterpolation.createForwardCurveFromMonteCarloLiborModel(forwardCurveInterpolation.getName(), liborMarketModel, 0));
 		//net.finmath.analytic.model.curves.DiscountCurveInterpolation.createDiscountCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
 
-		double valueWithCurves = swapAnalytic.getValue(0.0, new AnalyticModelFromCuvesAndVols(randomVariableFactory, new Curve[]{forwardCurveInterpolation,discountCurve})).getAverage();
+		double valueWithCurves = swapAnalytic.getValue(0.0, new AnalyticModelFromCurvesAndVols(randomVariableFactory, new Curve[]{forwardCurveInterpolation,discountCurve})).getAverage();
 
 		System.out.println("" + valueMonteCarlo + "\t" + valueWithCurves);
 
@@ -199,7 +199,7 @@ public class TestCurvesFromLIBORModel {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, new net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols(new net.finmath.marketdata.model.curves.Curve[]{forwardCurve, discountCurveInterpolation}), forwardCurve, discountCurveInterpolation, randomVariableFactory, covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, new net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols(new net.finmath.marketdata.model.curves.Curve[]{forwardCurve, discountCurveInterpolation}), forwardCurve, discountCurveInterpolation, randomVariableFactory, covarianceModel, calibrationItems, properties);
 
 		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 

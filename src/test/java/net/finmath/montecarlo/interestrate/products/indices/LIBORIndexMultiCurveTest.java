@@ -29,7 +29,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.CalibratedCurves;
 import net.finmath.marketdata.calibration.CalibratedCurves.CalibrationSpec;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
@@ -249,7 +249,7 @@ public class LIBORIndexMultiCurveTest {
 		ForwardCurve forwardCurve3M = new ForwardCurveInterpolation("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveFromInterpolationPoints.InterpolationMethod.LINEAR, CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT, CurveFromInterpolationPoints.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
 		ForwardCurve forwardCurve6M = new ForwardCurveInterpolation("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveFromInterpolationPoints.InterpolationMethod.LINEAR, CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT, CurveFromInterpolationPoints.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
 
-		AnalyticModelFromCuvesAndVols forwardCurveModel = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
+		AnalyticModelFromCurvesAndVols forwardCurveModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
 
 		List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
 

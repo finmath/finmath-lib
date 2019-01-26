@@ -29,7 +29,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurface;
  * @author Christian Fries
  * @version 1.0
  */
-public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializable, Cloneable {
+public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializable, Cloneable {
 
 	private static final long serialVersionUID = 6906386712907555046L;
 
@@ -42,7 +42,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	/**
 	 * Create an empty analytic model.
 	 */
-	public AnalyticModelFromCuvesAndVols() {
+	public AnalyticModelFromCurvesAndVols() {
 		referenceDate = null;
 	}
 
@@ -51,7 +51,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 *
 	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
 	 */
-	public AnalyticModelFromCuvesAndVols(LocalDate referenceDate) {
+	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate) {
 		this.referenceDate = referenceDate;
 	}
 
@@ -60,7 +60,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 *
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCuvesAndVols(Curve[] curves) {
+	public AnalyticModelFromCurvesAndVols(Curve[] curves) {
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
@@ -72,7 +72,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 *
 	 * @param curves A collection of curves.
 	 */
-	public AnalyticModelFromCuvesAndVols(Collection<Curve> curves) {
+	public AnalyticModelFromCurvesAndVols(Collection<Curve> curves) {
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
@@ -85,7 +85,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCuvesAndVols(LocalDate referenceDate, Curve[] curves) {
+	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate, Curve[] curves) {
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 			LocalDate curveDate = curve.getReferenceDate();
@@ -102,7 +102,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
 	 * @param curves A collection of curves.
 	 */
-	public AnalyticModelFromCuvesAndVols(LocalDate referenceDate, Collection<Curve> curves) {
+	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate, Collection<Curve> curves) {
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 			LocalDate curveDate = curve.getReferenceDate();
@@ -120,7 +120,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	 * @param curvesMap A map containing all curves, together with their names they should have in the model.
 	 * @param volatilitySurfaceMap A map containing all volatility surfaces, together with their names they should have in the model.
 	 */
-	public AnalyticModelFromCuvesAndVols(LocalDate referenceDate, Map<String, Curve> curvesMap, Map<String, VolatilitySurface> volatilitySurfaceMap) {
+	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate, Map<String, Curve> curvesMap, Map<String, VolatilitySurface> volatilitySurfaceMap) {
 		this(referenceDate);
 		this.curvesMap.putAll(curvesMap);
 		this.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
@@ -146,7 +146,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.put(name, curve);
 
 		return newModel;
@@ -159,7 +159,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.put(curve.getName(), curve);
 
 		return newModel;
@@ -178,7 +178,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 			}
 		}
 
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.putAll(curvesMap);
 
 		return newModel;
@@ -197,7 +197,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 			}
 		}
 
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.putAll(curvesMap);
 
 		return newModel;
@@ -266,7 +266,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 			throw new IllegalArgumentException("Reference date of surface does not match reference date of model.");
 		}
 
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 
 		return newModel;
@@ -275,7 +275,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	@Override
 	public AnalyticModel addVolatilitySurfaces(VolatilitySurface... volatilitySurfaces)
 	{
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		for(VolatilitySurface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 
@@ -289,7 +289,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 
 	@Override
 	public AnalyticModel addVolatilitySurfaces(Set<VolatilitySurface> volatilitySurfaces) {
-		AnalyticModelFromCuvesAndVols newModel = clone();
+		AnalyticModelFromCurvesAndVols newModel = clone();
 		for(VolatilitySurface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 
@@ -322,9 +322,9 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	}
 
 	@Override
-	public AnalyticModelFromCuvesAndVols clone()
+	public AnalyticModelFromCurvesAndVols clone()
 	{
-		AnalyticModelFromCuvesAndVols newModel = new AnalyticModelFromCuvesAndVols(referenceDate);
+		AnalyticModelFromCurvesAndVols newModel = new AnalyticModelFromCurvesAndVols(referenceDate);
 		newModel.curvesMap.putAll(curvesMap);
 		newModel.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
 		return newModel;
@@ -334,7 +334,7 @@ public class AnalyticModelFromCuvesAndVols implements AnalyticModel, Serializabl
 	public AnalyticModel getCloneForParameter(Map<ParameterObject, double[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
-		AnalyticModelFromCuvesAndVols modelClone = clone();
+		AnalyticModelFromCurvesAndVols modelClone = clone();
 
 		// Add modified clones of curves to model clone
 		if(curveParameterPairs != null) {

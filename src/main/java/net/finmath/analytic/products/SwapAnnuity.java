@@ -6,7 +6,7 @@
 package net.finmath.analytic.products;
 
 import net.finmath.analytic.model.AnalyticModel;
-import net.finmath.analytic.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.analytic.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.analytic.model.curves.Curve;
 import net.finmath.analytic.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.analytic.model.curves.DiscountCurveInterface;
@@ -101,7 +101,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	public static RandomVariable getSwapAnnuity(Schedule schedule, ForwardCurveInterface forwardCurve) {
 		DiscountCurveInterface discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
 		double evaluationTime = 0.0;	// Consider only payment time > 0
-		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModelFromCuvesAndVols( new Curve[] {forwardCurve, discountCurve} ));
+		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModelFromCurvesAndVols( new Curve[] {forwardCurve, discountCurve} ));
 	}
 
 	/**

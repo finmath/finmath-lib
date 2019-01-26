@@ -24,7 +24,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
@@ -250,7 +250,7 @@ public class LIBORIndexTest {
 			throw new IllegalArgumentException("Unknown curve setup: " + curveSetup.toString());
 		}
 
-		AnalyticModel analyticModel = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve, forwardCurve });
+		AnalyticModel analyticModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve });
 		/*
 		 * Create a simulation time discretization
 		 */

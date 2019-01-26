@@ -18,7 +18,7 @@ import org.junit.Assert;
 import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
@@ -118,7 +118,7 @@ public class BondValuationTest {
 		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 5, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModelFromCuvesAndVols model1 = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation , survivalProbabilityCurve, basisFactorCurve });
+		AnalyticModelFromCurvesAndVols model1 = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation , survivalProbabilityCurve, basisFactorCurve });
 
 		for(int i=0;i<calibrationProducts1.size();i++){
 			System.out.println("Implemented value at t=0 of bond with "+ (i+1) +" payments:"+" "+ calibrationProducts1.get(i).getValue(0, model1));

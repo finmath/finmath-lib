@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
 import net.finmath.marketdata.model.curves.DiscountCurve;
@@ -143,7 +143,7 @@ public class LIBORMarketModelHierarchyTest {
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
 			int numberOfPaths, int numberOfFactors, double correlationDecayParam, DiscountCurve discountCurve, ForwardCurve forwardCurve) throws CalculationException {
 
-		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve , discountCurve });
+		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve , discountCurve });
 
 		/*
 		 * Create the libor tenor structure and the initial values

@@ -32,7 +32,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
@@ -683,7 +683,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Model consists of the two curves, but only one of them provides free parameters.
 		 */
-		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
 
 		/*
 		 * Create a collection of curves to calibrate

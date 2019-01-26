@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
@@ -287,7 +287,7 @@ public class CalibratedCurves {
 		}
 	}
 
-	private AnalyticModel				model				= new AnalyticModelFromCuvesAndVols();
+	private AnalyticModel				model				= new AnalyticModelFromCurvesAndVols();
 	private Set<ParameterObject>		objectsToCalibrate	= new LinkedHashSet<>();
 	private Vector<AnalyticProduct>	calibrationProducts			= new Vector<>();
 	private Vector<String>						calibrationProductsSymbols	= new Vector<>();
@@ -356,7 +356,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCuvesAndVols calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCurvesAndVols calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		if(calibrationModel != null) {
 			model	= calibrationModel.getCloneForParameter(null);
 		}
@@ -390,7 +390,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCuvesAndVols calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCurvesAndVols calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs, calibrationModel, 0.0, calibrationAccuracy);
 	}
 
@@ -413,7 +413,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCuvesAndVols calibrationModel) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCurvesAndVols calibrationModel) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs, calibrationModel, 0.0);
 	}
 

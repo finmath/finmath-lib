@@ -24,7 +24,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
@@ -210,7 +210,7 @@ public class HullWhiteModelCalibrationTest {
 		}
 
 		// TODO Left hand side type should be interface, once interface are refactored.
-		HullWhiteModel hullWhiteModel = HullWhiteModel.of(randomVariableFactory, liborPeriodDiscretization, new AnalyticModelFromCuvesAndVols(new Curve[] {discountCurve, forwardCurve}), forwardCurve, discountCurve, volatilityModel, calibrationItemsHW, properties);
+		HullWhiteModel hullWhiteModel = HullWhiteModel.of(randomVariableFactory, liborPeriodDiscretization, new AnalyticModelFromCurvesAndVols(new Curve[] {discountCurve, forwardCurve}), forwardCurve, discountCurve, volatilityModel, calibrationItemsHW, properties);
 		long millisCalibrationEnd = System.currentTimeMillis();
 
 		System.out.println("\nCalibrated parameters are:");
@@ -341,7 +341,7 @@ public class HullWhiteModelCalibrationTest {
 		/*
 		 * Model consists of the two curves, but only one of them provides free parameters.
 		 */
-		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
 
 		/*
 		 * Create a collection of curves to calibrate

@@ -20,7 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
@@ -101,7 +101,7 @@ public class CalibrationTest {
 				);
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModelFromCuvesAndVols model1 = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation , forwardCurveFromDiscountCurve });
+		AnalyticModelFromCurvesAndVols model1 = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation , forwardCurveFromDiscountCurve });
 
 		System.out.println("Given a discount curve:");
 		System.out.println(discountCurveInterpolation.toString());
@@ -156,7 +156,7 @@ public class CalibrationTest {
 		calibrationProducts1.add(new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), forwardCurveFromDiscountCurve.getName(), 0.0, "discountCurve"));
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModelFromCuvesAndVols model1 = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation , forwardCurveFromDiscountCurve });
+		AnalyticModelFromCurvesAndVols model1 = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation , forwardCurveFromDiscountCurve });
 
 		// Create a collection of curves to calibrate
 		Set<ParameterObject> curvesToCalibrate1 = new HashSet<>();
@@ -201,7 +201,7 @@ public class CalibrationTest {
 		ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards("forwardCurve", new double[] {2.0/365.0, 1.0, 2.0, 3.0, 4.0}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05}, model1, discountCurveInterpolation.getName(), 0.5);
 
 		// Make collection of all curves used in valuation
-		AnalyticModelFromCuvesAndVols model2 = new AnalyticModelFromCuvesAndVols( new Curve[] { discountCurveInterpolation, forwardCurveInterpolation } );
+		AnalyticModelFromCurvesAndVols model2 = new AnalyticModelFromCurvesAndVols( new Curve[] { discountCurveInterpolation, forwardCurveInterpolation } );
 
 		System.out.println("Calibrating a forward curve from swaps using the given discount curve.");
 

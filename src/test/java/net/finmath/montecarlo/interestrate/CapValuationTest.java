@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -188,7 +188,7 @@ public class CapValuationTest {
 			System.out.print(formatterValue.format(valueSimulation) + "          ");
 
 			// Value analytic
-			AnalyticModel model = new AnalyticModelFromCuvesAndVols();
+			AnalyticModel model = new AnalyticModelFromCurvesAndVols();
 			model = model.addCurves(forwardCurve);
 			model = model.addCurves(discountCurve);
 			model = model.addVolatilitySurfaces(capletVol);

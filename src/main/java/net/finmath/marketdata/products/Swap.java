@@ -6,7 +6,7 @@
 package net.finmath.marketdata.products;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
@@ -128,9 +128,9 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 	}
 
 	public static double getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurve forwardCurve, DiscountCurve discountCurve) {
-		AnalyticModelFromCuvesAndVols model = null;
+		AnalyticModelFromCurvesAndVols model = null;
 		if(discountCurve != null) {
-			model			= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
+			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);
 	}
@@ -143,7 +143,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 		DiscountCurve discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
 		if(discountCurve == null) {
 			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
-			model			= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
+			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 
 		double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
