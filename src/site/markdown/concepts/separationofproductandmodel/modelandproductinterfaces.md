@@ -4,54 +4,61 @@ The library structures the problem of valuation of financial products with respe
 
 - asset classes (single asset models, interest rate term structure models, etc.)
 - numerical methods (Monte-Carlo, finite difference, Fourier transform, analytic formulas)
-- specific modelling assumptions 
+- specific modeling assumptions 
 
 ## Overview
 
 |Type                        |Model                                              |Product                            | 
 |:---------------------------|:--------------------------------------------------|:----------------------------------| 
-|Base type                   |``ModelInterface``                                 |``ProductInterface``               |
-|Analytic valuation          |``AnalyticModelInterface``                         |``AbstractAnalyticProduct``        |
-|Monte Carlo / Equity        |``AssetModelMonteCarloSimulationInterface``        |``AbstractAssetMonteCarloProduct`` |
-|Monte Carlo / Interest Rates|``TermStructureModelMonteCarloSimulationInterface``|``AbstractLIBORMonteCarloProduct`` |
-|Fourier Transform / 1D      |``ProcessCharacteristicFunctionInterface``         |``AbstractProductFourierTransform``|
+|Base type                   |``Model``                                          |``Product``                         |
+|Analytic valuation          |``AnalyticModel``                                   |``AnalyticProduct``                 |
+|Monte Carlo                 |``MonteCarloSimulationModel``                        |``MonteCarloProduct``                 |
+|Monte Carlo / Equity        |``AssetModelMonteCarloSimulationModel``              |``AssetMonteCarloProduct`` |
+|Monte Carlo / Interest Rates|``TermStructureMonteCarloSimulationModel``           |``TermStructureMonteCarloProduct`` |
+|Monte Carlo / Interest Rates / Discrete Forward Rates|``LIBORMonteCarloSimulationModel``           |``TermStructureMonteCarloProduct`` |
+|Fourier Transform / 1D      |``CharacteristicFunctionModel``                     |``FourierTransformProduct``|
 |Finite Difference / 1D      |``FiniteDifference1DModel``                        |``FiniteDifference1DProduct``      |
 
 ## Models
 
-ModelInterface
+`Model` (interface)
 
 - marker interface
 
 ### Monte Carlo
 
-MonteCarloSimulationInterface
+`MonteCarloSimulationModel`
 
 - provides getTimeDiscretization, getNumberOfPaths, getRandomVariableForConstant, getMonteCarloWeights
 
 #### Equity
 
-AssetModelMonteCarloSimulationInterface extends MonteCarloSimulationInterface
+`AssetModelMonteCarloSimulationMode extends MonteCarloSimulationModel`
+
 - provides getNumeraire, getAsset
 
-##### Implementation
+##### Implementation and Extensions
 
-MonteCarloAssetModel implements AssetModelMonteCarloSimulationInterface
-MonteCarloMertonModel implements AssetModelMonteCarloSimulationInterface
-HybridAssetLIBORModelMonteCarloSimulationInterface extends LIBORModelMonteCarloSimulationInterface, AssetModelMonteCarloSimulationInterface
+MonteCarloAssetModel implements AssetModelMonteCarloSimulationMode
+MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
+HybridAssetLIBORModelMonteCarloSimulationModel extends LIBORMonteCarloSimulationModel, AssetModelMonteCarloSimulationMode
 
 #### Interest Rates
 
-TermStructureModelMonteCarloSimulationInterface extends MonteCarloSimulationInterface
+`TermStructureMonteCarloSimulationModel extends MonteCarloSimulationModel`
 
 - provides getNumeraire, getLIBOR(double, double, double)
 
 
-### Fourier Transform
+### Fourier Transform (`net.finmath.fouriermethod`)
 
-ProcessCharacteristicFunctionInterface
+`CharacteristicFunctionModel`
 
-``HestonModel implements Model<HestonModelDescriptor>, ProcessCharacteristicFunctionInterface``
+- provides apply(double) returning a `CharacteristicFunction`
+
+##### Implementation and Extensions
+
+- ``HestonModel implements CharacteristicFunctionModel``
 
 
 ### Example:
@@ -64,9 +71,10 @@ ProcessCharacteristicFunctionInterface
 
 ## Products
 
-ProductInterface
+`Product` (interface)
 
-- provides ``getValue(Model<?> model)``
+- provides `getValue(Model<?> model)`.
+  Objects implementing the getValue method should provide a double-dispatch on the model argument, i.e., casting to suitable models.
 
 ### Monte Carlo
 
