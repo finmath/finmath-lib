@@ -40,7 +40,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	private DiscountCurveNelsonSiegelSvensson discountCurve;
 
 	/**
-	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols}.
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols}.
 	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
 	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
 	 * @param paymentBusinessdayCalendar The payment businessday calendar.
@@ -62,7 +62,7 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	/**
-	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols}.
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols}.
 	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
 	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
 	 * @param paymentBusinessdayCalendar The payment businessday calendar.

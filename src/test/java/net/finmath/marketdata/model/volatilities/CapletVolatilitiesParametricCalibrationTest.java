@@ -20,7 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson;
@@ -120,7 +120,7 @@ public class CapletVolatilitiesParametricCalibrationTest {
 		Double[] volatilities	= { 0.72, 0.86, 0.75, 0.69, 0.67, 0.64, 0.58, 0.52, 0.47, 0.44, 0.40, 0.35, 0.32 };
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModelFromCuvesAndVols model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurve , forwardCurve });
+		AnalyticModelFromCurvesAndVols model = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve , forwardCurve });
 
 		System.out.println("Given a discount curve:");
 		System.out.println(discountCurve.toString());

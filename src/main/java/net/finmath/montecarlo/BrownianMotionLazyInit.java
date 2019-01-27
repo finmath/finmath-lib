@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import net.finmath.randomnumbers.MersenneTwister;
@@ -47,7 +48,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 	private final AbstractRandomVariableFactory randomVariableFactory;
 
 	private transient	RandomVariable[][]	brownianIncrements;
-	private final		Object						brownianIncrementsLazyInitLock = new Object();
+	private transient 	Object				brownianIncrementsLazyInitLock = new Object();
 
 	/**
 	 * Construct a Brownian motion.
@@ -245,5 +246,11 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 		result = 31 * result + numberOfPaths;
 		result = 31 * result + seed;
 		return result;
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		// initialization of transients
+		brownianIncrementsLazyInitLock = new Object();
 	}
 }

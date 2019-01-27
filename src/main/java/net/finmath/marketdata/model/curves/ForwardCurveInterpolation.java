@@ -16,8 +16,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 
 /**
- * A container for a forward (rate) curve. The forward curve is based on the {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints} class.
- * It thus features all interpolation and extrapolation methods and interpolation entities as {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}.
+ * A container for a forward (rate) curve. The forward curve is based on the {@link net.finmath.marketdata.model.curves.CurveInterpolation} class.
+ * It thus features all interpolation and extrapolation methods and interpolation entities as {@link net.finmath.marketdata.model.curves.CurveInterpolation}.
  *
  * The forward F(t) of an index is such that  * F(t) * D(t+p) equals the market price of the corresponding
  * index fixed in t and paid in t+d, where t is the fixing time of the index and t+p is the payment time of the index.

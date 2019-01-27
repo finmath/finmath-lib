@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
@@ -244,10 +244,10 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 			/*
 			 * Small workaround for the case that the discount curve is not set. This part will be removed later.
 			 */
-			AnalyticModelFromCuvesAndVols model = null;
+			AnalyticModelFromCurvesAndVols model = null;
 			if(discountCurve == null) {
 				discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
-				model					= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
+				model					= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 			}
 
 			double swapStart    = swapTenor[0];
@@ -350,10 +350,10 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 			/*
 			 * Small workaround for the case that the discount curve is not set.  Obtain it from the forward curve
 			 */
-			AnalyticModelFromCuvesAndVols model = null;
+			AnalyticModelFromCurvesAndVols model = null;
 			if(discountCurve == null) {
 				discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
-				model					= new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve, discountCurve });
+				model					= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 			}
 
 			double swapStart    = swapTenor[0];

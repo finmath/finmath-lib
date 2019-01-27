@@ -42,4 +42,9 @@ public class RandomVariableDifferentiableADFactory extends AbstractRandomVariabl
 	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
 		return new RandomVariableDifferentiableAD(createRandomVariableNonDifferentiable(time, values));
 	}
+
+	@Override
+	public String toString() {
+		return "RandomVariableDifferentiableADFactory [toString()=" + super.toString() + "]";
+	}
 }

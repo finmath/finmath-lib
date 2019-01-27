@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.daycount.DayCountConvention_30E_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
@@ -70,7 +70,7 @@ public class CurveFactory {
 			fixingValue[i] = indexFixings.get(fixingDate).doubleValue();
 			i++;
 		}
-		Curve curveOfFixings = new CurveFromInterpolationPoints(name, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, fixingTimes, fixingValue);
+		Curve curveOfFixings = new CurveInterpolation(name, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, fixingTimes, fixingValue);
 
 		/*
 		 * Create a curve modeling the seasonality
@@ -86,7 +86,7 @@ public class CurveFactory {
 				seasonTimes[j] = j/12.0;
 				seasonValue[j] = seasonValueCummulated;
 			}
-			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate,new CurveFromInterpolationPoints(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue));
+			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate,new CurveInterpolation(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue));
 		}
 		else if(seasonalAveragingNumberOfYears != null && seasonalityAdjustments == null) {
 			seasonCurve = new SeasonalCurve(name + "-seasonal", referenceDate, indexFixings, seasonalAveragingNumberOfYears);

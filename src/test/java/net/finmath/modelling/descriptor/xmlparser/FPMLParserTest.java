@@ -21,9 +21,9 @@ import org.junit.runners.Parameterized.Parameters;
 import org.xml.sax.SAXException;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
@@ -122,7 +122,7 @@ public class FPMLParserTest {
 		LocalDate referenceDate = LocalDate.of(1995,1,10);
 		DiscountCurve discountCurve = ModelWithProductFactoryTest.getDiscountCurve("discount", referenceDate, 0.05);
 		ForwardCurve forwardCurve = getForwardCurve("EUR-LIBOR-BBA", referenceDate);
-		AnalyticModel model = new AnalyticModelFromCuvesAndVols(referenceDate, new Curve[] { discountCurve, forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCurvesAndVols(referenceDate, new Curve[] { discountCurve, forwardCurve });
 
 		InterestRateAnalyticProductFactory productFactory = new InterestRateAnalyticProductFactory(referenceDate);
 		DescribedProduct<? extends ProductDescriptor> legReceiverProduct = productFactory.getProductFromDescriptor(legReceiver);
@@ -146,9 +146,9 @@ public class FPMLParserTest {
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				BusinessdayCalendar.DateRollConvention.FOLLOWING,
-				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
-				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
-				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				CurveInterpolation.InterpolationMethod.LINEAR,
+				CurveInterpolation.ExtrapolationMethod.CONSTANT,
+				CurveInterpolation.InterpolationEntity.VALUE,
 				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,

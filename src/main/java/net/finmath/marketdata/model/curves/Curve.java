@@ -8,7 +8,7 @@ package net.finmath.marketdata.model.curves;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.model.AnalyticModel;
 
 /**
@@ -17,7 +17,7 @@ import net.finmath.marketdata.model.AnalyticModel;
  * @author Christian Fries
  * @version 1.0
  */
-public interface Curve extends ParameterObjectInterface, Serializable, Cloneable {
+public interface Curve extends ParameterObject, Serializable, Cloneable {
 
 	/**
 	 * Get the name of the curve.

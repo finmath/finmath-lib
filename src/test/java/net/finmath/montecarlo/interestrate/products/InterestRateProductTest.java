@@ -18,9 +18,9 @@ import java.util.Map;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation.InterpolationEntityForward;

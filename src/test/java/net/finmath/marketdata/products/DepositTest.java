@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.time.Schedule;
@@ -20,7 +20,7 @@ public class DepositTest {
 	private final double[] times = { 0., 1. };
 	private final double[] dcFactors = { 1., 1. / 1.05 };
 	private final DiscountCurveInterpolation dc;
-	private AnalyticModelFromCuvesAndVols model;
+	private AnalyticModelFromCurvesAndVols model;
 	private Schedule sched;
 	private final double accuracy = 1e-10;
 
@@ -28,7 +28,7 @@ public class DepositTest {
 		dc = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(dcName, times, dcFactors);
 
 		// set up model
-		model = new AnalyticModelFromCuvesAndVols(new Curve[] { dc });
+		model = new AnalyticModelFromCurvesAndVols(new Curve[] { dc });
 
 		// set up deposit
 		LocalDate refDate = LocalDate.of(2017, 1, 1);

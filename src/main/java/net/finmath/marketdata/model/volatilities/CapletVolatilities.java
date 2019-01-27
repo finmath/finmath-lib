@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 
@@ -98,7 +98,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		Curve curve = capletVolatilities.get(maturity);
 		try {
 			if(curve == null) {
-				curve = (new CurveFromInterpolationPoints.Builder()).addPoint(strike, volatility, true).build();
+				curve = (new CurveInterpolation.Builder()).addPoint(strike, volatility, true).build();
 			} else {
 				curve = curve.getCloneBuilder().addPoint(strike, volatility, true).build();
 			}

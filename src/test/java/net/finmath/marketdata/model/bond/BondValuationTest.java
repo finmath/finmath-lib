@@ -15,15 +15,15 @@ import java.util.Vector;
 
 import org.junit.Assert;
 
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.optimizer.SolverException;
@@ -94,7 +94,7 @@ public class BondValuationTest {
 
 
 		// Create a survival probability curve which is constant 1 ( non defaultable)
-		Curve	survivalProbabilityCurve	= new CurveFromInterpolationPoints("survivalProbabilityCurve",
+		Curve	survivalProbabilityCurve	= new CurveInterpolation("survivalProbabilityCurve",
 				LocalDate.now() ,
 				InterpolationMethod.LINEAR,
 				ExtrapolationMethod.CONSTANT,
@@ -103,7 +103,7 @@ public class BondValuationTest {
 				new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
 
 		// Create a basis factor curve which is constant 1 ( start value)
-		CurveFromInterpolationPoints basisFactorCurve	= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
+		CurveInterpolation basisFactorCurve	= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				"basisFactorCurve",
 				new double[] { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0},
 				new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
@@ -118,14 +118,14 @@ public class BondValuationTest {
 		calibrationProducts1.add(new Bond(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 5, 1.0)),"discountCurve",null,"survivalProbabilityCurve","basisFactorCurve", 0.1,0));
 
 		// A model is a collection of curves (curves and products find other curves by looking up their name in the model)
-		AnalyticModelFromCuvesAndVols model1 = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation , survivalProbabilityCurve, basisFactorCurve });
+		AnalyticModelFromCurvesAndVols model1 = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation , survivalProbabilityCurve, basisFactorCurve });
 
 		for(int i=0;i<calibrationProducts1.size();i++){
 			System.out.println("Implemented value at t=0 of bond with "+ (i+1) +" payments:"+" "+ calibrationProducts1.get(i).getValue(0, model1));
 		}
 
 		// Create a collection of curves to calibrate
-		Set<ParameterObjectInterface> curvesToCalibrate1 = new HashSet<>();
+		Set<ParameterObject> curvesToCalibrate1 = new HashSet<>();
 		curvesToCalibrate1.add(basisFactorCurve);
 
 		// Calibrate the curve

@@ -275,17 +275,11 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable mult(RandomVariable randomVariable) {
-		if(value == 0) {
-			return new Scalar(0.0);
-		}
 		return randomVariable.mult(value);
 	}
 
 	@Override
 	public RandomVariable div(RandomVariable randomVariable) {
-		if(value == 0) {
-			return new Scalar(0.0);
-		}
 		return randomVariable.invert().mult(value);
 	}
 
@@ -299,38 +293,25 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable cap(RandomVariable cap) {
-		if(cap.isDeterministic()) {
-			return new Scalar(Math.min(value, cap.get(0)));
-		} else {
-			return cap.cap(value);
-		}
+		return cap.cap(value);
 	}
 
 	@Override
 	public RandomVariable floor(RandomVariable floor) {
-		if(floor.isDeterministic()) {
-			return new Scalar(Math.max(value, floor.get(0)));
-		} else {
-			return floor.floor(value);
-		}
+		return floor.floor(value);
 	}
 
 	@Override
 	public RandomVariable accrue(RandomVariable rate, double periodLength) {
-		if(rate.isDeterministic()) {
-			return new Scalar(value * (1 + rate.get(0) * periodLength));
-		} else {
-			return rate.mult(periodLength*value).add(value);
-		}
+		return rate.mult(periodLength*value).add(value);
 	}
 
 	@Override
 	public RandomVariable discount(RandomVariable rate, double periodLength) {
 		if(value == 0) {
-			return new Scalar(0.0);
-		} else if(rate.isDeterministic()) {
-			return new Scalar(value / (1 + rate.get(0) * periodLength));
-		} else {
+			return rate.mult(0.0);
+		}
+		else {
 			return rate.mult(periodLength/value).add(1.0/value).invert();
 		}
 	}
@@ -346,9 +327,6 @@ public class Scalar implements RandomVariable {
 		return new Scalar(1.0/value);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#abs()
-	 */
 	@Override
 	public RandomVariable abs() {
 		return new Scalar(Math.abs(value));
@@ -356,38 +334,22 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
-		if(factor1.isDeterministic()) {
-			return new Scalar(value + factor1.get(0) * factor2);
-		} else {
-			return factor1.mult(factor2).add(value);
-		}
+		return factor1.mult(factor2).add(value);
 	}
 
 	@Override
 	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
-		if(factor1.isDeterministic() && factor2.isDeterministic()) {
-			return new Scalar(value + factor1.get(0) * factor2.get(0));
-		} else {
-			return factor1.mult(factor2).add(value);
-		}
+		return factor1.mult(factor2).add(value);
 	}
 
 	@Override
 	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
-		if(numerator.isDeterministic() && denominator.isDeterministic()) {
-			return new Scalar(value + numerator.get(0) * denominator.get(0));
-		} else {
-			return numerator.div(denominator).add(value);
-		}
+		return numerator.div(denominator).add(value);
 	}
 
 	@Override
 	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
-		if(numerator.isDeterministic() && denominator.isDeterministic()) {
-			return new Scalar(value - numerator.get(0) * denominator.get(0));
-		} else {
-			return numerator.div(denominator).sub(value).mult(-1.0);
-		}
+		return numerator.div(denominator).sub(value).mult(-1.0);
 	}
 
 	@Override

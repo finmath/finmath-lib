@@ -3,7 +3,7 @@ package net.finmath.modelling.modelfactory;
 import java.time.LocalDate;
 import java.util.Map;
 
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface;
 import net.finmath.modelling.DescribedModel;
@@ -28,13 +28,13 @@ public class AnalyticModelFactory implements ModelFactory<AnalyticModelDescripto
 	}
 
 	/**
-	 * Class extending {@link net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols} with the funtionality of a described model.
+	 * Class extending {@link net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols} with the funtionality of a described model.
 	 *
 	 * @author Christian Fries
 	 * @author Roland Bachl
 	 *
 	 */
-	public static class DescribedAnalyticModel extends AnalyticModelFromCuvesAndVols implements DescribedModel<AnalyticModelDescriptor> {
+	public static class DescribedAnalyticModel extends AnalyticModelFromCurvesAndVols implements DescribedModel<AnalyticModelDescriptor> {
 
 		private static final long serialVersionUID = -2884913997994052340L;
 

@@ -29,14 +29,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.calibration.ParameterObjectInterface;
+import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
@@ -683,12 +683,12 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Model consists of the two curves, but only one of them provides free parameters.
 		 */
-		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
 
 		/*
 		 * Create a collection of curves to calibrate
 		 */
-		Set<ParameterObjectInterface> curvesToCalibrate = new HashSet<>();
+		Set<ParameterObject> curvesToCalibrate = new HashSet<>();
 		curvesToCalibrate.add(discountCurveInterpolation);
 
 		/*

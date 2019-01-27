@@ -142,8 +142,8 @@ public class Solver {
 	 * @return A reference to a calibrated clone of the given model.
 	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
 	 */
-	public AnalyticModel getCalibratedModel(Set<ParameterObjectInterface> objectsToCalibrate) throws SolverException {
-		final ParameterAggregation<ParameterObjectInterface> parameterAggregate = new ParameterAggregation<>(objectsToCalibrate);
+	public AnalyticModel getCalibratedModel(Set<ParameterObject> objectsToCalibrate) throws SolverException {
+		final ParameterAggregation<ParameterObject> parameterAggregate = new ParameterAggregation<>(objectsToCalibrate);
 
 		// Set solver parameters
 		final double[] initialParameters;
@@ -174,7 +174,7 @@ public class Solver {
 						System.arraycopy(parameterTransformation.getSolverParameter(modelParameters), 0, parameters, 0, parameters.length);
 					}
 
-					Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
+					Map<ParameterObject, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
 					AnalyticModel modelClone = model.getCloneForParameter(curvesParameterPairs);
 					for(int i=0; i<calibrationProducts.size(); i++) {
 						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);
@@ -208,7 +208,7 @@ public class Solver {
 		AnalyticModel calibratedModel = null;
 		try {
 
-			Map<ParameterObjectInterface, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);
+			Map<ParameterObject, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);
 			calibratedModel = model.getCloneForParameter(curvesParameterPairs);
 		} catch (CloneNotSupportedException e) {
 			throw new SolverException(e);

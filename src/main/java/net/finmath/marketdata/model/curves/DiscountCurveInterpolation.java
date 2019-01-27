@@ -14,10 +14,10 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints} class.
+ * Implementation of a discount factor curve based on {@link net.finmath.marketdata.model.curves.CurveInterpolation}. The discount curve is based on the {@link net.finmath.marketdata.model.curves.CurveInterpolation} class.
  *
  * It thus features all interpolation and extrapolation methods and interpolation entities
- * as {@link net.finmath.marketdata.model.curves.CurveFromInterpolationPoints} and implements the {@link net.finmath.marketdata.model.curves.DiscountCurve}.
+ * as {@link net.finmath.marketdata.model.curves.CurveInterpolation} and implements the {@link net.finmath.marketdata.model.curves.DiscountCurve}.
  *
  * Note that this version of the DiscountCurveInterpolation will no longer make the
  * assumption that at t=0 its value is 1.0. Such a norming is not
@@ -27,10 +27,10 @@ import net.finmath.time.TimeDiscretization;
  *
  * @author Christian Fries
  * @see net.finmath.marketdata.products.SwapLeg
- * @see net.finmath.marketdata.model.curves.CurveFromInterpolationPoints
+ * @see net.finmath.marketdata.model.curves.CurveInterpolation
  * @version 1.0
  */
-public class DiscountCurveInterpolation extends CurveFromInterpolationPoints implements Serializable, DiscountCurve {
+public class DiscountCurveInterpolation extends CurveInterpolation implements Serializable, DiscountCurve {
 
 	private static final long serialVersionUID = -4126228588123963885L;
 

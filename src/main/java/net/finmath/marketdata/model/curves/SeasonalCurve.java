@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints.InterpolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
 
@@ -31,7 +31,7 @@ import net.finmath.time.daycount.DayCountConvention_ACT_365;
  *
  * The base curve has to be constructed according to this time convention (e.g.,
  * as a piecewise constant curve with values at i / 12 for i=1,...,12 using
- * {@link CurveFromInterpolationPoints.InterpolationMethod} with <code>PIECEWISE_CONSTANT_RIGHTPOINT</code>.
+ * {@link CurveInterpolation.InterpolationMethod} with <code>PIECEWISE_CONSTANT_RIGHTPOINT</code>.
  *
  * @author Christian Fries
  * @version 1.0
@@ -48,7 +48,7 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 	 *
 	 * @author Christian Fries
 	 */
-	public static class Builder extends CurveFromInterpolationPoints.Builder implements CurveBuilder {
+	public static class Builder extends CurveInterpolation.Builder implements CurveBuilder {
 
 		private SeasonalCurve			curve = null;
 
@@ -59,7 +59,7 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
 		public Builder(SeasonalCurve seasonalCurve) throws CloneNotSupportedException {
-			super((CurveFromInterpolationPoints)(seasonalCurve.baseCurve));
+			super((CurveInterpolation)(seasonalCurve.baseCurve));
 			this.curve = seasonalCurve;
 		}
 
@@ -93,7 +93,7 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 			seasonTimes[j] = j/12.0;
 			seasonValue[j] = seasonValueCummulated;
 		}
-		this.baseCurve = new CurveFromInterpolationPoints(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue);
+		this.baseCurve = new CurveInterpolation(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue);
 	}
 
 	/**

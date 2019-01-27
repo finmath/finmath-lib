@@ -21,9 +21,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCuvesAndVols;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveFromInterpolationPoints;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
@@ -108,9 +108,9 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 				"6M",
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				BusinessdayCalendar.DateRollConvention.FOLLOWING,
-				CurveFromInterpolationPoints.InterpolationMethod.LINEAR,
-				CurveFromInterpolationPoints.ExtrapolationMethod.CONSTANT,
-				CurveFromInterpolationPoints.InterpolationEntity.VALUE,
+				CurveInterpolation.InterpolationMethod.LINEAR,
+				CurveInterpolation.ExtrapolationMethod.CONSTANT,
+				CurveInterpolation.InterpolationEntity.VALUE,
 				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
 				null,
 				null,
@@ -122,7 +122,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		DiscountCurve discountCurve = null;
 
 		//		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new CurveInterface[] { forwardCurve , discountCurve });
-		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new Curve[] { forwardCurve });
+		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve });
 
 		/*
 		 * Create the libor tenor structure and the initial values
