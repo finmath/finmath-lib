@@ -25,6 +25,10 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 
 	private final RandomVariable[] elements;
 
+	public static RandomVariableArray of(RandomVariable[] elements) {
+		return new RandomVariableArrayImplementation(elements.clone());
+	}
+
 	private RandomVariableArrayImplementation(RandomVariable[] elements) {
 		super();
 
@@ -48,11 +52,6 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 		else {
 			return 0;
 		}
-	}
-
-	@Override
-	public RandomVariableArray of(RandomVariable[] elements) {
-		return new RandomVariableArrayImplementation(elements.clone());
 	}
 
 	@Override
