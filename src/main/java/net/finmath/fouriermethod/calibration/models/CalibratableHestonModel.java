@@ -16,7 +16,7 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
  *
  * @author Alessandro Gnoatto
  */
-public class CalibrableHestonModel implements  CalibrableProcess {
+public class CalibratableHestonModel implements  CalibratableProcess {
 	private final HestonModelDescriptor descriptor;
 
 	private final ScalarParameterInformation volatilityInfo;
@@ -41,7 +41,7 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 	 *
 	 * @param descriptor The model descriptor for the Heston model.
 	 */
-	public CalibrableHestonModel(HestonModelDescriptor descriptor) {
+	public CalibratableHestonModel(HestonModelDescriptor descriptor) {
 		super();
 		this.descriptor = descriptor;
 		this.volatilityInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
@@ -69,7 +69,7 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 	 * @param rhoConstraint The constraint for the rho parameter.
 	 * @param applyFellerConstraint If true, the Feller constraint is applied.
 	 */
-	public CalibrableHestonModel(HestonModelDescriptor descriptor, ScalarParameterInformation volatilityConstraint,
+	public CalibratableHestonModel(HestonModelDescriptor descriptor, ScalarParameterInformation volatilityConstraint,
 			ScalarParameterInformation thetaConstraint, ScalarParameterInformation kappaConstraint, ScalarParameterInformation xiConstraint,
 			ScalarParameterInformation rhoConstraint, boolean applyFellerConstraint) {
 		this.descriptor = descriptor;
@@ -84,7 +84,7 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 	}
 
 	@Override
-	public CalibrableHestonModel getCloneForModifiedParameters(double[] parameters) {
+	public CalibratableHestonModel getCloneForModifiedParameters(double[] parameters) {
 
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
 		double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
@@ -104,7 +104,7 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForForwardRate(),
 				volatility, theta, kappa, xi, rho);
 
-		return new CalibrableHestonModel(newDescriptor,this.volatilityInfo,this.thetaInfo,this.kappaInfo,this.xiInfo,this.rhoInfo,this.applyFellerConstraint);
+		return new CalibratableHestonModel(newDescriptor,this.volatilityInfo,this.thetaInfo,this.kappaInfo,this.xiInfo,this.rhoInfo,this.applyFellerConstraint);
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class CalibrableHestonModel implements  CalibrableProcess {
 	}
 
 	@Override
-	public HestonModel getCharacteristiFunction() {
+	public HestonModel getCharacteristicFunctionModel() {
 		return new HestonModel(descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(),
 				descriptor.getVolatility(),descriptor.getDiscountCurveForForwardRate(),
 				descriptor.getTheta(),descriptor.getKappa(),descriptor.getXi(),descriptor.getRho());

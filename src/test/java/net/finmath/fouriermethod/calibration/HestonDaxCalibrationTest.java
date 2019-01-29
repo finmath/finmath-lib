@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.calibration.CalibratedModel.OptimizationResult;
-import net.finmath.fouriermethod.calibration.models.CalibrableHestonModel;
+import net.finmath.fouriermethod.calibration.models.CalibratableHestonModel;
 import net.finmath.fouriermethod.products.smile.EuropeanOptionSmileByCarrMadan;
 import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
@@ -137,7 +137,7 @@ public class HestonDaxCalibrationTest {
 		ScalarParameterInformationImplementation xiInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,1.0));
 		ScalarParameterInformationImplementation rhoInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(-1.0,1.0));
 
-		CalibrableHestonModel model = new CalibrableHestonModel(hestonModelDescriptor,volatilityInformation,thetaInformation,kappaInformation,xiInformation,rhoInformation,false);
+		CalibratableHestonModel model = new CalibratableHestonModel(hestonModelDescriptor,volatilityInformation,thetaInformation,kappaInformation,xiInformation,rhoInformation,false);
 
 		OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(300 /* maxIterations */, 2 /* maxThreads */);
 

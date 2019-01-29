@@ -21,8 +21,6 @@ import java.util.function.Function;
  */
 public interface RandomVariableArray extends RandomVariable {
 
-	RandomVariableArray of(RandomVariable[] elements);
-
 	int getNumberOfElements();
 
 	RandomVariable getElement(int index);
@@ -44,6 +42,20 @@ public interface RandomVariableArray extends RandomVariable {
 		}
 		else {
 			return 1;
+		}
+	}
+
+	default Object toDoubleArray() {
+		if(getLevel() == 1) {
+			double[] doubleArray = new double[getNumberOfElements()];
+			for(int i=0; i<getNumberOfElements(); i++) doubleArray[i] = getElement(i).doubleValue();
+			return doubleArray;
+		}
+		else {
+			// TODO: The following code requires a consistent level on all elements
+			Object[] doubleArray = new Object[getNumberOfElements()];
+			for(int i=0; i<getNumberOfElements(); i++) doubleArray[i] = ((RandomVariableArray)getElement(i)).toDoubleArray();
+			return doubleArray;
 		}
 	}
 

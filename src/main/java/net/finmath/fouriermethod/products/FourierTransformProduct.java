@@ -10,13 +10,14 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
 
 /**
  * @author Christian Fries
  *
  * @version 1.0
  */
-public interface FourierTransformProduct {
+public interface FourierTransformProduct extends Product {
 
 	Double getValue(double evaluationTime, Model model);
 

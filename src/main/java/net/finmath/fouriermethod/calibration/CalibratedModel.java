@@ -7,7 +7,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.ArrayUtils;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.calibration.models.CalibrableProcess;
+import net.finmath.fouriermethod.calibration.models.CalibratableProcess;
 import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.fouriermethod.products.smile.EuropeanOptionSmile;
 import net.finmath.marketdata.model.volatilities.OptionSmileData;
@@ -42,7 +42,7 @@ import net.finmath.optimizer.SolverException;
 public class CalibratedModel {
 
 	private final OptionSurfaceData surface; //target calibration instruments. They dictate the calibration entity: vol/price.
-	private final CalibrableProcess model; //Pricing model
+	private final CalibratableProcess model; //Pricing model
 	private final OptimizerFactory optimizerFactory; //construct the instance of the optimization algorithm inside the class.
 	private final EuropeanOptionSmile pricer; //How do we compute prices: Carr Madan, Cos, Conv, Lewis...
 
@@ -52,7 +52,7 @@ public class CalibratedModel {
 	private final double[] upperBound;
 	private final double[] parameterStep;
 
-	public CalibratedModel(OptionSurfaceData surface, CalibrableProcess model,
+	public CalibratedModel(OptionSurfaceData surface, CalibratableProcess model,
 			OptimizerFactory optimizerFactory, EuropeanOptionSmile pricer, double[] initialParameters,
 			double[] parameterStep) {
 		super();
@@ -78,8 +78,8 @@ public class CalibratedModel {
 			public void setValues(double[] parameters, double[] values) {
 
 				//We change the parameters of the model
-				CalibrableProcess newModel = model.getCloneForModifiedParameters(parameters);
-				CharacteristicFunctionModel newModelFourier = newModel.getCharacteristiFunction();
+				CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);
+				CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
 
 				int numberOfMaturities = surface.getMaturities().length;
 				double mats[] = surface.getMaturities();
@@ -142,7 +142,7 @@ public class CalibratedModel {
 
 		ArrayList<String> calibrationOutput = outputCalibrationResult(optimizer.getBestFitParameters());
 
-		CalibrableProcess calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
+		CalibratableProcess calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
 
 		return new OptimizationResult(calibratedModel,optimizer.getBestFitParameters(),optimizer.getIterations(),optimizer.getRootMeanSquaredError(),calibrationOutput);
 	}
@@ -183,8 +183,8 @@ public class CalibratedModel {
 		ArrayList<String> calibrationOutput = new ArrayList<String>();
 
 		//We change the parameters of the model
-		CalibrableProcess newModel = model.getCloneForModifiedParameters(parameters);
-		CharacteristicFunctionModel newModelFourier = newModel.getCharacteristiFunction();
+		CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);
+		CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
 
 		int numberOfMaturities = surface.getMaturities().length;
 		double mats[] = surface.getMaturities();
@@ -252,13 +252,13 @@ public class CalibratedModel {
 	 * @author Alessandro Gnoatto
 	 */
 	public class OptimizationResult{
-		private final CalibrableProcess model; //the calibrated model
+		private final CalibratableProcess model; //the calibrated model
 		private final double[] bestFitParameters;
 		private final int iterations;
 		private final double rootMeanSquaredError;
 		private final ArrayList<String> calibrationOutput;
 
-		public OptimizationResult(CalibrableProcess model, double[] bestFitParameters,
+		public OptimizationResult(CalibratableProcess model, double[] bestFitParameters,
 				int iterations, double rootMeanSquaredError, ArrayList<String> calibrationOutput) {
 			super();
 			this.model = model;
@@ -268,7 +268,7 @@ public class CalibratedModel {
 			this.calibrationOutput = calibrationOutput;
 		}
 
-		public CalibrableProcess getModel() {
+		public CalibratableProcess getModel() {
 			return model;
 		}
 
