@@ -18,14 +18,13 @@ import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.integration.RealIntegral;
 import net.finmath.integration.SimpsonRealIntegrator;
 import net.finmath.modelling.Model;
-import net.finmath.modelling.Product;
 
 /**
  * @author Christian Fries
  *
  * @version 1.0
  */
-public abstract class AbstractFourierTransformProduct implements CharacteristicFunction, Product, FourierTransformProduct {
+public abstract class AbstractFourierTransformProduct implements CharacteristicFunction, FourierTransformProduct {
 
 	/* (non-Javadoc)
 	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getValue(double, net.finmath.modelling.Model)
