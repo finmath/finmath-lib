@@ -19,7 +19,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractMonteCarloProduct implements Product, MonteCarloProduct {
+public abstract class AbstractMonteCarloProduct implements MonteCarloProduct {
 
 	private final String currency;
 
