@@ -1432,7 +1432,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
 		}
 
-		LIBORMarketModelFromCovarianceModel newModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, swaptionMarketData, properties);
+		LIBORMarketModelFromCovarianceModel newModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, curveModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, properties);
 		newModel.curveModel = analyticModel;
 		return newModel;
 	}
