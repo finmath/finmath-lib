@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import net.finmath.functions.AnalyticFormulas;
@@ -78,12 +79,12 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
 	 * @param maturities The maturities of the options as year fraction from the reference date.
 	 * @param tenors The tenors of the swaps as year fraction from the reference date.
-	 * @param moneynesss The moneyness' in basis points on the par swap rate.
+	 * @param moneynesss The moneyness' as actual difference of strike to par swap rate.
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
 			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
-			double[] maturities, double[] tenors, int[] moneynesss, double[] values) {
+			double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturities.length; i++) {
@@ -102,16 +103,16 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
 	 * @param maturitiesInMonths The maturities of the options as offset in months from the reference date.
 	 * @param tenorsInMonths The tenors of the swaps as offset in months from the option maturity.
-	 * @param moneynesss The moneyness' in basis points on the par swap rate.
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
 			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
-			int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynesss, double[] values) {
+			int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturitiesInMonths.length; i++) {
-			entryMap.put(new DataKey(maturitiesInMonths[i], tenorsInMonths[i], moneynesss[i]), values[i]);
+			entryMap.put(new DataKey(maturitiesInMonths[i], tenorsInMonths[i], moneynessBP[i]), values[i]);
 		}
 	}
 
@@ -125,16 +126,16 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
 	 * @param tenorCodes The schedules of the swaptions encoded in the format '6M10Y'
-	 * @param moneynesss The moneyness' in basis points on the par swap rate.
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
 			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
-			String[] tenorCodes, int[] moneynesss, double[] values) {
+			String[] tenorCodes, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < tenorCodes.length; i++) {
-			entryMap.put(new DataKey(tenorCodes[i], moneynesss[i]), values[i]);
+			entryMap.put(new DataKey(tenorCodes[i], moneynessBP[i]), values[i]);
 		}
 	}
 
@@ -148,17 +149,17 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param discountCurveName The name of the discount curve associated with these swaptions.
 	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
-	 * @param maturities The maturities of the options as offset in months from the reference date.
-	 * @param tenors The tenors of the swaps as offset in months from the option maturity.
-	 * @param moneynesss The moneyness' in basis points on the par swap rate.
+	 * @param maturitiesInMonths The maturities of the options as offset in months from the reference date.
+	 * @param tenorsInMonths The tenors of the swaps as offset in months from the option maturity.
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, int[] maturities, int[] tenors, int[] moneynesss, double[] values) {
+			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
-		for(int i = 0; i < maturities.length; i++) {
-			entryMap.put(new DataKey(maturities[i], tenors[i], moneynesss[i]), values[i]);
+		for(int i = 0; i < maturitiesInMonths.length; i++) {
+			entryMap.put(new DataKey(maturitiesInMonths[i], tenorsInMonths[i], moneynessBP[i]), values[i]);
 		}
 	}
 
@@ -174,11 +175,11 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
 	 * @param maturities The maturities of the options as year fraction from the reference date.
 	 * @param tenors The tenors of the swaps as year fraction from the reference date.
-	 * @param moneynesss The moneyness' in basis points on the par swap rate.
+	 * @param moneynesss The moneyness' as actual difference of strike to par swap rate.
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, double[] maturities, double[] tenors, int[] moneynesss, double[] values) {
+			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturities.length; i++) {
@@ -197,15 +198,15 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
 	 * @param tenorCodes The schedules of the swaptions encoded in the format '6M10Y'
-	 * @param moneynesss The moneyness' in basis points on the par swap rate.
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, String[] tenorCodes, int[] moneynesss, double[] values) {
+			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, String[] tenorCodes, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < tenorCodes.length; i++) {
-			entryMap.put(new DataKey(tenorCodes[i], moneynesss[i]), values[i]);
+			entryMap.put(new DataKey(tenorCodes[i], moneynessBP[i]), values[i]);
 		}
 	}
 
@@ -362,6 +363,24 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
+	 * Return all levels of moneyness for which data exists.
+	 * Moneyness is returned as actual difference strike - par swap rate.
+	 *
+	 * @return The levels of moneyness as difference of strike to par swap rate.
+	 */
+	public double[] getMoneynessAsOffsets() {
+		DoubleStream moneyness = getGridNodesPerMoneyness().keySet().stream().mapToDouble(Integer::doubleValue);
+		if(quotingConvention == QuotingConvention.PAYERVOLATILITYLOGNORMAL) {
+			moneyness = moneyness.map(x -> x * 0.01);
+		} else if(quotingConvention == QuotingConvention.RECEIVERPRICE) {
+			moneyness = moneyness.map(x -> - x * 0.0001);
+		} else {
+			moneyness = moneyness.map(x -> x * 0.0001);
+		}
+		return moneyness.toArray();
+	}
+
+	/**
 	 * Return all maturities for which data exists.
 	 *
 	 * @return The maturities in months.
@@ -378,15 +397,32 @@ public class SwaptionDataLattice implements Serializable {
 	/**
 	 * Return all valid maturities for a given moneyness.
 	 *
-	 * @param moneyness The moneyness in bp for which to get the maturities.
+	 * @param moneynessBP The moneyness in bp for which to get the maturities.
 	 * @return The maturities in months.
 	 */
-	public int[] getMaturities(int moneyness) {
+	public int[] getMaturities(int moneynessBP) {
 		try {
-			return getGridNodesPerMoneyness().get(moneyness)[0];
+			return getGridNodesPerMoneyness().get(moneynessBP)[0];
 		} catch (NullPointerException e) {
 			return new int[0];
 		}
+	}
+
+	/**
+	 * Return all valid maturities for a given moneyness.
+	 * Uses the fixing times of the fix schedule to determine fractions.
+	 *
+	 * @param moneyness The moneyness as actual offset from par swap rate for which to get the maturities.
+	 * @return The maturities as year fraction from reference date.
+	 */
+	public double[] getMaturities(double moneyness) {
+		int[] maturitiesInMonths	= getMaturities(convertMoneyness(moneyness));
+		double[] maturities			= new double[maturitiesInMonths.length];
+
+		for(int index = 0; index < maturities.length; index++) {
+			maturities[index] = convertMaturity(maturitiesInMonths[index]);
+		}
+		return maturities;
 	}
 
 	/**
@@ -404,18 +440,18 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
-	 * Retrun all valid tenors for a given moneyness and maturity.
+	 * Return all valid tenors for a given moneyness and maturity.
 	 *
-	 * @param moneyness The moneyness in bp for which to get the tenors.
+	 * @param moneynessBP The moneyness in bp for which to get the tenors.
 	 * @param maturityInMonths The maturities in months for which to get the tenors.
 	 * @return The tenors in months.
 	 */
-	public int[] getTenors(int moneyness, int maturityInMonths) {
+	public int[] getTenors(int moneynessBP, int maturityInMonths) {
 
 		try {
 			List<Integer> ret = new ArrayList<>();
-			for(int tenor : getGridNodesPerMoneyness().get(moneyness)[1]) {
-				if(containsEntryFor(maturityInMonths, tenor, moneyness)) {
+			for(int tenor : getGridNodesPerMoneyness().get(moneynessBP)[1]) {
+				if(containsEntryFor(maturityInMonths, tenor, moneynessBP)) {
 					ret.add(tenor);
 				}
 			}
@@ -426,15 +462,74 @@ public class SwaptionDataLattice implements Serializable {
 	}
 
 	/**
+	 * Return all valid tenors for a given moneyness and maturity.
+	 * Uses the payment times of the fix schedule to determine fractions.
+	 *
+	 * @param moneyness The moneyness as actual offset from par swap rate for which to get the maturities.
+	 * @param maturity The maturities as year fraction from the reference date.
+	 * @return The tenors as year fraction from reference date.
+	 */
+	public double[] getTenors(double moneyness, double maturity) {
+		int maturityInMonths	= (int) Math.round(maturity * 12);
+		int[] tenorsInMonths	= getTenors(convertMoneyness(moneyness), maturityInMonths);
+		double[] tenors			= new double[tenorsInMonths.length];
+
+		for(int index = 0; index < tenors.length; index++) {
+			tenors[index] = convertTenor(maturityInMonths, tenorsInMonths[index]);
+		}
+		return tenors;
+	}
+
+	/**
+	 * Convert moneyness given as difference to par swap rate to moneyness in bp.
+	 * Uses the fixing times of the fix schedule to determine fractions.
+	 *
+	 * @param moneyness as offset.
+	 * @return Moneyness in bp.
+	 */
+	private int convertMoneyness(double moneyness) {
+		if(quotingConvention == QuotingConvention.PAYERVOLATILITYLOGNORMAL) {
+			return (int) Math.round(moneyness * 100);
+		} else if(quotingConvention == QuotingConvention.RECEIVERPRICE) {
+			return - (int) Math.round(moneyness * 10000);
+		} else {
+			return (int) Math.round(moneyness * 10000);
+		}
+	}
+
+	/**
+	 * Convert maturity given as offset in months to year fraction.
+	 *
+	 * @param maturityInMonths The maturity as offset in months.
+	 * @return The maturity as year fraction.
+	 */
+	private double convertMaturity(int maturityInMonths) {
+		Schedule schedule = fixMetaSchedule.generateSchedule(referenceDate, maturityInMonths, 12);
+		return schedule.getFixing(0);
+	}
+
+	/**
+	 * Convert tenor given as offset in months to year fraction.
+	 *
+	 * @param maturityInMonths The maturity as offset in months.
+	 * @param tenorInMonths The tenor as offset in months.
+	 * @return THe tenor as year fraction.
+	 */
+	private double convertTenor(int maturityInMonths, int tenorInMonths) {
+		Schedule schedule = fixMetaSchedule.generateSchedule(referenceDate, maturityInMonths, tenorInMonths);
+		return schedule.getPayment(schedule.getNumberOfPeriods()-1);
+	}
+
+	/**
 	 * Returns true if the lattice contains an entry at the specified location.
 	 *
 	 * @param maturityInMonths The maturity in months to check.
 	 * @param tenorInMonths The tenor in months to check.
-	 * @param moneyness The moneyness in bp to check.
+	 * @param moneynessBP The moneyness in bp to check.
 	 * @return True iff there is an entry at the specified location.
 	 */
-	public boolean containsEntryFor(int maturityInMonths, int tenorInMonths, int moneyness) {
-		return entryMap.containsKey(new DataKey(maturityInMonths, tenorInMonths, moneyness));
+	public boolean containsEntryFor(int maturityInMonths, int tenorInMonths, int moneynessBP) {
+		return entryMap.containsKey(new DataKey(maturityInMonths, tenorInMonths, moneynessBP));
 	}
 
 	/**
@@ -442,11 +537,11 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @param maturity The maturity of the option as year fraction from the reference date.
 	 * @param tenor The tenor of the swap as year fraction from the reference date.
-	 * @param moneyness The moneyness in basis points on the par swap rate.
+	 * @param moneyness The moneyness as actual difference of strike to par swap rate.
 	 *
 	 * @return The value as stored in the lattice.
 	 */
-	public double getValue(double maturity, double tenor, int moneyness) {
+	public double getValue(double maturity, double tenor, double moneyness) {
 		return getValue(new DataKey(maturity, tenor, moneyness));
 	}
 
@@ -455,24 +550,24 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @param maturityInMonths The maturity of the option as offset in months from the reference date.
 	 * @param tenorInMonths The tenor of the swap as offset in months from the option maturity.
-	 * @param moneyness The moneyness in basis points on the par swap rate.
+	 * @param moneynessBP The moneyness in basis points on the par swap rate.
 	 *
 	 * @return The value as stored in the lattice.
 	 */
-	public double getValue(int maturityInMonths, int tenorInMonths, int moneyness) {
-		return getValue(new DataKey(maturityInMonths, tenorInMonths, moneyness));
+	public double getValue(int maturityInMonths, int tenorInMonths, int moneynessBP) {
+		return getValue(new DataKey(maturityInMonths, tenorInMonths, moneynessBP));
 	}
 
 	/**
 	 * Return the value in the quoting convention of this lattice.
 	 *
 	 * @param tenorCode The schedule of the swaption encoded in the format '6M10Y'
-	 * @param moneyness The moneyness in basis points on the par swap rate.
+	 * @param moneynessBP The moneyness in basis points on the par swap rate.
 	 *
 	 * @return The value as stored in the lattice.
 	 */
-	public double getValue(String tenorCode, int moneyness) {
-		return getValue(new DataKey(tenorCode, moneyness));
+	public double getValue(String tenorCode, int moneynessBP) {
+		return getValue(new DataKey(tenorCode, moneynessBP));
 	}
 
 	/**
@@ -491,14 +586,14 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @param maturity The maturity of the option as year fraction from the reference date.
 	 * @param tenor The tenor of the swap as year fraction from the reference date.
-	 * @param moneyness The moneyness in basis points on the par swap rate, as understood in the original convention.
+	 * @param moneyness The moneyness as actual difference of strike to par swap rate.
 	 * @param convention The desired quoting convention.
 	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
 	 * @param model The model for context.
 	 *
 	 * @return The value converted to the convention.
 	 */
-	public double getValue(double maturity, double tenor, int moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
+	public double getValue(double maturity, double tenor, double moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(maturity, tenor, moneyness);
 		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
@@ -509,15 +604,15 @@ public class SwaptionDataLattice implements Serializable {
 	 *
 	 * @param maturityInMonths The maturity of the option as offset in months from the reference date.
 	 * @param tenorInMonths The tenor of the swap as offset in months from the option maturity.
-	 * @param moneyness The moneyness in basis points on the par swap rate, as understood in the original convention.
+	 * @param moneynessBP The moneyness in basis points on the par swap rate, as understood in the original convention.
 	 * @param convention The desired quoting convention.
 	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
 	 * @param model The model for context.
 	 *
 	 * @return The value converted to the convention.
 	 */
-	public double getValue(int maturityInMonths, int tenorInMonths, int moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
-		DataKey key = new DataKey(maturityInMonths, tenorInMonths, moneyness);
+	public double getValue(int maturityInMonths, int tenorInMonths, int moneynessBP, QuotingConvention convention, double displacement, AnalyticModel model) {
+		DataKey key = new DataKey(maturityInMonths, tenorInMonths, moneynessBP);
 		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
 
@@ -526,15 +621,15 @@ public class SwaptionDataLattice implements Serializable {
 	 * Conversion involving receiver premium assumes zero wide collar.
 	 *
 	 * @param tenorCode The schedule of the swaption encoded in the format '6M10Y'
-	 * @param moneyness The moneyness in basis points on the par swap rate, as understood in the original convention.
+	 * @param moneynessBP The moneyness in basis points on the par swap rate, as understood in the original convention.
 	 * @param convention The desired quoting convention.
 	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
 	 * @param model The model for context.
 	 *
 	 * @return The value converted to the convention.
 	 */
-	public double getValue(String tenorCode, int moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
-		DataKey key = new DataKey(tenorCode, moneyness);
+	public double getValue(String tenorCode, int moneynessBP, QuotingConvention convention, double displacement, AnalyticModel model) {
+		DataKey key = new DataKey(tenorCode, moneynessBP);
 		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
 	}
 
@@ -680,9 +775,9 @@ public class SwaptionDataLattice implements Serializable {
 	 * @author Roland Bachl
 	 *
 	 */
-	private static class DataKey implements Serializable {
+	private class DataKey implements Serializable {
 
-		private static final long serialVersionUID = -2768171106471398276L;
+		private static final long serialVersionUID = -8284316295640713492L;
 
 		final int maturity;
 		final int tenor;
@@ -695,11 +790,11 @@ public class SwaptionDataLattice implements Serializable {
 			this.moneyness	= moneyness;
 		}
 
-		DataKey(double maturity, double tenor, int moneyness) {
+		DataKey(double maturity, double tenor, double moneyness) {
 			super();
 			this.maturity	= (int) Math.round(maturity * 12);
 			this.tenor		= (int) Math.round((tenor-maturity) * 12);
-			this.moneyness	= moneyness;
+			this.moneyness	= convertMoneyness(moneyness);
 		}
 
 		DataKey(String tenorCode, int moneyness) {
