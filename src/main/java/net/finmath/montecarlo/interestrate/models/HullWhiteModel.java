@@ -115,8 +115,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final TimeDiscretization		liborPeriodDiscretization;
 
-	private String							forwardCurveName;
-	private AnalyticModel			curveModel;
+	private String					forwardCurveName;
+	private AnalyticModel			analyticModel;
 
 	private ForwardCurve			forwardRateCurve;
 	private DiscountCurve			discountCurve;
@@ -154,7 +154,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		this.randomVariableFactory		= randomVariableFactory;
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
-		this.curveModel					= analyticModel;
+		this.analyticModel					= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
@@ -407,7 +407,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	@Override
 	public AnalyticModel getAnalyticModel() {
-		return curveModel;
+		return analyticModel;
 	}
 
 	@Override
@@ -422,9 +422,23 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	@Override
 	public LIBORModel getCloneWithModifiedData(Map<String, Object> dataModified) {
-		throw new UnsupportedOperationException();
+		if(dataModified == null) {
+			return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);			
+		}
+		
+		RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+		ShortRateVolatilityModel newVolatilityModel = (ShortRateVolatilityModel) dataModified.getOrDefault("volatilityModel", volatilityModel);
+		
+		return new HullWhiteModel(newRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, newVolatilityModel, properties);
 	}
 
+	/**
+	 * Returns the "short rate" from timeIndex to timeIndex+1.
+	 * 
+	 * @param timeIndex The time index (corresponding to {@link getTime()).
+	 * @return The "short rate" from timeIndex to timeIndex+1.
+	 * @throws CalculationException Thrown if simulation failed.
+	 */
 	private RandomVariable getShortRate(int timeIndex) throws CalculationException {
 		double time = getProcess().getTime(timeIndex);
 		double timePrev = timeIndex > 0 ? getProcess().getTime(timeIndex-1) : time;
@@ -729,7 +743,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	@Override
 	public HullWhiteModel getCloneWithModifiedVolatilityModel(ShortRateVolatilityModel volatilityModel) {
-		return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, curveModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+		return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
 
 	@Override
@@ -768,7 +782,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			if(discountFactorCache.size() <= timeIndex+1) {
 				// Initialize cache
 				for(int i=discountFactorCache.size(); i<= timeIndex; i++) {
-					double df = discountCurve.getDiscountFactor(curveModel, getTime(i));
+					double df = discountCurve.getDiscountFactor(analyticModel, getTime(i));
 					RandomVariable dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
 					discountFactorCache.add(dfAsRandomVariable);
 				}
@@ -800,7 +814,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			if(discountFactorForForwardCurveCache.size() <= timeIndex+1) {
 				// Initialize cache
 				for(int i=discountFactorForForwardCurveCache.size(); i<=timeIndex; i++) {
-					double df = discountCurveFromForwardCurve.getDiscountFactor(curveModel, getTime(i));
+					double df = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, getTime(i));
 					RandomVariable dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
 					discountFactorForForwardCurveCache.add(dfAsRandomVariable);
 				}
