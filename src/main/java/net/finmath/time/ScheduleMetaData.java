@@ -146,7 +146,7 @@ public class ScheduleMetaData implements Serializable {
 	 *
 	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
 	 * @param maturity Offset of the start date to the reference date in months
-	 * @param termination Offset of the end date to the reference date in months
+	 * @param termination Offset of the end date to the start date
 	 * @return The schedule
 	 */
 	public Schedule generateSchedule(LocalDate referenceDate, int maturity, int termination) {
@@ -158,7 +158,7 @@ public class ScheduleMetaData implements Serializable {
 	 *
 	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
 	 * @param maturity Offset of the start date to the reference date
-	 * @param termination Offset of the end date to the reference date
+	 * @param termination Offset of the end date to the start date
 	 * @param unit The convention to use for the offset
 	 * @return The schedule
 	 */
