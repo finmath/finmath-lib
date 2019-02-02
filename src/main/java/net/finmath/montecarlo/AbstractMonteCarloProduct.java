@@ -10,7 +10,6 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
-import net.finmath.modelling.Product;
 import net.finmath.stochastic.RandomVariable;
 
 /**

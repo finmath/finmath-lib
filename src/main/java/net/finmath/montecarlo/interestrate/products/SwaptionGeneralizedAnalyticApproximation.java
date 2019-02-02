@@ -326,7 +326,7 @@ public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonte
 
 	/**
 	 * Returns the derivative of the swap rate (associated with this swap) with respect to the forward rates  dS/dL_{i}.
-	 * 
+	 *
 	 * @param liborPeriodDiscretization Forward rate discretization.
 	 * @param discountCurve The discount curve.
 	 * @param forwardCurve The forward curve.
