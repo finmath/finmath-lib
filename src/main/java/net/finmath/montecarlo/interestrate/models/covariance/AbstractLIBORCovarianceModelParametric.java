@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -409,6 +411,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 			// Diagnostic output
 			if (logger.isLoggable(Level.FINE)) {
+				Format formatterSci3 = new DecimalFormat("+0.###E0;-0.###E0");
+				
 				logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 
 				double[] bestParameters = optimizer.getBestFitParameters();
@@ -418,12 +422,12 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				}
 				logger.fine(logString);
 
-				double[] bestValues = new double[zero.length];
+				double[] bestValues = new double[calibrationProducts.length];
 				calibrationError.setValues(bestParameters, bestValues);
 				String logString2 = "Best values:";
-				for(int i=0; i<bestValues.length; i++) {
-					logString2 += "\t" + calibrationProducts[i].getProduct() + " ";
-					logString2 += "value["+i+"]: " + bestValues[i];
+				for(int i=0; i<calibrationProducts.length; i++) {
+					logString2 += "\n\t" + calibrationProducts[i].getName() + ": ";
+					logString2 += "value["+i+"]: " + formatterSci3.format(bestValues[i]);
 				}
 				logger.fine(logString2);
 			}
@@ -436,6 +440,10 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		}
 		catch(SolverException e) {
 			throw new CalculationException(e);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
 		finally {
 			if(executor != null) {
