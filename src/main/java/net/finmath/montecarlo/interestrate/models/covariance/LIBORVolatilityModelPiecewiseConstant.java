@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -200,7 +201,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		{
 			volatilityInstanteaneous = 0.0;   // This forward rate is already fixed, no volatility
 
-			return randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);
+			return randomVariableFactory == null ? new Scalar(0.0) : randomVariableFactory.createRandomVariable(time, volatilityInstanteaneous);
 		}
 		else
 		{
