@@ -536,7 +536,6 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 					lambda *= lambdaMultiplicator;
 				}
 
-				System.out.println(iteration + " \t" + lambda + " \t" + Math.sqrt(errorMeanSquaredCurrent) );
 				/*
 				 * Calculate new derivative at parameterTest (where point is accepted).
 				 * Note: the first argument should be parameterTest to use shortest operator tree.
@@ -586,9 +585,10 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 					// Build beta (Newton step)
 					for (int i = 0; i < parameterCurrent.length; i++) {
 						double betaElement = 0.0;
+						RandomVariable[] derivativeCurrentSingleParam = derivativeCurrent[i];
 						for (int k = 0; k < valueCurrent.length; k++) {
-							if(derivativeCurrent[i][k] != null) {
-								betaElement += targetValues[k].sub(valueCurrent[k]).mult(derivativeCurrent[i][k]).getAverage();
+							if(derivativeCurrentSingleParam[k] != null) {
+								betaElement += targetValues[k].sub(valueCurrent[k]).mult(derivativeCurrentSingleParam[k]).getAverage();
 							}
 						}
 						beta[i] = betaElement;
@@ -612,11 +612,13 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				// Log iteration
 				if (logger.isLoggable(Level.FINE))
 				{
-					String logString = "Iteration: " + iteration + "\tLambda="
-							+ lambda + "\tError Current:" + errorMeanSquaredCurrent
-							+ "\tError Change:" + errorRootMeanSquaredChange + "\t";
+					String logString =
+							"Iteration: " + iteration +
+							"\tLambda=" + lambda +
+							"\tError Current (RMS):" + Math.sqrt(errorMeanSquaredCurrent) +
+							"\tError Change:" + errorRootMeanSquaredChange + "\t";
 					for (int i = 0; i < parameterCurrent.length; i++) {
-						logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
+						logString += "[" + i + "] = " + parameterCurrent[i].doubleValue() + "\t";
 					}
 					logger.fine(logString);
 				}
