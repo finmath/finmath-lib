@@ -187,7 +187,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						@Override
 						public RandomVariable call() {
 							try {
-								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).average();
+								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return new Scalar(0.0);
@@ -347,8 +347,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
-		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
+		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
@@ -406,6 +406,33 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
 		try {
 			optimizer.run();
+
+			// Diagnostic output
+			if (logger.isLoggable(Level.FINE)) {
+				logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+
+				double[] bestParameters = optimizer.getBestFitParameters();
+				String logString = "Best parameters:";
+				for(int i=0; i<bestParameters.length; i++) {
+					logString += "\tparameter["+i+"]: " + bestParameters[i];
+				}
+				logger.fine(logString);
+
+				double[] bestValues = new double[zero.length];
+				calibrationError.setValues(bestParameters, bestValues);
+				String logString2 = "Best values:";
+				for(int i=0; i<bestValues.length; i++) {
+					logString2 += "\t" + calibrationProducts[i].getProduct() + " ";
+					logString2 += "value["+i+"]: " + bestValues[i];
+				}
+				logger.fine(logString2);
+			}
+
+			// Get covariance model corresponding to the best parameter set.
+			double[] bestParameters = optimizer.getBestFitParameters();
+			AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
+
+			return calibrationCovarianceModel;
 		}
 		catch(SolverException e) {
 			throw new CalculationException(e);
@@ -416,22 +443,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			}
 		}
 
-		// Get covariance model corresponding to the best parameter set.
-		double[] bestParameters = optimizer.getBestFitParameters();
-		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
-
-		// Diagnostic output
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-
-			String logString = "Best parameters:";
-			for(int i=0; i<bestParameters.length; i++) {
-				logString += "\tparameter["+i+"]: " + bestParameters[i];
-			}
-			logger.fine(logString);
-		}
-
-		return calibrationCovarianceModel;
 	}
 
 	@Override
