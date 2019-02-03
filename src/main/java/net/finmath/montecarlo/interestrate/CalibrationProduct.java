@@ -24,7 +24,7 @@ public class CalibrationProduct {
 	/**
 	 * Construct a calibration product. A calibration product consists of a product implementing {@link AbstractLIBORMonteCarloProduct}, a target value
 	 * given as {@link RandomVariable} and a weight. In addition you may give a short name which may be printed by the logger.
-	 * 
+	 *
 	 * @param name A short name (for example a "SYMBOL" representing the product.
 	 * @param product The product.
 	 * @param targetValue The target value.

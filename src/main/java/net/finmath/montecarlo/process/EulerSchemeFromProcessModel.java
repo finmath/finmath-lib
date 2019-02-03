@@ -165,7 +165,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 		 */
 
 		// We do not allocate more threads the twice the number of processors.
-		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1),numberOfComponents);
+		int numberOfThreads = Runtime.getRuntime().availableProcessors();
 		executor = Executors.newFixedThreadPool(numberOfThreads);
 
 		// Evolve process

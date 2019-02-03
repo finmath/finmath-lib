@@ -412,7 +412,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			// Diagnostic output
 			if (logger.isLoggable(Level.FINE)) {
 				Format formatterSci3 = new DecimalFormat("+0.###E0;-0.###E0");
-				
+
 				logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 
 				double[] bestParameters = optimizer.getBestFitParameters();

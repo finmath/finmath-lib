@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class-diagram version="1.2.2" icons="true" automaticImage="SVG" always-add-relationships="false" generalizations="true" 
-  realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+<class-diagram version="1.2.2" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
   <class id="1" language="java" 
     name="net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModel" project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/AbstractLIBORCovarianceModel.java" 
@@ -107,7 +107,7 @@
     </display>  
   </class>  
   <association id="10">    
-    <end type="SOURCE" refId="8" navigable="false" variant="ASSOCIATION">      
+    <end type="SOURCE" refId="8" navigable="false">      
       <attribute id="11" name="volatilityModel">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
@@ -115,19 +115,19 @@
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="3" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="3" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <generalization id="13">    
-    <end type="SOURCE" refId="5"/>    
-    <end type="TARGET" refId="3"/>  
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="1"/>  
   </generalization>  
   <generalization id="14">    
-    <end type="SOURCE" refId="4"/>    
+    <end type="SOURCE" refId="9"/>    
     <end type="TARGET" refId="7"/>  
   </generalization>  
   <association id="15">    
-    <end type="SOURCE" refId="8" navigable="false" variant="ASSOCIATION">      
+    <end type="SOURCE" refId="8" navigable="false">      
       <attribute id="16" name="correlationModel">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
@@ -135,20 +135,20 @@
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <generalization id="18">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="7"/>  
+  </generalization>  
+  <generalization id="19">    
     <end type="SOURCE" refId="6"/>    
     <end type="TARGET" refId="3"/>  
   </generalization>  
-  <generalization id="19">    
-    <end type="SOURCE" refId="9"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
   <generalization id="20">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="1"/>  
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="3"/>  
   </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
