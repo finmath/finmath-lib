@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -367,6 +369,29 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
 		try {
 			optimizer.run();
+
+			// Diagnostic output
+			if (logger.isLoggable(Level.FINE)) {
+				Format formatterSci3 = new DecimalFormat("+0.###E0;-0.###E0");
+
+				logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+
+				double[] bestParameters = optimizer.getBestFitParameters();
+				String logString = "Best parameters:";
+				for(int i=0; i<bestParameters.length; i++) {
+					logString += "\tparameter["+i+"]: " + bestParameters[i];
+				}
+				logger.fine(logString);
+
+				double[] bestValues = new double[calibrationProducts.length];
+				calibrationError.setValues(bestParameters, bestValues);
+				String logString2 = "Best values:";
+				for(int i=0; i<calibrationProducts.length; i++) {
+					logString2 += "\n\t" + calibrationProducts[i].getName() + ": ";
+					logString2 += "value["+i+"]: " + formatterSci3.format(bestValues[i]);
+				}
+				logger.fine(logString2);
+			}
 		}
 		catch(SolverException e) {
 			throw new CalculationException(e);
@@ -380,17 +405,6 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		// Get volatility model corresponding to the best parameter set.
 		double[] bestParameters = optimizer.getBestFitParameters();
 		AbstractShortRateVolatilityModelParametric calibrationVolatilityModel = this.getCloneWithModifiedParameters(bestParameters);
-
-		// Diagnostic output
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-
-			String logString = "Best parameters:";
-			for(int i=0; i<bestParameters.length; i++) {
-				logString += "\tparameter["+i+"]: " + bestParameters[i];
-			}
-			logger.fine(logString);
-		}
 
 		return calibrationVolatilityModel;
 	}
