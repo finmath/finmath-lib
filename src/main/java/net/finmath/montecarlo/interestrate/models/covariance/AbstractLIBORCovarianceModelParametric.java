@@ -349,8 +349,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
-		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		final ExecutorService executorForProductValuation = Executors.newCachedThreadPool();
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
@@ -381,8 +380,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 							}
 						}
 					};
-					if(executor != null) {
-						Future<RandomVariable> valueFuture = executor.submit(worker);
+					if(executorForProductValuation != null) {
+						Future<RandomVariable> valueFuture = executorForProductValuation.submit(worker);
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
@@ -446,8 +445,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			throw e;
 		}
 		finally {
-			if(executor != null) {
-				executor.shutdown();
+			if(executorForProductValuation != null) {
+				executorForProductValuation.shutdown();
 			}
 		}
 
