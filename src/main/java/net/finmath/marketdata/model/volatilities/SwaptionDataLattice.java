@@ -670,7 +670,7 @@ public class SwaptionDataLattice implements Serializable {
 		double optionMaturity = floatSchedule.getFixing(0);
 		double offset = key.moneyness /10000.0;
 		double optionStrike = forward + (this.quotingConvention == QuotingConvention.RECEIVERPRICE ? -offset : offset);
-		double payoffUnit = SwapAnnuity.getSwapAnnuity(0, fixSchedule, model.getDiscountCurve(discountCurveName), model);
+		double payoffUnit = SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 
 		if(toConvention.equals(QuotingConvention.PAYERPRICE) && fromConvention.equals(QuotingConvention.PAYERVOLATILITYLOGNORMAL)) {
 			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward + fromDisplacement, value, optionMaturity, optionStrike + fromDisplacement, payoffUnit);
