@@ -126,10 +126,12 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final ShortRateVolatilityModel volatilityModel;
 
-	private final Map<String, ?>			properties;
+	private final Map<String, Serializable>	properties;
 
 	private final List<RandomVariable> discountFactorCache = new ArrayList<>();
-	private final List<RandomVariable> discountFactorForForwardCurveCache = new ArrayList<>();;
+	private final List<RandomVariable> discountFactorForForwardCurveCache = new ArrayList<>();
+
+	private final boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization;;
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.
@@ -149,7 +151,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
 			ShortRateVolatilityModel	volatilityModel,
-			Map<String, ?>						properties
+			Map<String, Serializable>			properties
 			) {
 
 		this.randomVariableFactory		= randomVariableFactory;
@@ -158,8 +160,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
-		this.properties			= null;//properties;		// Note: if properties are stored, this may cause issues in serialization. Field will be removed.
+		
+		this.properties			= properties;
 
+		this.isInterpolateDiscountFactorsOnLiborPeriodDiscretization = (Boolean) properties.getOrDefault("isInterpolateDiscountFactorsOnLiborPeriodDiscretization", Boolean.valueOf(true));
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 	}
 
@@ -179,7 +183,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
 			ShortRateVolatilityModel	volatilityModel,
-			Map<String, ?>						properties
+			Map<String, Serializable>			properties
 			) {
 		this(new RandomVariableFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
@@ -207,7 +211,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			DiscountCurve				discountCurve,
 			ShortRateVolatilityModel	volatilityModel,
 			CalibrationProduct[]					calibrationProducts,
-			Map<String, Object>					properties
+			Map<String, Serializable>					properties
 			) throws CalculationException {
 
 		HullWhiteModel model = new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
