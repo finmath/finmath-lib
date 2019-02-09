@@ -163,7 +163,10 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 
 		double valueFloatLeg = floatLeg / discountCurve.getDiscountFactor(model, evaluationTime);
 
-		return valueFloatLeg / swapAnnuity;
+		double swapRate = valueFloatLeg / swapAnnuity;
+		
+//		System.out.println(forwardCurve.getName() + "\t" + discountCurve.getName() + "\t" + swapRate);
+		return swapRate;
 	}
 
 	/**
