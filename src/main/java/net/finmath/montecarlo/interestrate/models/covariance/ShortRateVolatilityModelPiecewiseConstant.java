@@ -183,7 +183,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 				this.isVolatilityCalibrateable
 				);
 	}
-	
+
 	/**
 	 * Returns the time discretization used for the picewise constant volatility and mean reversion.
 	 *

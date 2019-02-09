@@ -44,7 +44,7 @@ public class CalibrationProduct {
 	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight) {
 		this(name, product, targetValue, weight, 0);
 	}
-	
+
 	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, double targetValue, double weight) {
 		this(name, product, new Scalar(targetValue), weight);
 	}
