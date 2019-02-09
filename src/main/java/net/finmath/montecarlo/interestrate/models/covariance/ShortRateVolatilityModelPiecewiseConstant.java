@@ -73,7 +73,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 			this.volatility = randomVariableFactory.createRandomVariableArray(volatility);
 		}
 		else {
-			throw new IllegalArgumentException("Volatility length does not match number of free parameters.");
+			throw new IllegalArgumentException("Volatility length (" + volatility.length + ") does not match number of free parameters " + volatilityIndex + ".");
 		}
 
 		if(volatilityIndex != this.volatility.length) {
