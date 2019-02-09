@@ -870,7 +870,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 				if(deterministicNumeraireAdjustment == null) {
 					// This includes a control for zero bonds
-					deterministicNumeraireAdjustment = numeraire.invert().average().div(discountCurve.getDiscountFactor(curveModel, time));
+					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time));
 
 					numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
 				}
@@ -917,8 +917,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			/*
 			 * Multiply with short period bond
 			 */
-			numeraireUnadjusted = numeraireUnadjusted
-					.discount(getLIBOR(time, time, getLiborPeriod(upperIndex)), getLiborPeriod(upperIndex) - time);
+			numeraireUnadjusted = numeraireUnadjusted.discount(getLIBOR(time, time, getLiborPeriod(upperIndex)), getLiborPeriod(upperIndex) - time);
 
 			return numeraireUnadjusted;
 		}
@@ -1234,7 +1233,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		RandomVariable accrualAccount = null; //=randomVariableFactory.createRandomVariable(1.0);
+		RandomVariable accrualAccount = randomVariableFactory.createRandomVariable(1.0);
 
 		// Calculate the value of the forward bond
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)
