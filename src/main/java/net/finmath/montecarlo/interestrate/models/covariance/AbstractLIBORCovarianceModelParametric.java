@@ -316,7 +316,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 	class FutureTaskWithPriority<T> extends FutureTask<T> implements Comparable<FutureTaskWithPriority<T>> {
 		private final int priority;
-		public FutureTaskWithPriority(Callable<T> callable, int priority) {
+		FutureTaskWithPriority(Callable<T> callable, int priority) {
 			super(callable);
 			this.priority = priority;
 		}
