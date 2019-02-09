@@ -18,8 +18,9 @@ public class CalibrationProduct {
 
 	private final String 	name;
 	private final AbstractLIBORMonteCarloProduct		product;
-	private final RandomVariable				targetValue;
+	private final RandomVariable						targetValue;
 	private final double								weight;
+	private final Integer								priority;
 
 	/**
 	 * Construct a calibration product. A calibration product consists of a product implementing {@link AbstractLIBORMonteCarloProduct}, a target value
@@ -29,15 +30,21 @@ public class CalibrationProduct {
 	 * @param product The product.
 	 * @param targetValue The target value.
 	 * @param weight The calibration weight.
+	 * @param priority The priority (may be used when submitting the product for calculation)
 	 */
-	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight) {
+	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight, int priority) {
 		super();
 		this.name			= name;
 		this.product		= product;
 		this.targetValue	= targetValue;
 		this.weight			= weight;
+		this.priority		= priority;
 	}
 
+	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight) {
+		this(name, product, targetValue, weight, 0);
+	}
+	
 	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, double targetValue, double weight) {
 		this(name, product, new Scalar(targetValue), weight);
 	}
@@ -79,6 +86,13 @@ public class CalibrationProduct {
 	 */
 	public double getWeight() {
 		return weight;
+	}
+
+	/**
+	 * @return the priority
+	 */
+	public Integer getPriority() {
+		return priority;
 	}
 
 	@Override
