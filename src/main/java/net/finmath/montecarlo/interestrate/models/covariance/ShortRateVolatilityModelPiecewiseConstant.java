@@ -185,7 +185,9 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 	}
 	
 	/**
-	 * @return volatilityTimeDiscretization The volatility discretization.
+	 * Returns the time discretization used for the picewise constant volatility and mean reversion.
+	 *
+	 * @return The volatility discretization.
 	 */
 	public TimeDiscretization getVolatilityTimeDiscretization() {
 		return volatilityTimeDiscretization;
