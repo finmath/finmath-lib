@@ -17,6 +17,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -311,6 +314,21 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		return calibrationCovarianceModel;
 	}
 
+	class FutureTaskWithPriority<T> extends FutureTask<T> implements Comparable<FutureTaskWithPriority<T>> {
+		private final int priority;
+		public FutureTaskWithPriority(Callable<T> callable, int priority) {
+			super(callable);
+			this.priority = priority;
+		}
+		public int getPriority() {
+			return priority;
+		}
+		public int compareTo(FutureTaskWithPriority<T> o) {
+			return this.getPriority() < o.getPriority() ? -1 : this.getPriority() == o.getPriority() ? 0 : 1;
+		}
+
+	};
+
 	public AbstractLIBORCovarianceModelParametric getCloneCalibratedLegazy(final LIBORMarketModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
@@ -349,7 +367,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		final ExecutorService executorForProductValuation = Executors.newCachedThreadPool();
+		final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<Runnable>();
+		final ExecutorService executorForProductValuation = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()*zero.length, 5, TimeUnit.SECONDS, queue);
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
@@ -366,28 +385,26 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
-					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
-						@Override
-						public RandomVariable call() {
-							try {
-								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-							} catch (CalculationException e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return null;
-							} catch (Exception e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return null;
-							}
-						}
-					};
+
+					// Define the task to be executed in parallel
+					FutureTaskWithPriority<RandomVariable> valueFuture = new FutureTaskWithPriority<RandomVariable>(
+							() -> {
+								try {
+									return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
+								} catch (Exception e) {
+									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+									return null;
+								}
+							},
+							calibrationProducts[workerCalibrationProductIndex].getPriority());
+
 					if(executorForProductValuation != null) {
-						Future<RandomVariable> valueFuture = executorForProductValuation.submit(worker);
+						executorForProductValuation.execute(valueFuture);
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
-						valueFutureTask.run();
-						valueFutures.add(calibrationProductIndex, valueFutureTask);
+						valueFuture.run();
+						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
