@@ -23,6 +23,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 
 	private TimeDiscretization timeDiscretization;
 	private TimeDiscretization volatilityTimeDiscretization;
+
 	private RandomVariable[] volatility;
 	private RandomVariable[] meanReversion;
 	private final AbstractRandomVariableFactory randomVariableFactory;
@@ -181,6 +182,13 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 				this.meanReversion,
 				this.isVolatilityCalibrateable
 				);
+	}
+	
+	/**
+	 * @return volatilityTimeDiscretization The volatility discretization.
+	 */
+	public TimeDiscretization getVolatilityTimeDiscretization() {
+		return volatilityTimeDiscretization;
 	}
 
 }
