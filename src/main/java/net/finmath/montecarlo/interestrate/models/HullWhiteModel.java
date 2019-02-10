@@ -9,9 +9,11 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
@@ -103,6 +105,11 @@ import net.finmath.time.TimeDiscretization;
  * The mean reversion speed and the short rate volatility have to be provided to this class via an object implementing
  * {@link net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel}.
  *
+ * This implementation supports different method for the interpolation of the curves.
+ * The property <code>"isInterpolateDiscountFactorsOnLiborPeriodDiscretization"</code> is a boolean. If true, the
+ * given curves are used only at the discretization points given by <code>liborPeriodDiscretization</code>.
+ * This implies that the model reports only a limited set of risk factors in the methods {@link HullWhiteModel#getModelParameters()}.
+ *
  * @see net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel
  * @see <a href="http://ssrn.com/abstract=2737091">ssrn.com/abstract=2737091</a>
  *
@@ -112,6 +119,8 @@ import net.finmath.time.TimeDiscretization;
 public class HullWhiteModel extends AbstractProcessModel implements ShortRateModel, LIBORModel, Serializable {
 
 	private static final long serialVersionUID = 8677410149401310062L;
+
+	private static final Logger logger = Logger.getLogger("net.finmath");
 
 	private final TimeDiscretization		liborPeriodDiscretization;
 
@@ -126,7 +135,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final ShortRateVolatilityModel volatilityModel;
 
-	private final Map<String, Serializable>	properties;
+	private final Map<String, Object>	properties;
 
 	private final List<RandomVariable> discountFactorCache = new ArrayList<>();
 	private final List<RandomVariable> discountFactorForForwardCurveCache = new ArrayList<>();
@@ -142,7 +151,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
 	 * @param discountCurve The disocuntCurve (currently also used to determine the forward curve).
 	 * @param volatilityModel The volatility model specifying mean reversion and instantaneous volatility of the short rate.
-	 * @param properties A map specifying model properties (currently not used, may be null).
+	 * @param properties A map specifying model properties.
 	 */
 	public HullWhiteModel(
 			AbstractRandomVariableFactory		randomVariableFactory,
@@ -151,7 +160,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
 			ShortRateVolatilityModel	volatilityModel,
-			Map<String, Serializable>			properties
+			Map<String, Object>			properties
 			) {
 
 		this.randomVariableFactory		= randomVariableFactory;
@@ -160,10 +169,20 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
-		
-		this.properties			= properties;
 
-		this.isInterpolateDiscountFactorsOnLiborPeriodDiscretization = (Boolean) properties.getOrDefault("isInterpolateDiscountFactorsOnLiborPeriodDiscretization", Boolean.valueOf(true));
+		this.properties = new HashMap<String, Object>();
+		if(properties != null) {
+			for(Map.Entry<String,?> property : properties.entrySet()) {
+				if(Serializable.class.isAssignableFrom(property.getValue().getClass())) {
+					properties.put(property.getKey(), (Serializable)property.getValue());
+				}
+				else {
+					logger.warning("Ignored non serializable property under the key " + property.getKey() + ":" + property.getValue());
+				}
+			}
+		}
+
+		this.isInterpolateDiscountFactorsOnLiborPeriodDiscretization = (Boolean) this.properties.getOrDefault("isInterpolateDiscountFactorsOnLiborPeriodDiscretization", Boolean.valueOf(true));
 		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 	}
 
@@ -183,7 +202,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
 			ShortRateVolatilityModel	volatilityModel,
-			Map<String, Serializable>			properties
+			Map<String, Object>			properties
 			) {
 		this(new RandomVariableFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
@@ -211,7 +230,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			DiscountCurve				discountCurve,
 			ShortRateVolatilityModel	volatilityModel,
 			CalibrationProduct[]					calibrationProducts,
-			Map<String, Serializable>					properties
+			Map<String, Object>					properties
 			) throws CalculationException {
 
 		HullWhiteModel model = new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
@@ -759,9 +778,11 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	public Map<String, RandomVariable> getModelParameters() {
 		Map<String, RandomVariable> modelParameters = new TreeMap<>();
 
+		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+
 		// Add initial values
-		for(int timeIndex=0; timeIndex<getLiborPeriodDiscretization().getNumberOfTimes(); timeIndex++) {
-			modelParameters.put("FORWARDCURVEDISCOUNTFACTOR("+ getLiborPeriod(timeIndex) + ")", getDiscountFactorFromForwardCurve(timeIndex));
+		for(int timeIndex=0; timeIndex<timeDiscretizationForCurves.getNumberOfTimes(); timeIndex++) {
+			modelParameters.put("FORWARDCURVEDISCOUNTFACTOR("+ timeDiscretizationForCurves.getTime(timeIndex) + ")", getDiscountFactorFromForwardCurve(timeIndex));
 		}
 
 		// Add volatilities
@@ -774,8 +795,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 
 		// Add numeraire adjustments
-		for(int timeIndex=0; timeIndex<getLiborPeriodDiscretization().getNumberOfTimes(); timeIndex++) {
-			modelParameters.put("DISCOUNTFACTOR("+ getLiborPeriod(timeIndex) + ")", getDiscountFactor(timeIndex));
+		for(int timeIndex=0; timeIndex<timeDiscretizationForCurves.getNumberOfTimes(); timeIndex++) {
+			modelParameters.put("DISCOUNTFACTOR("+ timeDiscretizationForCurves.getTime(timeIndex) + ")", getDiscountFactor(timeIndex));
 		}
 
 		return modelParameters;
@@ -800,9 +821,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	private RandomVariable getDiscountFactor(int timeIndex) {
 		synchronized(discountFactorCache) {
 			if(discountFactorCache.size() <= timeIndex+1) {
+				TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 				// Initialize cache
 				for(int i=discountFactorCache.size(); i<= timeIndex; i++) {
-					double df = discountCurve.getDiscountFactor(analyticModel, getLiborPeriod(i));
+					double df = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
 					RandomVariable dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
 					discountFactorCache.add(dfAsRandomVariable);
 				}
@@ -832,9 +854,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	private RandomVariable getDiscountFactorFromForwardCurve(int timeIndex) {
 		synchronized(discountFactorForForwardCurveCache) {
 			if(discountFactorForForwardCurveCache.size() <= timeIndex+1) {
+				TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 				// Initialize cache
 				for(int i=discountFactorForForwardCurveCache.size(); i<=timeIndex; i++) {
-					double df = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, getLiborPeriod(i));
+					double df = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
 					RandomVariable dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
 					discountFactorForForwardCurveCache.add(dfAsRandomVariable);
 				}
