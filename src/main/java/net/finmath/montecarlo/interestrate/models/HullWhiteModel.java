@@ -808,7 +808,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			return getDiscountFactor(timeIndex);
 		}
 		else {
-			int timeIndexPrev = Math.min(-timeIndex-1, getLiborPeriodDiscretization().getNumberOfTimes()-2);
+			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
 			int timeIndexNext = timeIndexPrev+1;
 			double timePrev = getLiborPeriod(timeIndexPrev);
 			double timeNext = getLiborPeriod(timeIndexNext);
@@ -841,7 +841,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			return getDiscountFactorFromForwardCurve(timeIndex);
 		}
 		else {
-			int timeIndexPrev = Math.min(-timeIndex-1, getLiborPeriodDiscretization().getNumberOfTimes()-2);
+			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
 			int timeIndexNext = timeIndexPrev+1;
 			double timePrev = getLiborPeriod(timeIndexPrev);
 			double timeNext = getLiborPeriod(timeIndexNext);
