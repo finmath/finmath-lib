@@ -148,9 +148,9 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		this.realizations = realisations;
 		this.valueIfNonStochastic = Double.NaN;
 		this.typePriority = typePriority;
-		for(double value : realisations) if(Double.isNaN(value)) {
-			throw new ArithmeticException("Not a Numbber");
-		}
+//		for(double value : realisations) if(Double.isNaN(value)) {
+//			throw new ArithmeticException("Not a Numbber");
+//		}
 	}
 
 	/**
