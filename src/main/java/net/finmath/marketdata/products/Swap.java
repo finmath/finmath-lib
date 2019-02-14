@@ -155,7 +155,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 			double payment			= floatSchedule.getPayment(periodIndex);
 			double periodLength		= floatSchedule.getPeriodLength(periodIndex);
 
-			double forward			= forwardCurve.getForward(model, fixing);
+			double forward			= forwardCurve.getForward(model, fixing, payment-fixing);
 			double discountFactor	= discountCurve.getDiscountFactor(model, payment);
 
 			floatLeg += forward * periodLength * discountFactor;
