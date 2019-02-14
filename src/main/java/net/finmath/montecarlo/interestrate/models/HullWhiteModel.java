@@ -803,15 +803,16 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	private RandomVariable getDiscountFactor(double time) {
-		int timeIndex = getLiborPeriodIndex(time);
+		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
 		if(timeIndex >= 0) {
 			return getDiscountFactor(timeIndex);
 		}
 		else {
 			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
 			int timeIndexNext = timeIndexPrev+1;
-			double timePrev = getLiborPeriod(timeIndexPrev);
-			double timeNext = getLiborPeriod(timeIndexNext);
+			double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
+			double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
 			RandomVariable discountFactorPrev = getDiscountFactor(timeIndexPrev);
 			RandomVariable discountFactorNext = getDiscountFactor(timeIndexNext);
 			return discountFactorPrev.mult(discountFactorNext.div(discountFactorPrev).pow((time-timePrev)/(timeNext-timePrev)));
@@ -836,15 +837,16 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	private RandomVariable getDiscountFactorFromForwardCurve(double time) {
-		int timeIndex = getLiborPeriodIndex(time);
+		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
 		if(timeIndex >= 0) {
 			return getDiscountFactorFromForwardCurve(timeIndex);
 		}
 		else {
 			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
 			int timeIndexNext = timeIndexPrev+1;
-			double timePrev = getLiborPeriod(timeIndexPrev);
-			double timeNext = getLiborPeriod(timeIndexNext);
+			double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
+			double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
 			RandomVariable discountFactorPrev = getDiscountFactorFromForwardCurve(timeIndexPrev);
 			RandomVariable discountFactorNext = getDiscountFactorFromForwardCurve(timeIndexNext);
 			return discountFactorPrev.mult(discountFactorNext.div(discountFactorPrev).pow((time-timePrev)/(timeNext-timePrev)));
