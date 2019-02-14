@@ -59,7 +59,7 @@ public class Portfolio extends AbstractProductComponent {
 		super();
 		String currency = products[0].getCurrency();
 		for(AbstractLIBORMonteCarloProduct product : products) {
-			if(!currency.equals(product.getCurrency())) {
+			if(currency != null && !currency.equals(product.getCurrency())) {
 				throw new IllegalArgumentException("Product currencies do not match. Please use a constructor providing the currency of the result.");
 			}
 		}
