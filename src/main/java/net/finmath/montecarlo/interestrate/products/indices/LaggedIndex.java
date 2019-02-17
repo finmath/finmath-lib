@@ -6,7 +6,6 @@
 package net.finmath.montecarlo.interestrate.products.indices;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
@@ -15,8 +14,6 @@ import net.finmath.montecarlo.interestrate.products.components.AbstractProductCo
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
-import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * A time-lagged index paying index(t+fixingOffset)
@@ -42,7 +39,7 @@ public class LaggedIndex extends AbstractIndex {
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.fixingOffset = 0;
 	}
-	
+
 	/**
 	 * Creates a time-lagged index paying index(t+fixingOffset).
 	 *
@@ -69,9 +66,9 @@ public class LaggedIndex extends AbstractIndex {
 			LocalDate endDate =  paymentBusinessdayCalendar.getDateFromDateAndOffsetCode(startDate, fixingOffsetCode);
 			double fixingOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), endDate);
 
-			return index.getValue(evaluationTime + fixingOffset, model);			
+			return index.getValue(evaluationTime + fixingOffset, model);
 		}
-		else {			
+		else {
 			return index.getValue(evaluationTime + fixingOffset, model);
 		}
 	}

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -872,7 +871,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
 
 				numeraire = numeraire.mult(numeraire.invert().average()).div(deterministicNumeraireAdjustment);
-//				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
+				//				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
 			}
 		}
 		return numeraire;
@@ -880,7 +879,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	private RandomVariable getNumeraireAdjustment(double time) {
 		boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization = true;
-		
+
 		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 
 		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
@@ -900,15 +899,15 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	private RandomVariable getNumeraireAdjustment(int timeIndex) {
 		boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization = true;
-		
+
 		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 
 		double time = timeDiscretizationForCurves.getTime(timeIndex);
-		
+
 		RandomVariable deterministicNumeraireAdjustment = numeraireAdjustments.get(time);
 		if(deterministicNumeraireAdjustment == null) {
 			// This includes a control for zero bonds
-								deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
+			deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
 			//deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
 			//					deterministicNumeraireAdjustment = numeraire.invert().div(discountCurve.getDiscountFactor(curveModel, time));
 
