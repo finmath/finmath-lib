@@ -48,7 +48,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	public SwapLeg(Schedule legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged, boolean isNotionalAccruing) {
 		super();
 
-		LocalDateTime referenceDate = legSchedule.getReferenceDate().atStartOfDay();
+		LocalDateTime referenceDate = legSchedule.getReferenceDate() != null ? legSchedule.getReferenceDate().atStartOfDay() : null;
 
 		/*
 		 * Create components.
