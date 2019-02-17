@@ -6,7 +6,6 @@
 
 package net.finmath.montecarlo.interestrate.products;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
