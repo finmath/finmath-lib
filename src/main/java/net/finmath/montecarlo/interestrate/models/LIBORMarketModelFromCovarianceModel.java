@@ -850,6 +850,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 */
 	@Override
 	public RandomVariable getNumeraire(double time) throws CalculationException {
+		if(time < 0) {
+			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
+		}
+		
 		RandomVariable numeraire = getNumerairetUnAdjusted(time);
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization
@@ -864,7 +868,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					numeraireAdjustments.clear();
 					numerairesProcess = getProcess();
 				}
-
 
 				RandomVariable deterministicNumeraireAdjustment = numeraireAdjustments.get(time);
 

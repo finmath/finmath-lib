@@ -291,6 +291,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	@Override
 	public RandomVariable getNumeraire(double time) throws CalculationException {
+		if(time < 0) {
+			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(analyticModel, time));
+		}
+
 		if(time == getTime(0)) {
 			// Initial value of numeraire is one - BrownianMotion serves as a factory here.
 			RandomVariable one = randomVariableFactory.createRandomVariable(1.0);
@@ -319,7 +323,13 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 
 		RandomVariable logNum = getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));
+		
+		RandomVariable numeraireNormalized = logNum.exp();
 
+		// Control variate on zero bond
+		numeraireNormalized.div(numeraireNormalized.invert().average());
+
+		// Apply discount factor scaling
 		RandomVariable discountFactor;
 		if(discountCurve != null) {
 			discountFactor =  getDiscountFactor(time);
