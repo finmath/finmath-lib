@@ -870,12 +870,14 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 				if(deterministicNumeraireAdjustment == null) {
 					// This includes a control for zero bonds
-					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time));
+//					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time));
+					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
+//					deterministicNumeraireAdjustment = numeraire.invert().div(discountCurve.getDiscountFactor(curveModel, time));
 
 					numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
 				}
 
-				numeraire = numeraire.mult(deterministicNumeraireAdjustment);
+				numeraire = numeraire.mult(numeraire.invert().average().div(deterministicNumeraireAdjustment));
 			}
 		}
 		return numeraire;
