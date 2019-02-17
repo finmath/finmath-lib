@@ -5,12 +5,18 @@
  */
 package net.finmath.montecarlo.interestrate.products.indices;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * A time-lagged index paying index(t+fixingOffset)
@@ -22,9 +28,21 @@ public class LaggedIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 4899043672016395530L;
 
-	final AbstractProductComponent	index;
+	private final AbstractProductComponent	index;
+
+	private final String fixingOffsetCode;
+	private final BusinessdayCalendar paymentBusinessdayCalendar;
+
 	final double					fixingOffset;
 
+	public LaggedIndex(AbstractProductComponent index, String fixingOffsetCode,
+			BusinessdayCalendar paymentBusinessdayCalendar) {
+		this.index = index;
+		this.fixingOffsetCode = fixingOffsetCode;
+		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
+		this.fixingOffset = 0;
+	}
+	
 	/**
 	 * Creates a time-lagged index paying index(t+fixingOffset).
 	 *
@@ -34,6 +52,8 @@ public class LaggedIndex extends AbstractIndex {
 	public LaggedIndex(AbstractProductComponent index, double fixingOffset) {
 		super();
 		this.index			= index;
+		this.fixingOffsetCode = null;
+		this.paymentBusinessdayCalendar = null;
 		this.fixingOffset	= fixingOffset;
 	}
 
@@ -44,6 +64,15 @@ public class LaggedIndex extends AbstractIndex {
 
 	@Override
 	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		return index.getValue(evaluationTime + fixingOffset, model);
+		if(fixingOffsetCode != null) {
+			LocalDate startDate = FloatingpointDate.getDateFromFloatingPointDate(model.getReferenceDate().toLocalDate(), evaluationTime);
+			LocalDate endDate =  paymentBusinessdayCalendar.getDateFromDateAndOffsetCode(startDate, fixingOffsetCode);
+			double fixingOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), endDate);
+
+			return index.getValue(evaluationTime + fixingOffset, model);			
+		}
+		else {			
+			return index.getValue(evaluationTime + fixingOffset, model);
+		}
 	}
 }
